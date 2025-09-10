@@ -32,7 +32,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:pt-20 lg:pt-16">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-          <div className="relative animate-fade-in-delay order-1 lg:order-2">
+          <div className="relative animate-fade-in-delay order-1 lg:order-2" data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
@@ -65,7 +65,7 @@ const Hero = () => {
           </div>
 
           {/* Text Content - Shows second on mobile, first on desktop */}
-          <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-8 lg:mt-0">
+          <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-8 lg:mt-0" data-aos="fade-right" data-aos-delay="100">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
               All Your <span className="text-gradient">IT Needs</span> is Here
             </h1>
@@ -75,7 +75,7 @@ const Hero = () => {
             </p>
 
             {/* Service Cards */}
-            <div className="flex flex-row gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0">
+            <div className="flex flex-row gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="300">
               <div className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1" style={{backgroundColor: '#ffffff'}}>
                 <div className="text-center">
                   <img 
@@ -109,7 +109,7 @@ const Hero = () => {
             </div>
             
             {/* CTA Button */}
-            <div className="flex justify-center lg:justify-start mb-3 sm:mb-8 lg:mb-6">
+            <div className="flex justify-center lg:justify-start mb-3 sm:mb-8 lg:mb-6" data-aos="zoom-in" data-aos-delay="400">
               <Button 
                 size="lg" 
                 className="btn-tech text-white text-lg px-8 py-4"

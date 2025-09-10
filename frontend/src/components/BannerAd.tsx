@@ -51,7 +51,7 @@ const BannerAd = () => {
   ];
 
   return (
-    <section className="py-8 bg-white relative overflow-hidden">
+    <section className="py-8 bg-white relative overflow-hidden" data-aos="fade-up" data-aos-delay="100">
       <div className="ticker-scroll-area w-full overflow-hidden">
         <div className="scroll-container items-center animate-ticker-scroll">
           {/* First set of logos */}

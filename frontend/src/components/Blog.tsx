@@ -102,7 +102,7 @@ const Blog = () => {
     <section className="pt-8 pb-0 sm:pb-16 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16 animate-slide-up">
+        <div className="text-center mb-16 animate-slide-up" data-aos="fade-up" data-aos-delay="100">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             Latest <span className="text-gradient">Blog Posts</span>
           </h2>
@@ -113,12 +113,14 @@ const Blog = () => {
         </div>
 
         {/* Blog Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-12" data-aos="fade-up" data-aos-delay="200">
           {blogPosts.map((post, index) => (
             <Card 
               key={post.id} 
               className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up group cursor-pointer"
               style={{ animationDelay: `${index * 0.1}s` }}
+              data-aos="zoom-in"
+              data-aos-delay={300 + (index * 100)}
             >
               <div className="relative overflow-hidden rounded-t-lg">
                 <img 
@@ -182,7 +184,7 @@ const Blog = () => {
         </div>
 
         {/* Statistics */}
-        <div className="bg-gradient-card rounded-3xl p-6 sm:p-8 pb-6 sm:pb-8 animate-fade-in-delay">
+        <div className="bg-gradient-card rounded-3xl p-6 sm:p-8 pb-6 sm:pb-8 animate-fade-in-delay" data-aos="fade-up" data-aos-delay="400">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             <div>
               <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">10K+</div>

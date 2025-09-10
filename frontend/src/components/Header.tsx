@@ -5,16 +5,10 @@ import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, ChevronLeft, ChevronRight, Home, Calendar, Wrench, Phone, ShoppingCart } from 'lucide-react';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import { Button, useMediaQuery } from '@mui/material';
+import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut } from 'lucide-react';
+import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox } from '@mui/material';
 
 const drawerWidth = 240;
 
@@ -68,14 +62,6 @@ const AppBar = styled(MuiAppBar, {
   ],
 }));
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
 
 const Header = () => {
   const theme = useTheme();
@@ -111,35 +97,34 @@ const Header = () => {
           height: '80px',
         }}
       >
-        <Toolbar sx={{ minHeight: '80px !important', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {isMobile && (
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={[
-                  {
-                    mr: 2,
-                    color: 'black',
-                  },
-                  open && { display: 'none' },
-                ]}
-              >
-                <Menu />
-              </IconButton>
-            )}
-            <img 
-              src="/logofixifly.png" 
-              alt="Fixifly Logo" 
-              style={{
-                height: '100px',
-                width: 'auto',
-                marginLeft: isMobile ? '-20px' : '0'
-              }}
-            />
-          </Box>
+         <Toolbar sx={{ minHeight: '80px !important', justifyContent: 'space-between' }}>
+           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+             {/* Menu Icon - Always visible on desktop and mobile */}
+             <IconButton
+               color="inherit"
+               aria-label="open drawer"
+               onClick={handleDrawerOpen}
+               edge="start"
+               sx={[
+                 {
+                   mr: 2,
+                   color: 'black',
+                 },
+                 open && { display: 'none' },
+               ]}
+             >
+               <Menu />
+             </IconButton>
+             <img 
+               src="/logofixifly.png" 
+               alt="Fixifly Logo" 
+               style={{
+                 height: '100px',
+                 width: 'auto',
+                 marginLeft: isMobile ? '-20px' : '0'
+               }}
+             />
+           </Box>
           
           {/* Desktop Navigation Links */}
           {!isMobile && (
@@ -168,45 +153,174 @@ const Header = () => {
               })}
             </Box>
           )}
+
+          {/* Mobile Cart Icon */}
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="shopping cart"
+              sx={{
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
+              }}
+            >
+              <ShoppingCart size={24} />
+            </IconButton>
+          )}
+
         </Toolbar>
       </AppBar>
-      {isMobile && (
-        <Drawer
-          sx={{
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
             width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-            },
-          }}
-          variant="persistent"
-          anchor="left"
-          open={open}
-        >
-          <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === 'ltr' ? <ChevronLeft /> : <ChevronRight />}
+            boxSizing: 'border-box',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            height: '100vh',
+            zIndex: 10000,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          },
+        }}
+        variant={isMobile ? "temporary" : "persistent"}
+        anchor="left"
+        open={open}
+        onClose={handleDrawerClose}
+      >
+        {/* Close Button for Desktop - Top Right Corner */}
+        {!isMobile && (
+          <MuiBox sx={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            padding: 1,
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            zIndex: 1
+          }}>
+            <IconButton 
+              onClick={handleDrawerClose}
+              sx={{
+                color: '#6b7280',
+                '&:hover': {
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151'
+                }
+              }}
+            >
+              <X size={20} />
             </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <List>
-            {navItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <ListItem key={item.name} disablePadding>
-                  <ListItemButton component="a" href={item.href}>
-                    <ListItemIcon>
-                      <IconComponent />
-                    </ListItemIcon>
-                    <ListItemText primary={item.name} />
-                  </ListItemButton>
-                </ListItem>
-              );
-            })}
-          </List>
-        </Drawer>
-      )}
+          </MuiBox>
+        )}
+
+        {/* User Profile Section - Fixed at top */}
+        <MuiBox sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          padding: 2,
+          backgroundColor: '#f8f9fa',
+          flexShrink: 0
+        }}>
+          <Avatar
+            sx={{
+              width: 60,
+              height: 60,
+              marginBottom: 1,
+              backgroundColor: '#3b82f6',
+              fontSize: '1.5rem'
+            }}
+          >
+            U
+          </Avatar>
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', marginBottom: 0.25, color: '#1f2937' }}>
+            John Doe
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#6b7280', marginBottom: 1 }}>
+            +91 98765 43210
+          </Typography>
+        </MuiBox>
+        
+        <Divider />
+        
+        {/* Menu Options - No Scroll */}
+        <MuiBox sx={{ 
+          padding: 1,
+          flex: 1,
+          overflowY: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          paddingBottom: isMobile ? '120px' : '16px' // Extra space for mobile bottom nav
+        }}>
+          {[
+            { name: "Profile", icon: User, href: "/profile" },
+            { name: "Booking", icon: Calendar, href: "/booking" },
+            { name: "AMC Plan", icon: Wrench, href: "/amc" },
+            { name: "Services Booking T&C", icon: FileText, href: "/terms" },
+            { name: "Tips & Tricks", icon: Info, href: "/tips" },
+            { name: "About Fixfly", icon: Info, href: "/about" },
+            { name: "Rate Us", icon: Star, href: "/rate" }
+          ].map((item) => {
+            const IconComponent = item.icon;
+            return (
+              <Button
+                key={item.name}
+                component="a"
+                href={item.href}
+                startIcon={<IconComponent size={20} />}
+                fullWidth
+                sx={{
+                  justifyContent: 'flex-start',
+                  padding: '12px 16px',
+                  margin: '4px 0',
+                  textTransform: 'none',
+                  color: '#374151',
+                  fontSize: '16px',
+                  fontWeight: 500,
+                  '&:hover': {
+                    backgroundColor: '#f3f4f6',
+                    color: '#1f2937'
+                  }
+                }}
+              >
+                {item.name}
+              </Button>
+            );
+          })}
+          
+          {/* Logout Button - Right after Rate Us */}
+          <Divider sx={{ margin: isMobile ? '8px 0' : '-2px 0' }} />
+          <Button
+            component="a"
+            href="/logout"
+            startIcon={<LogOut size={20} />}
+            fullWidth
+            sx={{
+              justifyContent: 'flex-start',
+              padding: '12px 16px',
+              margin: isMobile ? '4px 0 30px 0' : '2px 0', // Reduced top margin on desktop
+              textTransform: 'none',
+              color: '#dc2626',
+              fontSize: '16px',
+              fontWeight: 500,
+              '&:hover': {
+                backgroundColor: '#fef2f2',
+                color: '#b91c1c'
+              }
+            }}
+          >
+            Logout
+          </Button>
+        </MuiBox>
+      </Drawer>
     </Box>
   );
 };

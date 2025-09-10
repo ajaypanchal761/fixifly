@@ -33,7 +33,7 @@ const ApplianceServices = () => {
     <section className="pt-8 pb-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16 animate-slide-up">
+        <div className="text-center mb-16 animate-slide-up" data-aos="fade-up" data-aos-delay="100">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             Home <span className="text-gradient">Appliance Services</span>
           </h2>
@@ -44,13 +44,15 @@ const ApplianceServices = () => {
         </div>
 
         {/* Appliances Grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-6xl mx-auto" data-aos="fade-up" data-aos-delay="200">
           {appliances.map((appliance, index) => {
             return (
               <div
                 key={appliance.title}
                 className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 animate-slide-up"
                 style={{ backgroundColor: '#ffffff', animationDelay: `${index * 0.1}s` }}
+                data-aos="zoom-in"
+                data-aos-delay={300 + (index * 100)}
               >
                 <div className="text-center">
                   <img 

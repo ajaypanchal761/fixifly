@@ -125,64 +125,69 @@ const Booking = () => {
 
   return (
     <div className="min-h-screen bg-blue-50">
-      {/* Header with Tabs */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-transparent p-0 h-auto">
+      {/* Header with Categories */}
+      <div className="bg-white shadow-sm border-b pb-0 mb-0">
+        <div className="container mx-1 px-2 py-24">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-0">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-0 h-auto rounded-lg">
               <TabsTrigger 
                 value="ongoing" 
-                className="text-base font-medium py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-blue-500 rounded-none"
+                className="text-base font-medium py-3 px-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all"
               >
-                Ongoing ({bookings.ongoing.length})
+                <div className="flex items-center space-x-2">
+                  <span>Ongoing</span>
+                </div>
               </TabsTrigger>
               <TabsTrigger 
                 value="completed" 
-                className="text-base font-medium py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-blue-500 rounded-none"
+                className="text-base font-medium py-3 px-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all"
               >
-                Completed ({bookings.completed.length})
+                <div className="flex items-center space-x-2">
+                  <span>Completed</span>
+                </div>
               </TabsTrigger>
               <TabsTrigger 
                 value="cancelled" 
-                className="text-base font-medium py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-blue-500 rounded-none"
+                className="text-base font-medium py-3 px-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all"
               >
-                Cancelled ({bookings.cancelled.length})
+                <div className="flex items-center space-x-2">
+                  <span>Cancelled</span>
+                </div>
               </TabsTrigger>
             </TabsList>
-
           </Tabs>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <div className="container mx-auto px-4 py-0 max-w-7xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Ongoing Bookings */}
           <TabsContent value="ongoing" className="space-y-4 md:space-y-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
               {bookings.ongoing.map((booking) => {
                 const IconComponent = booking.icon;
                 return (
                   <Card key={booking.id} className="bg-white shadow-lg rounded-xl overflow-hidden h-fit">
-                    <CardContent className="p-4">
+                    <CardContent className="p-2 lg:p-3">
                     {/* Case ID */}
-                    <div className="mb-3">
-                      <span className="font-bold text-gray-800 text-sm">Case ID: {booking.id}</span>
+                    <div className="mb-1">
+                      <span className="font-bold text-gray-800 text-xs">Case ID: {booking.id}</span>
                     </div>
 
                     {/* Service Details */}
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="bg-blue-100 p-2 rounded-full">
-                        <IconComponent className="h-5 w-5 text-blue-600" />
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="bg-blue-100 p-1.5 rounded-full">
+                        <IconComponent className="h-4 w-4 text-blue-600" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-base text-gray-800">{booking.service}</h3>
+                        <h3 className="font-bold text-sm text-gray-800">{booking.service}</h3>
                         <p className="text-gray-600 text-xs">{booking.serviceType}</p>
                       </div>
                     </div>
 
                     {/* Dates and Price */}
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-2">
                       <div className="space-y-1">
                         <div className="text-xs">
                           <span className="text-gray-600">Booking Date</span>
@@ -199,14 +204,14 @@ const Booking = () => {
                     </div>
 
                     {/* Assigned Person Details */}
-                    <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                    <div className="bg-gray-50 rounded-lg p-1.5 mb-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <div className="bg-blue-100 p-1.5 rounded-full">
-                            <User className="h-4 w-4 text-blue-600" />
+                          <div className="bg-blue-100 p-1 rounded-full">
+                            <User className="h-3 w-3 text-blue-600" />
                           </div>
                           <div>
-                            <div className="font-bold text-gray-800 text-sm">{booking.technician}</div>
+                            <div className="font-bold text-gray-800 text-xs">{booking.technician}</div>
                             <div className="text-gray-600 text-xs">{booking.phone}</div>
                             <div className="flex items-center space-x-1 mt-0.5">
                               {[...Array(5)].map((_, i) => (
@@ -219,10 +224,10 @@ const Booking = () => {
                           </div>
                         </div>
                         <div className="flex space-x-1">
-                          <Button size="sm" variant="outline" className="p-1.5">
+                          <Button size="sm" variant="outline" className="p-1">
                             <Phone className="h-3 w-3 text-blue-600" />
                           </Button>
-                          <Button size="sm" variant="outline" className="p-1.5">
+                          <Button size="sm" variant="outline" className="p-1">
                             <MessageCircle className="h-3 w-3 text-blue-600" />
                           </Button>
                         </div>
@@ -230,21 +235,14 @@ const Booking = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-2 mb-3">
-                      <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2">
+                    <div className="flex space-x-1 mb-1">
+                      <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs py-1.5">
                         Cancel Booking
                       </Button>
-                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
+                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5">
                         Reschedule
                       </Button>
                     </div>
-
-                      {/* Status Tag */}
-                      <div className="text-center">
-                        <Badge className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">
-                          {booking.status}
-                        </Badge>
-                      </div>
                     </CardContent>
                   </Card>
                 );
@@ -254,30 +252,30 @@ const Booking = () => {
 
           {/* Completed Bookings */}
           <TabsContent value="completed" className="space-y-4 md:space-y-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
               {bookings.completed.map((booking) => {
                 const IconComponent = booking.icon;
                 return (
                   <Card key={booking.id} className="bg-white shadow-lg rounded-xl overflow-hidden h-fit">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 lg:p-4">
                     {/* Case ID */}
-                    <div className="mb-3">
-                      <span className="font-bold text-gray-800 text-sm">Case ID: {booking.id}</span>
+                    <div className="mb-1">
+                      <span className="font-bold text-gray-800 text-xs">Case ID: {booking.id}</span>
                     </div>
 
                     {/* Service Details */}
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="bg-green-100 p-2 rounded-full">
-                        <IconComponent className="h-5 w-5 text-green-600" />
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="bg-green-100 p-1.5 rounded-full">
+                        <IconComponent className="h-4 w-4 text-green-600" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-base text-gray-800">{booking.service}</h3>
+                        <h3 className="font-bold text-sm text-gray-800">{booking.service}</h3>
                         <p className="text-gray-600 text-xs">{booking.device}</p>
                       </div>
                     </div>
 
                     {/* Dates and Price */}
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-2">
                       <div className="space-y-1">
                         <div className="text-xs">
                           <span className="text-gray-600">Completed Date</span>
@@ -294,11 +292,11 @@ const Booking = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-2 mb-3">
-                      <Button className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-sm py-2">
+                    <div className="flex space-x-1 mb-1">
+                      <Button className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5">
                         Download Receipt
                       </Button>
-                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
+                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5">
                         Book Again
                       </Button>
                     </div>
@@ -318,30 +316,30 @@ const Booking = () => {
 
           {/* Cancelled Bookings */}
           <TabsContent value="cancelled" className="space-y-4 md:space-y-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
               {bookings.cancelled.map((booking) => {
                 const IconComponent = booking.icon;
                 return (
                   <Card key={booking.id} className="bg-white shadow-lg rounded-xl overflow-hidden opacity-75 h-fit">
                   <CardContent className="p-4">
                     {/* Case ID */}
-                    <div className="mb-3">
-                      <span className="font-bold text-gray-800 text-sm">Case ID: {booking.id}</span>
+                    <div className="mb-1">
+                      <span className="font-bold text-gray-800 text-xs">Case ID: {booking.id}</span>
                     </div>
 
                     {/* Service Details */}
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="bg-gray-100 p-2 rounded-full">
-                        <IconComponent className="h-5 w-5 text-gray-600" />
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="bg-gray-100 p-1.5 rounded-full">
+                        <IconComponent className="h-4 w-4 text-gray-600" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-base text-gray-800">{booking.service}</h3>
+                        <h3 className="font-bold text-sm text-gray-800">{booking.service}</h3>
                         <p className="text-gray-600 text-xs">{booking.device}</p>
                       </div>
                     </div>
 
                     {/* Dates and Price */}
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-2">
                       <div className="space-y-1">
                         <div className="text-xs">
                           <span className="text-gray-600">Cancelled Date</span>
@@ -358,8 +356,8 @@ const Booking = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-2 mb-3">
-                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
+                    <div className="flex space-x-1 mb-1">
+                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5">
                         Book Similar Service
                       </Button>
                     </div>

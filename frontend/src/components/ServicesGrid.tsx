@@ -188,7 +188,7 @@ const ServicesGrid = () => {
     <section className="pt-8 pb-20 bg-secondary/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16 animate-slide-up">
+        <div className="text-center mb-16 animate-slide-up" data-aos="fade-up" data-aos-delay="100">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             Top Booking <span className="text-gradient">IT Services </span>Here
           </h2>
@@ -203,6 +203,8 @@ const ServicesGrid = () => {
           className="relative"
           onMouseEnter={stopAutoScroll}
           onMouseLeave={startAutoScroll}
+          data-aos="fade-up" 
+          data-aos-delay="200"
         >
           {/* Navigation Buttons */}
           <button
