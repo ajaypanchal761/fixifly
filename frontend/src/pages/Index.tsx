@@ -2,6 +2,7 @@ import Hero from "@/components/Hero";
 import ServicesGrid from "@/components/ServicesGrid";
 import BannerAd from "@/components/BannerAd";
 import ApplianceServices from "@/components/ApplianceServices";
+import Blog from "@/components/Blog";
 
 const Index = () => {
   return (
@@ -10,6 +11,7 @@ const Index = () => {
       <ServicesGrid />
       <BannerAd />
       <ApplianceServices />
+      <Blog />
     </div>
   );
 };
