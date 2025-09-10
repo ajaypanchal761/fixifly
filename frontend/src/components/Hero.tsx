@@ -6,7 +6,6 @@ import RepairServicesModal from "./RepairServicesModal";
 const Hero = () => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [isRepairModalOpen, setIsRepairModalOpen] = useState(false);
-  const [isApplianceModalOpen, setIsApplianceModalOpen] = useState(false);
   const banners = ['/banner1.png', '/banner2.png', '/banner3.png'];
 
   useEffect(() => {
@@ -18,7 +17,7 @@ const Hero = () => {
   }, [banners.length]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
       
@@ -30,7 +29,7 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-20 lg:pt-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:pt-20 lg:pt-16">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
           <div className="relative animate-fade-in-delay order-1 lg:order-2">
@@ -70,28 +69,54 @@ const Hero = () => {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
               All Your <span className="text-gradient">IT Needs</span> is Here
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl">
+            <p className="hidden sm:block text-lg sm:text-xl text-muted-foreground mb-4 sm:mb-8 max-w-2xl">
               Professional Laptop, Desktop, Electronics repair services. 
               Certified technicians and lightning-fast turnaround times.
             </p>
+
+            {/* Service Cards */}
+            <div className="flex flex-row gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0">
+              <div className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1" style={{backgroundColor: '#ffffff'}}>
+                <div className="text-center">
+                  <img 
+                    src="/laptop.avif" 
+                    alt="Laptop Repair" 
+                    className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
+                  />
+                  <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">Laptop Repair</h3>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1" style={{backgroundColor: '#ffffff'}}>
+                <div className="text-center">
+                  <img 
+                    src="/desktop.jpg" 
+                    alt="Desktop Repair" 
+                    className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
+                  />
+                  <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">Desktop Repair</h3>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1" style={{backgroundColor: '#ffffff'}}>
+                <div className="text-center">
+                  <img 
+                    src="/printer.png" 
+                    alt="Printer Repair" 
+                    className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
+                  />
+                  <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">Printer Repair</h3>
+                </div>
+              </div>
+            </div>
             
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            {/* CTA Button */}
+            <div className="flex justify-center lg:justify-start mb-3 sm:mb-8 lg:mb-6">
               <Button 
                 size="lg" 
                 className="btn-tech text-white text-lg px-8 py-4"
                 onClick={() => setIsRepairModalOpen(true)}
               >
-                Book Repair Now
+                More Repair Now
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="btn-tech text-white text-lg px-8 py-4"
-                onClick={() => setIsApplianceModalOpen(true)}
-              >
-                View Services
               </Button>
             </div>
 
@@ -131,13 +156,6 @@ const Hero = () => {
         serviceType="repair"
       />
       
-      {/* Appliance Services Modal */}
-      <RepairServicesModal 
-        key="appliance-modal"
-        isOpen={isApplianceModalOpen} 
-        onClose={() => setIsApplianceModalOpen(false)} 
-        serviceType="appliance"
-      />
     </section>
   );
 };
