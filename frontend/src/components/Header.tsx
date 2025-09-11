@@ -9,6 +9,7 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox } from '@mui/material';
+import { useNavigate, Link } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -65,6 +66,7 @@ const AppBar = styled(MuiAppBar, {
 
 const Header = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -76,12 +78,16 @@ const Header = () => {
     setOpen(false);
   };
 
+  const handleLogoClick = () => {
+    navigate("/");
+  };
+
   const navItems = [
     { name: "Home", href: "/", icon: Home },
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
-    { name: "Shop", href: "#shop", icon: ShoppingCart },
+    { name: "Shop", href: "/shop", icon: ShoppingCart },
   ];
 
   return (
@@ -118,10 +124,19 @@ const Header = () => {
              <img 
                src="/logofixifly.png" 
                alt="Fixifly Logo" 
+               onClick={handleLogoClick}
                style={{
                  height: '100px',
                  width: 'auto',
-                 marginLeft: isMobile ? '-20px' : '0'
+                 marginLeft: isMobile ? '-20px' : '0',
+                 cursor: 'pointer',
+                 transition: 'opacity 0.2s ease-in-out'
+               }}
+               onMouseEnter={(e) => {
+                 e.currentTarget.style.opacity = '0.8';
+               }}
+               onMouseLeave={(e) => {
+                 e.currentTarget.style.opacity = '1';
                }}
              />
            </Box>
@@ -134,8 +149,8 @@ const Header = () => {
                 return (
                   <Button
                     key={item.name}
-                    component="a"
-                    href={item.href}
+                    component={Link}
+                    to={item.href}
                     startIcon={<IconComponent size={18} />}
                     sx={{
                       color: 'black',
@@ -264,7 +279,7 @@ const Header = () => {
             { name: "Profile", icon: User, href: "/profile" },
             { name: "Booking", icon: Calendar, href: "/booking" },
             { name: "AMC Plan", icon: Wrench, href: "/amc" },
-            { name: "Services Booking T&C", icon: FileText, href: "/terms" },
+            { name: "Services Booking T&C", icon: FileText, href: "/terms-conditions" },
             { name: "Tips & Tricks", icon: Info, href: "/tips" },
             { name: "About Fixfly", icon: Info, href: "/about" },
             { name: "Rate Us", icon: Star, href: "/rate" }
@@ -273,10 +288,11 @@ const Header = () => {
             return (
               <Button
                 key={item.name}
-                component="a"
-                href={item.href}
+                component={Link}
+                to={item.href}
                 startIcon={<IconComponent size={20} />}
                 fullWidth
+                onClick={handleDrawerClose}
                 sx={{
                   justifyContent: 'flex-start',
                   padding: '12px 16px',

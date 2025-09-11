@@ -2,6 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { 
   Check, 
   Star, 
   Shield, 
@@ -109,15 +115,15 @@ const AMC = () => {
     <div className="min-h-screen pt-16 bg-secondary/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
-        <div className="text-center mb-16 animate-slide-up">
+        <div className="text-center mb-8 md:mb-16 animate-slide-up">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             Choose Your <span className="text-gradient">AMC Plan</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8 hidden md:block">
             Annual Maintenance Contracts designed to keep your devices running smoothly. 
             Preventive care, priority support, and comprehensive coverage all year round.
           </p>
-          <div className="flex items-center justify-center space-x-6 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center space-x-6 text-sm text-muted-foreground hidden md:flex">
             <div className="flex items-center space-x-2">
               <Check className="h-4 w-4 text-green-500" />
               <span>No Setup Fees</span>
@@ -134,11 +140,11 @@ const AMC = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16 animate-fade-in-delay">
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-16 animate-fade-in-delay mt-4 md:mt-0">
           {plans.map((plan, index) => (
             <Card 
               key={plan.name} 
-              className={`service-card relative ${plan.popular ? 'ring-2 ring-primary scale-105' : ''}`}
+              className={`service-card relative max-w-sm mx-auto md:max-w-none ${plan.popular ? 'ring-2 ring-primary scale-105' : ''}`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {plan.popular && (
@@ -150,26 +156,26 @@ const AMC = () => {
                 </div>
               )}
 
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                <CardDescription className="text-base mb-4">
+              <CardHeader className="text-center pb-2 md:pb-8 px-3 md:px-6">
+                <CardTitle className="text-lg md:text-2xl font-bold">{plan.name}</CardTitle>
+                <CardDescription className="text-xs md:text-base mb-1 md:mb-4">
                   {plan.description}
                 </CardDescription>
                 <div className="text-center">
-                  <span className="text-4xl font-bold text-primary">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
+                  <span className="text-2xl md:text-4xl font-bold text-primary">{plan.price}</span>
+                  <span className="text-muted-foreground text-sm md:text-base">{plan.period}</span>
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-3 md:space-y-6 px-3 md:px-6">
                 {/* Included Features */}
                 <div>
-                  <h4 className="font-semibold mb-3 text-green-700">✓ What's Included</h4>
-                  <ul className="space-y-2">
+                  <h4 className="font-semibold mb-1 md:mb-3 text-green-700 text-xs md:text-base">✓ What's Included</h4>
+                  <ul className="space-y-0.5 md:space-y-2">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center space-x-2 text-sm">
-                        <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span>{feature}</span>
+                      <li key={feature} className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm">
+                        <Check className="h-2.5 w-2.5 md:h-4 md:w-4 text-green-500 flex-shrink-0" />
+                        <span className="leading-tight">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -178,12 +184,12 @@ const AMC = () => {
                 {/* Not Included Features */}
                 {plan.notIncluded.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-3 text-muted-foreground">✗ Not Included</h4>
-                    <ul className="space-y-2">
+                    <h4 className="font-semibold mb-1 md:mb-3 text-muted-foreground text-xs md:text-base">✗ Not Included</h4>
+                    <ul className="space-y-0.5 md:space-y-2">
                       {plan.notIncluded.map((feature) => (
-                        <li key={feature} className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <span className="w-4 h-4 flex-shrink-0">✗</span>
-                          <span>{feature}</span>
+                        <li key={feature} className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm text-muted-foreground">
+                          <span className="w-2.5 h-2.5 md:w-4 md:h-4 flex-shrink-0">✗</span>
+                          <span className="leading-tight">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -191,7 +197,7 @@ const AMC = () => {
                 )}
 
                 <Button 
-                  className={`w-full py-6 text-lg ${
+                  className={`w-full py-3 md:py-6 text-xs md:text-lg ${
                     plan.popular 
                       ? 'btn-tech text-white' 
                       : 'bg-primary hover:bg-primary-dark text-primary-foreground'
@@ -206,7 +212,7 @@ const AMC = () => {
         </div>
 
         {/* Benefits Section */}
-        <div className="mb-16 animate-slide-up">
+        <div className="mb-16 animate-slide-up hidden md:block">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
               Why Choose <span className="text-gradient">FixiFly AMC</span>?
@@ -238,116 +244,54 @@ const AMC = () => {
           </div>
         </div>
 
-        {/* Statistics */}
-        <div className="bg-gradient-card rounded-3xl p-8 mb-16 animate-fade-in-delay">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold mb-2">Trusted by Thousands</h3>
-            <p className="text-muted-foreground">See why businesses choose FixiFly AMC</p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">5,000+</div>
-              <div className="text-muted-foreground">Active Contracts</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">99.9%</div>
-              <div className="text-muted-foreground">Uptime Guarantee</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">24/7</div>
-              <div className="text-muted-foreground">Support Available</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary mb-2">15 min</div>
-              <div className="text-muted-foreground">Avg Response Time</div>
-            </div>
-          </div>
-        </div>
-
         {/* FAQ Section */}
         <div className="max-w-4xl mx-auto animate-slide-up">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
             <p className="text-lg text-muted-foreground">
-              Common questions about our AMC plans
+              Common questions about our AMC plans and services
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="service-card">
-              <CardHeader>
-                <CardTitle className="text-lg">Can I upgrade my plan anytime?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Yes, you can upgrade your plan at any time. The price difference will be prorated 
-                  for the remaining billing period.
-                </p>
-              </CardContent>
-            </Card>
+          <Card className="service-card">
+            <CardContent className="p-6">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1" className="border-b border-border/50">
+                  <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
+                    Can I upgrade or downgrade my plan anytime?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    Yes, you can upgrade or downgrade your plan at any time. When upgrading, the price difference will be prorated for the remaining billing period. When downgrading, the change will take effect at your next billing cycle to ensure you get the full value of your current plan.
+                  </AccordionContent>
+                </AccordionItem>
 
-            <Card className="service-card">
-              <CardHeader>
-                <CardTitle className="text-lg">What devices are covered?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  We cover laptops, desktops, Mac computers, printers, and other IT equipment. 
-                  Check with our team for specific device compatibility.
-                </p>
-              </CardContent>
-            </Card>
+                <AccordionItem value="item-2" className="border-b border-border/50">
+                  <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
+                    What devices and equipment are covered under AMC?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    We cover laptops, desktops, Mac computers, printers, scanners, routers, and other IT equipment. Our coverage includes both hardware and software issues. For specific device compatibility or specialized equipment, please contact our team for detailed information.
+                  </AccordionContent>
+                </AccordionItem>
 
-            <Card className="service-card">
-              <CardHeader>
-                <CardTitle className="text-lg">Is there a setup fee?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  No, there are no setup fees for any of our AMC plans. You only pay the monthly 
-                  subscription fee with no hidden costs.
-                </p>
-              </CardContent>
-            </Card>
+                <AccordionItem value="item-3" className="border-b border-border/50">
+                  <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
+                    Are there any setup fees or hidden costs?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    No, there are absolutely no setup fees for any of our AMC plans. You only pay the monthly subscription fee with complete transparency. All services included in your plan are covered without additional charges, and we'll always inform you upfront if any service falls outside your plan coverage.
+                  </AccordionContent>
+                </AccordionItem>
 
-            <Card className="service-card">
-              <CardHeader>
-                <CardTitle className="text-lg">How does the warranty work?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  All repairs and replacements come with our standard warranty. AMC customers 
-                  get extended warranty coverage on all services.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="text-center mt-16 animate-fade-in-delay">
-          <Card className="service-card max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="text-2xl">Ready to Get Started?</CardTitle>
-              <CardDescription className="text-lg">
-                Join thousands of satisfied customers who trust FixiFly for their IT maintenance needs.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="btn-tech text-white">
-                  <Zap className="h-5 w-5 mr-2" />
-                  Start Free Trial
-                </Button>
-                <Button size="lg" variant="outline">
-                  <Headphones className="h-5 w-5 mr-2" />
-                  Talk to Sales
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                30-day money back guarantee • No setup fees • Cancel anytime
-              </p>
+                <AccordionItem value="item-4" className="border-b border-border/50">
+                  <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
+                    How does the warranty and service guarantee work?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    All repairs and replacements come with our standard 90-day warranty. AMC customers receive extended warranty coverage on all services. We also provide a 100% satisfaction guarantee - if you're not completely satisfied with our service, we'll make it right or provide a full refund.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </CardContent>
           </Card>
         </div>

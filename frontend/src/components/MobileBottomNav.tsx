@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { Home, Calendar, Wrench, Phone, ShoppingCart } from 'lucide-react';
 
 const MobileBottomNav = () => {
@@ -10,7 +10,7 @@ const MobileBottomNav = () => {
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
-    { name: "Shop", href: "#shop", icon: ShoppingCart },
+    { name: "Shop", href: "/shop", icon: ShoppingCart },
   ];
 
   return (
@@ -21,9 +21,9 @@ const MobileBottomNav = () => {
           const isActive = location.pathname === item.href;
           
           return (
-            <a
+            <Link
               key={item.name}
-              href={item.href}
+              to={item.href}
               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors duration-200 ${
                 isActive 
                   ? 'text-blue-600 bg-blue-50' 
@@ -37,7 +37,7 @@ const MobileBottomNav = () => {
               <span className={`text-xs font-medium ${isActive ? 'text-blue-600' : 'text-gray-600'}`}>
                 {item.name}
               </span>
-            </a>
+            </Link>
           );
         })}
       </div>

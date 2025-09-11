@@ -1,12 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Zap, Shield, Clock } from "lucide-react";
+import { ArrowDown, Zap, Shield, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
-import RepairServicesModal from "./RepairServicesModal";
 
 const Hero = () => {
   const [currentBanner, setCurrentBanner] = useState(0);
-  const [isRepairModalOpen, setIsRepairModalOpen] = useState(false);
+  const [showMoreServices, setShowMoreServices] = useState(false);
   const banners = ['/banner1.png', '/banner2.png', '/banner3.png'];
+
+  const allServices = [
+    { name: "Mac Repair", image: "/laptop.avif" },  
+    { name: "CCTV Installation", image: "/cctv.webp" },
+    { name: "Tablet Repair", image: "/tablet.webp" },
+    { name: "TV Repair", image: "/tv.avif" },
+    { name: "AC Repair", image: "/ac.png" },
+    { name: "Fridge Repair", image: "/fidge.jpeg" },
+    { name: "Washing Machine Repair", image: "/washing.jpg" },
+    { name: "Electrician", image: "/electrician.jpg" },
+    { name: "Plumber", image: "/plumber.png" }
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -17,7 +28,9 @@ const Hero = () => {
   }, [banners.length]);
 
   return (
-    <section className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden">
+    <section className={`relative flex items-center justify-center overflow-hidden transition-all duration-500 ${
+      showMoreServices ? 'min-h-[120vh] sm:min-h-[130vh]' : 'min-h-[90vh] sm:min-h-screen'
+    }`}>
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
       
@@ -25,14 +38,16 @@ const Hero = () => {
       <div className="absolute top-20 left-10 animate-float opacity-20">
         <div className="w-20 h-20 bg-gradient-tech rounded-full blur-xl" />
       </div>
-      <div className="absolute bottom-32 right-16 animate-float opacity-30" style={{ animationDelay: "1s" }}>
+      <div className="absolute bottom-32 right-16 animate-float opacity-30" >
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:pt-20 lg:pt-16">
+      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ${
+        showMoreServices ? 'mt-28 sm:pt-20 lg:pt-0' : 'mt-0 sm:pt-20 lg:pt-24'
+      }`}>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-          <div className="relative animate-fade-in-delay order-1 lg:order-2" data-aos="fade-left" data-aos-delay="200">
+          <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-1/4 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8" data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
@@ -65,7 +80,7 @@ const Hero = () => {
           </div>
 
           {/* Text Content - Shows second on mobile, first on desktop */}
-          <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-8 lg:mt-0" data-aos="fade-right" data-aos-delay="100">
+          <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-8 lg:mt-0 lg:w-full lg:pr-8" data-aos="fade-right" data-aos-delay="100">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
               All Your <span className="text-gradient">IT Needs</span> is Here
             </h1>
@@ -109,52 +124,45 @@ const Hero = () => {
             </div>
             
             {/* CTA Button */}
-            <div className="flex justify-center lg:justify-start mb-3 sm:mb-8 lg:mb-6" data-aos="zoom-in" data-aos-delay="400">
+            <div className="flex justify-center mb-3 sm:mb-8 lg:mb-6" data-aos="zoom-in" data-aos-delay="400">
               <Button 
                 size="lg" 
                 className="btn-tech text-white text-lg px-8 py-4"
-                onClick={() => setIsRepairModalOpen(true)}
+                onClick={() => setShowMoreServices(!showMoreServices)}
               >
-                More Repair Now
-                <ArrowRight className="ml-2 h-5 w-5" />
+                More Services
+                <ArrowDown className={`ml-2 h-5 w-4 transition-transform duration-300 ${showMoreServices ? 'rotate-180' : ''}`} />
               </Button>
             </div>
 
-            {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-6 max-w-md mx-auto lg:mx-0">
-              <div className="text-center">
-                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
-                  <Zap className="h-6 w-6 text-white" />
+            {/* More Services Grid */}
+            {showMoreServices && (
+              <div className="mt-6 mb-8 animate-fade-in">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                  {allServices.map((service, index) => (
+                    <div 
+                      key={index}
+                      className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                      style={{backgroundColor: '#ffffff'}}
+                    >
+                      <div className="text-center">
+                        <img 
+                          src={service.image} 
+                          alt={service.name} 
+                          className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
+                        />
+                        <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">
+                          {service.name}
+                        </h3>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-sm font-semibold">Fast Service</p>
-                <p className="text-xs text-muted-foreground">24-48 Hours</p>
               </div>
-              <div className="text-center">
-                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <p className="text-sm font-semibold">Guaranteed</p>
-                <p className="text-xs text-muted-foreground">1 Year Warranty</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
-                  <Clock className="h-6 w-6 text-white" />
-                </div>
-                <p className="text-sm font-semibold">Available</p>
-                <p className="text-xs text-muted-foreground">24/7 Support</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
-      
-      {/* Repair Services Modal */}
-      <RepairServicesModal 
-        key="repair-modal"
-        isOpen={isRepairModalOpen} 
-        onClose={() => setIsRepairModalOpen(false)} 
-        serviceType="repair"
-      />
       
     </section>
   );

@@ -68,15 +68,19 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">+1 (555) 123-4567</span>
+                <span className="text-gray-300">022-6964-7030</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Phone className="h-5 w-5 text-blue-400" />
+                <span className="text-gray-300">9931-354-354</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">support@fixifly.com</span>
+                <span className="text-gray-300">info@fixfly.in</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">123 Tech Street, Digital City, DC 12345</span>
+                <span className="text-gray-300">SHOP NO 43, -A, F GRD W P, WELFARE CENTRE HUTMENTS, Mumbai, Mumbai- 400022, Maharashtra</span>
               </div>
             </div>
           </div>
@@ -148,10 +152,10 @@ const Footer = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="text-gray-300 text-sm">
-              © {currentYear} FixiFly. All rights reserved.
+              © {currentYear} FixFly. All rights reserved.
             </div>
             <div className="text-gray-300 text-sm">
-              <a href="#" className="hover:text-blue-400 transition-colors duration-200">Privacy Policy</a> | <a href="#" className="hover:text-blue-400 transition-colors duration-200">Terms of Service</a>
+              <a href="#" className="hover:text-blue-400 transition-colors duration-200">Privacy Policy</a> | <a href="/terms-conditions" className="hover:text-blue-400 transition-colors duration-200">Terms & Conditions</a>
             </div>
             
             <div className="flex items-center space-x-4">

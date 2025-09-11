@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, 
   MessageSquare, 
@@ -23,12 +24,15 @@ import {
   HelpCircle,
   FileText,
   Users,
-  Headphones
+  Headphones,
+  Copy,
+  ExternalLink
 } from "lucide-react";
 
 const Support = () => {
   const [activeTab, setActiveTab] = useState("new-ticket");
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
 
   const openTickets = [
     {
@@ -166,382 +170,132 @@ const Support = () => {
     )
   })).filter(category => category.questions.length > 0);
 
+  // Quick contact functionality
+  const handlePhoneCall = () => {
+    window.open('tel:+912269647030', '_self');
+  };
+
+  const handleEmailClick = () => {
+    window.open('mailto:info@fixfly.in?subject=Support Request&body=Hello, I need help with...', '_blank');
+  };
+
+  const handleCopyToClipboard = (text: string, type: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copied to clipboard",
+        description: `${type} copied successfully`,
+        duration: 2000,
+      });
+    }).catch(() => {
+      toast({
+        title: "Copy failed",
+        description: "Please copy manually",
+        variant: "destructive",
+        duration: 2000,
+      });
+    });
+  };
+
   return (
     <div className="min-h-screen pt-16 bg-secondary/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
-        <div className="text-center mb-12 animate-slide-up">
+        <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
             Support <span className="text-gradient">Center</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto hidden md:block">
             Get help with your repairs, ask questions, and find solutions to common issues.
             Our support team is here to assist you 24/7.
           </p>
         </div>
-
         {/* Quick Contact Options */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-fade-in-delay">
-          <Card className="service-card text-center">
-            <CardContent className="pt-6">
-              <div className="bg-gradient-tech p-4 rounded-2xl w-fit mx-auto mb-4">
-                <Phone className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Phone Support</h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Speak directly with our experts
-              </p>
-              <p className="font-semibold text-primary mb-2">+1 (555) 123-4567</p>
-              <p className="text-xs text-muted-foreground">24/7 Available</p>
-            </CardContent>
-          </Card>
-
-          <Card className="service-card text-center">
-            <CardContent className="pt-6">
-              <div className="bg-gradient-tech p-4 rounded-2xl w-fit mx-auto mb-4">
-                <MessageCircle className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Live Chat</h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Instant chat with support agents
-              </p>
-              <Button className="btn-tech text-white">
-                Start Chat
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="service-card text-center">
-            <CardContent className="pt-6">
-              <div className="bg-gradient-tech p-4 rounded-2xl w-fit mx-auto mb-4">
-                <Mail className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Email Support</h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Send us detailed questions
-              </p>
-              <p className="font-semibold text-primary mb-2">support@fixifly.com</p>
-              <p className="text-xs text-muted-foreground">Response within 2 hours</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Support Tabs */}
-        <div className="max-w-6xl mx-auto animate-slide-up">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="new-ticket" className="text-lg py-3">
-                <Plus className="h-4 w-4 mr-2" />
-                New Ticket
-              </TabsTrigger>
-              <TabsTrigger value="my-tickets" className="text-lg py-3">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                My Tickets
-              </TabsTrigger>
-              <TabsTrigger value="faqs" className="text-lg py-3">
-                <HelpCircle className="h-4 w-4 mr-2" />
-                FAQs
-              </TabsTrigger>
-            </TabsList>
-
-            {/* New Ticket */}
-            <TabsContent value="new-ticket">
-              <Card className="service-card">
-                <CardHeader>
-                  <CardTitle className="text-2xl">Create Support Ticket</CardTitle>
-                  <CardDescription>
-                    Describe your issue and we'll get back to you as soon as possible
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Subject</label>
-                      <Input placeholder="Brief description of your issue" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Category</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hardware">Hardware Issue</SelectItem>
-                          <SelectItem value="software">Software Problem</SelectItem>
-                          <SelectItem value="technical">Technical Support</SelectItem>
-                          <SelectItem value="billing">Billing Question</SelectItem>
-                          <SelectItem value="general">General Inquiry</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Priority</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                          <SelectItem value="urgent">Urgent</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Device Type</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select device" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="laptop">Laptop</SelectItem>
-                          <SelectItem value="desktop">Desktop</SelectItem>
-                          <SelectItem value="mac">Mac</SelectItem>
-                          <SelectItem value="printer">Printer</SelectItem>
-                          <SelectItem value="phone">Phone/Tablet</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Description</label>
-                    <Textarea 
-                      placeholder="Please provide detailed information about your issue, including any error messages, when it started, and what you were doing when it occurred..."
-                      rows={6}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Attachments (Optional)</label>
-                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                      <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        Drag and drop files here or click to browse
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Supported: JPG, PNG, PDF, DOC (Max 10MB each)
-                      </p>
-                    </div>
-                  </div>
-
-                  <Button className="btn-tech text-white w-full py-6 text-lg">
-                    <Plus className="h-5 w-5 mr-2" />
-                    Submit Ticket
+        <div className="max-w-4xl mx-auto mt-16">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">Need Immediate Help?</h2>
+            <p className="text-muted-foreground">Get in touch with our support team</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
+            <Card className="service-card text-center border-0 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <CardContent className="pt-4 md:pt-6 px-3 md:px-6" onClick={handlePhoneCall}>
+                <div className="bg-gradient-tech p-3 md:p-4 rounded-xl md:rounded-2xl w-fit mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Phone className="h-5 w-5 md:h-8 md:w-8 text-white" />
+                </div>
+                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">Phone Support</h3>
+                <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4 hidden md:block">
+                  Speak directly with our experts
+                </p>
+                <div className="flex items-center justify-center gap-2 mb-1 md:mb-2">
+                  <p className="font-semibold text-primary text-sm md:text-base">022-6964-7030</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 hover:bg-primary/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyToClipboard('022-6964-7030', 'Phone number');
+                    }}
+                  >
+                    <Copy className="h-3 w-3" />
                   </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* My Tickets */}
-            <TabsContent value="my-tickets" className="space-y-6">
-              {/* Open Tickets */}
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Open Tickets ({openTickets.length})</h3>
-                <div className="space-y-4">
-                  {openTickets.map((ticket) => (
-                    <Card key={ticket.id} className="service-card">
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h4 className="font-semibold text-lg mb-1">{ticket.subject}</h4>
-                            <p className="text-sm text-muted-foreground">Ticket #{ticket.id}</p>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Badge className={getStatusColor(ticket.status)}>
-                              {ticket.status}
-                            </Badge>
-                            <Badge className={getPriorityColor(ticket.priority)}>
-                              {ticket.priority}
-                            </Badge>
-                          </div>
-                        </div>
-                        
-                        <div className="grid md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
-                          <div>
-                            <span className="font-medium">Category:</span> {ticket.category}
-                          </div>
-                          <div>
-                            <span className="font-medium">Created:</span> {ticket.created}
-                          </div>
-                          <div>
-                            <span className="font-medium">Last Update:</span> {ticket.lastUpdate}
-                          </div>
-                          <div>
-                            <span className="font-medium">Responses:</span> {ticket.responses}
-                          </div>
-                        </div>
-
-                        <div className="flex space-x-2">
-                          <Button variant="outline" className="flex-1">
-                            View Details
-                          </Button>
-                          <Button className="flex-1 btn-tech text-white">
-                            Add Response
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
                 </div>
-              </div>
-
-              {/* Closed Tickets */}
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Closed Tickets ({closedTickets.length})</h3>
-                <div className="space-y-4">
-                  {closedTickets.map((ticket) => (
-                    <Card key={ticket.id} className="service-card opacity-75">
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h4 className="font-semibold text-lg mb-1">{ticket.subject}</h4>
-                            <p className="text-sm text-muted-foreground">Ticket #{ticket.id}</p>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Badge className={getStatusColor(ticket.status)}>
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              {ticket.status}
-                            </Badge>
-                            <div className="flex items-center space-x-1">
-                              {[...Array(5)].map((_, i) => (
-                                <div
-                                  key={i}
-                                  className={`h-3 w-3 rounded-full ${
-                                    i < ticket.rating ? "bg-yellow-400" : "bg-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="grid md:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
-                          <div>
-                            <span className="font-medium">Category:</span> {ticket.category}
-                          </div>
-                          <div>
-                            <span className="font-medium">Created:</span> {ticket.created}
-                          </div>
-                          <div>
-                            <span className="font-medium">Resolved:</span> {ticket.resolved}
-                          </div>
-                          <div>
-                            <span className="font-medium">Responses:</span> {ticket.responses}
-                          </div>
-                        </div>
-
-                        <Button variant="outline" className="w-full">
-                          View Conversation
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
+                <p className="text-xs text-muted-foreground hidden md:block">24/7 Available</p>
+                <div className="mt-2">
+                  <Button 
+                    size="sm" 
+                    className="bg-primary hover:bg-primary/90 text-white text-xs px-3 py-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePhoneCall();
+                    }}
+                  >
+                    <Phone className="h-3 w-3 mr-1" />
+                    Call Now
+                  </Button>
                 </div>
-              </div>
-            </TabsContent>
+              </CardContent>
+            </Card>
 
-            {/* FAQs */}
-            <TabsContent value="faqs">
-              <div className="space-y-6">
-                {/* Search Bar */}
-                <Card className="service-card">
-                  <CardContent className="pt-6">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        placeholder="Search FAQs..."
-                        className="pl-10 py-6 text-lg"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* FAQ Categories */}
-                {filteredFaqs.map((category) => (
-                  <Card key={category.category} className="service-card">
-                    <CardHeader>
-                      <CardTitle className="text-xl">{category.category}</CardTitle>
-                      <CardDescription>
-                        {category.questions.length} questions
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Accordion type="single" collapsible className="w-full">
-                        {category.questions.map((faq, index) => (
-                          <AccordionItem key={index} value={`${category.category}-${index}`}>
-                            <AccordionTrigger className="text-left">
-                              {faq.q}
-                            </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                              {faq.a}
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </CardContent>
-                  </Card>
-                ))}
-
-                {/* No Results */}
-                {filteredFaqs.length === 0 && searchQuery && (
-                  <Card className="service-card">
-                    <CardContent className="pt-6 text-center">
-                      <HelpCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No results found</h3>
-                      <p className="text-muted-foreground mb-4">
-                        We couldn't find any FAQs matching "{searchQuery}"
-                      </p>
-                      <Button className="btn-tech text-white">
-                        Create Support Ticket
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Social Media */}
-        <div className="text-center mt-16 animate-fade-in-delay">
-          <Card className="service-card max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="text-2xl">Follow Us</CardTitle>
-              <CardDescription>
-                Stay connected for tips, updates, and tech insights
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-center space-x-4">
-                {[
-                  { icon: Facebook, href: "#", label: "Facebook" },
-                  { icon: Twitter, href: "#", label: "Twitter" }, 
-                  { icon: Instagram, href: "#", label: "Instagram" },
-                  { icon: Linkedin, href: "#", label: "LinkedIn" }
-                ].map((social) => {
-                  const IconComponent = social.icon;
-                  return (
-                    <a
-                      key={social.label}
-                      href={social.href}
-                      className="bg-primary p-3 rounded-xl text-primary-foreground hover:bg-primary-dark transition-colors duration-300"
-                      aria-label={social.label}
-                    >
-                      <IconComponent className="h-6 w-6" />
-                    </a>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+            <Card className="service-card text-center border-0 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <CardContent className="pt-4 md:pt-6 px-3 md:px-6" onClick={handleEmailClick}>
+                <div className="bg-gradient-tech p-3 md:p-4 rounded-xl md:rounded-2xl w-fit mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Mail className="h-5 w-5 md:h-8 md:w-8 text-white" />
+                </div>
+                <h3 className="text-sm md:text-lg font-semibold mb-2 md:mb-3">Email Support</h3>
+                <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4 hidden md:block">
+                  Send us detailed questions
+                </p>
+                <div className="flex items-center justify-center gap-2 mb-1 md:mb-2">
+                  <p className="font-semibold text-primary text-sm md:text-base">info@fixfly.in</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 hover:bg-primary/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyToClipboard('info@fixfly.in', 'Email address');
+                    }}
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground hidden md:block">Response within 2 hours</p>
+                <div className="mt-2">
+                  <Button 
+                    size="sm" 
+                    className="bg-primary hover:bg-primary/90 text-white text-xs px-3 py-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEmailClick();
+                    }}
+                  >
+                    <Mail className="h-3 w-3 mr-1" />
+                    Send Email
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

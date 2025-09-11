@@ -184,7 +184,7 @@ const Blog = () => {
         </div>
 
         {/* Statistics */}
-        <div className="bg-gradient-card rounded-3xl p-6 sm:p-8 pb-6 sm:pb-8 animate-fade-in-delay" data-aos="fade-up" data-aos-delay="400">
+        <div className="hidden md:block bg-gradient-card rounded-3xl p-6 sm:p-8 pb-6 sm:pb-8 animate-fade-in-delay" data-aos="fade-up" data-aos-delay="400">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             <div>
               <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">10K+</div>

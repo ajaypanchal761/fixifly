@@ -34,7 +34,7 @@ const Booking = () => {
         bookingDate: "01/05/2025",
         appointmentDate: "02/05/2025",
         price: "₹1000",
-        phone: "9931354354",
+        phone: "9931-354-354",
         icon: Wrench
       },
       {
@@ -47,7 +47,7 @@ const Booking = () => {
         bookingDate: "28/04/2025",
         appointmentDate: "30/04/2025",
         price: "₹2500",
-        phone: "9876543210",
+        phone: "022-6964-7030",
         icon: Laptop
       }
     ],
@@ -63,7 +63,7 @@ const Booking = () => {
         price: "$149",
         icon: Laptop,
         address: "789 Service Blvd, Repair City",
-        phone: "+1 (555) 456-7890"
+        phone: "022-6964-7030"
       },
       {
         id: "BK004",
@@ -76,7 +76,7 @@ const Booking = () => {
         price: "$399",
         icon: Apple,
         address: "321 Fix Street, Digital Hub",
-        phone: "+1 (555) 234-5678"
+        phone: "9931-354-354"
       }
     ],
     cancelled: [
@@ -126,9 +126,9 @@ const Booking = () => {
   return (
     <div className="min-h-screen bg-blue-50">
       {/* Header with Categories */}
-      <div className="bg-white shadow-sm border-b pb-0 mb-0">
-        <div className="container mx-1 px-2 py-24">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-0">
+      <div className="bg-white shadow-sm border-b pb-0 mb-6">
+        <div className="container px-2 py-24">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-0 pt-0">
             <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-0 h-auto rounded-lg">
               <TabsTrigger 
                 value="ongoing" 
