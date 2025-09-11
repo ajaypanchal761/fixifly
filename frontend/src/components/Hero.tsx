@@ -1,22 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Zap, Shield, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
   const [currentBanner, setCurrentBanner] = useState(0);
   const [showMoreServices, setShowMoreServices] = useState(false);
   const banners = ['/banner1.png', '/banner2.png', '/banner3.png'];
 
   const allServices = [
-    { name: "Mac Repair", image: "/laptop.avif" },  
-    { name: "CCTV Installation", image: "/cctv.webp" },
-    { name: "Tablet Repair", image: "/tablet.webp" },
-    { name: "TV Repair", image: "/tv.avif" },
-    { name: "AC Repair", image: "/ac.png" },
-    { name: "Fridge Repair", image: "/fidge.jpeg" },
-    { name: "Washing Machine Repair", image: "/washing.jpg" },
-    { name: "Electrician", image: "/electrician.jpg" },
-    { name: "Plumber", image: "/plumber.png" }
+    { name: "Mac Repair", image: "/laptop.avif", serviceType: "mac" },  
+    { name: "CCTV Installation", image: "/cctv.webp", serviceType: "cctv" },
+    { name: "Tablet Repair", image: "/tablet.webp", serviceType: "tablet" },
+    { name: "TV Repair", image: "/tv.avif", serviceType: "tv" },
+    { name: "AC Repair", image: "/ac.png", serviceType: "ac" },
+    { name: "Fridge Repair", image: "/fidge.jpeg", serviceType: "fridge" },
+    { name: "Washing Machine Repair", image: "/washing.jpg", serviceType: "washing" },
+    { name: "Electrician", image: "/electrician.jpg", serviceType: "electrician" },
+    { name: "Plumber", image: "/plumber.png", serviceType: "plumber" }
   ];
 
   useEffect(() => {
@@ -82,16 +84,20 @@ const Hero = () => {
           {/* Text Content - Shows second on mobile, first on desktop */}
           <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-8 lg:mt-0 lg:w-full lg:pr-8" data-aos="fade-right" data-aos-delay="100">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              All Your <span className="text-gradient">IT Needs</span> is Here
+              All <span className="text-gradient">IT Needs</span> is Here at <span className="text-gradient">your DoorStep </span>
             </h1>
             <p className="hidden sm:block text-lg sm:text-xl text-muted-foreground mb-4 sm:mb-8 max-w-2xl">
-              Professional Laptop, Desktop, Electronics repair services. 
+              Professional Laptop, Desktop, Electronics repair services at Door Step. 
               Certified technicians and lightning-fast turnaround times.
             </p>
 
             {/* Service Cards */}
             <div className="flex flex-row gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="300">
-              <div className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1" style={{backgroundColor: '#ffffff'}}>
+              <div 
+                className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
+                style={{backgroundColor: '#ffffff'}}
+                onClick={() => navigate('/service/laptop')}
+              >
                 <div className="text-center">
                   <img 
                     src="/laptop.avif" 
@@ -101,7 +107,11 @@ const Hero = () => {
                   <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">Laptop Repair</h3>
                 </div>
               </div>
-              <div className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1" style={{backgroundColor: '#ffffff'}}>
+              <div 
+                className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
+                style={{backgroundColor: '#ffffff'}}
+                onClick={() => navigate('/service/desktop')}
+              >
                 <div className="text-center">
                   <img 
                     src="/desktop.jpg" 
@@ -111,7 +121,11 @@ const Hero = () => {
                   <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">Desktop Repair</h3>
                 </div>
               </div>
-              <div className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1" style={{backgroundColor: '#ffffff'}}>
+              <div 
+                className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
+                style={{backgroundColor: '#ffffff'}}
+                onClick={() => navigate('/service/printer')}
+              >
                 <div className="text-center">
                   <img 
                     src="/printer.png" 
@@ -144,6 +158,7 @@ const Hero = () => {
                       key={index}
                       className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer"
                       style={{backgroundColor: '#ffffff'}}
+                      onClick={() => navigate(`/service/${service.serviceType}`)}
                     >
                       <div className="text-center">
                         <img 

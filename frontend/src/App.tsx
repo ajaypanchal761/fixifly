@@ -13,6 +13,7 @@ import TermsConditions from "./pages/TermsConditions";
 import About from "./pages/About";
 import RateUs from "./pages/RateUs";
 import Shop from "./pages/Shop";
+import ServicePage from "./pages/LaptopService";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -40,6 +41,7 @@ const AppContent = () => {
           <Route path="/about" element={<About />} />
           <Route path="/rate" element={<RateUs />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/service/:serviceType" element={<ServicePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

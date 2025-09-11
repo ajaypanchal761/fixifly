@@ -7,7 +7,7 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut } from 'lucide-react';
+import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut, Store } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -87,7 +87,7 @@ const Header = () => {
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
-    { name: "Shop", href: "/shop", icon: ShoppingCart },
+    { name: "Shop", href: "/shop", icon: Store },
   ];
 
   return (
@@ -103,9 +103,9 @@ const Header = () => {
           height: '80px',
         }}
       >
-         <Toolbar sx={{ minHeight: '80px !important', justifyContent: 'space-between' }}>
-           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-             {/* Menu Icon - Always visible on desktop and mobile */}
+         <Toolbar sx={{ minHeight: '80px !important', justifyContent: 'center', position: 'relative' }}>
+           {/* Left side - Menu Icon and Logo */}
+           <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', left: 0 }}>
              <IconButton
                color="inherit"
                aria-label="open drawer"
@@ -114,6 +114,7 @@ const Header = () => {
                sx={[
                  {
                    mr: 2,
+                   ml: 1,
                    color: 'black',
                  },
                  open && { display: 'none' },
@@ -141,7 +142,7 @@ const Header = () => {
              />
            </Box>
           
-          {/* Desktop Navigation Links */}
+          {/* Center - Desktop Navigation Links */}
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               {navItems.map((item) => {
@@ -169,13 +170,33 @@ const Header = () => {
             </Box>
           )}
 
-          {/* Mobile Cart Icon */}
+          {/* Right side - Desktop Cart Icon */}
+          {!isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="shopping cart"
+              sx={{
+                color: 'black',
+                position: 'absolute',
+                right: 16,
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
+              }}
+            >
+              <ShoppingCart size={24} />
+            </IconButton>
+          )}
+
+          {/* Right side - Mobile Cart Icon */}
           {isMobile && (
             <IconButton
               color="inherit"
               aria-label="shopping cart"
               sx={{
                 color: 'black',
+                position: 'absolute',
+                right: 16,
                 '&:hover': {
                   backgroundColor: 'rgba(0, 0, 0, 0.04)',
                 },

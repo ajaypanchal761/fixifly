@@ -193,7 +193,7 @@ const ServicesGrid = () => {
             Top Booking <span className="text-gradient">IT Services </span>Here
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Professional repair services for all your electronic devices. 
+            Professional repair services at your DoorStep for all your electronic devices. 
             Our certified technicians ensure quality repairs with genuine parts and warranty.
           </p>
         </div>
