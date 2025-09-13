@@ -27,12 +27,16 @@ interface AMCSubscriptionModalProps {
   planFeatures: string[];
 }
 
-interface FormData {
-  deviceType: string;
+interface DeviceInfo {
   serialNumber: string;
   modelNumber: string;
   serialNumberPhoto: File | null;
+}
+
+interface FormData {
+  deviceType: string;
   quantity: number;
+  devices: DeviceInfo[];
 }
 
 const AMCSubscriptionModal = ({
@@ -46,10 +50,12 @@ const AMCSubscriptionModal = ({
 }: AMCSubscriptionModalProps) => {
   const [formData, setFormData] = useState<FormData>({
     deviceType: "",
-    serialNumber: "",
-    modelNumber: "",
-    serialNumberPhoto: null,
-    quantity: 1
+    quantity: 1,
+    devices: [{
+      serialNumber: "",
+      modelNumber: "",
+      serialNumberPhoto: null
+    }]
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,27 +69,63 @@ const AMCSubscriptionModal = ({
   ];
 
   const handleInputChange = (field: keyof FormData, value: string | File | null | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (field === 'quantity') {
+      const newQuantity = value as number;
+      const currentDevices = formData.devices;
+      let newDevices = [...currentDevices];
+      
+      // Add or remove devices based on quantity change
+      if (newQuantity > currentDevices.length) {
+        // Add new devices
+        for (let i = currentDevices.length; i < newQuantity; i++) {
+          newDevices.push({
+            serialNumber: "",
+            modelNumber: "",
+            serialNumberPhoto: null
+          });
+        }
+      } else if (newQuantity < currentDevices.length) {
+        // Remove devices
+        newDevices = newDevices.slice(0, newQuantity);
+      }
+      
+      setFormData(prev => ({ ...prev, quantity: newQuantity, devices: newDevices }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
+    
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDeviceInputChange = (deviceIndex: number, field: keyof DeviceInfo, value: string | File | null) => {
+    const newDevices = [...formData.devices];
+    newDevices[deviceIndex] = { ...newDevices[deviceIndex], [field]: value };
+    setFormData(prev => ({ ...prev, devices: newDevices }));
+    
+    // Clear error when user starts typing
+    const errorKey = `device_${deviceIndex}_${field}`;
+    if (errors[errorKey]) {
+      setErrors(prev => ({ ...prev, [errorKey]: undefined }));
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, deviceIndex: number) => {
     const file = event.target.files?.[0];
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({ ...prev, serialNumberPhoto: "Please upload an image file" }));
+        setErrors(prev => ({ ...prev, [`device_${deviceIndex}_serialNumberPhoto`]: "Please upload an image file" }));
         return;
       }
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setErrors(prev => ({ ...prev, serialNumberPhoto: "File size must be less than 5MB" }));
+        setErrors(prev => ({ ...prev, [`device_${deviceIndex}_serialNumberPhoto`]: "File size must be less than 5MB" }));
         return;
       }
-      handleInputChange('serialNumberPhoto', file);
+      handleDeviceInputChange(deviceIndex, 'serialNumberPhoto', file);
     }
   };
 
@@ -93,18 +135,22 @@ const AMCSubscriptionModal = ({
     if (!formData.deviceType) {
       newErrors.deviceType = "Please select a device type";
     }
-    if (!formData.serialNumber.trim()) {
-      newErrors.serialNumber = "Serial number is required";
-    }
-    if (!formData.modelNumber.trim()) {
-      newErrors.modelNumber = "Model number is required";
-    }
-    if (!formData.serialNumberPhoto) {
-      newErrors.serialNumberPhoto = "Please upload a photo of the serial number";
-    }
     if (!formData.quantity || formData.quantity < 1) {
       newErrors.quantity = "Quantity must be at least 1";
     }
+
+    // Validate each device
+    formData.devices.forEach((device, index) => {
+      if (!device.serialNumber.trim()) {
+        newErrors[`device_${index}_serialNumber`] = "Serial number is required";
+      }
+      if (!device.modelNumber.trim()) {
+        newErrors[`device_${index}_modelNumber`] = "Model number is required";
+      }
+      if (!device.serialNumberPhoto) {
+        newErrors[`device_${index}_serialNumberPhoto`] = "Please upload a photo of the serial number";
+      }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -144,10 +190,12 @@ const AMCSubscriptionModal = ({
     // Reset form
     setFormData({
       deviceType: "",
-      serialNumber: "",
-      modelNumber: "",
-      serialNumberPhoto: null,
-      quantity: 1
+      quantity: 1,
+      devices: [{
+        serialNumber: "",
+        modelNumber: "",
+        serialNumberPhoto: null
+      }]
     });
   };
 
@@ -221,82 +269,6 @@ const AMCSubscriptionModal = ({
               )}
             </div>
 
-            {/* Serial Number */}
-            <div className="space-y-3">
-              <Label htmlFor="serialNumber" className="text-sm font-semibold text-gray-700 dark:text-gray-300">Serial Number *</Label>
-              <Input
-                id="serialNumber"
-                placeholder="Enter device serial number"
-                value={formData.serialNumber}
-                onChange={(e) => handleInputChange('serialNumber', e.target.value)}
-                className={`h-12 text-base border-2 rounded-lg transition-all duration-200 ${errors.serialNumber ? "border-red-500 bg-red-50 dark:bg-red-950/20" : "border-gray-300 dark:border-gray-600 hover:border-blue-400 focus:border-blue-500"}`}
-              />
-              {errors.serialNumber && (
-                <p className="text-sm text-red-600 dark:text-red-400 font-medium">{errors.serialNumber}</p>
-              )}
-            </div>
-
-            {/* Model Number */}
-            <div className="space-y-3">
-              <Label htmlFor="modelNumber" className="text-sm font-semibold text-gray-700 dark:text-gray-300">Device Model Number *</Label>
-              <Input
-                id="modelNumber"
-                placeholder="Enter device model number"
-                value={formData.modelNumber}
-                onChange={(e) => handleInputChange('modelNumber', e.target.value)}
-                className={`h-12 text-base border-2 rounded-lg transition-all duration-200 ${errors.modelNumber ? "border-red-500 bg-red-50 dark:bg-red-950/20" : "border-gray-300 dark:border-gray-600 hover:border-blue-400 focus:border-blue-500"}`}
-              />
-              {errors.modelNumber && (
-                <p className="text-sm text-red-600 dark:text-red-400 font-medium">{errors.modelNumber}</p>
-              )}
-            </div>
-
-            {/* Serial Number Photo Upload */}
-            <div className="space-y-3">
-              <Label htmlFor="serialPhoto" className="text-sm font-semibold text-gray-700 dark:text-gray-300">Serial Number Photo *</Label>
-              <div className="space-y-4">
-                <div className="flex flex-col gap-3">
-                  <input
-                    type="file"
-                    id="serialPhoto"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="serialPhoto"
-                    className="flex items-center justify-center space-x-3 px-6 py-4 border-2 border-dashed border-blue-300 dark:border-blue-600 rounded-xl cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all duration-200 min-h-[56px]"
-                  >
-                    <Upload className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    <span className="text-base font-medium text-blue-600 dark:text-blue-400">Upload Photo</span>
-                  </label>
-                  {formData.serialNumberPhoto && (
-                    <div className="flex items-center space-x-3 text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
-                      <Check className="h-5 w-5 flex-shrink-0" />
-                      <span className="truncate flex-1 font-medium">{formData.serialNumberPhoto.name}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleInputChange('serialNumberPhoto', null)}
-                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 flex-shrink-0 rounded-full"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Please upload a clear photo of the device's serial number label. 
-                  <br className="sm:hidden" />
-                  Supported formats: JPG, PNG, GIF (Max 5MB)
-                </p>
-                {errors.serialNumberPhoto && (
-                  <p className="text-sm text-red-600 dark:text-red-400 font-medium">{errors.serialNumberPhoto}</p>
-                )}
-              </div>
-            </div>
-
             {/* Quantity */}
             <div className="space-y-3">
               <Label htmlFor="quantity" className="text-sm font-semibold text-gray-700 dark:text-gray-300">Quantity *</Label>
@@ -336,6 +308,94 @@ const AMCSubscriptionModal = ({
                 Number of devices you want to subscribe for this plan
               </p>
             </div>
+
+            {/* Device Details - Dynamic based on quantity */}
+            {formData.devices.map((device, index) => (
+              <div key={index} className="space-y-4 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{index + 1}</span>
+                  </div>
+                  Device {index + 1} Details
+                </h4>
+
+                {/* Serial Number */}
+                <div className="space-y-3">
+                  <Label htmlFor={`serialNumber_${index}`} className="text-sm font-semibold text-gray-700 dark:text-gray-300">Serial Number *</Label>
+                  <Input
+                    id={`serialNumber_${index}`}
+                    placeholder="Enter device serial number"
+                    value={device.serialNumber}
+                    onChange={(e) => handleDeviceInputChange(index, 'serialNumber', e.target.value)}
+                    className={`h-12 text-base border-2 rounded-lg transition-all duration-200 ${errors[`device_${index}_serialNumber`] ? "border-red-500 bg-red-50 dark:bg-red-950/20" : "border-gray-300 dark:border-gray-600 hover:border-blue-400 focus:border-blue-500"}`}
+                  />
+                  {errors[`device_${index}_serialNumber`] && (
+                    <p className="text-sm text-red-600 dark:text-red-400 font-medium">{errors[`device_${index}_serialNumber`]}</p>
+                  )}
+                </div>
+
+                {/* Model Number */}
+                <div className="space-y-3">
+                  <Label htmlFor={`modelNumber_${index}`} className="text-sm font-semibold text-gray-700 dark:text-gray-300">Device Model Number *</Label>
+                  <Input
+                    id={`modelNumber_${index}`}
+                    placeholder="Enter device model number"
+                    value={device.modelNumber}
+                    onChange={(e) => handleDeviceInputChange(index, 'modelNumber', e.target.value)}
+                    className={`h-12 text-base border-2 rounded-lg transition-all duration-200 ${errors[`device_${index}_modelNumber`] ? "border-red-500 bg-red-50 dark:bg-red-950/20" : "border-gray-300 dark:border-gray-600 hover:border-blue-400 focus:border-blue-500"}`}
+                  />
+                  {errors[`device_${index}_modelNumber`] && (
+                    <p className="text-sm text-red-600 dark:text-red-400 font-medium">{errors[`device_${index}_modelNumber`]}</p>
+                  )}
+                </div>
+
+                {/* Serial Number Photo Upload */}
+                <div className="space-y-3">
+                  <Label htmlFor={`serialPhoto_${index}`} className="text-sm font-semibold text-gray-700 dark:text-gray-300">Serial Number Photo *</Label>
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-3">
+                      <input
+                        type="file"
+                        id={`serialPhoto_${index}`}
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, index)}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor={`serialPhoto_${index}`}
+                        className="flex items-center justify-center space-x-3 px-6 py-4 border-2 border-dashed border-blue-300 dark:border-blue-600 rounded-xl cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all duration-200 min-h-[56px]"
+                      >
+                        <Upload className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <span className="text-base font-medium text-blue-600 dark:text-blue-400">Upload Photo</span>
+                      </label>
+                      {device.serialNumberPhoto && (
+                        <div className="flex items-center space-x-3 text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
+                          <Check className="h-5 w-5 flex-shrink-0" />
+                          <span className="truncate flex-1 font-medium">{device.serialNumberPhoto.name}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeviceInputChange(index, 'serialNumberPhoto', null)}
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 flex-shrink-0 rounded-full"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                      Please upload a clear photo of the device's serial number label. 
+                      <br className="sm:hidden" />
+                      Supported formats: JPG, PNG, GIF (Max 5MB)
+                    </p>
+                    {errors[`device_${index}_serialNumberPhoto`] && (
+                      <p className="text-sm text-red-600 dark:text-red-400 font-medium">{errors[`device_${index}_serialNumberPhoto`]}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Price Summary */}

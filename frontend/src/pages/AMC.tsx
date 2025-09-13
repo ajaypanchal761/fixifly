@@ -122,7 +122,7 @@ const AMC = () => {
       description: "Best for small businesses and power users",
       popular: true,
       features: [
-        "Up to 3 Devices",
+        "1 Device Coverage",
         "Priority Support (Phone + Email)",
         "Bi-weekly Health Checks",
         "Priority Repair Queue",
@@ -144,7 +144,7 @@ const AMC = () => {
       description: "Complete peace of mind for enterprises",
       popular: false,
       features: [
-        "Unlimited Devices",
+        "1 Device Coverage",
         "24/7 Premium Support",
         "Weekly Health Checks", 
         "Express Repair Priority",
