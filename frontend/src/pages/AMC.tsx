@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Accordion,
   AccordionContent,
@@ -15,14 +17,86 @@ import {
   Headphones,
   Wrench,
   Zap,
-  Award
+  Award,
+  Calendar,
+  CreditCard,
+  Settings,
+  Download,
+  Eye,
+  Home,
+  AlertTriangle,
+  FileText,
+  Timer
 } from "lucide-react";
+import AMCSubscriptionModal from "@/components/AMCSubscriptionModal";
 
 const AMC = () => {
+  // State for subscription modal
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{
+    name: string;
+    price: string;
+    period: string;
+    description: string;
+    features: string[];
+  } | null>(null);
+
+  // Mock data for user's current AMC subscriptions
+  const myAMCPlans = [
+    {
+      id: "1",
+      planName: "Care Plan",
+      status: "Active",
+      startDate: "2024-01-15",
+      endDate: "2025-01-15",
+      nextBilling: "2024-12-15",
+      amount: "$79",
+      devices: 3,
+      usedDevices: 2,
+      lastService: "2024-11-20",
+      nextService: "2024-12-05",
+      homeVisits: {
+        total: 4,
+        used: 1,
+        remaining: 3
+      },
+      warrantyClaims: {
+        total: 2,
+        used: 0,
+        remaining: 2
+      },
+      daysRemaining: 45
+    },
+    {
+      id: "2", 
+      planName: "Try Plan",
+      status: "Active",
+      startDate: "2024-10-01",
+      endDate: "2025-10-01",
+      nextBilling: "2024-12-01",
+      amount: "$29",
+      devices: 1,
+      usedDevices: 1,
+      lastService: "2024-11-15",
+      nextService: "2024-12-01",
+      homeVisits: {
+        total: 2,
+        used: 2,
+        remaining: 0
+      },
+      warrantyClaims: {
+        total: 1,
+        used: 1,
+        remaining: 0
+      },
+      daysRemaining: 305
+    }
+  ];
+
   const plans = [
     {
       name: "Try Plan",
-      price: "$29",
+      price: "₹29",
       period: "/month",
       description: "Perfect for individual users with basic needs",
       popular: false,
@@ -43,7 +117,7 @@ const AMC = () => {
     },
     {
       name: "Care Plan", 
-      price: "$79",
+      price: "₹79",
       period: "/month",
       description: "Best for small businesses and power users",
       popular: true,
@@ -65,7 +139,7 @@ const AMC = () => {
     },
     {
       name: "Relax Plan",
-      price: "$149", 
+      price: "₹149", 
       period: "/month",
       description: "Complete peace of mind for enterprises",
       popular: false,
@@ -111,36 +185,59 @@ const AMC = () => {
     }
   ];
 
+  // Handle subscription button click
+  const handleSubscribeClick = (plan: typeof plans[0]) => {
+    setSelectedPlan({
+      name: plan.name,
+      price: plan.price,
+      period: plan.period,
+      description: plan.description,
+      features: plan.features
+    });
+    setIsSubscriptionModalOpen(true);
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setIsSubscriptionModalOpen(false);
+    setSelectedPlan(null);
+  };
+
   return (
     <div className="min-h-screen pt-16 bg-secondary/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
         <div className="text-center mb-8 md:mb-16 animate-slide-up">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Choose Your <span className="text-gradient">AMC Plan</span>
+            <span className="text-gradient">AMC</span> Management
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8 hidden md:block">
-            Annual Maintenance Contracts designed to keep your devices running smoothly. 
-            Preventive care, priority support, and comprehensive coverage all year round.
+            Manage your Annual Maintenance Contracts and explore new plans. 
+            Keep your devices running smoothly with comprehensive coverage.
           </p>
-          <div className="flex items-center justify-center space-x-6 text-sm text-muted-foreground hidden md:flex">
-            <div className="flex items-center space-x-2">
-              <Check className="h-4 w-4 text-green-500" />
-              <span>No Setup Fees</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Check className="h-4 w-4 text-green-500" />
-              <span>Cancel Anytime</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Check className="h-4 w-4 text-green-500" />
-              <span>30-Day Money Back</span>
-            </div>
-          </div>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-16 animate-fade-in-delay mt-4 md:mt-0">
+        {/* Tabs Navigation */}
+        <Tabs defaultValue="plans" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="plans" className="text-base font-semibold">
+              AMC Plans
+            </TabsTrigger>
+            <TabsTrigger value="my-amc" className="text-base font-semibold">
+              My AMC
+            </TabsTrigger>
+          </TabsList>
+
+          {/* AMC Plans Tab */}
+          <TabsContent value="plans" className="space-y-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+                Choose Your <span className="text-gradient">AMC Plan</span>
+              </h2>
+            </div>
+
+            {/* Pricing Cards */}
+            <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-16 animate-fade-in-delay">
           {plans.map((plan, index) => (
             <Card 
               key={plan.name} 
@@ -203,6 +300,7 @@ const AMC = () => {
                       : 'bg-primary hover:bg-primary-dark text-primary-foreground'
                   }`}
                   size="lg"
+                  onClick={() => handleSubscribeClick(plan)}
                 >
                   Subscribe to {plan.name}
                 </Button>
@@ -211,11 +309,11 @@ const AMC = () => {
           ))}
         </div>
 
-        {/* Benefits Section */}
-        <div className="mb-16 animate-slide-up hidden md:block">
+            {/* Benefits Section */}
+            <div className="mb-16 animate-slide-up hidden md:block">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
-              Why Choose <span className="text-gradient">FixiFly AMC</span>?
+              Why Choose <span className="text-gradient">FixFly AMC</span>?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Our Annual Maintenance Contracts provide comprehensive device care with proven results.
@@ -244,57 +342,228 @@ const AMC = () => {
           </div>
         </div>
 
-        {/* FAQ Section */}
-        <div className="max-w-4xl mx-auto animate-slide-up">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
-            <p className="text-lg text-muted-foreground">
-              Common questions about our AMC plans and services
-            </p>
-          </div>
+          </TabsContent>
 
-          <Card className="service-card">
-            <CardContent className="p-6">
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1" className="border-b border-border/50">
-                  <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
-                    Can I upgrade or downgrade my plan anytime?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    Yes, you can upgrade or downgrade your plan at any time. When upgrading, the price difference will be prorated for the remaining billing period. When downgrading, the change will take effect at your next billing cycle to ensure you get the full value of your current plan.
-                  </AccordionContent>
-                </AccordionItem>
+          {/* My AMC Tab */}
+          <TabsContent value="my-amc" className="space-y-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+                My <span className="text-gradient">AMC Subscriptions</span>
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto hidden md:block">
+                Manage your active AMC plans, view service history, and track your device coverage.
+              </p>
+            </div>
 
-                <AccordionItem value="item-2" className="border-b border-border/50">
-                  <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
-                    What devices and equipment are covered under AMC?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    We cover laptops, desktops, Mac computers, printers, scanners, routers, and other IT equipment. Our coverage includes both hardware and software issues. For specific device compatibility or specialized equipment, please contact our team for detailed information.
-                  </AccordionContent>
-                </AccordionItem>
+            {/* Active AMC Plans */}
+            <div className="space-y-4">
+              {myAMCPlans.map((plan, index) => (
+                <Card key={plan.id} className="service-card">
+                  <CardHeader className="pb-3 px-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{plan.planName}</CardTitle>
+                        <CardDescription className="text-sm">
+                          Active since {new Date(plan.startDate).toLocaleDateString()}
+                        </CardDescription>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+                          <div className="flex items-center space-x-1">
+                            <Timer className="h-3 w-3 text-orange-500 flex-shrink-0" />
+                            <span className="text-xs font-medium text-orange-600">
+                              {plan.daysRemaining} days left
+                            </span>
+                          </div>
+                          {plan.daysRemaining <= 30 && (
+                            <Badge variant="destructive" className="text-xs px-2 py-0.5 w-fit">
+                              <AlertTriangle className="h-2 w-2 mr-1" />
+                              Expires Soon
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Badge 
+                        className={`text-xs px-2 py-1 w-fit ${
+                          plan.status === 'Active' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {plan.status}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0 px-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Plan Details */}
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-xs text-muted-foreground">Plan Details</h4>
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <CreditCard className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            <span className="text-xs">{plan.amount}/month</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            <span className="text-xs">Next billing: {new Date(plan.nextBilling).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            <span className="text-xs">Expires: {new Date(plan.endDate).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </div>
 
-                <AccordionItem value="item-3" className="border-b border-border/50">
-                  <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
-                    Are there any setup fees or hidden costs?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    No, there are absolutely no setup fees for any of our AMC plans. You only pay the monthly subscription fee with complete transparency. All services included in your plan are covered without additional charges, and we'll always inform you upfront if any service falls outside your plan coverage.
-                  </AccordionContent>
-                </AccordionItem>
+                      {/* Device Coverage */}
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-xs text-muted-foreground">Device Coverage</h4>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs">Devices Used</span>
+                            <span className="text-xs font-medium">{plan.usedDevices}/{plan.devices}</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className="bg-primary h-1.5 rounded-full" 
+                              style={{ width: `${(plan.usedDevices / plan.devices) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
 
-                <AccordionItem value="item-4" className="border-b border-border/50">
-                  <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
-                    How does the warranty and service guarantee work?
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    All repairs and replacements come with our standard 90-day warranty. AMC customers receive extended warranty coverage on all services. We also provide a 100% satisfaction guarantee - if you're not completely satisfied with our service, we'll make it right or provide a full refund.
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </CardContent>
-          </Card>
-        </div>
+                      {/* Service History */}
+                      <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                        <h4 className="font-semibold text-xs text-muted-foreground">Service History</h4>
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            <span className="text-xs">Last: {new Date(plan.lastService).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            <span className="text-xs">Next: {new Date(plan.nextService).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Additional Benefits Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-border/50">
+                      {/* Free Home Visits */}
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-xs text-muted-foreground">Free Home Visits</h4>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-1">
+                              <Home className="h-3 w-3 text-blue-500 flex-shrink-0" />
+                              <span className="text-xs">Used</span>
+                            </div>
+                            <span className="text-xs font-medium">
+                              {plan.homeVisits.used}/{plan.homeVisits.total}
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className={`h-1.5 rounded-full ${
+                                plan.homeVisits.remaining === 0 
+                                  ? 'bg-red-500' 
+                                  : plan.homeVisits.remaining <= 1 
+                                    ? 'bg-yellow-500' 
+                                    : 'bg-blue-500'
+                              }`}
+                              style={{ width: `${(plan.homeVisits.used / plan.homeVisits.total) * 100}%` }}
+                            ></div>
+                          </div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Left: {plan.homeVisits.remaining}</span>
+                            {plan.homeVisits.remaining === 0 && (
+                              <Badge variant="destructive" className="text-xs px-1 py-0.5">
+                                All Used
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Warranty Claims */}
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-xs text-muted-foreground">Warranty Claims</h4>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-1">
+                              <Shield className="h-3 w-3 text-green-500 flex-shrink-0" />
+                              <span className="text-xs">Used</span>
+                            </div>
+                            <span className="text-xs font-medium">
+                              {plan.warrantyClaims.used}/{plan.warrantyClaims.total}
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className={`h-1.5 rounded-full ${
+                                plan.warrantyClaims.remaining === 0 
+                                  ? 'bg-red-500' 
+                                  : plan.warrantyClaims.remaining <= 1 
+                                    ? 'bg-yellow-500' 
+                                    : 'bg-green-500'
+                              }`}
+                              style={{ width: `${(plan.warrantyClaims.used / plan.warrantyClaims.total) * 100}%` }}
+                            ></div>
+                          </div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Left: {plan.warrantyClaims.remaining}</span>
+                            {plan.warrantyClaims.remaining === 0 && (
+                              <Badge variant="destructive" className="text-xs px-1 py-0.5">
+                                All Used
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="mt-4 pt-4 border-t border-border/50">
+                      <h4 className="font-semibold text-xs text-muted-foreground mb-2">Actions</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                        <Button variant="outline" size="sm" className="w-full text-xs h-8">
+                          <Eye className="h-3 w-3 mr-1" />
+                          View Details
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full text-xs h-8">
+                          <Download className="h-3 w-3 mr-1" />
+                          Download Invoice
+                        </Button>
+                        <Button 
+                          variant={plan.warrantyClaims.remaining > 0 ? "default" : "outline"} 
+                          size="sm" 
+                          className="w-full text-xs h-8 sm:col-span-2 lg:col-span-1"
+                          disabled={plan.warrantyClaims.remaining === 0}
+                        >
+                          <FileText className="h-3 w-3 mr-1" />
+                          Claim Warranty
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+          </TabsContent>
+        </Tabs>
+
+        {/* Subscription Modal */}
+        {selectedPlan && (
+          <AMCSubscriptionModal
+            isOpen={isSubscriptionModalOpen}
+            onClose={handleModalClose}
+            planName={selectedPlan.name}
+            planPrice={selectedPlan.price}
+            planPeriod={selectedPlan.period}
+            planDescription={selectedPlan.description}
+            planFeatures={selectedPlan.features}
+          />
+        )}
       </div>
     </div>
   );
