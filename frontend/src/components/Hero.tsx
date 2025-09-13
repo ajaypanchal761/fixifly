@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Zap, Shield, Clock } from "lucide-react";
+import { ArrowDown, Zap, Shield, Clock, Building2, Award, Star } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -45,11 +46,11 @@ const Hero = () => {
       </div>
 
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ${
-        showMoreServices ? 'mt-28 sm:pt-20 lg:pt-0' : 'mt-0 sm:pt-20 lg:pt-24'
+        showMoreServices ? 'mt-24 sm:pt-20 lg:pt-20' : 'mt-12 sm:pt-20 lg:pt-24'
       }`}>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-          <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-1/4 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8" data-aos="fade-left" data-aos-delay="200">
+          <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8" data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
@@ -175,9 +176,49 @@ const Hero = () => {
                 </div>
               </div>
             )}
+
+            {/* Company Trust Indicators */}
+            <div className="grid grid-cols-3 gap-2 max-w-md mx-auto lg:mx-0 lg:ml-16" data-aos="fade-up" data-aos-delay="500">
+              <div className="text-center">
+                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
+                  <Building2 className="h-6 w-6 text-white" />
+                </div>
+                <p className="text-sm font-semibold">Private Limited</p>
+                <p className="text-xs text-muted-foreground">Company</p>
+              </div>
+              <div className="text-center">
+                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
+                  <Award className="h-6 w-6 text-white" />
+                </div>
+                <p className="text-sm font-semibold">ISO 9001:2015</p>
+                <p className="text-xs text-muted-foreground">Certified</p>
+              </div>
+              <div className="text-center">
+                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
+                  <Star className="h-6 w-6 text-white" />
+                </div>
+                <p className="text-sm font-semibold">Positive Rating</p>
+                <p className="text-xs text-muted-foreground">Trusted Service</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+      
+      {/* Lottie Animation - Desktop Only, Show when More Services is expanded */}
+      {showMoreServices && (
+        <div className="hidden lg:block absolute bottom-48 right-14 w-full max-w-4xl">
+          <div className="flex justify-end items-end">
+            <div className="w-full max-w-3xl h-96">
+              <DotLottieReact
+                src="https://lottie.host/4b4777ae-24ca-490b-89fc-6a6a49a87b91/RY3zh347Uf.lottie"
+                loop
+                autoplay
+              />
+            </div>
+          </div>
+        </div>
+      )}
       
     </section>
   );

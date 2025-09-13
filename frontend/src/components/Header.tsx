@@ -7,8 +7,8 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut, Store } from 'lucide-react';
-import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox } from '@mui/material';
+import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut, Store, Search } from 'lucide-react';
+import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -68,6 +68,8 @@ const Header = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [showMobileSearch, setShowMobileSearch] = React.useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerOpen = () => {
@@ -81,6 +83,51 @@ const Header = () => {
   const handleLogoClick = () => {
     navigate("/");
   };
+
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to search results or handle search
+      console.log('Searching for:', searchQuery);
+      // You can implement search functionality here
+    }
+  };
+
+  const toggleMobileSearch = () => {
+    setShowMobileSearch(!showMobileSearch);
+  };
+
+  const handleCartClick = () => {
+    navigate("/shop");
+  };
+
+  // Close mobile search when clicking outside or pressing escape
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showMobileSearch && isMobile) {
+        const target = event.target as Element;
+        if (!target.closest('.mobile-search-container')) {
+          setShowMobileSearch(false);
+        }
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showMobileSearch) {
+        setShowMobileSearch(false);
+      }
+    };
+
+    if (showMobileSearch) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showMobileSearch, isMobile]);
 
   const navItems = [
     { name: "Home", href: "/", icon: Home },
@@ -170,40 +217,151 @@ const Header = () => {
             </Box>
           )}
 
-          {/* Right side - Desktop Cart Icon */}
+          {/* Right side - Search Bar and Cart Icon */}
           {!isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="shopping cart"
-              sx={{
-                color: 'black',
-                position: 'absolute',
-                right: 16,
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                },
-              }}
-            >
-              <ShoppingCart size={24} />
-            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 2 }}>
+              {/* Search Bar */}
+              <Box component="form" onSubmit={handleSearch}>
+                <TextField
+                  size="medium"
+                  placeholder="Search services..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  sx={{
+                    width: '300px',
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '30px',
+                      backgroundColor: '#f8f9fa',
+                      height: '48px',
+                      '& fieldset': {
+                        borderColor: '#e5e7eb',
+                        borderWidth: '2px',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#3b82f6',
+                        borderWidth: '2px',
+                      },
+                    },
+                    '& .MuiInputBase-input': {
+                      padding: '12px 16px',
+                      fontSize: '16px',
+                      fontWeight: 400,
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search size={20} color="#6b7280" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+              
+              {/* Cart Icon */}
+              <IconButton
+                color="inherit"
+                aria-label="shopping cart"
+                onClick={handleCartClick}
+                sx={{
+                  color: 'black',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  },
+                }}
+              >
+                <ShoppingCart size={24} />
+              </IconButton>
+            </Box>
           )}
 
-          {/* Right side - Mobile Cart Icon */}
+          {/* Mobile Search Icon and Cart Icon */}
           {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="shopping cart"
-              sx={{
-                color: 'black',
-                position: 'absolute',
-                right: 16,
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                },
-              }}
-            >
-              <ShoppingCart size={24} />
-            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 1 }}>
+              {/* Mobile Search Icon */}
+              <IconButton
+                color="inherit"
+                aria-label="search"
+                onClick={toggleMobileSearch}
+                sx={{
+                  color: 'black',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  },
+                }}
+              >
+                <Search size={24} />
+              </IconButton>
+              
+              {/* Mobile Cart Icon */}
+              <IconButton
+                color="inherit"
+                aria-label="shopping cart"
+                onClick={handleCartClick}
+                sx={{
+                  color: 'black',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  },
+                }}
+              >
+                <ShoppingCart size={24} />
+              </IconButton>
+            </Box>
+          )}
+
+          {/* Mobile Search Bar - Shows when search icon is clicked */}
+          {isMobile && showMobileSearch && (
+            <Box className="mobile-search-container" sx={{ 
+              position: 'absolute', 
+              top: '100%', 
+              left: 0, 
+              right: 0, 
+              backgroundColor: 'white', 
+              boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
+              zIndex: 1000,
+              padding: '12px 16px'
+            }}>
+              <Box component="form" onSubmit={handleSearch}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Search services..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '25px',
+                      backgroundColor: '#f8f9fa',
+                      '& fieldset': {
+                        borderColor: '#e5e7eb',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputBase-input': {
+                      padding: '12px 16px',
+                      fontSize: '16px',
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search size={20} color="#6b7280" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+            </Box>
           )}
 
         </Toolbar>
