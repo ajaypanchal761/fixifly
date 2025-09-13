@@ -1,31 +1,40 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ApplianceServices = () => {
+  const navigate = useNavigate();
+  
   const appliances = [
     {
       title: "TV Repair",
-      image: "/tv.avif"
+      image: "/tv.avif",
+      serviceType: "tv"
     },
     {
       title: "AC Repair",
-      image: "/ac.png"
+      image: "/ac.png",
+      serviceType: "ac"
     },
     {
       title: "Fridge Repair",
-      image: "/fidge.jpeg"
+      image: "/fidge.jpeg",
+      serviceType: "fridge"
     },
     {
       title: "Washing Machine",
-      image: "/washing.jpg"
+      image: "/washing.jpg",
+      serviceType: "washing"
     },
     {
       title: "Electrician",
-      image: "/electrician.jpg"
+      image: "/electrician.jpg",
+      serviceType: "electrician"
     },
     {
       title: "Plumber",
-      image: "/plumber.png"
+      image: "/plumber.png",
+      serviceType: "plumber"
     }
   ];
 
@@ -49,10 +58,11 @@ const ApplianceServices = () => {
             return (
               <div
                 key={appliance.title}
-                className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 animate-slide-up"
+                className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer animate-slide-up"
                 style={{ backgroundColor: '#ffffff', animationDelay: `${index * 0.1}s` }}
                 data-aos="zoom-in"
                 data-aos-delay={300 + (index * 100)}
+                onClick={() => navigate(`/service/${appliance.serviceType}`)}
               >
                 <div className="text-center">
                   <img 
