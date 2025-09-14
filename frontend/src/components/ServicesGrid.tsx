@@ -13,12 +13,15 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import ServiceBookingModal from "./ServiceBookingModal";
 
 const ServicesGrid = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const autoScrollInterval = useRef<NodeJS.Timeout | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<any>(null);
 
   const services = [
     {
@@ -132,6 +135,16 @@ const ServicesGrid = () => {
       clearInterval(autoScrollInterval.current);
       autoScrollInterval.current = null;
     }
+  };
+
+  const handleBookService = (service: any) => {
+    setSelectedService(service);
+    setIsBookingModalOpen(true);
+  };
+
+  const handleCloseBookingModal = () => {
+    setIsBookingModalOpen(false);
+    setSelectedService(null);
   };
 
   const handleScroll = () => {
@@ -294,6 +307,7 @@ const ServicesGrid = () => {
                     
                     {/* Book Service Button */}
                     <Button 
+                      onClick={() => handleBookService(service)}
                       className={`w-full font-medium rounded-lg py-2 transition-all duration-300 ${
                         isCenter 
                           ? 'bg-blue-500 hover:bg-blue-600 text-white' 
@@ -327,6 +341,15 @@ const ServicesGrid = () => {
           </div>
         </div>
       </div>
+
+      {/* Service Booking Modal */}
+      {selectedService && (
+        <ServiceBookingModal
+          isOpen={isBookingModalOpen}
+          onClose={handleCloseBookingModal}
+          service={selectedService}
+        />
+      )}
     </section>
   );
 };
