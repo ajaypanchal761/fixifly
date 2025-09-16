@@ -7,9 +7,10 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut, Store, Search } from 'lucide-react';
+import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut, Store, Search, LogIn } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const drawerWidth = 240;
 
@@ -67,6 +68,7 @@ const AppBar = styled(MuiAppBar, {
 const Header = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [showMobileSearch, setShowMobileSearch] = React.useState(false);
@@ -432,13 +434,13 @@ const Header = () => {
               fontSize: '1.5rem'
             }}
           >
-            U
+            {isAuthenticated && user ? user.name.charAt(0).toUpperCase() : 'U'}
           </Avatar>
           <Typography variant="subtitle1" sx={{ fontWeight: 'bold', marginBottom: 0.25, color: '#1f2937' }}>
-            John Doe
+            {isAuthenticated && user ? user.name : 'Guest User'}
           </Typography>
           <Typography variant="body2" sx={{ color: '#6b7280', marginBottom: 1 }}>
-            +91 98765 43210
+            {isAuthenticated && user ? user.phone : 'Not logged in'}
           </Typography>
         </MuiBox>
         
@@ -491,29 +493,60 @@ const Header = () => {
             );
           })}
           
-          {/* Logout Button - Right after Rate Us */}
+          {/* Authentication Buttons */}
           <Divider sx={{ margin: isMobile ? '8px 0' : '-2px 0' }} />
-          <Button
-            component="a"
-            href="/logout"
-            startIcon={<LogOut size={20} />}
-            fullWidth
-            sx={{
-              justifyContent: 'flex-start',
-              padding: '12px 16px',
-              margin: isMobile ? '4px 0 30px 0' : '2px 0', // Reduced top margin on desktop
-              textTransform: 'none',
-              color: '#dc2626',
-              fontSize: '16px',
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: '#fef2f2',
-                color: '#b91c1c'
-              }
-            }}
-          >
-            Logout
-          </Button>
+          
+          {isAuthenticated ? (
+            // Show Logout button if user is authenticated
+            <Button
+              onClick={() => {
+                logout();
+                handleDrawerClose();
+                navigate('/');
+              }}
+              startIcon={<LogOut size={20} />}
+              fullWidth
+              sx={{
+                justifyContent: 'flex-start',
+                padding: '12px 16px',
+                margin: isMobile ? '4px 0 30px 0' : '2px 0',
+                textTransform: 'none',
+                color: '#dc2626',
+                fontSize: '16px',
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: '#fef2f2',
+                  color: '#b91c1c'
+                }
+              }}
+            >
+              Logout
+            </Button>
+          ) : (
+            // Show Login button if user is not authenticated
+            <Button
+              component={Link}
+              to="/login"
+              startIcon={<LogIn size={20} />}
+              fullWidth
+              onClick={handleDrawerClose}
+              sx={{
+                justifyContent: 'flex-start',
+                padding: '12px 16px',
+                margin: isMobile ? '4px 0 30px 0' : '2px 0',
+                textTransform: 'none',
+                color: '#059669',
+                fontSize: '16px',
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: '#ecfdf5',
+                  color: '#047857'
+                }
+              }}
+            >
+              Login
+            </Button>
+          )}
         </MuiBox>
       </Drawer>
     </Box>

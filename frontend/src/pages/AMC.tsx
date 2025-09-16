@@ -237,11 +237,11 @@ const AMC = () => {
             </div>
 
             {/* Pricing Cards */}
-            <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-16 animate-fade-in-delay">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-16 animate-fade-in-delay max-w-5xl mx-auto">
           {plans.map((plan, index) => (
             <Card 
               key={plan.name} 
-              className={`service-card relative max-w-sm mx-auto md:max-w-none ${plan.popular ? 'ring-2 ring-primary scale-105' : ''}`}
+              className={`service-card relative max-w-sm mx-auto md:max-w-none flex flex-col h-full ${plan.popular ? 'ring-2 ring-primary scale-105' : ''}`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {plan.popular && (
@@ -253,57 +253,41 @@ const AMC = () => {
                 </div>
               )}
 
-              <CardHeader className="text-center pb-2 md:pb-8 px-3 md:px-6">
-                <CardTitle className="text-lg md:text-2xl font-bold">{plan.name}</CardTitle>
-                <CardDescription className="text-xs md:text-base mb-1 md:mb-4">
+              <CardHeader className="text-center pb-2 md:pb-4 px-3 md:px-4">
+                <CardTitle className="text-lg md:text-xl font-bold">{plan.name}</CardTitle>
+                <CardDescription className="text-xs md:text-sm mb-1 md:mb-2">
                   {plan.description}
                 </CardDescription>
                 <div className="text-center">
-                  <span className="text-2xl md:text-4xl font-bold text-primary">{plan.price}</span>
-                  <span className="text-muted-foreground text-sm md:text-base">{plan.period}</span>
+                  <span className="text-xl md:text-2xl font-bold text-primary">{plan.price}</span>
+                  <span className="text-muted-foreground text-sm">{plan.period}</span>
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-3 md:space-y-6 px-3 md:px-6">
+              <CardContent className="space-y-2 md:space-y-3 px-3 md:px-4 flex flex-col flex-1">
                 {/* Included Features */}
-                <div>
-                  <h4 className="font-semibold mb-1 md:mb-3 text-green-700 text-xs md:text-base">✓ What's Included</h4>
-                  <ul className="space-y-0.5 md:space-y-2">
+                <div className="flex-1">
+                  <h4 className="font-semibold mb-1 md:mb-2 text-green-700 text-xs md:text-sm">✓ What's Included</h4>
+                  <ul className="space-y-0.5 md:space-y-1">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm">
-                        <Check className="h-2.5 w-2.5 md:h-4 md:w-4 text-green-500 flex-shrink-0" />
+                      <li key={feature} className="flex items-center space-x-1 md:space-x-2 text-xs">
+                        <Check className="h-2.5 w-2.5 md:h-3 md:w-3 text-green-500 flex-shrink-0" />
                         <span className="leading-tight">{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {/* Not Included Features */}
-                {plan.notIncluded.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-1 md:mb-3 text-muted-foreground text-xs md:text-base">✗ Not Included</h4>
-                    <ul className="space-y-0.5 md:space-y-2">
-                      {plan.notIncluded.map((feature) => (
-                        <li key={feature} className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm text-muted-foreground">
-                          <span className="w-2.5 h-2.5 md:w-4 md:h-4 flex-shrink-0">✗</span>
-                          <span className="leading-tight">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <Button 
-                  className={`w-full py-3 md:py-6 text-xs md:text-lg ${
-                    plan.popular 
-                      ? 'btn-tech text-white' 
-                      : 'bg-primary hover:bg-primary-dark text-primary-foreground'
-                  }`}
-                  size="lg"
-                  onClick={() => handleSubscribeClick(plan)}
-                >
-                  Subscribe to {plan.name}
-                </Button>
+                {/* Subscribe Button - Always at bottom */}
+                <div className="mt-auto pt-3">
+                  <Button 
+                    className="w-full py-2 md:py-3 text-xs md:text-sm bg-primary hover:bg-primary-dark text-primary-foreground"
+                    size="sm"
+                    onClick={() => handleSubscribeClick(plan)}
+                  >
+                    Subscribe to {plan.name}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}

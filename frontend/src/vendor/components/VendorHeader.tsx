@@ -78,7 +78,7 @@ const VendorHeader = () => {
   };
 
   const handleLogoClick = () => {
-    navigate("/vendor/profile");
+    navigate("/vendor");
   };
 
   const vendorNavItems = [
@@ -280,10 +280,11 @@ const VendorHeader = () => {
             startIcon={<LogOut size={20} />}
             fullWidth
             onClick={() => {
-              // Add logout logic here
+              // Clear authentication data
               localStorage.removeItem('vendorToken');
               localStorage.removeItem('vendorData');
-              navigate('/');
+              // Redirect to vendor login page
+              navigate('/vendor/login');
               handleDrawerClose();
             }}
             sx={{
