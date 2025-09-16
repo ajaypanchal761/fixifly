@@ -241,7 +241,7 @@ const AdminHeader = () => {
           alignItems: 'center', 
           justifyContent: 'center',
           padding: 3,
-          backgroundColor: 'hsl(var(--sidebar-primary))',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           flexShrink: 0
         }}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'hsl(var(--sidebar-primary-foreground))' }}>
