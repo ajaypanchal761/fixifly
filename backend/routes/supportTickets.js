@@ -16,7 +16,8 @@ const {
   declineSupportTicket,
   completeSupportTicket,
   cancelSupportTicket,
-  assignVendorToSupportTicket
+  assignVendorToSupportTicket,
+  sendInvoiceEmail
 } = require('../controllers/supportTicketController');
 const { protect } = require('../middleware/auth');
 const { protectAdmin, requirePermission } = require('../middleware/adminAuth');
@@ -27,6 +28,7 @@ router.post('/', protect, createSupportTicket);
 router.get('/', protect, getUserSupportTickets);
 router.get('/:id', protect, getSupportTicket);
 router.post('/:id/response', protect, addTicketResponse);
+router.post('/send-invoice', protect, sendInvoiceEmail);
 
 // Admin routes
 router.get('/admin/all', protectAdmin, requirePermission('supportManagement'), getAllSupportTickets);

@@ -18,6 +18,7 @@ import {
   Mail,
   MessageCircle,
   HelpCircle,
+  Info,
   FileText,
   Users,
   UserPlus,
@@ -55,11 +56,9 @@ const AdminSupportManagement = () => {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [isViewTicketOpen, setIsViewTicketOpen] = useState(false);
   const [isReplyTicketOpen, setIsReplyTicketOpen] = useState(false);
+  const [isViewTicketDetailsOpen, setIsViewTicketDetailsOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [replyText, setReplyText] = useState('');
-  const [isAddFaqOpen, setIsAddFaqOpen] = useState(false);
-  const [isEditFaqOpen, setIsEditFaqOpen] = useState(false);
-  const [editingFaq, setEditingFaq] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   // Vendor assignment state
@@ -73,16 +72,6 @@ const AdminSupportManagement = () => {
 
   // Support tickets data - will be fetched from API
   const [supportTickets, setSupportTickets] = useState([]);
-
-  // FAQ data - will be fetched from API
-  const [faqs, setFaqs] = useState([]);
-
-  const [newFaq, setNewFaq] = useState({
-    category: '',
-    question: '',
-    answer: '',
-    status: 'active'
-  });
 
   // Fetch support tickets and stats on component mount
   useEffect(() => {
@@ -139,13 +128,6 @@ const AdminSupportManagement = () => {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const filteredFaqs = faqs.filter(faq => {
-    const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         faq.answer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         faq.category.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Submitted':
@@ -198,6 +180,36 @@ const AdminSupportManagement = () => {
     });
     setIsReplyTicketOpen(true);
     setReplyText('');
+  };
+
+  const handleViewTicketDetails = async (ticket: any) => {
+    try {
+      const response = await adminSupportTicketAPI.getTicket(ticket.id);
+      
+      if (response.success) {
+        setSelectedTicket(response.data.ticket);
+        setIsViewTicketDetailsOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching ticket details:', error);
+    }
+  };
+
+  const getVendorStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'accepted':
+        return 'bg-blue-100 text-blue-800';
+      case 'declined':
+        return 'bg-red-100 text-red-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const handleSubmitReply = async () => {
@@ -400,65 +412,6 @@ const AdminSupportManagement = () => {
     }
   };
 
-  const handleAddFaq = () => {
-    if (newFaq.category && newFaq.question && newFaq.answer) {
-      const faq = {
-        id: `FAQ${String(faqs.length + 1).padStart(3, '0')}`,
-        category: newFaq.category,
-        question: newFaq.question,
-        answer: newFaq.answer,
-        status: newFaq.status,
-        created: new Date().toISOString().split('T')[0],
-        lastModified: new Date().toISOString().split('T')[0]
-      };
-      
-      setFaqs(prev => [...prev, faq]);
-      setNewFaq({
-        category: '',
-        question: '',
-        answer: '',
-        status: 'active'
-      });
-      setIsAddFaqOpen(false);
-    }
-  };
-
-  const handleEditFaq = (faq: any) => {
-    setEditingFaq(faq);
-    setNewFaq({
-      category: faq.category,
-      question: faq.question,
-      answer: faq.answer,
-      status: faq.status
-    });
-    setIsEditFaqOpen(true);
-  };
-
-  const handleUpdateFaq = () => {
-    if (editingFaq && newFaq.category && newFaq.question && newFaq.answer) {
-      setFaqs(prev => prev.map(faq => 
-        faq.id === editingFaq.id 
-          ? {
-              ...faq,
-              category: newFaq.category,
-              question: newFaq.question,
-              answer: newFaq.answer,
-              status: newFaq.status,
-              lastModified: new Date().toISOString().split('T')[0]
-            }
-          : faq
-      ));
-      setIsEditFaqOpen(false);
-      setEditingFaq(null);
-    }
-  };
-
-  const handleDeleteFaq = (faqId: string) => {
-    if (window.confirm('Are you sure you want to delete this FAQ?')) {
-      setFaqs(prev => prev.filter(faq => faq.id !== faqId));
-    }
-  };
-
   // Calculate stats
   const totalTickets = supportTickets.length;
   const openTickets = supportTickets.filter(ticket => ticket.status !== 'Resolved' && ticket.status !== 'Closed').length;
@@ -474,68 +427,63 @@ const AdminSupportManagement = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3">
                 Support <span className="text-gradient">Management</span>
               </h1>
-              <p className="text-muted-foreground">Manage support tickets and FAQ content</p>
+              <p className="text-muted-foreground">Manage support tickets</p>
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Tickets</p>
-                  <p className="text-2xl font-bold">{totalTickets}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Total Tickets</p>
+                  <p className="text-lg font-bold">{totalTickets}</p>
                 </div>
-                <MessageSquare className="h-8 w-8 text-muted-foreground" />
+                <MessageSquare className="h-6 w-6 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Open Tickets</p>
-                  <p className="text-2xl font-bold">{openTickets}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Open Tickets</p>
+                  <p className="text-lg font-bold">{openTickets}</p>
                 </div>
-                <Clock className="h-8 w-8 text-muted-foreground" />
+                <Clock className="h-6 w-6 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Resolved</p>
-                  <p className="text-2xl font-bold">{resolvedTickets}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Resolved</p>
+                  <p className="text-lg font-bold">{resolvedTickets}</p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-muted-foreground" />
+                <CheckCircle className="h-6 w-6 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Avg Response Time</p>
-                  <p className="text-2xl font-bold">{avgResponseTime}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Avg Response Time</p>
+                  <p className="text-lg font-bold">{avgResponseTime}</p>
                 </div>
-                <Headphones className="h-8 w-8 text-muted-foreground" />
+                <Headphones className="h-6 w-6 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="tickets" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="tickets">Support Tickets</TabsTrigger>
-            <TabsTrigger value="faq">FAQ Management</TabsTrigger>
-          </TabsList>
-
           <TabsContent value="tickets" className="space-y-6">
             {/* Filters and Search */}
             <Card>
@@ -718,6 +666,15 @@ const AdminSupportManagement = () => {
                             >
                                 <UserPlus className="w-4 h-4" />
                             </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleViewTicketDetails(ticket)}
+                                className="h-8 w-8 p-0"
+                                title="View Complete Details"
+                            >
+                                <Info className="w-4 h-4" />
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -729,7 +686,7 @@ const AdminSupportManagement = () => {
                 {filteredTickets.length === 0 && (
                   <div className="text-center py-8">
                     <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Tickets Found</h3>
+                    <h3 className="text-base font-semibold mb-2">No Tickets Found</h3>
                     <p className="text-muted-foreground">
                       {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all' 
                         ? 'Try adjusting your filters to see more tickets.'
@@ -742,125 +699,6 @@ const AdminSupportManagement = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="faq" className="space-y-6">
-            {/* FAQ Management */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>FAQ Management ({filteredFaqs.length})</CardTitle>
-                  <Dialog open={isAddFaqOpen} onOpenChange={setIsAddFaqOpen}>
-                    <DialogTrigger asChild>
-                      <Button className="bg-primary hover:bg-primary/90">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add FAQ
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle>Add New FAQ</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="faqCategory">Category</Label>
-                          <Select value={newFaq.category} onValueChange={(value) => setNewFaq(prev => ({ ...prev, category: value }))}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="General">General</SelectItem>
-                              <SelectItem value="Booking & Pricing">Booking & Pricing</SelectItem>
-                              <SelectItem value="Technical Support">Technical Support</SelectItem>
-                              <SelectItem value="AMC">AMC</SelectItem>
-                              <SelectItem value="Warranty">Warranty</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label htmlFor="faqQuestion">Question</Label>
-                          <Input
-                            id="faqQuestion"
-                            value={newFaq.question}
-                            onChange={(e) => setNewFaq(prev => ({ ...prev, question: e.target.value }))}
-                            placeholder="Enter question"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="faqAnswer">Answer</Label>
-                          <Textarea
-                            id="faqAnswer"
-                            value={newFaq.answer}
-                            onChange={(e) => setNewFaq(prev => ({ ...prev, answer: e.target.value }))}
-                            placeholder="Enter answer"
-                            rows={4}
-                          />
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="faqStatus"
-                            checked={newFaq.status === 'active'}
-                            onCheckedChange={(checked) => setNewFaq(prev => ({ ...prev, status: checked ? 'active' : 'inactive' }))}
-                          />
-                          <Label htmlFor="faqStatus">Active</Label>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button onClick={handleAddFaq} className="flex-1">
-                            Add FAQ
-                          </Button>
-                          <Button variant="outline" onClick={() => setIsAddFaqOpen(false)}>
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {filteredFaqs.map((faq) => (
-                    <Card key={faq.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge variant="outline">{faq.category}</Badge>
-                              <Badge variant={faq.status === 'active' ? 'default' : 'secondary'}>
-                                {faq.status}
-                              </Badge>
-                            </div>
-                            <h3 className="font-semibold mb-2">{faq.question}</h3>
-                            <p className="text-sm text-muted-foreground mb-2">{faq.answer}</p>
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              <span>Created: {new Date(faq.created).toLocaleDateString()}</span>
-                              <span>Modified: {new Date(faq.lastModified).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleEditFaq(faq)}
-                            >
-                              <Edit className="w-3 h-3 mr-1" />
-                              Edit
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDeleteFaq(faq.id)}
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
 
         {/* View Ticket Dialog */}
@@ -905,7 +743,7 @@ const AdminSupportManagement = () => {
                 {/* Customer Information */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
                       <User className="w-4 h-4" />
                       Customer Information
                     </CardTitle>
@@ -937,7 +775,7 @@ const AdminSupportManagement = () => {
                 {/* Ticket Information */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
                       <FileText className="w-4 h-4" />
                       Ticket Information
                     </CardTitle>
@@ -974,7 +812,7 @@ const AdminSupportManagement = () => {
                 {selectedTicket.tags && selectedTicket.tags.length > 0 && (
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
+                      <CardTitle className="text-base flex items-center gap-2">
                         <Tag className="w-5 h-5" />
                         Tags
                       </CardTitle>
@@ -995,7 +833,7 @@ const AdminSupportManagement = () => {
                 {selectedTicket.resolution && (
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
+                      <CardTitle className="text-base flex items-center gap-2">
                         <CheckCircle className="w-5 h-5 text-green-600" />
                         Resolution
                       </CardTitle>
@@ -1017,7 +855,7 @@ const AdminSupportManagement = () => {
                 {selectedTicket.responses && selectedTicket.responses.length > 0 && (
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
+                      <CardTitle className="text-base flex items-center gap-2">
                         <MessageCircle className="w-5 h-5" />
                         Conversation History ({selectedTicket.responses.length} responses)
                       </CardTitle>
@@ -1213,16 +1051,16 @@ const AdminSupportManagement = () => {
 
         {/* Assign Vendor Dialog */}
         <Dialog open={isAssignVendorOpen} onOpenChange={setIsAssignVendorOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[70vh] overflow-y-auto mt-16">
             <DialogHeader>
               <DialogTitle>Assign Vendor to Ticket</DialogTitle>
             </DialogHeader>
             {selectedTicket && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Customer Information */}
-                <Card className="p-4">
+                <Card className="p-3">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
                       <User className="w-4 h-4" />
                       Customer Information
                     </CardTitle>
@@ -1258,9 +1096,9 @@ const AdminSupportManagement = () => {
                 </Card>
 
                 {/* Ticket Details */}
-                <Card className="p-4">
+                <Card className="p-3">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
                       <FileText className="w-4 h-4" />
                       Ticket Details
                     </CardTitle>
@@ -1308,9 +1146,9 @@ const AdminSupportManagement = () => {
                 </Card>
 
                 {/* Scheduled Date & Time */}
-                <Card className="p-4">
+                <Card className="p-3">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       Schedule Information
                     </CardTitle>
@@ -1357,7 +1195,7 @@ const AdminSupportManagement = () => {
                 {/* Vendor Selection */}
                 <Card className="p-4">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
                       <UserPlus className="w-4 h-4" />
                       Choose a Vendor
                     </CardTitle>
@@ -1402,7 +1240,7 @@ const AdminSupportManagement = () => {
                 {selectedVendor && (
                   <Card className="p-4">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-base flex items-center gap-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
                         <Users className="w-4 h-4" />
                         Selected Vendor Details
                       </CardTitle>
@@ -1471,66 +1309,271 @@ const AdminSupportManagement = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Edit FAQ Dialog */}
-        <Dialog open={isEditFaqOpen} onOpenChange={setIsEditFaqOpen}>
-          <DialogContent className="max-w-2xl">
+        {/* View Ticket Complete Details Dialog */}
+        <Dialog open={isViewTicketDetailsOpen} onOpenChange={setIsViewTicketDetailsOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto pt-16">
             <DialogHeader>
-              <DialogTitle>Edit FAQ</DialogTitle>
+              <DialogTitle className="flex items-center gap-2 text-lg">
+                <Info className="w-4 h-4" />
+                Complete Ticket Details - {selectedTicket?.id}
+              </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="editFaqCategory">Category</Label>
-                <Select value={newFaq.category} onValueChange={(value) => setNewFaq(prev => ({ ...prev, category: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="General">General</SelectItem>
-                    <SelectItem value="Booking & Pricing">Booking & Pricing</SelectItem>
-                    <SelectItem value="Technical Support">Technical Support</SelectItem>
-                    <SelectItem value="AMC">AMC</SelectItem>
-                    <SelectItem value="Warranty">Warranty</SelectItem>
-                  </SelectContent>
-                </Select>
+            {selectedTicket && (
+              <div className="space-y-4">
+                {/* Basic Information */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Basic Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Ticket ID</Label>
+                      <p className="font-medium">{selectedTicket.id}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Subject</Label>
+                      <p className="font-medium">{selectedTicket.subject}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                      <Badge 
+                        variant={selectedTicket.status === 'Open' ? 'default' : 
+                                selectedTicket.status === 'In Progress' ? 'secondary' :
+                                selectedTicket.status === 'Resolved' ? 'outline' : 'destructive'}
+                        className="text-sm px-3 py-1"
+                      >
+                        {selectedTicket.status}
+                      </Badge>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
+                      <Badge 
+                        variant={selectedTicket.priority === 'High' ? 'destructive' : 
+                                selectedTicket.priority === 'Medium' ? 'default' : 'secondary'}
+                        className="text-sm px-3 py-1"
+                      >
+                        {selectedTicket.priority}
+                      </Badge>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Created Date</Label>
+                      <p className="font-medium">{selectedTicket.created}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Last Update</Label>
+                      <p className="font-medium">{selectedTicket.lastUpdate}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Customer Information */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Customer Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Customer Name</Label>
+                      <p className="font-medium">{selectedTicket.customerName || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
+                      <p className="font-medium">{selectedTicket.customerPhone || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Email</Label>
+                      <p className="font-medium">{selectedTicket.customerEmail || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Address</Label>
+                      <p className="font-medium">{selectedTicket.address || 'N/A'}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Spare Parts Used */}
+                {selectedTicket.completionData?.spareParts && selectedTicket.completionData.spareParts.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Spare Parts Used</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3">
+                      <div className="space-y-3">
+                        {selectedTicket.completionData.spareParts.map((part: any, index: number) => (
+                          <div key={index} className="flex items-start gap-3 p-3 border rounded-lg bg-gray-50">
+                            {/* Spare Part Image */}
+                            <div className="flex-shrink-0">
+                              {part.photo ? (
+                                <img 
+                                  src={part.photo} 
+                                  alt={part.name}
+                                  className="w-12 h-12 object-cover rounded-lg border"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                    if (nextElement) {
+                                      nextElement.style.display = 'flex';
+                                    }
+                                  }}
+                                />
+                              ) : null}
+                              <div 
+                                className="w-12 h-12 bg-gray-200 rounded-lg border flex items-center justify-center text-gray-500 text-xs"
+                                style={{ display: part.photo ? 'none' : 'flex' }}
+                              >
+                                No Image
+                              </div>
+                            </div>
+                            
+                            {/* Spare Part Details */}
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h4 className="font-semibold text-gray-900">{part.name}</h4>
+                                  <p className="text-sm text-gray-600">Part ID: #{part.id}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-lg font-bold text-green-600">₹{part.amount}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Spare Parts Total */}
+                        <div className="border-t pt-4">
+                          <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg">
+                            <span className="text-lg font-semibold text-gray-800">Spare Parts Total:</span>
+                            <span className="text-xl font-bold text-blue-600">
+                              ₹{selectedTicket.completionData.spareParts.reduce((sum: number, part: any) => sum + parseFloat(part.amount), 0)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Vendor Information */}
+                {selectedTicket.assignedTo && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Vendor Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Vendor Name</Label>
+                        <p className="font-medium">{selectedTicket.vendorName || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Vendor ID</Label>
+                        <p className="font-medium">{selectedTicket.assignedTo || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Vendor Status</Label>
+                        <Badge className={`${getVendorStatusColor(selectedTicket.vendorStatus)} text-sm px-3 py-1`}>
+                          {selectedTicket.vendorStatus || 'Pending'}
+                        </Badge>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Assigned Date</Label>
+                        <p className="font-medium">{selectedTicket.assignedAt ? new Date(selectedTicket.assignedAt).toLocaleDateString() : 'N/A'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Scheduled Date</Label>
+                        <p className="font-medium">{selectedTicket.scheduledDate || 'Not scheduled'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Scheduled Time</Label>
+                        <p className="font-medium">{selectedTicket.scheduledTime || 'Not scheduled'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Completed Date</Label>
+                        <p className="font-medium">{selectedTicket.vendorCompletedAt ? new Date(selectedTicket.vendorCompletedAt).toLocaleDateString() : 'Not completed'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Schedule Notes</Label>
+                        <p className="font-medium">{selectedTicket.scheduleNotes || 'No notes'}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Payment Information */}
+                {(selectedTicket.paymentMode || selectedTicket.billingAmount || selectedTicket.totalAmount) && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Payment Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Payment Mode</Label>
+                        <p className="font-medium">{selectedTicket.paymentMode || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Payment Status</Label>
+                        <Badge className={`${selectedTicket.paymentStatus === 'collected' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'} text-sm px-3 py-1`}>
+                          {selectedTicket.paymentStatus || 'N/A'}
+                        </Badge>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Billing Amount</Label>
+                        <p className="font-medium">₹{selectedTicket.billingAmount || 0}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Total Amount</Label>
+                        <p className="font-medium">₹{selectedTicket.totalAmount || 0}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">GST Amount</Label>
+                        <p className="font-medium">₹{selectedTicket.completionData?.gstAmount || 0}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Traveling Amount</Label>
+                        <p className="font-medium">₹{selectedTicket.completionData?.travelingAmount || 0}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Payment ID</Label>
+                        <p className="font-medium">{selectedTicket.paymentId || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Payment Completed At</Label>
+                        <p className="font-medium">{selectedTicket.paymentCompletedAt ? new Date(selectedTicket.paymentCompletedAt).toLocaleString() : 'N/A'}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Issue Description */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Issue Description</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-3">
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm whitespace-pre-wrap">{selectedTicket.description || 'No description provided'}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Resolution Notes */}
+                {selectedTicket.completionData?.resolutionNote && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Resolution Notes</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3">
+                      <div className="bg-green-50 p-3 rounded-lg">
+                        <p className="text-sm whitespace-pre-wrap">{selectedTicket.completionData.resolutionNote}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
-              <div>
-                <Label htmlFor="editFaqQuestion">Question</Label>
-                <Input
-                  id="editFaqQuestion"
-                  value={newFaq.question}
-                  onChange={(e) => setNewFaq(prev => ({ ...prev, question: e.target.value }))}
-                  placeholder="Enter question"
-                />
-              </div>
-              <div>
-                <Label htmlFor="editFaqAnswer">Answer</Label>
-                <Textarea
-                  id="editFaqAnswer"
-                  value={newFaq.answer}
-                  onChange={(e) => setNewFaq(prev => ({ ...prev, answer: e.target.value }))}
-                  placeholder="Enter answer"
-                  rows={4}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="editFaqStatus"
-                  checked={newFaq.status === 'active'}
-                  onCheckedChange={(checked) => setNewFaq(prev => ({ ...prev, status: checked ? 'active' : 'inactive' }))}
-                />
-                <Label htmlFor="editFaqStatus">Active</Label>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleUpdateFaq} className="flex-1">
-                  Update FAQ
-                </Button>
-                <Button variant="outline" onClick={() => setIsEditFaqOpen(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
+            )}
           </DialogContent>
         </Dialog>
+
       </main>
     </div>
   );

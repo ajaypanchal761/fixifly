@@ -254,7 +254,7 @@ const AdminHeader = () => {
                 >
                   AT
                 </Avatar>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'hsl(var(--foreground))' }}>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'hsl(var(--foreground))', fontSize: '0.8rem' }}>
                   Admin User
                 </Typography>
                 <ChevronDown size={16} />
@@ -325,7 +325,7 @@ const AdminHeader = () => {
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           flexShrink: 0
         }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'hsl(var(--sidebar-primary-foreground))' }}>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'hsl(var(--sidebar-primary-foreground))' }}>
             Admin Panel
           </Typography>
         </MuiBox>
@@ -358,7 +358,7 @@ const AdminHeader = () => {
                   margin: '4px 0',
                   textTransform: 'none',
                   color: isActive ? 'hsl(var(--primary))' : 'hsl(var(--sidebar-foreground))',
-                  fontSize: '16px',
+                  fontSize: '14px',
                   fontWeight: isActive ? 600 : 500,
                   backgroundColor: isActive ? 'hsl(var(--sidebar-accent))' : 'transparent',
                   '&:hover': {

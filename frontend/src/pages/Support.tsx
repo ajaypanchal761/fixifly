@@ -27,10 +27,12 @@ import {
   Users,
   Headphones,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Download
 } from "lucide-react";
 import { supportTicketAPI } from "@/services/supportApiService";
 import { useAuth } from "@/contexts/AuthContext";
+import jsPDF from 'jspdf';
 
 const Support = () => {
   const { user } = useAuth();
@@ -77,6 +79,7 @@ const Support = () => {
 
   const fetchUserTickets = async () => {
     try {
+      console.log('Fetching user tickets...');
       const response = await supportTicketAPI.getUserTickets();
       if (response.success) {
         console.log('User tickets data:', response.data.tickets);
@@ -96,6 +99,15 @@ const Support = () => {
       }
     } catch (error) {
       console.error('Error fetching user tickets:', error);
+      
+      if (error.message.includes('Authentication failed')) {
+        alert('Your session has expired. Please login again.');
+        // Redirect to login or refresh token
+        localStorage.removeItem('accessToken');
+        window.location.href = '/login';
+      } else {
+        alert('Failed to fetch support tickets. Please try again.');
+      }
     }
   };
 
@@ -103,19 +115,19 @@ const Support = () => {
   const hasPendingPayment = (ticket) => {
     console.log('=== PAYMENT CHECK DEBUG ===');
     console.log('Ticket:', ticket);
-    console.log('Status check:', {
-      status: ticket.status,
-      isInProgressOrResolved: ticket.status === 'In Progress' || ticket.status === 'Resolved',
-      paymentMode: ticket.paymentMode,
-      isOnline: ticket.paymentMode === 'online',
-      paymentStatus: ticket.paymentStatus,
-      isPending: ticket.paymentStatus === 'pending',
-      billingAmount: ticket.billingAmount,
-      totalAmount: ticket.totalAmount,
-      hasAmount: (ticket.billingAmount > 0 || ticket.totalAmount > 0)
-    });
+      console.log('Status check:', {
+        status: ticket.status,
+        isInProgress: ticket.status === 'In Progress',
+        paymentMode: ticket.paymentMode,
+        isOnline: ticket.paymentMode === 'online',
+        paymentStatus: ticket.paymentStatus,
+        isPending: ticket.paymentStatus === 'pending',
+        billingAmount: ticket.billingAmount,
+        totalAmount: ticket.totalAmount,
+        hasAmount: (ticket.billingAmount > 0 || ticket.totalAmount > 0)
+      });
     
-    const hasPayment = (ticket.status === 'In Progress' || ticket.status === 'Resolved') && 
+    const hasPayment = ticket.status === 'In Progress' && 
            ticket.paymentMode === 'online' && 
            ticket.paymentStatus === 'pending' &&
            (ticket.billingAmount > 0 || ticket.totalAmount > 0);
@@ -125,21 +137,281 @@ const Support = () => {
     return hasPayment;
   };
 
-  // Handle payment for support ticket
-  const handlePayNow = (ticket) => {
-    // Navigate to payment page with ticket details
-    const paymentData = {
-      ticketId: ticket.id,
-      amount: ticket.billingAmount || ticket.totalAmount || 0,
-      type: 'support_ticket',
-      description: `Payment for support ticket: ${ticket.subject}`
-    };
-    
-    // Store payment data in localStorage
-    localStorage.setItem('paymentData', JSON.stringify(paymentData));
-    
-    // Navigate to payment page
-    window.location.href = '/payment';
+  // Handle payment for support ticket - Direct Razorpay integration
+  const handlePayNow = async (ticket) => {
+    try {
+      // Check if user is authenticated
+      const userToken = localStorage.getItem('accessToken');
+      if (!userToken) {
+        alert('Please login to make payment.');
+        return;
+      }
+
+      console.log('Starting payment for ticket:', ticket);
+      console.log('Amount:', ticket.billingAmount || ticket.totalAmount || 0);
+      console.log('User token exists:', !!userToken);
+
+      // Load Razorpay script
+      const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+          if (window.Razorpay) {
+            resolve(true);
+            return;
+          }
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+      };
+
+      const res = await loadRazorpayScript();
+      if (!res) {
+        alert('Razorpay SDK failed to load. Please try again.');
+        return;
+      }
+
+      // Create order on backend
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const orderResponse = await fetch(`${API_BASE_URL}/payment/create-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+          amount: (ticket.billingAmount || ticket.totalAmount || 0) * 100, // Convert to paise
+          currency: 'INR',
+          receipt: `receipt_${ticket.id}_${Date.now()}`,
+          notes: {
+            ticketId: ticket.id,
+            type: 'support_ticket',
+            description: `Payment for support ticket: ${ticket.subject}`
+          }
+        })
+      });
+
+      console.log('Order response status:', orderResponse.status);
+      console.log('Order response headers:', orderResponse.headers);
+      
+      if (!orderResponse.ok) {
+        const errorText = await orderResponse.text();
+        console.error('Order creation failed:', errorText);
+        throw new Error(`Order creation failed: ${orderResponse.status} ${errorText}`);
+      }
+
+      const orderData = await orderResponse.json();
+      console.log('Order data:', orderData);
+      
+      if (!orderData.success) {
+        throw new Error(orderData.message || 'Failed to create order');
+      }
+
+      // Razorpay options
+      const options = {
+        key: 'rzp_test_8sYbzHWidwe5Zw', // FixFly Razorpay Test Key
+        amount: (ticket.billingAmount || ticket.totalAmount || 0) * 100,
+        currency: 'INR',
+        name: 'FixFly',
+        description: `Payment for support ticket: ${ticket.subject}`,
+        order_id: orderData.data.id,
+        handler: async function (response) {
+          try {
+            // Verify payment on backend
+            const verifyResponse = await fetch(`${API_BASE_URL}/payment/verify`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                ticketId: ticket.id,
+                amount: ticket.billingAmount || ticket.totalAmount || 0
+              })
+            });
+
+            console.log('Verify response status:', verifyResponse.status);
+            
+            if (!verifyResponse.ok) {
+              const errorText = await verifyResponse.text();
+              console.error('Payment verification failed:', errorText);
+              throw new Error(`Payment verification failed: ${verifyResponse.status} ${errorText}`);
+            }
+
+            const verifyData = await verifyResponse.json();
+            console.log('Verify data:', verifyData);
+            
+            if (verifyData.success) {
+              // Payment successful
+              alert('Payment successful! Your ticket has been resolved.');
+              // Refresh the tickets to show updated status
+              fetchUserTickets();
+            } else {
+              throw new Error(verifyData.message || 'Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            alert('Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || '',
+          contact: user?.phone || ''
+        },
+        theme: {
+          color: '#3B82F6'
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Payment modal dismissed');
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        console.error('Razorpay payment failed:', response);
+        alert('Payment failed. Please try again.');
+      });
+      
+      rzp.open();
+
+    } catch (error) {
+      console.error('Error initiating payment:', error);
+      alert('Failed to initiate payment. Please try again.');
+    }
+  };
+
+  // Handle invoice download - PDF format
+  const handleDownloadInvoice = async (ticket) => {
+    try {
+      const invoiceData = {
+        ticketId: ticket.id,
+        subject: ticket.subject,
+        caseId: ticket.caseId,
+        amount: ticket.billingAmount || ticket.totalAmount || 0,
+        paymentMode: ticket.paymentMode,
+        status: ticket.status,
+        created: ticket.created,
+        resolved: ticket.lastUpdate,
+        customerName: user?.name || 'Customer',
+        customerEmail: user?.email || '',
+        customerPhone: user?.phone || ''
+      };
+      
+      // Create PDF using jsPDF
+      const doc = new jsPDF();
+      
+      // Set font
+      doc.setFont('helvetica');
+      
+      // Add header
+      doc.setFontSize(24);
+      doc.setTextColor(40, 40, 40);
+      doc.text('FIXFLY', 20, 30);
+      
+      doc.setFontSize(16);
+      doc.setTextColor(100, 100, 100);
+      doc.text('INVOICE', 20, 40);
+      
+      // Add invoice details
+      doc.setFontSize(12);
+      doc.setTextColor(40, 40, 40);
+      doc.text(`Invoice No: INV-${invoiceData.ticketId}`, 20, 60);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 70);
+      
+      // Add customer details
+      doc.setFontSize(14);
+      doc.setTextColor(40, 40, 40);
+      doc.text('BILL TO:', 20, 90);
+      
+      doc.setFontSize(12);
+      doc.text(invoiceData.customerName, 20, 100);
+      doc.text(invoiceData.customerEmail, 20, 110);
+      doc.text(invoiceData.customerPhone, 20, 120);
+      
+      // Add service details
+      doc.setFontSize(14);
+      doc.text('SERVICE DETAILS:', 20, 140);
+      
+      doc.setFontSize(12);
+      doc.text(`Ticket ID: ${invoiceData.ticketId}`, 20, 150);
+      doc.text(`Case ID: ${invoiceData.caseId}`, 20, 160);
+      doc.text(`Subject: ${invoiceData.subject}`, 20, 170);
+      doc.text(`Service Date: ${invoiceData.created}`, 20, 180);
+      doc.text(`Completion Date: ${invoiceData.resolved}`, 20, 190);
+      
+      // Add payment details
+      doc.setFontSize(14);
+      doc.text('PAYMENT DETAILS:', 20, 210);
+      
+      doc.setFontSize(12);
+      doc.text(`Payment Mode: ${invoiceData.paymentMode}`, 20, 220);
+      doc.text(`Status: ${invoiceData.status}`, 20, 230);
+      
+      // Add amount section
+      doc.setFontSize(14);
+      doc.text('AMOUNT:', 20, 250);
+      
+      doc.setFontSize(12);
+      doc.text(`Service Amount: ₹${invoiceData.amount}`, 20, 260);
+      
+      // Add total amount
+      doc.setFontSize(16);
+      doc.setTextColor(40, 40, 40);
+      doc.text(`TOTAL AMOUNT: ₹${invoiceData.amount}`, 20, 280);
+      
+      // Add footer
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Thank you for using FixFly services!', 20, 300);
+      doc.text('For any queries, contact us at support@fixfly.com', 20, 310);
+      
+      // Save the PDF
+      doc.save(`FixFly_Invoice_${invoiceData.ticketId}.pdf`);
+      
+      // Send email notification
+      await sendInvoiceEmail(invoiceData);
+      
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      alert('Failed to download invoice. Please try again.');
+    }
+  };
+
+  // Send invoice via email
+  const sendInvoiceEmail = async (invoiceData) => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${API_BASE_URL}/support-tickets/send-invoice`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+          ticketId: invoiceData.ticketId,
+          customerEmail: invoiceData.customerEmail,
+          customerName: invoiceData.customerName,
+          amount: invoiceData.amount,
+          subject: invoiceData.subject
+        })
+      });
+
+      if (response.ok) {
+        alert('Invoice downloaded and sent to your email successfully!');
+      } else {
+        console.log('Invoice downloaded successfully!');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      // Don't show error to user, just log it
+    }
   };
 
   const openTickets = [
@@ -750,6 +1022,17 @@ const Support = () => {
                                   Pay Now ₹{ticket.billingAmount || ticket.totalAmount || 0}
                                 </Button>
                               )}
+                              {ticket.status === 'Resolved' && ticket.paymentStatus === 'collected' && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="w-full sm:w-auto"
+                                  onClick={() => handleDownloadInvoice(ticket)}
+                                >
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Download Invoice
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -982,6 +1265,27 @@ const Support = () => {
                         onClick={() => handlePayNow(selectedTicket)}
                       >
                         Pay Now ₹{selectedTicket.billingAmount || selectedTicket.totalAmount || 0}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Download Invoice for Resolved Tickets */}
+                {selectedTicket.status === 'Resolved' && selectedTicket.paymentStatus === 'collected' && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-blue-800 mb-1">Invoice Available</h3>
+                        <p className="text-xs text-blue-600">Download your invoice for this completed ticket</p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                        onClick={() => handleDownloadInvoice(selectedTicket)}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Invoice
                       </Button>
                     </div>
                   </div>

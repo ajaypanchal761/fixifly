@@ -528,6 +528,86 @@ class EmailService {
       text: text
     });
   }
+
+  /**
+   * Send invoice email
+   */
+  async sendInvoiceEmail(to, subject, content, ticketId) {
+    try {
+      if (!this.isConfigured) {
+        logger.warn('Email service not configured, skipping invoice email');
+        return { success: false, error: 'Email service not configured' };
+      }
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>FixFly Invoice</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+            .container { max-width: 600px; margin: 0 auto; background-color: white; }
+            .header { background-color: #3B82F6; color: white; padding: 30px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; }
+            .header h2 { margin: 10px 0 0 0; font-size: 18px; opacity: 0.9; }
+            .content { padding: 30px; }
+            .invoice-details { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+            .invoice-details h3 { margin-top: 0; color: #333; }
+            .invoice-content { background-color: #f1f1f1; padding: 20px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; }
+            .footer { background-color: #e9ecef; padding: 20px; text-align: center; color: #666; }
+            .amount { background-color: #d4edda; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; }
+            .amount h3 { margin: 0; color: #155724; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>FIXFLY</h1>
+              <h2>INVOICE</h2>
+            </div>
+            
+            <div class="content">
+              <div class="invoice-details">
+                <h3>Invoice Details</h3>
+                <p><strong>Invoice No:</strong> INV-${ticketId}</p>
+                <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+              </div>
+              
+              <div class="invoice-content">${content}</div>
+              
+              <div class="amount">
+                <h3>Thank you for using FixFly services!</h3>
+              </div>
+            </div>
+            
+            <div class="footer">
+              <p>For any queries, contact us at support@fixfly.com</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const mailOptions = {
+        from: `"FixFly" <${process.env.SMTP_USER || 'fixfly.service@gmail.com'}>`,
+        to: to,
+        subject: subject,
+        text: content,
+        html: html
+      };
+
+      const result = await this.transporter.sendMail(mailOptions);
+      logger.info(`Invoice email sent successfully to ${to}`, { messageId: result.messageId });
+      
+      return { success: true, messageId: result.messageId };
+      
+    } catch (error) {
+      logger.error('Error sending invoice email:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // Create singleton instance

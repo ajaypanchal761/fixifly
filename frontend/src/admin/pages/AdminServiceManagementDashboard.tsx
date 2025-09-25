@@ -315,7 +315,7 @@ const AdminServiceManagementDashboard = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50 pt-24 pl-72">
       <AdminHeader />
       <main className="flex-1 p-3">
         <div className="max-w-7xl mx-auto">

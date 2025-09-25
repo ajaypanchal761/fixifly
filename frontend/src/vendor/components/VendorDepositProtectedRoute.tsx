@@ -30,8 +30,8 @@ const VendorDepositProtectedRoute = ({ children }: VendorDepositProtectedRoutePr
       console.log('Has initial deposit:', hasInitialDeposit);
       console.log('Current path:', location.pathname);
       
-      // Allow access to earnings page even without deposit
-      const allowedPagesWithoutDeposit = ['/vendor/earnings'];
+      // Allow access to support and earnings pages even without deposit
+      const allowedPagesWithoutDeposit = ['/vendor/support', '/vendor/earnings'];
       const isAllowedPage = allowedPagesWithoutDeposit.includes(location.pathname);
       
       // If no initial deposit and not on allowed pages, redirect to earnings

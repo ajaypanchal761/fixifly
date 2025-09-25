@@ -83,7 +83,7 @@ const Payment = () => {
 
       // Razorpay options
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_1234567890', // Replace with your Razorpay key
+        key: 'rzp_test_8sYbzHWidwe5Zw', // FixFly Razorpay Test Key
         amount: paymentData.amount * 100,
         currency: 'INR',
         name: 'FixFly',

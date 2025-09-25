@@ -61,10 +61,25 @@ export const supportTicketAPI = {
   // Get user's support tickets
   getUserTickets: async () => {
     try {
+      console.log('Fetching user tickets...');
+      const token = localStorage.getItem('accessToken');
+      console.log('Token exists:', !!token);
+      
       const response = await supportApiService.get('/support-tickets');
+      console.log('Tickets response:', response.data);
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch support tickets');
+      console.error('Error fetching tickets:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      if (error.response?.status === 401) {
+        throw new Error('Authentication failed. Please login again.');
+      } else if (error.response?.status === 404) {
+        throw new Error('Support tickets endpoint not found.');
+      } else {
+        throw new Error(error.response?.data?.message || 'Failed to fetch support tickets');
+      }
     }
   },
 

@@ -426,7 +426,7 @@ const getAllSupportTickets = asyncHandler(async (req, res) => {
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const tickets = await SupportTicket.find(filter)
-    .populate('assignedTo', 'name email')
+    .populate('assignedTo', 'firstName lastName email phone')
     .populate('userId', 'name email phone address')
     .select('-responses') // Exclude responses for list view
     .sort(sort)
@@ -467,7 +467,12 @@ const getAllSupportTickets = asyncHandler(async (req, res) => {
     description: ticket.description,
     vendorAssignmentHistory: ticket.vendorAssignmentHistory,
     vendorCommunications: ticket.vendorCommunications,
-    vendorPerformance: ticket.vendorPerformance
+    vendorPerformance: ticket.vendorPerformance,
+    completionData: ticket.completionData,
+    paymentMode: ticket.paymentMode,
+    paymentStatus: ticket.paymentStatus,
+    billingAmount: ticket.billingAmount,
+    totalAmount: ticket.completionData?.totalAmount || 0
   }));
 
   res.json({
@@ -492,7 +497,7 @@ const getAdminSupportTicket = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const ticket = await SupportTicket.findOne({ ticketId: id })
-    .populate('assignedTo', 'name email')
+    .populate('assignedTo', 'firstName lastName email phone')
     .populate('userId', 'name email phone address')
     .populate('resolvedBy', 'name email');
 
@@ -528,6 +533,18 @@ const getAdminSupportTicket = asyncHandler(async (req, res) => {
         resolution: ticket.resolution,
         resolvedAt: ticket.resolvedAt,
         resolvedBy: ticket.resolvedBy ? ticket.resolvedBy.name : null,
+        completionData: ticket.completionData,
+        paymentMode: ticket.paymentMode,
+        paymentStatus: ticket.paymentStatus,
+        billingAmount: ticket.billingAmount,
+        totalAmount: ticket.completionData?.totalAmount || 0,
+        vendorStatus: ticket.vendorStatus,
+        assignedAt: ticket.assignedAt,
+        scheduledDate: ticket.scheduledDate,
+        scheduledTime: ticket.scheduledTime,
+        scheduleNotes: ticket.scheduleNotes,
+        vendorCompletedAt: ticket.vendorCompletedAt,
+        vendorAssignmentHistory: ticket.vendorAssignmentHistory,
         responses: ticket.responses.map(response => ({
           message: response.message,
           sender: response.sender,
@@ -1391,7 +1408,7 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
 
   const tickets = await SupportTicket.find(filter)
     .populate('userId', 'name email phone address')
-    .populate('assignedTo', 'firstName lastName email')
+    .populate('assignedTo', 'firstName lastName email phone')
     .select('-responses') // Exclude responses for list view
     .sort(sort)
     .skip(skip)
@@ -1664,6 +1681,97 @@ const cancelSupportTicket = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Send invoice via email
+// @route   POST /api/support-tickets/send-invoice
+// @access  Private (User)
+const sendInvoiceEmail = asyncHandler(async (req, res) => {
+  try {
+    const { ticketId, customerEmail, customerName, amount, subject } = req.body;
+    const userId = req.user.userId || req.user._id;
+
+    // Find the ticket
+    const ticket = await SupportTicket.findOne({ ticketId, userId });
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: 'Support ticket not found'
+      });
+    }
+
+    // Create invoice content
+    const invoiceContent = `
+      FIXFLY INVOICE
+      ===============
+      
+      Invoice No: INV-${ticketId}
+      Date: ${new Date().toLocaleDateString()}
+      
+      BILL TO:
+      ${customerName}
+      ${customerEmail}
+      
+      SERVICE DETAILS:
+      Ticket ID: ${ticketId}
+      Case ID: ${ticket.caseId || 'N/A'}
+      Subject: ${subject}
+      Service Date: ${ticket.formattedCreatedAt}
+      Completion Date: ${ticket.resolvedAt ? new Date(ticket.resolvedAt).toLocaleDateString() : 'N/A'}
+      
+      PAYMENT DETAILS:
+      Payment Mode: ${ticket.paymentMode || 'N/A'}
+      Status: ${ticket.status}
+      
+      AMOUNT:
+      Service Amount: ₹${amount}
+      
+      TOTAL AMOUNT: ₹${amount}
+      
+      Thank you for using FixFly services!
+      
+      For any queries, contact us at support@fixfly.com
+    `;
+
+    // Send email using email service
+    console.log('Invoice email content:', invoiceContent);
+    console.log('Sending invoice to:', customerEmail);
+
+    try {
+      const emailResult = await emailService.sendInvoiceEmail(
+        customerEmail,
+        `FixFly Invoice - ${ticketId}`,
+        invoiceContent,
+        ticketId
+      );
+      
+      if (emailResult.success) {
+        console.log('Invoice email sent successfully:', emailResult.messageId);
+      } else {
+        console.error('Failed to send invoice email:', emailResult.error);
+      }
+    } catch (emailError) {
+      console.error('Error sending invoice email:', emailError);
+    }
+
+    res.json({
+      success: true,
+      message: 'Invoice sent successfully',
+      data: {
+        ticketId,
+        customerEmail,
+        invoiceContent
+      }
+    });
+
+  } catch (error) {
+    console.error('Error sending invoice email:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send invoice email',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   createSupportTicket,
   getUserSupportTickets,
@@ -1680,5 +1788,6 @@ module.exports = {
   declineSupportTicket,
   completeSupportTicket,
   cancelSupportTicket,
-  assignVendorToSupportTicket
+  assignVendorToSupportTicket,
+  sendInvoiceEmail
 };
