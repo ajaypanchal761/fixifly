@@ -7,10 +7,12 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut, Store, Search, LogIn } from 'lucide-react';
+import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import SearchSuggestions from './SearchSuggestions';
+import { ProductSuggestion } from '../services/publicProductApi';
 
 const drawerWidth = 240;
 
@@ -72,6 +74,7 @@ const Header = () => {
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [showMobileSearch, setShowMobileSearch] = React.useState(false);
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerOpen = () => {
@@ -89,14 +92,38 @@ const Header = () => {
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
     if (searchQuery.trim()) {
-      // Navigate to search results or handle search
-      console.log('Searching for:', searchQuery);
-      // You can implement search functionality here
+      // Navigate to search results page
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setShowSuggestions(false);
+      setShowMobileSearch(false);
+    }
+  };
+
+  const handleSuggestionSelect = (suggestion: ProductSuggestion) => {
+    setSearchQuery(suggestion.name);
+    setShowSuggestions(false);
+    setShowMobileSearch(false);
+    // Navigate to search results with the selected product name
+    navigate(`/search?q=${encodeURIComponent(suggestion.name)}`);
+  };
+
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSearchQuery(value);
+    setShowSuggestions(value.trim().length >= 2);
+  };
+
+  const handleSearchInputFocus = () => {
+    if (searchQuery.trim().length >= 2) {
+      setShowSuggestions(true);
     }
   };
 
   const toggleMobileSearch = () => {
     setShowMobileSearch(!showMobileSearch);
+    if (!showMobileSearch && searchQuery.trim().length >= 2) {
+      setShowSuggestions(true);
+    }
   };
 
   const handleCartClick = () => {
@@ -223,12 +250,13 @@ const Header = () => {
           {!isMobile && (
             <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 2 }}>
               {/* Search Bar */}
-              <Box component="form" onSubmit={handleSearch}>
+              <Box component="form" onSubmit={handleSearch} sx={{ position: 'relative' }}>
                 <TextField
                   size="medium"
-                  placeholder="Search services..."
+                  placeholder="Search products..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
+                  onFocus={handleSearchInputFocus}
                   sx={{
                     width: '300px',
                     '& .MuiOutlinedInput-root': {
@@ -261,7 +289,29 @@ const Header = () => {
                     ),
                   }}
                 />
+                {/* Search Suggestions */}
+                <SearchSuggestions
+                  query={searchQuery}
+                  onSuggestionSelect={handleSuggestionSelect}
+                  onClose={() => setShowSuggestions(false)}
+                  isVisible={showSuggestions}
+                />
               </Box>
+              
+              {/* AMC Subscription Icon */}
+              <IconButton
+                color="inherit"
+                aria-label="AMC subscriptions"
+                onClick={() => navigate('/amc')}
+                sx={{
+                  color: 'black',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  },
+                }}
+              >
+                <Shield size={24} />
+              </IconButton>
               
               {/* Cart Icon */}
               <IconButton
@@ -280,8 +330,8 @@ const Header = () => {
             </Box>
           )}
 
-          {/* Mobile Search Icon and Cart Icon */}
-          {isMobile && (
+          {/* Mobile Search Icon, AMC Icon and Cart Icon - Hide when sidebar is open */}
+          {isMobile && !open && (
             <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 1 }}>
               {/* Mobile Search Icon */}
               <IconButton
@@ -296,6 +346,21 @@ const Header = () => {
                 }}
               >
                 <Search size={24} />
+              </IconButton>
+              
+              {/* Mobile AMC Subscription Icon */}
+              <IconButton
+                color="inherit"
+                aria-label="AMC subscriptions"
+                onClick={() => navigate('/amc')}
+                sx={{
+                  color: 'black',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  },
+                }}
+              >
+                <Shield size={24} />
               </IconButton>
               
               {/* Mobile Cart Icon */}
@@ -315,8 +380,8 @@ const Header = () => {
             </Box>
           )}
 
-          {/* Mobile Search Bar - Shows when search icon is clicked */}
-          {isMobile && showMobileSearch && (
+          {/* Mobile Search Bar - Shows when search icon is clicked and sidebar is closed */}
+          {isMobile && showMobileSearch && !open && (
             <Box className="mobile-search-container" sx={{ 
               position: 'absolute', 
               top: '100%', 
@@ -327,13 +392,14 @@ const Header = () => {
               zIndex: 1000,
               padding: '12px 16px'
             }}>
-              <Box component="form" onSubmit={handleSearch}>
+              <Box component="form" onSubmit={handleSearch} sx={{ position: 'relative' }}>
                 <TextField
                   fullWidth
                   size="small"
-                  placeholder="Search services..."
+                  placeholder="Search products..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchInputChange}
+                  onFocus={handleSearchInputFocus}
                   autoFocus
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -362,6 +428,13 @@ const Header = () => {
                     ),
                   }}
                 />
+                {/* Search Suggestions */}
+                <SearchSuggestions
+                  query={searchQuery}
+                  onSuggestionSelect={handleSuggestionSelect}
+                  onClose={() => setShowSuggestions(false)}
+                  isVisible={showSuggestions}
+                />
               </Box>
             </Box>
           )}
@@ -379,7 +452,7 @@ const Header = () => {
             top: 0,
             left: 0,
             height: '100vh',
-            zIndex: 10000,
+            zIndex: isMobile ? 10001 : 10000, // Higher z-index for mobile to appear above bottom nav
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
@@ -421,25 +494,35 @@ const Header = () => {
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center', 
-          padding: 2,
+          padding: isMobile ? 1.5 : 2,
           backgroundColor: '#f8f9fa',
           flexShrink: 0
         }}>
           <Avatar
+            src={isAuthenticated && user?.profileImage ? user.profileImage : undefined}
             sx={{
-              width: 60,
-              height: 60,
-              marginBottom: 1,
-              backgroundColor: '#3b82f6',
-              fontSize: '1.5rem'
+              width: isMobile ? 50 : 60,
+              height: isMobile ? 50 : 60,
+              marginBottom: isMobile ? 0.5 : 1,
+              backgroundColor: isAuthenticated && user?.profileImage ? 'transparent' : '#3b82f6',
+              fontSize: isMobile ? '1.2rem' : '1.5rem'
             }}
           >
             {isAuthenticated && user ? user.name.charAt(0).toUpperCase() : 'U'}
           </Avatar>
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', marginBottom: 0.25, color: '#1f2937' }}>
+          <Typography variant="subtitle1" sx={{ 
+            fontWeight: 'bold', 
+            marginBottom: 0.25, 
+            color: '#1f2937',
+            fontSize: isMobile ? '0.9rem' : '1rem'
+          }}>
             {isAuthenticated && user ? user.name : 'Guest User'}
           </Typography>
-          <Typography variant="body2" sx={{ color: '#6b7280', marginBottom: 1 }}>
+          <Typography variant="body2" sx={{ 
+            color: '#6b7280', 
+            marginBottom: isMobile ? 0.5 : 1,
+            fontSize: isMobile ? '0.75rem' : '0.875rem'
+          }}>
             {isAuthenticated && user ? user.phone : 'Not logged in'}
           </Typography>
         </MuiBox>
@@ -448,13 +531,13 @@ const Header = () => {
         
         {/* Menu Options - No Scroll */}
         <MuiBox sx={{ 
-          padding: 1,
+          padding: isMobile ? 0.5 : 1,
           flex: 1,
           overflowY: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           minHeight: 0,
-          paddingBottom: isMobile ? '120px' : '16px' // Extra space for mobile bottom nav
+          paddingBottom: isMobile ? '100px' : '16px' // Extra space for mobile bottom nav
         }}>
           {[
             { name: "Profile", icon: User, href: "/profile" },
@@ -471,17 +554,18 @@ const Header = () => {
                 key={item.name}
                 component={Link}
                 to={item.href}
-                startIcon={<IconComponent size={20} />}
+                startIcon={<IconComponent size={isMobile ? 16 : 20} />}
                 fullWidth
                 onClick={handleDrawerClose}
                 sx={{
                   justifyContent: 'flex-start',
-                  padding: '12px 16px',
-                  margin: '4px 0',
+                  padding: isMobile ? '8px 12px' : '12px 16px',
+                  margin: isMobile ? '2px 0' : '4px 0',
                   textTransform: 'none',
                   color: '#374151',
-                  fontSize: '16px',
+                  fontSize: isMobile ? '14px' : '16px',
                   fontWeight: 500,
+                  minHeight: isMobile ? '40px' : 'auto',
                   '&:hover': {
                     backgroundColor: '#f3f4f6',
                     color: '#1f2937'
@@ -504,16 +588,17 @@ const Header = () => {
                 handleDrawerClose();
                 navigate('/');
               }}
-              startIcon={<LogOut size={20} />}
+              startIcon={<LogOut size={isMobile ? 16 : 20} />}
               fullWidth
               sx={{
                 justifyContent: 'flex-start',
-                padding: '12px 16px',
-                margin: isMobile ? '4px 0 30px 0' : '2px 0',
+                padding: isMobile ? '8px 12px' : '12px 16px',
+                margin: isMobile ? '2px 0 20px 0' : '2px 0',
                 textTransform: 'none',
                 color: '#dc2626',
-                fontSize: '16px',
+                fontSize: isMobile ? '14px' : '16px',
                 fontWeight: 500,
+                minHeight: isMobile ? '40px' : 'auto',
                 '&:hover': {
                   backgroundColor: '#fef2f2',
                   color: '#b91c1c'
@@ -527,17 +612,18 @@ const Header = () => {
             <Button
               component={Link}
               to="/login"
-              startIcon={<LogIn size={20} />}
+              startIcon={<LogIn size={isMobile ? 16 : 20} />}
               fullWidth
               onClick={handleDrawerClose}
               sx={{
                 justifyContent: 'flex-start',
-                padding: '12px 16px',
-                margin: isMobile ? '4px 0 30px 0' : '2px 0',
+                padding: isMobile ? '8px 12px' : '12px 16px',
+                margin: isMobile ? '2px 0 20px 0' : '2px 0',
                 textTransform: 'none',
                 color: '#059669',
-                fontSize: '16px',
+                fontSize: isMobile ? '14px' : '16px',
                 fontWeight: 500,
+                minHeight: isMobile ? '40px' : 'auto',
                 '&:hover': {
                   backgroundColor: '#ecfdf5',
                   color: '#047857'

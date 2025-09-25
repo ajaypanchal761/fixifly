@@ -8,7 +8,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import { 
-  Menu, 
+  Menu as MenuIcon, 
   X, 
   Users, 
   UserCheck, 
@@ -26,10 +26,14 @@ import {
   Bell,
   Search,
   RefreshCw,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  ChevronDown,
+  User,
+  Wallet
 } from 'lucide-react';
-import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment, Select, MenuItem } from '@mui/material';
+import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment, Select, MenuItem, Menu, ListItemIcon, ListItemText } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
+import adminApiService from '@/services/adminApi';
 
 const drawerWidth = 280;
 
@@ -87,6 +91,7 @@ const AdminHeader = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(true);
+  const [userMenuAnchor, setUserMenuAnchor] = React.useState<null | HTMLElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerOpen = () => {
@@ -101,17 +106,46 @@ const AdminHeader = () => {
     navigate("/admin");
   };
 
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  const handleProfileClick = () => {
+    handleUserMenuClose();
+    navigate('/admin/profile');
+  };
+
+  const handleLogoutClick = async () => {
+    handleUserMenuClose();
+    try {
+      // Call backend API to logout
+      await adminApiService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Clear authentication data
+      adminApiService.clearAuthData();
+      // Redirect to admin login page
+      navigate('/admin/login');
+    }
+  };
+
   const adminNavItems = [
     { name: "Dashboard", href: "/admin", icon: BarChart3 },
     { name: "User Management", href: "/admin/users", icon: Users },
     { name: "Vendor Management", href: "/admin/vendors", icon: UserCheck },
-    { name: "Service Management", href: "/admin/services", icon: Car },
+    { name: "Service Management Dashboard", href: "/admin/service-management", icon: Bus },
     { name: "Booking Management", href: "/admin/bookings", icon: Calendar },
-    { name: "Payment Management", href: "/admin/payments", icon: FileText },
+    { name: "Payment Management", href: "/admin/payment-management", icon: CreditCard },
     { name: "Product Management", href: "/admin/products", icon: Package },
     { name: "Card Management", href: "/admin/cards", icon: CreditCard },
     { name: "Blog Management", href: "/admin/blogs", icon: BookOpen },
     { name: "AMC Management", href: "/admin/amc", icon: Shield },
+    { name: "Vendor wallet", href: "/admin/vendor-wallet", icon: Wallet },
     { name: "Support Management", href: "/admin/support", icon: Headphones },
   ];
 
@@ -144,7 +178,7 @@ const AdminHeader = () => {
                    open && { display: 'none' },
                  ]}
              >
-               <Menu />
+               <MenuIcon />
              </IconButton>
              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                <img 
@@ -195,19 +229,66 @@ const AdminHeader = () => {
               <RefreshCw size={20} />
             </IconButton>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
-              <Avatar
+              <Button
+                onClick={handleUserMenuOpen}
                 sx={{
-                  width: 32,
-                  height: 32,
-                  backgroundColor: 'hsl(var(--primary))',
-                  fontSize: '0.875rem'
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  textTransform: 'none',
+                  color: 'hsl(var(--foreground))',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  '&:hover': {
+                    backgroundColor: 'hsl(var(--muted))'
+                  }
                 }}
               >
-                AT
-              </Avatar>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: 'hsl(var(--foreground))' }}>
-                Admin User
-              </Typography>
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    backgroundColor: 'hsl(var(--primary))',
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  AT
+                </Avatar>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'hsl(var(--foreground))' }}>
+                  Admin User
+                </Typography>
+                <ChevronDown size={16} />
+              </Button>
+              
+              <Menu
+                anchorEl={userMenuAnchor}
+                open={Boolean(userMenuAnchor)}
+                onClose={handleUserMenuClose}
+                PaperProps={{
+                  sx: {
+                    mt: 1,
+                    minWidth: 200,
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <MenuItem onClick={handleProfileClick} sx={{ padding: '12px 16px' }}>
+                  <ListItemIcon>
+                    <User size={20} />
+                  </ListItemIcon>
+                  <ListItemText primary="Profile" />
+                </MenuItem>
+                <MenuItem onClick={handleLogoutClick} sx={{ padding: '12px 16px', color: 'hsl(var(--destructive))' }}>
+                  <ListItemIcon>
+                    <LogOut size={20} />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" />
+                </MenuItem>
+              </Menu>
             </Box>
           </Box>
         </Toolbar>
@@ -296,12 +377,18 @@ const AdminHeader = () => {
           <Button
             startIcon={<LogOut size={20} />}
             fullWidth
-            onClick={() => {
-              // Clear authentication data
-              localStorage.removeItem('adminToken');
-              localStorage.removeItem('adminData');
-              // Redirect to admin login page
-              navigate('/admin/login');
+            onClick={async () => {
+              try {
+                // Call backend API to logout
+                await adminApiService.logout();
+              } catch (error) {
+                console.error('Logout error:', error);
+              } finally {
+                // Clear authentication data
+                adminApiService.clearAuthData();
+                // Redirect to admin login page
+                navigate('/admin/login');
+              }
             }}
             sx={{
               justifyContent: 'flex-start',

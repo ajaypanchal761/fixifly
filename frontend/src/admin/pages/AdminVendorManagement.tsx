@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminHeader from '../components/AdminHeader';
+import adminApiService from '@/services/adminApi';
+import { useToast } from '@/hooks/use-toast';
 import { 
   UserCheck, 
   Search, 
@@ -17,7 +19,9 @@ import {
   Calendar,
   Star,
   Award,
-  AlertTriangle
+  AlertTriangle,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -27,121 +31,210 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+interface Vendor {
+  id: string;
+  vendorId: string;
+  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  location: string;
+  address?: any;
+  joinDate: string;
+  status: 'active' | 'inactive' | 'blocked' | 'suspended';
+  verificationStatus: 'verified' | 'pending' | 'rejected';
+  rating: number;
+  totalReviews: number;
+  totalBookings: number;
+  completedBookings: number;
+  pendingBookings: number;
+  services: string[];
+  customServiceCategory?: string;
+  lastActive: string;
+  profileImage?: string;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  isProfileComplete: boolean;
+  experience: string;
+  specialty?: string;
+  bio?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface VendorStats {
+  totalVendors: number;
+  activeVendors: number;
+  verifiedVendors: number;
+  pendingVendors: number;
+  blockedVendors: number;
+  inactiveVendors: number;
+  recentVendors: number;
+  averageRating: number;
+  serviceCategoryStats: any[];
+  locationStats: any[];
+}
 
 const AdminVendorManagement = () => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [verificationFilter, setVerificationFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
-
-  // Sample vendor data - in real app this would come from API
-  const vendors = [
-    {
-      id: 'V001',
-      name: 'ABC Electronics',
-      ownerName: 'Rajesh Kumar',
-      email: 'rajesh@abcelectronics.com',
-      phone: '+91 98765 43210',
-      location: 'Mumbai, Maharashtra',
-      joinDate: '2024-01-15',
-      status: 'active',
-      verificationStatus: 'verified',
-      rating: 4.8,
-      totalReviews: 156,
-      totalBookings: 89,
-      completedBookings: 85,
-      pendingBookings: 4,
-      services: ['AC Repair', 'Washing Machine', 'Refrigerator'],
-      lastActive: '2 hours ago',
-      avatar: null
-    },
-    {
-      id: 'V002',
-      name: 'TechFix Solutions',
-      ownerName: 'Priya Sharma',
-      email: 'priya@techfix.com',
-      phone: '+91 98765 43211',
-      location: 'Delhi, NCR',
-      joinDate: '2024-01-20',
-      status: 'active',
-      verificationStatus: 'pending',
-      rating: 4.6,
-      totalReviews: 89,
-      totalBookings: 67,
-      completedBookings: 62,
-      pendingBookings: 5,
-      services: ['Mobile Repair', 'Laptop Repair', 'Desktop Repair'],
-      lastActive: '1 day ago',
-      avatar: null
-    },
-    {
-      id: 'V003',
-      name: 'Home Services Pro',
-      ownerName: 'Amit Singh',
-      email: 'amit@homeservices.com',
-      phone: '+91 98765 43212',
-      location: 'Bangalore, Karnataka',
-      joinDate: '2024-01-25',
-      status: 'inactive',
-      verificationStatus: 'verified',
-      rating: 4.2,
-      totalReviews: 45,
-      totalBookings: 34,
-      completedBookings: 30,
-      pendingBookings: 4,
-      services: ['Plumbing', 'Electrical', 'Carpentry'],
-      lastActive: '1 week ago',
-      avatar: null
-    },
-    {
-      id: 'V004',
-      name: 'Quick Fix Hub',
-      ownerName: 'Sneha Patel',
-      email: 'sneha@quickfix.com',
-      phone: '+91 98765 43213',
-      location: 'Chennai, Tamil Nadu',
-      joinDate: '2024-02-01',
-      status: 'active',
-      verificationStatus: 'rejected',
-      rating: 3.9,
-      totalReviews: 23,
-      totalBookings: 18,
-      completedBookings: 15,
-      pendingBookings: 3,
-      services: ['TV Repair', 'Audio Systems', 'Gaming Consoles'],
-      lastActive: '30 minutes ago',
-      avatar: null
-    },
-    {
-      id: 'V005',
-      name: 'Appliance Masters',
-      ownerName: 'Vikram Reddy',
-      email: 'vikram@appliancemasters.com',
-      phone: '+91 98765 43214',
-      location: 'Pune, Maharashtra',
-      joinDate: '2024-02-05',
-      status: 'suspended',
-      verificationStatus: 'verified',
-      rating: 4.1,
-      totalReviews: 67,
-      totalBookings: 45,
-      completedBookings: 40,
-      pendingBookings: 5,
-      services: ['Microwave', 'Oven', 'Dishwasher'],
-      lastActive: '2 weeks ago',
-      avatar: null
-    }
-  ];
-
-  const filteredVendors = vendors.filter(vendor => {
-    const matchesSearch = vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         vendor.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         vendor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         vendor.phone.includes(searchTerm);
-    const matchesStatus = statusFilter === 'all' || vendor.status === statusFilter;
-    const matchesVerification = verificationFilter === 'all' || vendor.verificationStatus === verificationFilter;
-    return matchesSearch && matchesStatus && matchesVerification;
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [vendorStats, setVendorStats] = useState<VendorStats | null>(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalVendors: 0,
+    hasNext: false,
+    hasPrev: false,
+    limit: 20
   });
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [isVendorDetailsOpen, setIsVendorDetailsOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isAddVendorModalOpen, setIsAddVendorModalOpen] = useState(false);
+  const [emailData, setEmailData] = useState({
+    subject: '',
+    message: ''
+  });
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  // Fetch vendors data
+  const fetchVendors = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = {
+        page: currentPage,
+        limit: 20,
+        search: searchTerm || undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        verificationStatus: verificationFilter !== 'all' ? verificationFilter : undefined,
+        sortBy: sortBy,
+        sortOrder: sortOrder
+      };
+
+      const response = await adminApiService.getVendors(params);
+      
+      if (response.success && response.data) {
+        setVendors(response.data.vendors);
+        setPagination(response.data.pagination);
+      }
+    } catch (err: any) {
+      console.error('Error fetching vendors:', err);
+      setError(err.message || 'Failed to fetch vendors');
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to fetch vendors',
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch vendor statistics
+  const fetchVendorStats = async () => {
+    try {
+      const response = await adminApiService.getVendorStats();
+      if (response.success && response.data) {
+        setVendorStats(response.data.stats);
+      }
+    } catch (err: any) {
+      console.error('Error fetching vendor stats:', err);
+    }
+  };
+
+  // Load data on component mount and when filters change
+  useEffect(() => {
+    fetchVendors();
+  }, [currentPage, searchTerm, statusFilter, verificationFilter, sortBy, sortOrder]);
+
+  useEffect(() => {
+    fetchVendorStats();
+  }, []);
+
+  // Handle vendor status update
+  const handleVendorStatusUpdate = async (vendorId: string, action: string) => {
+    try {
+      await adminApiService.updateVendorStatus(vendorId, action as any);
+      toast({
+        title: "Success",
+        description: `Vendor ${action}d successfully`,
+      });
+      fetchVendors(); // Refresh the list
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to update vendor status',
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle vendor deletion
+  const handleDeleteVendor = async (vendorId: string) => {
+    if (!confirm('Are you sure you want to delete this vendor? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await adminApiService.deleteVendor(vendorId);
+      toast({
+        title: "Success",
+        description: "Vendor deleted successfully",
+      });
+      fetchVendors(); // Refresh the list
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to delete vendor',
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle send email
+  const handleSendEmail = async () => {
+    if (!selectedVendor || !emailData.subject || !emailData.message) {
+      toast({
+        title: "Error",
+        description: "Please fill in all email fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setSendingEmail(true);
+      await adminApiService.sendEmailToVendor(selectedVendor.id, emailData);
+      toast({
+        title: "Success",
+        description: "Email sent successfully",
+      });
+      setIsEmailModalOpen(false);
+      setEmailData({ subject: '', message: '' });
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to send email',
+        variant: "destructive",
+      });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -196,12 +289,6 @@ const AdminVendorManagement = () => {
               </h1>
               <p className="text-gray-600">Manage and monitor all registered vendors</p>
             </div>
-            <div className="flex items-center gap-4">
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                <UserCheck className="w-4 h-4 mr-2" />
-                Add New Vendor
-              </Button>
-            </div>
           </div>
         </div>
 
@@ -212,7 +299,9 @@ const AdminVendorManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Vendors</p>
-                  <p className="text-2xl font-bold text-gray-900">{vendors.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {vendorStats?.totalVendors || 0}
+                  </p>
                 </div>
                 <UserCheck className="w-8 h-8 text-blue-600" />
               </div>
@@ -224,7 +313,7 @@ const AdminVendorManagement = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Verified Vendors</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {vendors.filter(v => v.verificationStatus === 'verified').length}
+                    {vendorStats?.verifiedVendors || 0}
                   </p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-600" />
@@ -237,7 +326,7 @@ const AdminVendorManagement = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Pending Verification</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {vendors.filter(v => v.verificationStatus === 'pending').length}
+                    {vendorStats?.pendingVendors || 0}
                   </p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-600" />
@@ -250,7 +339,7 @@ const AdminVendorManagement = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Active Vendors</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {vendors.filter(v => v.status === 'active').length}
+                    {vendorStats?.activeVendors || 0}
                   </p>
                 </div>
                 <Award className="w-8 h-8 text-purple-600" />
@@ -301,130 +390,357 @@ const AdminVendorManagement = () => {
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="oldest">Oldest First</SelectItem>
-                  <SelectItem value="rating">Highest Rating</SelectItem>
-                  <SelectItem value="bookings">Most Bookings</SelectItem>
+                  <SelectItem value="createdAt">Newest First</SelectItem>
+                  <SelectItem value="name">Name A-Z</SelectItem>
+                  <SelectItem value="rating.average">Highest Rating</SelectItem>
+                  <SelectItem value="stats.totalTasks">Most Bookings</SelectItem>
                 </SelectContent>
               </Select>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('all');
+                  setVerificationFilter('all');
+                  setSortBy('createdAt');
+                  setSortOrder('desc');
+                  setCurrentPage(1);
+                }}
+                className="w-full md:w-auto"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Reset Filters
+              </Button>
             </div>
           </CardContent>
         </Card>
 
+        {/* Error Alert */}
+        {error && (
+          <Alert className="mb-6">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         {/* Vendors Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Vendors ({filteredVendors.length})</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Vendors ({pagination.totalVendors})</CardTitle>
+              <div className="text-sm text-muted-foreground">
+                Showing {((pagination.currentPage - 1) * 20) + 1} to {Math.min(pagination.currentPage * 20, pagination.totalVendors)} of {pagination.totalVendors} vendors
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Verification</TableHead>
-                  <TableHead>Bookings</TableHead>
-                  <TableHead>Last Active</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredVendors.map((vendor) => (
-                  <TableRow key={vendor.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={vendor.avatar || undefined} />
-                          <AvatarFallback>{getInitials(vendor.name)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-gray-900">{vendor.name}</p>
-                          <p className="text-sm text-gray-500">Owner: {vendor.ownerName}</p>
-                          <p className="text-xs text-gray-400">ID: {vendor.id}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="w-3 h-3 text-gray-400" />
-                          <span>{vendor.email}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Phone className="w-3 h-3 text-gray-400" />
-                          <span>{vendor.phone}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-3 h-3 text-gray-400" />
-                        <span>{vendor.location}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="font-medium">{vendor.rating}</span>
-                        <span className="text-sm text-gray-500">({vendor.totalReviews})</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(vendor.status)}</TableCell>
-                    <TableCell>{getVerificationBadge(vendor.verificationStatus)}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>Total: <span className="font-medium">{vendor.totalBookings}</span></div>
-                        <div>Completed: <span className="font-medium text-green-600">{vendor.completedBookings}</span></div>
-                        <div>Pending: <span className="font-medium text-yellow-600">{vendor.pendingBookings}</span></div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-gray-500">{vendor.lastActive}</span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit Vendor
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Verify Vendor
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Mail className="w-4 h-4 mr-2" />
-                            Send Email
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <AlertTriangle className="w-4 h-4 mr-2" />
-                            Suspend Vendor
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete Vendor
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin mr-2" />
+                <span>Loading vendors...</span>
+              </div>
+            ) : vendors.length === 0 ? (
+              <div className="text-center py-8">
+                <UserCheck className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No vendors found</h3>
+                <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+              </div>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Vendor</TableHead>
+                      <TableHead>Contact</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Rating</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Verification</TableHead>
+                      <TableHead>Bookings</TableHead>
+                      <TableHead>Last Active</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {vendors.map((vendor) => (
+                      <TableRow key={vendor.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarImage src={vendor.profileImage || undefined} />
+                              <AvatarFallback>{getInitials(vendor.name)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium text-gray-900">{vendor.name}</p>
+                              <p className="text-sm text-gray-500">ID: {vendor.vendorId}</p>
+                              <p className="text-xs text-gray-400">Joined: {new Date(vendor.joinDate).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Mail className="w-3 h-3 text-gray-400" />
+                              <span>{vendor.email}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Phone className="w-3 h-3 text-gray-400" />
+                              <span>{vendor.phone}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2 text-sm">
+                            <MapPin className="w-3 h-3 text-gray-400" />
+                            <span>{vendor.location}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="font-medium">{vendor.rating.toFixed(1)}</span>
+                            <span className="text-sm text-gray-500">({vendor.totalReviews})</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(vendor.status)}</TableCell>
+                        <TableCell>{getVerificationBadge(vendor.verificationStatus)}</TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>Total: <span className="font-medium">{vendor.totalBookings}</span></div>
+                            <div>Completed: <span className="font-medium text-green-600">{vendor.completedBookings}</span></div>
+                            <div>Pending: <span className="font-medium text-yellow-600">{vendor.pendingBookings}</span></div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-gray-500">
+                            {vendor.lastActive ? new Date(vendor.lastActive).toLocaleDateString() : 'Never'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => {
+                                setSelectedVendor(vendor);
+                                setIsVendorDetailsOpen(true);
+                              }}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Details
+                              </DropdownMenuItem>
+                              {vendor.verificationStatus === 'pending' && (
+                                <DropdownMenuItem onClick={() => handleVendorStatusUpdate(vendor.id, 'approve')}>
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Approve Vendor
+                                </DropdownMenuItem>
+                              )}
+                              {vendor.verificationStatus === 'verified' && (
+                                <DropdownMenuItem onClick={() => handleVendorStatusUpdate(vendor.id, 'reject')}>
+                                  <XCircle className="w-4 h-4 mr-2" />
+                                  Reject Vendor
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem onClick={() => {
+                                setSelectedVendor(vendor);
+                                setIsEmailModalOpen(true);
+                              }}>
+                                <Mail className="w-4 h-4 mr-2" />
+                                Send Email
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => handleDeleteVendor(vendor.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete Vendor
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-muted-foreground">
+                      Page {pagination.currentPage} of {pagination.totalPages}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={!pagination.hasPrev}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.totalPages))}
+                        disabled={!pagination.hasNext}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
+
+        {/* Vendor Details Modal */}
+        <Dialog open={isVendorDetailsOpen} onOpenChange={setIsVendorDetailsOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Vendor Details</DialogTitle>
+            </DialogHeader>
+            {selectedVendor && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Name</label>
+                    <p className="text-sm">{selectedVendor.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Vendor ID</label>
+                    <p className="text-sm">{selectedVendor.vendorId}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Email</label>
+                    <p className="text-sm">{selectedVendor.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Phone</label>
+                    <p className="text-sm">{selectedVendor.phone}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Location</label>
+                    <p className="text-sm">{selectedVendor.location}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Experience</label>
+                    <p className="text-sm">{selectedVendor.experience}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Services</label>
+                    <p className="text-sm">
+                      {selectedVendor.services.map(service => 
+                        service === 'Other' && selectedVendor.customServiceCategory 
+                          ? selectedVendor.customServiceCategory 
+                          : service
+                      ).join(', ')}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Rating</label>
+                    <p className="text-sm">{selectedVendor.rating.toFixed(1)} ({selectedVendor.totalReviews} reviews)</p>
+                  </div>
+                </div>
+                {selectedVendor.specialty && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Specialty</label>
+                    <p className="text-sm">{selectedVendor.specialty}</p>
+                  </div>
+                )}
+                {selectedVendor.bio && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Bio</label>
+                    <p className="text-sm">{selectedVendor.bio}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Email Modal */}
+        <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Send Email to {selectedVendor?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Subject</label>
+                <Input
+                  value={emailData.subject}
+                  onChange={(e) => setEmailData(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder="Email subject"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Message</label>
+                <textarea
+                  className="w-full p-2 border rounded-md"
+                  rows={4}
+                  value={emailData.message}
+                  onChange={(e) => setEmailData(prev => ({ ...prev, message: e.target.value }))}
+                  placeholder="Email message"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsEmailModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSendEmail} disabled={sendingEmail}>
+                  {sendingEmail ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Email'
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add New Vendor Modal */}
+        <Dialog open={isAddVendorModalOpen} onOpenChange={setIsAddVendorModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Add New Vendor</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="text-center py-8">
+                <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Add New Vendor</h3>
+                <p className="text-gray-600 mb-6">
+                  To add a new vendor, please direct them to the vendor registration page where they can create their own account.
+                </p>
+                <div className="space-y-3">
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    onClick={() => {
+                      // Open vendor registration page in new tab
+                      window.open('/vendor/signup', '_blank');
+                    }}
+                  >
+                    <UserCheck className="w-4 h-4 mr-2" />
+                    Open Vendor Registration Page
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setIsAddVendorModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

@@ -1,26 +1,78 @@
-import { Button } from "@/components/ui/button";
-import { ArrowDown, Zap, Shield, Clock, Building2, Award, Star } from "lucide-react";
+import { Building2, Award, Star, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import publicProductApi, { PublicProduct } from '@/services/publicProductApi';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const Hero = () => {
   const navigate = useNavigate();
   const [currentBanner, setCurrentBanner] = useState(0);
-  const [showMoreServices, setShowMoreServices] = useState(false);
+  const [products, setProducts] = useState<PublicProduct[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [showMoreProducts, setShowMoreProducts] = useState(false);
+  const [allProducts, setAllProducts] = useState<PublicProduct[]>([]);
   const banners = ['/banner1.png', '/banner2.png', '/banner3.png'];
 
-  const allServices = [
-    { name: "Mac Repair", image: "/laptop.avif", serviceType: "mac" },  
-    { name: "CCTV Installation", image: "/cctv.webp", serviceType: "cctv" },
-    { name: "Tablet Repair", image: "/tablet.webp", serviceType: "tablet" },
-    { name: "TV Repair", image: "/tv.avif", serviceType: "tv" },
-    { name: "AC Repair", image: "/ac.png", serviceType: "ac" },
-    { name: "Fridge Repair", image: "/fidge.jpeg", serviceType: "fridge" },
-    { name: "Washing Machine Repair", image: "/washing.jpg", serviceType: "washing" },
-    { name: "Electrician", image: "/electrician.jpg", serviceType: "electrician" },
-    { name: "Plumber", image: "/plumber.png", serviceType: "plumber" }
-  ];
+  // Fetch featured products from public API
+  const fetchProducts = async () => {
+    try {
+      setProductsLoading(true);
+      
+      // Get featured products for main display (top 3)
+      const featuredResponse = await publicProductApi.getFeaturedProducts();
+      console.log('Featured Products Response:', featuredResponse);
+      
+      let featuredProducts = [];
+      if (featuredResponse && featuredResponse.data && featuredResponse.data.products) {
+        featuredProducts = featuredResponse.data.products;
+        console.log('Featured products found:', featuredProducts.length);
+      }
+      
+      // Get all active products for "More Services" section
+      const allProductsResponse = await publicProductApi.getAllActiveProducts();
+      console.log('All Products Response:', allProductsResponse);
+      
+      let allActiveProducts = [];
+      if (allProductsResponse && allProductsResponse.data && allProductsResponse.data.products) {
+        allActiveProducts = allProductsResponse.data.products;
+        console.log('All active products found:', allActiveProducts.length);
+      }
+      
+      // Transform featured products for main display
+      const transformedFeaturedProducts = featuredProducts.map(product => ({
+        ...product,
+        name: product.productName,
+        primaryImage: product.productImage,
+        category: { name: product.serviceType }
+      }));
+      
+      // Transform all products for "More Services" section
+      const transformedAllProducts = allActiveProducts.map(product => ({
+        ...product,
+        name: product.productName,
+        primaryImage: product.productImage,
+        category: { name: product.serviceType }
+      }));
+      
+      // Filter and set featured products (top 3)
+      const validFeaturedProducts = transformedFeaturedProducts.filter(p => p && p.name && p._id);
+      console.log('Valid featured products after filtering:', validFeaturedProducts.length);
+      setProducts(validFeaturedProducts);
+      
+      // Filter and set all products for "More Services"
+      const validAllProducts = transformedAllProducts.filter(p => p && p.name && p._id);
+      console.log('Valid all products after filtering:', validAllProducts.length);
+      setAllProducts(validAllProducts);
+      
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      // Fallback to empty arrays if API fails
+      setProducts([]);
+      setAllProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -30,10 +82,20 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, [banners.length]);
 
+  // Fetch products on component mount
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Toggle function for showing more products
+  const toggleMoreProducts = () => {
+    setShowMoreProducts(!showMoreProducts);
+  };
+
+
+
   return (
-    <section className={`relative flex items-center justify-center overflow-hidden transition-all duration-500 ${
-      showMoreServices ? 'min-h-[120vh] sm:min-h-[130vh]' : 'min-h-[90vh] sm:min-h-screen'
-    }`}>
+    <section className="relative flex items-center justify-center overflow-hidden min-h-[90vh] sm:min-h-screen">
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
       
@@ -45,9 +107,7 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ${
-        showMoreServices ? 'mt-24 sm:pt-20 lg:pt-20' : 'mt-12 sm:pt-20 lg:pt-24'
-      }`}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:pt-20 lg:pt-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
           <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8" data-aos="fade-left" data-aos-delay="200">
@@ -82,6 +142,21 @@ const Hero = () => {
             </div>
           </div>
 
+          {/* Lottie Animation - Desktop Only, Show when More Services is expanded */}
+          {showMoreProducts && (
+            <div className="hidden lg:block absolute bottom-16 right-14 w-full max-w-4xl">
+              <div className="flex justify-end items-end">
+                <div className="w-full max-w-3xl h-96">
+                  <DotLottieReact
+                    src="https://lottie.host/4b4777ae-24ca-490b-89fc-6a6a49a87b91/RY3zh347Uf.lottie"
+                    loop
+                    autoplay
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Text Content - Shows second on mobile, first on desktop */}
           <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-8 lg:mt-0 lg:w-full lg:pr-8" data-aos="fade-right" data-aos-delay="100">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
@@ -92,93 +167,123 @@ const Hero = () => {
               Certified technicians and lightning-fast turnaround times.
             </p>
 
-            {/* Service Cards */}
+            {/* Top 3 Featured Product Cards */}
             <div className="flex flex-row gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="300">
-              <div 
-                className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
-                style={{backgroundColor: '#ffffff'}}
-                onClick={() => navigate('/service/laptop')}
-              >
-                <div className="text-center">
-                  <img 
-                    src="/laptop.avif" 
-                    alt="Laptop Repair" 
-                    className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
-                  />
-                  <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">Laptop Repair</h3>
-                </div>
-              </div>
-              <div 
-                className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
-                style={{backgroundColor: '#ffffff'}}
-                onClick={() => navigate('/service/desktop')}
-              >
-                <div className="text-center">
-                  <img 
-                    src="/desktop.jpg" 
-                    alt="Desktop Repair" 
-                    className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
-                  />
-                  <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">Desktop Repair</h3>
-                </div>
-              </div>
-              <div 
-                className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
-                style={{backgroundColor: '#ffffff'}}
-                onClick={() => navigate('/service/printer')}
-              >
-                <div className="text-center">
-                  <img 
-                    src="/printer.png" 
-                    alt="Printer Repair" 
-                    className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
-                  />
-                  <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">Printer Repair</h3>
-                </div>
-              </div>
-            </div>
-            
-            {/* CTA Button */}
-            <div className="flex justify-center mb-3 sm:mb-8 lg:mb-6" data-aos="zoom-in" data-aos-delay="400">
-              <Button 
-                size="lg" 
-                className="btn-tech text-white text-lg px-8 py-4"
-                onClick={() => setShowMoreServices(!showMoreServices)}
-              >
-                More Services
-                <ArrowDown className={`ml-2 h-5 w-4 transition-transform duration-300 ${showMoreServices ? 'rotate-180' : ''}`} />
-              </Button>
+              {productsLoading ? (
+                // Loading state
+                Array.from({ length: 3 }).map((_, index) => (
+                  <div 
+                    key={index}
+                    className="bg-white rounded-xl p-2 sm:p-4 shadow-lg flex-1 flex items-center justify-center" 
+                    style={{backgroundColor: '#ffffff'}}
+                  >
+                    <div className="text-center">
+                      <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 animate-spin text-gray-400" />
+                      <h3 className="text-xs sm:text-sm font-bold text-gray-400 leading-tight">Loading...</h3>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                // Show only top 3 featured products
+                Array.from({ length: 3 }).map((_, index) => {
+                  const product = products[index];
+                  console.log(`Featured Card ${index + 1}:`, product ? `Product: ${product.name}` : 'No product - showing placeholder');
+                  
+                  if (product) {
+                    // Show actual product card
+                    const primaryImage = product.primaryImage;
+                    return (
+                      <div 
+                        key={product._id}
+                        className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
+                        style={{backgroundColor: '#ffffff'}}
+                        onClick={() => navigate(`/product/${product._id}`, { state: { product } })}
+                      >
+                        <div className="text-center">
+                          <img 
+                            src={primaryImage || '/placeholder.svg'} 
+                            alt={product.name} 
+                            className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/placeholder.svg';
+                            }}
+                          />
+                          <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">{product.name}</h3>
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    // Show placeholder card
+                    return (
+                      <div 
+                        key={`placeholder-${index}`}
+                        className="bg-white rounded-xl p-2 sm:p-4 shadow-lg flex-1 flex items-center justify-center" 
+                        style={{backgroundColor: '#ffffff'}}
+                      >
+                        <div className="text-center">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span className="text-gray-500 text-xs">No Product</span>
+                          </div>
+                          <h3 className="text-xs sm:text-sm font-bold text-gray-400 leading-tight">Coming Soon</h3>
+                        </div>
+                      </div>
+                    );
+                  }
+                })
+              )}
             </div>
 
-            {/* More Services Grid */}
-            {showMoreServices && (
-              <div className="mt-6 mb-8 animate-fade-in">
-                <div className="grid grid-cols-3 gap-2 sm:gap-4">
-                  {allServices.map((service, index) => (
-                    <div 
-                      key={index}
-                      className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer"
-                      style={{backgroundColor: '#ffffff'}}
-                      onClick={() => navigate(`/service/${service.serviceType}`)}
-                    >
-                      <div className="text-center">
-                        <img 
-                          src={service.image} 
-                          alt={service.name} 
-                          className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
-                        />
-                        <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">
-                          {service.name}
-                        </h3>
+            {/* More Services Button */}
+            <div className="flex justify-center mb-6 sm:mb-8" data-aos="fade-up" data-aos-delay="400">
+              <button
+                onClick={toggleMoreProducts}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                {showMoreProducts ? 'Show Less' : 'More Services'}
+              </button>
+            </div>
+
+            {/* Additional Products (Toggle) - Non-featured products */}
+            {showMoreProducts && allProducts.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="500">
+                {allProducts
+                  .filter(product => {
+                    // Show products that are not in the featured products list
+                    const isNotFeatured = !products.some(featuredProduct => featuredProduct._id === product._id);
+                    return product && product._id && isNotFeatured;
+                  })
+                  .map((product) => {
+                    console.log('More Services product:', product?.name || 'Unknown Product');
+                    const primaryImage = product.primaryImage;
+                    return (
+                      <div 
+                        key={product._id}
+                        className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer" 
+                        style={{backgroundColor: '#ffffff'}}
+                        onClick={() => navigate(`/product/${product._id}`, { state: { product } })}
+                      >
+                        <div className="text-center">
+                          <img 
+                            src={primaryImage || '/placeholder.svg'} 
+                            alt={product.name} 
+                            className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/placeholder.svg';
+                            }}
+                          />
+                          <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">{product.name}</h3>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    );
+                  })}
               </div>
             )}
 
+
             {/* Company Trust Indicators */}
-            <div className="grid grid-cols-3 gap-2 max-w-md mx-auto lg:mx-0 lg:ml-16" data-aos="fade-up" data-aos-delay="500">
+            <div className="grid grid-cols-3 gap-2 max-w-md mx-auto lg:mx-0 lg:ml-16" data-aos="fade-up" data-aos-delay="600">
               <div className="text-center">
                 <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
                   <Building2 className="h-6 w-6 text-white" />
@@ -204,21 +309,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      
-      {/* Lottie Animation - Desktop Only, Show when More Services is expanded */}
-      {showMoreServices && (
-        <div className="hidden lg:block absolute bottom-48 right-14 w-full max-w-4xl">
-          <div className="flex justify-end items-end">
-            <div className="w-full max-w-3xl h-96">
-              <DotLottieReact
-                src="https://lottie.host/4b4777ae-24ca-490b-89fc-6a6a49a87b91/RY3zh347Uf.lottie"
-                loop
-                autoplay
-              />
-            </div>
-          </div>
-        </div>
-      )}
       
     </section>
   );

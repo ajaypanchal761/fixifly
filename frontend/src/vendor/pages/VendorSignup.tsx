@@ -8,8 +8,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Briefcase, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Briefcase, ArrowLeft, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import vendorApiService from '@/services/vendorApi';
+import VendorBenefitsModal from '../components/VendorBenefitsModal';
 
 const VendorSignup = () => {
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ const VendorSignup = () => {
     password: '',
     confirmPassword: '',
     serviceCategories: [] as string[],
+    customServiceCategory: '',
     experience: '',
     address: ''
   });
@@ -71,12 +74,26 @@ const VendorSignup = () => {
   };
 
   const handleCategoryChange = (category: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      serviceCategories: checked 
-        ? [...prev.serviceCategories, category]
-        : prev.serviceCategories.filter(c => c !== category)
-    }));
+    setFormData(prev => {
+      let newCategories;
+      if (checked) {
+        newCategories = [...prev.serviceCategories, category];
+      } else {
+        newCategories = prev.serviceCategories.filter(c => c !== category);
+        // If "Other" is unchecked, clear the custom service category
+        if (category === 'Other') {
+          return {
+            ...prev,
+            serviceCategories: newCategories,
+            customServiceCategory: ''
+          };
+        }
+      }
+      return {
+        ...prev,
+        serviceCategories: newCategories
+      };
+    });
     if (error) setError('');
   };
 
@@ -145,31 +162,39 @@ const VendorSignup = () => {
     }
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock successful registration
-      const vendorData = {
-        id: 'V' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-        name: `${formData.firstName} ${formData.lastName}`,
+      // Call backend API to register
+      const response = await vendorApiService.register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         phone: formData.phone,
+        password: formData.password,
         serviceCategories: formData.serviceCategories,
+        customServiceCategory: formData.customServiceCategory,
         experience: formData.experience,
-        rating: 0,
-        completedTasks: 0,
-        joinedDate: new Date().toISOString().split('T')[0]
-      };
-
-      toast({
-        title: "Registration Successful",
-        description: "Your vendor account has been created. Please login to continue.",
+        address: formData.address ? {
+          street: formData.address,
+          city: '',
+          state: '',
+          pincode: '',
+          landmark: ''
+        } : undefined
       });
 
-      // Redirect to vendor login page
-      navigate('/vendor/login');
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+      if (response.success) {
+        toast({
+          title: "Registration Successful",
+          description: "Your vendor account has been created. Please wait for admin approval before you can login.",
+        });
+
+        // Redirect to vendor login page
+        navigate('/vendor/login');
+      } else {
+        setError(response.message || 'Registration failed. Please try again.');
+      }
+    } catch (err: any) {
+      console.error('Vendor Registration Error:', err);
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -332,9 +357,28 @@ const VendorSignup = () => {
             </div>
           ))}
         </div>
+        {formData.serviceCategories.includes('Other') && (
+          <div className="space-y-2">
+            <Label htmlFor="customServiceCategory" className="text-sm font-medium text-gray-700">
+              Specify your service type:
+            </Label>
+            <Input
+              id="customServiceCategory"
+              name="customServiceCategory"
+              value={formData.customServiceCategory}
+              onChange={handleInputChange}
+              placeholder="Enter your custom service category"
+              className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+            />
+          </div>
+        )}
         {formData.serviceCategories.length > 0 && (
           <div className="text-sm text-blue-600">
-            Selected: {formData.serviceCategories.join(', ')}
+            Selected: {formData.serviceCategories.map(cat => 
+              cat === 'Other' && formData.customServiceCategory 
+                ? `${cat} (${formData.customServiceCategory})` 
+                : cat
+            ).join(', ')}
           </div>
         )}
       </div>
@@ -447,6 +491,41 @@ const VendorSignup = () => {
                   Sign in here
                 </Link>
               </p>
+            </div>
+
+            {/* Approval Process Information */}
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 text-blue-800 mb-2">
+                <Clock className="h-4 w-4" />
+                <p className="text-sm font-medium">Account Approval Required</p>
+              </div>
+              <p className="text-xs text-blue-700">
+                After registration, your vendor account will be reviewed by our admin team. 
+                You'll receive an email notification once your account is approved and you can login.
+                This process typically takes 1-2 business days.
+              </p>
+            </div>
+
+            {/* Certified Partner Benefits */}
+            <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
+              <div className="flex items-center gap-2 text-green-800 mb-2">
+                <Briefcase className="h-4 w-4" />
+                <p className="text-sm font-medium">Become a Certified Partner</p>
+              </div>
+              <p className="text-xs text-green-700 mb-3">
+                After approval, make a ₹4,000 deposit to become a certified partner and unlock amazing benefits!
+              </p>
+              <div className="text-center">
+                <VendorBenefitsModal>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-green-300 text-green-700 hover:bg-green-100"
+                  >
+                    🎁 View All Benefits
+                  </Button>
+                </VendorBenefitsModal>
+              </div>
             </div>
           </CardContent>
         </Card>

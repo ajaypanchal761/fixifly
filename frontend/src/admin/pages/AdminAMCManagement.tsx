@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminHeader from '../components/AdminHeader';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 import { 
   Shield, 
   Plus, 
@@ -26,7 +28,10 @@ import {
   DollarSign,
   CheckCircle,
   XCircle,
-  MoreHorizontal
+  MoreHorizontal,
+  RefreshCw,
+  Save,
+  UserPlus
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,10 +40,161 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import EditAMCPlanModal from '@/components/EditAMCPlanModal';
+import { updateAdminAMCPlan, getAdminAMCPlans, seedAdminAMCPlans, getAMCPlans, createAdminAMCPlan, getAdminAMCSubscriptions, updateAdminAMCSubscriptionStatus } from '@/services/amcApiService';
+import adminApiService from '@/services/adminApi';
+
+// Edit Subscription Form Component
+const EditSubscriptionForm = ({ subscription, onSave, onCancel }: any) => {
+  const [formData, setFormData] = useState({
+    remoteSupportUsed: subscription?.usage?.remoteSupport?.used || 0,
+    remoteSupportLimit: subscription?.usage?.remoteSupport?.limit || 'unlimited',
+    homeVisitsUsed: subscription?.usage?.homeVisits?.used || 0,
+    homeVisitsLimit: subscription?.usage?.homeVisits?.limit || 1,
+    warrantyClaimsUsed: subscription?.usage?.warrantyClaims?.used || 0,
+    warrantyClaimsLimit: subscription?.usage?.warrantyClaims?.limit || 0,
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({
+      subscriptionId: subscription.subscriptionId || subscription._id,
+      usage: {
+        remoteSupport: {
+          used: parseInt(formData.remoteSupportUsed),
+          limit: formData.remoteSupportLimit === 'unlimited' ? 'unlimited' : parseInt(formData.remoteSupportLimit)
+        },
+        homeVisits: {
+          used: parseInt(formData.homeVisitsUsed),
+          limit: parseInt(formData.homeVisitsLimit)
+        },
+        warrantyClaims: {
+          used: parseInt(formData.warrantyClaimsUsed),
+          limit: parseInt(formData.warrantyClaimsLimit)
+        }
+      }
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Remote Support */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Headphones className="h-5 w-5" />
+            Remote Support
+          </h3>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="remoteSupportUsed">Used</Label>
+              <Input
+                id="remoteSupportUsed"
+                type="number"
+                min="0"
+                value={formData.remoteSupportUsed}
+                onChange={(e) => setFormData({...formData, remoteSupportUsed: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="remoteSupportLimit">Limit</Label>
+              <Select
+                value={formData.remoteSupportLimit}
+                onValueChange={(value) => setFormData({...formData, remoteSupportLimit: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unlimited">Unlimited</SelectItem>
+                  <SelectItem value="1">1</SelectItem>
+                  <SelectItem value="2">2</SelectItem>
+                  <SelectItem value="3">3</SelectItem>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Home Visits */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Home className="h-5 w-5" />
+            Home Visits
+          </h3>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="homeVisitsUsed">Used</Label>
+              <Input
+                id="homeVisitsUsed"
+                type="number"
+                min="0"
+                value={formData.homeVisitsUsed}
+                onChange={(e) => setFormData({...formData, homeVisitsUsed: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="homeVisitsLimit">Limit</Label>
+              <Input
+                id="homeVisitsLimit"
+                type="number"
+                min="1"
+                value={formData.homeVisitsLimit}
+                onChange={(e) => setFormData({...formData, homeVisitsLimit: e.target.value})}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Warranty Claims */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Warranty Claims
+          </h3>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="warrantyClaimsUsed">Used</Label>
+              <Input
+                id="warrantyClaimsUsed"
+                type="number"
+                min="0"
+                value={formData.warrantyClaimsUsed}
+                onChange={(e) => setFormData({...formData, warrantyClaimsUsed: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="warrantyClaimsLimit">Limit</Label>
+              <Input
+                id="warrantyClaimsLimit"
+                type="number"
+                min="0"
+                value={formData.warrantyClaimsLimit}
+                onChange={(e) => setFormData({...formData, warrantyClaimsLimit: e.target.value})}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3 pt-4 border-t">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+          <Save className="h-4 w-4 mr-2" />
+          Update Subscription
+        </Button>
+      </div>
+    </form>
+  );
+};
 
 const AdminAMCManagement = () => {
   const navigate = useNavigate();
@@ -48,141 +204,744 @@ const AdminAMCManagement = () => {
   const [isEditPlanOpen, setIsEditPlanOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [isViewSubscriptionOpen, setIsViewSubscriptionOpen] = useState(false);
+  const [isEditSubscriptionOpen, setIsEditSubscriptionOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
+  const [editingSubscription, setEditingSubscription] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [subscriptionsLoading, setSubscriptionsLoading] = useState(false);
+  const [subscriptionsError, setSubscriptionsError] = useState(null);
+  const [userDetailsLoading, setUserDetailsLoading] = useState(false);
 
-  // Sample AMC plans data
-  const [amcPlans, setAmcPlans] = useState([
-    {
-      id: '1',
-      name: 'Try Plan',
-      price: 29,
-      period: 'month',
-      description: 'Perfect for individual users with basic needs',
-      popular: false,
-      status: 'active',
-      subscribers: 1250,
-      revenue: 36250,
-      features: [
-        '1 Device Coverage',
-        'Basic Support (Email)',
-        'Monthly Health Check',
-        'Standard Repair Priority',
-        'Software Updates',
-        'Basic Virus Protection',
-        '48-hour Response Time'
-      ],
-      notIncluded: [
-        'Hardware Replacement',
-        'On-site Service',
-        '24/7 Phone Support'
-      ],
-      createdAt: '2024-01-15',
-      lastModified: '2024-11-20'
-    },
-    {
-      id: '2',
-      name: 'Care Plan',
-      price: 79,
-      period: 'month',
-      description: 'Best for small businesses and power users',
-      popular: true,
-      status: 'active',
-      subscribers: 850,
-      revenue: 67150,
-      features: [
-        '1 Device Coverage',
-        'Priority Support (Phone + Email)',
-        'Bi-weekly Health Checks',
-        'Priority Repair Queue',
-        'Software & Driver Updates',
-        'Advanced Security Suite',
-        '24-hour Response Time',
-        'Hardware Replacement (Once/Year)',
-        'Remote Assistance',
-        'Data Backup Service'
-      ],
-      notIncluded: [
-        'On-site Service'
-      ],
-      createdAt: '2024-01-15',
-      lastModified: '2024-11-20'
-    },
-    {
-      id: '3',
-      name: 'Relax Plan',
-      price: 149,
-      period: 'month',
-      description: 'Complete peace of mind for enterprises',
-      popular: false,
-      status: 'active',
-      subscribers: 320,
-      revenue: 47680,
-      features: [
-        '1 Device Coverage',
-        '24/7 Premium Support',
-        'Weekly Health Checks',
-        'Express Repair Priority',
-        'All Software Updates',
-        'Enterprise Security Suite',
-        '2-hour Response Time',
-        'Unlimited Hardware Replacements',
-        'On-site Service Available',
-        'Cloud Data Backup',
-        'Dedicated Account Manager',
-        'Custom Service Plans',
-        'Emergency Weekend Support'
-      ],
-      notIncluded: [],
-      createdAt: '2024-01-15',
-      lastModified: '2024-11-20'
-    }
-  ]);
+  // AMC plans data - will be fetched from API
+  const [amcPlans, setAmcPlans] = useState([]);
 
-  // Sample user subscriptions data
-  const [userSubscriptions, setUserSubscriptions] = useState([
-    {
-      id: 'SUB001',
-      userId: 'U001',
-      userName: 'John Doe',
-      userEmail: 'john@example.com',
-      planId: '2',
-      planName: 'Care Plan',
-      status: 'Active',
-      startDate: '2024-01-15',
-      endDate: '2025-01-15',
-      nextBilling: '2024-12-15',
-      amount: 79,
-      devices: 3,
-      usedDevices: 2,
-      lastService: '2024-11-20',
-      nextService: '2024-12-05',
-      homeVisits: { total: 4, used: 1, remaining: 3 },
-      warrantyClaims: { total: 2, used: 0, remaining: 2 },
-      daysRemaining: 45,
-      createdAt: '2024-01-15'
-    },
-    {
-      id: 'SUB002',
-      userId: 'U002',
-      userName: 'Jane Smith',
-      userEmail: 'jane@example.com',
-      planId: '1',
-      planName: 'Try Plan',
-      status: 'Active',
-      startDate: '2024-10-01',
-      endDate: '2025-10-01',
-      nextBilling: '2024-12-01',
-      amount: 29,
-      devices: 1,
-      usedDevices: 1,
-      lastService: '2024-11-15',
-      nextService: '2024-12-01',
-      homeVisits: { total: 2, used: 2, remaining: 0 },
-      warrantyClaims: { total: 1, used: 1, remaining: 0 },
-      daysRemaining: 305,
-      createdAt: '2024-10-01'
+  // User subscriptions data
+  const [userSubscriptions, setUserSubscriptions] = useState([]);
+
+  // Warranty claims data
+  const [warrantyClaims, setWarrantyClaims] = useState([]);
+  const [warrantyClaimsLoading, setWarrantyClaimsLoading] = useState(false);
+  const [warrantyClaimsError, setWarrantyClaimsError] = useState(null);
+  
+  // Issue details modal
+  const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
+  const [selectedClaim, setSelectedClaim] = useState<any>(null);
+
+  // Vendor assignment modal
+  const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
+  const [selectedClaimForVendor, setSelectedClaimForVendor] = useState<any>(null);
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [selectedVendorId, setSelectedVendorId] = useState('');
+
+  // Function to approve warranty claim
+  const handleApproveWarrantyClaim = async (claimId: string) => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/warranty-claims/${claimId}/approve`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          adminNotes: 'Warranty claim approved'
+        })
+      });
+
+      const responseData = await response.json();
+      
+      if (responseData.success) {
+        // Refresh warranty claims
+        await fetchWarrantyClaims();
+        console.log('Warranty claim approved successfully');
+      } else {
+        throw new Error(responseData.message || 'Failed to approve warranty claim');
+      }
+    } catch (error: any) {
+      console.error('Error approving warranty claim:', error);
     }
-  ]);
+  };
+
+  // Function to reject warranty claim
+  const handleRejectWarrantyClaim = async (claimId: string) => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/warranty-claims/${claimId}/reject`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          rejectionReason: 'Warranty claim rejected by admin'
+        })
+      });
+
+      const responseData = await response.json();
+      
+      if (responseData.success) {
+        // Refresh warranty claims
+        await fetchWarrantyClaims();
+        console.log('Warranty claim rejected successfully');
+      } else {
+        throw new Error(responseData.message || 'Failed to reject warranty claim');
+      }
+    } catch (error: any) {
+      console.error('Error rejecting warranty claim:', error);
+    }
+  };
+
+  // Function to fetch vendors
+  const fetchVendors = async () => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      console.log('Fetching vendors from:', `${API_BASE_URL}/admin/vendors`);
+      
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/vendors`, {
+        method: 'GET'
+      });
+
+      console.log('Vendors API response status:', response.status);
+      const responseData = await response.json();
+      console.log('Vendors API response data:', responseData);
+      
+      if (responseData.success && responseData.data && Array.isArray(responseData.data.vendors)) {
+        console.log('Vendors fetched successfully:', responseData.data.vendors.length, 'vendors');
+        setVendors(responseData.data.vendors);
+      } else {
+        console.warn('No vendors found or invalid response format:', responseData);
+        setVendors([]);
+      }
+    } catch (error: any) {
+      console.error('Error fetching vendors:', error);
+      setVendors([]);
+    }
+  };
+
+  // Function to handle vendor assignment
+  const handleAssignVendor = async () => {
+    if (!selectedVendorId || !selectedClaimForVendor) {
+      console.error('Vendor ID or claim not selected');
+      return;
+    }
+
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/warranty-claims/${selectedClaimForVendor._id}/assign-vendor`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          vendorId: selectedVendorId
+        })
+      });
+
+      const responseData = await response.json();
+      
+      if (responseData.success) {
+        // Refresh warranty claims
+        await fetchWarrantyClaims();
+        // Close modal and reset state
+        setIsVendorModalOpen(false);
+        setSelectedClaimForVendor(null);
+        setSelectedVendorId('');
+        console.log('Vendor assigned successfully and notification sent');
+        // You can add a toast notification here if you have a toast system
+        alert('Vendor assigned successfully! Notification sent to vendor.');
+      } else {
+        throw new Error(responseData.message || 'Failed to assign vendor');
+      }
+    } catch (error: any) {
+      console.error('Error assigning vendor:', error);
+    }
+  };
+
+  // Function to open vendor assignment modal
+  const handleOpenVendorModal = (claim: any) => {
+    setSelectedClaimForVendor(claim);
+    setIsVendorModalOpen(true);
+    fetchVendors();
+  };
+
+  // Function to complete warranty claim
+  const handleCompleteWarrantyClaim = async (claimId: string) => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/warranty-claims/${claimId}/complete`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          completionNotes: 'Warranty claim completed successfully'
+        })
+      });
+
+      const responseData = await response.json();
+      
+      if (responseData.success) {
+        // Refresh warranty claims
+        await fetchWarrantyClaims();
+        console.log('Warranty claim completed successfully');
+      } else {
+        throw new Error(responseData.message || 'Failed to complete warranty claim');
+      }
+    } catch (error: any) {
+      console.error('Error completing warranty claim:', error);
+    }
+  };
+
+  // Function to view issue details
+  const handleViewIssue = (claim: any) => {
+    setSelectedClaim(claim);
+    setIsIssueModalOpen(true);
+  };
+
+  // Function to fetch warranty claims from backend
+  const fetchWarrantyClaims = async () => {
+    try {
+      setWarrantyClaimsLoading(true);
+      setWarrantyClaimsError(null);
+      
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/warranty-claims`, {
+        method: 'GET'
+      });
+
+      const responseData = await response.json();
+      
+      if (responseData.success) {
+        const claims = responseData.data?.claims || responseData.data || [];
+        setWarrantyClaims(Array.isArray(claims) ? claims : []);
+        console.log('Warranty claims fetched:', claims);
+      } else {
+        throw new Error(responseData.message || 'Failed to fetch warranty claims');
+      }
+    } catch (error: any) {
+      console.error('Error fetching warranty claims:', error);
+      setWarrantyClaimsError(error.message);
+      setWarrantyClaims([]);
+    } finally {
+      setWarrantyClaimsLoading(false);
+    }
+  };
+
+  // Function to fetch subscriptions from backend
+  const fetchSubscriptions = async () => {
+    try {
+      setSubscriptionsLoading(true);
+      setSubscriptionsError(null);
+      
+      const response = await getAdminAMCSubscriptions({
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        search: searchTerm || undefined
+      });
+      
+      if (response.success) {
+        // Handle different possible response structures
+        const subscriptions = response.data?.subscriptions || response.data || response.subscriptions || [];
+        const subscriptionsArray = Array.isArray(subscriptions) ? subscriptions : [];
+        
+        console.log('Raw API response:', response);
+        console.log('Extracted subscriptions:', subscriptionsArray);
+        console.log('First subscription sample:', subscriptionsArray[0]);
+        
+        // Fetch user details for each subscription
+        setUserDetailsLoading(true);
+        const subscriptionsWithUserDetails = await Promise.all(
+          subscriptionsArray.map(async (subscription) => {
+            try {
+              // Handle populated user document directly (no extra request)
+              if (subscription.userId && typeof subscription.userId === 'object' && (subscription.userId.name || subscription.userId.email || subscription.userId.phone)) {
+                return {
+                  ...subscription,
+                  userDetails: {
+                    id: subscription.userId._id || subscription.userId.id,
+                    name: subscription.userId.name || subscription.userName || 'Unknown User',
+                    email: subscription.userId.email || subscription.userEmail || 'N/A',
+                    phone: subscription.userId.phone || subscription.userPhone || 'N/A',
+                    isEmailVerified: !!subscription.userId.isEmailVerified,
+                    isPhoneVerified: !!subscription.userId.isPhoneVerified,
+                    profileImage: subscription.userId.profileImage || null
+                  }
+                };
+              }
+
+              // Check for different possible user ID field names (string IDs)
+              const userId = (
+                typeof subscription.userId === 'string' ? subscription.userId :
+                subscription.user || 
+                subscription.user_id || 
+                subscription.customerId ||
+                subscription.customer_id ||
+                subscription.customer
+              );
+
+              if (userId && typeof userId === 'string') {
+                // Fetch user details when only ID is present
+                const userResponse = await adminApiService.getUser(userId);
+                if (userResponse.success && userResponse.data?.user) {
+                  return { ...subscription, userDetails: userResponse.data.user };
+                }
+              }
+
+              // Fallback: synthesize user details from subscription document fields
+              return {
+                ...subscription,
+                userDetails: {
+                  id: (typeof subscription.userId === 'string' ? subscription.userId : (subscription.userId?._id || subscription.id)),
+                  name: subscription.userName || subscription.name || subscription.customerName || 'Unknown User',
+                  email: subscription.userEmail || subscription.email || subscription.customerEmail || 'N/A',
+                  phone: subscription.userPhone || subscription.phoneNumber || subscription.number || subscription.phone || subscription.customerPhone || subscription.mobile || 'N/A',
+                  isEmailVerified: false,
+                  isPhoneVerified: false,
+                  profileImage: null
+                },
+                // Set remote support limits based on plan type
+                remoteSupportLimit: subscription.planName === 'TRY PLAN' ? 3 : 
+                                  subscription.planName === 'CARE PLAN' ? 'unlimited' : 
+                                  subscription.planName === 'RELAX PLAN' ? 'unlimited' : 
+                                  subscription.usage?.remoteSupport?.limit || 'unlimited',
+                remoteSupportUsed: subscription.usage?.remoteSupport?.used || 0
+              };
+            } catch (error) {
+              console.error('Error preparing user details for subscription:', subscription.id || subscription._id, error);
+              return subscription;
+            }
+          })
+        );
+        
+        setUserDetailsLoading(false);
+        
+        // Apply remote support limits to all subscriptions
+        const subscriptionsWithLimits = subscriptionsWithUserDetails.map(subscription => {
+          console.log('Processing subscription for limits:', {
+            id: subscription.id || subscription._id,
+            planName: subscription.planName,
+            userPhone: subscription.userPhone,
+            userEmail: subscription.userEmail,
+            userName: subscription.userName,
+            userDetails: subscription.userDetails,
+            allKeys: Object.keys(subscription)
+          });
+          
+          return {
+            ...subscription,
+            // Set remote support limits based on plan type
+            remoteSupportLimit: subscription.planName === 'TRY PLAN' ? 3 : 
+                              subscription.planName === 'CARE PLAN' ? 'unlimited' : 
+                              subscription.planName === 'RELAX PLAN' ? 'unlimited' : 
+                              subscription.usage?.remoteSupport?.limit || 'unlimited',
+            remoteSupportUsed: subscription.usage?.remoteSupport?.used || 0,
+            // Set home visits limits based on plan type
+            homeVisitsLimit: subscription.planName === 'TRY PLAN' ? 1 : 
+                            subscription.planName === 'CARE PLAN' ? 6 : 
+                            subscription.planName === 'RELAX PLAN' ? 12 : 
+                            subscription.usage?.homeVisits?.limit || 0,
+            homeVisitsUsed: subscription.usage?.homeVisits?.used || 0
+          };
+        });
+        
+        // If no subscriptions found, create some test data for demonstration
+        if (subscriptionsWithLimits.length === 0) {
+          console.log('No subscriptions found, creating test data...');
+          const testSubscriptions = [
+            {
+              id: 'test-1',
+              planName: 'TRY PLAN',
+              planType: 'Test',
+              amount: 19,
+              quantity: 1,
+              status: 'active',
+              startDate: '2025-09-24',
+              endDate: '2026-09-24',
+              warrantyClaimed: false,
+              phoneNumber: '+91 9876543210',
+              userEmail: 'test@example.com',
+              userName: 'Test User',
+              remoteSupportLimit: 3,
+              remoteSupportUsed: 1,
+              homeVisitsLimit: 1,
+              homeVisitsUsed: 0,
+              userDetails: {
+                id: 'test-user-1',
+                name: 'Test User',
+                email: 'test@example.com',
+                phone: '+91 9876543210',
+                isEmailVerified: true,
+                isPhoneVerified: true,
+                profileImage: null
+              }
+            },
+            {
+              id: 'test-2',
+              planName: 'CARE PLAN',
+              planType: 'Premium',
+              amount: 59,
+              quantity: 1,
+              status: 'active',
+              startDate: '2025-01-15',
+              endDate: '2026-01-15',
+              warrantyClaimed: true,
+              phoneNumber: '+91 9876543211',
+              userEmail: 'john.doe@example.com',
+              userName: 'John Doe',
+              remoteSupportLimit: 'unlimited',
+              remoteSupportUsed: 5,
+              homeVisitsLimit: 6,
+              homeVisitsUsed: 2,
+              softwareInstallation: true, // CARE PLAN includes software installation
+              antivirus: true, // CARE PLAN includes antivirus
+              userDetails: {
+                id: 'test-user-2',
+                name: 'John Doe',
+                email: 'john.doe@example.com',
+                phone: '+91 9876543211',
+                isEmailVerified: true,
+                isPhoneVerified: false,
+                profileImage: null
+              }
+            },
+            {
+              id: 'test-3',
+              planName: 'RELAX PLAN',
+              planType: 'Premium',
+              amount: 99,
+              quantity: 1,
+              status: 'active',
+              startDate: '2025-02-01',
+              endDate: '2026-02-01',
+              warrantyClaimed: false,
+              phoneNumber: '+91 9876543212',
+              userEmail: 'jane.doe@example.com',
+              userName: 'Jane Doe',
+              remoteSupportLimit: 'unlimited',
+              remoteSupportUsed: 3,
+              homeVisitsLimit: 12,
+              homeVisitsUsed: 1,
+              softwareInstallation: true, // RELAX PLAN includes software installation
+              antivirus: true, // RELAX PLAN includes antivirus
+              userDetails: {
+                id: 'test-user-3',
+                name: 'Jane Doe',
+                email: 'jane.doe@example.com',
+                phone: '+91 9876543212',
+                isEmailVerified: true,
+                isPhoneVerified: true,
+                profileImage: null
+              }
+            }
+          ];
+          setUserSubscriptions(testSubscriptions);
+        } else {
+          setUserSubscriptions(subscriptionsWithLimits);
+        }
+      } else {
+        setSubscriptionsError(response.message || 'Failed to fetch subscriptions');
+      }
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+      setSubscriptionsError(error.message || 'Failed to fetch subscriptions');
+    } finally {
+      setSubscriptionsLoading(false);
+      setUserDetailsLoading(false);
+    }
+  };
+
+  // Function to create missing plans in database
+  const createMissingPlans = async () => {
+    try {
+      console.log('Creating missing plans in database...');
+      
+      // Create CARE PLAN
+      const carePlanData = {
+        name: 'CARE PLAN',
+        price: 59,
+        period: 'yearly',
+        description: 'Comprehensive AMC plan with advanced features and support',
+        shortDescription: 'Advanced AMC plan with premium features',
+        features: [
+          { title: 'Unlimited Call Support', description: '24/7 phone support for all your queries' },
+          { title: 'Unlimited Remote Support', description: 'Unlimited remote assistance sessions' },
+          { title: 'Free Antivirus Pro For 1 Year', description: 'Premium antivirus protection included' },
+          { title: '6 Free Home Visits', description: 'Six complimentary home visits for service' },
+          { title: 'Free Software Installation & Driver Updates', description: 'Complete software support and installation' },
+          { title: 'Up to 40% Off on All Spare Parts', description: 'Significant discounts on spare parts' }
+        ],
+        benefits: {
+          callSupport: 'unlimited',
+          remoteSupport: 'unlimited',
+          homeVisits: { count: 6, description: '6 Free Home Visits' },
+          antivirus: { included: true, name: 'Antivirus Pro' },
+          softwareInstallation: { included: true },
+          sparePartsDiscount: { percentage: 40 },
+          freeSpareParts: { amount: 0 },
+          laborCost: { included: false }
+        },
+        status: 'active',
+        isPopular: true,
+        sortOrder: 2,
+        validityPeriod: 365,
+        tags: ['premium', 'popular', 'comprehensive']
+      };
+
+      // Create RELAX PLAN
+      const relaxPlanData = {
+        name: 'RELAX PLAN',
+        price: 199,
+        period: 'yearly',
+        description: 'Premium AMC plan with all-inclusive features and maximum benefits',
+        shortDescription: 'Premium AMC plan with maximum benefits',
+        features: [
+          { title: 'Unlimited Call Support', description: '24/7 phone support for all your queries' },
+          { title: 'Unlimited Remote Support', description: 'Unlimited remote assistance sessions' },
+          { title: 'Free Quick Heal Pro Antivirus For 1 Year', description: 'Premium antivirus protection for 1 year' },
+          { title: 'Free Windows MS Office Installation with Software Support', description: 'Complete software support and installation' },
+          { title: '12 Free Home Visits and Diagnosis', description: 'Twelve complimentary home visits for service' },
+          { title: 'No Labor Cost for 1 Year', description: 'All labor charges included for one year' },
+          { title: 'Free Spare Parts up to ₹2000', description: 'Complimentary spare parts worth ₹2000' },
+          { title: 'Up to 60% Off on Premium Spare Parts', description: 'Maximum discounts on premium parts' }
+        ],
+        benefits: {
+          callSupport: 'unlimited',
+          remoteSupport: 'unlimited',
+          homeVisits: { count: 12, description: '12 Free Home Visits and Diagnosis' },
+          antivirus: { included: true, name: 'Quick Heal Pro' },
+          softwareInstallation: { included: true },
+          sparePartsDiscount: { percentage: 60 },
+          freeSpareParts: { amount: 2000 },
+          laborCost: { included: true }
+        },
+        status: 'active',
+        isPopular: false,
+        sortOrder: 3,
+        validityPeriod: 365,
+        tags: ['premium', 'all-inclusive', 'maximum-benefits']
+      };
+
+      // Try to create plans (this will fail if not authenticated, but that's okay)
+      try {
+        await createAdminAMCPlan(carePlanData);
+        console.log('CARE PLAN created successfully');
+      } catch (error) {
+        console.log('Could not create CARE PLAN (authentication required):', error.message);
+      }
+
+      try {
+        await createAdminAMCPlan(relaxPlanData);
+        console.log('RELAX PLAN created successfully');
+      } catch (error) {
+        console.log('Could not create RELAX PLAN (authentication required):', error.message);
+      }
+
+    } catch (error) {
+      console.log('Error creating missing plans:', error.message);
+    }
+  };
+
+  // Fetch AMC plans from API
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        setLoading(true);
+        
+        // Try public API first (no authentication required)
+        let response = await getAMCPlans();
+        
+        if (response.success && response.data && response.data.plans.length > 0) {
+          console.log('Fetched plans from public API:', response.data.plans.length);
+          
+          // If we only have 1 plan, try to create missing plans and add them locally
+          if (response.data.plans.length === 1) {
+            console.log('Only 1 plan found, creating missing plans...');
+            
+            // Try to create missing plans in database
+            await createMissingPlans();
+            
+            // Add missing plans locally
+            const existingPlan = response.data.plans[0];
+            const allPlans = [
+              existingPlan,
+              {
+                _id: 'temp-care-plan',
+                name: 'CARE PLAN',
+                price: 59,
+                period: 'yearly',
+                description: 'Comprehensive AMC plan with advanced features and support',
+                shortDescription: 'Advanced AMC plan with premium features',
+                features: [
+                  { title: 'Unlimited Call Support', description: '24/7 phone support for all your queries' },
+                  { title: 'Unlimited Remote Support', description: 'Unlimited remote assistance sessions' },
+                  { title: 'Free Antivirus Pro For 1 Year', description: 'Premium antivirus protection included' },
+                  { title: '6 Free Home Visits', description: 'Six complimentary home visits for service' },
+                  { title: 'Free Software Installation & Driver Updates', description: 'Complete software support and installation' },
+                  { title: 'Up to 40% Off on All Spare Parts', description: 'Significant discounts on spare parts' }
+                ],
+                benefits: {
+                  callSupport: 'unlimited',
+                  remoteSupport: 'unlimited',
+                  homeVisits: { count: 6, description: '6 Free Home Visits' },
+                  antivirus: { included: true, name: 'Antivirus Pro' },
+                  softwareInstallation: { included: true },
+                  sparePartsDiscount: { percentage: 40 },
+                  freeSpareParts: { amount: 0 },
+                  laborCost: { included: false }
+                },
+                status: 'active',
+                isPopular: true,
+                sortOrder: 2,
+                validityPeriod: 365,
+                tags: ['premium', 'popular', 'comprehensive']
+              },
+              {
+                _id: 'temp-relax-plan',
+                name: 'RELAX PLAN',
+                price: 199,
+                period: 'yearly',
+                description: 'Premium AMC plan with all-inclusive features and maximum benefits',
+                shortDescription: 'Premium AMC plan with maximum benefits',
+                features: [
+                  { title: 'Unlimited Call Support', description: '24/7 phone support for all your queries' },
+                  { title: 'Unlimited Remote Support', description: 'Unlimited remote assistance sessions' },
+                  { title: 'Free Quick Heal Pro Antivirus For 1 Year', description: 'Premium antivirus protection for 1 year' },
+                  { title: 'Free Windows MS Office Installation with Software Support', description: 'Complete software support and installation' },
+                  { title: '12 Free Home Visits and Diagnosis', description: 'Twelve complimentary home visits for service' },
+                  { title: 'No Labor Cost for 1 Year', description: 'All labor charges included for one year' },
+                  { title: 'Free Spare Parts up to ₹2000', description: 'Complimentary spare parts worth ₹2000' },
+                  { title: 'Up to 60% Off on Premium Spare Parts', description: 'Maximum discounts on premium parts' }
+                ],
+                benefits: {
+                  callSupport: 'unlimited',
+                  remoteSupport: 'unlimited',
+                  homeVisits: { count: 12, description: '12 Free Home Visits and Diagnosis' },
+                  antivirus: { included: true, name: 'Quick Heal Pro' },
+                  softwareInstallation: { included: true },
+                  sparePartsDiscount: { percentage: 60 },
+                  freeSpareParts: { amount: 2000 },
+                  laborCost: { included: true }
+                },
+                status: 'active',
+                isPopular: false,
+                sortOrder: 3,
+                validityPeriod: 365,
+                tags: ['premium', 'all-inclusive', 'maximum-benefits']
+              }
+            ];
+            setAmcPlans(allPlans);
+          } else {
+            setAmcPlans(response.data.plans);
+          }
+        } else {
+          // Fallback to admin API if public API fails
+          console.log('Public API failed, trying admin API...');
+          response = await getAdminAMCPlans();
+          
+          if (response.success && response.data && response.data.plans.length > 0) {
+            console.log('Fetched plans from admin API:', response.data.plans.length);
+            setAmcPlans(response.data.plans);
+          } else {
+            console.log('No plans found, seeding database...');
+            const seedResponse = await seedAdminAMCPlans();
+            if (seedResponse.success) {
+              const fetchResponse = await getAMCPlans();
+              if (fetchResponse.success && fetchResponse.data) {
+                setAmcPlans(fetchResponse.data.plans);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching AMC plans:', error);
+        // Fallback to static data if API completely fails
+        setAmcPlans([
+          {
+            _id: 'temp-try-plan',
+            name: 'TRY PLAN',
+            price: 17,
+            period: 'yearly',
+            description: 'Perfect for getting started with basic AMC coverage',
+            features: [
+              { title: 'Unlimited Call Support', description: '24/7 phone support for all your queries' },
+              { title: '3 Remote Support Sessions', description: 'Get help remotely for your devices' },
+              { title: '1 Free Home Visit & Diagnosis', description: 'One complimentary home visit for diagnosis' },
+              { title: 'Free Hidden Tips & Tricks', description: 'Access to exclusive maintenance tips' }
+            ],
+            benefits: {
+              callSupport: 'unlimited',
+              remoteSupport: 'limited',
+              homeVisits: { count: 1, description: '1 Free Home Visit & Diagnosis' },
+              antivirus: { included: false },
+              softwareInstallation: { included: false },
+              sparePartsDiscount: { percentage: 0 },
+              freeSpareParts: { amount: 0 },
+              laborCost: { included: false }
+            },
+            status: 'active',
+            isPopular: false,
+            validityPeriod: 365,
+            tags: ['basic', 'starter', 'budget']
+          },
+          {
+            _id: 'temp-care-plan',
+            name: 'CARE PLAN',
+            price: 59,
+            period: 'yearly',
+            description: 'Comprehensive AMC plan with advanced features and support',
+            features: [
+              { title: 'Unlimited Call Support', description: '24/7 phone support for all your queries' },
+              { title: 'Unlimited Remote Support', description: 'Get unlimited remote assistance for your devices' },
+              { title: 'Free Antivirus Pro For 1 Year', description: 'Complete antivirus protection for one year' },
+              { title: '6 Free Home Visits', description: 'Six complimentary home visits for diagnosis and repair' },
+              { title: 'Free Software Installation & Driver Updates', description: 'Complete software setup and driver management' },
+              { title: 'Up to 40% Off on All Spare Parts', description: 'Significant discount on all spare parts and components' }
+            ],
+            benefits: {
+              callSupport: 'unlimited',
+              remoteSupport: 'unlimited',
+              homeVisits: { count: 6, description: '6 Free Home Visits' },
+              antivirus: { included: true, name: 'Antivirus Pro' },
+              softwareInstallation: { included: true },
+              sparePartsDiscount: { percentage: 40 },
+              freeSpareParts: { amount: 0 },
+              laborCost: { included: false }
+            },
+            status: 'active',
+            isPopular: true,
+            validityPeriod: 365,
+            tags: ['comprehensive', 'popular', 'advanced']
+          },
+          {
+            _id: 'temp-relax-plan',
+            name: 'RELAX PLAN',
+            price: 199,
+            period: 'yearly',
+            description: 'Premium AMC plan with all-inclusive features and maximum benefits',
+            features: [
+              { title: 'Unlimited Call Support', description: '24/7 phone support for all your queries' },
+              { title: 'Unlimited Remote Support', description: 'Get unlimited remote assistance for your devices' },
+              { title: 'Free Quick Heal Pro Antivirus For 1 Year', description: 'Premium antivirus protection for one year' },
+              { title: 'Free Windows MS Office Installation with Software Support', description: 'Complete Microsoft Office setup and support' },
+              { title: '12 Free Home Visits and Diagnosis', description: 'Twelve complimentary home visits for diagnosis and repair' },
+              { title: 'No Labor Cost for 1 Year', description: 'All labor costs covered for the entire year' },
+              { title: 'Free Spare Parts up to ₹2000', description: 'Free spare parts worth up to ₹2000' },
+              { title: 'Up to 60% Off on Premium Spare Parts', description: 'Maximum discount on premium spare parts and components' }
+            ],
+            benefits: {
+              callSupport: 'unlimited',
+              remoteSupport: 'unlimited',
+              homeVisits: { count: 12, description: '12 Free Home Visits and Diagnosis' },
+              antivirus: { included: true, name: 'Quick Heal Pro' },
+              softwareInstallation: { included: true },
+              sparePartsDiscount: { percentage: 60 },
+              freeSpareParts: { amount: 2000 },
+              laborCost: { included: true }
+            },
+            status: 'active',
+            isPopular: false,
+            validityPeriod: 365,
+            tags: ['premium', 'all-inclusive', 'maximum-benefits']
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+  // Fetch subscriptions when component mounts or filters change
+  useEffect(() => {
+    fetchSubscriptions();
+    fetchWarrantyClaims();
+  }, [statusFilter, searchTerm]);
 
   const [newPlan, setNewPlan] = useState({
     name: '',
@@ -191,25 +950,28 @@ const AdminAMCManagement = () => {
     description: '',
     popular: false,
     status: 'active',
-    features: [] as string[],
-    notIncluded: [] as string[]
+    features: [],
+    notIncluded: []
   });
 
   const [newFeature, setNewFeature] = useState('');
   const [newNotIncluded, setNewNotIncluded] = useState('');
 
+  // Filter plans based on search and status
   const filteredPlans = amcPlans.filter(plan => {
     const matchesSearch = plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          plan.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || plan.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || plan.status.toLowerCase() === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const filteredSubscriptions = userSubscriptions.filter(sub => {
-    const matchesSearch = sub.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sub.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sub.planName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || sub.status.toLowerCase() === statusFilter;
+    if (!sub) return false;
+    
+    const matchesSearch = (sub.userName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (sub.userEmail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (sub.planName || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || (sub.status || '').toLowerCase() === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -223,14 +985,9 @@ const AdminAMCManagement = () => {
         description: newPlan.description,
         popular: newPlan.popular,
         status: newPlan.status,
-        subscribers: 0,
-        revenue: 0,
         features: newPlan.features,
-        notIncluded: newPlan.notIncluded,
-        createdAt: new Date().toISOString().split('T')[0],
-        lastModified: new Date().toISOString().split('T')[0]
+        notIncluded: newPlan.notIncluded
       };
-      
       setAmcPlans(prev => [...prev, plan]);
       setNewPlan({
         name: '',
@@ -247,36 +1004,115 @@ const AdminAMCManagement = () => {
   };
 
   const handleEditPlan = (plan: any) => {
-    setEditingPlan(plan);
-    setNewPlan({
+    const completePlan = {
+      id: plan._id || plan.id, // Use _id from database
       name: plan.name,
-      price: plan.price.toString(),
+      price: plan.price,
       period: plan.period,
-      description: plan.description,
-      popular: plan.popular,
-      status: plan.status,
-      features: plan.features,
-      notIncluded: plan.notIncluded
-    });
+      description: plan.description || '',
+      shortDescription: plan.shortDescription || '',
+      features: plan.features || [],
+      benefits: plan.benefits || {
+        callSupport: 'unlimited',
+        remoteSupport: 'unlimited',
+        homeVisits: { count: 1, description: 'Free Home Visit & Diagnosis' },
+        antivirus: { included: false },
+        softwareInstallation: { included: false },
+        sparePartsDiscount: { percentage: 0 },
+        freeSpareParts: { amount: 0 },
+        laborCost: { included: false }
+      },
+      status: plan.status || 'active',
+      isPopular: plan.isPopular || false,
+      validityPeriod: plan.validityPeriod || 365,
+      tags: plan.tags || []
+    };
+    
+    setEditingPlan(completePlan);
     setIsEditPlanOpen(true);
+  };
+
+  const handleSavePlan = async (planData: any) => {
+    try {
+      console.log('Saving plan:', planData);
+      
+      // Check if this is a temporary plan (not in database)
+      if (planData.id.startsWith('temp-')) {
+        console.log('This is a temporary plan, creating it in database...');
+        
+        // Create the plan in database
+        const planToCreate = {
+          name: planData.name,
+          price: planData.price,
+          period: planData.period,
+          description: planData.description,
+          shortDescription: planData.shortDescription,
+          features: planData.features,
+          benefits: planData.benefits,
+          status: planData.status,
+          isPopular: planData.isPopular,
+          validityPeriod: planData.validityPeriod,
+          tags: planData.tags
+        };
+        
+        try {
+          const createResponse = await createAdminAMCPlan(planToCreate);
+          
+          if (createResponse.success) {
+            console.log('Temporary plan created in database successfully:', createResponse.data);
+            
+            // Refresh the plans from the database
+            const fetchResponse = await getAMCPlans();
+            if (fetchResponse.success && fetchResponse.data) {
+              setAmcPlans(fetchResponse.data.plans);
+            }
+            
+            alert('Plan created and saved to database successfully! Changes will be reflected on user pages.');
+          } else {
+            throw new Error(createResponse.message || 'Failed to create plan in database');
+          }
+        } catch (createError: any) {
+          console.error('Error creating plan in database:', createError);
+          
+          // If creation fails, fallback to local state update
+          console.log('Falling back to local state update...');
+          setAmcPlans(prev => prev.map(plan => 
+            plan._id === planData.id || plan.id === planData.id 
+              ? { ...plan, ...planData } 
+              : plan
+          ));
+          
+          alert(`Plan updated locally. Database creation failed: ${createError.message}`);
+        }
+        return;
+      }
+      
+      // For real database plans, use the API
+      const response = await updateAdminAMCPlan(planData.id, planData);
+      
+      if (response.success) {
+        console.log('Plan updated successfully:', response.data);
+        // Refresh the plans from the database using public API
+        const fetchResponse = await getAMCPlans();
+        if (fetchResponse.success && fetchResponse.data) {
+          setAmcPlans(fetchResponse.data.plans);
+        }
+        alert('Plan updated successfully! Changes will be reflected on user pages.');
+      } else {
+        throw new Error(response.message || 'Failed to update plan');
+      }
+    } catch (error: any) {
+      console.error('Error updating plan:', error);
+      alert(`Error updating plan: ${error.message}`);
+      throw error;
+    }
   };
 
   const handleUpdatePlan = () => {
     if (editingPlan && newPlan.name && newPlan.price && newPlan.description) {
       setAmcPlans(prev => prev.map(plan => 
         plan.id === editingPlan.id 
-          ? {
-              ...plan,
-              name: newPlan.name,
-              price: parseInt(newPlan.price),
-              period: newPlan.period,
-              description: newPlan.description,
-              popular: newPlan.popular,
-              status: newPlan.status,
-              features: newPlan.features,
-              notIncluded: newPlan.notIncluded,
-              lastModified: new Date().toISOString().split('T')[0]
-            }
+          ? { ...plan, ...newPlan, price: parseInt(newPlan.price) }
           : plan
       ));
       setIsEditPlanOpen(false);
@@ -285,37 +1121,7 @@ const AdminAMCManagement = () => {
   };
 
   const handleDeletePlan = (planId: string) => {
-    if (window.confirm('Are you sure you want to delete this AMC plan?')) {
-      setAmcPlans(prev => prev.filter(plan => plan.id !== planId));
-    }
-  };
-
-  const handleAddFeature = () => {
-    if (newFeature.trim()) {
-      setNewPlan(prev => ({ ...prev, features: [...prev.features, newFeature.trim()] }));
-      setNewFeature('');
-    }
-  };
-
-  const handleRemoveFeature = (index: number) => {
-    setNewPlan(prev => ({ ...prev, features: prev.features.filter((_, i) => i !== index) }));
-  };
-
-  const handleAddNotIncluded = () => {
-    if (newNotIncluded.trim()) {
-      setNewPlan(prev => ({ ...prev, notIncluded: [...prev.notIncluded, newNotIncluded.trim()] }));
-      setNewNotIncluded('');
-    }
-  };
-
-  const handleRemoveNotIncluded = (index: number) => {
-    setNewPlan(prev => ({ ...prev, notIncluded: prev.notIncluded.filter((_, i) => i !== index) }));
-  };
-
-  const handleSubscriptionStatusChange = (subscriptionId: string, newStatus: string) => {
-    setUserSubscriptions(prev => prev.map(sub => 
-      sub.id === subscriptionId ? { ...sub, status: newStatus } : sub
-    ));
+    setAmcPlans(prev => prev.filter(plan => plan.id !== planId));
   };
 
   const handleViewSubscription = (subscription: any) => {
@@ -323,74 +1129,64 @@ const AdminAMCManagement = () => {
     setIsViewSubscriptionOpen(true);
   };
 
-  const handleDownloadInvoice = (subscription: any) => {
-    // Create a simple invoice content
-    const invoiceContent = `
-AMC INVOICE
-===========
-
-Invoice ID: INV-${subscription.id}
-Date: ${new Date().toLocaleDateString()}
-
-Customer Details:
-- Name: ${subscription.userName}
-- Email: ${subscription.userEmail}
-
-Subscription Details:
-- Plan: ${subscription.planName}
-- Amount: ₹${subscription.amount}
-- Billing Period: Monthly
-- Start Date: ${new Date(subscription.startDate).toLocaleDateString()}
-- End Date: ${new Date(subscription.endDate).toLocaleDateString()}
-- Next Billing: ${new Date(subscription.nextBilling).toLocaleDateString()}
-
-Device Coverage:
-- Total Devices: ${subscription.devices}
-- Used Devices: ${subscription.usedDevices}
-
-Service History:
-- Last Service: ${new Date(subscription.lastService).toLocaleDateString()}
-- Next Service: ${new Date(subscription.nextService).toLocaleDateString()}
-
-Home Visits:
-- Total: ${subscription.homeVisits.total}
-- Used: ${subscription.homeVisits.used}
-- Remaining: ${subscription.homeVisits.remaining}
-
-Warranty Claims:
-- Total: ${subscription.warrantyClaims.total}
-- Used: ${subscription.warrantyClaims.used}
-- Remaining: ${subscription.warrantyClaims.remaining}
-
-Days Remaining: ${subscription.daysRemaining}
-
-Thank you for choosing FixFly AMC!
-    `;
-
-    // Create and download the file
-    const blob = new Blob([invoiceContent], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `AMC-Invoice-${subscription.id}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+  const handleUpdateSubscriptionStatus = async (subscriptionId: string, status: string) => {
+    try {
+      const response = await updateAdminAMCSubscriptionStatus(subscriptionId, status, 'Status updated by admin');
+      
+      if (response.success) {
+        // Update local state
+    setUserSubscriptions(prev => prev.map(sub => 
+      sub.id === subscriptionId ? { ...sub, status } : sub
+    ));
+      } else {
+        console.error('Failed to update subscription status:', response.message);
+      }
+    } catch (error) {
+      console.error('Error updating subscription status:', error);
+    }
   };
 
-  // Calculate total stats
-  const totalSubscribers = userSubscriptions.filter(sub => sub.status === 'Active').length;
-  const totalRevenue = userSubscriptions
-    .filter(sub => sub.status === 'Active')
-    .reduce((sum, sub) => sum + sub.amount, 0);
-  const activePlans = amcPlans.filter(plan => plan.status === 'active').length;
+  const handleEditSubscription = (subscription: any) => {
+    setEditingSubscription(subscription);
+    setIsEditSubscriptionOpen(true);
+  };
+
+  const handleUpdateSubscription = async (updatedData: any) => {
+    try {
+      const subscriptionId = editingSubscription._id || editingSubscription.id;
+      const url = `${API_BASE_URL}/amc/admin/subscriptions/${subscriptionId}/usage`;
+      
+      const response = await adminApiService.makeAuthenticatedRequest(url, {
+        method: 'PUT',
+        body: JSON.stringify({
+          usage: updatedData.usage
+        })
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.success) {
+        // Close modal and refresh data
+        setIsEditSubscriptionOpen(false);
+        await fetchSubscriptions();
+        
+        // Show success message
+        console.log('Subscription updated successfully');
+      } else {
+        throw new Error(responseData.message || 'Failed to update subscription');
+      }
+    } catch (error: any) {
+      console.error('Error updating subscription:', error);
+      // Show error message
+      console.error('Failed to update subscription:', error.message);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <AdminHeader />
       
-      <main className="ml-72 pt-32 p-6">
+      <main className="ml-72 pt-32 p-6 pb-16">
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -403,134 +1199,50 @@ Thank you for choosing FixFly AMC!
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Subscribers</p>
-                  <p className="text-2xl font-bold">{totalSubscribers}</p>
-                </div>
-                <Users className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
-                  <p className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</p>
-                </div>
-                <DollarSign className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Active Plans</p>
-                  <p className="text-2xl font-bold">{activePlans}</p>
-                </div>
-                <Shield className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
+        {/* Main Content */}
         <Tabs defaultValue="plans" className="space-y-6">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="plans">AMC Plans</TabsTrigger>
-            <TabsTrigger value="subscriptions">User Subscriptions</TabsTrigger>
+            <TabsTrigger value="subscriptions">Subscription Management</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="plans" className="space-y-6">
-            {/* Filters and Search */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Search plans..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-full md:w-48">
-                      <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Plans Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPlans.map((plan) => (
-                <Card key={plan.id} className={`service-card relative ${plan.popular ? 'ring-2 ring-primary' : ''}`}>
-                  {plan.popular && (
-                    <div className="absolute -top-3 left-4">
-                      <Badge className="bg-gradient-tech text-white px-3 py-1 text-xs font-semibold">
+          <TabsContent value="plans" className="space-y-8 pt-0">
+            {/* AMC Plans Cards */}
+            <div className="grid md:grid-cols-3 gap-8 items-stretch mt-12">
+              {amcPlans.map((plan, index) => (
+                <Card key={plan._id || plan.id} className={`relative border-2 hover:shadow-lg transition-shadow flex flex-col h-full ${plan.isPopular ? 'border-blue-500' : ''}`}>
+                  {plan.isPopular && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-blue-500 text-white px-4 py-1 text-sm font-semibold">
                         <Star className="h-3 w-3 mr-1" />
-                        Popular
+                        Most Popular
                       </Badge>
                     </div>
                   )}
-                  
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{plan.name}</CardTitle>
-                      <Badge variant={plan.status === 'active' ? 'default' : 'secondary'}>
-                        {plan.status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{plan.description}</p>
-                    <div className="text-center">
-                      <span className="text-2xl font-bold text-primary">₹{plan.price}</span>
-                      <span className="text-muted-foreground">/{plan.period}</span>
+                  <CardHeader className={`text-center pb-4 ${plan.isPopular ? 'pt-6' : ''}`}>
+                    <CardTitle className="text-xl font-bold text-gray-800">{plan.name}</CardTitle>
+                    <p className="text-sm text-gray-600 mt-2">{plan.description}</p>
+                    <div className="mt-4">
+                      <span className="text-3xl font-bold text-blue-600">₹{plan.price}</span>
+                      <span className="text-gray-500">/{plan.period}</span>
                     </div>
                   </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Subscribers</p>
-                        <p className="text-lg font-bold">{plan.subscribers}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Revenue</p>
-                        <p className="text-lg font-bold">₹{plan.revenue.toLocaleString()}</p>
-                      </div>
+                
+                  <CardContent className="flex flex-col flex-grow">
+                    <div className="space-y-3 flex-grow">
+                      {plan.features && plan.features.map((feature, featureIndex) => (
+                        <div key={featureIndex} className="flex items-center space-x-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="text-sm">
+                            {typeof feature === 'string' ? feature : feature.title || feature.description}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2">Features ({plan.features.length})</h4>
-                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                        {plan.features.slice(0, 3).map((feature, index) => (
-                          <div key={index} className="flex items-center space-x-2 text-xs">
-                            <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                            <span className="leading-tight">{feature}</span>
-                          </div>
-                        ))}
-                        {plan.features.length > 3 && (
-                          <p className="text-xs text-muted-foreground">+{plan.features.length - 3} more...</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
+                    
+                    <div className="pt-4 mt-auto space-y-2">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                        Subscribe to {plan.name}
+                      </Button>
                       <Button 
                         size="sm" 
                         variant="outline" 
@@ -538,7 +1250,7 @@ Thank you for choosing FixFly AMC!
                         onClick={() => handleEditPlan(plan)}
                       >
                         <Edit className="w-3 h-3 mr-1" />
-                        Edit
+                        Edit Plan
                       </Button>
                     </div>
                   </CardContent>
@@ -547,8 +1259,91 @@ Thank you for choosing FixFly AMC!
             </div>
           </TabsContent>
 
-          <TabsContent value="subscriptions" className="space-y-6">
-            {/* Filters and Search */}
+          <TabsContent value="subscriptions" className="space-y-8 pt-6">
+            {/* Subscription Management Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Subscription Management</h2>
+                <p className="text-muted-foreground">Manage user subscriptions and warranty claims</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                </Button>
+                <Button variant="outline" size="sm" onClick={fetchSubscriptions} disabled={subscriptionsLoading}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${subscriptionsLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => {
+                  console.log('Current subscriptions:', userSubscriptions);
+                  console.log('First subscription details:', userSubscriptions[0]?.userDetails);
+                }}>
+                  Debug Data
+                </Button>
+              </div>
+            </div>
+
+            {/* Subscription Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Subscriptions</p>
+                      <p className="text-2xl font-bold">
+                        {subscriptionsLoading ? '...' : userSubscriptions.length}
+                      </p>
+                    </div>
+                    <Users className="h-8 w-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Active</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {subscriptionsLoading ? '...' : userSubscriptions.filter(sub => sub && sub.status === 'Active').length}
+                      </p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Expired</p>
+                      <p className="text-2xl font-bold text-red-600">
+                        {subscriptionsLoading ? '...' : userSubscriptions.filter(sub => sub && sub.status === 'Expired').length}
+                      </p>
+                    </div>
+                    <XCircle className="h-8 w-8 text-red-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Warranty Claims</p>
+                      <p className="text-2xl font-bold text-orange-600">
+                        {subscriptionsLoading ? '...' : userSubscriptions.filter(sub => sub && sub.warrantyClaimed).length}
+                      </p>
+                    </div>
+                    <AlertTriangle className="h-8 w-8 text-orange-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Subscription Filters */}
             <Card>
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-4">
@@ -563,401 +1358,936 @@ Thank you for choosing FixFly AMC!
                       />
                     </div>
                   </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-full md:w-48">
-                      <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="expired">Expired</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="expired">Expired</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      More Filters
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Error Message */}
+            {subscriptionsError && (
+              <Card className="border-red-200 bg-red-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-red-800">
+                    <AlertTriangle className="h-5 w-5" />
+                    <span>{subscriptionsError}</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={fetchSubscriptions}
+                      className="ml-auto"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Retry
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Subscriptions Table */}
             <Card>
               <CardHeader>
-                <CardTitle>User Subscriptions ({filteredSubscriptions.length})</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  User Subscriptions
+                  {subscriptionsLoading && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Loading subscriptions...
+                    </div>
+                  )}
+                  {userDetailsLoading && !subscriptionsLoading && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Loading user details...
+                    </div>
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Plan</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Next Billing</TableHead>
-                      <TableHead>Days Left</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredSubscriptions.map((subscription) => (
-                      <TableRow key={subscription.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{subscription.userName}</p>
-                            <p className="text-sm text-muted-foreground">{subscription.userEmail}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{subscription.planName}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={subscription.status}
-                            onValueChange={(value) => handleSubscriptionStatusChange(subscription.id, value)}
-                          >
-                            <SelectTrigger className="w-24">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Active">Active</SelectItem>
-                              <SelectItem value="Inactive">Inactive</SelectItem>
-                              <SelectItem value="Expired">Expired</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>₹{subscription.amount}</TableCell>
-                        <TableCell>
-                          {new Date(subscription.nextBilling).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-1">
-                            <Timer className="h-3 w-3 text-orange-500" />
-                            <span className="text-sm">{subscription.daysRemaining}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center gap-2 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewSubscription(subscription)}
-                            >
-                              <Eye className="w-3 h-3 mr-1" />
-                              View
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleDownloadInvoice(subscription)}
-                            >
-                              <Download className="w-3 h-3 mr-1" />
-                              Invoice
-                            </Button>
-                          </div>
-                        </TableCell>
+                {subscriptionsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="h-6 w-6 animate-spin" />
+                      <span>Loading subscriptions...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User Name</TableHead>
+                        <TableHead>Subscription ID</TableHead>
+                        <TableHead>Plan</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Brand(s)</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Start Date</TableHead>
+                        <TableHead>End Date</TableHead>
+                        <TableHead>Warranty Claim</TableHead>
+                        <TableHead>Number</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Remote Support</TableHead>
+                        <TableHead>Home Visits</TableHead>
+                        <TableHead>Software Installation</TableHead>
+                        <TableHead>Antivirus</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredSubscriptions.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={16} className="text-center py-8 text-muted-foreground">
+                            <div className="flex flex-col items-center gap-2">
+                              <Users className="h-12 w-12 opacity-50" />
+                              <p>No subscriptions found</p>
+                              <p className="text-sm">Try adjusting your search or filter criteria</p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredSubscriptions.map((subscription) => (
+                        <TableRow key={subscription.id || subscription._id}>
+                          {/* User Name */}
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="font-medium">
+                                {subscription.userDetails?.name || 
+                                 subscription.userName || 
+                                 subscription.name || 
+                                 subscription.customerName ||
+                                 'Unknown User'}
+                              </span>
+                              {subscription.userDetails?.profileImage && (
+                                <img 
+                                  src={subscription.userDetails.profileImage} 
+                                  alt="Profile" 
+                                  className="w-6 h-6 rounded-full mt-1"
+                                />
+                              )}
+                            </div>
+                          </TableCell>
+                          
+                          {/* Subscription ID */}
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="font-mono text-sm font-medium">
+                                {subscription.subscriptionId || subscription._id || subscription.id || 'N/A'}
+                              </span>
+                            </div>
+                          </TableCell>
+                          
+                          {/* Plan */}
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{subscription.planName || 'N/A'}</span>                            </div>
+                          </TableCell>
+                          
+                          {/* Amount */}
+                          <TableCell className="font-medium">₹{subscription.amount || 0}</TableCell>
+
+                          {/* Brands */}
+                          <TableCell>
+                            {(() => {
+                              try {
+                                const brands = Array.isArray(subscription.devices)
+                                  ? Array.from(new Set(
+                                      subscription.devices
+                                        .map((d: any) => (d?.brand || '').toString().trim())
+                                        .filter((b: string) => !!b)
+                                    ))
+                                  : [];
+                                return brands.length > 0 ? brands.join(', ') : '—';
+                              } catch {
+                                return '—';
+                              }
+                            })()}
+                          </TableCell>
+                          
+                          {/* Quantity */}
+                          <TableCell>
+                            <span className="font-medium">{subscription.quantity || 1}</span>
+                          </TableCell>
+                          
+                          {/* Status */}
+                          <TableCell>
+                            <Badge 
+                              variant={subscription.status === 'Active' ? 'default' : 'secondary'}
+                              className={subscription.status === 'Active' ? 'bg-green-100 text-green-800' : ''}
+                            >
+                              {subscription.status || 'Unknown'}
+                            </Badge>
+                          </TableCell>
+                          
+                          {/* Start Date */}
+                          <TableCell>
+                            {subscription.startDate ? new Date(subscription.startDate).toLocaleDateString() : 'N/A'}
+                          </TableCell>
+                          
+                          {/* End Date */}
+                          <TableCell>
+                            {subscription.endDate ? new Date(subscription.endDate).toLocaleDateString() : 'N/A'}
+                          </TableCell>
+                          
+                          {/* Warranty Claim */}
+                          <TableCell>
+                            {subscription.warrantyClaimed ? (
+                              <Badge variant="destructive" className="bg-orange-100 text-orange-800">
+                                Claimed
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline">Available</Badge>
+                            )}
+                          </TableCell>
+                          
+                          {/* Number */}
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium">
+                                {subscription.userDetails?.phone || 
+                                 subscription.userPhone ||
+                                 subscription.phoneNumber || 
+                                 subscription.number || 
+                                 subscription.phone ||
+                                 subscription.customerPhone ||
+                                 subscription.mobile ||
+                                 'N/A'}
+                              </span>
+                              {subscription.userDetails?.isPhoneVerified && (
+                                <Badge variant="outline" className="text-xs w-fit">
+                                  Verified
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          
+                          {/* Email */}
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="text-sm text-muted-foreground">
+                                {subscription.userDetails?.email || 
+                                 subscription.userEmail || 
+                                 subscription.email ||
+                                 subscription.customerEmail ||
+                                 'N/A'}
+                              </span>
+                              {subscription.userDetails?.isEmailVerified && (
+                                <Badge variant="outline" className="text-xs w-fit">
+                                  Verified
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          
+                          {/* Remote Support */}
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium">
+                                {subscription.remoteSupportUsed || 0} / {subscription.remoteSupportLimit || '∞'}
+                              </span>
+                            </div>
+                          </TableCell>
+                          
+                          {/* Home Visits */}
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium">
+                                {subscription.homeVisitsUsed || 0} / {subscription.homeVisitsLimit || 0}
+                              </span>
+                            </div>
+                          </TableCell>
+                          
+                          {/* Software Installation */}
+                          <TableCell>
+                            <Badge variant={(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? 'default' : (subscription.softwareInstallation ? 'default' : 'secondary')}>
+                              {(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? '1 year' : (subscription.softwareInstallation ? 'Yes' : 'No')}
+                            </Badge>
+                          </TableCell>
+                          
+                          {/* Antivirus */}
+                          <TableCell>
+                            <Badge variant={(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? 'default' : (subscription.antivirus ? 'default' : 'secondary')}>
+                              {(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? '1 year' : (subscription.antivirus ? 'Yes' : 'No')}
+                            </Badge>
+                          </TableCell>
+                          
+                          {/* Actions */}
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewSubscription(subscription)}
+                                title="View Details"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditSubscription(subscription)}
+                                title="Edit Subscription"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                  </div>
+                          </TableCell>
+                        </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* View Subscription Details Dialog */}
+            <Dialog open={isViewSubscriptionOpen} onOpenChange={setIsViewSubscriptionOpen}>
+              <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center justify-between">
+                    <span>Subscription Details</span>
+                    {selectedSubscription?.subscriptionId && (
+                      <Badge variant="outline">{selectedSubscription.subscriptionId}</Badge>
+                    )}
+                  </DialogTitle>
+                </DialogHeader>
+
+                {selectedSubscription && (
+                  <div className="space-y-6">
+                    {/* Top summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-md border">
+                        <p className="text-xs text-muted-foreground">User</p>
+                        <p className="font-medium">{selectedSubscription.userDetails?.name || selectedSubscription.userName || 'N/A'}</p>
+                        <p className="text-xs text-muted-foreground">{selectedSubscription.userDetails?.email || selectedSubscription.userEmail || 'N/A'}</p>
+                        <p className="text-xs text-muted-foreground">{selectedSubscription.userDetails?.phone || selectedSubscription.userPhone || 'N/A'}</p>
+                      </div>
+                      <div className="p-4 rounded-md border">
+                        <p className="text-xs text-muted-foreground">Plan</p>
+                        <p className="font-medium">{selectedSubscription.planName}</p>
+                        <p className="text-xs text-muted-foreground">Amount</p>
+                        <p className="font-medium">₹{selectedSubscription.amount || 0}</p>
+                      </div>
+                      <div className="p-4 rounded-md border space-y-1">
+                        <p className="text-xs text-muted-foreground">Status</p>
+                        <Badge className={selectedSubscription.status === 'Active' ? 'bg-green-100 text-green-800' : ''}>{selectedSubscription.status}</Badge>
+                        <p className="text-xs text-muted-foreground mt-2">Payment</p>
+                        <Badge variant="outline">{selectedSubscription.paymentStatus || 'N/A'}</Badge>
+                      </div>
+                    </div>
+
+                    {/* Dates */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-md border">
+                        <p className="text-xs text-muted-foreground">Start Date</p>
+                        <p className="font-medium">{selectedSubscription.startDate ? new Date(selectedSubscription.startDate).toLocaleDateString() : 'N/A'}</p>
+                      </div>
+                      <div className="p-4 rounded-md border">
+                        <p className="text-xs text-muted-foreground">End Date</p>
+                        <p className="font-medium">{selectedSubscription.endDate ? new Date(selectedSubscription.endDate).toLocaleDateString() : 'N/A'}</p>
+                      </div>
+                      <div className="p-4 rounded-md border">
+                        <p className="text-xs text-muted-foreground">Quantity</p>
+                        <p className="font-medium">{selectedSubscription.quantity || 1}</p>
+                      </div>
+                    </div>
+
+                    {/* Usage */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-md border">
+                        <p className="text-xs text-muted-foreground">Remote Support</p>
+                        <p className="font-medium">{selectedSubscription.remoteSupportUsed || 0} / {selectedSubscription.remoteSupportLimit || '∞'}</p>
+                      </div>
+                      <div className="p-4 rounded-md border">
+                        <p className="text-xs text-muted-foreground">Home Visits</p>
+                        <p className="font-medium">{selectedSubscription.homeVisitsUsed || 0} / {selectedSubscription.homeVisitsLimit || 0}</p>
+                      </div>
+                      <div className="p-4 rounded-md border">
+                        <p className="text-xs text-muted-foreground">Warranty</p>
+                        <Badge variant={selectedSubscription.warrantyClaimed ? 'destructive' : 'outline'}>
+                          {selectedSubscription.warrantyClaimed ? 'Claimed' : 'Available'}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Devices */}
+                    <div className="space-y-3">
+                      <h3 className="font-semibold">Devices</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(Array.isArray(selectedSubscription.devices) ? selectedSubscription.devices : []).map((d: any, idx: number) => (
+                          <div key={d?._id || idx} className="p-4 rounded-md border space-y-2">
+                            <div className="flex items-center justify-between">
+                              <p className="font-medium">Device {idx + 1}</p>
+                              {d?.serialNumberPhoto && (
+                                <img src={d.serialNumberPhoto} alt="Device" className="w-12 h-12 object-cover rounded" />
+                              )}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <p className="text-xs text-muted-foreground">Type</p>
+                                <p className="font-medium">{d?.deviceType || 'N/A'}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground">Brand</p>
+                                <p className="font-medium">{d?.brand || '—'}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground">Serial Number</p>
+                                <p className="font-medium break-all">{d?.serialNumber || 'N/A'}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground">Model Number</p>
+                                <p className="font-medium break-all">{d?.modelNumber || 'N/A'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {(!selectedSubscription.devices || selectedSubscription.devices.length === 0) && (
+                          <div className="text-sm text-muted-foreground">No devices added.</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
+
+            {/* Warranty Claims Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  Warranty Claims
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {userSubscriptions.filter(sub => sub && sub.warrantyClaimed).map((subscription) => (
+                    <div key={subscription.id || subscription._id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex items-center gap-2">
+                              {subscription.userDetails?.profileImage && (
+                                <img 
+                                  src={subscription.userDetails.profileImage} 
+                                  alt="Profile" 
+                                  className="w-8 h-8 rounded-full"
+                                />
+                              )}
+                              <div>
+                                <span className="font-medium">
+                                  {subscription.userDetails?.name || subscription.userName || 'N/A'}
+                                </span>
+                                <p className="text-xs text-muted-foreground">
+                                  {subscription.userDetails?.email || subscription.userEmail || 'N/A'}
+                                </p>
+                              </div>
+                            </div>
+                            <Badge variant="destructive">Warranty Claimed</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Plan: {subscription.planName || 'N/A'} | Amount: ₹{subscription.amount || 0}
+                          </p>
+                          <p className="text-sm">
+                            Claim Date: {subscription.warrantyClaimDate ? new Date(subscription.warrantyClaimDate).toLocaleDateString() : 'N/A'}
+                          </p>
+                          {subscription.userDetails?.phone && (
+                            <p className="text-sm text-muted-foreground">
+                              Contact: {subscription.userDetails.phone}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Approve
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <XCircle className="h-4 w-4 mr-2" />
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {userSubscriptions.filter(sub => sub.warrantyClaimed).length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No warranty claims at the moment</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="warranty-claims" className="space-y-8 pt-6">
+            {/* Warranty Claims Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Warranty Claims</h2>
+                <p className="text-muted-foreground">Manage warranty claims and assign vendors</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Claims
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => { fetchSubscriptions(); fetchWarrantyClaims(); }}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
+            </div>
+
+            {/* Warranty Claims Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Claims</p>
+                      <p className="text-2xl font-bold">{warrantyClaims.length}</p>
+                    </div>
+                    <FileText className="h-8 w-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Pending</p>
+                      <p className="text-2xl font-bold">{warrantyClaims.filter(claim => claim.status === 'pending').length}</p>
+                    </div>
+                    <Clock className="h-8 w-8 text-yellow-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Approved</p>
+                      <p className="text-2xl font-bold">{warrantyClaims.filter(claim => claim.status === 'approved').length}</p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Completed</p>
+                      <p className="text-2xl font-bold">{warrantyClaims.filter(claim => claim.status === 'completed').length}</p>
+                    </div>
+                    <Award className="h-8 w-8 text-purple-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Warranty Claims Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Warranty Claims</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {warrantyClaimsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="text-muted-foreground mt-2">Loading warranty claims...</p>
+                  </div>
+                ) : warrantyClaimsError ? (
+                  <div className="text-center py-8 text-red-600">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+                    <p>Error loading warranty claims: {warrantyClaimsError}</p>
+                    <Button variant="outline" onClick={fetchWarrantyClaims} className="mt-4">
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Retry
+                    </Button>
+                  </div>
+                ) : warrantyClaims.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 max-w-md mx-auto">
+                      <div className="mb-4">
+                        <FileText className="h-12 w-12 text-gray-400 mx-auto" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">No Warranty Claims</h3>
+                      <p className="text-gray-600 text-sm mb-4">
+                        No warranty claims have been submitted yet.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Claim ID</TableHead>
+                          <TableHead>Subscription ID</TableHead>
+                          <TableHead>User</TableHead>
+                          <TableHead>Mobile</TableHead>
+                          <TableHead>Service Type</TableHead>
+                          <TableHead>Plan</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {warrantyClaims.map((claim) => (
+                          <TableRow key={claim._id}>
+                            <TableCell className="font-mono text-sm">
+                              {claim._id?.slice(-8) || 'N/A'}
+                            </TableCell>
+                            <TableCell className="font-mono text-sm">
+                              {claim.subscriptionId || 'N/A'}
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium">{claim.userId?.name || 'Unknown User'}</p>
+                                <p className="text-sm text-muted-foreground">{claim.userId?.email || 'N/A'}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-mono text-sm">
+                                {claim.userId?.phone || claim.userId?.mobile || 'N/A'}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {claim.item || 'N/A'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">
+                                {claim.planName || 'N/A'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                variant={
+                                  claim.status === 'pending' ? 'default' :
+                                  claim.status === 'approved' ? 'secondary' :
+                                  claim.status === 'rejected' ? 'destructive' :
+                                  claim.status === 'completed' ? 'outline' : 'default'
+                                }
+                              >
+                                {claim.status?.charAt(0).toUpperCase() + claim.status?.slice(1) || 'Unknown'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm" onClick={() => handleViewIssue(claim)}>
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={() => handleViewIssue(claim)} className="text-blue-600 hover:text-blue-700">
+                                  <FileText className="h-4 w-4" />
+                                </Button>
+                                {claim.status === 'pending' && (
+                                  <>
+                                    <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700" onClick={() => handleApproveWarrantyClaim(claim._id)}>
+                                      <CheckCircle className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleRejectWarrantyClaim(claim._id)}>
+                                      <XCircle className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
+                                {claim.status === 'approved' && claim.item === 'Home Visit Service' && (
+                                  <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700" onClick={() => handleOpenVendorModal(claim)}>
+                                    <UserPlus className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                {claim.status === 'approved' && (
+                                  <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700" onClick={() => handleCompleteWarrantyClaim(claim._id)}>
+                                    <CheckCircle className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
 
-        {/* Edit Plan Dialog */}
-        <Dialog open={isEditPlanOpen} onOpenChange={setIsEditPlanOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        {/* Edit AMC Plan Modal */}
+        <EditAMCPlanModal
+          isOpen={isEditPlanOpen}
+          onClose={() => setIsEditPlanOpen(false)}
+          plan={editingPlan}
+          onSave={handleSavePlan}
+        />
+
+        {/* Edit Subscription Modal */}
+        <Dialog open={isEditSubscriptionOpen} onOpenChange={setIsEditSubscriptionOpen}>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Edit AMC Plan</DialogTitle>
+              <DialogTitle>Edit Subscription Usage</DialogTitle>
+              <DialogDescription>
+                Update the usage limits and counts for this subscription
+              </DialogDescription>
             </DialogHeader>
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="editPlanName">Plan Name</Label>
-                  <Input
-                    id="editPlanName"
-                    value={newPlan.name}
-                    onChange={(e) => setNewPlan(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Enter plan name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="editPlanPrice">Price (₹)</Label>
-                  <Input
-                    id="editPlanPrice"
-                    type="number"
-                    value={newPlan.price}
-                    onChange={(e) => setNewPlan(prev => ({ ...prev, price: e.target.value }))}
-                    placeholder="Enter price"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="editPlanPeriod">Billing Period</Label>
-                  <Select value={newPlan.period} onValueChange={(value) => setNewPlan(prev => ({ ...prev, period: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select period" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="month">Monthly</SelectItem>
-                      <SelectItem value="year">Yearly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="editPlanStatus">Status</Label>
-                  <Select value={newPlan.status} onValueChange={(value) => setNewPlan(prev => ({ ...prev, status: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
 
-              <div>
-                <Label htmlFor="editPlanDescription">Description</Label>
-                <Textarea
-                  id="editPlanDescription"
-                  value={newPlan.description}
-                  onChange={(e) => setNewPlan(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter plan description"
-                  rows={3}
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="editPopular"
-                  checked={newPlan.popular}
-                  onCheckedChange={(checked) => setNewPlan(prev => ({ ...prev, popular: checked }))}
-                />
-                <Label htmlFor="editPopular">Mark as Popular</Label>
-              </div>
-
-              {/* Features */}
-              <div>
-                <Label>Features</Label>
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newFeature}
-                      onChange={(e) => setNewFeature(e.target.value)}
-                      placeholder="Add feature"
-                      onKeyPress={(e) => e.key === 'Enter' && handleAddFeature()}
-                    />
-                    <Button onClick={handleAddFeature} size="sm">
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <div className="space-y-1">
-                    {newPlan.features.map((feature, index) => (
-                      <div key={index} className="flex items-center justify-between bg-muted p-2 rounded">
-                        <span className="text-sm">{feature}</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveFeature(index)}
-                        >
-                          <XCircle className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-
-              <div className="flex gap-2">
-                <Button onClick={handleUpdatePlan} className="flex-1">
-                  Update Plan
-                </Button>
-                <Button variant="outline" onClick={() => setIsEditPlanOpen(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
+            {editingSubscription && (
+              <EditSubscriptionForm
+                subscription={editingSubscription}
+                onSave={handleUpdateSubscription}
+                onCancel={() => setIsEditSubscriptionOpen(false)}
+              />
+            )}
           </DialogContent>
         </Dialog>
 
-        {/* View Subscription Dialog */}
-        <Dialog open={isViewSubscriptionOpen} onOpenChange={setIsViewSubscriptionOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        {/* Issue Details Modal */}
+        <Dialog open={isIssueModalOpen} onOpenChange={setIsIssueModalOpen}>
+          <DialogContent className="max-w-lg mt-16">
             <DialogHeader>
-              <DialogTitle>Subscription Details</DialogTitle>
+              <DialogTitle className="text-lg">Warranty Claim Details</DialogTitle>
+              <DialogDescription className="text-sm">
+                Issue description and claim information
+              </DialogDescription>
             </DialogHeader>
-            {selectedSubscription && (
-              <div className="space-y-6">
-                {/* Customer Information */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Customer Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                      <p className="text-sm">{selectedSubscription.userName}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                      <p className="text-sm">{selectedSubscription.userEmail}</p>
+
+            {selectedClaim && (
+              <div className="space-y-4">
+                {/* Claim Information */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-medium text-muted-foreground">Claim ID</Label>
+                    <div className="mt-1 p-2 bg-gray-50 rounded-md border">
+                      <span className="font-mono text-xs font-medium">
+                        {selectedClaim._id?.slice(-8) || 'N/A'}
+                      </span>
                     </div>
                   </div>
-                </div>
-
-                {/* Subscription Details */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Subscription Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Plan</Label>
-                      <p className="text-sm">{selectedSubscription.planName}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Amount</Label>
-                      <p className="text-sm">₹{selectedSubscription.amount}/month</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                      <Badge variant={selectedSubscription.status === 'Active' ? 'default' : 'secondary'}>
-                        {selectedSubscription.status}
+                  <div>
+                    <Label className="text-xs font-medium text-muted-foreground">Status</Label>
+                    <div className="mt-1">
+                      <Badge 
+                        variant={
+                          selectedClaim.status === 'pending' ? 'default' :
+                          selectedClaim.status === 'approved' ? 'secondary' :
+                          selectedClaim.status === 'rejected' ? 'destructive' :
+                          selectedClaim.status === 'completed' ? 'outline' : 'default'
+                        }
+                        className="text-xs"
+                      >
+                        {selectedClaim.status?.charAt(0).toUpperCase() + selectedClaim.status?.slice(1) || 'Unknown'}
                       </Badge>
                     </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Days Remaining</Label>
-                      <p className="text-sm">{selectedSubscription.daysRemaining} days</p>
-                    </div>
                   </div>
                 </div>
 
-                {/* Dates */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Important Dates</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Start Date</Label>
-                      <p className="text-sm">{new Date(selectedSubscription.startDate).toLocaleDateString()}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">End Date</Label>
-                      <p className="text-sm">{new Date(selectedSubscription.endDate).toLocaleDateString()}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Next Billing</Label>
-                      <p className="text-sm">{new Date(selectedSubscription.nextBilling).toLocaleDateString()}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Created Date</Label>
-                      <p className="text-sm">{new Date(selectedSubscription.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Device Coverage */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Device Coverage</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Devices Used</span>
-                      <span className="text-sm font-medium">{selectedSubscription.usedDevices}/{selectedSubscription.devices}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full" 
-                        style={{ width: `${(selectedSubscription.usedDevices / selectedSubscription.devices) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Service History */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Service History</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Last Service</Label>
-                      <p className="text-sm">{new Date(selectedSubscription.lastService).toLocaleDateString()}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Next Service</Label>
-                      <p className="text-sm">{new Date(selectedSubscription.nextService).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Benefits Usage */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Benefits Usage</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Home Visits */}
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Free Home Visits</Label>
-                      <div className="space-y-2 mt-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Used</span>
-                          <span className="text-sm font-medium">
-                            {selectedSubscription.homeVisits.used}/{selectedSubscription.homeVisits.total}
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full ${
-                              selectedSubscription.homeVisits.remaining === 0 
-                                ? 'bg-red-500' 
-                                : selectedSubscription.homeVisits.remaining <= 1 
-                                  ? 'bg-yellow-500' 
-                                  : 'bg-blue-500'
-                            }`}
-                            style={{ width: `${(selectedSubscription.homeVisits.used / selectedSubscription.homeVisits.total) * 100}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Remaining: {selectedSubscription.homeVisits.remaining}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Warranty Claims */}
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Warranty Claims</Label>
-                      <div className="space-y-2 mt-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Used</span>
-                          <span className="text-sm font-medium">
-                            {selectedSubscription.warrantyClaims.used}/{selectedSubscription.warrantyClaims.total}
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full ${
-                              selectedSubscription.warrantyClaims.remaining === 0 
-                                ? 'bg-red-500' 
-                                : selectedSubscription.warrantyClaims.remaining <= 1 
-                                  ? 'bg-yellow-500' 
-                                  : 'bg-green-500'
-                            }`}
-                            style={{ width: `${(selectedSubscription.warrantyClaims.used / selectedSubscription.warrantyClaims.total) * 100}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Remaining: {selectedSubscription.warrantyClaims.remaining}
-                        </p>
+                {/* User Information */}
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <Label className="text-xs font-medium text-muted-foreground">User</Label>
+                    <div className="mt-1 p-2 bg-gray-50 rounded-md border">
+                      <div className="text-sm">
+                        <p className="font-medium">{selectedClaim.userId?.name || 'Unknown User'}</p>
+                        <p className="text-xs text-muted-foreground">{selectedClaim.userId?.email || 'N/A'}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{selectedClaim.userId?.phone || selectedClaim.userId?.mobile || 'N/A'}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-4">
-                  <Button 
-                    onClick={() => handleDownloadInvoice(selectedSubscription)} 
-                    className="flex-1"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Invoice
-                  </Button>
-                  <Button variant="outline" onClick={() => setIsViewSubscriptionOpen(false)}>
+                {/* Service Information */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-medium text-muted-foreground">Service Type</Label>
+                    <div className="mt-1 p-2 bg-gray-50 rounded-md border">
+                      <Badge variant="outline" className="text-xs">
+                        {selectedClaim.item || 'N/A'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-muted-foreground">Plan</Label>
+                    <div className="mt-1 p-2 bg-gray-50 rounded-md border">
+                      <Badge variant="secondary" className="text-xs">
+                        {selectedClaim.planName || 'N/A'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Issue Description */}
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground">Issue Description</Label>
+                  <div className="mt-1 p-3 bg-gray-50 rounded-md border min-h-[80px]">
+                    <p className="text-xs leading-relaxed whitespace-pre-wrap">
+                      {selectedClaim.issueDescription || 'No issue description provided'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-2 pt-3 border-t">
+                  <Button variant="outline" size="sm" onClick={() => setIsIssueModalOpen(false)}>
                     Close
+                  </Button>
+                  {selectedClaim.status === 'pending' && (
+                    <>
+                      <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => handleApproveWarrantyClaim(selectedClaim._id)}>
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Approve
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleRejectWarrantyClaim(selectedClaim._id)}>
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                  {selectedClaim.status === 'approved' && selectedClaim.item === 'Home Visit Service' && (
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={() => handleOpenVendorModal(selectedClaim)}>
+                      <UserPlus className="h-3 w-3 mr-1" />
+                      Assign Vendor
+                    </Button>
+                  )}
+                  {selectedClaim.status === 'approved' && (
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => handleCompleteWarrantyClaim(selectedClaim._id)}>
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Complete
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Vendor Assignment Modal */}
+        <Dialog open={isVendorModalOpen} onOpenChange={setIsVendorModalOpen}>
+          <DialogContent className="max-w-sm mt-12">
+            <DialogHeader>
+              <DialogTitle className="text-base">Assign Vendor</DialogTitle>
+              <DialogDescription className="text-xs">
+                Select vendor for home visit
+              </DialogDescription>
+            </DialogHeader>
+
+            {selectedClaimForVendor && (
+              <div className="space-y-3">
+                {/* Claim Information */}
+                <div className="p-2 bg-gray-50 rounded-md border">
+                  <div className="text-xs">
+                    <p className="font-medium">Claim ID: {selectedClaimForVendor._id?.slice(-8)}</p>
+                    <p className="text-muted-foreground">Service: {selectedClaimForVendor.item}</p>
+                    <p className="text-muted-foreground">User: {selectedClaimForVendor.userId?.name}</p>
+                    <p className="text-muted-foreground">Mobile: {selectedClaimForVendor.userId?.phone || selectedClaimForVendor.userId?.mobile || 'N/A'}</p>
+                  </div>
+                </div>
+
+                {/* Issue Description */}
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground">Issue Description</Label>
+                  <div className="mt-1 p-2 bg-gray-50 rounded-md border min-h-[50px]">
+                    <p className="text-xs leading-relaxed whitespace-pre-wrap">
+                      {selectedClaimForVendor.issueDescription || 'No issue description provided'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Vendor Selection */}
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground">Select Vendor</Label>
+                  <select
+                    value={selectedVendorId}
+                    onChange={(e) => setSelectedVendorId(e.target.value)}
+                    className="mt-1 w-full p-2 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Choose a vendor...</option>
+                    {Array.isArray(vendors) && vendors.length > 0 ? (
+                      vendors.map((vendor) => (
+                        <option key={vendor.id} value={vendor.id}>
+                          {vendor.name} - {vendor.email} ({vendor.phone || 'No phone'})
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>No vendors available - Check vendor management</option>
+                    )}
+                  </select>
+                </div>
+
+                {/* Selected Vendor Details */}
+                {selectedVendorId && (
+                  <div className="p-2 bg-blue-50 rounded-md border">
+                    <Label className="text-xs font-medium text-blue-700">Selected Vendor Details</Label>
+                    {(() => {
+                      const selectedVendor = vendors.find(v => v.id === selectedVendorId);
+                      return selectedVendor ? (
+                        <div className="mt-1 text-xs space-y-0.5">
+                          <p><span className="font-medium">Name:</span> {selectedVendor.name}</p>
+                          <p><span className="font-medium">Email:</span> {selectedVendor.email}</p>
+                          <p><span className="font-medium">Phone:</span> {selectedVendor.phone || 'N/A'}</p>
+                          <p><span className="font-medium">Address:</span> {selectedVendor.address?.street || 'N/A'}</p>
+                          <p><span className="font-medium">City:</span> {selectedVendor.address?.city || 'N/A'}</p>
+                          <p><span className="font-medium">Pincode:</span> {selectedVendor.address?.pincode || 'N/A'}</p>
+                          <p><span className="font-medium">Status:</span> {selectedVendor.status || 'N/A'}</p>
+                          <p><span className="font-medium">Verification:</span> {selectedVendor.verificationStatus || 'N/A'}</p>
+                        </div>
+                      ) : (
+                        <p className="mt-1 text-xs text-muted-foreground">Vendor details not found</p>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-2 pt-2 border-t">
+                  <Button variant="outline" size="sm" onClick={() => {
+                    setIsVendorModalOpen(false);
+                    setSelectedClaimForVendor(null);
+                    setSelectedVendorId('');
+                  }}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="bg-blue-600 hover:bg-blue-700" 
+                    onClick={handleAssignVendor}
+                    disabled={!selectedVendorId}
+                  >
+                    <UserPlus className="h-3 w-3 mr-1" />
+                    Assign
                   </Button>
                 </div>
               </div>

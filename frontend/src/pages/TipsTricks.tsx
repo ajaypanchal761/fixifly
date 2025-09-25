@@ -1,20 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowRight, Star, Search, Filter, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Star, Search, Filter, ArrowLeft, Loader2, Heart } from "lucide-react";
 import BlogDetailModal from "@/components/BlogDetailModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { blogApi, Blog } from "@/services/blogApi";
+import { toast } from "@/hooks/use-toast";
 
 const TipsTricks = () => {
   const navigate = useNavigate();
-  const [selectedBlog, setSelectedBlog] = useState<any>(null);
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Array<{name: string, count: number}>>([]);
+  const [likedBlogs, setLikedBlogs] = useState<Set<string>>(new Set());
 
-  const handleReadMore = (blogPost: any) => {
+  const handleReadMore = (blogPost: Blog) => {
     setSelectedBlog(blogPost);
     setIsModalOpen(true);
   };
@@ -28,6 +34,53 @@ const TipsTricks = () => {
     navigate("/");
   };
 
+  const handleLike = async (blogId: string) => {
+    // Check if user already liked this post
+    if (likedBlogs.has(blogId)) {
+      toast({
+        title: "Already Liked",
+        description: "You have already liked this blog post!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await blogApi.likeBlog(blogId);
+      if (response.success) {
+        // Update the blog in the state with new likes count
+        setBlogs(prevBlogs => 
+          prevBlogs.map(blog => 
+            blog.id === blogId 
+              ? { ...blog, likes: response.data.likes }
+              : blog
+          )
+        );
+        // Add to liked blogs set
+        setLikedBlogs(prev => new Set(prev).add(blogId));
+        toast({
+          title: "Liked!",
+          description: "Thank you for liking this blog post!",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error liking blog:', error);
+      if (error.message?.includes('already liked')) {
+        toast({
+          title: "Already Liked",
+          description: "You have already liked this blog post!",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to like the blog post. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   // Helper function to render star rating
   const renderStars = (rating: number) => {
     const stars = [];
@@ -36,117 +89,83 @@ const TipsTricks = () => {
     
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+        <Star key={i} className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
       );
     }
     
     if (hasHalfStar) {
       stars.push(
-        <Star key="half" className="w-3 h-3 fill-yellow-400/50 text-yellow-400" />
+        <Star key="half" className="w-2.5 h-2.5 fill-yellow-400/50 text-yellow-400" />
       );
     }
     
     const emptyStars = 5 - Math.ceil(rating);
     for (let i = 0; i < emptyStars; i++) {
       stars.push(
-        <Star key={`empty-${i}`} className="w-3 h-3 text-gray-300" />
+        <Star key={`empty-${i}`} className="w-2.5 h-2.5 text-gray-300" />
       );
     }
     
     return stars;
   };
 
-  const blogPosts = [
-    {
-      id: 1,
-      title: "Common AC Problems and How to Fix Them",
-      excerpt: "Learn about the most common air conditioning issues and simple troubleshooting steps you can take before calling a professional.",
-      image: "/ac.png",
-      category: "Air Conditioning",
-      readTime: "5 min read",
-      date: "Dec 15, 2024",
-      author: "Fixifly Team",
-      rating: 4.8,
-      reviewCount: 124,
-      content: "Air conditioning systems can develop various issues over time. Here are the most common problems and their solutions:\n\n1. **AC Not Cooling**: Check if the filter is dirty, thermostat settings are correct, and outdoor unit is not blocked.\n\n2. **Strange Noises**: Rattling or buzzing sounds often indicate loose parts or debris in the unit.\n\n3. **Water Leaks**: Usually caused by clogged drain lines or frozen evaporator coils.\n\n4. **High Energy Bills**: Dirty filters and poor maintenance can cause increased energy consumption.\n\nRegular maintenance and timely repairs can prevent most AC problems and extend the life of your unit."
-    },
-    {
-      id: 2,
-      title: "TV Repair Guide: When to DIY vs Call a Pro",
-      excerpt: "Discover which TV problems you can fix yourself and when it's time to call in the experts for professional repair services.",
-      image: "/tv.avif",
-      category: "Television",
-      readTime: "7 min read",
-      date: "Dec 12, 2024",
-      author: "Fixifly Team",
-      rating: 4.6,
-      reviewCount: 89,
-      content: "Television repair can be tricky, but some issues can be resolved at home:\n\n**DIY Fixes:**\n- Power issues: Check cables and power outlet\n- Remote control problems: Replace batteries or clean contacts\n- Picture quality: Adjust settings and check connections\n- Audio issues: Check volume settings and audio cables\n\n**Call a Pro For:**\n- Screen damage or cracks\n- Internal component failures\n- Complex electrical issues\n- Warranty-covered repairs\n\nAlways prioritize safety and don't attempt repairs that involve opening the TV case unless you're experienced."
-    },
-    {
-      id: 3,
-      title: "Refrigerator Maintenance Tips for Longevity",
-      excerpt: "Essential maintenance tips to keep your refrigerator running efficiently and extend its lifespan for years to come.",
-      image: "/fidge.jpeg",
-      category: "Refrigerator",
-      readTime: "6 min read",
-      date: "Dec 10, 2024",
-      author: "Fixifly Team",
-      rating: 4.9,
-      reviewCount: 156,
-      content: "Proper refrigerator maintenance can significantly extend its lifespan:\n\n**Weekly Tasks:**\n- Clean spills immediately\n- Check door seals for damage\n- Remove expired food items\n\n**Monthly Tasks:**\n- Clean condenser coils\n- Check temperature settings\n- Clean interior surfaces\n\n**Seasonal Tasks:**\n- Deep clean interior and exterior\n- Check and replace water filter\n- Inspect door gaskets\n\n**Energy Saving Tips:**\n- Keep refrigerator full but not overcrowded\n- Set temperature to 37-40°F for fridge, 0°F for freezer\n- Ensure proper ventilation around the unit\n\nRegular maintenance prevents costly repairs and keeps your food fresh and safe."
-    },
-    {
-      id: 4,
-      title: "Washing Machine Troubleshooting Guide",
-      excerpt: "Step-by-step guide to diagnose and fix common washing machine problems without professional help.",
-      image: "/washing.jpg",
-      category: "Washing Machine",
-      readTime: "8 min read",
-      date: "Dec 8, 2024",
-      author: "Fixifly Team",
-      rating: 4.7,
-      reviewCount: 203,
-      content: "Washing machine issues can often be resolved with basic troubleshooting:\n\n**Common Problems & Solutions:**\n\n1. **Machine Won't Start:**\n   - Check power supply and circuit breaker\n   - Ensure door/lid is properly closed\n   - Check water supply valves\n\n2. **Not Draining:**\n   - Clean drain filter\n   - Check drain hose for kinks\n   - Remove debris from drain pump\n\n3. **Excessive Vibration:**\n   - Level the machine\n   - Check for loose items in drum\n   - Inspect shock absorbers\n\n4. **Water Leaks:**\n   - Check hose connections\n   - Inspect door seal\n   - Look for cracks in tub\n\n**Prevention Tips:**\n- Use appropriate detergent amounts\n- Clean machine monthly\n- Don't overload the machine\n- Check pockets for loose items\n\nFor complex issues or if problems persist, contact a professional technician."
-    },
-    {
-      id: 5,
-      title: "Laptop Performance Optimization Tips",
-      excerpt: "Simple tricks to boost your laptop's performance and extend its battery life for better productivity.",
-      image: "/laptop.avif",
-      category: "Laptop",
-      readTime: "6 min read",
-      date: "Dec 5, 2024",
-      author: "Fixifly Team",
-      rating: 4.5,
-      reviewCount: 98,
-      content: "Keep your laptop running smoothly with these optimization tips:\n\n**Performance Boosters:**\n- Close unnecessary programs and browser tabs\n- Clear temporary files and cache regularly\n- Update operating system and drivers\n- Add more RAM if possible\n- Use SSD instead of HDD\n\n**Battery Life Tips:**\n- Reduce screen brightness\n- Turn off Wi-Fi/Bluetooth when not needed\n- Close background applications\n- Use power saving mode\n- Keep laptop cool and well-ventilated\n\n**Maintenance:**\n- Clean keyboard and screen regularly\n- Update antivirus software\n- Defragment hard drive (HDD only)\n- Backup important data\n\nRegular maintenance prevents performance degradation and extends laptop lifespan."
-    },
-    {
-      id: 6,
-      title: "Desktop Computer Cleaning & Maintenance",
-      excerpt: "Complete guide to cleaning and maintaining your desktop computer for optimal performance and longevity.",
-      image: "/desktop.jpg",
-      category: "Desktop",
-      readTime: "7 min read",
-      date: "Dec 3, 2024",
-      author: "Fixifly Team",
-      rating: 4.8,
-      reviewCount: 145,
-      content: "Desktop computers require regular maintenance to perform at their best:\n\n**Cleaning Schedule:**\n- **Weekly**: Clean keyboard and mouse\n- **Monthly**: Clean monitor and case exterior\n- **Quarterly**: Clean internal components\n\n**Internal Cleaning Steps:**\n1. Power down and unplug the computer\n2. Remove side panel carefully\n3. Use compressed air to remove dust\n4. Clean fans and heat sinks\n5. Check for loose connections\n\n**Software Maintenance:**\n- Update operating system\n- Run antivirus scans\n- Clear temporary files\n- Update drivers\n- Uninstall unused programs\n\n**Hardware Checks:**\n- Monitor temperatures\n- Check fan operation\n- Inspect cables for damage\n- Test all ports and connections\n\nProper maintenance prevents overheating, improves performance, and extends component life."
+  // Load blogs and categories on component mount
+  useEffect(() => {
+    loadBlogs();
+    loadCategories();
+  }, []);
+
+  const loadBlogs = async () => {
+    try {
+      setLoading(true);
+      const params: any = {
+        limit: 50 // Load more blogs for the tips page
+      };
+
+      if (selectedCategory !== "All") {
+        params.category = selectedCategory;
+      }
+
+      if (searchTerm) {
+        params.search = searchTerm;
+      }
+
+      const response = await blogApi.getBlogs(params);
+      
+      if (response.success) {
+        setBlogs(response.data.blogs);
+      }
+    } catch (error) {
+      console.error('Error loading blogs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load blog posts. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const categories = ["All", "Air Conditioning", "Television", "Refrigerator", "Washing Machine", "Laptop", "Desktop"];
+  const loadCategories = async () => {
+    try {
+      const response = await blogApi.getBlogCategories();
+      
+      if (response.success) {
+        setCategories(response.data.categories);
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
 
-  // Filter blogs based on search term and category
-  const filteredBlogs = blogPosts.filter(blog => {
-    const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || blog.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // Reload blogs when search term or category changes
+  useEffect(() => {
+    loadBlogs();
+  }, [searchTerm, selectedCategory]);
+
+  // Get all available categories for the filter
+  const allCategories = ["All", ...categories.map(cat => cat.name)];
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20">
@@ -187,79 +206,104 @@ const TipsTricks = () => {
         </div>
 
         {/* Blog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 -mb-8">
-          {filteredBlogs.map((post, index) => (
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <span className="ml-2">Loading blog posts...</span>
+          </div>
+        ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 -mb-8">
+            {blogs.map((post, index) => (
             <Card 
               key={post.id} 
               className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
             >
               <div className="relative overflow-hidden rounded-t-lg">
                 <img 
-                  src={post.image} 
+                  src={post.featuredImage || '/placeholder.svg'} 
                   alt={post.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <Badge className="absolute top-3 left-3 bg-primary/90 text-white">
+                <Badge className="absolute top-2 left-2 bg-primary/90 text-white text-xs px-2 py-1">
                   {post.category}
                 </Badge>
               </div>
               
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300 line-clamp-2">
+              <CardHeader className="pb-2 px-3 pt-3">
+                <CardTitle className="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors duration-300 line-clamp-2">
                   {post.title}
                 </CardTitle>
-                <CardDescription className="text-gray-600 line-clamp-3">
+                <CardDescription className="text-gray-600 line-clamp-2 text-xs">
                   {post.excerpt}
                 </CardDescription>
               </CardHeader>
               
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 px-3 pb-3">
                 {/* Rating Section */}
-                <div className="flex items-center gap-1 mb-3">
+                <div className="flex items-center gap-1 mb-2">
                   <div className="flex items-center gap-0.5">
                     {renderStars(post.rating)}
                   </div>
-                  <span className="text-sm font-semibold text-gray-700">{post.rating}</span>
-                  <span className="text-sm text-gray-500">({post.reviewCount})</span>
+                  <span className="text-xs font-semibold text-gray-700">{post.rating}</span>
+                  <span className="text-xs text-gray-500">({post.reviewCount})</span>
                 </div>
 
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                  <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{post.date}</span>
+                      <Calendar className="w-3 h-3" />
+                      <span>{post.formattedDate}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-3 h-3" />
                       <span>{post.readTime}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">By {post.author}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-600">By {post.author.name}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`text-xs h-6 px-2 ${
+                        likedBlogs.has(post.id) 
+                          ? 'text-red-600 bg-red-50 hover:bg-red-100' 
+                          : 'text-red-500 hover:text-red-600 hover:bg-red-50'
+                      }`}
+                      onClick={() => handleLike(post.id)}
+                      disabled={likedBlogs.has(post.id)}
+                    >
+                      <Heart className={`w-3 h-3 mr-1 ${
+                        likedBlogs.has(post.id) ? 'fill-current' : ''
+                      }`} />
+                      <span className="text-xs">{post.likes}</span>
+                    </Button>
+                  </div>
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="text-primary hover:text-primary/80 group-hover:translate-x-1 transition-transform duration-300"
+                    className="text-primary hover:text-primary/80 group-hover:translate-x-1 transition-transform duration-300 text-xs h-6 px-2"
                     onClick={() => handleReadMore(post)}
                   >
                     Read More
-                    <ArrowRight className="w-4 h-4 ml-1" />
+                    <ArrowRight className="w-3 h-3 ml-1" />
                   </Button>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
+        )}
 
         {/* No Results Message */}
-        {filteredBlogs.length === 0 && (
+        {!loading && blogs.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <Search className="w-16 h-16 mx-auto" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No tips found</h3>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No blog posts found</h3>
             <p className="text-gray-500">Try adjusting your search terms or category filter.</p>
           </div>
         )}

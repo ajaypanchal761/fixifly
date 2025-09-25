@@ -12,10 +12,12 @@ import {
   Monitor, 
   Printer, 
   Check,
-  CreditCard,
   Shield,
   CheckCircle
 } from "lucide-react";
+import { createAMCSubscription } from "@/services/amcApiService";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AMCSubscriptionModalProps {
   isOpen: boolean;
@@ -25,6 +27,7 @@ interface AMCSubscriptionModalProps {
   planPeriod: string;
   planDescription: string;
   planFeatures: string[];
+  planId?: string;
 }
 
 interface DeviceInfo {
@@ -46,8 +49,10 @@ const AMCSubscriptionModal = ({
   planPrice,
   planPeriod,
   planDescription,
-  planFeatures
+  planFeatures,
+  planId
 }: AMCSubscriptionModalProps) => {
+  const { user, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     deviceType: "",
     quantity: 1,
@@ -161,24 +166,94 @@ const AMCSubscriptionModal = ({
       return;
     }
 
+    if (!planId) {
+      toast.error("Plan ID is required");
+      console.error("Plan ID is undefined or empty");
+      return;
+    }
+
+    console.log("Plan ID received:", planId);
+
+    // Check if user is logged in
+    if (!isAuthenticated || !user) {
+      toast.error("Please login to subscribe to AMC plans");
+      // Redirect to login page
+      window.location.href = '/login';
+      return;
+    }
+
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      toast.error("Authentication token not found. Please login again.");
+      window.location.href = '/login';
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare subscription data
+      const subscriptionData = {
+        planId,
+        devices: formData.devices.map(device => ({
+          deviceType: formData.deviceType,
+          serialNumber: device.serialNumber,
+          modelNumber: device.modelNumber
+          // Note: serialNumberPhoto will be handled separately after payment
+        })),
+        paymentMethod: 'online', // Use 'online' to match backend enum
+        autoRenewal: false
+      };
+
+      console.log('Subscription data being sent:', subscriptionData);
+      console.log('Plan ID:', planId);
+      console.log('Devices:', formData.devices);
       
-      // Here you would typically send the data to your backend
-      console.log("Subscription data:", {
-        plan: planName,
-        ...formData
-      });
+      // Validate that all required fields are present
+      if (!subscriptionData.planId) {
+        throw new Error('Plan ID is missing');
+      }
+      if (!subscriptionData.devices || subscriptionData.devices.length === 0) {
+        throw new Error('No devices provided');
+      }
+      for (const device of subscriptionData.devices) {
+        if (!device.deviceType || !device.serialNumber || !device.modelNumber) {
+          throw new Error('All devices must have device type, serial number, and model number');
+        }
+      }
+
+      // Create subscription
+      console.log('About to create subscription with data:', subscriptionData);
+      const response = await createAMCSubscription(subscriptionData);
+      console.log('Subscription creation response:', response);
+      console.log('Full response object:', JSON.stringify(response, null, 2));
       
-      // Show thank you message
-      setShowThankYou(true);
+      if (response.success && response.data.subscription) {
+        // Subscription created successfully without payment
+        const subscription = response.data.subscription;
+        
+        console.log('Subscription created successfully:', subscription);
+        
+        toast.success("AMC subscription created successfully!");
+        setShowThankYou(true);
+
+        // Refresh the page after 3 seconds
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      } else {
+        throw new Error(response.message || 'Subscription creation failed');
+      }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Subscription failed:", error);
-      alert("Subscription failed. Please try again.");
+      
+      // Handle specific error cases
+      if (error.message.includes("already have an active subscription")) {
+        toast.error("You already have an active subscription for this plan. Please check your existing subscriptions in the 'My AMC' tab.");
+      } else {
+        toast.error(error.message || "Subscription failed. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -424,11 +499,11 @@ const AMCSubscriptionModal = ({
               {isSubmitting ? (
                 <div className="flex items-center space-x-3">
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Processing...</span>
+                  <span>Creating Subscription...</span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-3">
-                  <CreditCard className="h-5 w-5" />
+                  <CheckCircle className="h-5 w-5" />
                   <span>Subscribe Now - ₹{(parseFloat(planPrice.replace('₹', '')) * formData.quantity).toFixed(2)}</span>
                 </div>
               )}
@@ -465,7 +540,7 @@ const AMCSubscriptionModal = ({
             </a>. 
             <br className="sm:hidden" />
             <span className="block sm:inline mt-0 sm:mt-0 font-medium">
-              Your subscription will start immediately 
+              Your subscription will be activated immediately without payment
             </span>
           </div>
         </div>
@@ -484,7 +559,7 @@ const AMCSubscriptionModal = ({
                 Your <span className="font-semibold text-blue-600 dark:text-blue-400">{planName}</span> has been activated successfully!
               </p>
               <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-8">
-                You will receive a confirmation email shortly with all the details.
+                Your AMC subscription is now active and ready to use. You can view your subscription details in the 'My AMC' section.
               </p>
             </div>
             

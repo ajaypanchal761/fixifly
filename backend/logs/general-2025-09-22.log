@@ -1,0 +1,683 @@
+[2025-09-22T04:48:06.398Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T04:48:06.843Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T04:48:09.108Z] [INFO] SMTP connection verified successfully
+[2025-09-22T04:48:18.697Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T04:48:18.881Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T04:48:28.040Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T04:48:28.124Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T04:48:28.148Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T04:48:28.239Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T04:48:28.247Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T04:48:28.290Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T04:48:28.292Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T04:48:28.364Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T04:48:47.513Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-22T04:48:50.787Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-09-22T04:48:57.413Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-09-22T04:48:57.504Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-22T04:48:57.656Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-22T04:51:23.368Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":1}
+[2025-09-22T04:51:23.379Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/plans"}
+[2025-09-22T04:51:23.576Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/plans"}
+[2025-09-22T04:55:19.260Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T04:55:19.456Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T04:55:21.106Z] [INFO] SMTP connection verified successfully
+[2025-09-22T04:55:37.064Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T04:55:37.302Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T04:55:38.985Z] [INFO] SMTP connection verified successfully
+[2025-09-22T04:55:48.055Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T04:55:48.769Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T04:55:51.579Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T04:55:51.694Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T04:55:53.391Z] [INFO] SMTP connection verified successfully
+[2025-09-22T04:56:16.069Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:56:21.183Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:56:36.873Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/plans/68d0d6cf5242aefac8654a05"}
+[2025-09-22T04:56:37.100Z] [INFO] AMC plan updated successfully | {"adminId":"68ca7f8988ac97b4e9c16645","planId":"68d0d6cf5242aefac8654a05","planName":"TRY PLAN"}
+[2025-09-22T04:56:37.185Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:56:43.920Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:58:35.323Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:58:38.565Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:59:06.227Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:59:13.203Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:59:18.207Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:59:24.210Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T04:59:28.208Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:00:17.452Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:00:38.336Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:00:49.217Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:01:03.190Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:02:13.148Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:02:30.619Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/plans/68d0d6cf5242aefac8654a0a"}
+[2025-09-22T05:02:30.848Z] [INFO] AMC plan updated successfully | {"adminId":"68ca7f8988ac97b4e9c16645","planId":"68d0d6cf5242aefac8654a0a","planName":"CARE PLAN"}
+[2025-09-22T05:02:30.922Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:02:36.950Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:03:05.706Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:03:08.914Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:14:41.234Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:14:41.293Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:14:42.114Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:14:42.151Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:14:42.156Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:14:42.222Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:14:42.226Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:14:42.254Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:14:42.255Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:14:42.311Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:20:56.807Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:21:08.781Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:21:09.063Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:21:09.064Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:21:09.242Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:21:09.246Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:21:10.746Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:21:10.747Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:21:11.352Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:21:11.880Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:21:11.901Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:21:22.377Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/plans/68d0d6cf5242aefac8654a05"}
+[2025-09-22T05:21:22.733Z] [INFO] AMC plan updated successfully | {"adminId":"68ca7f8988ac97b4e9c16645","planId":"68d0d6cf5242aefac8654a05","planName":"TRY PLAN"}
+[2025-09-22T05:21:22.825Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:21:27.910Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:36:02.747Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:36:06.616Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:36:06.925Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:36:06.963Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:36:06.964Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:36:07.028Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:36:07.035Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:36:07.071Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:36:07.073Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:36:07.132Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:39:08.204Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:39:41.365Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:39:52.201Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:44:15.431Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T05:44:15.812Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T05:44:17.945Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:44:18.242Z] [INFO] SMTP connection verified successfully
+[2025-09-22T05:45:03.228Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:45:12.216Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:45:18.349Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:45:25.227Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:45:46.602Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T05:45:46.800Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T05:45:48.445Z] [INFO] SMTP connection verified successfully
+[2025-09-22T05:45:59.334Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T05:45:59.462Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T05:46:01.146Z] [INFO] SMTP connection verified successfully
+[2025-09-22T05:46:10.372Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T05:46:10.543Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T05:46:12.359Z] [INFO] SMTP connection verified successfully
+[2025-09-22T05:46:18.013Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T05:46:18.187Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T05:46:19.973Z] [INFO] SMTP connection verified successfully
+[2025-09-22T05:46:25.199Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T05:46:25.320Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T05:46:26.945Z] [INFO] SMTP connection verified successfully
+[2025-09-22T05:46:32.920Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T05:46:33.042Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T05:46:34.629Z] [INFO] SMTP connection verified successfully
+[2025-09-22T05:47:03.411Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:47:03.752Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:47:03.768Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:47:03.801Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:47:03.804Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:47:03.872Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:47:03.879Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:47:03.920Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:47:03.942Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:47:04.008Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:48:19.208Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:48:28.246Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:48:35.212Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:48:38.414Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:48:39.014Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T05:49:23.586Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:49:23.641Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:49:23.658Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:49:23.725Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:49:25.982Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:49:30.535Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:49:34.623Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:49:36.141Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:49:36.187Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:49:36.189Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:49:36.265Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:49:37.949Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:49:38.019Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:49:38.030Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:49:38.117Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:49:41.251Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:49:48.637Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:49:48.682Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:49:48.686Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:49:48.744Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:49:48.750Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:49:48.784Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:49:48.785Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:49:48.846Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:49:50.831Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:49:53.910Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T05:49:56.620Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:50:18.964Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T05:50:19.230Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T05:50:21.338Z] [INFO] SMTP connection verified successfully
+[2025-09-22T05:50:22.223Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:50:22.249Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:50:22.309Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:50:22.310Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:50:22.375Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:50:22.380Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T05:50:22.410Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T05:50:22.411Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T05:50:22.466Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T05:50:22.890Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:50:24.371Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T05:57:30.078Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:57:30.339Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T05:57:32.864Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:57:33.605Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:57:33.668Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T05:57:35.537Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:57:36.322Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:57:36.442Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T05:57:43.908Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:57:45.560Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:57:45.713Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T05:57:47.372Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T05:57:48.897Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T05:57:49.047Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T06:00:25.270Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T06:00:25.473Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T06:00:26.806Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T06:00:28.172Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T06:00:28.236Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T06:00:30.168Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T06:00:31.868Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T06:00:31.917Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T06:00:35.128Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T06:00:36.512Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T06:00:36.615Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T06:00:54.878Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T06:00:55.098Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T06:00:56.699Z] [INFO] SMTP connection verified successfully
+[2025-09-22T06:01:15.360Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T06:01:15.438Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T06:01:17.911Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T06:01:19.263Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T06:01:19.312Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T06:05:05.254Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T06:05:05.836Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:28:13.593Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:28:13.841Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:28:15.612Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:28:53.685Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:28:54.718Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:28:55.862Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:28:56.357Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:28:56.397Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:28:56.398Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:28:56.461Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:28:56.468Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:28:56.501Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:28:56.503Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:28:56.559Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:28:56.828Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:28:58.382Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-09-22T11:29:05.105Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-09-22T11:29:05.163Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-22T11:29:05.475Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-22T11:29:08.119Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:29:20.948Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:30:14.502Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:30:14.582Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:30:40.394Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:30:40.437Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:30:43.119Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:30:59.756Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:30:59.802Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:31:23.128Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:32:33.273Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:32:33.333Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:32:36.394Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:32:53.467Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:32:53.559Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:34:12.025Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:34:12.309Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:34:14.117Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:34:15.839Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:34:15.912Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:34:15.913Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:34:15.971Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:34:15.982Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:34:16.015Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:34:16.017Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:34:16.078Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:34:16.546Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:35:47.976Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:36:02.460Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:36:13.731Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:36:38.770Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:36:39.152Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:36:41.832Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:36:42.441Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:36:59.326Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:36:59.402Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:37:01.077Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:37:17.770Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:37:17.819Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:38:07.289Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:38:07.352Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:38:07.361Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:38:07.542Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:38:07.545Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:38:07.595Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:38:07.596Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:38:07.683Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:38:07.696Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:38:16.302Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:38:16.385Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:38:16.386Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:38:16.477Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:38:16.482Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:38:16.556Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:38:16.561Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:38:16.569Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:38:16.659Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:38:18.444Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:38:18.820Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:38:20.474Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:38:29.276Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:38:30.808Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:38:30.846Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:38:30.847Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:38:30.883Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:38:30.915Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:38:30.926Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:38:30.966Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:38:30.968Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:38:31.036Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:38:36.791Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:38:39.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:38:39.205Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:38:39.206Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:38:39.306Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:38:39.312Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:38:39.338Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:38:39.391Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:38:39.392Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:38:39.504Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:39:03.281Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:39:03.337Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:39:03.344Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:39:03.438Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:39:03.645Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:39:03.696Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:39:03.703Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:39:03.811Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:39:04.119Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:39:13.404Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:39:22.653Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:39:49.210Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:39:49.259Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:39:49.260Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:39:49.360Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:39:49.364Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-22T11:39:49.412Z] [INFO] Getting bookings for vendor | {"vendorId":"776","page":1,"limit":10}
+[2025-09-22T11:39:49.413Z] [INFO] Booking query | {"query":{"vendor.vendorId":"776"}}
+[2025-09-22T11:39:49.417Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:39:49.531Z] [INFO] Vendor bookings retrieved: 0 for vendor 776 | {"vendorId":"776","totalBookings":0,"page":1}
+[2025-09-22T11:40:10.542Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:40:10.554Z] [INFO] User AMC subscriptions fetched | {"subscriptionsCount":0}
+[2025-09-22T11:40:58.611Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:41:56.316Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:43:49.151Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:43:49.187Z] [INFO] User AMC subscriptions fetched | {"subscriptionsCount":0}
+[2025-09-22T11:43:56.110Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:43:56.198Z] [INFO] User AMC subscriptions fetched | {"subscriptionsCount":0}
+[2025-09-22T11:43:58.405Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:45:04.929Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:45:05.197Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:45:07.055Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:45:28.612Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:45:28.880Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:45:30.784Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:45:38.474Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:45:38.649Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:45:40.783Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:45:44.523Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:45:44.918Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:45:46.970Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:45:55.129Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:45:55.348Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:45:57.509Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:46:16.930Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:46:17.021Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:46:18.732Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:46:31.822Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:46:31.835Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T11:47:16.247Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:47:16.427Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:47:18.301Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:47:25.672Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:47:25.956Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:47:28.091Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:47:40.259Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:47:40.720Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:47:43.264Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:48:34.418Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:48:34.729Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:48:36.442Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:49:17.391Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:49:17.511Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:49:19.246Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:49:29.161Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T11:49:29.239Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T11:49:34.394Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T11:49:34.470Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:51:46.236Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:51:46.553Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:51:48.282Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:51:52.084Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:51:52.301Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:51:54.233Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:51:58.270Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:51:58.466Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:52:00.221Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:52:12.273Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:52:12.462Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:52:14.426Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:52:41.069Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:52:41.186Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:52:43.150Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:52:52.163Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T11:53:24.607Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:53:24.641Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-22T11:54:51.150Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:54:51.163Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T11:55:29.209Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T11:56:20.673Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:56:20.799Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:56:22.609Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:56:42.517Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:56:42.669Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:56:44.404Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:56:53.483Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:56:53.862Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:56:55.929Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:57:08.879Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:57:08.967Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:57:10.547Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:58:43.331Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T11:58:43.549Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T11:59:07.546Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:59:08.033Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:59:17.351Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:59:17.502Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:59:19.279Z] [INFO] SMTP connection verified successfully
+[2025-09-22T11:59:51.139Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T11:59:51.272Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T11:59:52.928Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:00:15.297Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:01:32.059Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:03:30.315Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:03:59.021Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-22T12:03:59.034Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:04:34.535Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:04:34.637Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-22T12:05:05.859Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:05:05.902Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:05:22.357Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:07:51.000Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:07:51.255Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:07:53.427Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:07:59.597Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:07:59.694Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:08:09.489Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:08:09.607Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:08:11.871Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:09:11.436Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:09:11.460Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:09:14.006Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:09:14.141Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:09:15.773Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:09:27.685Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:10:06.268Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:10:06.322Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-22T12:10:44.640Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:10:44.692Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:10:59.447Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:10:59.675Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:11:01.573Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:11:17.214Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:11:17.368Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:11:19.166Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:11:33.421Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:11:33.591Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:11:35.272Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:11:48.716Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:11:48.927Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:11:50.664Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:12:03.179Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:12:03.348Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:12:05.121Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:12:35.890Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:12:36.008Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:12:37.690Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:13:36.373Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:13:36.383Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:13:48.169Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:15:07.823Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:15:07.923Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-22T12:15:23.444Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:15:24.021Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:15:25.854Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:15:35.979Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:15:36.351Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:15:38.373Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:15:38.764Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:15:38.804Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:16:03.409Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:17:00.914Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:17:01.082Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:17:02.903Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:17:14.863Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:17:15.122Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:17:17.067Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:17:44.056Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:17:44.307Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:17:46.323Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:18:04.646Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:18:04.917Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:18:06.832Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:18:20.973Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:18:21.077Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:18:22.822Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:19:44.732Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:19:44.782Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-22T12:20:22.496Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:20:22.527Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:20:37.035Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:21:57.363Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:21:57.534Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:21:59.234Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:22:09.958Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:22:10.177Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:22:12.089Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:22:26.413Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:22:26.694Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:22:28.698Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:22:44.254Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:22:44.263Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:23:37.378Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:23:37.578Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:23:39.302Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:24:05.846Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:24:06.201Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:24:07.895Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:24:11.858Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:24:12.100Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:24:14.433Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:24:55.737Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:24:55.884Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:24:57.594Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:25:31.034Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:25:31.054Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:25:46.798Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:27:16.133Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:27:16.375Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:27:18.492Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:27:32.043Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:27:33.622Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:27:36.592Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:27:44.980Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:27:45.189Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:27:47.302Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:28:03.177Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:28:03.489Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:28:05.138Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:28:06.000Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:28:15.253Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T12:28:16.368Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T12:28:20.361Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:28:20.569Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:28:23.305Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:28:29.858Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:28:30.029Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:28:31.783Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:28:41.084Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:28:41.396Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:28:43.105Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:29:00.255Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:29:00.358Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:29:02.133Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:29:22.857Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-22T12:29:22.923Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-22T12:29:24.753Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:29:24.888Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:29:51.722Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:30:56.242Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:30:56.382Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:30:58.410Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:31:12.938Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:31:13.117Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:31:15.148Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:31:36.962Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:31:37.190Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:31:39.011Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:31:44.406Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:31:44.692Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:31:46.624Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:33:19.948Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:33:20.145Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:33:21.856Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:33:30.019Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:33:30.329Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:33:32.212Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:33:58.647Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:33:58.842Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:34:00.529Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:34:17.523Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:34:17.647Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:34:19.362Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:35:06.663Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:35:06.709Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:35:21.778Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:36:25.341Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:36:25.515Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:36:27.266Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:36:36.488Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:36:36.706Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-22T12:37:04.347Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:37:04.679Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:37:07.146Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:37:22.676Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:37:22.888Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:37:24.732Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:37:30.033Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:37:30.266Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:37:32.013Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:37:51.328Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:37:51.485Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:37:53.324Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:38:08.499Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:38:08.676Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:38:10.497Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:38:17.823Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:38:18.024Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:38:20.032Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:38:34.625Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:38:34.818Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:38:36.759Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:38:47.211Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:38:47.382Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:38:49.068Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:39:03.619Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:39:03.732Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:39:05.416Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:39:08.557Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:39:08.659Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:39:10.371Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:39:34.445Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:39:34.455Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:39:56.059Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:42:26.659Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:42:26.905Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:42:29.015Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:42:43.621Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:42:43.988Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:42:45.958Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:42:57.746Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:42:58.007Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:42:59.690Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:43:05.579Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:43:05.729Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:43:07.404Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:43:21.173Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:43:21.470Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:43:23.165Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:43:36.756Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:43:36.920Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:43:38.699Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:43:48.621Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:43:48.952Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:43:50.817Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:43:56.897Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:43:57.122Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:43:58.890Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:44:18.436Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:44:18.552Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:44:20.256Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:46:11.687Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:46:11.693Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:47:48.313Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:47:48.426Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:47:50.015Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:47:56.131Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:47:56.295Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:47:58.183Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:48:01.801Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:48:02.028Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:48:03.733Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:48:21.066Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:48:21.186Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:48:22.965Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:48:45.007Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:48:45.021Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:49:01.257Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}
+[2025-09-22T12:49:51.874Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:49:52.082Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:49:58.785Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:50:05.668Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-22T12:50:06.062Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-22T12:50:13.200Z] [INFO] SMTP connection verified successfully
+[2025-09-22T12:50:14.249Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:50:14.414Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-22T12:50:33.934Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000002","planName":"CARE PLAN"}
+[2025-09-22T12:51:37.183Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:51:53.780Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:51:53.925Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":2}
+[2025-09-22T12:53:08.291Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":0}
+[2025-09-22T12:53:08.301Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-22T12:53:23.296Z] [INFO] AMC subscription created with pending payment | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionId":"AMC000001","planName":"TRY PLAN"}

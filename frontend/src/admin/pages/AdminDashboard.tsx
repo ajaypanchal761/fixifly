@@ -1,43 +1,154 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import { 
   Users, 
   UserCheck, 
-  Car, 
   Calendar,
   DollarSign, 
   Clock, 
   TrendingUp,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Loader2,
+  RefreshCw,
+  Car
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import adminApiService from '@/services/adminApi';
+
+interface DashboardData {
+  overview: {
+    totalUsers: number;
+    totalVendors: number;
+    totalServices: number;
+    totalBookings: number;
+    totalRevenue: number;
+    monthlyRevenue: number;
+    pendingVendors: number;
+    activeVendors: number;
+    pendingBookings: number;
+    activeAMCSubscriptions: number;
+  };
+  recentActivity: {
+    recentUsers: number;
+    recentVendors: number;
+    recentBookings: number;
+  };
+  dateRange: {
+    startDate: string;
+    endDate: string;
+    month: number;
+    year: number;
+  };
+}
 
 const AdminDashboard = () => {
-  // Sample data - in real app this would come from API
-  const dashboardData = {
-    totalUsers: 1247,
-    totalVendors: 89,
-    totalServices: 156,
-    totalBookings: 3421,
-    totalRevenue: 1250000,
-    monthlyRevenue: 180000,
-    pendingVerifications: 23,
-    availableServices: 142,
-    pendingBookings: 45,
-    completedBookings: 3376,
-    cancelledBookings: 67,
-    activeVendors: 76,
-    inactiveVendors: 13
+  const { toast } = useToast();
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
+  // Fetch dashboard data
+  const fetchDashboardData = async (month?: number, year?: number) => {
+    try {
+      setRefreshing(true);
+      const response = await adminApiService.getDashboardStats(month, year);
+      
+      if (response.success && response.data) {
+        setDashboardData(response.data);
+      }
+    } catch (error: any) {
+      console.error('Error fetching dashboard data:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to fetch dashboard data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  // Handle month/year change
+  const handleDateChange = (month: number, year: number) => {
+    setSelectedMonth(month);
+    setSelectedYear(year);
+    fetchDashboardData(month, year);
+  };
+
+  // Refresh data
+  const handleRefresh = () => {
+    fetchDashboardData(selectedMonth, selectedYear);
+  };
+
+  // Generate month options
+  const monthOptions = [
+    { value: 1, label: 'January' },
+    { value: 2, label: 'February' },
+    { value: 3, label: 'March' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'May' },
+    { value: 6, label: 'June' },
+    { value: 7, label: 'July' },
+    { value: 8, label: 'August' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'October' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'December' }
+  ];
+
+  // Generate year options (current year and previous 5 years)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - i);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AdminHeader />
+        <main className="ml-72 pt-32 p-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+              <p className="text-gray-600">Loading dashboard...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AdminHeader />
+        <main className="ml-72 pt-32 p-6">
+          <div className="text-center py-8">
+            <p className="text-gray-600 mb-4">Failed to load dashboard data</p>
+            <Button onClick={handleRefresh} variant="outline">
+              Try Again
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const kpiCards = [
     {
       title: "Total Users",
-      value: dashboardData.totalUsers.toLocaleString(),
-      change: "+86% from month",
+      value: dashboardData.overview.totalUsers.toLocaleString(),
+      change: `${dashboardData.recentActivity.recentUsers} new this week`,
       icon: Users,
       color: "bg-blue-500",
       bgColor: "bg-blue-50",
@@ -45,8 +156,8 @@ const AdminDashboard = () => {
     },
     {
       title: "Total Vendors",
-      value: dashboardData.totalVendors.toLocaleString(),
-      change: "+100% from month",
+      value: dashboardData.overview.totalVendors.toLocaleString(),
+      change: `${dashboardData.recentActivity.recentVendors} new this week`,
       icon: UserCheck,
       color: "bg-green-500",
       bgColor: "bg-green-50",
@@ -54,8 +165,8 @@ const AdminDashboard = () => {
     },
     {
       title: "Total Services",
-      value: dashboardData.totalServices.toLocaleString(),
-      change: "26 currently available",
+      value: dashboardData.overview.totalServices.toLocaleString(),
+      change: "Active service cards",
       icon: Car,
       color: "bg-purple-500",
       bgColor: "bg-purple-50",
@@ -63,8 +174,8 @@ const AdminDashboard = () => {
     },
     {
       title: "Total Bookings",
-      value: dashboardData.totalBookings.toLocaleString(),
-      change: "+0% from month",
+      value: dashboardData.overview.totalBookings.toLocaleString(),
+      change: `${dashboardData.recentActivity.recentBookings} new this week`,
       icon: Calendar,
       color: "bg-orange-500",
       bgColor: "bg-orange-50",
@@ -72,17 +183,17 @@ const AdminDashboard = () => {
     },
     {
       title: "Total Revenue",
-      value: `₹${dashboardData.totalRevenue.toLocaleString()}`,
-      change: "All time completed bookings",
+      value: `₹${dashboardData.overview.totalRevenue.toLocaleString()}`,
+      change: "All time revenue",
       icon: DollarSign,
       color: "bg-emerald-500",
       bgColor: "bg-emerald-50",
       textColor: "text-emerald-600"
     },
     {
-      title: "Month Revenue",
-      value: `₹${dashboardData.monthlyRevenue.toLocaleString()}`,
-      change: "From month bookings",
+      title: "Monthly Revenue",
+      value: `₹${dashboardData.overview.monthlyRevenue.toLocaleString()}`,
+      change: `${monthOptions[selectedMonth - 1]?.label} ${selectedYear}`,
       icon: TrendingUp,
       color: "bg-indigo-500",
       bgColor: "bg-indigo-50",
@@ -90,17 +201,17 @@ const AdminDashboard = () => {
     },
     {
       title: "Pending Verifications",
-      value: dashboardData.pendingVerifications.toLocaleString(),
-      change: "Vendors need verification",
+      value: dashboardData.overview.pendingVendors.toLocaleString(),
+      change: "Vendors awaiting approval",
       icon: Clock,
       color: "bg-cyan-500",
       bgColor: "bg-cyan-50",
       textColor: "text-cyan-600"
     },
     {
-      title: "Available Services",
-      value: dashboardData.availableServices.toLocaleString(),
-      change: "Ready for booking",
+      title: "Active Vendors",
+      value: dashboardData.overview.activeVendors.toLocaleString(),
+      change: "Approved and active",
       icon: CheckCircle,
       color: "bg-pink-500",
       bgColor: "bg-pink-50",
@@ -108,12 +219,21 @@ const AdminDashboard = () => {
     },
     {
       title: "Pending Bookings",
-      value: dashboardData.pendingBookings.toLocaleString(),
+      value: dashboardData.overview.pendingBookings.toLocaleString(),
       change: "Awaiting confirmation",
       icon: AlertCircle,
       color: "bg-yellow-500",
       bgColor: "bg-yellow-50",
       textColor: "text-yellow-600"
+    },
+    {
+      title: "AMC Subscriptions",
+      value: dashboardData.overview.activeAMCSubscriptions.toLocaleString(),
+      change: "Active subscriptions",
+      icon: TrendingUp,
+      color: "bg-teal-500",
+      bgColor: "bg-teal-50",
+      textColor: "text-teal-600"
     }
   ];
 
@@ -138,6 +258,48 @@ const AdminDashboard = () => {
                 <div className="w-2 h-2 bg-accent rounded-full mr-2"></div>
                 <span className="text-sm text-muted-foreground">System Status: Online</span>
               </div>
+            </div>
+            <div className="flex items-center gap-4">
+              {/* Month/Year Filters */}
+              <div className="flex items-center gap-2">
+                <Select value={selectedMonth.toString()} onValueChange={(value) => handleDateChange(parseInt(value), selectedYear)}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map((month) => (
+                      <SelectItem key={month.value} value={month.value.toString()}>
+                        {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={selectedYear.toString()} onValueChange={(value) => handleDateChange(selectedMonth, parseInt(value))}>
+                  <SelectTrigger className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Refresh Button */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+              >
+                {refreshing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+              </Button>
             </div>
           </div>
         </div>
@@ -164,7 +326,6 @@ const AdminDashboard = () => {
             );
           })}
         </div>
-
 
 
       </main>

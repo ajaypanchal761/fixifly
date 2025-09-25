@@ -1,0 +1,376 @@
+const { asyncHandler } = require('../middleware/asyncHandler');
+const { logger } = require('../utils/logger');
+const VendorNotification = require('../models/VendorNotification');
+const SupportTicket = require('../models/SupportTicket');
+const Vendor = require('../models/Vendor');
+
+// @desc    Get vendor notifications
+// @route   GET /api/vendor/notifications
+// @access  Private (Vendor)
+const getVendorNotifications = asyncHandler(async (req, res) => {
+  const vendorId = req.vendor._id;
+  const { page = 1, limit = 20, unreadOnly = false } = req.query;
+
+  // Build filter
+  const filter = { vendorId };
+  if (unreadOnly === 'true') {
+    filter.isRead = false;
+  }
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const notifications = await VendorNotification.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  const totalNotifications = await VendorNotification.countDocuments(filter);
+  const unreadCount = await VendorNotification.countDocuments({ vendorId, isRead: false });
+
+  res.json({
+    success: true,
+    data: {
+      notifications,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalNotifications / parseInt(limit)),
+        totalNotifications,
+        unreadCount,
+        hasNext: skip + notifications.length < totalNotifications,
+        hasPrev: parseInt(page) > 1
+      }
+    }
+  });
+});
+
+// @desc    Mark notification as read
+// @route   PUT /api/vendor/notifications/:id/read
+// @access  Private (Vendor)
+const markNotificationAsRead = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const vendorId = req.vendor._id;
+
+  const notification = await VendorNotification.findOne({ 
+    _id: id, 
+    vendorId 
+  });
+
+  if (!notification) {
+    return res.status(404).json({
+      success: false,
+      message: 'Notification not found'
+    });
+  }
+
+  notification.isRead = true;
+  notification.readAt = new Date();
+  await notification.save();
+
+  res.json({
+    success: true,
+    message: 'Notification marked as read',
+    data: {
+      notification: {
+        id: notification._id,
+        isRead: notification.isRead,
+        readAt: notification.readAt
+      }
+    }
+  });
+});
+
+// @desc    Mark all notifications as read
+// @route   PUT /api/vendor/notifications/read-all
+// @access  Private (Vendor)
+const markAllNotificationsAsRead = asyncHandler(async (req, res) => {
+  const vendorId = req.vendor._id;
+
+  const result = await VendorNotification.updateMany(
+    { vendorId, isRead: false },
+    { 
+      isRead: true, 
+      readAt: new Date() 
+    }
+  );
+
+  res.json({
+    success: true,
+    message: 'All notifications marked as read',
+    data: {
+      updatedCount: result.modifiedCount
+    }
+  });
+});
+
+// @desc    Get vendor assigned support tickets
+// @route   GET /api/vendor/support-tickets
+// @access  Private (Vendor)
+const getVendorSupportTickets = asyncHandler(async (req, res) => {
+  const vendorId = req.vendor._id;
+  const { page = 1, limit = 10, status, priority, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+
+  // Build filter object
+  const filter = { assignedTo: vendorId };
+  
+  if (status && status !== 'all') {
+    filter.status = status;
+  }
+  
+  if (priority && priority !== 'all') {
+    filter.priority = priority;
+  }
+
+  // Build search filter
+  if (search) {
+    filter.$or = [
+      { ticketId: { $regex: search, $options: 'i' } },
+      { subject: { $regex: search, $options: 'i' } },
+      { userName: { $regex: search, $options: 'i' } },
+      { userEmail: { $regex: search, $options: 'i' } },
+      { caseId: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  // Build sort object
+  const sort = {};
+  sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const tickets = await SupportTicket.find(filter)
+    .populate('userId', 'name email phone address')
+    .populate('assignedTo', 'firstName lastName email')
+    .select('-responses') // Exclude responses for list view
+    .sort(sort)
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  const totalTickets = await SupportTicket.countDocuments(filter);
+
+  const formattedTickets = tickets.map(ticket => ({
+    id: ticket.ticketId,
+    customerName: ticket.userName,
+    customerEmail: ticket.userEmail,
+    customerPhone: ticket.userPhone,
+    address: ticket.userId?.address?.street || ticket.userId?.address || 'Not provided',
+    pincode: ticket.userId?.address?.pincode || 'Not provided',
+    subject: ticket.subject,
+    category: ticket.type,
+    status: ticket.status,
+    priority: ticket.priority,
+    vendorStatus: ticket.vendorStatus || 'Pending',
+    created: ticket.formattedCreatedAt,
+    lastUpdate: ticket.lastUpdate,
+    responses: ticket.responseCount,
+    caseId: ticket.caseId,
+    description: ticket.description,
+    scheduledDate: ticket.scheduledDate,
+    scheduledTime: ticket.scheduledTime,
+    scheduleNotes: ticket.scheduleNotes,
+    assignedAt: ticket.assignedAt,
+    assignedVendor: ticket.assignedTo ? `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}` : null
+  }));
+
+  res.json({
+    success: true,
+    data: {
+      tickets: formattedTickets,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalTickets / parseInt(limit)),
+        totalTickets,
+        hasNext: skip + tickets.length < totalTickets,
+        hasPrev: parseInt(page) > 1
+      }
+    }
+  });
+});
+
+// @desc    Get vendor dashboard data with new tasks
+// @route   GET /api/vendor/dashboard
+// @access  Private (Vendor)
+const getVendorDashboard = asyncHandler(async (req, res) => {
+  const vendorId = req.vendor._id;
+
+  logger.info('Fetching vendor dashboard', { 
+    vendorId: vendorId.toString(),
+    vendorInfo: {
+      id: req.vendor._id,
+      firstName: req.vendor.firstName,
+      lastName: req.vendor.lastName,
+      email: req.vendor.email
+    }
+  });
+
+  try {
+    // Get pending support tickets assigned to this vendor
+    const pendingTickets = await SupportTicket.find({
+      assignedTo: vendorId,
+      vendorStatus: 'Pending'
+    })
+    .populate('userId', 'name email phone address')
+    .select('ticketId subject type priority createdAt userName userEmail userPhone description')
+    .sort({ createdAt: -1 })
+    .limit(5);
+
+    logger.info('Pending tickets found for vendor', {
+      vendorId: vendorId.toString(),
+      ticketCount: pendingTickets.length,
+      tickets: pendingTickets.map(t => ({
+        ticketId: t.ticketId,
+        subject: t.subject,
+        vendorStatus: t.vendorStatus,
+        assignedTo: t.assignedTo?.toString()
+      }))
+    });
+
+    // Get recent notifications
+    const recentNotifications = await VendorNotification.find({
+      vendorId,
+      type: 'support_ticket_assignment'
+    })
+    .sort({ createdAt: -1 })
+    .limit(5);
+
+    // Get unread notification count
+    const unreadNotificationCount = await VendorNotification.countDocuments({
+      vendorId,
+      isRead: false
+    });
+
+    // Get vendor stats
+    const vendor = await Vendor.findById(vendorId).select('stats rating');
+    
+    // Get total assigned tickets count
+    const totalAssignedTickets = await SupportTicket.countDocuments({
+      assignedTo: vendorId
+    });
+
+    // Get completed tickets count
+    const completedTickets = await SupportTicket.countDocuments({
+      assignedTo: vendorId,
+      vendorStatus: 'Completed'
+    });
+
+    // Get pending tickets count
+    const pendingTicketsCount = await SupportTicket.countDocuments({
+      assignedTo: vendorId,
+      vendorStatus: 'Pending'
+    });
+
+    // Get accepted tickets count
+    const acceptedTicketsCount = await SupportTicket.countDocuments({
+      assignedTo: vendorId,
+      vendorStatus: 'Accepted'
+    });
+
+    const dashboardData = {
+      newTasks: pendingTickets.map(ticket => ({
+        id: ticket.ticketId,
+        subject: ticket.subject,
+        type: ticket.type,
+        priority: ticket.priority,
+        customerName: ticket.userName,
+        customerEmail: ticket.userEmail,
+        customerPhone: ticket.userPhone,
+        description: ticket.description,
+        createdAt: ticket.createdAt,
+        assignedAt: ticket.assignedAt || ticket.createdAt
+      })),
+      recentNotifications: recentNotifications.map(notification => ({
+        id: notification._id,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type,
+        priority: notification.priority,
+        isRead: notification.isRead,
+        createdAt: notification.createdAt,
+        data: notification.data
+      })),
+      stats: {
+        totalAssignedTickets,
+        completedTickets,
+        pendingTicketsCount,
+        acceptedTicketsCount,
+        unreadNotificationCount,
+        vendorStats: vendor?.stats || {},
+        rating: vendor?.rating || { average: 0, count: 0 }
+      }
+    };
+
+    res.json({
+      success: true,
+      data: dashboardData
+    });
+
+  } catch (error) {
+    logger.error('Error fetching vendor dashboard:', {
+      error: error.message,
+      stack: error.stack,
+      vendorId: vendorId
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch dashboard data',
+      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message,
+      debug: process.env.NODE_ENV !== 'production' ? {
+        vendorId,
+        errorMessage: error.message,
+        stack: error.stack
+      } : undefined
+    });
+  }
+});
+
+// @desc    Create support ticket assignment notification
+// @route   POST /api/vendor/notifications/create-support-assignment
+// @access  Private (Admin) - This will be called from admin controller
+const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, ticketData) => {
+  try {
+    const notification = new VendorNotification({
+      vendorId,
+      type: 'support_ticket_assignment',
+      title: 'New Support Ticket Assigned',
+      message: `A new support ticket "${ticketData.subject}" has been assigned to you. Please review and take action.`,
+      data: {
+        ticketId: ticketData.ticketId,
+        subject: ticketData.subject,
+        type: ticketData.type,
+        priority: ticketData.priority,
+        customerName: ticketData.userName,
+        customerEmail: ticketData.userEmail,
+        customerPhone: ticketData.userPhone,
+        description: ticketData.description,
+        assignedAt: new Date()
+      },
+      priority: ticketData.priority === 'High' ? 'high' : ticketData.priority === 'Medium' ? 'medium' : 'low'
+    });
+
+    await notification.save();
+
+    logger.info('Support ticket assignment notification created', {
+      vendorId,
+      ticketId: ticketData.ticketId,
+      notificationId: notification._id
+    });
+
+    return notification;
+  } catch (error) {
+    logger.error('Error creating support ticket assignment notification:', {
+      error: error.message,
+      vendorId,
+      ticketId: ticketData.ticketId
+    });
+    throw error;
+  }
+});
+
+module.exports = {
+  getVendorNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  getVendorSupportTickets,
+  getVendorDashboard,
+  createSupportTicketAssignmentNotification
+};

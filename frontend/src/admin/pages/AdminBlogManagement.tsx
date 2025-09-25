@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminHeader from '../components/AdminHeader';
+import BlogViewModal from '../components/BlogViewModal';
 import { 
   BookOpen, 
   Plus, 
@@ -18,7 +19,9 @@ import {
   User,
   Calendar,
   Tag,
-  FileText
+  FileText,
+  Loader2,
+  ZoomIn
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +33,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { adminBlogApi, Blog } from '@/services/blogApi';
+import { toast } from '@/hooks/use-toast';
+import { testAdminAuth } from '@/utils/authTest';
+import BlogCard from '../components/BlogCard';
 
 const AdminBlogManagement = () => {
   const navigate = useNavigate();
@@ -39,52 +46,20 @@ const AdminBlogManagement = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isAddBlogOpen, setIsAddBlogOpen] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sample blog data
-  const [blogs, setBlogs] = useState([
-    {
-      id: 'B001',
-      title: 'How to Maintain Your Home Appliances',
-      content: 'Regular maintenance of home appliances can extend their lifespan and improve efficiency. Here are some essential tips...',
-      author: 'John Smith',
-      category: 'Home Maintenance',
-      image: '/washing.jpg',
-      status: 'published',
-      publishDate: '2024-01-15',
-      readTime: '5 min read',
-      views: 1250,
-      tags: ['appliances', 'maintenance', 'home']
-    },
-    {
-      id: 'B002',
-      title: 'Common Laptop Issues and Solutions',
-      content: 'Laptops can face various issues over time. Learn about the most common problems and how to fix them...',
-      author: 'Sarah Johnson',
-      category: 'Technology',
-      image: '/laptop.avif',
-      status: 'published',
-      publishDate: '2024-01-12',
-      readTime: '7 min read',
-      views: 980,
-      tags: ['laptop', 'repair', 'technology']
-    },
-    {
-      id: 'B003',
-      title: 'AC Maintenance Tips for Summer',
-      content: 'Keep your air conditioner running efficiently during the hot summer months with these maintenance tips...',
-      author: 'Mike Wilson',
-      category: 'HVAC',
-      image: '/ac.png',
-      status: 'draft',
-      publishDate: '2024-01-10',
-      readTime: '4 min read',
-      views: 0,
-      tags: ['ac', 'summer', 'maintenance']
-    }
-  ]);
+  // State for blogs and pagination
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 0
+  });
 
-  // Sample categories
+  // Categories
   const categories = [
     'Home Maintenance',
     'Technology',
@@ -92,26 +67,86 @@ const AdminBlogManagement = () => {
     'Plumbing',
     'Electrical',
     'General Tips',
-    'Product Reviews'
+    'Product Reviews',
+    'Air Conditioning',
+    'Television',
+    'Refrigerator',
+    'Washing Machine',
+    'Laptop',
+    'Desktop'
   ];
 
   const [newBlog, setNewBlog] = useState({
     title: '',
     content: '',
-    author: '',
     category: '',
-    tags: '',
     image: null as File | null
   });
 
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.author.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || blog.category === categoryFilter;
-    const matchesStatus = statusFilter === 'all' || blog.status === statusFilter;
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+  const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [viewingBlog, setViewingBlog] = useState<Blog | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  // Note: Authentication is handled by AdminProtectedRoute wrapper
+
+  // Load blogs on component mount and when filters change
+  useEffect(() => {
+    // Run authentication test on component mount
+    console.log('AdminBlogManagement mounted - running auth test...');
+    testAdminAuth();
+    loadBlogs();
+  }, [pagination.page, categoryFilter, statusFilter, searchTerm]);
+
+  const loadBlogs = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        page: pagination.page,
+        limit: pagination.limit,
+        category: categoryFilter !== 'all' ? categoryFilter : undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        search: searchTerm || undefined
+      };
+
+      const response = await adminBlogApi.getAdminBlogs(params);
+
+      if (response && response.success && response.data) {
+        setBlogs(response.data.blogs || []);
+        if (response.data.pagination) {
+          setPagination(response.data.pagination);
+        }
+      } else {
+        setBlogs([]);
+      }
+    } catch (error) {
+      console.error('Error loading blogs:', error);
+      
+      // Handle authentication errors specifically
+      if (error.message && (error.message.includes('Admin session expired') || error.message.includes('Admin not authenticated'))) {
+        toast({
+          title: "Session Expired",
+          description: "Your admin session has expired. Please login again.",
+          variant: "destructive",
+        });
+        // Clear auth data and redirect to admin login
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminRefreshToken');
+        localStorage.removeItem('adminData');
+        navigate('/admin/login');
+        return;
+      }
+      
+      toast({
+        title: "Error",
+        description: "Failed to load blogs. Please try again.",
+        variant: "destructive",
+      });
+      setBlogs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -142,59 +177,219 @@ const AdminBlogManagement = () => {
     }
   };
 
-  const handleAddBlog = () => {
-    if (newBlog.title && newBlog.content && newBlog.author && newBlog.category && newBlog.image) {
-      const blog = {
-        id: `B${String(blogs.length + 1).padStart(3, '0')}`,
+  const handleAddBlog = async () => {
+    if (!newBlog.title || !newBlog.content || !newBlog.category) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Create blog first
+      const blogData = {
         title: newBlog.title,
         content: newBlog.content,
-        author: newBlog.author,
-        category: newBlog.category,
-        image: URL.createObjectURL(newBlog.image),
-        status: 'draft',
-        publishDate: new Date().toISOString().split('T')[0],
-        readTime: `${Math.ceil(newBlog.content.length / 500)} min read`,
-        views: 0,
-        tags: newBlog.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+        category: newBlog.category
       };
-      
-      setBlogs(prev => [...prev, blog]);
+
+      const response = await adminBlogApi.createBlog(blogData);
+
+      if (response && response.success && response.data) {
+        // Upload image if provided
+        if (newBlog.image && response.data.blog && response.data.blog.id) {
+          try {
+            await adminBlogApi.uploadBlogImage(response.data.blog.id, newBlog.image);
+          } catch (imageError) {
+            console.error('Error uploading image:', imageError);
+            toast({
+              title: "Warning",
+              description: "Blog created but image upload failed. You can upload it later.",
+              variant: "destructive",
+            });
+          }
+        }
+
+        toast({
+          title: "Success",
+          description: "Blog created successfully!",
+        });
+
+        // Reset form
       setNewBlog({
         title: '',
         content: '',
-        author: '',
         category: '',
-        tags: '',
         image: null
       });
       setIsAddBlogOpen(false);
+
+        // Reload blogs
+        loadBlogs();
+      }
+    } catch (error) {
+      console.error('Error creating blog:', error);
+      
+      // Handle authentication errors specifically
+      if (error.message && (error.message.includes('Admin session expired') || error.message.includes('Admin not authenticated'))) {
+        toast({
+          title: "Session Expired",
+          description: "Your admin session has expired. Please login again.",
+          variant: "destructive",
+        });
+        // Clear auth data and redirect to admin login
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminRefreshToken');
+        localStorage.removeItem('adminData');
+        navigate('/admin/login');
+        return;
+      }
+      
+      toast({
+        title: "Error",
+        description: "Failed to create blog. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEditBlog = (blog: any) => {
+  const handleEditBlog = (blog: Blog) => {
+    setEditingBlog(blog);
     setNewBlog({
       title: blog.title,
       content: blog.content,
-      author: blog.author,
       category: blog.category,
-      tags: blog.tags.join(', '),
       image: null
     });
     setIsAddBlogOpen(true);
   };
 
-  const handleDeleteBlog = (blogId: string) => {
-    if (window.confirm('Are you sure you want to delete this blog post?')) {
-      setBlogs(prev => prev.filter(blog => blog.id !== blogId));
+  const handleViewBlog = (blog: Blog) => {
+    setViewingBlog(blog);
+    setIsViewModalOpen(true);
+  };
+
+  const handleUpdateBlog = async () => {
+    if (!editingBlog || !newBlog.title || !newBlog.content || !newBlog.category) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      const blogData = {
+        title: newBlog.title,
+        content: newBlog.content,
+        category: newBlog.category
+      };
+
+      const response = await adminBlogApi.updateBlog(editingBlog.id, blogData);
+      
+      if (response.success) {
+        // Upload new image if provided
+        if (newBlog.image) {
+          try {
+            await adminBlogApi.uploadBlogImage(editingBlog.id, newBlog.image);
+          } catch (imageError) {
+            console.error('Error uploading image:', imageError);
+            toast({
+              title: "Warning",
+              description: "Blog updated but image upload failed. You can upload it later.",
+              variant: "destructive",
+            });
+          }
+        }
+
+        toast({
+          title: "Success",
+          description: "Blog updated successfully!",
+        });
+
+        // Reset form
+        setNewBlog({
+          title: '',
+          content: '',
+          category: '',
+          image: null
+        });
+        setEditingBlog(null);
+        setIsAddBlogOpen(false);
+        
+        // Reload blogs
+        loadBlogs();
+      }
+    } catch (error) {
+      console.error('Error updating blog:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update blog. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const toggleBlogStatus = (blogId: string) => {
-    setBlogs(prev => prev.map(blog => 
-      blog.id === blogId 
-        ? { ...blog, status: blog.status === 'published' ? 'draft' : 'published' }
-        : blog
-    ));
+  const handleDeleteBlog = async (blogId: string) => {
+    if (window.confirm('Are you sure you want to delete this blog post?')) {
+      try {
+        setLoading(true);
+        const response = await adminBlogApi.deleteBlog(blogId);
+        
+        if (response.success) {
+          toast({
+            title: "Success",
+            description: "Blog deleted successfully!",
+          });
+          loadBlogs();
+        }
+      } catch (error) {
+        console.error('Error deleting blog:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete blog. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const toggleBlogStatus = async (blogId: string, currentStatus: string) => {
+    try {
+      setLoading(true);
+      const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+      const response = await adminBlogApi.toggleBlogStatus(blogId, newStatus);
+      
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: `Blog ${newStatus} successfully!`,
+        });
+        loadBlogs();
+      }
+    } catch (error) {
+      console.error('Error toggling blog status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update blog status. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -219,13 +414,13 @@ const AdminBlogManagement = () => {
                     Add Blog Post
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Add New Blog Post</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div>
-                      <Label htmlFor="blogTitle">Blog Title</Label>
+                      <Label htmlFor="blogTitle">Blog Title *</Label>
                       <Input
                         id="blogTitle"
                         value={newBlog.title}
@@ -235,17 +430,7 @@ const AdminBlogManagement = () => {
                     </div>
                     
                     <div>
-                      <Label htmlFor="blogAuthor">Author</Label>
-                      <Input
-                        id="blogAuthor"
-                        value={newBlog.author}
-                        onChange={(e) => setNewBlog(prev => ({ ...prev, author: e.target.value }))}
-                        placeholder="Enter author name"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="blogCategory">Category</Label>
+                      <Label htmlFor="blogCategory">Category *</Label>
                       <Select value={newBlog.category} onValueChange={(value) => setNewBlog(prev => ({ ...prev, category: value }))}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
@@ -261,30 +446,21 @@ const AdminBlogManagement = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="blogTags">Tags (comma separated)</Label>
-                      <Input
-                        id="blogTags"
-                        value={newBlog.tags}
-                        onChange={(e) => setNewBlog(prev => ({ ...prev, tags: e.target.value }))}
-                        placeholder="e.g., maintenance, tips, repair"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="blogContent">Blog Content</Label>
+                      <Label htmlFor="blogContent">Blog Content *</Label>
                       <Textarea
                         id="blogContent"
                         value={newBlog.content}
                         onChange={(e) => setNewBlog(prev => ({ ...prev, content: e.target.value }))}
                         placeholder="Write your blog content here..."
-                        rows={8}
+                        rows={5}
                       />
                     </div>
+
 
                     <div>
                       <Label>Featured Image</Label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                        className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
                           dragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
                         }`}
                         onDragOver={handleDragOver}
@@ -292,11 +468,11 @@ const AdminBlogManagement = () => {
                         onDrop={handleDrop}
                       >
                         {newBlog.image ? (
-                          <div className="space-y-2">
+                          <div className="space-y-1">
                             <img
                               src={URL.createObjectURL(newBlog.image)}
                               alt="Blog preview"
-                              className="w-32 h-32 object-cover rounded mx-auto"
+                              className="w-24 h-24 object-cover rounded mx-auto"
                             />
                             <p className="text-sm text-muted-foreground">{newBlog.image.name}</p>
                             <Button
@@ -309,10 +485,10 @@ const AdminBlogManagement = () => {
                             </Button>
                           </div>
                         ) : (
-                          <div className="space-y-2">
-                            <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">
-                              Drag & drop blog image here or click to browse
+                          <div className="space-y-1">
+                            <Upload className="w-6 h-6 mx-auto text-muted-foreground" />
+                            <p className="text-xs text-muted-foreground">
+                              Drag & drop image or click to browse
                             </p>
                             <Button
                               variant="outline"
@@ -335,11 +511,38 @@ const AdminBlogManagement = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button onClick={handleAddBlog} className="flex-1">
+                      <Button 
+                        onClick={editingBlog ? handleUpdateBlog : handleAddBlog} 
+                        className="flex-1"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
                         <Save className="w-4 h-4 mr-2" />
-                        Add Blog Post
+                        )}
+                        {editingBlog ? 'Update Blog Post' : 'Add Blog Post'}
                       </Button>
-                      <Button variant="outline" onClick={() => setIsAddBlogOpen(false)}>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setIsAddBlogOpen(false);
+                          setEditingBlog(null);
+                          setNewBlog({
+                            title: '',
+                            excerpt: '',
+                            content: '',
+                            category: '',
+                            tags: '',
+                            metaTitle: '',
+                            metaDescription: '',
+                            isFeatured: false,
+                            commentsEnabled: true,
+                            image: null
+                          });
+                        }}
+                        disabled={loading}
+                      >
                         Cancel
                       </Button>
                     </div>
@@ -409,99 +612,31 @@ const AdminBlogManagement = () => {
         </Card>
 
         {/* Blogs Display */}
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <span className="ml-2">Loading blogs...</span>
+          </div>
+        ) : (
+          <>
         {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredBlogs.map((blog) => (
-              <Card key={blog.id} className="service-card hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center overflow-hidden">
-                    <img
-                      src={blog.image}
-                      alt={blog.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground line-clamp-2">{blog.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{blog.content}</p>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        <span>{blog.author}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{blog.publishDate}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Badge variant="outline">{blog.category}</Badge>
-                      <Badge variant={blog.status === 'published' ? 'default' : 'secondary'}>
-                        {blog.status}
-                      </Badge>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {blog.tags.slice(0, 3).map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {blog.tags.length > 3 && (
-                        <Badge variant="secondary" className="text-xs">
-                          +{blog.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>{blog.readTime}</span>
-                      <span>{blog.views} views</span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="w-full text-xs"
-                        onClick={() => handleEditBlog(blog)}
-                      >
-                        <Edit className="w-3 h-3 mr-1" />
-                        Edit
-                      </Button>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="flex-1 text-xs"
-                          onClick={() => toggleBlogStatus(blog.id)}
-                        >
-                          {blog.status === 'published' ? 'Unpublish' : 'Publish'}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="flex-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDeleteBlog(blog.id)}
-                        >
-                          <Trash2 className="w-3 h-3 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {blogs.map((blog) => (
+                  <BlogCard
+                    key={blog.id}
+                    blog={blog}
+                    onEdit={handleEditBlog}
+                    onDelete={handleDeleteBlog}
+                    onToggleStatus={toggleBlogStatus}
+                    onPreviewImage={setPreviewImage}
+                    onView={handleViewBlog}
+                  />
             ))}
           </div>
         ) : (
           <Card>
             <CardHeader>
-              <CardTitle>Blog Posts ({filteredBlogs.length})</CardTitle>
+                  <CardTitle>Blog Posts ({blogs.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -516,15 +651,30 @@ const AdminBlogManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredBlogs.map((blog) => (
+                      {blogs.map((blog) => (
                     <TableRow key={blog.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-muted rounded flex items-center justify-center overflow-hidden relative group cursor-pointer">
+                            {blog.featuredImage ? (
+                              <>
                           <img
-                            src={blog.image}
+                                  src={blog.featuredImage}
                             alt={blog.title}
-                            className="w-12 h-12 object-cover rounded"
-                          />
+                                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/placeholder.svg';
+                                  }}
+                                  onClick={() => setPreviewImage(blog.featuredImage)}
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                  <ZoomIn className="w-3 h-3 text-white" />
+                                </div>
+                              </>
+                            ) : (
+                              <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                            )}
+                          </div>
                           <div>
                             <p className="font-medium text-foreground">{blog.title}</p>
                             <p className="text-sm text-muted-foreground">{blog.readTime}</p>
@@ -534,7 +684,7 @@ const AdminBlogManagement = () => {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <User className="w-3 h-3" />
-                          <span>{blog.author}</span>
+                          <span>{blog.author.name}</span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -561,7 +711,7 @@ const AdminBlogManagement = () => {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => toggleBlogStatus(blog.id)}
+                            onClick={() => toggleBlogStatus(blog.id, blog.status)}
                           >
                             {blog.status === 'published' ? 'Unpublish' : 'Publish'}
                           </Button>
@@ -582,8 +732,41 @@ const AdminBlogManagement = () => {
               </Table>
             </CardContent>
           </Card>
+            )}
+          </>
         )}
       </main>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setPreviewImage(null)}>
+          <div className="relative max-w-4xl max-h-[90vh] p-4">
+            <img
+              src={previewImage}
+              alt="Blog preview"
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="absolute top-2 right-2 bg-white/90 hover:bg-white"
+              onClick={() => setPreviewImage(null)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Blog View Modal */}
+      <BlogViewModal
+        blog={viewingBlog}
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setViewingBlog(null);
+        }}
+      />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, Shield, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import adminApiService from '@/services/adminApi';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -41,32 +42,44 @@ const AdminLogin = () => {
         return;
       }
 
-      // Simulate API call - replace with actual authentication
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call backend API to login admin
+      const response = await adminApiService.login({
+        email: formData.email,
+        password: formData.password
+      });
 
-      // Mock authentication - in real app, validate against backend
-      if (formData.email === 'admin@fixifly.com' && formData.password === 'admin123') {
-        // Store admin authentication data
-        localStorage.setItem('adminToken', 'mock-admin-token');
-        localStorage.setItem('adminData', JSON.stringify({
-          id: 'ADMIN001',
-          name: 'Admin User',
-          email: 'admin@fixifly.com',
-          role: 'admin'
-        }));
+      if (response.success && response.data) {
+        // Tokens are automatically stored by adminApiService.login()
+        console.log('Admin login successful:', {
+          accessToken: response.data.accessToken ? `${response.data.accessToken.substring(0, 20)}...` : 'missing',
+          refreshToken: response.data.refreshToken ? `${response.data.refreshToken.substring(0, 20)}...` : 'missing',
+          adminData: response.data.admin
+        });
+        
+        // Verify tokens were stored
+        const storedToken = localStorage.getItem('adminToken');
+        const storedRefreshToken = localStorage.getItem('adminRefreshToken');
+        const storedAdminData = localStorage.getItem('adminData');
+        
+        console.log('Verification after login:', {
+          storedToken: storedToken ? `${storedToken.substring(0, 20)}...` : 'missing',
+          storedRefreshToken: storedRefreshToken ? `${storedRefreshToken.substring(0, 20)}...` : 'missing',
+          storedAdminData: storedAdminData ? 'present' : 'missing'
+        });
 
         toast({
           title: "Login Successful!",
-          description: "Welcome to Fixifly Admin Panel",
+          description: response.message || "Welcome to Fixifly Admin Panel",
         });
 
         // Redirect to admin dashboard
         navigate('/admin');
       } else {
-        setError('Invalid email or password');
+        setError(response.message || 'Invalid email or password');
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    } catch (err: any) {
+      console.error('Admin login error:', err);
+      setError(err.message || 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -156,20 +169,12 @@ const AdminLogin = () => {
               </Button>
             </form>
 
-            {/* Demo Credentials */}
-            <div className="mt-6 p-4 bg-muted rounded-lg">
-              <h4 className="text-sm font-medium text-foreground mb-2">Demo Credentials:</h4>
-              <div className="text-sm text-muted-foreground space-y-1">
-                <p><strong>Email:</strong> admin@fixifly.com</p>
-                <p><strong>Password:</strong> admin123</p>
-              </div>
-            </div>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
-                Forgot your password?{' '}
-                <Link to="/admin/forgot-password" className="text-primary hover:text-primary/80 font-medium">
-                  Reset here
+                Don't have an admin account?{' '}
+                <Link to="/admin/signup" className="text-primary hover:text-primary/80 font-medium">
+                  Create one here
                 </Link>
               </p>
             </div>

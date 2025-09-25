@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +16,7 @@ import {
   Phone,
   Mail,
   MessageCircle,
+  User,
   Facebook,
   Twitter,
   Instagram,
@@ -28,8 +29,11 @@ import {
   Copy,
   ExternalLink
 } from "lucide-react";
+import { supportTicketAPI } from "@/services/supportApiService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Support = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("new-ticket");
   const [searchQuery, setSearchQuery] = useState("");
   const [supportType, setSupportType] = useState("");
@@ -47,7 +51,26 @@ const Support = () => {
   const [showTicketDetails, setShowTicketDetails] = useState(false);
   const [showAddResponse, setShowAddResponse] = useState(false);
   const [responseText, setResponseText] = useState("");
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // Fetch user tickets on component mount
+  useEffect(() => {
+    if (user) {
+      fetchUserTickets();
+    }
+  }, [user]);
+
+  const fetchUserTickets = async () => {
+    try {
+      const response = await supportTicketAPI.getUserTickets();
+      if (response.success) {
+        setUserTickets(response.data.tickets);
+      }
+    } catch (error) {
+      console.error('Error fetching user tickets:', error);
+    }
+  };
 
   const openTickets = [
     {
@@ -221,7 +244,20 @@ const Support = () => {
   };
 
   // Handle form submission
-  const handleSubmitTicket = () => {
+  const handleSubmitTicket = async () => {
+    // Check if user is logged in
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to submit a support ticket",
+        variant: "destructive",
+        duration: 3000,
+      });
+      // Redirect to login page
+      window.location.href = '/login';
+      return;
+    }
+
     if (!supportType || !ticketForm.subject || !ticketForm.description) {
       toast({
         title: "Missing Information",
@@ -242,62 +278,67 @@ const Support = () => {
       return;
     }
 
-    // Generate ticket ID
-    const ticketId = `TK${Date.now().toString().slice(-6)}`;
-    
-    // Create new ticket object
-    const newTicket = {
-      id: ticketId,
-      subject: ticketForm.subject,
-      type: supportType === "service" ? "Service Warranty Claim" : supportType === "product" ? "Product Warranty Claim" : supportType === "amc" ? "AMC Claim" : "Others",
-      caseId: caseId || null,
-      description: ticketForm.description,
-      status: "Submitted",
-      priority: "Medium",
-      created: new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      }),
-      lastUpdate: "Just now",
-      responses: 0
-    };
-    
-    // Add ticket to user tickets
-    setUserTickets(prev => [newTicket, ...prev]);
-    
-    // Send WhatsApp message
-    const whatsappMessage = `Support Ticket Created
-Ticket ID: ${ticketId}
-Type: ${newTicket.type}
-Subject: ${ticketForm.subject}
-Description: ${ticketForm.description}
-${caseId ? `Case ID: ${caseId}` : ""}
+    setLoading(true);
+    try {
+      const ticketData = {
+        supportType,
+        caseId: caseId || null,
+        subject: ticketForm.subject,
+        description: ticketForm.description
+      };
 
-Our team will contact you within 12-48 hours.`;
-    
-    const whatsappUrl = `https://wa.me/912269647030?text=${encodeURIComponent(whatsappMessage)}`;
-    window.open(whatsappUrl, '_blank');
+      const response = await supportTicketAPI.createTicket(ticketData);
+      
+      if (response.success) {
+        // Refresh user tickets
+        await fetchUserTickets();
+        
+        // Show thank you message
+        setShowThankYou(true);
+        
+        // Reset form
+        setSupportType("");
+        setCaseId("");
+        setShowCaseIdField(false);
+        setTicketForm({
+          subject: "",
+          category: "",
+          priority: "",
+          description: ""
+        });
 
-    // Show thank you message
-    setShowThankYou(true);
-    
-    // Reset form
-    setSupportType("");
-    setCaseId("");
-    setShowCaseIdField(false);
-    setTicketForm({
-      subject: "",
-      category: "",
-      priority: "",
-      description: ""
-    });
-
-    toast({
-      title: "Ticket Created Successfully",
-      description: `Your ticket ${ticketId} has been submitted`,
-      duration: 3000,
-    });
+        toast({
+          title: "Ticket Created Successfully",
+          description: `Your ticket ${response.data.ticket.id} has been submitted`,
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      
+      // Check if it's an authentication error
+      if (error.message?.includes('401') || error.message?.includes('unauthorized')) {
+        toast({
+          title: "Session Expired",
+          description: "Please log in again to submit your ticket",
+          variant: "destructive",
+          duration: 3000,
+        });
+        // Redirect to login
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create support ticket",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Handle view ticket details
@@ -314,7 +355,7 @@ Our team will contact you within 12-48 hours.`;
   };
 
   // Submit response
-  const handleSubmitResponse = () => {
+  const handleSubmitResponse = async () => {
     if (!responseText.trim()) {
       toast({
         title: "Response Required",
@@ -325,39 +366,33 @@ Our team will contact you within 12-48 hours.`;
       return;
     }
 
-    // Update ticket with new response
-    setUserTickets(prev => prev.map(ticket => 
-      ticket.id === selectedTicket.id 
-        ? {
-            ...ticket,
-            responses: ticket.responses + 1,
-            lastUpdate: "Just now"
-          }
-        : ticket
-    ));
+    try {
+      const response = await supportTicketAPI.addResponse(selectedTicket.id, responseText.trim());
+      
+      if (response.success) {
+        // Refresh user tickets
+        await fetchUserTickets();
+        
+        // Close modal and show success
+        setShowAddResponse(false);
+        setResponseText("");
+        setSelectedTicket(null);
 
-    // Send WhatsApp message with response
-    const whatsappMessage = `Response to Ticket ${selectedTicket.id}
-Subject: ${selectedTicket.subject}
-
-My Response:
-${responseText}
-
-Please update the ticket status accordingly.`;
-    
-    const whatsappUrl = `https://wa.me/912269647030?text=${encodeURIComponent(whatsappMessage)}`;
-    window.open(whatsappUrl, '_blank');
-
-    // Close modal and show success
-    setShowAddResponse(false);
-    setResponseText("");
-    setSelectedTicket(null);
-
-    toast({
-      title: "Response Submitted",
-      description: "Your response has been sent to our support team",
-      duration: 3000,
-    });
+        toast({
+          title: "Response Submitted",
+          description: "Your response has been sent to our support team",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting response:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit response",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   // Close modals
@@ -407,7 +442,36 @@ Please update the ticket status accordingly.`;
 
             {/* New Ticket Tab */}
             <TabsContent value="new-ticket" className="space-y-4 md:space-y-6">
-              {!showThankYou ? (
+              {!user ? (
+                /* Login Required Message */
+                <Card>
+                  <CardContent className="pt-8 pb-8">
+                    <div className="text-center space-y-6">
+                      <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="h-8 w-8 text-blue-600" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-xl md:text-2xl font-semibold">Login Required</h3>
+                        <p className="text-muted-foreground max-w-md mx-auto">
+                          Please log in to submit a support ticket. This helps us track your requests and provide better assistance.
+                        </p>
+                      </div>
+                      <div className="space-y-3">
+                        <Button 
+                          onClick={() => window.location.href = '/login'}
+                          className="bg-primary hover:bg-primary/90 w-full md:w-auto"
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Login to Submit Ticket
+                        </Button>
+                        <p className="text-sm text-muted-foreground">
+                          Don't have an account? <a href="/register" className="text-primary hover:underline">Sign up here</a>
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : !showThankYou ? (
                 <Card>
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
@@ -477,9 +541,10 @@ Please update the ticket status accordingly.`;
                       <Button 
                         className="bg-primary hover:bg-primary/90 w-full md:w-auto"
                         onClick={handleSubmitTicket}
+                        disabled={loading}
                       >
                         <Plus className="h-4 w-4 mr-2" />
-                        Submit Ticket
+                        {loading ? 'Submitting...' : 'Submit Ticket'}
                       </Button>
                     </div>
                   </CardContent>
@@ -518,34 +583,64 @@ Please update the ticket status accordingly.`;
 
             {/* My Tickets Tab */}
             <TabsContent value="my-tickets" className="space-y-4 md:space-y-6">
-              {/* User's Tickets */}
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
-                    <Clock className="h-4 w-4 md:h-5 md:w-5" />
-                    My Tickets ({userTickets.length})
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    Your submitted support tickets and their status.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {userTickets.length === 0 ? (
-                    <div className="text-center py-8">
-                      <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No Tickets Yet</h3>
-                      <p className="text-muted-foreground mb-4">
-                        You haven't submitted any support tickets yet.
-                      </p>
-                      <Button 
-                        onClick={() => setActiveTab("new-ticket")}
-                        className="bg-primary hover:bg-primary/90"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create Your First Ticket
-                      </Button>
+              {!user ? (
+                /* Login Required Message */
+                <Card>
+                  <CardContent className="pt-8 pb-8">
+                    <div className="text-center space-y-6">
+                      <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="h-8 w-8 text-blue-600" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-xl md:text-2xl font-semibold">Login Required</h3>
+                        <p className="text-muted-foreground max-w-md mx-auto">
+                          Please log in to view your support tickets and track their status.
+                        </p>
+                      </div>
+                      <div className="space-y-3">
+                        <Button 
+                          onClick={() => window.location.href = '/login'}
+                          className="bg-primary hover:bg-primary/90 w-full md:w-auto"
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Login to View Tickets
+                        </Button>
+                        <p className="text-sm text-muted-foreground">
+                          Don't have an account? <a href="/register" className="text-primary hover:underline">Sign up here</a>
+                        </p>
+                      </div>
                     </div>
-                  ) : (
+                  </CardContent>
+                </Card>
+              ) : (
+                /* User's Tickets */
+                <Card>
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                      <Clock className="h-4 w-4 md:h-5 md:w-5" />
+                      My Tickets ({userTickets.length})
+                    </CardTitle>
+                    <CardDescription className="text-sm">
+                      Your submitted support tickets and their status.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {userTickets.length === 0 ? (
+                      <div className="text-center py-8">
+                        <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">No Tickets Yet</h3>
+                        <p className="text-muted-foreground mb-4">
+                          You haven't submitted any support tickets yet.
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab("new-ticket")}
+                          className="bg-primary hover:bg-primary/90"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Your First Ticket
+                        </Button>
+                      </div>
+                    ) : (
                     <div className="space-y-3 md:space-y-4">
                       {userTickets.map((ticket) => (
                         <div key={ticket.id} className="border rounded-lg p-3 md:p-4 hover:bg-muted/50 transition-colors">
@@ -584,7 +679,7 @@ Please update the ticket status accordingly.`;
                   )}
                 </CardContent>
               </Card>
-
+              )}
             </TabsContent>
 
             {/* FAQ Tab */}

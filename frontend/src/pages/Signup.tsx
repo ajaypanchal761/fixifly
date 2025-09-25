@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+import { Mail, User, Phone, Shield } from 'lucide-react';
+import apiService from '@/services/api';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,13 +18,12 @@ const Signup = () => {
     name: '',
     email: '',
     phone: '',
-    password: '',
-    confirmPassword: ''
+    otp: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(0);
 
   // Redirect if already authenticated
   React.useEffect(() => {
@@ -31,6 +31,17 @@ const Signup = () => {
       navigate('/', { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
+  // OTP Timer
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpTimer > 0) {
+      interval = setInterval(() => {
+        setOtpTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpTimer]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,6 +51,51 @@ const Signup = () => {
     }));
   };
 
+  const sendOTP = async () => {
+    if (!formData.phone) {
+      setError('Please enter your phone number first');
+      return;
+    }
+
+    // Phone validation (Indian format)
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const cleanPhone = formData.phone.replace(/\D/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      setError('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // Call backend API to send OTP
+      const response = await apiService.sendOTP(cleanPhone);
+      
+      if (response.success) {
+        setOtpSent(true);
+        setOtpTimer(60); // 60 seconds timer
+        
+        toast({
+          title: "OTP Sent!",
+          description: `OTP has been sent to +91 ${cleanPhone}`,
+        });
+
+        // In development, show OTP in console
+        if (response.data?.otp) {
+          console.log(`🔧 Development Mode - OTP for ${cleanPhone}: ${response.data.otp}`);
+        }
+      } else {
+        setError(response.message || 'Failed to send OTP. Please try again.');
+      }
+    } catch (err: any) {
+      console.error('Send OTP Error:', err);
+      setError(err.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -47,7 +103,7 @@ const Signup = () => {
 
     try {
       // Basic validation
-      if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
+      if (!formData.name || !formData.email || !formData.phone || !formData.otp) {
         setError('Please fill in all fields');
         setIsLoading(false);
         return;
@@ -63,125 +119,123 @@ const Signup = () => {
 
       // Phone validation (Indian format)
       const phoneRegex = /^[6-9]\d{9}$/;
-      if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
+      const cleanPhone = formData.phone.replace(/\D/g, '');
+      if (!phoneRegex.test(cleanPhone)) {
         setError('Please enter a valid 10-digit phone number');
         setIsLoading(false);
         return;
       }
 
-      // Password validation
-      if (formData.password.length < 6) {
-        setError('Password must be at least 6 characters long');
+      // OTP validation
+      if (formData.otp.length !== 6) {
+        setError('Please enter a valid 6-digit OTP');
         setIsLoading(false);
         return;
       }
 
-      // Confirm password validation
-      if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
-        setIsLoading(false);
-        return;
+      // Call backend API to verify OTP and complete registration
+      const response = await apiService.verifyOTP(
+        cleanPhone,
+        formData.otp,
+        formData.name,
+        formData.email
+      );
+
+      if (response.success && response.data) {
+        // Use auth context to login
+        login(response.data.user, response.data.token);
+
+        toast({
+          title: "Account Created Successfully!",
+          description: response.data.message || "Welcome to Fixifly! Your account has been created.",
+        });
+
+        // Redirect based on backend response
+        const redirectTo = response.data.redirectTo || '/';
+        navigate(redirectTo);
+      } else {
+        setError(response.message || 'Invalid OTP. Please try again.');
       }
-
-      // Simulate API call - replace with actual registration
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Mock registration - in real app, send data to backend
-      const userData = {
-        id: `USER${Date.now()}`,
-        name: formData.name,
-        email: formData.email,
-        phone: `+91 ${formData.phone}`,
-        role: 'user'
-      };
-
-      // Use auth context to login
-      login(userData, 'mock-user-token');
-
-      toast({
-        title: "Account Created Successfully!",
-        description: "Welcome to Fixifly! Your account has been created.",
-      });
-
-      // Redirect to home page
-      navigate('/');
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    } catch (err: any) {
+      console.error('Registration Error:', err);
+      setError(err.message || 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white md:hero-gradient flex items-center justify-center p-0 md:p-4">
-      <div className="w-full max-w-sm animate-slide-up md:mx-auto mx-0 md:px-0 px-4">
-        <Card className="bg-white border-0 md:service-card md:backdrop-blur-sm md:bg-white/95 md:border-white/20 md:rounded-2xl rounded-none md:shadow-2xl shadow-none md:border">
-          <CardHeader className="text-center space-y-1">
-            <div className="mx-auto -mb-10 mt-16">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-teal-500 flex items-start justify-center pt-32 p-4">
+      <div className="w-full max-w-xl animate-slide-up">
+        <Card className="bg-white border-0 rounded-2xl shadow-2xl overflow-hidden">
+          <CardHeader className="text-center pb-0 pt-0">
+            <div className="flex justify-center -mb-12">
               <img 
                 src="/logofixifly.png" 
                 alt="Fixifly Logo" 
-                className="w-40 h-40 object-contain"
+                className="w-36 h-36 object-contain"
               />
             </div>
-            <CardTitle className="text-2xl font-bold text-gradient">Create Account</CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardTitle className="text-2xl font-bold text-blue-600 mb-2">Create Account</CardTitle>
+            <CardDescription className="text-gray-600">
               Join Fixifly and get started with our services
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="space-y-4 md:p-4 p-3">
+          <CardContent className="px-6 pb-8">
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="mb-4">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium text-foreground">
-                  Full Name
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="pl-10 h-12 border-input focus:border-primary focus:ring-primary transition-all duration-300"
-                    required
-                  />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                    Full Name
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg transition-all duration-200"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                    Email Address
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg transition-all duration-200"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                  Email Address
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="pl-10 h-12 border-input focus:border-primary focus:ring-primary transition-all duration-300"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-medium text-foreground">
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
                   Phone Number
                 </Label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     id="phone"
                     name="phone"
@@ -189,105 +243,81 @@ const Signup = () => {
                     placeholder="Enter your phone number"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="pl-10 h-12 border-input focus:border-primary focus:ring-primary transition-all duration-300"
+                    className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg transition-all duration-200"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-foreground">
-                  Password
+                <Label htmlFor="otp" className="text-sm font-medium text-gray-700">
+                  OTP Verification
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Create a password"
-                    value={formData.password}
+                    id="otp"
+                    name="otp"
+                    type="text"
+                    placeholder="Enter 6-digit OTP"
+                    value={formData.otp}
                     onChange={handleInputChange}
-                    className="pl-10 pr-10 h-12 border-input focus:border-primary focus:ring-primary transition-all duration-300"
+                    className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg transition-all duration-200"
+                    maxLength={6}
                     required
+                    disabled={!otpSent}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-300"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
                 </div>
+                {!otpSent ? (
+                  <Button
+                    type="button"
+                    onClick={sendOTP}
+                    disabled={isLoading || !formData.phone}
+                    className="w-full h-10 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg font-medium transition-all duration-200"
+                  >
+                    {isLoading ? 'Sending...' : 'Send OTP'}
+                  </Button>
+                ) : (
+                  <div className="flex items-center justify-between text-xs">
+                    <p className="text-gray-600">
+                      OTP sent to {formData.phone}
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={sendOTP}
+                      disabled={otpTimer > 0}
+                      variant="ghost"
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded px-2 py-1 h-auto"
+                    >
+                      {otpTimer > 0 ? `Resend in ${otpTimer}s` : 'Resend OTP'}
+                    </Button>
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
-                  Confirm Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    className="pl-10 pr-10 h-12 border-input focus:border-primary focus:ring-primary transition-all duration-300"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-300"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  className="w-4 h-4 text-primary border-input rounded focus:ring-primary"
-                  required
-                />
-                <Label htmlFor="terms" className="text-sm text-muted-foreground">
-                  I agree to the{' '}
-                  <Link to="/terms-conditions" className="text-primary hover:text-primary-dark hover:underline transition-colors duration-300">
-                    Terms and Conditions
-                  </Link>
-                  {' '}and{' '}
-                  <Link to="/privacy-policy" className="text-primary hover:text-primary-dark hover:underline transition-colors duration-300">
-                    Privacy Policy
-                  </Link>
-                </Label>
-              </div>
 
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="btn-tech w-full h-12 text-white font-medium text-base"
+                className="w-full h-12 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 mt-6"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Creating Account...</span>
+                    <span>Verifying OTP...</span>
                   </div>
                 ) : (
-                  'Create Account'
+                  'Verify & Create Account'
                 )}
               </Button>
             </form>
 
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
+            <div className="text-center mt-6">
+              <p className="text-sm text-gray-600">
                 Already have an account?{' '}
                 <Link
                   to="/login"
-                  className="text-primary hover:text-primary-dark hover:underline font-medium transition-colors duration-300"
+                  className="text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors duration-200"
                 >
                   Sign in here
                 </Link>

@@ -9,17 +9,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Calendar, Clock, User, Phone, MessageCircle } from "lucide-react";
+import { Card as CardType } from "@/services/cardApi";
 
 interface ServiceBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  service: {
-    name: string;
-    subtitle: string;
-    rating: number;
-    price: string;
-    image: string;
-  };
+  service: CardType;
 }
 
 interface FormData {
@@ -147,11 +142,11 @@ const ServiceBookingModal = ({ isOpen, onClose, service }: ServiceBookingModalPr
           cartItems: [{
             id: Date.now(),
             title: service.name,
-            price: parseInt(service.price.replace(/[^\d]/g, '')),
+            price: service.price,
             image: service.image,
             subtitle: service.subtitle
           }],
-          totalPrice: parseInt(service.price.replace(/[^\d]/g, '')),
+          totalPrice: service.price,
           bookingData: {
             service: service,
             ...formData
@@ -243,12 +238,12 @@ const ServiceBookingModal = ({ isOpen, onClose, service }: ServiceBookingModalPr
                   <p className="text-gray-600 text-sm">{service.subtitle}</p>
                   <div className="flex items-center space-x-2 mt-1">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-yellow-600 font-semibold text-sm">{service.rating}</span>
-                    <span className="text-gray-500 text-xs">(4.5)</span>
+                    <span className="text-yellow-600 font-semibold text-sm">{service.rating.toFixed(1)}</span>
+                    <span className="text-gray-500 text-xs">({service.totalReviews})</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold text-blue-600">{service.price}</p>
+                  <p className="text-lg font-bold text-blue-600">{service.priceDisplay}</p>
                 </div>
               </div>
             </CardContent>

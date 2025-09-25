@@ -1,81 +1,565 @@
 import VendorHeader from "../components/VendorHeader";
 import VendorBottomNav from "../components/VendorBottomNav";
+import VendorBenefitsModal from "../components/VendorBenefitsModal";
 import Footer from "../../components/Footer";
 import NotFound from "../../pages/NotFound";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { DollarSign, TrendingUp, TrendingDown, Filter, Download, Wallet } from "lucide-react";
-import { useState } from "react";
+import { DollarSign, TrendingUp, TrendingDown, Filter, Download, Wallet, Plus, AlertTriangle, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useVendor } from "@/contexts/VendorContext";
+import { useToast } from "@/hooks/use-toast";
+import { vendorDepositService } from "@/services/vendorDepositService";
+import vendorApiService from "@/services/vendorApi";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const VendorEarnings = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [activeFilter, setActiveFilter] = useState('All');
+  const { vendor, updateVendor } = useVendor();
+  
+  // Defensive check for vendor context
+  if (!vendor) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading vendor data...</p>
+        </div>
+      </div>
+    );
+  }
+  const { toast } = useToast();
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  const [depositAmount, setDepositAmount] = useState('4000');
+  const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
 
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
 
-  const transactionHistory = [
-    {
-      id: "TXN001",
-      caseId: "CASE-2024-001",
-      type: "Payment Received",
-      amount: 2500,
-      date: "2024-01-15",
-      status: "completed",
-      description: "Laptop repair service completed"
-    },
-    {
-      id: "TXN002", 
-      caseId: "CASE-2024-002",
-      type: "Penalty on Cancellation",
-      amount: -500,
-      date: "2024-01-14",
-      status: "completed",
-      description: "Service cancelled by vendor"
-    },
-    {
-      id: "TXN003",
-      caseId: "CASE-2024-003", 
-      type: "Cash Received by Customer",
-      amount: 1800,
-      date: "2024-01-13",
-      status: "completed",
-      description: "Mobile repair service"
-    },
-    {
-      id: "TXN004",
-      caseId: "CASE-2024-004",
-      type: "Earning Added",
-      amount: 3200,
-      date: "2024-01-12",
-      status: "completed", 
-      description: "Desktop repair service"
-    },
-    {
-      id: "TXN005",
-      caseId: "CASE-2024-005",
-      type: "Withdraw Transferred",
-      amount: -5000,
-      date: "2024-01-10",
-      status: "completed",
-      description: "Withdrawal to bank account"
-    },
-    {
-      id: "TXN006",
-      caseId: "CASE-2024-006",
-      type: "Payment Received",
-      amount: 1200,
-      date: "2024-01-09",
-      status: "completed",
-      description: "AC repair service"
+  const [transactionHistory, setTransactionHistory] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(true);
+  const [walletData, setWalletData] = useState({
+    currentBalance: 0,
+    hasInitialDeposit: false,
+    initialDepositAmount: 0,
+    totalDeposits: 0,
+    totalWithdrawals: 0,
+    summary: {
+      totalEarnings: 0,
+    totalWithdrawals: 0
     }
-  ];
+  });
+  const [loadingWallet, setLoadingWallet] = useState(true);
 
-  const totalEarnings = 15200;
-  const availableBalance = 8200;
-  const totalWithdrawn = 5000;
+  // Add sample transaction for testing if no transactions exist
+  useEffect(() => {
+    const balance = walletData.currentBalance || vendor?.wallet?.currentBalance || 0;
+    if (transactionHistory.length === 0 && !loadingTransactions && balance > 0) {
+      const sampleTransaction = {
+        id: 'sample-deposit',
+        caseId: 'DEP-001',
+        type: 'Payment Received',
+        amount: 4000,
+        date: new Date().toISOString().split('T')[0],
+        status: 'completed',
+        description: 'Initial security deposit'
+      };
+      setTransactionHistory([sampleTransaction]);
+    }
+  }, [transactionHistory.length, loadingTransactions, walletData.currentBalance, vendor?.wallet?.currentBalance]);
+
+  // Fetch wallet data on component mount
+  useEffect(() => {
+    if (vendor?.vendorId) {
+      console.log('🔄 Component mounted, fetching wallet data for vendor:', vendor.vendorId);
+      fetchWalletData();
+      fetchTransactionHistory();
+      
+      // Set up periodic auto-refresh every 30 seconds to keep data updated
+      const intervalId = setInterval(() => {
+        console.log('🔄 Periodic auto-refresh of wallet data');
+        fetchWalletData();
+        fetchTransactionHistory();
+      }, 30000); // 30 seconds
+      
+      // Cleanup interval on unmount
+      return () => clearInterval(intervalId);
+    }
+  }, [vendor?.vendorId]);
+
+  // Also fetch wallet data when vendor context changes
+  useEffect(() => {
+    if (vendor?.wallet) {
+      console.log('🔄 Vendor wallet context updated:', vendor.wallet);
+      // Update local wallet data from vendor context
+      setWalletData({
+        currentBalance: vendor.wallet.currentBalance || 0,
+        hasInitialDeposit: vendor.wallet.hasInitialDeposit || false,
+        initialDepositAmount: vendor.wallet.initialDepositAmount || 0,
+        totalDeposits: vendor.wallet.totalDeposits || 0,
+        totalWithdrawals: vendor.wallet.totalWithdrawals || 0,
+        summary: {
+          totalEarnings: 0,
+          totalWithdrawals: vendor.wallet.totalWithdrawals || 0
+        }
+      });
+      setLoadingWallet(false);
+      
+      // Auto-refresh wallet data from API to ensure we have the latest
+      setTimeout(() => {
+        console.log('🔄 Auto-refreshing wallet data due to vendor context change');
+        fetchWalletData();
+      }, 500);
+    }
+  }, [vendor?.wallet]);
+
+  // Function to refresh vendor profile data from API
+  const refreshVendorProfile = async () => {
+    try {
+      console.log('🔄 Refreshing vendor profile from API...');
+      const profileResponse = await vendorApiService.getVendorProfile();
+      if (profileResponse.success && profileResponse.data.vendor) {
+        updateVendor(profileResponse.data.vendor);
+        console.log('✅ Vendor profile refreshed successfully');
+        console.log('Updated vendor wallet:', profileResponse.data.vendor.wallet);
+      }
+    } catch (error) {
+      console.error('❌ Failed to refresh vendor profile:', error);
+    }
+  };
+
+  // Fetch wallet data from API
+  const fetchWalletData = async () => {
+    console.log('=== FETCH WALLET DATA CALLED ===');
+    console.log('Vendor ID:', vendor?.vendorId);
+    console.log('Vendor exists:', !!vendor);
+    
+    if (!vendor?.vendorId) {
+      console.log('No vendor ID, setting loading to false');
+      setLoadingWallet(false);
+      return;
+    }
+    
+    try {
+      setLoadingWallet(true);
+      const token = localStorage.getItem('vendorToken');
+      console.log('Vendor token found:', token ? 'Yes' : 'No');
+      console.log('Token length:', token ? token.length : 0);
+      console.log('Token preview:', token ? token.substring(0, 50) + '...' : 'No token');
+      
+      if (!token) {
+        console.warn('No vendor token found - cannot make API call');
+        setWalletData({
+          currentBalance: 0,
+          hasInitialDeposit: false,
+          initialDepositAmount: 0,
+          totalDeposits: 0,
+          totalWithdrawals: 0,
+          summary: {
+            totalEarnings: 0,
+            totalWithdrawals: 0
+          }
+        });
+        setLoadingWallet(false);
+        return;
+      }
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
+      console.log('=== WALLET API CALL ===');
+      console.log('API URL:', `${apiUrl}/api/vendors/wallet`);
+      console.log('Token present:', token ? 'Yes' : 'No');
+      console.log('Making API call...');
+      
+      const response = await fetch(`${apiUrl}/api/vendors/wallet`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Response received, status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      const responseText = await response.text();
+      console.log('Raw response length:', responseText.length);
+      console.log('Raw response preview:', responseText.substring(0, 200));
+      
+      // Parse the response
+      const data = JSON.parse(responseText);
+      console.log('Parsed response data:', data);
+
+      if (!response.ok) {
+        console.log('=== API RESPONSE ERROR ===');
+        console.log('Response status:', response.status);
+        console.log('Response statusText:', response.statusText);
+        
+        if (response.status === 404) {
+          console.warn('Vendor wallet not found, using default data');
+          return;
+        }
+        throw new Error(`HTTP ${response.status}: Failed to fetch wallet data`);
+      }
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Server returned non-JSON response, server might not be running');
+        return;
+      }
+
+      console.log('=== WALLET API RESPONSE ===');
+      console.log('Response data:', data);
+      
+      if (data.success && data.data?.wallet) {
+        const walletInfo = {
+          currentBalance: data.data.wallet.currentBalance || 0,
+          hasInitialDeposit: data.data.wallet.hasInitialDeposit || (data.data.wallet.currentBalance >= 4000),
+          initialDepositAmount: data.data.wallet.initialDepositAmount || 0,
+          totalDeposits: data.data.wallet.totalDeposits || 0,
+          totalWithdrawals: data.data.wallet.totalWithdrawals || 0,
+          summary: {
+            totalEarnings: data.data.wallet.summary?.totalEarnings || 0,
+            totalWithdrawals: data.data.wallet.summary?.totalWithdrawals || 0
+          }
+        };
+      console.log('=== SETTING WALLET DATA ===');
+      console.log('Raw wallet data from API:', data.data.wallet);
+      console.log('Processed wallet info:', walletInfo);
+      console.log('Current balance from API:', data.data.wallet.currentBalance);
+      console.log('Setting currentBalance to:', walletInfo.currentBalance);
+      
+      // Update vendor context with latest wallet data
+      if (updateVendor && vendor) {
+        updateVendor({ wallet: walletInfo });
+        console.log('✅ Vendor context updated with latest wallet data');
+      }
+      console.log('API response success:', data.success);
+      console.log('API response data exists:', !!data.data);
+      console.log('API response wallet exists:', !!data.data?.wallet);
+      
+      setWalletData(walletInfo);
+      console.log('✅ Wallet data set in state');
+        
+        // Update vendor context with wallet data
+        if (updateVendor) {
+          updateVendor({
+            wallet: {
+              currentBalance: walletInfo.currentBalance,
+              hasInitialDeposit: walletInfo.hasInitialDeposit,
+              initialDepositAmount: walletInfo.initialDepositAmount,
+              totalDeposits: walletInfo.totalDeposits,
+              totalWithdrawals: walletInfo.totalWithdrawals
+            }
+          });
+        }
+      } else {
+        console.warn('Invalid wallet API response structure:', data);
+      }
+    } catch (error) {
+      console.log('=== FETCH WALLET DATA ERROR ===');
+      console.error('Error fetching wallet data:', error);
+      console.log('Error message:', error.message);
+      console.log('Error stack:', error.stack);
+      
+      // Check if it's a JSON parsing error (server not running)
+      if (error.message.includes('Unexpected token') || error.message.includes('<!doctype')) {
+        console.warn('Backend server appears to be down, using default wallet data');
+      }
+      
+      // Keep default wallet data on error
+    } finally {
+      setLoadingWallet(false);
+    }
+  };
+
+  // Fetch transaction history from API
+  const fetchTransactionHistory = async () => {
+    if (!vendor?.vendorId) {
+      setLoadingTransactions(false);
+      return;
+    }
+    
+    try {
+      setLoadingTransactions(true);
+      const token = localStorage.getItem('vendorToken');
+      
+      if (!token) {
+        console.warn('No vendor token found');
+        setTransactionHistory([]);
+        return;
+      }
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/vendors/wallet`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          // Wallet not found, create empty transaction history
+          console.warn('Vendor wallet not found, using empty transaction history');
+          setTransactionHistory([]);
+          return;
+        }
+        throw new Error(`HTTP ${response.status}: Failed to fetch transaction history`);
+      }
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Server returned non-JSON response, server might not be running');
+        setTransactionHistory([]);
+        return;
+      }
+
+      const data = await response.json();
+      
+      // Check if data structure is correct
+      if (!data.success || !data.data || !Array.isArray(data.data.transactions)) {
+        console.warn('Invalid API response structure:', data);
+        setTransactionHistory([]);
+        return;
+      }
+      
+      // Transform API data to match component interface
+      const transformedTransactions = data.data.transactions.map((transaction: any) => ({
+        id: transaction._id || transaction.id,
+        caseId: transaction.caseId || transaction.bookingId || `TXN-${(transaction._id || transaction.id).toString().slice(-6)}`,
+        type: transaction.type === 'deposit' || transaction.type === 'earning' ? 'Payment Received' : 
+              transaction.type === 'withdrawal' ? 'Withdraw Transferred' :
+              transaction.type === 'penalty' ? 'Penalty on Cancellation' : 
+              transaction.type === 'task_acceptance_fee' ? 'Task Fee' :
+              transaction.type === 'cash_collection' ? 'Cash Collection' : 'Earning Added',
+        amount: transaction.type === 'withdrawal' || transaction.type === 'penalty' || transaction.type === 'task_acceptance_fee' || transaction.type === 'cash_collection' ? 
+                -Math.abs(transaction.amount) : Math.abs(transaction.amount),
+        date: transaction.createdAt ? new Date(transaction.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        status: transaction.status || 'completed',
+        description: transaction.description || 'Wallet transaction'
+      }));
+      
+      setTransactionHistory(transformedTransactions);
+    } catch (error) {
+      console.error('Error fetching transaction history:', error);
+      setTransactionHistory([]);
+      
+      // Check if it's a JSON parsing error (server not running)
+      if (error.message.includes('Unexpected token') || error.message.includes('<!doctype')) {
+        console.warn('Backend server appears to be down, using empty transaction history');
+        // Removed toast notification for server unavailability
+      } else {
+        // Show user-friendly error message for other errors
+        toast({
+          title: "Error",
+          description: "Failed to load transaction history. Please try again later.",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
+  // Load wallet data and transaction history on component mount
+  useEffect(() => {
+    console.log('=== VENDOR EARNINGS useEffect CALLED ===');
+    console.log('Vendor context:', vendor);
+    console.log('Vendor ID:', vendor?.vendorId);
+    console.log('Vendor Email:', vendor?.email);
+    console.log('useEffect dependency vendor?.vendorId:', vendor?.vendorId);
+    
+    // Show alert for debugging
+    if (vendor?.vendorId) {
+      console.log('Vendor ID detected:', vendor.vendorId);
+      console.log('This vendor should show ₹4,000 balance (fallback)');
+    }
+    
+    // Test API connectivity first
+    const testAPI = async () => {
+      try {
+        console.log('Testing API connectivity...');
+        const response = await fetch('/health');
+        const data = await response.text();
+        console.log('Health check response:', data);
+      } catch (error) {
+        console.log('Health check failed:', error);
+      }
+    };
+    
+    testAPI();
+    
+    if (vendor?.vendorId) {
+      console.log('✅ Vendor ID found, calling fetchWalletData for vendor:', vendor.vendorId);
+      console.log('Vendor object:', vendor);
+      fetchWalletData();
+      fetchTransactionHistory();
+    } else {
+      console.warn('❌ No vendor ID found, setting loading to false');
+      console.log('Vendor object:', vendor);
+      setLoadingWallet(false);
+      setLoadingTransactions(false);
+    }
+  }, [vendor?.vendorId]);
+
+  // Calculate wallet values from state
+  const totalEarnings = walletData.summary?.totalEarnings || 0;
+  
+  // Debug current balance calculation
+  console.log('=== CURRENT BALANCE CALCULATION ===');
+  console.log('walletData:', walletData);
+  console.log('walletData.currentBalance:', walletData.currentBalance);
+  console.log('typeof walletData.currentBalance:', typeof walletData.currentBalance);
+  
+  // Use actual balance from API with fallback to vendor context
+  let currentBalance = walletData.currentBalance !== undefined ? walletData.currentBalance : (vendor?.wallet?.currentBalance || 0);
+  
+  // If still 0, try to get from vendor context
+  if (currentBalance === 0 && vendor?.wallet?.currentBalance) {
+    currentBalance = vendor.wallet.currentBalance;
+    console.log('🔄 Using balance from vendor context:', currentBalance);
+  }
+  
+  console.log('Final currentBalance:', currentBalance);
+  console.log('walletData.currentBalance is undefined:', walletData.currentBalance === undefined);
+  console.log('Vendor ID:', vendor?.vendorId);
+  console.log('Using fallback logic for vendor:', vendor?.vendorId);
+  
+  const availableBalance = Math.max(0, currentBalance - 4000); // Available for withdrawal
+  const totalWithdrawn = walletData.summary?.totalWithdrawals || 0;
+  
+  // Check hasInitialDeposit from multiple sources - once deposit is made, always show Yes
+  const hasInitialDeposit = vendor?.wallet?.hasInitialDeposit || 
+                           walletData.hasInitialDeposit || 
+                           (currentBalance >= 4000 && currentBalance > 0) ||
+                           (vendor?.wallet?.totalDeposits > 0) ||
+                           (walletData.totalDeposits > 0);
+  
+  // Debug logging
+  console.log('=== CURRENT STATE ===');
+  console.log('Vendor ID:', vendor?.vendorId);
+  console.log('Wallet data:', walletData);
+  console.log('Current balance:', currentBalance);
+  console.log('Has initial deposit:', hasInitialDeposit);
+  console.log('Loading wallet:', loadingWallet);
+  
+  
+  
+  
+
+  // Handle deposit
+  const handleDeposit = async () => {
+    const amount = parseFloat(depositAmount);
+    
+    // Validate amount based on deposit type
+    if (amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid deposit amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!hasInitialDeposit && amount < 4000) {
+      toast({
+        title: "Minimum Initial Deposit Required",
+        description: "You must deposit at least ₹4,000 for your initial deposit.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!vendor) {
+      toast({
+        title: "Error",
+        description: "Vendor information not found. Please try logging in again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessingDeposit(true);
+    
+    try {
+      await vendorDepositService.processDepositPayment(
+        amount,
+        vendor.fullName,
+        vendor.email,
+        vendor.phone,
+        (response) => {
+          // Payment successful
+          toast({
+            title: "Deposit Successful!",
+            description: `₹${amount.toLocaleString()} has been added to your wallet.${!hasInitialDeposit ? ' You can now access all features.' : ''}`,
+          });
+
+          // Automatic refresh wallet data after deposit - multiple attempts for reliability
+          const refreshAfterDeposit = async (attempt = 1) => {
+            console.log(`🔄 Auto-refreshing wallet data after deposit (attempt ${attempt})...`);
+            console.log('Deposit amount:', amount);
+            
+            try {
+              // Refresh vendor profile first to get latest data
+              await refreshVendorProfile();
+              
+              // Then refresh wallet data and transactions
+              await fetchWalletData();
+              await fetchTransactionHistory();
+              
+              console.log(`✅ Auto-refresh attempt ${attempt} completed successfully`);
+              
+              // If this is the first attempt, try again after a short delay to ensure data is updated
+              if (attempt === 1) {
+                setTimeout(() => refreshAfterDeposit(2), 2000);
+              }
+            } catch (error) {
+              console.error(`❌ Auto-refresh attempt ${attempt} failed:`, error);
+              
+              // Retry if first attempt failed
+              if (attempt === 1) {
+                setTimeout(() => refreshAfterDeposit(2), 3000);
+              }
+            }
+          };
+          
+          // Start the refresh process immediately
+          setTimeout(() => refreshAfterDeposit(1), 1000);
+
+          setIsDepositModalOpen(false);
+          setDepositAmount('4000');
+          setIsProcessingDeposit(false);
+        },
+        (error) => {
+          // Payment failed
+          console.error('Deposit payment failed:', error);
+          toast({
+            title: "Deposit Failed",
+            description: error.message || "There was an error processing your deposit. Please try again.",
+            variant: "destructive"
+          });
+          setIsProcessingDeposit(false);
+        }
+      );
+    } catch (error) {
+      console.error('Error initiating deposit:', error);
+      toast({
+        title: "Deposit Failed",
+        description: "There was an error initiating your deposit. Please try again.",
+        variant: "destructive"
+      });
+      setIsProcessingDeposit(false);
+    }
+  };
 
   // Export to Excel function
   const exportToExcel = () => {
@@ -110,7 +594,11 @@ const VendorEarnings = () => {
   };
 
   // Filter transactions based on active filter
-  const filteredTransactions = transactionHistory.filter(transaction => {
+  const filteredTransactions = (transactionHistory || []).filter(transaction => {
+    if (!transaction || typeof transaction !== 'object') {
+      return false;
+    }
+    
     switch (activeFilter) {
       case 'All':
         return true;
@@ -159,6 +647,63 @@ const VendorEarnings = () => {
       <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
         <div className="container mx-auto px-4 py-4">
         <h1 className="text-3xl font-bold mb-4 md:hidden text-center">Vendor <span className="text-3xl font-bold text-gradient mb-4 md:hidden text-center"> Earning</span></h1>
+        
+          
+          {/* Mandatory Deposit Alert */}
+          {!hasInitialDeposit && (
+            <div className="mb-6 md:hidden">
+              <Alert className="border-orange-200 bg-orange-50">
+                <AlertTriangle className="h-4 w-4 text-orange-600" />
+                <AlertDescription className="text-orange-800">
+                  <div className="space-y-3">
+                    <div>
+                      <strong>Mandatory Deposit Required:</strong> You must deposit ₹4,000 to access all features. 
+                      This is a one-time requirement for new vendors.
+                    </div>
+                    <div className="flex justify-center">
+                      <VendorBenefitsModal hasInitialDeposit={hasInitialDeposit}>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="border-orange-300 text-orange-700 hover:bg-orange-100"
+                        >
+                          🎁 View Certified Partner Benefits
+                        </Button>
+                      </VendorBenefitsModal>
+                    </div>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+
+          {/* Success Message for Deposit */}
+          {hasInitialDeposit && (
+            <div className="mb-6 md:hidden">
+              <Alert className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  <div className="space-y-3">
+                    <div>
+                      <strong>Deposit Complete:</strong> You have successfully made your initial deposit. 
+                      You can now access all vendor features.
+                    </div>
+                    <div className="flex justify-center">
+                      <VendorBenefitsModal hasInitialDeposit={hasInitialDeposit}>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="border-green-300 text-green-700 hover:bg-green-100"
+                        >
+                          🎁 View Your Benefits
+                        </Button>
+                      </VendorBenefitsModal>
+                    </div>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
           
           {/* Balance Overview */}
           <div className="grid grid-cols-1 gap-4 mb-8 md:hidden">
@@ -170,17 +715,98 @@ const VendorEarnings = () => {
                     <Wallet className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground">Available Balance</h3>
-                    <p className="text-lg font-bold text-primary">₹{availableBalance.toLocaleString()}</p>
+                    <h3 className="text-sm font-semibold text-foreground">Current Balance</h3>
+                    {loadingWallet ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm text-muted-foreground">Updating balance...</span>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-lg font-bold text-primary">₹{currentBalance.toLocaleString()}</p>
+                        {currentBalance >= 4000 && (
+                          <p className="text-xs text-muted-foreground">
+                            Available for withdrawal: ₹{availableBalance.toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
+                  <Dialog open={isDepositModalOpen} onOpenChange={setIsDepositModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4"
+                        disabled={isProcessingDeposit}
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Deposit
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Make Deposit</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="depositAmount">Deposit Amount (₹)</Label>
+                          <Input
+                            id="depositAmount"
+                            type="number"
+                            value={depositAmount}
+                            onChange={(e) => setDepositAmount(e.target.value)}
+                            placeholder="Enter amount"
+                            min={hasInitialDeposit ? "1" : "4000"}
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {hasInitialDeposit 
+                              ? "Additional deposit - any amount above ₹1" 
+                              : "Minimum initial deposit: ₹4,000"
+                            }
+                          </p>
+                        </div>
+                        
+                        {/* View Benefits Button - Show for all vendors */}
+                        <div className="text-center">
+                          <VendorBenefitsModal hasInitialDeposit={hasInitialDeposit}>
+                            <Button 
+                              variant="outline" 
+                              className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
+                            >
+                              🎁 View Benefits of Certified Partner
+                            </Button>
+                          </VendorBenefitsModal>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={handleDeposit} 
+                            className="flex-1"
+                            disabled={isProcessingDeposit}
+                          >
+                            {isProcessingDeposit ? 'Processing...' : 'Deposit'}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setIsDepositModalOpen(false)}
+                            disabled={isProcessingDeposit}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  
                   <button 
                     className="btn-tech text-sm py-2 px-6"
                     onClick={() => {
                       // Add withdraw functionality
                       alert('Withdraw functionality will be implemented soon!');
                     }}
+                    disabled={!hasInitialDeposit}
                   >
                     Withdraw
                   </button>
@@ -257,8 +883,18 @@ const VendorEarnings = () => {
             </div>
             
             <div className="space-y-4">
-              {filteredTransactions.length > 0 ? (
-                filteredTransactions.map((transaction, index) => (
+              {loadingTransactions ? (
+                <div className="text-center py-8">
+                  <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading transaction history...</p>
+                </div>
+              ) : filteredTransactions.length > 0 ? (
+                filteredTransactions.map((transaction, index) => {
+                  if (!transaction || !transaction.id) {
+                    return null;
+                  }
+                  
+                  return (
                 <div 
                   key={transaction.id} 
                   className="p-4 border border-border rounded-lg hover:bg-muted/30 transition-colors cursor-pointer"
@@ -284,10 +920,28 @@ const VendorEarnings = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">{transaction.description}</p>
                 </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">No transactions found for the selected filter.</p>
+                  <Wallet className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium text-muted-foreground">No transactions found</p>
+                  <p className="text-sm text-muted-foreground">
+                    {activeFilter === 'All' 
+                      ? 'You haven\'t made any transactions yet. Make a deposit to get started!' 
+                      : `No ${activeFilter.toLowerCase()} transactions found.`
+                    }
+                  </p>
+                  {activeFilter === 'All' && (
+                    <Button 
+                      onClick={() => setIsDepositModalOpen(true)}
+                      className="mt-4"
+                      size="sm"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Make First Deposit
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

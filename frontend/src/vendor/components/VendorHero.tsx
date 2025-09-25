@@ -3,6 +3,8 @@ import { Users, TrendingUp, Clock, Shield, Star, Plus, CheckCircle, XCircle } fr
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
+import vendorApi from "@/services/vendorApi";
+import VendorTaskCard from "./VendorTaskCard";
 
 const VendorHero = () => {
   const theme = useTheme();
@@ -13,95 +15,234 @@ const VendorHero = () => {
   const [activeTaskTab, setActiveTaskTab] = useState('new');
   const [completedTasks, setCompletedTasks] = useState([]);
   const [taskData, setTaskData] = useState({
-    new: [
-      { 
-        id: 1, caseId: "CASE-001", title: "Laptop Screen Repair", customer: "John Doe", 
-        phone: "+91 98765 43210", amount: "₹2,500", date: "15 Dec 2024", time: "10:30 AM", 
-        status: "Emergency", address: "123 MG Road, Bangalore, Karnataka 560001",
-        issue: "Screen cracked and not displaying properly. Need immediate replacement.",
-        assignDate: "15 Dec 2024", assignTime: "9:00 AM"
-      },
-      { 
-        id: 2, caseId: "CASE-002", title: "Desktop Motherboard Issue", customer: "Jane Smith", 
-        phone: "+91 87654 32109", amount: "₹4,200", date: "15 Dec 2024", time: "2:15 PM", 
-        status: "Repeat", address: "456 Brigade Road, Bangalore, Karnataka 560025",
-        issue: "Motherboard not booting. Previously repaired but issue recurring.",
-        assignDate: "15 Dec 2024", assignTime: "1:00 PM"
-      },
-      { 
-        id: 3, caseId: "CASE-003", title: "Printer Not Working", customer: "Mike Johnson", 
-        phone: "+91 76543 21098", amount: "₹1,800", date: "14 Dec 2024", time: "9:45 AM", 
-        status: "Normal", address: "789 Koramangala, Bangalore, Karnataka 560034",
-        issue: "Printer not responding to print commands. Paper jam issue.",
-        assignDate: "14 Dec 2024", assignTime: "8:30 AM"
-      }
-    ],
-    closed: [
-      { 
-        id: 4, caseId: "CASE-004", title: "Laptop Screen Repair", customer: "John Doe", 
-        phone: "+91 98765 43210", amount: "₹2,500", date: "15 Dec 2024", time: "10:30 AM", 
-        status: "Completed", address: "123 MG Road, Bangalore, Karnataka 560001",
-        issue: "Screen cracked and not displaying properly. Need immediate replacement.",
-        assignDate: "15 Dec 2024", assignTime: "9:00 AM"
-      },
-      { 
-        id: 5, caseId: "CASE-005", title: "Desktop Motherboard Issue", customer: "Jane Smith", 
-        phone: "+91 87654 32109", amount: "₹4,200", date: "15 Dec 2024", time: "2:15 PM", 
-        status: "Completed", address: "456 Brigade Road, Bangalore, Karnataka 560025",
-        issue: "Motherboard not booting. Previously repaired but issue recurring.",
-        assignDate: "15 Dec 2024", assignTime: "1:00 PM"
-      },
-      { 
-        id: 6, caseId: "CASE-006", title: "Printer Not Working", customer: "Mike Johnson", 
-        phone: "+91 76543 21098", amount: "₹1,800", date: "14 Dec 2024", time: "9:45 AM", 
-        status: "Completed", address: "789 Koramangala, Bangalore, Karnataka 560034",
-        issue: "Printer not responding to print commands. Paper jam issue.",
-        assignDate: "14 Dec 2024", assignTime: "8:30 AM"
-      },
-      ...completedTasks
-    ],
-    cancelled: [
-      { 
-        id: 7, caseId: "CASE-007", title: "Refrigerator Repair", customer: "Tom Wilson", 
-        phone: "+91 32109 87654", amount: "₹3,200", date: "13 Dec 2024", time: "4:15 PM", 
-        status: "Cancelled", address: "147 Jayanagar, Bangalore, Karnataka 560011",
-        issue: "Refrigerator not cooling. Food spoilage risk.",
-        assignDate: "13 Dec 2024", assignTime: "3:00 PM"
-      },
-      { 
-        id: 8, caseId: "CASE-008", title: "Microwave Service", customer: "Emma Taylor", 
-        phone: "+91 21098 76543", amount: "₹1,500", date: "11 Dec 2024", time: "10:00 AM", 
-        status: "Cancelled", address: "258 Banashankari, Bangalore, Karnataka 560070",
-        issue: "Microwave not heating food properly. Previous repair didn't work.",
-        assignDate: "11 Dec 2024", assignTime: "9:00 AM"
-      },
-      { 
-        id: 9, caseId: "CASE-009", title: "AC Installation", customer: "Robert Kim", 
-        phone: "+91 10987 65432", amount: "₹8,500", date: "10 Dec 2024", time: "2:00 PM", 
-        status: "Cancelled", address: "369 Malleswaram, Bangalore, Karnataka 560003",
-        issue: "New AC installation required for bedroom.",
-        assignDate: "10 Dec 2024", assignTime: "1:00 PM"
-      }
-    ]
+    new: [],
+    closed: [...completedTasks],
+    cancelled: []
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const banners = ['/banner1.png', '/banner2.png', '/banner3.png'];
 
-  const vendorStats = [
-    { icon: Users, value: "500+", label: "Active Customers", color: "bg-blue-500" },
-    { icon: TrendingUp, value: "₹2.5L+", label: "Monthly Revenue", color: "bg-green-500" },
-    { icon: Star, value: "4.8", label: "Average Rating", color: "bg-yellow-500" },
+  const [vendorStats, setVendorStats] = useState([
+    { icon: Users, value: "0", label: "Active Customers", color: "bg-blue-500" },
+    { icon: TrendingUp, value: "₹0", label: "Monthly Revenue", color: "bg-green-500" },
+    { icon: Star, value: "0.0", label: "Average Rating", color: "bg-yellow-500" },
     { icon: Clock, value: "24/7", label: "Support Available", color: "bg-purple-500" }
-  ];
+  ]);
 
 
+
+  // Fetch vendor statistics
+  const fetchVendorStats = async () => {
+    try {
+      const token = localStorage.getItem('vendorToken');
+      
+      if (!token) {
+        console.warn('No vendor token found for stats');
+        return;
+      }
+
+      const response = await fetch('/api/vendor/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.warn('Server returned non-JSON response, server might not be running');
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success && data.data) {
+          const stats = data.data;
+          
+          setVendorStats([
+            { icon: Users, value: `${stats.totalCustomers || 0}`, label: "Active Customers", color: "bg-blue-500" },
+            { icon: TrendingUp, value: `₹${(stats.monthlyRevenue || 0).toLocaleString()}`, label: "Monthly Revenue", color: "bg-green-500" },
+            { icon: Star, value: `${(stats.averageRating || 0).toFixed(1)}`, label: "Average Rating", color: "bg-yellow-500" },
+            { icon: Clock, value: "24/7", label: "Support Available", color: "bg-purple-500" }
+          ]);
+        }
+      } else if (response.status === 404) {
+        console.warn('Vendor stats endpoint not found, using default stats');
+      } else {
+        console.warn(`Failed to fetch vendor stats: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error fetching vendor stats:', error);
+      // Keep default stats on error
+    }
+  };
+
+  // Fetch vendor bookings and transform them to task format
+  const fetchVendorBookings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('Fetching vendor tasks...');
+      
+      // Check if vendor is logged in
+      const vendorToken = localStorage.getItem('vendorToken');
+      const vendorData = localStorage.getItem('vendorData');
+      
+      console.log('Vendor authentication check:', {
+        hasToken: !!vendorToken,
+        hasVendorData: !!vendorData,
+        tokenPreview: vendorToken ? `${vendorToken.substring(0, 20)}...` : 'none',
+        vendorData: vendorData ? JSON.parse(vendorData) : null
+      });
+      
+      if (!vendorToken) {
+        setError('Please log in as a vendor to view tasks');
+        setLoading(false);
+        return;
+      }
+      
+      // Fetch bookings only
+      const bookingsResponse = await vendorApi.getVendorBookings();
+      
+      if (bookingsResponse.success && bookingsResponse.data) {
+        const bookings = bookingsResponse.data.bookings || [];
+        
+        console.log('Fetched data:', {
+          bookings: bookings.length
+        });
+        
+        // Transform bookings to task format
+        const transformedBookings = bookings.map(booking => ({
+          id: booking._id,
+          caseId: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
+          title: booking.services?.[0]?.serviceName || 'Service Request',
+          customer: booking.customer?.name || 'Unknown Customer',
+          phone: booking.customer?.phone || 'N/A',
+          amount: `₹${booking.pricing?.totalAmount || 0}`,
+          date: booking.scheduling?.scheduledDate 
+            ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
+            : booking.scheduling?.preferredDate 
+            ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')
+            : new Date(booking.createdAt).toLocaleDateString('en-IN'),
+          time: booking.scheduling?.scheduledTime 
+            ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
+            : booking.scheduling?.preferredTimeSlot || 'Not scheduled',
+          status: booking.priority === 'urgent' ? 'Emergency' : 
+                 booking.priority === 'high' ? 'High Priority' : 
+                 booking.priority === 'low' ? 'Low Priority' : 'Normal',
+          address: booking.customer?.address 
+            ? typeof booking.customer.address === 'object' 
+              ? `${booking.customer.address.street || ''}, ${booking.customer.address.city || ''}, ${booking.customer.address.state || ''} - ${booking.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
+              : booking.customer.address
+            : 'Address not provided',
+          issue: booking.notes || booking.services?.[0]?.serviceName || 'Service request',
+          assignDate: booking.vendor?.assignedAt 
+            ? new Date(booking.vendor.assignedAt).toLocaleDateString('en-IN')
+            : new Date(booking.createdAt).toLocaleDateString('en-IN'),
+          assignTime: booking.vendor?.assignedAt 
+            ? new Date(booking.vendor.assignedAt).toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
+            : 'Not assigned',
+          priority: booking.priority || 'medium',
+          bookingStatus: booking.status,
+          isSupportTicket: false
+        }));
+
+        console.log('Transformed bookings:', transformedBookings);
+        
+        console.log('All tasks:', {
+          total: transformedBookings.length,
+          bookings: transformedBookings.length
+        });
+
+        // Categorize tasks based on status
+        const newTasks = transformedBookings.filter(task => {
+          return task.bookingStatus === 'confirmed' || 
+                 task.bookingStatus === 'waiting_for_engineer' ||
+                 task.bookingStatus === 'in_progress';
+        });
+        
+        const closedTasks = transformedBookings.filter(task => {
+          return task.bookingStatus === 'completed';
+        });
+        
+        const cancelledTasks = transformedBookings.filter(task => {
+          return task.bookingStatus === 'cancelled';
+        });
+        
+        console.log('Task categorization:', {
+          new: newTasks.length,
+          closed: closedTasks.length,
+          cancelled: cancelledTasks.length
+        });
+
+        setTaskData({
+          new: newTasks,
+          closed: [...closedTasks, ...completedTasks],
+          cancelled: cancelledTasks
+        });
+      } else {
+        setError(bookingsResponse.message || 'Failed to fetch bookings');
+      }
+    } catch (error) {
+      console.error('Error fetching vendor bookings:', error);
+      setError('Failed to fetch bookings');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
+    fetchVendorStats();
+    fetchVendorBookings();
+    
     const interval = setInterval(() => {
       setCurrentStat((prev) => (prev + 1) % vendorStats.length);
     }, 3000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Handle task status update
+  const handleTaskStatusUpdate = (taskId: string, newStatus: string) => {
+    setTaskData(prev => ({
+      ...prev,
+      new: prev.new.map(task => {
+        if (task.id === taskId) {
+          // Update bookingStatus for booking tasks
+          return { 
+            ...task, 
+            bookingStatus: newStatus === 'accepted' ? 'in_progress' : 'cancelled' 
+          };
+        }
+        return task;
+      }),
+      // Move declined/cancelled tasks to cancelled section
+      cancelled: (newStatus === 'declined' || newStatus === 'cancelled')
+        ? [...prev.cancelled, ...prev.new.filter(task => task.id === taskId)]
+        : prev.cancelled
+    }));
+    
+    // Refresh data after status update
+    setTimeout(() => {
+      fetchVendorBookings();
+    }, 1000);
+  };
+
+  // Fetch bookings when component mounts
+  useEffect(() => {
+    fetchVendorBookings();
   }, []);
 
   // Handle URL tab parameter
@@ -126,6 +267,19 @@ const VendorHero = () => {
     const handleTaskCompleted = (event) => {
       const completedTask = event.detail;
       setCompletedTasks(prev => [...prev, completedTask]);
+      
+      // Also update taskData to move the task to closed tab
+      setTaskData(prevData => {
+        const newData = { ...prevData };
+        
+        // Remove from new tasks if it exists there
+        newData.new = newData.new.filter(task => task.id !== completedTask.id);
+        
+        // Add to closed tasks
+        newData.closed = [...newData.closed, completedTask];
+        
+        return newData;
+      });
     };
 
     window.addEventListener('taskCompleted', handleTaskCompleted);
@@ -265,52 +419,65 @@ const VendorHero = () => {
                     {activeTaskTab === 'cancelled' && 'Cancelled Tasks'}
                   </h3>
                   <div className="space-y-2">
-                    {taskData[activeTaskTab as keyof typeof taskData].map((task) => (
-                      <div key={task.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors border border-gray-100">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <h4 className="font-medium text-gray-800 text-sm truncate">{task.title}</h4>
-                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded">
-                              {task.caseId}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-3 text-xs text-gray-500">
-                            <span>{task.date}</span>
-                            <span>•</span>
-                            <span>{task.time}</span>
-                            {task.status !== 'Normal' && (
-                              <>
-                                <span>•</span>
-                                <span className={`px-1.5 py-0.5 text-xs font-medium rounded ${
-                                  task.status === 'Emergency' 
-                                    ? 'bg-red-100 text-red-800' 
-                                    : task.status === 'Repeat'
-                                    ? 'bg-orange-100 text-orange-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {task.status}
-                                </span>
-                              </>
-                            )}
-                          </div>
+                    {loading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="text-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                          <p className="text-sm text-gray-500">Loading tasks...</p>
                         </div>
-                        <button 
-                          onClick={() => {
-                            // Navigate to different pages based on task status
-                            if (activeTaskTab === 'closed') {
-                              navigate(`/vendor/task/${task.id}/closed`);
-                            } else if (activeTaskTab === 'cancelled') {
-                              navigate(`/vendor/task/${task.id}/cancelled`);
-                            } else {
-                              navigate(`/vendor/task/${task.id}`);
-                            }
-                          }}
-                          className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors ml-2 flex-shrink-0"
-                        >
-                          View
-                        </button>
                       </div>
-                    ))}
+                    ) : error ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="text-center">
+                          <p className="text-sm text-red-500 mb-2">{error}</p>
+                          {error.includes('log in') ? (
+                            <button 
+                              onClick={() => navigate('/vendor/login')}
+                              className="text-xs text-blue-600 hover:text-blue-800 underline"
+                            >
+                              Go to Login
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={fetchVendorBookings}
+                              className="text-xs text-blue-600 hover:text-blue-800 underline"
+                            >
+                              Retry
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : taskData[activeTaskTab as keyof typeof taskData].length === 0 ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-500">
+                            {activeTaskTab === 'new' && 'No new tasks available'}
+                            {activeTaskTab === 'closed' && 'No completed tasks'}
+                            {activeTaskTab === 'cancelled' && 'No cancelled tasks'}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      activeTaskTab === 'new' ? (
+                        taskData.new.map((task) => (
+                          // Both booking tasks and support tickets use VendorTaskCard for consistent layout
+                          <VendorTaskCard
+                            key={task.id}
+                            task={task}
+                            onStatusUpdate={handleTaskStatusUpdate}
+                          />
+                        ))
+                      ) : (
+                        taskData[activeTaskTab as keyof typeof taskData].map((task) => (
+                          // Both booking tasks and support tickets use VendorTaskCard for consistent layout
+                          <VendorTaskCard
+                            key={task.id}
+                            task={task}
+                            onStatusUpdate={handleTaskStatusUpdate}
+                          />
+                        ))
+                      )
+                    )}
                   </div>
                 </div>
               </div>

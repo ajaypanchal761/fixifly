@@ -15,75 +15,123 @@ import {
 } from "lucide-react";
 import VendorHeader from "../components/VendorHeader";
 import VendorBottomNav from "../components/VendorBottomNav";
+import vendorApi from "@/services/vendorApi";
 
 const VendorClosedTaskDetail = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { taskId } = useParams();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [task, setTask] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Sample closed task data - in real app, this would come from API
-  const closedTaskData = {
-    4: { 
-      id: 4, caseId: "CASE-004", title: "Laptop Screen Repair", customer: "John Doe", 
-      phone: "+91 98765 43210", amount: "₹2,500", date: "15 Dec 2024", time: "10:30 AM", 
-      status: "Completed", address: "123 MG Road, Bangalore, Karnataka 560001",
-      issue: "Screen cracked and not displaying properly. Need immediate replacement.",
-      assignDate: "15 Dec 2024", assignTime: "9:00 AM",
-      taskType: "Laptop Repair",
-      completedDate: "15 Dec 2024", completedTime: "12:30 PM",
-      resolutionNote: "Replaced the cracked screen with a new one. All functionality restored and tested.",
-      billingAmount: "₹2,500",
-      spareParts: [
-        { name: "Laptop Screen 15.6 inch", amount: "₹1,800", photo: null },
-        { name: "Screen Connector Cable", amount: "₹300", photo: null }
-      ],
-      travelingAmount: "₹100",
-      totalAmount: "₹2,700",
-      customerRating: 5,
-      customerFeedback: "Excellent service! The technician was very professional and completed the repair quickly."
-    },
-    5: { 
-      id: 5, caseId: "CASE-005", title: "Desktop Motherboard Issue", customer: "Jane Smith", 
-      phone: "+91 87654 32109", amount: "₹4,200", date: "15 Dec 2024", time: "2:15 PM", 
-      status: "Completed", address: "456 Brigade Road, Bangalore, Karnataka 560025",
-      issue: "Motherboard not booting. Previously repaired but issue recurring.",
-      assignDate: "15 Dec 2024", assignTime: "1:00 PM",
-      taskType: "Desktop Repair",
-      completedDate: "15 Dec 2024", completedTime: "4:45 PM",
-      resolutionNote: "Identified faulty RAM module. Replaced with new RAM and updated BIOS. System now booting properly.",
-      billingAmount: "₹4,200",
-      spareParts: [
-        { name: "8GB DDR4 RAM", amount: "₹2,500", photo: null },
-        { name: "Thermal Paste", amount: "₹200", photo: null }
-      ],
-      travelingAmount: "₹100",
-      totalAmount: "₹4,500",
-      customerRating: 4,
-      customerFeedback: "Good service, but took longer than expected. The technician was knowledgeable though."
-    },
-    6: { 
-      id: 6, caseId: "CASE-006", title: "Printer Not Working", customer: "Mike Johnson", 
-      phone: "+91 76543 21098", amount: "₹1,800", date: "14 Dec 2024", time: "9:45 AM", 
-      status: "Completed", address: "789 Koramangala, Bangalore, Karnataka 560034",
-      issue: "Printer not responding to print commands. Paper jam issue.",
-      assignDate: "14 Dec 2024", assignTime: "8:30 AM",
-      taskType: "Printer Repair",
-      completedDate: "14 Dec 2024", completedTime: "11:15 AM",
-      resolutionNote: "Cleared paper jam and cleaned print heads. Replaced worn-out rollers. Printer now working perfectly.",
-      billingAmount: "₹1,800",
-      spareParts: [
-        { name: "Printer Rollers Set", amount: "₹800", photo: null },
-        { name: "Print Head Cleaning Kit", amount: "₹300", photo: null }
-      ],
-      travelingAmount: "₹100",
-      totalAmount: "₹2,200",
-      customerRating: 5,
-      customerFeedback: "Quick and efficient service. The printer is working like new now!"
+  // Fetch task details from API
+  const fetchTaskDetails = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const vendorToken = localStorage.getItem('vendorToken');
+      if (!vendorToken) {
+        setError('Please log in as a vendor to view task details');
+        setLoading(false);
+        return;
+      }
+
+      // Fetch all vendor bookings and find the specific task
+      const response = await vendorApi.getVendorBookings();
+      
+      if (response.success && response.data?.bookings) {
+        const bookings = response.data.bookings;
+        const foundTask = bookings.find(booking => booking._id === taskId);
+        
+        if (foundTask) {
+          // Transform booking data to task format
+          const transformedTask = {
+            id: foundTask._id,
+            caseId: foundTask.bookingReference || `FIX${foundTask._id.toString().substring(foundTask._id.toString().length - 8).toUpperCase()}`,
+            title: foundTask.services?.[0]?.serviceName || 'Service Request',
+            customer: foundTask.customer?.name || 'Unknown Customer',
+            phone: foundTask.customer?.phone || 'N/A',
+            amount: `₹${foundTask.pricing?.totalAmount || 0}`,
+            date: foundTask.scheduling?.scheduledDate 
+              ? new Date(foundTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
+              : foundTask.scheduling?.preferredDate 
+              ? new Date(foundTask.scheduling.preferredDate).toLocaleDateString('en-IN')
+              : new Date(foundTask.createdAt).toLocaleDateString('en-IN'),
+            time: foundTask.scheduling?.scheduledTime 
+              ? new Date(`2000-01-01T${foundTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })
+              : foundTask.scheduling?.preferredTimeSlot || 'Not scheduled',
+            status: foundTask.status === 'completed' ? 'Completed' : foundTask.status,
+            address: foundTask.customer?.address 
+              ? typeof foundTask.customer.address === 'object' 
+                ? `${foundTask.customer.address.street || ''}, ${foundTask.customer.address.city || ''}, ${foundTask.customer.address.state || ''} - ${foundTask.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
+                : foundTask.customer.address
+              : 'Address not provided',
+            issue: foundTask.notes || foundTask.services?.[0]?.serviceName || 'Service request',
+            assignDate: foundTask.vendor?.assignedAt 
+              ? new Date(foundTask.vendor.assignedAt).toLocaleDateString('en-IN')
+              : new Date(foundTask.createdAt).toLocaleDateString('en-IN'),
+            assignTime: foundTask.vendor?.assignedAt 
+              ? new Date(foundTask.vendor.assignedAt).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })
+              : 'Not assigned',
+            taskType: foundTask.services?.[0]?.serviceName || 'Service Request',
+            completedDate: foundTask.completionData?.completedAt 
+              ? new Date(foundTask.completionData.completedAt).toLocaleDateString('en-IN')
+              : foundTask.scheduling?.scheduledDate 
+              ? new Date(foundTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
+              : new Date(foundTask.updatedAt).toLocaleDateString('en-IN'),
+            completedTime: foundTask.completionData?.completedAt 
+              ? new Date(foundTask.completionData.completedAt).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })
+              : foundTask.scheduling?.scheduledTime 
+              ? new Date(`2000-01-01T${foundTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })
+              : 'Not available',
+            resolutionNote: foundTask.completionData?.resolutionNote || 'No resolution notes provided',
+            billingAmount: `₹${foundTask.pricing?.totalAmount || 0}`,
+            spareParts: foundTask.completionData?.spareParts || [],
+            travelingAmount: foundTask.completionData?.travelingAmount || '₹100',
+            totalAmount: `₹${(foundTask.pricing?.totalAmount || 0) + (foundTask.completionData?.totalAmount || 0)}`,
+            customerRating: 5, // Default rating - can be enhanced later
+            customerFeedback: "Service completed successfully." // Default feedback - can be enhanced later
+          };
+          
+          setTask(transformedTask);
+        } else {
+          setError('Task not found');
+        }
+      } else {
+        setError(response.message || 'Failed to fetch task details');
+      }
+    } catch (error) {
+      console.error('Error fetching task details:', error);
+      setError('Failed to load task details. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const task = taskId ? closedTaskData[parseInt(taskId) as keyof typeof closedTaskData] : null;
+  useEffect(() => {
+    if (taskId) {
+      fetchTaskDetails();
+    }
+  }, [taskId]);
 
   // Show 404 error on desktop
   if (!isMobile) {
@@ -93,6 +141,48 @@ const VendorClosedTaskDetail = () => {
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Page Not Found</h1>
           <p className="text-gray-600">This page is only available on mobile devices.</p>
         </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <VendorHeader />
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading task details...</p>
+            </div>
+          </div>
+        </main>
+        <VendorBottomNav />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <VendorHeader />
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-800 mb-4">Error</h1>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <button
+                onClick={() => navigate(-1)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              >
+                Go Back
+              </button>
+            </div>
+          </div>
+        </main>
+        <VendorBottomNav />
       </div>
     );
   }

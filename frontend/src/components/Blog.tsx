@@ -1,15 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowRight, Star } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Star, Loader2, Heart } from "lucide-react";
 import BlogDetailModal from "./BlogDetailModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { blogApi, Blog } from "@/services/blogApi";
+import { toast } from "@/hooks/use-toast";
 
 const Blog = () => {
-  const [selectedBlog, setSelectedBlog] = useState<any>(null);
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [likedBlogs, setLikedBlogs] = useState<Set<string>>(new Set());
 
-  const handleReadMore = (blogPost: any) => {
+  const handleReadMore = (blogPost: Blog) => {
     setSelectedBlog(blogPost);
     setIsModalOpen(true);
   };
@@ -17,6 +22,53 @@ const Blog = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedBlog(null);
+  };
+
+  const handleLike = async (blogId: string) => {
+    // Check if user already liked this post
+    if (likedBlogs.has(blogId)) {
+      toast({
+        title: "Already Liked",
+        description: "You have already liked this blog post!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await blogApi.likeBlog(blogId);
+      if (response.success) {
+        // Update the blog in the state with new likes count
+        setBlogs(prevBlogs => 
+          prevBlogs.map(blog => 
+            blog.id === blogId 
+              ? { ...blog, likes: response.data.likes }
+              : blog
+          )
+        );
+        // Add to liked blogs set
+        setLikedBlogs(prev => new Set(prev).add(blogId));
+        toast({
+          title: "Liked!",
+          description: "Thank you for liking this blog post!",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error liking blog:', error);
+      if (error.message?.includes('already liked')) {
+        toast({
+          title: "Already Liked",
+          description: "You have already liked this blog post!",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to like the blog post. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   // Helper function to render star rating
@@ -47,56 +99,27 @@ const Blog = () => {
     return stars;
   };
 
-  const blogPosts = [
-    {
-      id: 1,
-      title: "Common AC Problems and How to Fix Them",
-      excerpt: "Learn about the most common air conditioning issues and simple troubleshooting steps you can take before calling a professional.",
-      image: "/ac.png",
-      category: "Air Conditioning",
-      readTime: "5 min read",
-      date: "Dec 15, 2024",
-      author: "Fixifly Team",
-      rating: 4.8,
-      reviewCount: 124
-    },
-    {
-      id: 2,
-      title: "TV Repair Guide: When to DIY vs Call a Pro",
-      excerpt: "Discover which TV problems you can fix yourself and when it's time to call in the experts for professional repair services.",
-      image: "/tv.avif",
-      category: "Television",
-      readTime: "7 min read",
-      date: "Dec 12, 2024",
-      author: "Fixifly Team",
-      rating: 4.6,
-      reviewCount: 89
-    },
-    {
-      id: 3,
-      title: "Refrigerator Maintenance Tips for Longevity",
-      excerpt: "Essential maintenance tips to keep your refrigerator running efficiently and extend its lifespan for years to come.",
-      image: "/fidge.jpeg",
-      category: "Refrigerator",
-      readTime: "6 min read",
-      date: "Dec 10, 2024",
-      author: "Fixifly Team",
-      rating: 4.9,
-      reviewCount: 156
-    },
-    {
-      id: 4,
-      title: "Washing Machine Troubleshooting Guide",
-      excerpt: "Step-by-step guide to diagnose and fix common washing machine problems without professional help.",
-      image: "/washing.jpg",
-      category: "Washing Machine",
-      readTime: "8 min read",
-      date: "Dec 8, 2024",
-      author: "Fixifly Team",
-      rating: 4.7,
-      reviewCount: 203
-    },
-  ];
+  // Load blogs on component mount
+  useEffect(() => {
+    loadBlogs();
+  }, []);
+
+  const loadBlogs = async () => {
+    try {
+      setLoading(true);
+      const response = await blogApi.getRecentBlogs(4); // Get 4 recent blogs for home page
+      
+      if (response.success) {
+        setBlogs(response.data.blogs);
+      }
+    } catch (error) {
+      console.error('Error loading blogs:', error);
+      // Fallback to empty array if API fails
+      setBlogs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="pt-8 pb-0 sm:pb-16 bg-gray-50">
@@ -113,8 +136,14 @@ const Blog = () => {
         </div>
 
         {/* Blog Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-12" data-aos="fade-up" data-aos-delay="200">
-          {blogPosts.map((post, index) => (
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <span className="ml-2">Loading blog posts...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-12" data-aos="fade-up" data-aos-delay="200">
+            {blogs.map((post, index) => (
             <Card 
               key={post.id} 
               className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up group cursor-pointer"
@@ -124,7 +153,7 @@ const Blog = () => {
             >
               <div className="relative overflow-hidden rounded-t-lg">
                 <img 
-                  src={post.image} 
+                  src={post.featuredImage || '/placeholder.svg'} 
                   alt={post.title}
                   className="w-full h-24 sm:h-32 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -156,7 +185,7 @@ const Blog = () => {
                   <div className="flex items-center gap-1 sm:gap-2">
                     <div className="flex items-center gap-0.5 sm:gap-1">
                       <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                      <span className="text-xs">{post.date}</span>
+                      <span className="text-xs">{post.formattedDate}</span>
                     </div>
                     <div className="flex items-center gap-0.5 sm:gap-1">
                       <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
@@ -166,7 +195,25 @@ const Blog = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600 hidden sm:inline">By {post.author}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-600 hidden sm:inline">By {post.author.name}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`text-xs px-1 py-0.5 h-5 sm:h-6 sm:px-2 sm:py-1 ${
+                        likedBlogs.has(post.id) 
+                          ? 'text-red-600 bg-red-50 hover:bg-red-100' 
+                          : 'text-red-500 hover:text-red-600 hover:bg-red-50'
+                      }`}
+                      onClick={() => handleLike(post.id)}
+                      disabled={likedBlogs.has(post.id)}
+                    >
+                      <Heart className={`w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1 ${
+                        likedBlogs.has(post.id) ? 'fill-current' : ''
+                      }`} />
+                      <span className="text-xs">{post.likes}</span>
+                    </Button>
+                  </div>
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -181,7 +228,8 @@ const Blog = () => {
               </CardContent>
             </Card>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Statistics */}
         <div className="hidden md:block bg-gradient-card rounded-3xl p-6 sm:p-8 pb-6 sm:pb-8 animate-fade-in-delay" data-aos="fade-up" data-aos-delay="400">

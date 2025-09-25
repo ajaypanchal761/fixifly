@@ -13,8 +13,15 @@ import {
   X,
   Upload,
   CheckCircle,
-  Calendar
+  Calendar,
+  Building,
+  Briefcase,
+  MapPin as LocationIcon,
+  Clock,
+  XCircle,
+  AlertTriangle
 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import VendorHeader from '../components/VendorHeader';
 import VendorBottomNav from '../components/VendorBottomNav';
 import Footer from '../../components/Footer';
@@ -26,74 +33,210 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-
-interface VendorProfileData {
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-  rating: number;
-  totalReviews: number;
-  profileImage: string | null;
-  vendorId: string;
-  joinDate: string;
-  isVerified: boolean;
-}
+import { useVendor } from '@/contexts/VendorContext';
+import vendorApiService from '@/services/vendorApi';
+import type { Vendor } from '@/services/vendorApi';
 
 const VendorProfile = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { toast } = useToast();
+  const { vendor, updateVendor } = useVendor();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState<VendorProfileData>({
-    name: "John Doe",
-    phone: "+91 98765 43210",
-    email: "john.doe@fixifly.com",
-    address: "123 Main Street, Sector 15, Gurgaon, Haryana 122001",
-    rating: 4.8,
-    totalReviews: 127,
-    profileImage: null,
-    vendorId: "V001",
-    joinDate: "2023-01-15",
-    isVerified: true
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [profileData, setProfileData] = useState<Vendor | null>(null);
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    specialty: '',
+    bio: '',
+    serviceCategories: [] as string[],
+    customServiceCategory: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      pincode: '',
+      landmark: ''
+    }
   });
 
-  const [formData, setFormData] = useState(profileData);
-  const [imagePreview, setImagePreview] = useState<string | null>(profileData.profileImage);
+  const serviceCategories = [
+    'Electronics Repair',
+    'Home Appliances',
+    'Computer & Laptop',
+    'Mobile Phone',
+    'AC & Refrigeration',
+    'Plumbing',
+    'Electrical',
+    'Carpentry',
+    'Painting',
+    'Cleaning Services',
+    'Other'
+  ];
+
+  // Load vendor profile data
+  useEffect(() => {
+    loadVendorProfile();
+  }, []);
+
+  const loadVendorProfile = async () => {
+    try {
+      setIsLoading(true);
+      const response = await vendorApiService.getVendorProfile();
+      
+      if (response.success && response.data) {
+        const vendorData = response.data.vendor;
+        setProfileData(vendorData);
+        setFormData({
+          firstName: vendorData.firstName || '',
+          lastName: vendorData.lastName || '',
+          email: vendorData.email || '',
+          phone: vendorData.phone || '',
+          specialty: vendorData.specialty || '',
+          bio: vendorData.bio || '',
+          serviceCategories: vendorData.serviceCategories || [],
+          customServiceCategory: vendorData.customServiceCategory || '',
+          address: {
+            street: vendorData.address?.street || '',
+            city: vendorData.address?.city || '',
+            state: vendorData.address?.state || '',
+            pincode: vendorData.address?.pincode || '',
+            landmark: vendorData.address?.landmark || ''
+          }
+        });
+      }
+    } catch (error: any) {
+      console.error('Error loading vendor profile:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to load profile",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <VendorHeader />
+        <main className="flex-1 pb-24 pt-20 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading profile...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <VendorHeader />
+        <main className="flex-1 pb-24 pt-20 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-600 mb-4">Failed to load profile</p>
+            <Button onClick={loadVendorProfile} variant="outline">
+              Try Again
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const handleEdit = () => {
     setIsEditing(true);
-    setFormData(profileData);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setFormData(profileData);
-    setImagePreview(profileData.profileImage);
+    // Reset form data to original values
+    if (profileData) {
+      setFormData({
+        firstName: profileData.firstName || '',
+        lastName: profileData.lastName || '',
+        email: profileData.email || '',
+        phone: profileData.phone || '',
+        specialty: profileData.specialty || '',
+        bio: profileData.bio || '',
+        serviceCategories: profileData.serviceCategories || [],
+        customServiceCategory: profileData.customServiceCategory || '',
+        address: {
+          street: profileData.address?.street || '',
+          city: profileData.address?.city || '',
+          state: profileData.address?.state || '',
+          pincode: profileData.address?.pincode || '',
+          landmark: profileData.address?.landmark || ''
+        }
+      });
+    }
   };
 
-  const handleSave = () => {
-    // Validate form data
-    if (!formData.name.trim()) {
-      toast({
-        title: "Error",
-        description: "Name is required",
-        variant: "destructive",
-      });
-      return;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    if (name.startsWith('address.')) {
+      const addressField = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [addressField]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
+  };
 
-    if (!formData.phone.trim()) {
+  const handleCategoryChange = (category: string, checked: boolean) => {
+    setFormData(prev => {
+      let newCategories;
+      if (checked) {
+        newCategories = [...prev.serviceCategories, category];
+      } else {
+        newCategories = prev.serviceCategories.filter(c => c !== category);
+        // If "Other" is unchecked, clear the custom service category
+        if (category === 'Other') {
+          return {
+            ...prev,
+            serviceCategories: newCategories,
+            customServiceCategory: ''
+          };
+        }
+      }
+      return {
+        ...prev,
+        serviceCategories: newCategories
+      };
+    });
+  };
+
+  const handleSave = async () => {
+    // Validate form data
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
       toast({
         title: "Error",
-        description: "Phone number is required",
+        description: "First name and last name are required",
         variant: "destructive",
       });
       return;
@@ -103,15 +246,6 @@ const VendorProfile = () => {
       toast({
         title: "Error",
         description: "Email is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.address.trim()) {
-      toast({
-        title: "Error",
-        description: "Address is required",
         variant: "destructive",
       });
       return;
@@ -128,64 +262,125 @@ const VendorProfile = () => {
       return;
     }
 
-    // Phone validation (basic)
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
-    if (!phoneRegex.test(formData.phone)) {
+    try {
+      setIsSaving(true);
+      
+      const response = await vendorApiService.updateVendorProfile(formData);
+      
+      if (response.success) {
+        setProfileData(response.data.vendor);
+        
+        // Update vendor context
+        updateVendor({
+          firstName: response.data.vendor.firstName,
+          lastName: response.data.vendor.lastName,
+          email: response.data.vendor.email,
+          specialty: response.data.vendor.specialty,
+          bio: response.data.vendor.bio,
+          serviceCategories: response.data.vendor.serviceCategories,
+          address: response.data.vendor.address
+        });
+        
+        setIsEditing(false);
+        toast({
+          title: "Success",
+          description: "Profile updated successfully!",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error saving profile:', error);
       toast({
-        title: "Error",
-        description: "Please enter a valid phone number",
-        variant: "destructive",
+        title: "Save Failed",
+        description: error.message || "Failed to save profile",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File",
+        description: "Please select a valid image file",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Image size should be less than 5MB",
+        variant: "destructive"
       });
       return;
     }
 
-    setProfileData({
-      ...formData,
-      profileImage: imagePreview
-    });
-    setIsEditing(false);
-
-    toast({
-      title: "Success",
-      description: "Profile updated successfully!",
-    });
-  };
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
+    try {
+      setIsUploadingImage(true);
+      const formData = new FormData();
+      formData.append('profileImage', file);
+      
+      const response = await vendorApiService.uploadProfileImage(formData);
+      
+      if (response.success) {
+        setProfileData(prev => prev ? {
+          ...prev,
+          profileImage: response.data.profileImage
+        } : null);
+        
+        // Update vendor context
+        updateVendor({ profileImage: response.data.profileImage });
+        
         toast({
-          title: "Error",
-          description: "Please select a valid image file",
-          variant: "destructive",
+          title: "Success",
+          description: "Profile image updated successfully"
         });
-        return;
       }
-
-      // Validate file size (5MB limit)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "Error",
-          description: "Image size should be less than 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to upload image",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+  const handleDeleteImage = async () => {
+    try {
+      const response = await vendorApiService.deleteProfileImage();
+      
+      if (response.success) {
+        setProfileData(prev => prev ? {
+          ...prev,
+          profileImage: undefined
+        } : null);
+        
+        // Update vendor context
+        updateVendor({ profileImage: undefined });
+        
+        toast({
+          title: "Success",
+          description: "Profile image deleted successfully"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error deleting image:', error);
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Failed to delete image",
+        variant: "destructive"
+      });
     }
   };
 
@@ -214,6 +409,61 @@ const VendorProfile = () => {
             <h1 className="text-2xl font-bold text-foreground mb-1">Vendor <span className="text-2xl font-bold text-gradient mb-1"> Profile</span></h1>         
           </div>
 
+          {/* Approval Status */}
+          {profileData && !profileData.isApproved && (
+            <Card className="mb-4 border-yellow-200 bg-yellow-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-yellow-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-yellow-800">Account Pending Approval</h3>
+                    <p className="text-sm text-yellow-700">
+                      Your account is currently under review by our admin team. You will be notified once approved.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {profileData && profileData.isApproved && !profileData.isActive && (
+            <Card className="mb-4 border-red-200 bg-red-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <XCircle className="w-4 h-4 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-red-800">Account Deactivated</h3>
+                    <p className="text-sm text-red-700">
+                      Your account has been deactivated. Please contact support for assistance.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {profileData && profileData.isBlocked && (
+            <Card className="mb-4 border-red-200 bg-red-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <AlertTriangle className="w-4 h-4 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-red-800">Account Blocked</h3>
+                    <p className="text-sm text-red-700">
+                      Your account has been blocked. Please contact support for assistance.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Profile Card */}
           <Card className="mb-4 shadow-lg border-0 bg-white">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b py-3">
@@ -235,9 +485,23 @@ const VendorProfile = () => {
                       <X className="w-3 h-3 mr-1" />
                       Cancel
                     </Button>
-                    <Button onClick={handleSave} size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1">
-                      <Save className="w-3 h-3 mr-1" />
-                      Save
+                    <Button 
+                      onClick={handleSave} 
+                      size="sm" 
+                      className="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <>
+                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-3 h-3 mr-1" />
+                          Save
+                        </>
+                      )}
                     </Button>
                   </div>
                 )}
@@ -248,9 +512,9 @@ const VendorProfile = () => {
               <div className="flex flex-col items-center space-y-3 mb-4">
                 <div className="relative group">
                   <div className="w-24 h-24 rounded-full overflow-hidden border-3 border-blue-100 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center shadow-md">
-                    {imagePreview ? (
+                    {profileData.profileImage ? (
                       <img
-                        src={imagePreview}
+                        src={profileData.profileImage}
                         alt="Profile"
                         className="w-full h-full object-cover"
                       />
@@ -268,12 +532,13 @@ const VendorProfile = () => {
                       >
                         <Camera className="w-4 h-4 text-blue-600" />
                       </Button>
-                      {imagePreview && (
+                      {profileData.profileImage && (
                         <Button
                           size="sm"
                           variant="destructive"
                           className="rounded-full w-8 h-8 p-0 bg-white shadow-md border border-red-200 hover:bg-red-50"
-                          onClick={handleRemoveImage}
+                          onClick={handleDeleteImage}
+                          disabled={isUploadingImage}
                         >
                           <X className="w-4 h-4 text-red-600" />
                         </Button>
@@ -287,6 +552,7 @@ const VendorProfile = () => {
                   accept="image/*"
                   onChange={handleImageUpload}
                   className="hidden"
+                  disabled={isUploadingImage}
                 />
                 {isEditing && (
                   <div className="text-center bg-blue-50 rounded-lg p-2 max-w-xs">
@@ -302,25 +568,50 @@ const VendorProfile = () => {
 
               {/* Profile Fields */}
               <div className="grid gap-3">
-                {/* Name */}
+                {/* First Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                  <Label htmlFor="firstName" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
                     <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
                       <User className="w-3 h-3 text-blue-600" />
                     </div>
-                    Full Name
+                    First Name
                   </Label>
                   {isEditing ? (
                     <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Enter your full name"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      placeholder="Enter your first name"
                       className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
                     />
                   ) : (
                     <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
-                      <p className="text-foreground font-medium">{profileData.name}</p>
+                      <p className="text-foreground font-medium">{profileData.firstName}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Last Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <User className="w-3 h-3 text-blue-600" />
+                    </div>
+                    Last Name
+                  </Label>
+                  {isEditing ? (
+                    <Input
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Enter your last name"
+                      className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    />
+                  ) : (
+                    <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
+                      <p className="text-foreground font-medium">{profileData.lastName}</p>
                     </div>
                   )}
                 </div>
@@ -333,19 +624,10 @@ const VendorProfile = () => {
                     </div>
                     Phone Number
                   </Label>
-                  {isEditing ? (
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="Enter your phone number"
-                      className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-                    />
-                  ) : (
-                    <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
-                      <p className="text-foreground font-medium">{profileData.phone}</p>
-                    </div>
-                  )}
+                  <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
+                    <p className="text-foreground font-medium">{profileData.phone}</p>
+                  </div>
+                  <p className="text-xs text-gray-500">Phone number cannot be changed</p>
                 </div>
 
                 {/* Email */}
@@ -359,9 +641,10 @@ const VendorProfile = () => {
                   {isEditing ? (
                     <Input
                       id="email"
+                      name="email"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={handleInputChange}
                       placeholder="Enter your email address"
                       className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
                     />
@@ -372,26 +655,190 @@ const VendorProfile = () => {
                   )}
                 </div>
 
-                {/* Address */}
+                {/* Specialty */}
                 <div className="space-y-2">
-                  <Label htmlFor="address" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                  <Label htmlFor="specialty" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
                     <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <MapPin className="w-3 h-3 text-orange-600" />
+                      <Briefcase className="w-3 h-3 text-orange-600" />
                     </div>
-                    Address
+                    Specialty
+                  </Label>
+                  {isEditing ? (
+                    <Input
+                      id="specialty"
+                      name="specialty"
+                      value={formData.specialty}
+                      onChange={handleInputChange}
+                      placeholder="Enter your specialty (e.g., AC Repair, Plumbing, etc.)"
+                      className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    />
+                  ) : (
+                    <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
+                      <p className="text-foreground font-medium">{profileData.specialty || 'Not provided'}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Service Categories */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Briefcase className="w-3 h-3 text-purple-600" />
+                    </div>
+                    Service Categories
+                  </Label>
+                  {isEditing ? (
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600">Select all the services you can provide (you can choose multiple)</p>
+                      <div className="grid grid-cols-1 gap-3 max-h-48 overflow-y-auto border rounded-md p-3">
+                        {serviceCategories.map((category) => (
+                          <div key={category} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={category}
+                              checked={formData.serviceCategories.includes(category)}
+                              onCheckedChange={(checked) => handleCategoryChange(category, checked as boolean)}
+                            />
+                            <Label 
+                              htmlFor={category} 
+                              className="text-sm font-normal cursor-pointer flex-1"
+                            >
+                              {category}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                      {formData.serviceCategories.includes('Other') && (
+                        <div className="space-y-2">
+                          <Label htmlFor="customServiceCategory" className="text-sm font-medium text-gray-700">
+                            Specify your service type:
+                          </Label>
+                          <Input
+                            id="customServiceCategory"
+                            name="customServiceCategory"
+                            value={formData.customServiceCategory}
+                            onChange={handleInputChange}
+                            placeholder="Enter your custom service category"
+                            className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                          />
+                        </div>
+                      )}
+                      {formData.serviceCategories.length > 0 && (
+                        <div className="text-sm text-blue-600">
+                          Selected: {formData.serviceCategories.map(cat => 
+                            cat === 'Other' && formData.customServiceCategory 
+                              ? `${cat} (${formData.customServiceCategory})` 
+                              : cat
+                          ).join(', ')}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="min-h-[40px] flex items-start px-3 py-2 bg-gray-50 rounded-lg border text-sm">
+                      {profileData.serviceCategories && profileData.serviceCategories.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {profileData.serviceCategories.map((category, index) => (
+                            <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                              {category === 'Other' && profileData.customServiceCategory 
+                                ? `${category} (${profileData.customServiceCategory})` 
+                                : category}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-foreground font-medium">No service categories selected</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Bio */}
+                <div className="space-y-2">
+                  <Label htmlFor="bio" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                    <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center">
+                      <User className="w-3 h-3 text-indigo-600" />
+                    </div>
+                    Bio
                   </Label>
                   {isEditing ? (
                     <Textarea
-                      id="address"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      placeholder="Enter your complete address"
-                      rows={2}
+                      id="bio"
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleInputChange}
+                      placeholder="Tell us about yourself and your experience"
+                      rows={3}
                       className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
                     />
                   ) : (
                     <div className="min-h-[60px] flex items-start px-3 py-2 bg-gray-50 rounded-lg border text-sm">
-                      <p className="text-foreground font-medium">{profileData.address}</p>
+                      <p className="text-foreground font-medium">{profileData.bio || 'Not provided'}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Address */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                      <LocationIcon className="w-3 h-3 text-orange-600" />
+                    </div>
+                    Address
+                  </Label>
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <Input
+                        name="address.street"
+                        value={formData.address.street}
+                        onChange={handleInputChange}
+                        placeholder="Street address"
+                        className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          name="address.city"
+                          value={formData.address.city}
+                          onChange={handleInputChange}
+                          placeholder="City"
+                          className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        />
+                        <Input
+                          name="address.state"
+                          value={formData.address.state}
+                          onChange={handleInputChange}
+                          placeholder="State"
+                          className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          name="address.pincode"
+                          value={formData.address.pincode}
+                          onChange={handleInputChange}
+                          placeholder="Pincode"
+                          className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        />
+                        <Input
+                          name="address.landmark"
+                          value={formData.address.landmark}
+                          onChange={handleInputChange}
+                          placeholder="Landmark"
+                          className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="min-h-[60px] flex items-start px-3 py-2 bg-gray-50 rounded-lg border text-sm">
+                      <div className="text-foreground font-medium">
+                        {profileData.address ? (
+                          <div>
+                            <p>{profileData.address.street}</p>
+                            <p>{profileData.address.city}, {profileData.address.state} - {profileData.address.pincode}</p>
+                            {profileData.address.landmark && <p>Near {profileData.address.landmark}</p>}
+                          </div>
+                        ) : (
+                          <p>No address provided</p>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -414,11 +861,11 @@ const VendorProfile = () => {
                 {/* Rating Card */}
                 <div className="text-center p-1 bg-gradient-to-br from-yellow-50 to-orange-50 rounded border border-yellow-200">
                   <div className="flex justify-center mb-1">
-                    {renderStars(profileData.rating)}
+                    {renderStars(profileData.rating?.average || 0)}
                   </div>
-                  <p className="text-base font-bold text-yellow-600 mb-1">{profileData.rating}</p>
+                  <p className="text-base font-bold text-yellow-600 mb-1">{profileData.rating?.average || 0}</p>
                   <p className="text-xs text-yellow-700 font-medium">
-                    {profileData.totalReviews} reviews
+                    {profileData.rating?.count || 0} reviews
                   </p>
                 </div>
                 
@@ -434,7 +881,7 @@ const VendorProfile = () => {
               
               {/* Status Badges */}
               <div className="flex flex-wrap items-center justify-center gap-1">
-                {profileData.isVerified && (
+                {(profileData.isEmailVerified || profileData.isPhoneVerified) && (
                   <Badge className="bg-green-100 text-green-800 border-green-200 px-1 py-0.5 text-xs font-medium">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Verified
@@ -442,10 +889,20 @@ const VendorProfile = () => {
                 )}
                 <Badge variant="outline" className="border-gray-200 text-gray-700 px-1 py-0.5 text-xs font-medium">
                   <Calendar className="w-3 h-3 mr-1" />
-                  Joined {new Date(profileData.joinDate).toLocaleDateString('en-US', { 
+                  Joined {new Date(profileData.createdAt).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'short'
                   })}
+                </Badge>
+                <Badge 
+                  variant="outline" 
+                  className={`px-1 py-0.5 text-xs font-medium ${
+                    profileData.isActive 
+                      ? 'border-green-200 text-green-700 bg-green-50' 
+                      : 'border-red-200 text-red-700 bg-red-50'
+                  }`}
+                >
+                  {profileData.isActive ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
             </CardContent>

@@ -7,9 +7,10 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Users, ShoppingBag, LogOut, User, FileText, Star, Info, Search, Bell } from 'lucide-react';
+import { Menu, X, Home, Users, ShoppingBag, LogOut, User, FileText, Star, Info, Search, Lock } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
+import { useVendor } from '@/contexts/VendorContext';
 
 const drawerWidth = 240;
 
@@ -66,8 +67,14 @@ const AppBar = styled(MuiAppBar, {
 const VendorHeader = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { vendor, isAuthenticated, logout } = useVendor();
   const [open, setOpen] = React.useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Check if vendor has made the initial deposit - once deposit is made, always show Yes
+  const hasInitialDeposit = vendor?.wallet?.hasInitialDeposit || 
+                           (vendor?.wallet?.currentBalance >= 4000) ||
+                           (vendor?.wallet?.totalDeposits > 0);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -144,36 +151,25 @@ const VendorHeader = () => {
              />
            </Box>
           
-          {/* Right side - Search and Notifications */}
-          <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 1 }}>
-            <IconButton
-              color="inherit"
-              aria-label="search"
-              onClick={() => navigate("/vendor/search")}
-              sx={{ 
-                color: 'black',
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
-              }}
-            >
-              <Search size={20} />
-            </IconButton>
-            <IconButton
-              color="inherit"
-              aria-label="notifications"
-              onClick={() => navigate("/vendor/notifications")}
-              sx={{ 
-                color: 'black',
-                position: 'relative',
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
-              }}
-            >
-              <Bell size={20} />
-              {/* Notification Badge */}
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold text-white">3</span>
-              </div>
-            </IconButton>
-          </Box>
+          {/* Right side - Search and Notifications - Hide when sidebar is open */}
+          {!open && (
+            <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 1 }}>
+              <IconButton
+                color="inherit"
+                aria-label="search"
+                onClick={() => hasInitialDeposit ? navigate("/vendor/search") : navigate("/vendor/earnings")}
+                sx={{ 
+                  color: hasInitialDeposit ? 'black' : 'gray',
+                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                }}
+              >
+                <div className="relative">
+                  <Search size={20} />
+                  {!hasInitialDeposit && <Lock size={10} className="absolute -top-1 -right-1" />}
+                </div>
+              </IconButton>
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer
@@ -208,21 +204,22 @@ const VendorHeader = () => {
           flexShrink: 0
         }}>
           <Avatar
+            src={isAuthenticated && vendor?.profileImage ? vendor.profileImage : undefined}
             sx={{
               width: 60,
               height: 60,
               marginBottom: 1,
-              backgroundColor: '#3b82f6',
+              backgroundColor: isAuthenticated && vendor?.profileImage ? 'transparent' : '#3b82f6',
               fontSize: '1.5rem'
             }}
           >
-            V
+            {isAuthenticated && vendor ? vendor.firstName.charAt(0).toUpperCase() : 'V'}
           </Avatar>
           <Typography variant="subtitle1" sx={{ fontWeight: 'bold', marginBottom: 0.25, color: '#1f2937' }}>
-            Vendor Name
+            {isAuthenticated && vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Vendor Name'}
           </Typography>
           <Typography variant="body2" sx={{ color: '#6b7280', marginBottom: 1 }}>
-            Vendor ID: V001
+            {isAuthenticated && vendor ? `Vendor ID: ${vendor.vendorId}` : 'Vendor ID: V001'}
           </Typography>
         </MuiBox>
         
@@ -238,34 +235,43 @@ const VendorHeader = () => {
           minHeight: 0
         }}>
           {[
-            { name: "Profile", icon: User, href: "/vendor/profile" },
-            { name: "My Tasks", icon: ShoppingBag, href: "/vendor" },
-            { name: "Privacy Policy", icon: FileText, href: "/vendor/privacy" },
-            { name: "Terms & Conditions", icon: FileText, href: "/vendor/terms" },
-            { name: "About Fixifly", icon: Info, href: "/vendor/about" },
-            { name: "Penalty & Charges", icon: Star, href: "/vendor/penalty" },
-            { name: "My Hub", icon: Users, href: "/vendor/hub" }
+            { name: "Profile", icon: User, href: "/vendor/profile", requiresDeposit: true },
+            { name: "My Tasks", icon: ShoppingBag, href: "/vendor", requiresDeposit: true },
+            { name: "Privacy Policy", icon: FileText, href: "/vendor/privacy", requiresDeposit: true },
+            { name: "Terms & Conditions", icon: FileText, href: "/vendor/terms", requiresDeposit: true },
+            { name: "About Fixifly", icon: Info, href: "/vendor/about", requiresDeposit: true },
+            { name: "Penalty & Charges", icon: Star, href: "/vendor/penalty", requiresDeposit: true }
           ].map((item) => {
             const IconComponent = item.icon;
+            const isDisabled = item.requiresDeposit && !hasInitialDeposit;
+            
             return (
               <Button
                 key={item.name}
-                component={Link}
-                to={item.href}
-                startIcon={<IconComponent size={20} />}
+                component={isDisabled ? 'div' : Link}
+                to={isDisabled ? undefined : item.href}
+                startIcon={
+                  <div className="relative">
+                    <IconComponent size={20} />
+                    {isDisabled && <Lock size={12} className="absolute -top-1 -right-1" />}
+                  </div>
+                }
                 fullWidth
-                onClick={handleDrawerClose}
+                onClick={isDisabled ? () => navigate("/vendor/earnings") : handleDrawerClose}
+                disabled={isDisabled}
                 sx={{
                   justifyContent: 'flex-start',
                   padding: '12px 16px',
                   margin: '4px 0',
                   textTransform: 'none',
-                  color: '#374151',
+                  color: isDisabled ? '#9ca3af' : '#374151',
                   fontSize: '16px',
                   fontWeight: 500,
+                  opacity: isDisabled ? 0.6 : 1,
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
                   '&:hover': {
-                    backgroundColor: '#f3f4f6',
-                    color: '#1f2937'
+                    backgroundColor: isDisabled ? 'transparent' : '#f3f4f6',
+                    color: isDisabled ? '#9ca3af' : '#1f2937'
                   }
                 }}
               >
@@ -274,35 +280,36 @@ const VendorHeader = () => {
             );
           })}
           
-          {/* Logout Button */}
-          <Divider sx={{ margin: '8px 0' }} />
-          <Button
-            startIcon={<LogOut size={20} />}
-            fullWidth
-            onClick={() => {
-              // Clear authentication data
-              localStorage.removeItem('vendorToken');
-              localStorage.removeItem('vendorData');
-              // Redirect to vendor login page
-              navigate('/vendor/login');
-              handleDrawerClose();
-            }}
-            sx={{
-              justifyContent: 'flex-start',
-              padding: '12px 16px',
-              margin: '4px 0 30px 0',
-              textTransform: 'none',
-              color: '#dc2626',
-              fontSize: '16px',
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: '#fef2f2',
-                color: '#b91c1c'
-              }
-            }}
-          >
-            Logout
-          </Button>
+          {/* Logout Button - Only show when authenticated */}
+          {isAuthenticated && (
+            <>
+              <Divider sx={{ margin: '8px 0' }} />
+              <Button
+                startIcon={<LogOut size={20} />}
+                fullWidth
+                onClick={() => {
+                  logout();
+                  navigate('/vendor/login');
+                  handleDrawerClose();
+                }}
+                sx={{
+                  justifyContent: 'flex-start',
+                  padding: '12px 16px',
+                  margin: '4px 0 30px 0',
+                  textTransform: 'none',
+                  color: '#dc2626',
+                  fontSize: '16px',
+                  fontWeight: 500,
+                  '&:hover': {
+                    backgroundColor: '#fef2f2',
+                    color: '#b91c1c'
+                  }
+                }}
+              >
+                Logout
+              </Button>
+            </>
+          )}
         </MuiBox>
       </Drawer>
     </Box>

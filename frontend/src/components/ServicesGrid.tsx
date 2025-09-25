@@ -10,10 +10,12 @@ import {
   Tablet,
   Star,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import ServiceBookingModal from "./ServiceBookingModal";
+import cardApiService, { Card } from "@/services/cardApi";
 
 const ServicesGrid = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -21,74 +23,10 @@ const ServicesGrid = () => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const autoScrollInterval = useRef<NodeJS.Timeout | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<any>(null);
-
-  const services = [
-    {
-      image: "/cardImage.png",
-      name: "Rajesh Kumar",
-      subtitle: "Laptop Repair Specialist",
-      rating: 4.8,
-      price: "Starting at ₹199",
-      popular: true
-    },
-    {
-      image: "/cardImage.png",
-      name: "Priya Sharma",
-      subtitle: "Desktop Specialist",
-      rating: 4.5,
-      price: "Starting at ₹299",
-      popular: false
-    },
-    {
-      image: "/cardImage.png",
-      name: "Amit Singh",
-      subtitle: "Mac Specialist",
-      rating: 4.9,
-      price: "Starting at ₹599",
-      popular: true
-    },
-    {
-      image: "/cardImage.png",
-      name: "Sneha Patel",
-      subtitle: "Mobile Specialist",
-      rating: 4.6,
-      price: "Starting at ₹399",
-      popular: false
-    },
-    {
-      image: "/cardImage.png",
-      name: "Vikram Joshi",
-      subtitle: "Tablet Specialist",
-      rating: 4.7,
-      price: "Starting at ₹499",
-      popular: false
-    },
-    {
-      image: "/cardImage.png",
-      name: "Anita Gupta",
-      subtitle: "Printer Specialist",
-      rating: 4.3,
-      price: "Starting at ₹199",
-      popular: false
-    },
-    {
-      image: "/cardImage.png",
-      name: "Rohit Verma",
-      subtitle: "Security Specialist",
-      rating: 4.9,
-      price: "Starting at ₹999",
-      popular: true
-    },
-    {
-      image: "/cardImage.png",
-      name: "Deepika Reddy",
-      subtitle: "Data Specialist",
-      rating: 4.8,
-      price: "Starting at ₹799",
-      popular: false
-    }
-  ];
+  const [selectedService, setSelectedService] = useState<Card | null>(null);
+  const [services, setServices] = useState<Card[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const scrollToCard = (index: number) => {
     if (cardRefs.current[index] && scrollContainerRef.current) {
@@ -137,9 +75,11 @@ const ServicesGrid = () => {
     }
   };
 
-  const handleBookService = (service: any) => {
+  const handleBookService = (service: Card) => {
     setSelectedService(service);
     setIsBookingModalOpen(true);
+    // Increment click count
+    cardApiService.incrementCardClicks(service._id).catch(console.error);
   };
 
   const handleCloseBookingModal = () => {
@@ -175,12 +115,91 @@ const ServicesGrid = () => {
     }
   };
 
+  // Fetch cards from API
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Try to get popular cards first, fallback to all cards
+        const response = await cardApiService.getPopularCards(20);
+        setServices(response.data.cards);
+        
+        // If no popular cards, get featured cards
+        if (response.data.cards.length === 0) {
+          const featuredResponse = await cardApiService.getFeaturedCards(20);
+          setServices(featuredResponse.data.cards);
+        }
+        
+        // If still no cards, get all active cards
+        if (services.length === 0) {
+          const allCardsResponse = await cardApiService.getCards({ limit: 20 });
+          setServices(allCardsResponse.data.cards);
+        }
+      } catch (err: any) {
+        console.error('Error fetching cards:', err);
+        setError(err.message || 'Failed to load service cards');
+        
+        // Fallback to static data if API fails
+        setServices([
+          {
+            _id: 'fallback-1',
+            name: "Rajesh Kumar",
+            speciality: "Laptop Repair",
+            subtitle: "Laptop Repair Specialist",
+            rating: 4.8,
+            price: 199,
+            priceDisplay: "Starting at ₹199",
+            image: "/cardImage.png",
+            status: "active" as const,
+            isPopular: true,
+            isFeatured: false,
+            totalReviews: 0,
+            completedJobs: 0,
+            totalJobs: 0,
+            tags: [],
+            displayOrder: 0,
+            stats: { views: 0, clicks: 0, bookings: 0 },
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          {
+            _id: 'fallback-2',
+            name: "Priya Sharma",
+            speciality: "Desktop Specialist",
+            subtitle: "Desktop Specialist",
+            rating: 4.5,
+            price: 299,
+            priceDisplay: "Starting at ₹299",
+            image: "/cardImage.png",
+            status: "active" as const,
+            isPopular: false,
+            isFeatured: false,
+            totalReviews: 0,
+            completedJobs: 0,
+            totalJobs: 0,
+            tags: [],
+            displayOrder: 0,
+            stats: { views: 0, clicks: 0, bookings: 0 },
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCards();
+  }, []);
+
   useEffect(() => {
     const container = scrollContainerRef.current;
-    if (container) {
+    if (container && services.length > 0) {
       container.addEventListener('scroll', handleScroll);
       
-      // Start auto-scroll when component mounts
+      // Start auto-scroll when component mounts and has services
       startAutoScroll();
       
       return () => {
@@ -188,7 +207,7 @@ const ServicesGrid = () => {
         stopAutoScroll();
       };
     }
-  }, []);
+  }, [services]);
 
   // Update auto-scroll when currentIndex changes
   useEffect(() => {
@@ -219,6 +238,19 @@ const ServicesGrid = () => {
           data-aos="fade-up" 
           data-aos-delay="200"
         >
+          {loading && (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2 text-muted-foreground">Loading services...</span>
+            </div>
+          )}
+          
+          {error && (
+            <div className="text-center py-20">
+              <p className="text-red-500 mb-4">{error}</p>
+              <p className="text-muted-foreground">Showing fallback services</p>
+            </div>
+          )}
           {/* Navigation Buttons */}
           <button
             onClick={() => {
@@ -241,104 +273,118 @@ const ServicesGrid = () => {
           </button>
 
           {/* Scrollable Container */}
-          <div 
-            ref={scrollContainerRef}
-            className="services-carousel flex gap-6 overflow-x-auto snap-x snap-mandatory py-8"
-          >
-            {services.map((service, index) => {
-              const isCenter = index === currentIndex;
-              return (
-                <div
-                  key={service.name}
-                  ref={(el) => (cardRefs.current[index] = el)}
-                  className={`bg-slate-800 rounded-2xl p-6 shadow-lg transition-all duration-500 group relative flex-shrink-0 snap-center ${
-                    isCenter 
-                      ? 'scale-110 shadow-2xl border-2 border-blue-400' 
-                      : 'scale-95 hover:scale-100'
-                  }`}
-                  style={{ width: '280px' }}
-                >
-                  <div className="text-center">
-                    {service.popular && (
-                      <div className="mb-4">
-                        <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
-                          Popular
+          {!loading && (
+            <div 
+              ref={scrollContainerRef}
+              className="services-carousel flex gap-6 overflow-x-auto snap-x snap-mandatory py-8"
+            >
+              {services.map((service, index) => {
+                const isCenter = index === currentIndex;
+                return (
+                  <div
+                    key={service._id}
+                    ref={(el) => (cardRefs.current[index] = el)}
+                    className={`bg-slate-800 rounded-2xl p-6 shadow-lg transition-all duration-500 group relative flex-shrink-0 snap-center ${
+                      isCenter 
+                        ? 'scale-110 shadow-2xl border-2 border-blue-400' 
+                        : 'scale-95 hover:scale-100'
+                    }`}
+                    style={{ width: '280px' }}
+                  >
+                    <div className="text-center">
+                      {service.isPopular && (
+                        <div className="mb-4">
+                          <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                            Popular
+                          </span>
+                        </div>
+                      )}
+                      {service.isFeatured && (
+                        <div className="mb-4">
+                          <span className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                            Featured
+                          </span>
+                        </div>
+                      )}
+                      {/* Profile Image */}
+                      <div className={`w-32 h-32 rounded-full mx-auto mb-4 border-2 border-white shadow-lg transition-transform duration-300 overflow-hidden ${
+                        isCenter ? 'group-hover:scale-110' : 'group-hover:scale-105'
+                      }`}>
+                        <img 
+                          src={service.image} 
+                          alt={service.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/cardImage.png';
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Name */}
+                      <h3 className={`text-xl font-bold text-white mb-2 transition-colors ${
+                        isCenter ? 'group-hover:text-blue-300' : 'group-hover:text-gray-300'
+                      }`}>
+                        {service.name}
+                      </h3>
+                      
+                      {/* Subtitle */}
+                      <p className="text-gray-300 text-sm mb-3">
+                        {service.subtitle}
+                      </p>
+                      
+                      {/* Rating */}
+                      <div className="flex items-center justify-center gap-1 mb-3">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-yellow-400 font-semibold text-sm">
+                          {service.rating.toFixed(1)}
+                        </span>
+                        <span className="text-gray-400 text-xs">
+                          ({service.totalReviews})
                         </span>
                       </div>
-                    )}
-                    {/* Profile Image */}
-                    <div className={`w-32 h-32 rounded-full mx-auto mb-4 border-2 border-white shadow-lg transition-transform duration-300 overflow-hidden ${
-                      isCenter ? 'group-hover:scale-110' : 'group-hover:scale-105'
-                    }`}>
-                      <img 
-                        src={service.image} 
-                        alt={service.name}
-                        className="w-full h-full object-cover"
-                      />
+                      
+                      {/* Price */}
+                      <p className="text-white font-semibold text-lg mb-4">
+                        {service.priceDisplay}
+                      </p>
+                      
+                      {/* Book Service Button */}
+                      <Button 
+                        onClick={() => handleBookService(service)}
+                        className={`w-full font-medium rounded-lg py-2 transition-all duration-300 ${
+                          isCenter 
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white' 
+                            : 'bg-white text-slate-800 hover:bg-gray-100'
+                        }`}
+                      >
+                        Book Service
+                      </Button>
                     </div>
-                    
-                    {/* Name */}
-                    <h3 className={`text-xl font-bold text-white mb-2 transition-colors ${
-                      isCenter ? 'group-hover:text-blue-300' : 'group-hover:text-gray-300'
-                    }`}>
-                      {service.name}
-                    </h3>
-                    
-                    {/* Subtitle */}
-                    <p className="text-gray-300 text-sm mb-3">
-                      {service.subtitle}
-                    </p>
-                    
-                    {/* Rating */}
-                    <div className="flex items-center justify-center gap-1 mb-3">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-yellow-400 font-semibold text-sm">
-                        {service.rating}
-                      </span>
-                      <span className="text-gray-400 text-xs">
-                        (4.5)
-                      </span>
-                    </div>
-                    
-                    {/* Price */}
-                    <p className="text-white font-semibold text-lg mb-4">
-                      {service.price}
-                    </p>
-                    
-                    {/* Book Service Button */}
-                    <Button 
-                      onClick={() => handleBookService(service)}
-                      className={`w-full font-medium rounded-lg py-2 transition-all duration-300 ${
-                        isCenter 
-                          ? 'bg-blue-500 hover:bg-blue-600 text-white' 
-                          : 'bg-white text-slate-800 hover:bg-gray-100'
-                      }`}
-                    >
-                      Book Service
-                    </Button>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-6">
-            {services.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  stopAutoScroll();
-                  scrollToCard(index);
-                }}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentIndex 
-                    ? 'bg-blue-500 scale-125' 
-                    : 'bg-gray-400 hover:bg-gray-300'
-                }`}
-              />
-            ))}
-          </div>
+          {!loading && services.length > 0 && (
+            <div className="flex justify-center gap-2 mt-6">
+              {services.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    stopAutoScroll();
+                    scrollToCard(index);
+                  }}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentIndex 
+                      ? 'bg-blue-500 scale-125' 
+                      : 'bg-gray-400 hover:bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

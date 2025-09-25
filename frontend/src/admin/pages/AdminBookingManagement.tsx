@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminHeader from '../components/AdminHeader';
+import adminBookingApi, { Booking, BookingStats } from '@/services/adminBookingApi';
+import adminApiService from '@/services/adminApi';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, 
   Search, 
@@ -17,7 +20,10 @@ import {
   Star,
   AlertTriangle,
   UserPlus,
-  Users
+  Users,
+  Check,
+  GripVertical,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,147 +37,356 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 const AdminBookingManagement = () => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
   const [isAssignEngineerOpen, setIsAssignEngineerOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [assignedEngineer, setAssignedEngineer] = useState('');
   const [assignmentNotes, setAssignmentNotes] = useState('');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
+  const [priority, setPriority] = useState('medium');
+  const [isAssigning, setIsAssigning] = useState(false);
   const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isEditBookingOpen, setIsEditBookingOpen] = useState(false);
-  const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
-  const [editingBooking, setEditingBooking] = useState<any>(null);
+  const [isUpdatePriorityOpen, setIsUpdatePriorityOpen] = useState(false);
+  const [selectedPriority, setSelectedPriority] = useState('medium');
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [isRefundOpen, setIsRefundOpen] = useState(false);
+  const [refundAmount, setRefundAmount] = useState<number>(0);
+  const [refundReason, setRefundReason] = useState('');
+  const [isCompletedTaskDetailsOpen, setIsCompletedTaskDetailsOpen] = useState(false);
+  const [completedTaskDetails, setCompletedTaskDetails] = useState(null);
   
-  // Sample booking data - in real app this would come from API
-  const [bookings, setBookings] = useState([
-    {
-      id: 'B001',
-      customerName: 'John Doe',
-      customerPhone: '+91 98765 43210',
-      customerEmail: 'john.doe@email.com',
-      serviceName: 'AC Repair & Maintenance',
-      vendorName: 'ABC Electronics',
-      vendorPhone: '+91 98765 43211',
-      bookingDate: '2024-02-15',
-      scheduledDate: '2024-02-16',
-      scheduledTime: '10:00 AM',
-      status: 'confirmed',
-      priority: 'normal',
-      address: '123 Main Street, Mumbai, Maharashtra',
-      totalAmount: 1200,
-      paymentStatus: 'paid',
-      rating: 4.8,
-      notes: 'AC not cooling properly, needs urgent repair',
-      assignedEngineer: 'E001',
-      assignmentStatus: 'assigned'
-    },
-    {
-      id: 'B002',
-      customerName: 'Sarah Wilson',
-      customerPhone: '+91 98765 43212',
-      customerEmail: 'sarah.wilson@email.com',
-      serviceName: 'Laptop Repair',
-      vendorName: 'TechFix Solutions',
-      vendorPhone: '+91 98765 43213',
-      bookingDate: '2024-02-14',
-      scheduledDate: '2024-02-17',
-      scheduledTime: '2:00 PM',
-      status: 'pending',
-      priority: 'high',
-      address: '456 Park Avenue, Delhi, NCR',
-      totalAmount: 2500,
-      paymentStatus: 'pending',
-      rating: null,
-      notes: 'Laptop screen cracked, needs replacement',
-      assignedEngineer: null,
-      assignmentStatus: 'pending'
-    },
-    {
-      id: 'B003',
-      customerName: 'Mike Johnson',
-      customerPhone: '+91 98765 43214',
-      customerEmail: 'mike.johnson@email.com',
-      serviceName: 'Mobile Phone Repair',
-      vendorName: 'Quick Fix Hub',
-      vendorPhone: '+91 98765 43215',
-      bookingDate: '2024-02-13',
-      scheduledDate: '2024-02-15',
-      scheduledTime: '11:00 AM',
-      status: 'completed',
-      priority: 'normal',
-      address: '789 Tech Park, Bangalore, Karnataka',
-      totalAmount: 800,
-      paymentStatus: 'paid',
-      rating: 4.5,
-      notes: 'Battery replacement and screen repair',
-      assignedEngineer: 'E002',
-      assignmentStatus: 'in_progress'
-    },
-    {
-      id: 'B004',
-      customerName: 'Emily Davis',
-      customerPhone: '+91 98765 43216',
-      customerEmail: 'emily.davis@email.com',
-      serviceName: 'Washing Machine Repair',
-      vendorName: 'Home Services Pro',
-      vendorPhone: '+91 98765 43217',
-      bookingDate: '2024-02-12',
-      scheduledDate: '2024-02-14',
-      scheduledTime: '3:00 PM',
-      status: 'cancelled',
-      priority: 'low',
-      address: '321 Garden Street, Chennai, Tamil Nadu',
-      totalAmount: 600,
-      paymentStatus: 'refunded',
-      rating: null,
-      notes: 'Customer cancelled due to schedule conflict',
-      assignedEngineer: null,
-      assignmentStatus: 'cancelled'
-    },
-    {
-      id: 'B005',
-      customerName: 'David Brown',
-      customerPhone: '+91 98765 43218',
-      customerEmail: 'david.brown@email.com',
-      serviceName: 'Plumbing Services',
-      vendorName: 'Appliance Masters',
-      vendorPhone: '+91 98765 43219',
-      bookingDate: '2024-02-11',
-      scheduledDate: '2024-02-13',
-      scheduledTime: '9:00 AM',
-      status: 'in_progress',
-      priority: 'urgent',
-      address: '654 Water Lane, Pune, Maharashtra',
-      totalAmount: 900,
-      paymentStatus: 'paid',
-      rating: null,
-      notes: 'Pipe leakage, needs immediate attention',
-      assignedEngineer: null,
-      assignmentStatus: 'pending'
-    }
-  ]);
+  // Booking data from API
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [stats, setStats] = useState<BookingStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalBookings, setTotalBookings] = useState(0);
 
   const services = ['AC Repair & Maintenance', 'Laptop Repair', 'Mobile Phone Repair', 'Washing Machine Repair', 'Plumbing Services'];
 
-  // Sample engineers data
-  const engineers = [
-    { id: 'E001', name: 'Rajesh Kumar', phone: '+91 98765 43220', specialization: 'AC Repair & Maintenance', status: 'available', rating: 4.8 },
-    { id: 'E002', name: 'Priya Sharma', phone: '+91 98765 43221', specialization: 'Laptop Repair', status: 'available', rating: 4.9 },
-    { id: 'E003', name: 'Amit Singh', phone: '+91 98765 43222', specialization: 'Mobile Phone Repair', status: 'busy', rating: 4.7 },
-    { id: 'E004', name: 'Sneha Patel', phone: '+91 98765 43223', specialization: 'Washing Machine Repair', status: 'available', rating: 4.6 },
-    { id: 'E005', name: 'Vikram Joshi', phone: '+91 98765 43224', specialization: 'Plumbing Services', status: 'available', rating: 4.5 },
-    { id: 'E006', name: 'Anita Gupta', phone: '+91 98765 43225', specialization: 'General Electronics', status: 'available', rating: 4.8 }
-  ];
+  // Vendors data - will be fetched from API
+  const [vendors, setVendors] = useState([]);
+
+  // Fetch bookings from API
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await adminBookingApi.getAllBookings({
+        page: currentPage,
+        limit: 10,
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        paymentStatus: paymentStatusFilter === 'all' ? undefined : paymentStatusFilter,
+        search: searchTerm || undefined,
+        sortBy,
+        sortOrder
+      });
+
+      if (response.success && response.data) {
+        setBookings(response.data.bookings);
+        setStats(response.data.stats);
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalBookings(response.data.pagination.totalBookings);
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to fetch bookings",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch bookings",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch booking statistics
+  const fetchStats = async () => {
+    try {
+      const response = await adminBookingApi.getBookingStats('30d');
+      if (response.success && response.data) {
+        setStats(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  // Fetch vendors from API
+  const fetchVendors = async () => {
+    try {
+      console.log('Fetching vendors...');
+      const response = await adminApiService.getVendors({
+        page: 1,
+        limit: 100 // Get all vendors without server-side filtering
+      });
+      
+      console.log('Vendor API response:', response);
+      
+      if (response.success && response.data) {
+        console.log('All fetched vendors:', response.data.vendors);
+        // Filter to only include active and verified vendors
+        const activeVendors = response.data.vendors.filter((vendor: any) => {
+          console.log('Checking vendor:', {
+            name: vendor.name,
+            status: vendor.status,
+            verificationStatus: vendor.verificationStatus,
+            isActive: vendor.isActive,
+            isApproved: vendor.isApproved
+          });
+          return vendor.status === 'active' && vendor.verificationStatus === 'verified';
+        });
+        console.log('Active vendors after filtering:', activeVendors);
+        setVendors(activeVendors);
+      } else {
+        console.error('Failed to fetch vendors:', response);
+        setVendors([]);
+      }
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
+      setVendors([]);
+    }
+  };
+
+  // Update booking status
+  const handleUpdateStatus = async (bookingId: string, newStatus: string) => {
+    try {
+      const response = await adminBookingApi.updateBookingStatus(bookingId, newStatus);
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Booking status updated successfully",
+          variant: "default"
+        });
+        fetchBookings();
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to update status",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update booking status",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Assign vendor
+  const handleAssignVendor = async () => {
+    if (!selectedBooking || !assignedEngineer) return;
+
+    try {
+      const response = await adminBookingApi.assignVendor(selectedBooking._id, assignedEngineer);
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Vendor assigned successfully",
+          variant: "default"
+        });
+        setIsAssignEngineerOpen(false);
+        setSelectedBooking(null);
+        setAssignedEngineer('');
+        fetchBookings();
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to assign vendor",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error assigning vendor:', error);
+      toast({
+        title: "Error",
+        description: "Failed to assign vendor",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Process refund
+  const handleProcessRefund = async () => {
+    if (!selectedBooking) return;
+
+    try {
+      const response = await adminBookingApi.processRefund(
+        selectedBooking._id,
+        refundAmount || selectedBooking.pricing.totalAmount,
+        refundReason || 'Admin processed refund'
+      );
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Refund processed successfully",
+          variant: "default"
+        });
+        setIsRefundOpen(false);
+        setSelectedBooking(null);
+        setRefundAmount(0);
+        setRefundReason('');
+        fetchBookings();
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to process refund",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error processing refund:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process refund",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Delete booking
+  const handleDeleteBooking = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to delete this booking?')) return;
+
+    try {
+      const response = await adminBookingApi.deleteBooking(bookingId);
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Booking deleted successfully",
+          variant: "default"
+        });
+        fetchBookings();
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to delete booking",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete booking",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Load data on component mount and when filters change
+  useEffect(() => {
+    // Check admin authentication
+    const adminToken = localStorage.getItem('adminToken');
+    const adminData = localStorage.getItem('adminData');
+    
+    console.log('Admin authentication check:', {
+      hasToken: !!adminToken,
+      hasAdminData: !!adminData,
+      tokenPreview: adminToken ? `${adminToken.substring(0, 20)}...` : 'none'
+    });
+    
+    if (!adminToken) {
+      console.log('No admin token found, redirecting to login...');
+      toast({
+        title: "Authentication Required",
+        description: "Please log in as admin to access this page. Redirecting to login...",
+        variant: "destructive"
+      });
+      // Redirect to admin login
+      window.location.href = '/admin/login';
+      return;
+    }
+    
+    console.log('Admin token found, fetching bookings...');
+    fetchBookings();
+  }, [currentPage, statusFilter, paymentStatusFilter, serviceFilter, searchTerm, sortBy, sortOrder]);
+
+  useEffect(() => {
+    fetchStats();
+    fetchVendors();
+  }, []);
+
+  const getVendorName = (vendorId: string | object | null) => {
+    if (!vendorId) return 'Not Assigned';
+    
+    // If vendorId is an object (populated vendor), extract name directly
+    if (typeof vendorId === 'object' && vendorId !== null) {
+      const vendor = vendorId as any;
+      if (vendor.firstName && vendor.lastName) {
+        return `${vendor.firstName} ${vendor.lastName}`;
+      }
+      return 'Assigned Vendor';
+    }
+    
+    // If vendorId is a string, find vendor in vendors array
+    const vendor = vendors.find(v => (v.id || v._id) === vendorId || v.vendorId === vendorId);
+    if (vendor) {
+      // Check if vendor has firstName/lastName or name field
+      if (vendor.firstName && vendor.lastName) {
+        return `${vendor.firstName} ${vendor.lastName}`;
+      }
+      return vendor.name || 'Unknown Vendor';
+    }
+    return 'Unknown Vendor';
+  };
 
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const customerName = booking.customer?.name || '';
+    const serviceNames = booking.services?.map(service => service.serviceName).join(' ') || '';
+    
+    // Inline vendor name logic to avoid function dependency
+    let vendorName = 'Not Assigned';
+    if (booking.vendor?.vendorId) {
+      const vendorId = booking.vendor.vendorId;
+      if (typeof vendorId === 'object' && vendorId !== null) {
+        const vendor = vendorId as any;
+        if (vendor.firstName && vendor.lastName) {
+          vendorName = `${vendor.firstName} ${vendor.lastName}`;
+        } else {
+          vendorName = 'Assigned Vendor';
+        }
+      } else {
+        const vendor = vendors.find(v => (v.id || v._id) === vendorId);
+        if (vendor) {
+          if (vendor.firstName && vendor.lastName) {
+            vendorName = `${vendor.firstName} ${vendor.lastName}`;
+          } else {
+            vendorName = vendor.name || 'Unknown Vendor';
+          }
+        } else {
+          vendorName = 'Unknown Vendor';
+        }
+      }
+    }
+    
+    const bookingId = booking._id || '';
+    
+    const matchesSearch = customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         serviceNames.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         bookingId.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
-    const matchesService = serviceFilter === 'all' || booking.serviceName === serviceFilter;
+    const matchesService = serviceFilter === 'all' || serviceNames.includes(serviceFilter);
     return matchesSearch && matchesStatus && matchesService;
   });
 
@@ -207,71 +422,327 @@ const AdminBookingManagement = () => {
     }
   };
 
-  const getPaymentStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <Badge className="bg-green-100 text-green-800">Paid</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'refunded':
-        return <Badge className="bg-blue-100 text-blue-800">Refunded</Badge>;
-      case 'failed':
-        return <Badge className="bg-red-100 text-red-800">Failed</Badge>;
-      default:
-        return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
-    }
-  };
 
   const handleAssignEngineer = (booking: any) => {
     setSelectedBooking(booking);
-    setAssignedEngineer(booking.assignedEngineer || '');
+    // Ensure only single vendor ID is set
+    const vendorId = booking.vendor?.vendorId;
+    if (Array.isArray(vendorId)) {
+      setAssignedEngineer(vendorId[0] || '');
+    } else {
+      setAssignedEngineer(vendorId || '');
+    }
     setAssignmentNotes('');
+    // Set default values for easier testing
+    setScheduledDate(new Date().toISOString().split('T')[0]); // Today's date
+    setScheduledTime('09:00'); // 9:00 AM
+    setPriority('medium');
     setIsAssignEngineerOpen(true);
   };
 
-  const handleSubmitAssignment = () => {
-    if (!assignedEngineer) return;
-
-    // Get the selected engineer details
-    const engineer = engineers.find(e => e.id === assignedEngineer);
-    
-    // Update the booking with assigned engineer and make them the vendor
-    setBookings(prev => prev.map(booking => 
-      booking.id === selectedBooking.id 
-        ? { 
-            ...booking, 
-            assignedEngineer: assignedEngineer,
-            assignmentStatus: 'assigned',
-            vendorName: engineer?.name || 'Unknown Engineer',
-            vendorPhone: engineer?.phone || 'N/A'
-          }
-        : booking
-    ));
-
-    console.log('Engineer assigned successfully:', {
-      bookingId: selectedBooking.id,
-      engineerId: assignedEngineer,
-      engineerName: engineer?.name,
-      notes: assignmentNotes
-    });
-
-    // Close modal and reset form
+  const handleCloseAssignEngineer = () => {
     setIsAssignEngineerOpen(false);
     setSelectedBooking(null);
     setAssignedEngineer('');
     setAssignmentNotes('');
+    setScheduledDate('');
+    setScheduledTime('');
+    setPriority('medium');
+  };
+
+  const handleSubmitAssignment = async () => {
+    // Check for minimum required fields
+    if (!selectedBooking) {
+      toast({
+        title: "Error",
+        description: "No booking selected",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Ensure only one vendor is selected
+    if (!assignedEngineer) {
+      toast({
+        title: "Error",
+        description: "Please select a vendor before assigning",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isAssigning) return; // Prevent multiple submissions
+
+    setIsAssigning(true);
+    try {
+      // Check admin authentication
+      const adminToken = localStorage.getItem('adminToken');
+      console.log('Admin token exists:', !!adminToken);
+      
+      if (!adminToken) {
+        toast({
+          title: "Authentication Error",
+          description: "Admin session expired. Please log in again.",
+          variant: "destructive"
+        });
+        window.location.href = '/admin/login';
+        return;
+      }
+      
+      console.log('Submitting assignment:', {
+        bookingId: selectedBooking._id,
+        vendorId: assignedEngineer,
+        scheduledDate,
+        scheduledTime,
+        priority,
+        notes: assignmentNotes
+      });
+
+      // Ensure vendor ID is a single string, not an array
+      let vendorToAssign = assignedEngineer;
+      
+      // If assignedEngineer is an array, take the first one
+      if (Array.isArray(vendorToAssign)) {
+        vendorToAssign = vendorToAssign[0];
+        console.warn('Multiple vendors detected, using first vendor:', vendorToAssign);
+      }
+      
+      if (!vendorToAssign) {
+        toast({
+          title: "Error",
+          description: "No vendor available for this service",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Assign vendor using API with scheduled date and time
+      const response = await adminBookingApi.assignVendor(
+        selectedBooking._id, 
+        vendorToAssign, 
+        scheduledDate || undefined, 
+        scheduledTime || undefined,
+        priority || undefined,
+        assignmentNotes || undefined
+      );
+
+      console.log('Assignment response:', response);
+      
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Engineer assigned successfully and booking confirmed",
+          variant: "default"
+        });
+        
+        // Refresh bookings to get updated data
+        fetchBookings();
+        
+        // Close modal and reset form
+        setIsAssignEngineerOpen(false);
+        setSelectedBooking(null);
+        setAssignedEngineer('');
+        setAssignmentNotes('');
+        setScheduledDate('');
+        setScheduledTime('');
+        setPriority('medium');
+      } else {
+        console.error('Assignment failed:', response);
+        toast({
+          title: "Error",
+          description: response.message || "Failed to assign vendor",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error assigning vendor:', error);
+      toast({
+        title: "Error",
+        description: `Failed to assign vendor: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsAssigning(false);
+    }
   };
 
   const handleUpdateAssignmentStatus = (bookingId: string, newStatus: string) => {
     setBookings(prev => prev.map(booking => 
-      booking.id === bookingId 
+      booking._id === bookingId 
         ? { ...booking, assignmentStatus: newStatus }
         : booking
     ));
   };
 
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+    setIsImageModalOpen(true);
+  };
+
+  const getPaymentModeBadge = (paymentMode: string) => {
+    if (!paymentMode) {
+      return <span className="text-gray-400">-</span>;
+    }
+
+    const modeConfig = {
+      online: { color: 'bg-blue-100 text-blue-800', icon: '💳' },
+      cash: { color: 'bg-green-100 text-green-800', icon: '💰' }
+    };
+
+    const config = modeConfig[paymentMode as keyof typeof modeConfig] || modeConfig.online;
+
+    return (
+      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+        <span className="mr-1">{config.icon}</span>
+        {paymentMode.toUpperCase()}
+      </span>
+    );
+  };
+
+  const getPaymentStatusBadge = (paymentStatus: string, paymentMode: string) => {
+    if (!paymentMode) {
+      return <span className="text-gray-400">-</span>;
+    }
+
+    if (paymentMode === 'online') {
+      const statusConfig = {
+        pending: { color: 'bg-yellow-100 text-yellow-800' },
+        payment_done: { color: 'bg-green-100 text-green-800' }
+      };
+      const config = statusConfig[paymentStatus as keyof typeof statusConfig] || statusConfig.pending;
+      return (
+        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+          {paymentStatus.replace('_', ' ').toUpperCase()}
+        </span>
+      );
+    } else {
+      const statusConfig = {
+        collected: { color: 'bg-green-100 text-green-800' },
+        not_collected: { color: 'bg-red-100 text-red-800' }
+      };
+      const config = statusConfig[paymentStatus as keyof typeof statusConfig] || statusConfig.not_collected;
+      return (
+        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+          {paymentStatus.replace('_', ' ').toUpperCase()}
+        </span>
+      );
+    }
+  };
+
+  const getVendorStatusBadge = (response: any) => {
+    // Handle both object and string responses
+    let vendorResponse = '';
+    if (typeof response === 'object' && response !== null) {
+      vendorResponse = response.status || '';
+    } else if (typeof response === 'string') {
+      vendorResponse = response;
+    }
+
+    if (!vendorResponse || vendorResponse === 'pending') {
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+          <Clock className="w-3 h-3 mr-1" />
+          PENDING
+        </span>
+      );
+    }
+
+    const statusConfig = {
+      accepted: { color: 'bg-green-100 text-green-800', icon: CheckCircle },
+      declined: { color: 'bg-red-100 text-red-800', icon: XCircle }
+    };
+
+    const config = statusConfig[vendorResponse as keyof typeof statusConfig] || statusConfig.accepted;
+    const IconComponent = config.icon;
+
+    return (
+      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+        <IconComponent className="w-3 h-3 mr-1" />
+        {vendorResponse.toUpperCase()}
+      </span>
+    );
+  };
+
   const handleViewDetails = (booking: any) => {
-    setSelectedBooking(booking);
+    // Transform the nested booking data into flat structure for the modal
+    const transformedBooking = {
+      ...booking,
+      // Customer information
+      customerName: booking.customer?.name || 'N/A',
+      customerEmail: booking.customer?.email || 'N/A',
+      customerPhone: booking.customer?.phone || 'N/A',
+      address: (() => {
+        const addr = booking.customer?.address;
+        if (typeof addr === 'object' && addr !== null) {
+          return `${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',');
+        }
+        return addr || 'N/A';
+      })(),
+      
+      // Service information
+      serviceName: booking.services?.map((service: any) => service.serviceName).join(', ') || 'N/A',
+      
+      // Vendor information
+      vendorName: (() => {
+        if (!booking.vendor?.vendorId) return 'Not Assigned';
+        const vendor = booking.vendor.vendorId as any;
+        if (typeof vendor === 'object' && vendor !== null) {
+          return vendor.firstName && vendor.lastName 
+            ? `${vendor.firstName} ${vendor.lastName}` 
+            : 'Assigned Vendor';
+        }
+        return 'Assigned Vendor';
+      })(),
+      vendorPhone: (() => {
+        if (!booking.vendor?.vendorId) return 'N/A';
+        const vendor = booking.vendor.vendorId as any;
+        if (typeof vendor === 'object' && vendor !== null) {
+          return vendor.phone || 'N/A';
+        }
+        return 'N/A';
+      })(),
+      
+      // Amount
+      totalAmount: booking.pricing?.totalAmount || booking.totalAmount || 0,
+      
+      // Dates
+      bookingDate: booking.createdAt || booking.bookingDate,
+      scheduledDate: booking.scheduling?.scheduledDate || booking.scheduling?.preferredDate || 'Not scheduled',
+      scheduledTime: booking.scheduling?.scheduledTime 
+        ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          })
+        : 'Not scheduled',
+      
+      // Status and priority
+      priority: booking.priority || 'medium',
+      paymentStatus: booking.payment?.status || 'pending',
+      status: booking.vendor ? 'assigned' : 'unassigned',
+      
+      // Notes
+      notes: (() => {
+        const notes = booking.notes || booking.description || '';
+        return notes.replace(/Booking created from checkout/gi, '').trim() || '';
+      })(),
+      
+      // Payment information
+      paymentMode: booking.paymentMode || '',
+      paymentStatus: booking.paymentStatus || (booking.status === 'completed' ? 'completed' : 'pending'),
+      paymentAmount: booking.completionData?.totalAmount || 0,
+      
+      // Completion data
+      completionData: booking.completionData || null,
+      resolutionNote: booking.completionData?.resolutionNote || '',
+      spareParts: booking.completionData?.spareParts || [],
+      
+      // Vendor response
+      vendorResponse: booking.vendorResponse || booking.vendor?.response || '',
+      assignedAt: booking.vendor?.assignedAt || ''
+    };
+    
+    setSelectedBooking(transformedBooking);
     setIsViewDetailsOpen(true);
   };
 
@@ -280,14 +751,92 @@ const AdminBookingManagement = () => {
     setIsEditBookingOpen(true);
   };
 
-  const handleReschedule = (booking: any) => {
+  const handleUpdatePriority = (booking: any) => {
     setSelectedBooking(booking);
-    setIsRescheduleOpen(true);
+    setSelectedPriority(booking.priority || 'medium');
+    setIsUpdatePriorityOpen(true);
+  };
+
+  const handleSubmitPriorityUpdate = async () => {
+    if (!selectedBooking) return;
+
+    try {
+      const response = await adminBookingApi.updateBookingPriority(selectedBooking._id, selectedPriority);
+
+      if (response.success) {
+        // Update local state immediately for better UX
+        setBookings(prev => prev.map(booking => 
+          booking._id === selectedBooking._id 
+            ? { ...booking, priority: selectedPriority }
+            : booking
+        ));
+        
+        toast({
+          title: "Success",
+          description: "Priority updated successfully",
+          variant: "default"
+        });
+        setIsUpdatePriorityOpen(false);
+        setSelectedBooking(null);
+        setSelectedPriority('medium');
+        fetchBookings();
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to update priority",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error updating priority:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update priority",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleViewCompletedTaskDetails = (booking: any) => {
+    // For now, we'll create mock data for completed task details
+    // In a real implementation, this would fetch from an API endpoint
+    const mockCompletedTaskDetails = {
+      bookingId: booking._id,
+      bookingReference: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
+      customerName: booking.customer?.name || 'N/A',
+      serviceName: booking.services?.map((service: any) => service.serviceName).join(', ') || 'N/A',
+      resolution: "Laptop display was successfully replaced with a new LCD panel. Keyboard was also repaired by replacing the damaged keys. All functionality has been restored and tested.",
+      spareParts: [
+        {
+          id: 1,
+          name: "LCD Display Panel 15.6 inch",
+          price: 4500,
+          image: "https://via.placeholder.com/150x100?text=LCD+Panel"
+        },
+        {
+          id: 2,
+          name: "Keyboard Replacement",
+          price: 1200,
+          image: "https://via.placeholder.com/150x100?text=Keyboard"
+        }
+      ],
+      travelExpense: 200,
+      totalAmount: booking.pricing?.totalAmount || 0,
+      completedDate: new Date().toLocaleDateString('en-IN'),
+      completedTime: new Date().toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+    };
+    
+    setCompletedTaskDetails(mockCompletedTaskDetails);
+    setIsCompletedTaskDetailsOpen(true);
   };
 
   const handleConfirmBooking = (bookingId: string) => {
     setBookings(prev => prev.map(booking => 
-      booking.id === bookingId 
+      booking._id === bookingId 
         ? { ...booking, status: 'confirmed' }
         : booking
     ));
@@ -296,7 +845,7 @@ const AdminBookingManagement = () => {
   const handleCancelBooking = (bookingId: string) => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
       setBookings(prev => prev.map(booking => 
-        booking.id === bookingId 
+        booking._id === bookingId 
           ? { ...booking, status: 'cancelled', assignmentStatus: 'cancelled' }
           : booking
       ));
@@ -308,17 +857,53 @@ const AdminBookingManagement = () => {
     console.log('Creating new booking');
   };
 
-  const getEngineerName = (engineerId: string | null) => {
-    if (!engineerId) return 'Not Assigned';
-    const engineer = engineers.find(e => e.id === engineerId);
-    return engineer ? engineer.name : 'Unknown Engineer';
+
+  const getAvailableVendors = (serviceName: string) => {
+    console.log('=== VENDOR FILTERING DEBUG ===');
+    console.log('All vendors in state:', vendors);
+    console.log('Filtering for service:', serviceName);
+    console.log('Vendors array length:', vendors.length);
+    
+    if (vendors.length === 0) {
+      console.log('No vendors in array, returning empty array');
+      return [];
+    }
+    
+    const availableVendors = vendors.filter(vendor => {
+      console.log('Checking vendor:', {
+        id: vendor.id || vendor._id,
+        name: vendor.name,
+        status: vendor.status,
+        verificationStatus: vendor.verificationStatus
+      });
+      
+      // Check if vendor is active and verified
+      const isActive = vendor.status === 'active';
+      const isVerified = vendor.verificationStatus === 'verified';
+      
+      const result = isActive && isVerified;
+      console.log('Vendor check result:', {
+        name: vendor.name,
+        isActive,
+        isVerified,
+        result
+      });
+      
+      return result;
+    });
+    
+    console.log('Available vendors after filtering:', availableVendors);
+    console.log('Available vendors count:', availableVendors.length);
+    
+    // Return all available vendors instead of just the first one
+    console.log('=== END VENDOR FILTERING DEBUG ===');
+    return availableVendors;
   };
 
-  const getAvailableEngineers = (serviceName: string) => {
-    return engineers.filter(engineer => 
-      engineer.status === 'available' && 
-      (engineer.specialization === serviceName || engineer.specialization === 'General Electronics')
-    );
+  // Get only the first available vendor to ensure single vendor assignment
+  const getFirstAvailableVendor = (serviceName: string) => {
+    const availableVendors = getAvailableVendors(serviceName);
+    return availableVendors.length > 0 ? availableVendors[0] : null;
   };
 
   const getAssignmentStatusBadge = (status: string) => {
@@ -337,6 +922,13 @@ const AdminBookingManagement = () => {
         return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
     }
   };
+
+  console.log('AdminBookingManagement rendering with:', {
+    bookings: bookings.length,
+    loading,
+    stats: !!stats,
+    vendors: vendors.length
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -368,7 +960,9 @@ const AdminBookingManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Bookings</p>
-                  <p className="text-2xl font-bold text-gray-900">{bookings.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {loading ? '...' : (stats?.totalBookings || 0)}
+                  </p>
                 </div>
                 <Calendar className="w-8 h-8 text-blue-600" />
               </div>
@@ -380,7 +974,7 @@ const AdminBookingManagement = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Pending Bookings</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {bookings.filter(b => b.status === 'pending').length}
+                    {loading ? '...' : (stats?.pendingBookings || 0)}
                   </p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-600" />
@@ -393,7 +987,7 @@ const AdminBookingManagement = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Completed Bookings</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {bookings.filter(b => b.status === 'completed').length}
+                    {loading ? '...' : (stats?.completedBookings || 0)}
                   </p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-600" />
@@ -406,7 +1000,7 @@ const AdminBookingManagement = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ₹{bookings.reduce((sum, b) => sum + b.totalAmount, 0).toLocaleString()}
+                    {loading ? '...' : `₹${(stats?.totalRevenue || 0).toLocaleString()}`}
                   </p>
                 </div>
                 <DollarSign className="w-8 h-8 text-purple-600" />
@@ -443,26 +1037,54 @@ const AdminBookingManagement = () => {
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <SelectValue placeholder="Filter by payment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Payments</SelectItem>
+                  <SelectItem value="completed">Paid</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="refunded">Refunded</SelectItem>
+                </SelectContent>
+              </Select>
               <Select value={serviceFilter} onValueChange={setServiceFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Filter by service" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Services</SelectItem>
-                  {services.map(service => (
-                    <SelectItem key={service} value={service}>{service}</SelectItem>
+                  {services.map((service) => (
+                    <SelectItem key={service} value={service}>
+                      {service}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={sortBy} onValueChange={setSortBy}>
+              <Select value={sortBy} onValueChange={(value) => {
+                if (value === 'newest') {
+                  setSortBy('createdAt');
+                  setSortOrder('desc');
+                } else if (value === 'oldest') {
+                  setSortBy('createdAt');
+                  setSortOrder('asc');
+                } else if (value === 'amount') {
+                  setSortBy('pricing.totalAmount');
+                  setSortOrder('desc');
+                } else {
+                  setSortBy(value);
+                  setSortOrder('desc');
+                }
+              }}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="newest">Newest First</SelectItem>
                   <SelectItem value="oldest">Oldest First</SelectItem>
-                  <SelectItem value="scheduled">Scheduled Date</SelectItem>
-                  <SelectItem value="amount">Amount</SelectItem>
+                  <SelectItem value="amount">Amount (High to Low)</SelectItem>
+                  <SelectItem value="customer.name">Customer Name</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -482,7 +1104,7 @@ const AdminBookingManagement = () => {
                   <TableHead>Customer</TableHead>
                   <TableHead>Service</TableHead>
                   <TableHead>Vendor</TableHead>
-                  <TableHead>Scheduled</TableHead>
+                  <TableHead>Booking & Scheduled Date</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Priority</TableHead>
@@ -494,63 +1116,128 @@ const AdminBookingManagement = () => {
               </TableHeader>
               <TableBody>
                 {filteredBookings.map((booking) => (
-                  <TableRow key={booking.id}>
+                  <TableRow key={booking._id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-gray-900">{booking.id}</p>
+                        <p className="font-medium text-gray-900">
+                          {booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
+                        </p>
                         <p className="text-sm text-gray-500">
-                          {new Date(booking.bookingDate).toLocaleDateString()}
+                          {new Date(booking.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-gray-900">{booking.customerName}</p>
+                        <p className="font-medium text-gray-900">{booking.customer?.name || 'N/A'}</p>
                         <div className="flex items-center gap-1 text-sm text-gray-500">
                           <Phone className="w-3 h-3" />
-                          <span>{booking.customerPhone}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-gray-900">{booking.serviceName}</p>
-                        <p className="text-sm text-gray-500 max-w-xs truncate">{booking.notes}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-gray-900">{booking.vendorName}</p>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Phone className="w-3 h-3" />
-                          <span>{booking.vendorPhone}</span>
+                          <span>{booking.customer?.phone || 'N/A'}</span>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {new Date(booking.scheduledDate).toLocaleDateString()}
+                          {booking.services?.map(service => service.serviceName).join(', ') || 'N/A'}
                         </p>
-                        <p className="text-sm text-gray-500">{booking.scheduledTime}</p>
+                        <p className="text-sm text-gray-500 max-w-xs truncate">
+                          {(() => {
+                            const notes = booking.notes || '';
+                            return notes.replace(/Booking created from checkout/gi, '').trim() || '';
+                          })()}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {(() => {
+                            if (!booking.vendor?.vendorId) return 'Unassigned';
+                            const vendor = booking.vendor.vendorId as any;
+                            if (typeof vendor === 'object' && vendor !== null) {
+                              return vendor.firstName && vendor.lastName 
+                                ? `${vendor.firstName} ${vendor.lastName}` 
+                                : 'Assigned Vendor';
+                            }
+                            return 'Assigned Vendor';
+                          })()}
+                        </p>
+                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                          <Phone className="w-3 h-3" />
+                          <span>
+                            {(() => {
+                              if (!booking.vendor?.vendorId) return 'N/A';
+                              const vendor = booking.vendor.vendorId as any;
+                              if (typeof vendor === 'object' && vendor !== null) {
+                                return vendor.phone || 'N/A';
+                              }
+                              return 'N/A';
+                            })()}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="mb-1">
+                          <p className="text-xs font-medium text-gray-500">Booking Date:</p>
+                          <p className="font-medium text-gray-900">
+                            {booking.createdAt 
+                              ? new Date(booking.createdAt).toLocaleDateString()
+                              : booking.bookingDate 
+                              ? new Date(booking.bookingDate).toLocaleDateString()
+                              : 'N/A'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500">Scheduled Date:</p>
+                          <p className="font-medium text-gray-900">
+                            {booking.scheduling?.scheduledDate 
+                              ? new Date(booking.scheduling.scheduledDate).toLocaleDateString()
+                              : booking.scheduling?.preferredDate 
+                              ? new Date(booking.scheduling.preferredDate).toLocaleDateString()
+                              : 'Not scheduled'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {booking.scheduling?.scheduledTime 
+                              ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })
+                              : booking.scheduling?.preferredTimeSlot || 'Not scheduled'}
+                          </p>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">₹{booking.totalAmount}</span>
+                        <span className="font-medium">₹{booking.pricing?.totalAmount || 0}</span>
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(booking.status)}</TableCell>
-                    <TableCell>{getPriorityBadge(booking.priority)}</TableCell>
+                    <TableCell>{getPriorityBadge(booking.priority || 'medium')}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm">{getEngineerName(booking.assignedEngineer)}</span>
+                        <span className="text-sm">
+                          {(() => {
+                            if (!booking.vendor?.vendorId) return 'Unassigned';
+                            const vendor = booking.vendor.vendorId as any;
+                            if (typeof vendor === 'object' && vendor !== null) {
+                              return vendor.firstName && vendor.lastName 
+                                ? `${vendor.firstName} ${vendor.lastName}` 
+                                : 'Assigned Vendor';
+                            }
+                            return 'Assigned Vendor';
+                          })()}
+                        </span>
                       </div>
                     </TableCell>
-                    <TableCell>{getAssignmentStatusBadge(booking.assignmentStatus)}</TableCell>
-                    <TableCell>{getPaymentStatusBadge(booking.paymentStatus)}</TableCell>
+                    <TableCell>{getAssignmentStatusBadge(booking.vendor ? 'assigned' : 'unassigned')}</TableCell>
+                    <TableCell>{getPaymentStatusBadge(booking.payment?.status || 'pending', booking.paymentMode || '')}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -563,40 +1250,34 @@ const AdminBookingManagement = () => {
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
+                          {booking.status === 'completed' && (
+                            <DropdownMenuItem onClick={() => handleViewCompletedTaskDetails(booking)}>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              See Details
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => handleEditBooking(booking)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Booking
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleAssignEngineer(booking)}>
                             <UserPlus className="w-4 h-4 mr-2" />
-                            {booking.assignedEngineer ? 'Reassign Engineer & Vendor' : 'Assign Engineer as Vendor'}
+                            {booking.vendor ? 'Reassign Vendor' : 'Assign Vendor'}
                           </DropdownMenuItem>
-                          {booking.assignedEngineer && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleUpdateAssignmentStatus(booking.id, 'in_progress')}>
-                                <Clock className="w-4 h-4 mr-2" />
-                                Mark In Progress
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleUpdateAssignmentStatus(booking.id, 'completed')}>
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Mark Completed
-                              </DropdownMenuItem>
-                            </>
-                          )}
                           {booking.status === 'pending' && (
-                            <DropdownMenuItem onClick={() => handleConfirmBooking(booking.id)}>
+                            <DropdownMenuItem onClick={() => handleConfirmBooking(booking._id)}>
                               <CheckCircle className="w-4 h-4 mr-2" />
                               Confirm Booking
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem onClick={() => handleReschedule(booking)}>
-                            <Clock className="w-4 h-4 mr-2" />
-                            Reschedule
+                          <DropdownMenuItem onClick={() => handleUpdatePriority(booking)}>
+                            <Star className="w-4 h-4 mr-2" />
+                            Update Priority
                           </DropdownMenuItem>
                           {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                             <DropdownMenuItem 
                               className="text-red-600"
-                              onClick={() => handleCancelBooking(booking.id)}
+                              onClick={() => handleCancelBooking(booking._id)}
                             >
                               <XCircle className="w-4 h-4 mr-2" />
                               Cancel Booking
@@ -613,138 +1294,368 @@ const AdminBookingManagement = () => {
         </Card>
 
         {/* Engineer Assignment Dialog */}
-        <Dialog open={isAssignEngineerOpen} onOpenChange={setIsAssignEngineerOpen}>
-          <DialogContent className="max-w-2xl">
+        <Dialog open={isAssignEngineerOpen} onOpenChange={handleCloseAssignEngineer}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mt-16">
             <DialogHeader>
-              <DialogTitle>Assign Engineer to Booking</DialogTitle>
+              <DialogTitle className="text-xl font-bold text-gray-900">Assign Vendor to Booking</DialogTitle>
+              <p className="text-sm text-gray-600">Select a vendor and schedule the appointment for this booking</p>
             </DialogHeader>
             {selectedBooking && (
               <div className="space-y-6">
                 {/* Booking Information */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">Booking Details</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Booking ID:</span>
-                      <span className="ml-2 font-medium">{selectedBooking.id}</span>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-blue-600" />
                     </div>
-                    <div>
-                      <span className="text-gray-600">Customer:</span>
-                      <span className="ml-2 font-medium">{selectedBooking.customerName}</span>
+                    <h3 className="text-base font-semibold text-gray-900">Booking Information</h3>
                     </div>
-                    <div>
-                      <span className="text-gray-600">Service:</span>
-                      <span className="ml-2 font-medium">{selectedBooking.serviceName}</span>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Booking ID:</span>
+                        <span className="font-semibold text-gray-900">
+                          {selectedBooking.bookingReference || `FIX${selectedBooking._id?.toString().substring(selectedBooking._id?.toString().length - 8).toUpperCase()}` || 'N/A'}
+                        </span>
                     </div>
-                    <div>
-                      <span className="text-gray-600">Scheduled:</span>
-                      <span className="ml-2 font-medium">
-                        {new Date(selectedBooking.scheduledDate).toLocaleDateString()} at {selectedBooking.scheduledTime}
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Customer:</span>
+                        <span className="font-semibold text-gray-900">{selectedBooking.customer?.name || 'N/A'}</span>
+                    </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Phone:</span>
+                        <span className="font-semibold text-gray-900">{selectedBooking.customer?.phone || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Email:</span>
+                        <span className="font-semibold text-gray-900">{selectedBooking.customer?.email || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Service:</span>
+                        <span className="font-semibold text-gray-900 text-right">
+                        {selectedBooking.services?.map(s => s.serviceName).join(', ') || 'N/A'}
                       </span>
                     </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-600">Address:</span>
-                      <span className="ml-2 font-medium">{selectedBooking.address}</span>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Amount:</span>
+                        <span className="font-semibold text-green-600">₹{selectedBooking.pricing?.totalAmount || 'N/A'}</span>
+                    </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Preferred Date:</span>
+                        <span className="font-semibold text-gray-900">
+                        {selectedBooking.scheduling?.preferredDate ? 
+                          new Date(selectedBooking.scheduling.preferredDate).toLocaleDateString() : 'N/A'}
+                      </span>
+                    </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Time Slot:</span>
+                        <span className="font-semibold text-gray-900">{selectedBooking.scheduling?.preferredTimeSlot || 'N/A'}</span>
+                    </div>
                     </div>
                   </div>
+                  <div className="mt-3 pt-3 border-t border-blue-200">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-3 h-3 text-blue-600 mt-0.5" />
+                      <div>
+                        <span className="text-gray-600 font-medium text-xs">Address:</span>
+                        <p className="text-gray-900 font-medium text-xs mt-1">
+                        {selectedBooking.customer?.address ? 
+                          `${selectedBooking.customer.address.street}, ${selectedBooking.customer.address.city}, ${selectedBooking.customer.address.state} - ${selectedBooking.customer.address.pincode}` : 
+                          'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Issue Description */}
+                  {selectedBooking.notes && selectedBooking.notes.replace(/Booking created from checkout/gi, '').trim() && (
+                    <div className="mt-3 pt-3 border-t border-blue-200">
+                      <div className="flex items-start gap-2">
+                        <div className="w-3 h-3 bg-orange-100 rounded-full flex items-center justify-center mt-0.5">
+                          <span className="text-orange-600 text-xs font-bold">!</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium text-xs">Issue Description:</span>
+                          <p className="text-gray-900 font-medium text-xs mt-1 bg-orange-50 p-2 rounded border border-orange-200">
+                            {selectedBooking.notes.replace(/Booking created from checkout/gi, '').trim()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Current Assignment Status */}
-                {selectedBooking.assignedEngineer && (
+                {selectedBooking.vendor && selectedBooking.vendor.vendorId && (
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-blue-900 mb-2">Current Assignment</h4>
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm">
-                          <span className="font-medium">Engineer:</span> {getEngineerName(selectedBooking.assignedEngineer)}
+                          <span className="font-medium">Vendor:</span> {getVendorName(selectedBooking.vendor?.vendorId)}
                         </p>
                         <p className="text-sm">
-                          <span className="font-medium">Status:</span> {getAssignmentStatusBadge(selectedBooking.assignmentStatus)}
+                          <span className="font-medium">Status:</span> {getAssignmentStatusBadge(selectedBooking.status)}
                         </p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Engineer Selection */}
+                {/* Vendor Selection */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <UserPlus className="w-4 h-4 text-green-600" />
+                    </div>
                 <div>
-                  <Label htmlFor="engineer">
-                    {selectedBooking.assignedEngineer ? 'Reassign Engineer' : 'Select Engineer'} *
+                      <h3 className="text-base font-semibold text-gray-900">
+                        {selectedBooking.vendor ? 'Reassign Vendor' : 'Select Vendor'}
+                      </h3>
+                      <p className="text-xs text-gray-600">Choose a qualified vendor for this booking</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="vendor" className="text-sm font-medium text-gray-700">
+                        Available Vendors from Vendor Management *
                   </Label>
-                  <p className="text-sm text-gray-600 mb-2">
-                    The selected engineer will become the vendor for this booking
-                  </p>
+                      {assignedEngineer && (
+                        <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm font-medium text-green-800">
+                              Selected: {getVendorName(assignedEngineer)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                   <Select value={assignedEngineer} onValueChange={setAssignedEngineer}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose an engineer" />
+                        <SelectTrigger className="mt-2">
+                      <SelectValue placeholder="Choose a vendor" />
                     </SelectTrigger>
                     <SelectContent>
-                      {getAvailableEngineers(selectedBooking.serviceName).map((engineer) => (
-                        <SelectItem key={engineer.id} value={engineer.id}>
-                          <div className="flex items-center justify-between w-full">
+                          {getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').length > 0 ? (
+                            getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').map((vendor) => (
+                              <SelectItem key={vendor.id || vendor._id} value={vendor.vendorId}>
+                                <div className="flex items-center justify-between w-full py-2">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                      <User className="w-4 h-4 text-blue-600" />
+                                    </div>
                             <div>
-                              <span className="font-medium">{engineer.name}</span>
-                              <span className="text-sm text-gray-500 ml-2">({engineer.specialization})</span>
+                                      <div className="font-medium text-gray-900">
+                                        {vendor.firstName && vendor.lastName 
+                                          ? `${vendor.firstName} ${vendor.lastName}` 
+                                          : vendor.name || 'Vendor'}
                             </div>
-                            <div className="flex items-center gap-2 ml-4">
-                              <Star className="w-3 h-3 text-yellow-500" />
-                              <span className="text-sm">{engineer.rating}</span>
+                                      <div className="text-sm text-gray-500">{vendor.specialty || 'General Services'}</div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Star className="w-4 h-4 text-yellow-500" />
+                                    <span className="text-sm font-medium">{vendor.rating || '4.5'}</span>
                             </div>
                           </div>
                         </SelectItem>
-                      ))}
+                            ))
+                          ) : (
+                            <SelectItem value="no-vendors" disabled>
+                              <div className="flex items-center gap-2 text-gray-500">
+                                <User className="w-4 h-4" />
+                                <span>No available vendors found</span>
+                              </div>
+                            </SelectItem>
+                          )}
                     </SelectContent>
                   </Select>
-                  {getAvailableEngineers(selectedBooking.serviceName).length === 0 && (
-                    <p className="text-sm text-red-600 mt-1">No available engineers for this service type</p>
-                  )}
+                    </div>
+                    
+                  {getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').length === 0 && (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                          <div>
+                            <p className="text-sm font-medium text-yellow-800">No available vendors found</p>
+                            <p className="text-sm text-yellow-700 mt-1">
+                              Please ensure there are active and approved vendors in the vendor management system.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Assignment Notes */}
+                {/* Scheduling Section */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Clock className="w-4 h-4 text-purple-600" />
+                    </div>
+                  <div>
+                      <h3 className="text-base font-semibold text-gray-900">Schedule Appointment</h3>
+                      <p className="text-xs text-gray-600">Set the date and time for the service</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="scheduledDate" className="text-sm font-medium text-gray-700">
+                        Scheduled Date *
+                      </Label>
+                    <Input
+                      id="scheduledDate"
+                      type="date"
+                      value={scheduledDate}
+                      onChange={(e) => setScheduledDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                        className="w-full"
+                      required
+                    />
+                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="scheduledTime" className="text-sm font-medium text-gray-700">
+                        Scheduled Time *
+                      </Label>
+                    <Select value={scheduledTime} onValueChange={setScheduledTime}>
+                        <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select time slot" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="09:00">9:00 AM</SelectItem>
+                        <SelectItem value="10:00">10:00 AM</SelectItem>
+                        <SelectItem value="11:00">11:00 AM</SelectItem>
+                        <SelectItem value="12:00">12:00 PM</SelectItem>
+                        <SelectItem value="13:00">1:00 PM</SelectItem>
+                        <SelectItem value="14:00">2:00 PM</SelectItem>
+                        <SelectItem value="15:00">3:00 PM</SelectItem>
+                        <SelectItem value="16:00">4:00 PM</SelectItem>
+                        <SelectItem value="17:00">5:00 PM</SelectItem>
+                        <SelectItem value="18:00">6:00 PM</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Priority and Notes Section */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                      <AlertTriangle className="w-4 h-4 text-orange-600" />
+                    </div>
                 <div>
-                  <Label htmlFor="notes">Assignment Notes (Optional)</Label>
+                      <h3 className="text-base font-semibold text-gray-900">Priority & Instructions</h3>
+                      <p className="text-xs text-gray-600">Set priority level and add special instructions</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="priority" className="text-sm font-medium text-gray-700">
+                        Priority Level *
+                      </Label>
+                  <Select value={priority} onValueChange={setPriority}>
+                        <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select priority level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                          <SelectItem value="low">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span>Low - Standard service</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="medium">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                              <span>Medium - Normal priority</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="high">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                              <span>High - Important service</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="urgent">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                              <span>Urgent - Immediate attention</span>
+                            </div>
+                          </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
+                        Assignment Notes (Optional)
+                      </Label>
                   <Textarea
                     id="notes"
                     value={assignmentNotes}
                     onChange={(e) => setAssignmentNotes(e.target.value)}
-                    placeholder="Add any special instructions or notes for the engineer..."
+                        placeholder="Add any special instructions, customer preferences, or important notes for the vendor..."
                     rows={3}
+                        className="w-full"
                   />
-                </div>
-
-                {/* Available Engineers Info */}
-                {getAvailableEngineers(selectedBooking.serviceName).length > 0 && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-blue-900 mb-2">Available Engineers</h4>
-                    <div className="space-y-2">
-                      {getAvailableEngineers(selectedBooking.serviceName).map((engineer) => (
-                        <div key={engineer.id} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-blue-600" />
-                            <span className="font-medium">{engineer.name}</span>
-                            <span className="text-gray-600">({engineer.specialization})</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Star className="w-3 h-3 text-yellow-500" />
-                            <span>{engineer.rating}</span>
-                            <Badge variant="outline" className="text-green-600 border-green-600">
-                              Available
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
                     </div>
                   </div>
-                )}
+                </div>
 
-                <div className="flex gap-2">
-                  <Button onClick={handleSubmitAssignment} className="flex-1" disabled={!assignedEngineer}>
+
+
+
+                {/* Action Buttons */}
+                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    onClick={handleSubmitAssignment} 
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3" 
+                    disabled={isAssigning}
+                    >
+                      {isAssigning ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Assigning Vendor...
+                        </>
+                      ) : (
+                        <>
                     <UserPlus className="w-4 h-4 mr-2" />
-                    {selectedBooking.assignedEngineer ? 'Reassign Engineer & Vendor' : 'Assign Engineer as Vendor'}
+                          {selectedBooking.vendor ? 'Reassign Vendor' : 'Assign Vendor'}
+                        </>
+                      )}
                   </Button>
-                  <Button variant="outline" onClick={() => setIsAssignEngineerOpen(false)}>
+                  
+                  <Button 
+                    variant="outline"
+                      onClick={handleCloseAssignEngineer}
+                      className="px-6 py-3 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
                     Cancel
                   </Button>
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-start gap-2">
+                      <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+                        <span className="text-blue-600 text-xs font-bold">i</span>
+                      </div>
+                      <div className="text-sm text-blue-800">
+                        <p className="font-medium">Assignment Summary:</p>
+                        <ul className="mt-1 space-y-1 text-blue-700">
+                          <li>• Vendor will be notified immediately after assignment</li>
+                          <li>• Customer will receive confirmation with scheduled time</li>
+                          <li>• Booking status will be updated to "Confirmed"</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -753,16 +1664,16 @@ const AdminBookingManagement = () => {
 
         {/* View Details Modal */}
         <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto mt-20">
             <DialogHeader>
               <DialogTitle>Booking Details - {selectedBooking?.id}</DialogTitle>
             </DialogHeader>
             {selectedBooking && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Customer Information */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Customer Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h3 className="text-base font-semibold mb-2">Customer Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Name</Label>
                       <p className="text-sm">{selectedBooking.customerName}</p>
@@ -784,8 +1695,8 @@ const AdminBookingManagement = () => {
 
                 {/* Service Information */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Service Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h3 className="text-base font-semibold mb-2">Service Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Service</Label>
                       <p className="text-sm font-medium">{selectedBooking.serviceName}</p>
@@ -807,8 +1718,8 @@ const AdminBookingManagement = () => {
 
                 {/* Booking Details */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Booking Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h3 className="text-base font-semibold mb-2">Booking Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Booking Date</Label>
                       <p className="text-sm">{new Date(selectedBooking.bookingDate).toLocaleDateString()}</p>
@@ -836,26 +1747,128 @@ const AdminBookingManagement = () => {
                   </div>
                 </div>
 
-                {/* Engineer Assignment */}
+                {/* Vendor Assignment */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Engineer Assignment</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h3 className="text-base font-semibold mb-2">Vendor Assignment</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Assigned Engineer</Label>
-                      <p className="text-sm">{getEngineerName(selectedBooking.assignedEngineer)}</p>
+                      <Label className="text-sm font-medium text-muted-foreground">Assigned Vendor</Label>
+                      <p className="text-sm">{getVendorName(selectedBooking.vendor?.vendorId)}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Assignment Status</Label>
-                      <div className="mt-1">{getAssignmentStatusBadge(selectedBooking.assignmentStatus)}</div>
+                      <div className="mt-1">{getAssignmentStatusBadge(selectedBooking.status)}</div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Vendor Response</Label>
+                      <div className="mt-1">{getVendorStatusBadge(selectedBooking.vendorResponse)}</div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Assigned Date</Label>
+                      <p className="text-sm">{selectedBooking.assignedAt ? new Date(selectedBooking.assignedAt).toLocaleDateString() : 'Not assigned'}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Vendor Decline Reason */}
+                  {selectedBooking.vendorResponse?.status === 'declined' && selectedBooking.vendorResponse?.responseNote && (
+                    <div className="mt-4">
+                      <Label className="text-sm font-medium text-muted-foreground">Decline Reason</Label>
+                      <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-sm text-red-800">{selectedBooking.vendorResponse.responseNote}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Cancellation Reason */}
+                  {selectedBooking.status === 'cancelled' && selectedBooking.cancellationData?.cancellationReason && (
+                    <div className="mt-4">
+                      <Label className="text-sm font-medium text-muted-foreground">Cancellation Reason</Label>
+                      <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-sm text-red-800">{selectedBooking.cancellationData.cancellationReason}</p>
+                        <p className="text-xs text-red-600 mt-1">
+                          Cancelled by: {selectedBooking.cancellationData.cancelledBy} on{' '}
+                          {selectedBooking.cancellationData.cancelledAt 
+                            ? new Date(selectedBooking.cancellationData.cancelledAt).toLocaleDateString()
+                            : 'Unknown date'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Payment Information */}
+                <div>
+                  <h3 className="text-base font-semibold mb-2">Payment Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Payment Mode</Label>
+                      <div className="mt-1">{getPaymentModeBadge(selectedBooking.paymentMode)}</div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Payment Status</Label>
+                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.paymentStatus, selectedBooking.paymentMode)}</div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Payment Amount</Label>
+                      <p className="text-sm font-medium">{selectedBooking.paymentAmount ? `₹${selectedBooking.paymentAmount}` : 'N/A'}</p>
                     </div>
                   </div>
                 </div>
 
+                {/* Spare Parts */}
+                {selectedBooking.spareParts && selectedBooking.spareParts.length > 0 && (
+                  <div>
+                    <h3 className="text-base font-semibold mb-2">Spare Parts Used</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {selectedBooking.spareParts.map((part: any, index: number) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-sm text-gray-900">{part.name}</h4>
+                            <span className="text-sm font-medium text-green-600">{part.amount}</span>
+                          </div>
+                          {part.photo && (
+                            <div className="mt-2">
+                              <img
+                                src={part.photo}
+                                alt={part.name}
+                                className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => handleImageClick(part.photo)}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 p-2 bg-gray-50 rounded">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-600">Total Spare Parts Amount:</span>
+                        <span className="text-sm font-bold text-green-600">
+                          ₹{selectedBooking.spareParts.reduce((sum: number, part: any) => 
+                            sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
+                          ).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Resolution Note */}
+                {selectedBooking.resolutionNote && (
+                  <div>
+                    <h3 className="text-base font-semibold mb-2">Resolution Note</h3>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-sm text-gray-700">{selectedBooking.resolutionNote}</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Notes */}
+                {selectedBooking.notes && (
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Notes</Label>
                   <p className="text-sm mt-1 p-3 bg-gray-50 rounded-lg">{selectedBooking.notes}</p>
                 </div>
+                )}
 
                 {/* Rating */}
                 {selectedBooking.rating && (
@@ -960,7 +1973,7 @@ const AdminBookingManagement = () => {
                   <Button 
                     onClick={() => {
                       setBookings(prev => prev.map(booking => 
-                        booking.id === editingBooking.id ? editingBooking : booking
+                        booking._id === editingBooking._id ? editingBooking : booking
                       ));
                       setIsEditBookingOpen(false);
                     }} 
@@ -977,48 +1990,36 @@ const AdminBookingManagement = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Reschedule Modal */}
-        <Dialog open={isRescheduleOpen} onOpenChange={setIsRescheduleOpen}>
+        {/* Update Priority Modal */}
+        <Dialog open={isUpdatePriorityOpen} onOpenChange={setIsUpdatePriorityOpen}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Reschedule Booking - {selectedBooking?.id}</DialogTitle>
+              <DialogTitle>Update Priority - {selectedBooking?.id}</DialogTitle>
             </DialogHeader>
             {selectedBooking && (
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="newDate">New Scheduled Date</Label>
-                  <Input
-                    id="newDate"
-                    type="date"
-                    defaultValue={selectedBooking.scheduledDate}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="newTime">New Scheduled Time</Label>
-                  <Input
-                    id="newTime"
-                    defaultValue={selectedBooking.scheduledTime}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="rescheduleReason">Reason for Reschedule</Label>
-                  <Textarea
-                    id="rescheduleReason"
-                    placeholder="Enter reason for rescheduling..."
-                    rows={3}
-                  />
+                  <Label htmlFor="priority">Priority Level</Label>
+                  <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex gap-2">
                   <Button 
-                    onClick={() => {
-                      // Update booking with new schedule
-                      setIsRescheduleOpen(false);
-                    }} 
+                    onClick={handleSubmitPriorityUpdate}
                     className="flex-1"
                   >
-                    Reschedule
+                    Update Priority
                   </Button>
-                  <Button variant="outline" onClick={() => setIsRescheduleOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsUpdatePriorityOpen(false)}>
                     Cancel
                   </Button>
                 </div>
@@ -1026,6 +2027,143 @@ const AdminBookingManagement = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Completed Task Details Modal */}
+        <Dialog open={isCompletedTaskDetailsOpen} onOpenChange={setIsCompletedTaskDetailsOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-gray-900">Completed Task Details</DialogTitle>
+              <p className="text-sm text-gray-600">Task completion information and billing details</p>
+            </DialogHeader>
+            {completedTaskDetails && (
+              <div className="space-y-6">
+                {/* Task Information */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-100">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Task Information</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Booking ID:</span>
+                        <span className="font-semibold text-gray-900">{completedTaskDetails.bookingReference}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Customer:</span>
+                        <span className="font-semibold text-gray-900">{completedTaskDetails.customerName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Service:</span>
+                        <span className="font-semibold text-gray-900">{completedTaskDetails.serviceName}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Completed Date:</span>
+                        <span className="font-semibold text-gray-900">{completedTaskDetails.completedDate}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">Completed Time:</span>
+                        <span className="font-semibold text-gray-900">{completedTaskDetails.completedTime}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Resolution */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Resolution</h3>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-md">
+                    <p className="text-sm text-gray-800">{completedTaskDetails.resolution}</p>
+                  </div>
+                </div>
+
+                {/* Spare Parts */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Spare Parts Used</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {completedTaskDetails.spareParts.map((part: any) => (
+                      <div key={part.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-md">
+                        <div className="w-16 h-12 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                          <img 
+                            src={part.image} 
+                            alt={part.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900">{part.name}</h4>
+                          <p className="text-sm text-gray-600">Price: ₹{part.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Billing Summary */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-green-600" />
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900">Billing Summary</h3>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Spare Parts Total:</span>
+                      <span className="font-medium">₹{completedTaskDetails.spareParts.reduce((sum: number, part: any) => sum + part.price, 0)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Travel Expense:</span>
+                      <span className="font-medium">₹{completedTaskDetails.travelExpense}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Service Fee:</span>
+                      <span className="font-medium">₹{completedTaskDetails.totalAmount - completedTaskDetails.spareParts.reduce((sum: number, part: any) => sum + part.price, 0) - completedTaskDetails.travelExpense}</span>
+                    </div>
+                    <hr className="border-gray-200" />
+                    <div className="flex justify-between text-lg font-bold">
+                      <span>Total Amount:</span>
+                      <span className="text-green-600">₹{completedTaskDetails.totalAmount}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Image Modal */}
+        {isImageModalOpen && selectedImage && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div className="relative max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden">
+              <button
+                onClick={() => setIsImageModalOpen(false)}
+                className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition-opacity"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+              <img
+                src={selectedImage}
+                alt="Spare Part"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

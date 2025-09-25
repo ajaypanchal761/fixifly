@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import VendorHeader from "../components/VendorHeader";
 import VendorBottomNav from "../components/VendorBottomNav";
+import vendorApi from "@/services/vendorApi";
 
 const VendorTaskPreview = () => {
   const theme = useTheme();
@@ -20,10 +21,10 @@ const VendorTaskPreview = () => {
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const taskData = location.state;
+  const paymentMethod = taskData?.paymentMethod || "cash";
 
   // Show 404 error on desktop
   if (!isMobile) {
@@ -74,48 +75,70 @@ const VendorTaskPreview = () => {
 
   const handleSubmit = async () => {
     setIsProcessing(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsProcessing(false);
-      
-      // Create completed task object
-      const completedTask = {
-        id: task.id,
-        caseId: task.caseId,
-        title: task.title,
-        customer: task.customer,
-        phone: task.phone,
-        amount: calculateTotal().toString(),
-        date: new Date().toLocaleDateString('en-GB', { 
-          day: '2-digit', 
-          month: 'short', 
-          year: 'numeric' 
-        }),
-        time: new Date().toLocaleTimeString('en-US', { 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: true 
-        }),
-        status: "Completed",
-        address: task.address,
-        issue: task.issue,
-        assignDate: task.assignDate,
-        assignTime: task.assignTime,
-        taskType: task.taskType,
+    
+    try {
+      // Create completion data object
+      const completionData = {
         resolutionNote,
         billingAmount,
         spareParts,
         travelingAmount,
         paymentMethod,
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
+        totalAmount: calculateTotal()
       };
 
-      // Dispatch event to notify VendorHero component
-      window.dispatchEvent(new CustomEvent('taskCompleted', { detail: completedTask }));
+      // Update booking status to completed
+      const response = await vendorApi.updateBookingStatus(task.id, 'completed', completionData);
       
-      // Navigate back to vendor dashboard where the task will appear in closed tickets
-      navigate('/vendor');
-    }, 2000);
+      if (response.success) {
+        // Create completed task object for local state update
+        const completedTask = {
+          id: task.id,
+          caseId: task.caseId,
+          title: task.title,
+          customer: task.customer,
+          phone: task.phone,
+          amount: calculateTotal().toString(),
+          date: new Date().toLocaleDateString('en-GB', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+          }),
+          time: new Date().toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true 
+          }),
+          status: "Completed",
+          address: task.address,
+          issue: task.issue,
+          assignDate: task.assignDate,
+          assignTime: task.assignTime,
+          taskType: task.taskType,
+          resolutionNote,
+          billingAmount,
+          spareParts,
+          travelingAmount,
+          paymentMethod,
+          completedAt: new Date().toISOString()
+        };
+
+        // Dispatch event to notify VendorHero component
+        window.dispatchEvent(new CustomEvent('taskCompleted', { detail: completedTask }));
+        
+        // Navigate back to vendor dashboard where the task will appear in closed tickets
+        navigate('/vendor');
+      } else {
+        console.error('Failed to update booking status:', response.message);
+        alert('Failed to complete task. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error completing task:', error);
+      alert('An error occurred while completing the task. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -215,29 +238,24 @@ const VendorTaskPreview = () => {
               <CreditCard className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-800">Payment Method</h2>
             </div>
-            <div className="space-y-2">
-              <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="cash"
-                  checked={paymentMethod === "cash"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="text-blue-600"
-                />
-                <span className="text-sm font-medium">Cash Payment</span>
-              </label>
-              <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="online"
-                  checked={paymentMethod === "online"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="text-blue-600"
-                />
-                <span className="text-sm font-medium">Online Payment</span>
-              </label>
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                paymentMethod === 'online' ? 'bg-blue-100' : 'bg-green-100'
+              }`}>
+                <span className={`text-sm font-bold ${
+                  paymentMethod === 'online' ? 'text-blue-600' : 'text-green-600'
+                }`}>
+                  {paymentMethod === 'online' ? '💳' : '💰'}
+                </span>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-800">
+                  {paymentMethod === 'online' ? 'Online Payment' : 'Cash Payment'}
+                </span>
+                <p className="text-xs text-gray-500">
+                  {paymentMethod === 'online' ? 'Card, UPI, Net Banking' : 'Pay on completion'}
+                </p>
+              </div>
             </div>
           </div>
 

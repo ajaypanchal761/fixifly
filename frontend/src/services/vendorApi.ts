@@ -1,0 +1,395 @@
+// Vendor API service for Fixifly backend communication
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+interface ApiResponse<T = any> {
+  success: boolean;
+  message: string;
+  data?: T;
+  error?: string;
+}
+
+interface Vendor {
+  id: string;
+  vendorId: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  serviceCategories: string[];
+  customServiceCategory?: string;
+  experience: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    landmark?: string;
+  };
+  profileImage?: string;
+  specialty?: string;
+  bio?: string;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  isProfileComplete: boolean;
+  isApproved: boolean;
+  isActive: boolean;
+  isBlocked: boolean;
+  rating: {
+    average: number;
+    count: number;
+  };
+  stats: {
+    totalTasks: number;
+    completedTasks: number;
+    cancelledTasks: number;
+    totalEarnings: number;
+    lastLoginAt?: string;
+    joinedDate: string;
+  };
+  preferences?: {
+    notifications: {
+      email: boolean;
+      sms: boolean;
+      push: boolean;
+    };
+    language: string;
+    workingHours: {
+      start: string;
+      end: string;
+    };
+    workingDays: string[];
+  };
+}
+
+interface VendorAuthResponse {
+  vendor: Vendor;
+  token: string;
+  message?: string;
+}
+
+class VendorApiService {
+  private baseURL: string;
+
+  constructor() {
+    this.baseURL = API_BASE_URL;
+  }
+
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${this.baseURL}${endpoint}`;
+    
+    const defaultHeaders = {
+      'Content-Type': 'application/json',
+    };
+
+    // Add authorization header if token exists
+    const token = localStorage.getItem('vendorToken');
+    if (token) {
+      defaultHeaders['Authorization'] = `Bearer ${token}`;
+    }
+
+    const config: RequestInit = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    };
+
+    try {
+      console.log('Making vendor API request to:', url);
+      console.log('Request config:', config);
+      
+      const response = await fetch(url, config);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      const data = await response.json();
+      console.log('Response data:', data);
+
+      if (!response.ok) {
+        // Handle authentication errors
+        if (response.status === 401) {
+          console.error('Authentication failed:', data);
+          // Clear invalid token
+          localStorage.removeItem('vendorToken');
+          localStorage.removeItem('vendorData');
+          // Redirect to login page
+          window.location.href = '/vendor/login';
+        }
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Vendor API request failed:', error);
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      throw error;
+    }
+  }
+
+  // Health check method
+  async healthCheck(): Promise<ApiResponse> {
+    return this.request('/health', {
+      method: 'GET',
+    });
+  }
+
+  // Vendor Registration
+  async register(vendorData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    password: string;
+    serviceCategories: string[];
+    experience: string;
+    address?: any;
+  }): Promise<ApiResponse<VendorAuthResponse>> {
+    return this.request('/vendors/register', {
+      method: 'POST',
+      body: JSON.stringify(vendorData),
+    });
+  }
+
+  // Vendor Login
+  async login(email: string, password: string): Promise<ApiResponse<VendorAuthResponse>> {
+    return this.request('/vendors/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  // Get Vendor Profile
+  async getVendorProfile(): Promise<ApiResponse<{ vendor: Vendor }>> {
+    return this.request('/vendors/profile', {
+      method: 'GET',
+    });
+  }
+
+  // Update Vendor Profile
+  async updateVendorProfile(profileData: any): Promise<ApiResponse<{ vendor: Vendor }>> {
+    return this.request('/vendors/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  // Change Password
+  async changePassword(currentPassword: string, newPassword: string): Promise<ApiResponse> {
+    return this.request('/vendors/change-password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  }
+
+  // Get Vendor Statistics
+  async getVendorStats(): Promise<ApiResponse<{ stats: any; rating: any }>> {
+    return this.request('/vendors/stats', {
+      method: 'GET',
+    });
+  }
+
+  // Get Vendor Dashboard
+  async getVendorDashboard(): Promise<ApiResponse<any>> {
+    return this.request('/vendors/dashboard', {
+      method: 'GET',
+    });
+  }
+
+  // Get Available Tasks
+  async getAvailableTasks(): Promise<ApiResponse<any>> {
+    return this.request('/vendors/tasks', {
+      method: 'GET',
+    });
+  }
+
+  // Get Vendor's Assigned Bookings
+  async getVendorBookings(): Promise<ApiResponse<any>> {
+    console.log('Fetching vendor bookings...');
+    const response = await this.request('/bookings/vendor/me', {
+      method: 'GET',
+    });
+    console.log('Vendor bookings response:', response);
+    return response;
+  }
+
+
+  // Get Booking by ID
+  async getBookingById(bookingId: string): Promise<ApiResponse<any>> {
+    console.log('Fetching booking by ID:', bookingId);
+    const response = await this.request(`/bookings/${bookingId}`, {
+      method: 'GET',
+    });
+    console.log('Booking by ID response:', response);
+    return response;
+  }
+
+  // Update Booking Status
+  async updateBookingStatus(bookingId: string, status: string, completionData?: any): Promise<ApiResponse<any>> {
+    console.log('Updating booking status:', { bookingId, status, completionData });
+    const response = await this.request(`/bookings/${bookingId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ 
+        status, 
+        completionData: completionData || null 
+      }),
+    });
+    console.log('Update booking status response:', response);
+    return response;
+  }
+
+  // Accept Task
+  async acceptTask(bookingId: string): Promise<ApiResponse<any>> {
+    console.log('Accepting task:', { bookingId });
+    const response = await this.request(`/bookings/${bookingId}/accept`, {
+      method: 'PATCH',
+      body: JSON.stringify({ 
+        vendorResponse: {
+          status: 'accepted',
+          respondedAt: new Date().toISOString()
+        }
+      }),
+    });
+    console.log('Accept task response:', response);
+    return response;
+  }
+
+  // Decline Task
+  async declineTask(bookingId: string, reason: string): Promise<ApiResponse<any>> {
+    console.log('Declining task:', { bookingId, reason });
+    const response = await this.request(`/bookings/${bookingId}/decline`, {
+      method: 'PATCH',
+      body: JSON.stringify({ 
+        vendorResponse: {
+          status: 'declined',
+          respondedAt: new Date().toISOString(),
+          responseNote: reason
+        }
+      }),
+    });
+    console.log('Decline task response:', response);
+    return response;
+  }
+
+  // Complete Task
+  async completeTask(bookingId: string, completionData: {
+    resolutionNote: string;
+    spareParts: Array<{
+      id: number;
+      name: string;
+      amount: string;
+      photo: string | null;
+    }>;
+    paymentMethod: 'online' | 'cash';
+    travelingAmount: string;
+  }): Promise<ApiResponse<any>> {
+    console.log('Completing task:', { bookingId, completionData });
+    const response = await this.request(`/bookings/${bookingId}/complete`, {
+      method: 'PATCH',
+      body: JSON.stringify({ 
+        completionData: {
+          resolutionNote: completionData.resolutionNote,
+          spareParts: completionData.spareParts,
+          paymentMethod: completionData.paymentMethod,
+          travelingAmount: completionData.travelingAmount,
+          completedAt: new Date().toISOString()
+        }
+      }),
+    });
+    console.log('Complete task response:', response);
+    return response;
+  }
+
+  // Reschedule Task
+  async rescheduleTask(bookingId: string, rescheduleData: {
+    newDate: string;
+    newTime: string;
+    reason: string;
+  }): Promise<ApiResponse<any>> {
+    console.log('Rescheduling task:', { bookingId, rescheduleData });
+    const response = await this.request(`/bookings/${bookingId}/reschedule`, {
+      method: 'PATCH',
+      body: JSON.stringify(rescheduleData),
+    });
+    console.log('Reschedule task response:', response);
+    return response;
+  }
+
+  // Cancel Task
+  async cancelTask(bookingId: string, reason: string): Promise<ApiResponse<any>> {
+    console.log('Cancelling task:', { bookingId, reason });
+    const response = await this.request(`/bookings/${bookingId}/cancel`, {
+      method: 'PATCH',
+      body: JSON.stringify({ reason }),
+    });
+    console.log('Cancel task response:', response);
+    return response;
+  }
+
+  // Deactivate Account
+  async deactivateAccount(): Promise<ApiResponse> {
+    return this.request('/vendors/deactivate', {
+      method: 'PUT',
+    });
+  }
+
+  // Upload Profile Image
+  async uploadProfileImage(formData: FormData): Promise<ApiResponse<{ profileImage: string; imageUrl: string }>> {
+    const token = localStorage.getItem('vendorToken');
+    const url = `${this.baseURL}/vendors/profile/image`;
+    
+    if (!token) {
+      throw new Error('No authentication token found. Please login as a vendor first.');
+    }
+    
+    console.log('Uploading profile image to:', url);
+    console.log('Token exists:', !!token);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      // Handle authentication errors
+      if (response.status === 401) {
+        console.error('Authentication failed during image upload:', data);
+        // Clear invalid token
+        localStorage.removeItem('vendorToken');
+        localStorage.removeItem('vendorData');
+        // Redirect to login page
+        window.location.href = '/vendor/login';
+      }
+      throw new Error(data.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return data;
+  }
+
+  // Delete Profile Image
+  async deleteProfileImage(): Promise<ApiResponse> {
+    return this.request('/vendors/profile/image', {
+      method: 'DELETE',
+    });
+  }
+
+}
+
+// Create singleton instance
+const vendorApiService = new VendorApiService();
+
+export default vendorApiService;
+export type { ApiResponse, Vendor, VendorAuthResponse };

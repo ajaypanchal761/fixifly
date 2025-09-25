@@ -6,6 +6,14 @@ interface User {
   email: string;
   phone: string;
   role: string;
+  profileImage?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    landmark?: string;
+  };
 }
 
 interface AuthContextType {
@@ -13,6 +21,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (userData: User, token: string) => void;
   logout: () => void;
+  updateUser: (userData: Partial<User>) => void;
+  checkTokenValidity: () => boolean;
   isLoading: boolean;
 }
 
@@ -38,17 +48,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Check if user is already logged in
     const checkAuthStatus = () => {
       try {
-        const token = localStorage.getItem('userToken');
-        const userData = localStorage.getItem('userData');
+        // Check for new token key first
+        let token = localStorage.getItem('accessToken');
+        let userData = localStorage.getItem('userData');
+
+        // If not found, check for old token key (migration)
+        if (!token) {
+          const oldToken = localStorage.getItem('userToken');
+          if (oldToken) {
+            console.log('Migrating from old token key...');
+            localStorage.setItem('accessToken', oldToken);
+            localStorage.removeItem('userToken');
+            token = oldToken;
+          }
+        }
 
         if (token && userData) {
-          const parsedUserData = JSON.parse(userData);
-          setUser(parsedUserData);
+          try {
+            const parsedUserData = JSON.parse(userData);
+            setUser(parsedUserData);
+          } catch (parseError) {
+            console.error('Error parsing user data:', parseError);
+            // Clear invalid data
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('userData');
+          }
         }
       } catch (error) {
         console.error('Error checking auth status:', error);
         // Clear invalid data
-        localStorage.removeItem('userToken');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('userToken'); // Clear old key too
         localStorage.removeItem('userData');
       } finally {
         setIsLoading(false);
@@ -59,15 +90,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (userData: User, token: string) => {
-    localStorage.setItem('userToken', token);
+    localStorage.setItem('accessToken', token);
     localStorage.setItem('userData', JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem('userToken');
+    localStorage.removeItem('accessToken');
     localStorage.removeItem('userData');
     setUser(null);
+  };
+
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      localStorage.setItem('userData', JSON.stringify(updatedUser));
+    }
+  };
+
+  const checkTokenValidity = () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return false;
+    
+    try {
+      // Basic token format check (JWT tokens have 3 parts separated by dots)
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.log('Invalid token format');
+        return false;
+      }
+      
+      // Check if token is expired (basic check)
+      const payload = JSON.parse(atob(parts[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+      
+      if (payload.exp && payload.exp < currentTime) {
+        console.log('Token is expired');
+        logout();
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error checking token validity:', error);
+      logout();
+      return false;
+    }
   };
 
   const value: AuthContextType = {
@@ -75,6 +144,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!user,
     login,
     logout,
+    updateUser,
+    checkTokenValidity,
     isLoading,
   };
 
