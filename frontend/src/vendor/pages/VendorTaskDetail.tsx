@@ -65,7 +65,7 @@ const VendorTaskDetail = () => {
             title: bookingTask.services?.[0]?.serviceName || 'Service Request',
             customer: bookingTask.customer?.name || 'Unknown Customer',
             phone: bookingTask.customer?.phone || 'N/A',
-            amount: `₹${bookingTask.pricing?.totalAmount || 0}`,
+            amount: `₹0`,
             date: bookingTask.scheduling?.scheduledDate 
               ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
               : bookingTask.scheduling?.preferredDate 
@@ -388,7 +388,7 @@ const VendorTaskDetail = () => {
                 <h3 className="text-sm font-medium text-gray-600">Billing Information</h3>
                 <div className="flex items-center space-x-2">
                   <DollarSign className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-semibold text-gray-800">{task.amount}</span>
+                  <span className="text-sm font-semibold text-gray-800">{task.isSupportTicket ? task.amount : '₹0'}</span>
                 </div>
               </div>
 

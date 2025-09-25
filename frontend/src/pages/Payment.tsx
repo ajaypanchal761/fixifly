@@ -65,7 +65,7 @@ const Payment = () => {
           'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         },
         body: JSON.stringify({
-          amount: paymentData.amount * 100, // Convert to paise
+          amount: paymentData.amount, // Amount in rupees, backend will convert to paise
           currency: 'INR',
           receipt: `receipt_${paymentData.ticketId}_${Date.now()}`,
           notes: {
@@ -84,7 +84,7 @@ const Payment = () => {
       // Razorpay options
       const options = {
         key: 'rzp_test_8sYbzHWidwe5Zw', // FixFly Razorpay Test Key
-        amount: paymentData.amount * 100,
+        amount: orderData.data.amount, // Use amount from order response (already in paise)
         currency: 'INR',
         name: 'FixFly',
         description: paymentData.description,

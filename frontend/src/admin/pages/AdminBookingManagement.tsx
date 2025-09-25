@@ -23,7 +23,8 @@ import {
   Users,
   Check,
   GripVertical,
-  Loader2
+  Loader2,
+  FileText
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -717,7 +718,7 @@ const AdminBookingManagement = () => {
         : 'Not scheduled',
       
       // Status and priority
-      priority: booking.priority || 'medium',
+      priority: (booking.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
       paymentStatus: booking.payment?.status || 'pending',
       status: booking.vendor ? 'assigned' : 'unassigned',
       
@@ -729,7 +730,6 @@ const AdminBookingManagement = () => {
       
       // Payment information
       paymentMode: booking.paymentMode || '',
-      paymentStatus: booking.paymentStatus || (booking.status === 'completed' ? 'completed' : 'pending'),
       paymentAmount: booking.completionData?.totalAmount || 0,
       
       // Completion data
@@ -767,7 +767,7 @@ const AdminBookingManagement = () => {
         // Update local state immediately for better UX
         setBookings(prev => prev.map(booking => 
           booking._id === selectedBooking._id 
-            ? { ...booking, priority: selectedPriority }
+            ? { ...booking, priority: selectedPriority as 'low' | 'medium' | 'high' | 'urgent' }
             : booking
         ));
         
@@ -1185,8 +1185,6 @@ const AdminBookingManagement = () => {
                           <p className="font-medium text-gray-900">
                             {booking.createdAt 
                               ? new Date(booking.createdAt).toLocaleDateString()
-                              : booking.bookingDate 
-                              ? new Date(booking.bookingDate).toLocaleDateString()
                               : 'N/A'}
                           </p>
                         </div>
@@ -1237,7 +1235,7 @@ const AdminBookingManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getAssignmentStatusBadge(booking.vendor ? 'assigned' : 'unassigned')}</TableCell>
-                    <TableCell>{getPaymentStatusBadge(booking.payment?.status || 'pending', booking.paymentMode || '')}</TableCell>
+                    <TableCell>{getPaymentStatusBadge(booking.payment?.status || 'pending', booking.payment?.method || 'card')}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -1250,12 +1248,6 @@ const AdminBookingManagement = () => {
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          {booking.status === 'completed' && (
-                            <DropdownMenuItem onClick={() => handleViewCompletedTaskDetails(booking)}>
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              See Details
-                            </DropdownMenuItem>
-                          )}
                           <DropdownMenuItem onClick={() => handleEditBooking(booking)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Booking
@@ -1666,7 +1658,7 @@ const AdminBookingManagement = () => {
         <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
           <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto mt-20">
             <DialogHeader>
-              <DialogTitle>Booking Details - {selectedBooking?.id}</DialogTitle>
+              <DialogTitle>Booking Details - {selectedBooking?._id}</DialogTitle>
             </DialogHeader>
             {selectedBooking && (
               <div className="space-y-4">
@@ -1676,19 +1668,19 @@ const AdminBookingManagement = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                      <p className="text-sm">{selectedBooking.customerName}</p>
+                      <p className="text-sm">{selectedBooking.customer.name}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                      <p className="text-sm">{selectedBooking.customerEmail}</p>
+                      <p className="text-sm">{selectedBooking.customer.email}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
-                      <p className="text-sm">{selectedBooking.customerPhone}</p>
+                      <p className="text-sm">{selectedBooking.customer.phone}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Address</Label>
-                      <p className="text-sm">{selectedBooking.address}</p>
+                      <p className="text-sm">{selectedBooking.customer.address.street}, {selectedBooking.customer.address.city}</p>
                     </div>
                   </div>
                 </div>
@@ -1699,19 +1691,25 @@ const AdminBookingManagement = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Service</Label>
-                      <p className="text-sm font-medium">{selectedBooking.serviceName}</p>
+                      <p className="text-sm font-medium">{selectedBooking.services.map(s => s.serviceName).join(', ')}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Vendor</Label>
-                      <p className="text-sm">{selectedBooking.vendorName}</p>
+                      <p className="text-sm">{selectedBooking.vendor?.vendorId ? 
+                        (typeof selectedBooking.vendor.vendorId === 'string' ? 
+                          selectedBooking.vendor.vendorId : 
+                          `${(selectedBooking.vendor.vendorId as any).firstName} ${(selectedBooking.vendor.vendorId as any).lastName}`) : 
+                        'Not assigned'}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Vendor Phone</Label>
-                      <p className="text-sm">{selectedBooking.vendorPhone}</p>
+                      <p className="text-sm">{selectedBooking.vendor?.vendorId && typeof selectedBooking.vendor.vendorId === 'object' ? 
+                        (selectedBooking.vendor.vendorId as any).phone : 
+                        'Not available'}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Amount</Label>
-                      <p className="text-sm font-medium">₹{selectedBooking.totalAmount}</p>
+                      <p className="text-sm font-medium">₹{selectedBooking.pricing.totalAmount}</p>
                     </div>
                   </div>
                 </div>
@@ -1722,15 +1720,17 @@ const AdminBookingManagement = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Booking Date</Label>
-                      <p className="text-sm">{new Date(selectedBooking.bookingDate).toLocaleDateString()}</p>
+                      <p className="text-sm">{new Date(selectedBooking.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Scheduled Date</Label>
-                      <p className="text-sm">{new Date(selectedBooking.scheduledDate).toLocaleDateString()}</p>
+                      <p className="text-sm">{selectedBooking.scheduling.scheduledDate ? 
+                        new Date(selectedBooking.scheduling.scheduledDate).toLocaleDateString() : 
+                        'Not scheduled'}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Scheduled Time</Label>
-                      <p className="text-sm">{selectedBooking.scheduledTime}</p>
+                      <p className="text-sm">{selectedBooking.scheduling.scheduledTime || 'Not scheduled'}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Status</Label>
@@ -1742,7 +1742,7 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Payment Status</Label>
-                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.paymentStatus)}</div>
+                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.payment?.status || 'pending', selectedBooking.payment?.method || 'card')}</div>
                     </div>
                   </div>
                 </div>
@@ -1761,39 +1761,15 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Vendor Response</Label>
-                      <div className="mt-1">{getVendorStatusBadge(selectedBooking.vendorResponse)}</div>
+                      <div className="mt-1">{getVendorStatusBadge(selectedBooking.vendor?.assignedAt ? 'assigned' : 'not_assigned')}</div>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Assigned Date</Label>
-                      <p className="text-sm">{selectedBooking.assignedAt ? new Date(selectedBooking.assignedAt).toLocaleDateString() : 'Not assigned'}</p>
+                      <p className="text-sm">{selectedBooking.vendor?.assignedAt ? 
+                        new Date(selectedBooking.vendor.assignedAt).toLocaleDateString() : 
+                        'Not assigned'}</p>
                     </div>
                   </div>
-                  
-                  {/* Vendor Decline Reason */}
-                  {selectedBooking.vendorResponse?.status === 'declined' && selectedBooking.vendorResponse?.responseNote && (
-                    <div className="mt-4">
-                      <Label className="text-sm font-medium text-muted-foreground">Decline Reason</Label>
-                      <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-sm text-red-800">{selectedBooking.vendorResponse.responseNote}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Cancellation Reason */}
-                  {selectedBooking.status === 'cancelled' && selectedBooking.cancellationData?.cancellationReason && (
-                    <div className="mt-4">
-                      <Label className="text-sm font-medium text-muted-foreground">Cancellation Reason</Label>
-                      <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-sm text-red-800">{selectedBooking.cancellationData.cancellationReason}</p>
-                        <p className="text-xs text-red-600 mt-1">
-                          Cancelled by: {selectedBooking.cancellationData.cancelledBy} on{' '}
-                          {selectedBooking.cancellationData.cancelledAt 
-                            ? new Date(selectedBooking.cancellationData.cancelledAt).toLocaleDateString()
-                            : 'Unknown date'}
-                        </p>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Payment Information */}
@@ -1802,25 +1778,25 @@ const AdminBookingManagement = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Payment Mode</Label>
-                      <div className="mt-1">{getPaymentModeBadge(selectedBooking.paymentMode)}</div>
+                      <div className="mt-1">{getPaymentModeBadge(selectedBooking.payment?.method || 'card')}</div>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Payment Status</Label>
-                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.paymentStatus, selectedBooking.paymentMode)}</div>
+                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.payment?.status || 'pending', selectedBooking.payment?.method || 'card')}</div>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Payment Amount</Label>
-                      <p className="text-sm font-medium">{selectedBooking.paymentAmount ? `₹${selectedBooking.paymentAmount}` : 'N/A'}</p>
+                      <p className="text-sm font-medium">₹{selectedBooking.pricing.totalAmount}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Spare Parts */}
-                {selectedBooking.spareParts && selectedBooking.spareParts.length > 0 && (
+                {(selectedBooking as any).completionData?.spareParts && (selectedBooking as any).completionData.spareParts.length > 0 && (
                   <div>
                     <h3 className="text-base font-semibold mb-2">Spare Parts Used</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {selectedBooking.spareParts.map((part: any, index: number) => (
+                      {(selectedBooking as any).completionData.spareParts.map((part: any, index: number) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-3">
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-medium text-sm text-gray-900">{part.name}</h4>
@@ -1843,9 +1819,9 @@ const AdminBookingManagement = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium text-gray-600">Total Spare Parts Amount:</span>
                         <span className="text-sm font-bold text-green-600">
-                          ₹{selectedBooking.spareParts.reduce((sum: number, part: any) => 
+                          ₹{(selectedBooking as any).completionData?.spareParts?.reduce((sum: number, part: any) => 
                             sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
-                          ).toLocaleString()}
+                          ).toLocaleString() || '0'}
                         </span>
                       </div>
                     </div>
@@ -1853,11 +1829,11 @@ const AdminBookingManagement = () => {
                 )}
 
                 {/* Resolution Note */}
-                {selectedBooking.resolutionNote && (
+                {(selectedBooking as any).completionData?.resolutionNote && (
                   <div>
                     <h3 className="text-base font-semibold mb-2">Resolution Note</h3>
                     <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-sm text-gray-700">{selectedBooking.resolutionNote}</p>
+                      <p className="text-sm text-gray-700">{(selectedBooking as any).completionData.resolutionNote}</p>
                     </div>
                   </div>
                 )}
@@ -1868,17 +1844,6 @@ const AdminBookingManagement = () => {
                   <Label className="text-sm font-medium text-muted-foreground">Notes</Label>
                   <p className="text-sm mt-1 p-3 bg-gray-50 rounded-lg">{selectedBooking.notes}</p>
                 </div>
-                )}
-
-                {/* Rating */}
-                {selectedBooking.rating && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Customer Rating</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                      <span className="text-sm font-medium">{selectedBooking.rating}/5</span>
-                    </div>
-                  </div>
                 )}
 
                 <div className="flex gap-2 pt-4">
@@ -1902,7 +1867,7 @@ const AdminBookingManagement = () => {
         <Dialog open={isEditBookingOpen} onOpenChange={setIsEditBookingOpen}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Edit Booking - {editingBooking?.id}</DialogTitle>
+              <DialogTitle>Edit Booking - {editingBooking?._id}</DialogTitle>
             </DialogHeader>
             {editingBooking && (
               <div className="space-y-4">
@@ -1911,16 +1876,16 @@ const AdminBookingManagement = () => {
                     <Label htmlFor="customerName">Customer Name</Label>
                     <Input
                       id="customerName"
-                      value={editingBooking.customerName}
-                      onChange={(e) => setEditingBooking({...editingBooking, customerName: e.target.value})}
+                      value={editingBooking.customer.name}
+                      onChange={(e) => setEditingBooking({...editingBooking, customer: {...editingBooking.customer, name: e.target.value}})}
                     />
                   </div>
                   <div>
                     <Label htmlFor="customerPhone">Phone</Label>
                     <Input
                       id="customerPhone"
-                      value={editingBooking.customerPhone}
-                      onChange={(e) => setEditingBooking({...editingBooking, customerPhone: e.target.value})}
+                      value={editingBooking.customer.phone}
+                      onChange={(e) => setEditingBooking({...editingBooking, customer: {...editingBooking.customer, phone: e.target.value}})}
                     />
                   </div>
                 </div>
@@ -1928,16 +1893,31 @@ const AdminBookingManagement = () => {
                   <Label htmlFor="customerEmail">Email</Label>
                   <Input
                     id="customerEmail"
-                    value={editingBooking.customerEmail}
-                    onChange={(e) => setEditingBooking({...editingBooking, customerEmail: e.target.value})}
+                    value={editingBooking.customer.email}
+                    onChange={(e) => setEditingBooking({...editingBooking, customer: {...editingBooking.customer, email: e.target.value}})}
                   />
                 </div>
                 <div>
                   <Label htmlFor="address">Address</Label>
                   <Textarea
                     id="address"
-                    value={editingBooking.address}
-                    onChange={(e) => setEditingBooking({...editingBooking, address: e.target.value})}
+                    value={`${editingBooking.customer.address.street}, ${editingBooking.customer.address.city}, ${editingBooking.customer.address.state} - ${editingBooking.customer.address.pincode}`}
+                    onChange={(e) => {
+                      const addressParts = e.target.value.split(', ');
+                      setEditingBooking({
+                        ...editingBooking, 
+                        customer: {
+                          ...editingBooking.customer,
+                          address: {
+                            ...editingBooking.customer.address,
+                            street: addressParts[0] || '',
+                            city: addressParts[1] || '',
+                            state: addressParts[2]?.split(' - ')[0] || '',
+                            pincode: addressParts[2]?.split(' - ')[1] || ''
+                          }
+                        }
+                      });
+                    }}
                     rows={3}
                   />
                 </div>
@@ -1947,16 +1927,16 @@ const AdminBookingManagement = () => {
                     <Input
                       id="scheduledDate"
                       type="date"
-                      value={editingBooking.scheduledDate}
-                      onChange={(e) => setEditingBooking({...editingBooking, scheduledDate: e.target.value})}
+                      value={editingBooking.scheduling.scheduledDate ? editingBooking.scheduling.scheduledDate.split('T')[0] : ''}
+                      onChange={(e) => setEditingBooking({...editingBooking, scheduling: {...editingBooking.scheduling, scheduledDate: e.target.value} as any})}
                     />
                   </div>
                   <div>
                     <Label htmlFor="scheduledTime">Scheduled Time</Label>
                     <Input
                       id="scheduledTime"
-                      value={editingBooking.scheduledTime}
-                      onChange={(e) => setEditingBooking({...editingBooking, scheduledTime: e.target.value})}
+                      value={editingBooking.scheduling.scheduledTime || ''}
+                      onChange={(e) => setEditingBooking({...editingBooking, scheduling: {...editingBooking.scheduling, scheduledTime: e.target.value} as any})}
                     />
                   </div>
                 </div>
@@ -1994,7 +1974,7 @@ const AdminBookingManagement = () => {
         <Dialog open={isUpdatePriorityOpen} onOpenChange={setIsUpdatePriorityOpen}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Update Priority - {selectedBooking?.id}</DialogTitle>
+              <DialogTitle>Update Priority - {selectedBooking?._id}</DialogTitle>
             </DialogHeader>
             {selectedBooking && (
               <div className="space-y-4">

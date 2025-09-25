@@ -185,6 +185,18 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
     description = 'Task completion earning'
   } = transactionData;
 
+  // Check for duplicate earning for the same case
+  const existingEarning = this.transactions.find(t => 
+    t.caseId === caseId && 
+    t.type === 'earning' && 
+    t.paymentMethod === paymentMethod
+  );
+
+  if (existingEarning) {
+    console.log(`Duplicate earning prevented for case: ${caseId}, payment method: ${paymentMethod}`);
+    return existingEarning; // Return existing transaction
+  }
+
   let calculatedAmount = 0;
   let gstAmount = 0;
 
@@ -331,18 +343,30 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
     description = 'Cash collection deduction'
   } = collectionData;
 
+  // Check for duplicate cash collection for the same case
+  const existingCollection = this.transactions.find(t => 
+    t.caseId === caseId && 
+    t.type === 'cash_collection'
+  );
+
+  if (existingCollection) {
+    console.log(`Duplicate cash collection prevented for case: ${caseId}`);
+    return existingCollection; // Return existing transaction
+  }
+
   let calculatedAmount = 0;
   let gstAmount = 0;
+  let netBillingAmount = billingAmount;
 
   // Calculate GST if included
   if (gstIncluded) {
     gstAmount = billingAmount * 0.18; // 18% GST
-    billingAmount = billingAmount - gstAmount;
+    netBillingAmount = billingAmount - gstAmount;
   }
 
-  // Cash collection: (Billing - Spare - Travel) * 50% + GST amount
-  const baseAmount = billingAmount - spareAmount - travellingAmount;
-  calculatedAmount = (baseAmount * 0.5) + gstAmount;
+  // Cash collection: (Billing - Spare - Travel) * 50%
+  const baseAmount = netBillingAmount - spareAmount - travellingAmount;
+  calculatedAmount = baseAmount * 0.5;
 
   const transaction = {
     transactionId: `CASH_${this.vendorId}_${Date.now()}`,

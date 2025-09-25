@@ -126,7 +126,7 @@ const VendorHero = () => {
         title: booking.services?.[0]?.serviceName || 'Service Request',
         customer: booking.customer?.name || 'Unknown Customer',
         phone: booking.customer?.phone || 'N/A',
-        amount: `₹${booking.pricing?.totalAmount || 0}`,
+        amount: `₹0`,
         date: booking.scheduling?.scheduledDate 
           ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
           : booking.scheduling?.preferredDate 

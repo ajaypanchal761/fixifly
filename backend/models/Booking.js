@@ -139,6 +139,13 @@ const bookingSchema = new mongoose.Schema({
     }
   },
 
+  // Billing Amount (vendor's service charge)
+  billingAmount: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+
   // Scheduling Information
   scheduling: {
     preferredDate: {
@@ -243,6 +250,14 @@ const bookingSchema = new mongoose.Schema({
     },
     totalAmount: {
       type: Number
+    },
+    includeGST: {
+      type: Boolean,
+      default: false
+    },
+    gstAmount: {
+      type: Number,
+      default: 0
     }
   },
 

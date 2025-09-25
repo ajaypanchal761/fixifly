@@ -164,7 +164,7 @@ const VendorRescheduleTask = () => {
           title: task.services?.[0]?.serviceName || "Service Task",
           customer: task.customer?.name,
           phone: task.customer?.phone,
-          amount: `₹${task.pricing?.totalAmount || 0}`,
+          amount: `₹0`,
           date: new Date(selectedDate).toLocaleDateString('en-GB', { 
             day: '2-digit', 
             month: 'short', 

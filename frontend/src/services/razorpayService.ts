@@ -151,7 +151,7 @@ class RazorpayService {
       // Razorpay options
       const options: RazorpayOptions = {
         key: this.razorpayKey,
-        amount: paymentData.amount * 100, // Convert to paise
+        amount: paymentData.amount, // Amount is already in paise from backend
         currency: paymentData.currency,
         name: 'Fixifly',
         description: paymentData.description,

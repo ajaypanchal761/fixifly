@@ -421,7 +421,20 @@ For support, contact us at support@fixifly.com
 
   const handlePayNow = async (booking: Booking) => {
     try {
-      const baseAmount = (booking as any).completionData?.totalAmount || booking.pricing.totalAmount;
+      // Use billingAmount (vendor's service charge) - this is what customer needs to pay
+      // Try completionData first, then root level billingAmount
+      const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
+      const baseAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
+      
+      // If billing amount is missing, show error (vendor should have entered this)
+      if (baseAmount === 0) {
+        toast({
+          title: "Billing Amount Missing",
+          description: "The vendor did not enter a billing amount. Please contact support.",
+          variant: "destructive"
+        });
+        return;
+      }
       
       // Check for GST data in localStorage first
       const gstData = getGSTData(booking._id);
@@ -462,7 +475,7 @@ For support, contact us at support@fixifly.com
         // Process payment with Razorpay
         await razorpayService.processPayment({
           orderId: response.data.orderId,
-          amount: totalAmount,
+          amount: response.data.amount, // Use amount from order response (already in paise)
           currency: 'INR',
           name: booking.customer.name,
           email: booking.customer.email,
@@ -548,7 +561,10 @@ For support, contact us at support@fixifly.com
       
       // Get GST data if available
       const gstData = getGSTData(booking._id);
-      const baseAmount = booking.pricing.totalAmount + ((booking as any).completionData?.totalAmount || 0);
+      // Use billing amount instead of spare parts total
+      const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
+      const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
+      const baseAmount = booking.pricing.totalAmount + billingAmount;
       let totalAmount = baseAmount;
       let includeGST = false;
       let gstAmount = 0;
@@ -612,26 +628,6 @@ For support, contact us at support@fixifly.com
             ${booking.services.map(service => `<p>• ${service.serviceName}</p>`).join('')}
           </div>
 
-          ${(booking as any).completionData?.spareParts && (booking as any).completionData.spareParts.length > 0 ? `
-            <div class="section">
-              <h3>SPARE PARTS DETAILS</h3>
-              ${(booking as any).completionData.spareParts.map((part: any, index: number) => {
-                console.log(`Simple receipt spare part ${index + 1}:`, part);
-                const partName = part.name || 'Unnamed Part';
-                const partAmount = part.amount || '0';
-                return `<p>${index + 1}. ${partName} - ₹${partAmount}</p>`;
-              }).join('')}
-              <p><strong>Total Spare Parts Amount:</strong> ₹${(booking as any).completionData.totalAmount}</p>
-              ${includeGST && gstAmount > 0 ? `<p><strong>GST (18%):</strong> ₹${gstAmount}</p>` : ''}
-            </div>
-          ` : (booking as any).completionData?.totalAmount && (booking as any).completionData.totalAmount > 0 ? `
-            <div class="section">
-              <h3>ADDITIONAL CHARGES</h3>
-              <p><strong>Service Charges:</strong> ₹${(booking as any).completionData.totalAmount}</p>
-              ${includeGST && gstAmount > 0 ? `<p><strong>GST (18%):</strong> ₹${gstAmount}</p>` : ''}
-            </div>
-          ` : ''}
-
           ${(booking as any).completionData?.resolutionNote ? `
           <div class="section">
             <h3>RESOLUTION NOTES</h3>
@@ -645,10 +641,10 @@ For support, contact us at support@fixifly.com
               <span>Initial Payment:</span>
               <span>₹${booking.pricing.totalAmount}</span>
             </div>
-            ${(booking as any).completionData?.totalAmount ? `
+            ${billingAmount > 0 ? `
             <div class="row">
-              <span>Spare Parts:</span>
-              <span>₹${(booking as any).completionData.totalAmount}</span>
+              <span>Service Charges:</span>
+              <span>₹${billingAmount}</span>
             </div>
             ` : ''}
             ${includeGST && gstAmount > 0 ? `
@@ -1513,7 +1509,15 @@ For support, contact us at support@fixifly.com
                           onClick={() => handlePayNow(booking)}
                         >
                           Pay Now - ₹{(() => {
-                            const baseAmount = (booking as any).completionData?.totalAmount || booking.pricing.totalAmount;
+                            // Use billingAmount (vendor's service charge) - this is what customer needs to pay
+                            // Try completionData first, then root level billingAmount
+                            const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
+                            const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
+                            
+                            // If billing amount is missing, show 0 (vendor should have entered this)
+                            if (billingAmount === 0) {
+                              return '0';
+                            }
                             
                             // Check for GST data in localStorage
                             const gstData = getGSTData(booking._id);
@@ -1526,9 +1530,9 @@ For support, contact us at support@fixifly.com
                             const gstAmount = (booking as any).gstAmount || 0;
                             
                             if (includeGST && gstAmount > 0) {
-                              return (baseAmount + gstAmount).toLocaleString();
+                              return (billingAmount + gstAmount).toLocaleString();
                             }
-                            return baseAmount.toLocaleString();
+                            return billingAmount.toLocaleString();
                           })()}
                         </Button>
                       ) : (
@@ -1597,9 +1601,6 @@ For support, contact us at support@fixifly.com
                     <div className="mb-1">
                       <span className="font-bold text-gray-800 text-xs">
                         Case ID: {(booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
-                        {(booking as any).completionData?.spareParts && (booking as any).completionData.spareParts.length > 0 && (
-                          <span className="text-green-600 ml-1">(spare)</span>
-                        )}
                       </span>
                     </div>
 

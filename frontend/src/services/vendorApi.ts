@@ -292,6 +292,7 @@ class VendorApiService {
   // Complete Task
   async completeTask(bookingId: string, completionData: {
     resolutionNote: string;
+    billingAmount: number;
     spareParts: Array<{
       id: number;
       name: string;
@@ -300,6 +301,9 @@ class VendorApiService {
     }>;
     paymentMethod: 'online' | 'cash';
     travelingAmount: string;
+    includeGST?: boolean;
+    gstAmount?: number;
+    totalAmount?: number;
   }): Promise<ApiResponse<any>> {
     console.log('Completing task:', { bookingId, completionData });
     const response = await this.request(`/bookings/${bookingId}/complete`, {
@@ -307,9 +311,13 @@ class VendorApiService {
       body: JSON.stringify({ 
         completionData: {
           resolutionNote: completionData.resolutionNote,
+          billingAmount: completionData.billingAmount,
           spareParts: completionData.spareParts,
           paymentMethod: completionData.paymentMethod,
           travelingAmount: completionData.travelingAmount,
+          includeGST: completionData.includeGST,
+          gstAmount: completionData.gstAmount,
+          totalAmount: completionData.totalAmount,
           completedAt: new Date().toISOString()
         }
       }),

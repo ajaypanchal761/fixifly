@@ -53,10 +53,11 @@ const VendorEarnings = () => {
     totalWithdrawals: 0,
     summary: {
       totalEarnings: 0,
-    totalWithdrawals: 0
+      totalWithdrawals: 0
     }
   });
   const [loadingWallet, setLoadingWallet] = useState(true);
+  const [isUpdatingFromAPI, setIsUpdatingFromAPI] = useState(false);
 
   // Add sample transaction for testing if no transactions exist
   useEffect(() => {
@@ -96,7 +97,7 @@ const VendorEarnings = () => {
 
   // Also fetch wallet data when vendor context changes
   useEffect(() => {
-    if (vendor?.wallet) {
+    if (vendor?.wallet && !isUpdatingFromAPI) {
       console.log('🔄 Vendor wallet context updated:', vendor.wallet);
       // Update local wallet data from vendor context
       setWalletData({
@@ -111,14 +112,8 @@ const VendorEarnings = () => {
         }
       });
       setLoadingWallet(false);
-      
-      // Auto-refresh wallet data from API to ensure we have the latest
-      setTimeout(() => {
-        console.log('🔄 Auto-refreshing wallet data due to vendor context change');
-        fetchWalletData();
-      }, 500);
     }
-  }, [vendor?.wallet]);
+  }, [vendor?.wallet, isUpdatingFromAPI]);
 
   // Function to refresh vendor profile data from API
   const refreshVendorProfile = async () => {
@@ -146,6 +141,8 @@ const VendorEarnings = () => {
       setLoadingWallet(false);
       return;
     }
+    
+    setIsUpdatingFromAPI(true);
     
     try {
       setLoadingWallet(true);
@@ -260,6 +257,11 @@ const VendorEarnings = () => {
             }
           });
         }
+        
+        // Reset flag after updating vendor context
+        setTimeout(() => {
+          setIsUpdatingFromAPI(false);
+        }, 100);
       } else {
         console.warn('Invalid wallet API response structure:', data);
       }
@@ -277,6 +279,7 @@ const VendorEarnings = () => {
       // Keep default wallet data on error
     } finally {
       setLoadingWallet(false);
+      setIsUpdatingFromAPI(false);
     }
   };
 

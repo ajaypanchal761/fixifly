@@ -101,7 +101,7 @@ const VendorClosedTask = () => {
             title: bookingTask.services?.[0]?.serviceName || 'Service Request',
             customer: bookingTask.customer?.name || 'Unknown Customer',
             phone: bookingTask.customer?.phone || 'N/A',
-            amount: `₹${bookingTask.pricing?.totalAmount || 0}`,
+            amount: `₹0`,
             date: bookingTask.scheduling?.scheduledDate 
               ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
               : bookingTask.scheduling?.preferredDate 
@@ -348,24 +348,27 @@ const VendorClosedTask = () => {
     }, 0);
     
     if (paymentMethod === 'online' && includeGST) {
-      const gstAmount = sparePartsTotal * 0.18; // 18% GST on spare parts only
-      return sparePartsTotal + gstAmount; // Only spare parts + GST, billing amount separate
+      const gstAmount = billingAmountValue * 0.18; // 18% GST on billing amount
+      return billingAmountValue + gstAmount; // Billing amount + GST
     }
     
-    return sparePartsTotal; // Only spare parts amount, billing amount separate
+    return billingAmountValue; // Billing amount only
   };
 
   const calculateBillingTotal = () => {
     const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
-    return billingAmountValue; // Only billing amount for support tickets
+    
+    if (paymentMethod === 'online' && includeGST) {
+      const gstAmount = billingAmountValue * 0.18; // 18% GST on billing amount
+      return billingAmountValue + gstAmount; // Billing amount + GST
+    }
+    
+    return billingAmountValue; // Billing amount only
   };
 
   const calculateGSTAmount = () => {
-    const sparePartsTotal = spareParts.reduce((sum, part) => {
-      const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
-      return sum + amount;
-    }, 0);
-    return sparePartsTotal * 0.18; // 18% GST
+    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    return billingAmountValue * 0.18; // 18% GST on billing amount
   };
 
   const handleNext = async () => {
@@ -384,15 +387,15 @@ const VendorClosedTask = () => {
         return;
       }
 
-      // Validate billing amount for support tickets
-      if (task?.isSupportTicket && (!billingAmount || billingAmount.trim() === '')) {
-        alert('Please enter billing amount for support ticket');
+      // Validate billing amount for both support tickets and booking tasks
+      if (!billingAmount || billingAmount.trim() === '') {
+        alert('Please enter billing amount');
         return;
       }
 
       // Validate billing amount value
       const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
-      if (task?.isSupportTicket && billingAmountValue <= 0) {
+      if (billingAmountValue <= 0) {
         alert('Please enter a valid billing amount greater than 0');
         return;
       }
@@ -408,7 +411,7 @@ const VendorClosedTask = () => {
         paymentMethod: paymentMethod as 'online' | 'cash',
         includeGST: includeGST,
         gstAmount: includeGST ? calculateGSTAmount() : 0,
-        totalAmount: task?.isSupportTicket ? billingAmountValue : calculateTotal(),
+        totalAmount: calculateBillingTotal(), // Use total amount including GST
         billingAmount: billingAmountValue,
         travelingAmount: "100"
       };
@@ -434,8 +437,8 @@ const VendorClosedTask = () => {
             gstAmount = 0;
             alert(`Support ticket completed successfully! User will now receive payment request for ₹${totalAmount.toLocaleString()}.`);
           } else {
-            // For booking tasks, spare parts + GST
-            totalAmount = calculateTotal();
+            // For booking tasks, use billing amount (not spare parts)
+            totalAmount = calculateBillingTotal();
             gstAmount = includeGST ? calculateGSTAmount() : 0;
           
           if (includeGST) {
@@ -460,7 +463,10 @@ const VendorClosedTask = () => {
             isSupportTicket: task?.isSupportTicket || false,
             timestamp: Date.now()
           };
+          
+          // Store with both key formats for compatibility
           localStorage.setItem(`payment_${taskId}`, JSON.stringify(paymentData));
+          localStorage.setItem(`gst_${taskId}`, JSON.stringify(paymentData));
           
           // Trigger event for user page refresh
           const eventName = task?.isSupportTicket ? 'supportTicketUpdated' : 'bookingUpdated';
@@ -688,12 +694,6 @@ const VendorClosedTask = () => {
                   </span>
                 </div>
               )}
-
-              {/* Spare Parts Total */}
-              <div className="flex items-center justify-between border-t border-gray-300 pt-2">
-                <span className="text-lg font-semibold text-gray-800">Spare Parts Total</span>
-                <span className="text-xl font-bold text-blue-600">₹{calculateTotal().toLocaleString()}</span>
-              </div>
 
               {/* Billing Amount Total */}
               <div className="flex items-center justify-between border-t border-gray-300 pt-2">

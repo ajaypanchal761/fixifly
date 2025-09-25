@@ -181,7 +181,7 @@ const Support = () => {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         },
         body: JSON.stringify({
-          amount: (ticket.billingAmount || ticket.totalAmount || 0) * 100, // Convert to paise
+          amount: (ticket.billingAmount || ticket.totalAmount || 0), // Amount in rupees, backend will convert to paise
           currency: 'INR',
           receipt: `receipt_${ticket.id}_${Date.now()}`,
           notes: {
@@ -211,7 +211,7 @@ const Support = () => {
       // Razorpay options
       const options = {
         key: 'rzp_test_8sYbzHWidwe5Zw', // FixFly Razorpay Test Key
-        amount: (ticket.billingAmount || ticket.totalAmount || 0) * 100,
+        amount: orderData.data.amount, // Use amount from order response (already in paise)
         currency: 'INR',
         name: 'FixFly',
         description: `Payment for support ticket: ${ticket.subject}`,

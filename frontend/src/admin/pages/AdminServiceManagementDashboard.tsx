@@ -43,12 +43,23 @@ interface ServiceManagementBooking {
   services: Array<{
     serviceName: string;
   }>;
+  pricing: {
+    subtotal: number;
+    serviceFee: number;
+    totalAmount: number;
+  };
   scheduling: {
     scheduledDate: string;
     scheduledTime: string;
   };
   priority: string;
   status: string;
+  payment: {
+    status: 'pending' | 'completed' | 'failed' | 'refunded';
+    method: string;
+    transactionId?: string;
+    paidAt?: string;
+  };
   vendor: {
     vendorId: {
       firstName: string;
@@ -71,7 +82,9 @@ interface ServiceManagementBooking {
     }>;
     resolutionNote: string;
     totalAmount: number;
+    billingAmount?: string;
   };
+  billingAmount?: string;
   paymentMode?: string;
   paymentStatus?: string;
   paymentAmount?: number;
@@ -100,13 +113,24 @@ const AdminServiceManagementDashboard = () => {
       const response = await adminBookingApi.getAllBookings();
       
       if (response.success && response.data?.bookings) {
-        const transformedBookings = response.data.bookings.map((booking: any) => ({
-          ...booking,
-          bookingReference: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
-          paymentMode: booking.paymentMode || '',
-          paymentStatus: booking.paymentStatus || (booking.status === 'completed' ? 'completed' : 'pending'),
-          paymentAmount: booking.completionData?.totalAmount || 0
-        }));
+        const transformedBookings = response.data.bookings.map((booking: any) => {
+          // Payment amount is only the service charges (billing amount) paid through "Pay Now"
+          const serviceCharges = parseFloat(booking.completionData?.billingAmount || booking.billingAmount || '0') || 0;
+          
+          console.log('Payment calculation for booking:', booking._id, {
+            serviceCharges,
+            billingAmount: booking.completionData?.billingAmount || booking.billingAmount,
+            pricing: booking.pricing
+          });
+          
+          return {
+            ...booking,
+            bookingReference: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
+            paymentMode: booking.payment?.method || 'card',
+            paymentStatus: booking.payment?.status || 'pending',
+            paymentAmount: serviceCharges
+          };
+        });
         console.log('Transformed bookings:', transformedBookings);
         setBookings(transformedBookings);
       } else {
@@ -483,7 +507,11 @@ const AdminServiceManagementDashboard = () => {
                         </div>
                       </td>
                       <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-900">
-                        {booking.paymentAmount ? `₹${booking.paymentAmount}` : '-'}
+                        {booking.paymentAmount && booking.paymentAmount > 0 
+                          ? `₹${booking.paymentAmount}` 
+                          : booking.pricing?.totalAmount 
+                            ? `₹${booking.pricing.totalAmount}` 
+                            : '-'}
                       </td>
                       <td className="px-2 py-1 whitespace-nowrap">
                         {getStatusBadge(booking.status)}
@@ -527,8 +555,8 @@ const AdminServiceManagementDashboard = () => {
 
       {/* View Details Modal */}
       {isModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center pt-3 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-10">
             <div className="p-3">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="text-lg font-bold text-gray-900">Booking Details</h2>
@@ -654,7 +682,11 @@ const AdminServiceManagementDashboard = () => {
                       <DollarSign className="w-4 h-4 text-gray-500 mr-2" />
                       <span className="text-sm text-gray-600">Payment Amount:</span>
                       <span className="text-sm font-medium text-gray-900 ml-2">
-                        {selectedBooking.paymentAmount ? `₹${selectedBooking.paymentAmount}` : 'N/A'}
+                        {selectedBooking.paymentAmount && selectedBooking.paymentAmount > 0 
+                          ? `₹${selectedBooking.paymentAmount}` 
+                          : selectedBooking.pricing?.totalAmount 
+                            ? `₹${selectedBooking.pricing.totalAmount}` 
+                            : 'N/A'}
                       </span>
                     </div>
                   </div>

@@ -1599,6 +1599,52 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
   // Use the new completeByVendor method (payment info is handled in the model)
   await ticket.completeByVendor(vendorId, completionData);
 
+  // Handle vendor wallet deduction for cash payment (support tickets)
+  if (paymentMethod === 'cash') {
+    try {
+      const VendorWallet = require('../models/VendorWallet');
+      const WalletCalculationService = require('../services/walletCalculationService');
+      
+      const billingAmount = parseFloat(billingAmount) || 0;
+      const spareAmount = spareParts?.reduce((sum, part) => {
+        return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+      }, 0) || 0;
+      const travellingAmount = 0; // Support tickets don't have travelling amount
+      
+      // Calculate cash collection deduction
+      const calculation = WalletCalculationService.calculateCashCollectionDeduction({
+        billingAmount,
+        spareAmount,
+        travellingAmount,
+        gstIncluded: includeGST || false
+      });
+      
+      // Deduct from vendor wallet
+      const vendorWallet = await VendorWallet.findOne({ vendorId: vendorId });
+      if (vendorWallet) {
+        await vendorWallet.addCashCollectionDeduction({
+          caseId: ticket.ticketId,
+          billingAmount,
+          spareAmount,
+          travellingAmount,
+          gstIncluded: includeGST || false,
+          description: `Support ticket cash collection - ${ticket.ticketId}`
+        });
+        
+        logger.info('Support ticket cash collection deducted from vendor wallet', {
+          vendorId: vendorId,
+          ticketId: ticket.ticketId,
+          deductionAmount: calculation.calculatedAmount,
+          billingAmount,
+          spareAmount
+        });
+      }
+    } catch (error) {
+      logger.error('Error deducting support ticket cash collection from vendor wallet:', error);
+      // Don't fail the ticket completion if wallet update fails
+    }
+  }
+
   res.json({
     success: true,
     message: 'Support ticket completed successfully',

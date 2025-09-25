@@ -46,6 +46,7 @@ import VendorCancelledTaskDetail from "./vendor/pages/VendorCancelledTaskDetail"
 import VendorTaskPreview from "./vendor/pages/VendorTaskPreview";
 import VendorCancelTaskDetail from "./vendor/pages/VendorCancelTaskDetail";
 import VendorRescheduleTask from "./vendor/pages/VendorRescheduleTask";
+import VendorSupport from "./vendor/pages/VendorSupport";
 import VendorLogin from "./vendor/pages/VendorLogin";
 import VendorSignup from "./vendor/pages/VendorSignup";
 import VendorLanding from "./vendor/pages/VendorLanding";
@@ -134,6 +135,11 @@ const AppContent = () => {
               <ErrorBoundary>
                 <VendorEarnings />
               </ErrorBoundary>
+            </VendorProtectedRoute>
+          } />
+          <Route path="/vendor/support" element={
+            <VendorProtectedRoute>
+              <VendorSupport />
             </VendorProtectedRoute>
           } />
           <Route path="/vendor/privacy" element={

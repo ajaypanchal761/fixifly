@@ -98,9 +98,9 @@ class WalletCalculationService {
     if (netBillingAmount <= 500) {
       calculatedAmount = netBillingAmount; // Full amount for cash collection
     } else {
-      // Cash collection: (Billing - Spare - Travel) * 50% + GST amount
+      // Cash collection: (Billing - Spare - Travel) * 50%
       const baseAmount = netBillingAmount - spareAmount - travellingAmount;
-      calculatedAmount = (baseAmount * 0.5) + gstAmount;
+      calculatedAmount = baseAmount * 0.5;
     }
 
     return {

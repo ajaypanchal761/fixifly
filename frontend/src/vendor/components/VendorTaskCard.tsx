@@ -467,7 +467,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                 </div>
                 <div>
                   <span className="font-medium text-blue-700">Amount:</span>
-                  <p className="text-blue-600">{task.amount}</p>
+                  <p className="text-blue-600">{task.isSupportTicket ? task.amount : '₹0'}</p>
                 </div>
                 <div>
                   <span className="font-medium text-blue-700">Priority:</span>

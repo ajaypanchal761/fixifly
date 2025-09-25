@@ -1007,42 +1007,56 @@ const getVendorWallet = asyncHandler(async (req, res) => {
     const vendorId = req.vendor._id;
     const { page = 1, limit = 20 } = req.query;
     
-    const vendor = await Vendor.findById(vendorId).select('wallet vendorId');
+    const vendor = await Vendor.findById(vendorId).select('vendorId');
+    const vendorWalletId = vendor?.vendorId;
 
-    if (!vendor) {
+    if (!vendor || !vendorWalletId) {
       return res.status(404).json({
         success: false,
         message: 'Vendor not found'
       });
     }
 
-    // Get transaction history with pagination
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const transactions = await WalletTransaction.find({ vendorId: vendor.vendorId })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+    // Get wallet data from VendorWallet model
+    const VendorWallet = require('../models/VendorWallet');
+    let wallet = await VendorWallet.findOne({ vendorId: vendorWalletId });
+    
+    // Create wallet if it doesn't exist
+    if (!wallet) {
+      wallet = new VendorWallet({
+        vendorId: vendorWalletId,
+        currentBalance: 0,
+        securityDeposit: 4000,
+        availableBalance: 0
+      });
+      await wallet.save();
+    }
 
-    const totalTransactions = await WalletTransaction.countDocuments({ vendorId: vendor.vendorId });
-
-    // Get wallet summary
-    const summary = await WalletTransaction.getVendorSummary(vendor.vendorId);
+    const summary = await VendorWallet.getVendorSummary(vendorWalletId);
+    const recentTransactions = await VendorWallet.getRecentTransactions(vendorWalletId, parseInt(limit));
 
     res.status(200).json({
       success: true,
       data: {
         wallet: {
-          ...vendor.wallet,
-          summary: summary
+          currentBalance: wallet.currentBalance,
+          securityDeposit: wallet.securityDeposit,
+          availableBalance: wallet.availableForWithdrawal,
+          totalEarnings: wallet.totalEarnings,
+          totalPenalties: wallet.totalPenalties,
+          totalWithdrawals: wallet.totalWithdrawals,
+          totalDeposits: wallet.totalDeposits,
+          totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees,
+          totalCashCollections: wallet.totalCashCollections,
+          totalRefunds: wallet.totalRefunds,
+          totalTasksCompleted: wallet.totalTasksCompleted,
+          totalTasksRejected: wallet.totalTasksRejected,
+          totalTasksCancelled: wallet.totalTasksCancelled,
+          lastTransactionAt: wallet.lastTransactionAt,
+          isActive: wallet.isActive
         },
-        transactions: transactions,
-        pagination: {
-          currentPage: parseInt(page),
-          totalPages: Math.ceil(totalTransactions / parseInt(limit)),
-          totalTransactions: totalTransactions,
-          hasNextPage: skip + transactions.length < totalTransactions,
-          hasPrevPage: parseInt(page) > 1
-        }
+        summary,
+        recentTransactions
       }
     });
 

@@ -53,6 +53,7 @@ interface PaymentRecord {
   };
   completionData?: {
     totalAmount: number;
+    billingAmount?: string;
     spareParts: Array<{
       id: number;
       name: string;
@@ -64,6 +65,7 @@ interface PaymentRecord {
     paymentMethod: 'online' | 'cash';
     completedAt: Date;
   };
+  billingAmount?: string;
   vendor?: {
     vendorId: string;
     assignedAt: Date;
@@ -126,6 +128,7 @@ const AdminPaymentManagement = () => {
             pricing: booking.pricing,
             payment: booking.payment,
             completionData: booking.completionData,
+            billingAmount: booking.billingAmount,
             vendor: booking.vendor,
             status: booking.status,
             priority: booking.priority,
@@ -246,7 +249,7 @@ const AdminPaymentManagement = () => {
         payment.customer?.email || 'N/A',
         payment.customer?.phone || 'N/A',
         payment.services?.map(s => s.serviceName).join(', ') || 'N/A',
-        payment.payment?.amount || 0,
+        (payment.pricing?.totalAmount || 0) + (parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0),
         payment.payment?.razorpayPaymentId || 'N/A',
         new Date(payment.payment?.paidAt || payment.createdAt).toLocaleDateString()
       ])
@@ -299,12 +302,12 @@ const AdminPaymentManagement = () => {
               <div className="text-2xl font-bold">
                 ₹{payments.reduce((sum, payment) => {
                   const initialAmount = payment.pricing?.totalAmount || 0;
-                  const sparePartsAmount = payment.completionData?.totalAmount || 0;
-                  return sum + initialAmount + sparePartsAmount;
+                  const serviceCharges = parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0;
+                  return sum + initialAmount + serviceCharges;
                 }, 0)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Completed + Spare Parts (Pay Now)
+                Initial + Service Charges (Pay Now)
               </p>
             </CardContent>
           </Card>
@@ -426,6 +429,7 @@ const AdminPaymentManagement = () => {
                       <TableHead>Customer</TableHead>
                       <TableHead>Service</TableHead>
                       <TableHead>Initial Payment</TableHead>
+                      <TableHead>Service Charges Payment</TableHead>
                       <TableHead>Spare Parts Payment</TableHead>
                       <TableHead>Total Amount</TableHead>
                       <TableHead>Payment Mode</TableHead>
@@ -459,12 +463,31 @@ const AdminPaymentManagement = () => {
                         </TableCell>
                         <TableCell className="font-medium text-green-600">
                           <div>
-                            {payment.completionData?.totalAmount > 0 ? (
+                            {(() => {
+                              const serviceCharges = parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0;
+                              return serviceCharges > 0 ? (
                               <>
                                 <div className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded mb-1 inline-block">
                                   {(payment.paymentStatus === 'payment_done' || payment.paymentStatus === 'collected') ? 'Paid' : 'Pending'}
+                                  </div>
+                                  <div>₹{serviceCharges}</div>
+                                </>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              );
+                            })()}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium text-orange-600">
+                          <div>
+                            {payment.completionData?.spareParts && payment.completionData.spareParts.length > 0 ? (
+                              <>
+                                <div className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded mb-1 inline-block">
+                                  Admin Only
                                 </div>
-                                <div>₹{payment.completionData.totalAmount}</div>
+                                <div>₹{payment.completionData.spareParts.reduce((sum: number, part: any) => 
+                                  sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
+                                )}</div>
                               </>
                             ) : (
                               <span className="text-gray-400">-</span>
@@ -472,7 +495,7 @@ const AdminPaymentManagement = () => {
                           </div>
                         </TableCell>
                         <TableCell className="font-medium text-purple-600">
-                          ₹{(payment.pricing?.totalAmount || 0) + (payment.completionData?.totalAmount || 0)}
+                          ₹{(payment.pricing?.totalAmount || 0) + (parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0)}
                         </TableCell>
                         <TableCell>
                           {getPaymentModeBadge(payment.paymentMode || '')}
@@ -508,14 +531,14 @@ const AdminPaymentManagement = () => {
 
         {/* Payment Details Modal */}
         <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
-          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto pt-10">
             <DialogHeader>
               <DialogTitle>Complete Payment Details</DialogTitle>
             </DialogHeader>
             {selectedPayment && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Booking Information */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Booking ID</Label>
                     <p className="text-sm font-medium">
@@ -535,7 +558,7 @@ const AdminPaymentManagement = () => {
                 </div>
 
                 {/* Payment Information */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Payment ID</Label>
                     <p className="text-sm font-mono">{selectedPayment.payment?.razorpayPaymentId || selectedPayment.payment?.transactionId || 'N/A'}</p>
@@ -553,7 +576,7 @@ const AdminPaymentManagement = () => {
                 </div>
 
                 {/* Amount Breakdown */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-3">
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">
                       Initial Payment 
@@ -565,27 +588,42 @@ const AdminPaymentManagement = () => {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">
-                      Spare Parts Amount
-                      {selectedPayment.completionData?.totalAmount > 0 && (
+                      Service Charges Amount
+                      {(() => {
+                        const serviceCharges = parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0;
+                        return serviceCharges > 0 && (
                         <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
                           {(selectedPayment.paymentStatus === 'payment_done' || selectedPayment.paymentStatus === 'collected') ? 'Paid' : 'Pending'}
                         </span>
-                      )}
+                        );
+                      })()}
                     </Label>
                     <p className="text-sm font-medium text-green-600">
-                      ₹{selectedPayment.completionData?.totalAmount || 0}
+                      ₹{parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Spare Parts Amount
+                      <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Admin Only</span>
+                    </Label>
+                    <p className="text-sm font-medium text-orange-600">
+                      ₹{selectedPayment.completionData?.spareParts ? 
+                        selectedPayment.completionData.spareParts.reduce((sum: number, part: any) => 
+                          sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
+                        ) : 0}
                     </p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Total Amount</Label>
                     <p className="text-sm font-medium text-purple-600">
-                      ₹{(selectedPayment.pricing?.totalAmount || 0) + (selectedPayment.completionData?.totalAmount || 0)}
+                      ₹{(selectedPayment.pricing?.totalAmount || 0) + (parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0)}
                     </p>
                   </div>
                 </div>
 
                 {/* Payment Mode & Status */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">Payment Mode</Label>
                     <div className="mt-1">{getPaymentModeBadge(selectedPayment.paymentMode || '')}</div>

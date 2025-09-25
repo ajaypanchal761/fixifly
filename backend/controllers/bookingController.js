@@ -161,6 +161,7 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const bookings = await Booking.find({ 'customer.email': email })
+      .select('customer services pricing scheduling status priority vendor notes assignmentNotes completionData paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit))
@@ -689,6 +690,12 @@ const completeTask = asyncHandler(async (req, res) => {
     const { completionData } = req.body;
     const bookingId = req.params.id;
 
+    console.log('=== BOOKING COMPLETION DEBUG ===');
+    console.log('Received completion data:', completionData);
+    console.log('Billing amount received:', completionData?.billingAmount);
+    console.log('Payment method received:', completionData?.paymentMethod);
+    console.log('Is cash payment?', completionData?.paymentMethod === 'cash');
+
     if (!completionData) {
       return res.status(400).json({
         success: false,
@@ -713,26 +720,36 @@ const completeTask = asyncHandler(async (req, res) => {
       });
     }
 
-    // Calculate total amount (only spare parts, no traveling charge)
+    // Calculate spare parts total (for admin tracking)
     const sparePartsTotal = completionData.spareParts.reduce((sum, part) => {
       const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
       return sum + amount;
     }, 0);
-    const totalAmount = sparePartsTotal; // Only spare parts amount
+    
+    // totalAmount should be empty - billingAmount is separate for customer payment
+    const totalAmount = ""; // Empty - billing amount is handled separately
 
     // Prepare update data
     const updateData = {
       status: completionData.paymentMethod === 'online' ? 'in_progress' : 'completed',
+      billingAmount: completionData.billingAmount, // Save to root level
       completionData: {
         resolutionNote: completionData.resolutionNote,
+        billingAmount: completionData.billingAmount,
         spareParts: completionData.spareParts,
+        sparePartsTotal: sparePartsTotal, // For admin tracking
         travelingAmount: completionData.travelingAmount,
         paymentMethod: completionData.paymentMethod,
         completedAt: completionData.completedAt,
-        totalAmount: totalAmount
+        totalAmount: totalAmount, // Empty - billing amount is separate
+        includeGST: completionData.includeGST || false,
+        gstAmount: completionData.gstAmount || 0
       },
       'tracking.updatedAt': new Date()
     };
+
+    console.log('Update data being saved:', updateData);
+    console.log('Billing amount in update data:', updateData.completionData.billingAmount);
 
     // For online payment, set payment status to pending
     if (completionData.paymentMethod === 'online') {
@@ -749,6 +766,70 @@ const completeTask = asyncHandler(async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     ).lean();
+
+    console.log('Updated booking completion data:', updatedBooking.completionData);
+    console.log('Billing amount in saved data:', updatedBooking.completionData?.billingData);
+
+    // Handle vendor wallet deduction for cash payment
+    if (completionData.paymentMethod === 'cash') {
+      try {
+        console.log('=== CASH PAYMENT WALLET DEDUCTION DEBUG ===');
+        console.log('Completion data:', completionData);
+        console.log('Billing amount:', completionData.billingAmount);
+        console.log('Spare parts:', completionData.spareParts);
+        console.log('Traveling amount:', completionData.travelingAmount);
+        
+        const VendorWallet = require('../models/VendorWallet');
+        const WalletCalculationService = require('../services/walletCalculationService');
+        
+        const billingAmount = parseFloat(completionData.billingAmount) || 0;
+        const spareAmount = completionData.spareParts?.reduce((sum, part) => {
+          return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+        }, 0) || 0;
+        const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
+        
+        console.log('Calculated amounts:', { billingAmount, spareAmount, travellingAmount });
+        
+        // Calculate cash collection deduction
+        const calculation = WalletCalculationService.calculateCashCollectionDeduction({
+          billingAmount,
+          spareAmount,
+          travellingAmount,
+          gstIncluded: completionData.includeGST || false
+        });
+        
+        // Deduct from vendor wallet
+        console.log('Looking for vendor wallet with vendorId:', booking.vendor.vendorId);
+        const vendorWallet = await VendorWallet.findOne({ vendorId: booking.vendor.vendorId });
+        console.log('Vendor wallet found:', !!vendorWallet);
+        if (vendorWallet) {
+          await vendorWallet.addCashCollectionDeduction({
+            caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
+            billingAmount,
+            spareAmount,
+            travellingAmount,
+            gstIncluded: completionData.includeGST || false,
+            description: `Cash collection - ${updatedBooking.bookingReference || bookingId}`
+          });
+          
+          logger.info('Cash collection deducted from vendor wallet', {
+            vendorId: booking.vendor.vendorId,
+            caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
+            deductionAmount: calculation.calculatedAmount,
+            billingAmount,
+            spareAmount,
+            travellingAmount
+          });
+        }
+      } catch (error) {
+        console.log('=== CASH PAYMENT WALLET DEDUCTION ERROR ===');
+        console.error('Error details:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        logger.error('Error deducting cash collection from vendor wallet:', error);
+        // Don't fail the task completion if wallet update fails
+      }
+    }
 
     logger.info('Task completed successfully', {
       bookingId,
@@ -862,7 +943,7 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
       message: 'Payment order created successfully',
       data: {
         orderId: razorpayOrder.id,
-        amount: amount,
+        amount: razorpayOrder.amount, // Return amount in paise from Razorpay order
         currency: currency,
         paymentUrl: `/payment/${bookingId}?orderId=${razorpayOrder.id}`
       }
@@ -1165,6 +1246,59 @@ const verifyPayment = asyncHandler(async (req, res) => {
       },
       { new: true, runValidators: true }
     ).lean();
+
+    // Add vendor earning to wallet for online payment
+    if (updatedBooking && updatedBooking.vendor && updatedBooking.vendor.vendorId) {
+      try {
+        const VendorWallet = require('../models/VendorWallet');
+        const WalletCalculationService = require('../services/walletCalculationService');
+        
+        // Get completion data for calculation
+        const completionData = updatedBooking.completionData;
+        if (completionData && completionData.paymentMethod === 'online') {
+          const billingAmount = parseFloat(completionData.billingAmount) || 0;
+          const spareAmount = completionData.spareParts?.reduce((sum, part) => {
+            return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+          }, 0) || 0;
+          const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
+          
+          // Calculate vendor earning
+          const calculation = WalletCalculationService.calculateEarning({
+            billingAmount,
+            spareAmount,
+            travellingAmount,
+            paymentMethod: 'online',
+            gstIncluded: completionData.includeGST || false
+          });
+          
+          // Add earning to vendor wallet
+          const vendorWallet = await VendorWallet.findOne({ vendorId: updatedBooking.vendor.vendorId });
+          if (vendorWallet) {
+            await vendorWallet.addEarning({
+              caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
+              billingAmount,
+              spareAmount,
+              travellingAmount,
+              paymentMethod: 'online',
+              gstIncluded: completionData.includeGST || false,
+              description: `Task completion earning - ${updatedBooking.bookingReference || bookingId}`
+            });
+            
+            logger.info('Vendor earning added to wallet', {
+              vendorId: updatedBooking.vendor.vendorId,
+              caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
+              earningAmount: calculation.calculatedAmount,
+              billingAmount,
+              spareAmount,
+              travellingAmount
+            });
+          }
+        }
+      } catch (error) {
+        logger.error('Error adding vendor earning to wallet:', error);
+        // Don't fail the payment verification if wallet update fails
+      }
+    }
 
     logger.info('Payment verified and booking updated', {
       bookingId,

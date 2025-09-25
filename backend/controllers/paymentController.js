@@ -23,7 +23,7 @@ const createOrder = asyncHandler(async (req, res) => {
     }
 
     const options = {
-      amount: amount, // Amount in paise
+      amount: Math.round(parseFloat(amount) * 100), // Convert rupees to paise
       currency: currency,
       receipt: receipt,
       notes: notes || {}
@@ -88,6 +88,54 @@ const verifyPayment = asyncHandler(async (req, res) => {
         ticket.status = 'Resolved'; // Mark as resolved when payment is completed
         ticket.resolvedAt = new Date();
         await ticket.save();
+
+        // Add vendor earning to wallet for online payment (support tickets)
+        if (ticket.assignedTo && ticket.completionData && ticket.completionData.paymentMethod === 'online') {
+          try {
+            const VendorWallet = require('../models/VendorWallet');
+            const WalletCalculationService = require('../services/walletCalculationService');
+            
+            const billingAmount = parseFloat(ticket.completionData.billingAmount) || 0;
+            const spareAmount = ticket.completionData.spareParts?.reduce((sum, part) => {
+              return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+            }, 0) || 0;
+            const travellingAmount = 0; // Support tickets don't have travelling amount
+            
+            // Calculate vendor earning
+            const calculation = WalletCalculationService.calculateEarning({
+              billingAmount,
+              spareAmount,
+              travellingAmount,
+              paymentMethod: 'online',
+              gstIncluded: ticket.completionData.includeGST || false
+            });
+            
+            // Add earning to vendor wallet
+            const vendorWallet = await VendorWallet.findOne({ vendorId: ticket.assignedTo });
+            if (vendorWallet) {
+              await vendorWallet.addEarning({
+                caseId: ticket.ticketId,
+                billingAmount,
+                spareAmount,
+                travellingAmount,
+                paymentMethod: 'online',
+                gstIncluded: ticket.completionData.includeGST || false,
+                description: `Support ticket completion earning - ${ticket.ticketId}`
+              });
+              
+              console.log('Support ticket vendor earning added to wallet', {
+                vendorId: ticket.assignedTo,
+                ticketId: ticket.ticketId,
+                earningAmount: calculation.calculatedAmount,
+                billingAmount,
+                spareAmount
+              });
+            }
+          } catch (error) {
+            console.error('Error adding support ticket vendor earning to wallet:', error);
+            // Don't fail the payment verification if wallet update fails
+          }
+        }
       }
     }
 
