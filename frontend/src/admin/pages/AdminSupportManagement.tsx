@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminHeader from '../components/AdminHeader';
 import { adminSupportTicketAPI } from '@/services/supportApiService';
 import adminApiService from '@/services/adminApi';
+import { useToast } from '@/hooks/use-toast';
 import { 
   MessageSquare, 
   Plus, 
@@ -48,6 +49,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 const AdminSupportManagement = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
@@ -317,35 +319,46 @@ const AdminSupportManagement = () => {
   };
 
   const handleAssignVendorToTicket = async () => {
-    if (!selectedVendor || !selectedTicket) return;
+    if (!selectedVendor || !selectedTicket) {
+      toast({
+        title: "Missing Information",
+        description: "Please select both a vendor and a ticket to assign.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate vendor ID
+    const vendorId = selectedVendor._id || selectedVendor.id;
+    if (!vendorId) {
+      toast({
+        title: "Invalid Vendor",
+        description: "Selected vendor does not have a valid ID.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       console.log('Assigning vendor to ticket:', {
         ticketId: selectedTicket.id,
-        vendorId: selectedVendor._id,
-        vendorName: `${selectedVendor.firstName} ${selectedVendor.lastName}`
+        vendorId: vendorId,
+        vendorName: `${selectedVendor.firstName} ${selectedVendor.lastName}`,
+        selectedVendor: selectedVendor,
+        scheduledDate: scheduledDate,
+        scheduledTime: scheduledTime,
+        scheduleNotes: scheduleNotes
       });
 
-      // Prepare assignment data
-      const assignmentData: any = {
-        assignedTo: selectedVendor._id
-      };
-
-      // Add scheduled date and time if provided
-      if (scheduledDate) {
-        assignmentData.scheduledDate = scheduledDate;
-      }
-      if (scheduledTime) {
-        assignmentData.scheduledTime = scheduledTime;
-      }
-      if (scheduleNotes) {
-        assignmentData.scheduleNotes = scheduleNotes;
-      }
-
-      console.log('Assignment data:', assignmentData);
-
-      // Update ticket with assigned vendor and schedule
-      const response = await adminSupportTicketAPI.updateTicket(selectedTicket.id, assignmentData);
+      // Use the new assignVendor API method
+      const response = await adminSupportTicketAPI.assignVendor(
+        selectedTicket.id,
+        vendorId,
+        scheduledDate || undefined,
+        scheduledTime || undefined,
+        undefined, // priority - can be added later if needed
+        scheduleNotes || undefined
+      );
       
       console.log('Assignment response:', response);
 
@@ -353,7 +366,11 @@ const AdminSupportManagement = () => {
         console.log('Vendor assigned successfully');
         
         // Show success message
-        alert(`Vendor ${selectedVendor.firstName} ${selectedVendor.lastName} assigned successfully to ticket ${selectedTicket.id}`);
+        toast({
+          title: "Vendor Assigned Successfully",
+          description: `Vendor ${selectedVendor.firstName} ${selectedVendor.lastName} has been assigned to ticket ${selectedTicket.id}`,
+          variant: "default"
+        });
         
         // Refresh tickets
         await fetchSupportTickets();
@@ -367,10 +384,19 @@ const AdminSupportManagement = () => {
         setScheduleNotes('');
       } else {
         console.error('Assignment failed:', response.message);
-        alert(`Assignment failed: ${response.message}`);
+        toast({
+          title: "Assignment Failed",
+          description: response.message || 'Failed to assign vendor to ticket',
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error('Error assigning vendor:', error);
+      toast({
+        title: "Error",
+        description: error.message || 'Failed to assign vendor to ticket',
+        variant: "destructive"
+      });
     }
   };
 

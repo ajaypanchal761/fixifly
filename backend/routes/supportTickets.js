@@ -15,7 +15,8 @@ const {
   acceptSupportTicket,
   declineSupportTicket,
   completeSupportTicket,
-  cancelSupportTicket
+  cancelSupportTicket,
+  assignVendorToSupportTicket
 } = require('../controllers/supportTicketController');
 const { protect } = require('../middleware/auth');
 const { protectAdmin, requirePermission } = require('../middleware/adminAuth');
@@ -34,6 +35,7 @@ router.get('/admin/:id', protectAdmin, requirePermission('supportManagement'), g
 router.put('/admin/:id', protectAdmin, requirePermission('supportManagement'), updateSupportTicket);
 router.post('/admin/:id/response', protectAdmin, requirePermission('supportManagement'), addAdminResponse);
 router.post('/admin/:id/resolve', protectAdmin, requirePermission('supportManagement'), resolveSupportTicket);
+router.patch('/admin/:id/assign-vendor', protectAdmin, requirePermission('supportManagement'), assignVendorToSupportTicket);
 
 // Vendor routes
 router.get('/vendor/assigned', protectVendor, getVendorSupportTickets);

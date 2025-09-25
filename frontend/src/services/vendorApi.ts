@@ -81,7 +81,7 @@ class VendorApiService {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
-    const defaultHeaders = {
+    const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
@@ -102,6 +102,9 @@ class VendorApiService {
     try {
       console.log('Making vendor API request to:', url);
       console.log('Request config:', config);
+      console.log('Base URL:', this.baseURL);
+      console.log('Endpoint:', endpoint);
+      console.log('Token exists:', !!token);
       
       const response = await fetch(url, config);
       console.log('Response status:', response.status);
@@ -138,6 +141,13 @@ class VendorApiService {
   // Health check method
   async healthCheck(): Promise<ApiResponse> {
     return this.request('/health', {
+      method: 'GET',
+    });
+  }
+
+  // Test method
+  async test(): Promise<ApiResponse> {
+    return this.request('/vendors/test', {
       method: 'GET',
     });
   }
@@ -331,6 +341,114 @@ class VendorApiService {
       body: JSON.stringify({ reason }),
     });
     console.log('Cancel task response:', response);
+    return response;
+  }
+
+  // Support Ticket Methods
+  // Get assigned support tickets
+  async getAssignedSupportTickets(params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    priority?: string;
+    search?: string;
+  } = {}): Promise<ApiResponse<any>> {
+    console.log('Fetching assigned support tickets:', params);
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, value.toString());
+      }
+    });
+    
+    const response = await this.request(`/support-tickets/vendor/assigned?${queryParams}`, {
+      method: 'GET',
+    });
+    console.log('Assigned support tickets response:', response);
+    return response;
+  }
+
+  // Accept support ticket
+  async acceptSupportTicket(ticketId: string): Promise<ApiResponse<any>> {
+    console.log('Accepting support ticket:', ticketId);
+    const response = await this.request(`/support-tickets/vendor/${ticketId}/accept`, {
+      method: 'PUT',
+    });
+    console.log('Accept support ticket response:', response);
+    return response;
+  }
+
+  // Decline support ticket
+  async declineSupportTicket(ticketId: string, reason: string): Promise<ApiResponse<any>> {
+    console.log('Declining support ticket:', { ticketId, reason });
+    const response = await this.request(`/support-tickets/vendor/${ticketId}/decline`, {
+      method: 'PUT',
+      body: JSON.stringify({ reason }),
+    });
+    console.log('Decline support ticket response:', response);
+    return response;
+  }
+
+  // Complete support ticket
+  async completeSupportTicket(ticketId: string, completionData: {
+    resolutionNote: string;
+    spareParts?: Array<{
+      id: number;
+      name: string;
+      amount: string;
+      photo: string | null;
+    }>;
+    paymentMethod?: 'online' | 'cash';
+    totalAmount?: number;
+    includeGST?: boolean;
+    gstAmount?: number;
+    travelingAmount?: string;
+    billingAmount?: number;
+  }): Promise<ApiResponse<any>> {
+    console.log('Completing support ticket:', { ticketId, completionData });
+    const response = await this.request(`/support-tickets/vendor/${ticketId}/complete`, {
+      method: 'PUT',
+      body: JSON.stringify({ 
+        completionData: {
+          resolutionNote: completionData.resolutionNote,
+          spareParts: completionData.spareParts || [],
+          paymentMethod: completionData.paymentMethod || 'cash',
+          totalAmount: completionData.totalAmount || 0,
+          includeGST: completionData.includeGST || false,
+          gstAmount: completionData.gstAmount || 0,
+          travelingAmount: completionData.travelingAmount || '0',
+          billingAmount: completionData.billingAmount || 0,
+          completedAt: new Date().toISOString()
+        }
+      }),
+    });
+    console.log('Complete support ticket response:', response);
+    return response;
+  }
+
+  // Reschedule support ticket
+  async rescheduleSupportTicket(ticketId: string, rescheduleData: {
+    newDate: string;
+    newTime: string;
+    reason: string;
+  }): Promise<ApiResponse<any>> {
+    console.log('Rescheduling support ticket:', { ticketId, rescheduleData });
+    const response = await this.request(`/support-tickets/vendor/${ticketId}`, {
+      method: 'PUT',
+      body: JSON.stringify(rescheduleData),
+    });
+    console.log('Reschedule support ticket response:', response);
+    return response;
+  }
+
+  // Cancel support ticket
+  async cancelSupportTicket(ticketId: string, reason: string): Promise<ApiResponse<any>> {
+    console.log('Cancelling support ticket:', { ticketId, reason });
+    const response = await this.request(`/support-tickets/vendor/${ticketId}/cancel`, {
+      method: 'PUT',
+      body: JSON.stringify({ reason }),
+    });
+    console.log('Cancel support ticket response:', response);
     return response;
   }
 

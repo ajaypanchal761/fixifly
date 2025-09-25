@@ -61,15 +61,85 @@ const Support = () => {
     }
   }, [user]);
 
+  // Listen for support ticket updates
+  useEffect(() => {
+    const handleSupportTicketUpdate = (event) => {
+      console.log('Support ticket updated event received:', event.detail);
+      fetchUserTickets(); // Refresh tickets when vendor completes a task
+    };
+
+    window.addEventListener('supportTicketUpdated', handleSupportTicketUpdate);
+    
+    return () => {
+      window.removeEventListener('supportTicketUpdated', handleSupportTicketUpdate);
+    };
+  }, []);
+
   const fetchUserTickets = async () => {
     try {
       const response = await supportTicketAPI.getUserTickets();
       if (response.success) {
+        console.log('User tickets data:', response.data.tickets);
+        console.log('Tickets with payment info:', response.data.tickets.map(ticket => ({
+          id: ticket.id,
+          status: ticket.status,
+          paymentMode: ticket.paymentMode,
+          paymentStatus: ticket.paymentStatus,
+          billingAmount: ticket.billingAmount,
+          hasPendingPayment: ticket.status === 'Resolved' && 
+                           ticket.paymentMode === 'online' && 
+                           ticket.paymentStatus === 'pending' &&
+                           ticket.billingAmount > 0
+        })));
+        
         setUserTickets(response.data.tickets);
       }
     } catch (error) {
       console.error('Error fetching user tickets:', error);
     }
+  };
+
+  // Check if ticket has pending payment
+  const hasPendingPayment = (ticket) => {
+    console.log('=== PAYMENT CHECK DEBUG ===');
+    console.log('Ticket:', ticket);
+    console.log('Status check:', {
+      status: ticket.status,
+      isInProgressOrResolved: ticket.status === 'In Progress' || ticket.status === 'Resolved',
+      paymentMode: ticket.paymentMode,
+      isOnline: ticket.paymentMode === 'online',
+      paymentStatus: ticket.paymentStatus,
+      isPending: ticket.paymentStatus === 'pending',
+      billingAmount: ticket.billingAmount,
+      totalAmount: ticket.totalAmount,
+      hasAmount: (ticket.billingAmount > 0 || ticket.totalAmount > 0)
+    });
+    
+    const hasPayment = (ticket.status === 'In Progress' || ticket.status === 'Resolved') && 
+           ticket.paymentMode === 'online' && 
+           ticket.paymentStatus === 'pending' &&
+           (ticket.billingAmount > 0 || ticket.totalAmount > 0);
+           
+    console.log('Final result - Has pending payment:', hasPayment);
+    console.log('=== END PAYMENT CHECK ===');
+    return hasPayment;
+  };
+
+  // Handle payment for support ticket
+  const handlePayNow = (ticket) => {
+    // Navigate to payment page with ticket details
+    const paymentData = {
+      ticketId: ticket.id,
+      amount: ticket.billingAmount || ticket.totalAmount || 0,
+      type: 'support_ticket',
+      description: `Payment for support ticket: ${ticket.subject}`
+    };
+    
+    // Store payment data in localStorage
+    localStorage.setItem('paymentData', JSON.stringify(paymentData));
+    
+    // Navigate to payment page
+    window.location.href = '/payment';
   };
 
   const openTickets = [
@@ -662,7 +732,7 @@ const Support = () => {
                                 <span>Last Update: {ticket.lastUpdate}</span>
                               </div>
                             </div>
-                            <div className="flex justify-center md:justify-start">
+                            <div className="flex justify-center md:justify-start gap-2">
                               <Button 
                                 variant="outline" 
                                 size="sm" 
@@ -671,6 +741,15 @@ const Support = () => {
                               >
                                 View Details
                               </Button>
+                              {hasPendingPayment(ticket) && (
+                                <Button 
+                                  size="sm" 
+                                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
+                                  onClick={() => handlePayNow(ticket)}
+                                >
+                                  Pay Now ₹{ticket.billingAmount || ticket.totalAmount || 0}
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -865,6 +944,18 @@ const Support = () => {
                     <label className="text-xs md:text-sm font-medium text-muted-foreground">Last Update</label>
                     <p className="font-medium text-sm md:text-base">{selectedTicket.lastUpdate}</p>
                   </div>
+                  {selectedTicket.billingAmount > 0 && (
+                    <div>
+                      <label className="text-xs md:text-sm font-medium text-muted-foreground">Billing Amount</label>
+                      <p className="font-medium text-sm md:text-base">₹{selectedTicket.billingAmount}</p>
+                    </div>
+                  )}
+                  {selectedTicket.paymentMode && (
+                    <div>
+                      <label className="text-xs md:text-sm font-medium text-muted-foreground">Payment Mode</label>
+                      <p className="font-medium text-sm md:text-base capitalize">{selectedTicket.paymentMode}</p>
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -876,6 +967,25 @@ const Support = () => {
                   <label className="text-xs md:text-sm font-medium text-muted-foreground">Description</label>
                   <p className="mt-1 text-xs md:text-sm leading-relaxed">{selectedTicket.description}</p>
                 </div>
+
+                {/* Payment Information */}
+                {hasPendingPayment(selectedTicket) && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-green-800 mb-1">Payment Required</h3>
+                        <p className="text-xs text-green-600">Complete your payment to finalize this support ticket</p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => handlePayNow(selectedTicket)}
+                      >
+                        Pay Now ₹{selectedTicket.billingAmount || selectedTicket.totalAmount || 0}
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 
               </CardContent>
             </Card>

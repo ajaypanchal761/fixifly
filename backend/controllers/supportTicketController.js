@@ -246,7 +246,7 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
   const userId = req.user.userId || req.user._id;
 
   const tickets = await SupportTicket.find({ userId })
-    .select('ticketId subject type status priority createdAt lastResponseAt responseCount caseId')
+    .select('ticketId subject type status priority createdAt lastResponseAt responseCount caseId paymentMode paymentStatus billingAmount vendorStatus completionData')
     .sort({ createdAt: -1 });
 
   const formattedTickets = tickets.map(ticket => ({
@@ -258,7 +258,12 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
     created: ticket.formattedCreatedAt,
     lastUpdate: ticket.lastUpdate,
     responses: ticket.responseCount,
-    caseId: ticket.caseId
+    caseId: ticket.caseId,
+    paymentMode: ticket.paymentMode,
+    paymentStatus: ticket.paymentStatus,
+    billingAmount: ticket.billingAmount || 0,
+    totalAmount: ticket.completionData?.totalAmount || 0,
+    vendorStatus: ticket.vendorStatus
   }));
 
   res.json({
@@ -533,6 +538,151 @@ const getAdminSupportTicket = asyncHandler(async (req, res) => {
       }
     }
   });
+});
+
+// @desc    Assign vendor to support ticket
+// @route   PATCH /api/admin/support-tickets/:id/assign-vendor
+// @access  Private (Admin)
+const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
+  try {
+    const { vendorId, scheduledDate, scheduledTime, priority, notes } = req.body;
+    const { id } = req.params;
+
+    console.log('Assign vendor request body:', {
+      vendorId,
+      scheduledDate,
+      scheduledTime,
+      priority,
+      notes,
+      ticketId: id
+    });
+
+    if (!vendorId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vendor ID is required'
+      });
+    }
+
+    const ticket = await SupportTicket.findOne({ ticketId: id });
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: 'Support ticket not found'
+      });
+    }
+
+    // Check if ticket can be assigned (not resolved or closed)
+    if (ticket.status === 'Resolved' || ticket.status === 'Closed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot assign vendor to resolved or closed ticket'
+      });
+    }
+
+    // Use the assignVendor method from SupportTicket model
+    await ticket.assignVendor(vendorId, req.admin._id, notes || '');
+
+    // Update additional fields if provided
+    const updateData = {};
+    
+    if (scheduledDate) {
+      updateData.scheduledDate = new Date(scheduledDate);
+      console.log('Setting scheduledDate:', {
+        original: scheduledDate,
+        parsed: updateData.scheduledDate,
+        iso: updateData.scheduledDate.toISOString()
+      });
+    }
+    if (scheduledTime) {
+      updateData.scheduledTime = scheduledTime;
+      console.log('Setting scheduledTime:', scheduledTime);
+    }
+    if (priority) {
+      updateData.priority = priority;
+    }
+    if (notes) {
+      updateData.scheduleNotes = notes;
+    }
+
+    // Update ticket status to In Progress when vendor is assigned
+    updateData.status = 'In Progress';
+
+    console.log('Update data before save:', updateData);
+
+    // Apply updates
+    Object.assign(ticket, updateData);
+    await ticket.save();
+
+    console.log('Ticket after save:', {
+      scheduledDate: ticket.scheduledDate,
+      scheduledTime: ticket.scheduledTime,
+      status: ticket.status
+    });
+
+    // Create notification for vendor
+    const { createSupportTicketAssignmentNotification } = require('./vendorNotificationController');
+    
+    try {
+      await createSupportTicketAssignmentNotification(vendorId, {
+        ticketId: ticket.ticketId,
+        subject: ticket.subject,
+        type: ticket.type,
+        priority: ticket.priority,
+        userName: ticket.userName,
+        userEmail: ticket.userEmail,
+        userPhone: ticket.userPhone,
+        description: ticket.description
+      });
+    } catch (notificationError) {
+      console.error('Error creating vendor notification:', notificationError);
+      // Don't fail the assignment if notification fails
+    }
+
+    // Populate vendor data for response
+    const populatedTicket = await SupportTicket.findOne({ ticketId: id })
+      .populate('assignedTo', 'firstName lastName email phone')
+      .populate('assignedBy', 'name email');
+
+    logger.info(`Admin assigned vendor to support ticket: ${ticket.ticketId}`, {
+      ticketId: ticket.ticketId,
+      vendorId,
+      adminId: req.admin._id
+    });
+
+    res.json({
+      success: true,
+      message: 'Vendor assigned to support ticket successfully',
+      data: {
+        ticket: {
+          id: populatedTicket.ticketId,
+          subject: populatedTicket.subject,
+          status: populatedTicket.status,
+          priority: populatedTicket.priority,
+          vendorStatus: populatedTicket.vendorStatus,
+          assignedTo: populatedTicket.assignedTo ? {
+            id: populatedTicket.assignedTo._id,
+            name: `${populatedTicket.assignedTo.firstName} ${populatedTicket.assignedTo.lastName}`,
+            email: populatedTicket.assignedTo.email,
+            phone: populatedTicket.assignedTo.phone
+          } : null,
+          assignedAt: populatedTicket.assignedAt,
+          scheduledDate: populatedTicket.scheduledDate,
+          scheduledTime: populatedTicket.scheduledTime,
+          scheduleNotes: populatedTicket.scheduleNotes
+        }
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error assigning vendor to support ticket:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to assign vendor to support ticket',
+      error: error.message
+    });
+  }
 });
 
 // @desc    Update support ticket status/priority (Admin) or reschedule (Vendor)
@@ -1414,18 +1564,22 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
   let totalAmount = 0;
   let includeGST = false;
   let gstAmount = 0;
+  let billingAmount = 0;
 
   if (completionData) {
     // Complex completion data (matching booking task format)
+    console.log('Support ticket completion data received:', completionData);
     resolutionText = completionData.resolutionNote || resolutionText;
     spareParts = completionData.spareParts || [];
     paymentMethod = completionData.paymentMethod || 'cash';
     totalAmount = completionData.totalAmount || 0;
     includeGST = completionData.includeGST || false;
     gstAmount = completionData.gstAmount || 0;
+    billingAmount = completionData.billingAmount || 0;
+    console.log('Extracted billing amount:', billingAmount);
   }
 
-  // Use the new completeByVendor method
+  // Use the new completeByVendor method (payment info is handled in the model)
   await ticket.completeByVendor(vendorId, completionData);
 
   res.json({
@@ -1525,5 +1679,6 @@ module.exports = {
   acceptSupportTicket,
   declineSupportTicket,
   completeSupportTicket,
-  cancelSupportTicket
+  cancelSupportTicket,
+  assignVendorToSupportTicket
 };

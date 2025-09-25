@@ -43,64 +43,127 @@ const VendorTaskDetail = () => {
         return;
       }
 
-      // Fetch all vendor bookings and find the specific task
-      const response = await vendorApi.getVendorBookings();
+      // Fetch both bookings and support tickets to find the specific task
+      const [bookingsResponse, supportTicketsResponse] = await Promise.all([
+        vendorApi.getVendorBookings(),
+        vendorApi.getAssignedSupportTickets()
+      ]);
       
-      if (response.success && response.data?.bookings) {
-        const bookings = response.data.bookings;
-        const foundTask = bookings.find(booking => booking._id === taskId);
+      let foundTask = null;
+      let isSupportTicket = false;
+
+      // Check in bookings first
+      if (bookingsResponse.success && bookingsResponse.data?.bookings) {
+        const bookings = bookingsResponse.data.bookings;
+        const bookingTask = bookings.find(booking => booking._id === taskId);
         
-        if (foundTask) {
+        if (bookingTask) {
           // Transform booking data to task format
-          const transformedTask = {
-            id: foundTask._id,
-            caseId: foundTask.bookingReference || `FIX${foundTask._id.toString().substring(foundTask._id.toString().length - 8).toUpperCase()}`,
-            title: foundTask.services?.[0]?.serviceName || 'Service Request',
-            customer: foundTask.customer?.name || 'Unknown Customer',
-            phone: foundTask.customer?.phone || 'N/A',
-            amount: `₹${foundTask.pricing?.totalAmount || 0}`,
-            date: foundTask.scheduling?.scheduledDate 
-              ? new Date(foundTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
-              : foundTask.scheduling?.preferredDate 
-              ? new Date(foundTask.scheduling.preferredDate).toLocaleDateString('en-IN')
-              : new Date(foundTask.createdAt).toLocaleDateString('en-IN'),
-            time: foundTask.scheduling?.scheduledTime 
-              ? new Date(`2000-01-01T${foundTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+          foundTask = {
+            id: bookingTask._id,
+            caseId: bookingTask.bookingReference || `FIX${bookingTask._id.toString().substring(bookingTask._id.toString().length - 8).toUpperCase()}`,
+            title: bookingTask.services?.[0]?.serviceName || 'Service Request',
+            customer: bookingTask.customer?.name || 'Unknown Customer',
+            phone: bookingTask.customer?.phone || 'N/A',
+            amount: `₹${bookingTask.pricing?.totalAmount || 0}`,
+            date: bookingTask.scheduling?.scheduledDate 
+              ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
+              : bookingTask.scheduling?.preferredDate 
+              ? new Date(bookingTask.scheduling.preferredDate).toLocaleDateString('en-IN')
+              : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
+            time: bookingTask.scheduling?.scheduledTime 
+              ? new Date(`2000-01-01T${bookingTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: true
                 })
-              : foundTask.scheduling?.preferredTimeSlot || 'Not scheduled',
-            status: foundTask.priority === 'urgent' ? 'Emergency' : 
-                   foundTask.priority === 'high' ? 'High Priority' : 
-                   foundTask.priority === 'low' ? 'Low Priority' : 'Normal',
-            address: foundTask.customer?.address 
-              ? typeof foundTask.customer.address === 'object' 
-                ? `${foundTask.customer.address.street || ''}, ${foundTask.customer.address.city || ''}, ${foundTask.customer.address.state || ''} - ${foundTask.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
-                : foundTask.customer.address
+              : bookingTask.scheduling?.preferredTimeSlot || 'Not scheduled',
+            status: bookingTask.priority === 'urgent' ? 'Emergency' : 
+                   bookingTask.priority === 'high' ? 'High Priority' : 
+                   bookingTask.priority === 'low' ? 'Low Priority' : 'Normal',
+            address: bookingTask.customer?.address 
+              ? typeof bookingTask.customer.address === 'object' 
+                ? `${bookingTask.customer.address.street || ''}, ${bookingTask.customer.address.city || ''}, ${bookingTask.customer.address.state || ''} - ${bookingTask.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
+                : bookingTask.customer.address
               : 'Address not provided',
-            issue: foundTask.notes || foundTask.services?.[0]?.serviceName || 'Service request',
-            assignDate: foundTask.vendor?.assignedAt 
-              ? new Date(foundTask.vendor.assignedAt).toLocaleDateString('en-IN')
-              : new Date(foundTask.createdAt).toLocaleDateString('en-IN'),
-            assignTime: foundTask.vendor?.assignedAt 
-              ? new Date(foundTask.vendor.assignedAt).toLocaleTimeString('en-IN', {
+            issue: bookingTask.notes || bookingTask.services?.[0]?.serviceName || 'Service request',
+            assignDate: bookingTask.vendor?.assignedAt 
+              ? new Date(bookingTask.vendor.assignedAt).toLocaleDateString('en-IN')
+              : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
+            assignTime: bookingTask.vendor?.assignedAt 
+              ? new Date(bookingTask.vendor.assignedAt).toLocaleTimeString('en-IN', {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: true
                 })
               : 'Not assigned',
-            taskType: foundTask.services?.[0]?.serviceName || 'Service Request',
-            bookingStatus: foundTask.status,
-            priority: foundTask.priority || 'medium'
+            taskType: bookingTask.services?.[0]?.serviceName || 'Service Request',
+            bookingStatus: bookingTask.status,
+            priority: bookingTask.priority || 'medium',
+            isSupportTicket: false
           };
-          
-          setTask(transformedTask);
-        } else {
-          setError('Task not found');
         }
+      }
+
+      // If not found in bookings, check in support tickets
+      if (!foundTask && supportTicketsResponse.success && supportTicketsResponse.data?.tickets) {
+        const supportTickets = supportTicketsResponse.data.tickets;
+        const supportTicket = supportTickets.find(ticket => ticket.id === taskId);
+        
+        if (supportTicket) {
+          isSupportTicket = true;
+          // Transform support ticket data to task format
+          foundTask = {
+            id: supportTicket.id,
+            caseId: supportTicket.id,
+            title: supportTicket.subject || 'Support Request',
+            customer: supportTicket.customerName || 'Unknown Customer',
+            phone: supportTicket.customerPhone || 'N/A',
+            amount: 'Support Ticket',
+            date: supportTicket.scheduledDate 
+              ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
+              : supportTicket.created 
+              ? new Date(supportTicket.created).toLocaleDateString('en-IN')
+              : new Date().toLocaleDateString('en-IN'),
+            time: supportTicket.scheduledTime 
+              ? (() => {
+                  // Convert 24-hour format to 12-hour format with AM/PM
+                  if (supportTicket.scheduledTime.includes(':')) {
+                    const [hours, minutes] = supportTicket.scheduledTime.split(':');
+                    const hour24 = parseInt(hours);
+                    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                    const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                    return `${hour12}:${minutes} ${ampm}`;
+                  }
+                  return supportTicket.scheduledTime;
+                })()
+              : 'Not scheduled',
+            status: supportTicket.priority === 'High' ? 'High Priority' : 
+                   supportTicket.priority === 'Medium' ? 'Normal' : 'Low Priority',
+            address: supportTicket.address || 'Address not provided',
+            issue: supportTicket.description || supportTicket.subject || 'Support request',
+            assignDate: supportTicket.assignedAt 
+              ? new Date(supportTicket.assignedAt).toLocaleDateString('en-IN')
+              : new Date().toLocaleDateString('en-IN'),
+            assignTime: supportTicket.assignedAt 
+              ? new Date(supportTicket.assignedAt).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })
+              : 'Not assigned',
+            taskType: supportTicket.subject || 'Support Request',
+            vendorStatus: supportTicket.vendorStatus,
+            priority: supportTicket.priority?.toLowerCase() || 'medium',
+            isSupportTicket: true
+          };
+        }
+      }
+
+      if (foundTask) {
+        setTask(foundTask);
       } else {
-        setError(response.message || 'Failed to fetch task details');
+        setError('Task not found');
       }
     } catch (error) {
       console.error('Error fetching task details:', error);

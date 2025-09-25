@@ -35,8 +35,9 @@ interface VendorTaskCardProps {
     assignDate: string;
     assignTime: string;
     priority: string;
-    bookingStatus: string;
+    bookingStatus?: string;
     vendorStatus?: string;
+    isSupportTicket?: boolean;
   };
   onStatusUpdate: (taskId: string, newStatus: string) => void;
 }
@@ -91,7 +92,13 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   const handleAcceptTask = async () => {
     setIsProcessing(true);
     try {
-      const response = await vendorApi.acceptTask(task.id);
+      let response;
+      
+      if (task.isSupportTicket) {
+        response = await vendorApi.acceptSupportTicket(task.id);
+      } else {
+        response = await vendorApi.acceptTask(task.id);
+      }
       
       if (response.success) {
         toast({
@@ -101,7 +108,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         });
         
         // Immediately update local status for instant UI update
-        setLocalTaskStatus('in_progress');
+        setLocalTaskStatus(task.isSupportTicket ? 'Accepted' : 'in_progress');
         
         onStatusUpdate(task.id, 'accepted');
         setIsAcceptModalOpen(false);
@@ -136,7 +143,13 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
     setIsProcessing(true);
     try {
-      const response = await vendorApi.declineTask(task.id, declineReason);
+      let response;
+      
+      if (task.isSupportTicket) {
+        response = await vendorApi.declineSupportTicket(task.id, declineReason);
+      } else {
+        response = await vendorApi.declineTask(task.id, declineReason);
+      }
       
       if (response.success) {
         toast({
@@ -146,7 +159,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         });
         
         // Immediately update local status for instant UI update
-        setLocalTaskStatus('cancelled');
+        setLocalTaskStatus(task.isSupportTicket ? 'Declined' : 'cancelled');
         
         onStatusUpdate(task.id, 'declined');
         setIsDeclineModalOpen(false);
@@ -178,12 +191,23 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   };
 
   // Use local status for immediate UI updates, fallback to task status
-  const currentStatus = localTaskStatus || task.bookingStatus;
+  const currentStatus = localTaskStatus || (task.isSupportTicket ? task.vendorStatus : task.bookingStatus);
   
-  const isTaskAccepted = currentStatus === 'in_progress' || currentStatus === 'completed';
-  const isTaskDeclined = currentStatus === 'cancelled';
-  const isTaskCancelled = currentStatus === 'cancelled';
-  const isTaskPending = currentStatus === 'confirmed' || currentStatus === 'waiting_for_engineer';
+  const isTaskAccepted = task.isSupportTicket 
+    ? (currentStatus === 'Accepted' || currentStatus === 'Completed')
+    : (currentStatus === 'in_progress' || currentStatus === 'completed');
+    
+  const isTaskDeclined = task.isSupportTicket 
+    ? (currentStatus === 'Declined' || currentStatus === 'Cancelled')
+    : (currentStatus === 'cancelled');
+    
+  const isTaskCancelled = task.isSupportTicket 
+    ? (currentStatus === 'Cancelled')
+    : (currentStatus === 'cancelled');
+    
+  const isTaskPending = task.isSupportTicket 
+    ? (currentStatus === 'Pending')
+    : (currentStatus === 'confirmed' || currentStatus === 'waiting_for_engineer');
 
   return (
     <>

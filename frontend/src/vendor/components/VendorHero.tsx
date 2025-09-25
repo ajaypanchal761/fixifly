@@ -80,7 +80,7 @@ const VendorHero = () => {
     }
   };
 
-  // Fetch vendor bookings and transform them to task format
+  // Fetch vendor bookings and support tickets and transform them to task format
   const fetchVendorBookings = async () => {
     try {
       setLoading(true);
@@ -105,33 +105,37 @@ const VendorHero = () => {
         return;
       }
       
-      // Fetch bookings only
-      const bookingsResponse = await vendorApi.getVendorBookings();
+      // Fetch both bookings and support tickets
+      const [bookingsResponse, supportTicketsResponse] = await Promise.all([
+        vendorApi.getVendorBookings(),
+        vendorApi.getAssignedSupportTickets()
+      ]);
       
-      if (bookingsResponse.success && bookingsResponse.data) {
-        const bookings = bookingsResponse.data.bookings || [];
-        
-        console.log('Fetched data:', {
-          bookings: bookings.length
-        });
-        
-        // Transform bookings to task format
-        const transformedBookings = bookings.map(booking => ({
-          id: booking._id,
-          caseId: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
-          title: booking.services?.[0]?.serviceName || 'Service Request',
-          customer: booking.customer?.name || 'Unknown Customer',
-          phone: booking.customer?.phone || 'N/A',
-          amount: `₹${booking.pricing?.totalAmount || 0}`,
-          date: booking.scheduling?.scheduledDate 
-            ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
-            : booking.scheduling?.preferredDate 
-            ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')
-            : new Date(booking.createdAt).toLocaleDateString('en-IN'),
-          time: booking.scheduling?.scheduledTime 
-            ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
-                hour: '2-digit',
-                minute: '2-digit',
+      const bookings = bookingsResponse.success ? (bookingsResponse.data?.bookings || []) : [];
+      const supportTickets = supportTicketsResponse.success ? (supportTicketsResponse.data?.tickets || []) : [];
+      
+      console.log('Fetched data:', {
+        bookings: bookings.length,
+        supportTickets: supportTickets.length
+      });
+      
+      // Transform bookings to task format
+      const transformedBookings = bookings.map(booking => ({
+        id: booking._id,
+        caseId: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
+        title: booking.services?.[0]?.serviceName || 'Service Request',
+        customer: booking.customer?.name || 'Unknown Customer',
+        phone: booking.customer?.phone || 'N/A',
+        amount: `₹${booking.pricing?.totalAmount || 0}`,
+        date: booking.scheduling?.scheduledDate 
+          ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
+          : booking.scheduling?.preferredDate 
+          ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')
+          : new Date(booking.createdAt).toLocaleDateString('en-IN'),
+        time: booking.scheduling?.scheduledTime 
+          ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+              hour: '2-digit',
+              minute: '2-digit',
                 hour12: true
               })
             : booking.scheduling?.preferredTimeSlot || 'Not scheduled',
@@ -159,49 +163,111 @@ const VendorHero = () => {
           isSupportTicket: false
         }));
 
-        console.log('Transformed bookings:', transformedBookings);
-        
-        console.log('All tasks:', {
-          total: transformedBookings.length,
-          bookings: transformedBookings.length
-        });
+      // Transform support tickets to task format
+      const transformedSupportTickets = supportTickets.map(ticket => ({
+        id: ticket.id,
+        caseId: ticket.id,
+        title: ticket.subject || 'Support Request',
+        customer: ticket.customerName || 'Unknown Customer',
+        phone: ticket.customerPhone || 'N/A',
+        amount: 'Support Ticket',
+        date: ticket.scheduledDate 
+          ? new Date(ticket.scheduledDate).toLocaleDateString('en-IN')
+          : ticket.created 
+          ? new Date(ticket.created).toLocaleDateString('en-IN')
+          : new Date().toLocaleDateString('en-IN'),
+        time: ticket.scheduledTime 
+          ? (() => {
+              // Convert 24-hour format to 12-hour format with AM/PM
+              if (ticket.scheduledTime.includes(':')) {
+                const [hours, minutes] = ticket.scheduledTime.split(':');
+                const hour24 = parseInt(hours);
+                const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                return `${hour12}:${minutes} ${ampm}`;
+              }
+              return ticket.scheduledTime;
+            })()
+          : 'Not scheduled',
+        status: ticket.priority === 'High' ? 'High Priority' : 
+               ticket.priority === 'Medium' ? 'Normal' : 'Low Priority',
+        address: ticket.address || 'Address not provided',
+        issue: ticket.description || ticket.subject || 'Support request',
+        assignDate: ticket.assignedAt 
+          ? new Date(ticket.assignedAt).toLocaleDateString('en-IN')
+          : new Date().toLocaleDateString('en-IN'),
+        assignTime: ticket.assignedAt 
+          ? new Date(ticket.assignedAt).toLocaleTimeString('en-IN', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })
+          : 'Not assigned',
+        priority: ticket.priority?.toLowerCase() || 'medium',
+        vendorStatus: ticket.vendorStatus,
+        isSupportTicket: true
+      }));
 
-        // Categorize tasks based on status
-        const newTasks = transformedBookings.filter(task => {
+      // Combine bookings and support tickets
+      const allTasks = [...transformedBookings, ...transformedSupportTickets];
+
+      console.log('Transformed data:', {
+        bookings: transformedBookings.length,
+        supportTickets: transformedSupportTickets.length,
+        total: allTasks.length
+      });
+
+      // Categorize tasks based on status
+      const newTasks = allTasks.filter(task => {
+        if (task.isSupportTicket) {
+          // Support tickets: Pending, Accepted statuses are "new"
+          return task.vendorStatus === 'Pending' || task.vendorStatus === 'Accepted';
+        } else {
+          // Bookings: confirmed, waiting_for_engineer, in_progress are "new"
           return task.bookingStatus === 'confirmed' || 
                  task.bookingStatus === 'waiting_for_engineer' ||
                  task.bookingStatus === 'in_progress';
-        });
-        
-        const closedTasks = transformedBookings.filter(task => {
+        }
+      });
+      
+      const closedTasks = allTasks.filter(task => {
+        if (task.isSupportTicket) {
+          // Support tickets: Completed status
+          return task.vendorStatus === 'Completed';
+        } else {
+          // Bookings: completed status
           return task.bookingStatus === 'completed';
-        });
-        
-        const cancelledTasks = transformedBookings.filter(task => {
+        }
+      });
+      
+      const cancelledTasks = allTasks.filter(task => {
+        if (task.isSupportTicket) {
+          // Support tickets: Declined, Cancelled statuses
+          return task.vendorStatus === 'Declined' || task.vendorStatus === 'Cancelled';
+        } else {
+          // Bookings: cancelled status
           return task.bookingStatus === 'cancelled';
-        });
-        
-        console.log('Task categorization:', {
-          new: newTasks.length,
-          closed: closedTasks.length,
-          cancelled: cancelledTasks.length
-        });
+        }
+      });
+      
+      console.log('Task categorization:', {
+        new: newTasks.length,
+        closed: closedTasks.length,
+        cancelled: cancelledTasks.length
+      });
 
-        setTaskData({
-          new: newTasks,
-          closed: [...closedTasks, ...completedTasks],
-          cancelled: cancelledTasks
-        });
-      } else {
-        setError(bookingsResponse.message || 'Failed to fetch bookings');
-      }
-    } catch (error) {
-      console.error('Error fetching vendor bookings:', error);
-      setError('Failed to fetch bookings');
-    } finally {
-      setLoading(false);
-    }
-  };
+      setTaskData({
+        new: newTasks,
+        closed: [...closedTasks, ...completedTasks],
+        cancelled: cancelledTasks
+      });
+  } catch (error) {
+    console.error('Error fetching vendor bookings:', error);
+    setError('Failed to fetch bookings');
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchVendorStats();
@@ -220,11 +286,19 @@ const VendorHero = () => {
       ...prev,
       new: prev.new.map(task => {
         if (task.id === taskId) {
-          // Update bookingStatus for booking tasks
-          return { 
-            ...task, 
-            bookingStatus: newStatus === 'accepted' ? 'in_progress' : 'cancelled' 
-          };
+          if (task.isSupportTicket) {
+            // Update vendorStatus for support tickets
+            return { 
+              ...task, 
+              vendorStatus: newStatus === 'accepted' ? 'Accepted' : 'Declined'
+            };
+          } else {
+            // Update bookingStatus for booking tasks
+            return { 
+              ...task, 
+              bookingStatus: newStatus === 'accepted' ? 'in_progress' : 'cancelled' 
+            };
+          }
         }
         return task;
       }),

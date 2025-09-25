@@ -92,3 +92,23 @@
 [2025-09-25T12:34:12.082Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
 [2025-09-25T12:34:12.088Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/support-tickets/admin/stats"}
 [2025-09-25T12:34:12.093Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-25T13:40:42.507Z] [ERROR] Error fetching combined tasks: | {"error":"Booking.find is not a function","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:40:46.446Z] [ERROR] Error fetching combined tasks: | {"error":"Booking.find is not a function","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:45:03.360Z] [ERROR] Error fetching combined tasks: | {"error":"Booking.find is not a function","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:45:07.584Z] [ERROR] Error fetching combined tasks: | {"error":"Booking.find is not a function","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:45:07.750Z] [ERROR] Error fetching combined tasks: | {"error":"Booking.find is not a function","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:45:12.147Z] [ERROR] Error fetching combined tasks: | {"error":"Booking.find is not a function","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:45:12.335Z] [ERROR] Error fetching combined tasks: | {"error":"Booking.find is not a function","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:49:02.741Z] [ERROR] Error fetching combined tasks: | {"error":"Cast to ObjectId failed for value \"776\" (type string) at path \"_id\" for model \"Vendor\"","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:49:32.037Z] [ERROR] Error fetching combined tasks: | {"error":"Cast to ObjectId failed for value \"776\" (type string) at path \"_id\" for model \"Vendor\"","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:49:49.242Z] [ERROR] Error fetching combined tasks: | {"error":"Cast to ObjectId failed for value \"776\" (type string) at path \"_id\" for model \"Vendor\"","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:50:11.779Z] [ERROR] Error fetching combined tasks: | {"error":"Cast to ObjectId failed for value \"776\" (type string) at path \"_id\" for model \"Vendor\"","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:52:01.846Z] [ERROR] Error fetching combined tasks: | {"error":"Cast to ObjectId failed for value \"776\" (type string) at path \"_id\" for model \"Vendor\"","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:52:09.538Z] [ERROR] Error fetching combined tasks: | {"error":"Cast to ObjectId failed for value \"776\" (type string) at path \"_id\" for model \"Vendor\"","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T13:52:17.276Z] [ERROR] Error fetching combined tasks: | {"error":"Cast to ObjectId failed for value \"776\" (type string) at path \"_id\" for model \"Vendor\"","vendorId":"68d04fc8c4911ad23bb831ef"}
+[2025-09-25T15:40:23.110Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/dashboard"}
+[2025-09-25T15:40:46.150Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/dashboard?month=9&year=2025"}
+[2025-09-25T15:40:48.813Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/logout"}
+[2025-09-25T16:56:08.525Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-25T16:56:08.530Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-25T16:56:08.549Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}

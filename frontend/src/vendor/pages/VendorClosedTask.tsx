@@ -33,6 +33,8 @@ const VendorClosedTask = () => {
   const [resolutionNote, setResolutionNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cash' | ''>('');
   const [includeGST, setIncludeGST] = useState(false);
+  const [billingAmount, setBillingAmount] = useState("");
+  const [isCompleting, setIsCompleting] = useState(false);
   const [spareParts, setSpareParts] = useState<SparePart[]>([
     { id: 1, name: "", amount: "", photo: null }
   ]);
@@ -44,70 +46,160 @@ const VendorClosedTask = () => {
       setError(null);
       
       const vendorToken = localStorage.getItem('vendorToken');
+      const vendorData = localStorage.getItem('vendorData');
+      
+      console.log('Vendor authentication check:', {
+        hasToken: !!vendorToken,
+        hasVendorData: !!vendorData,
+        tokenLength: vendorToken ? vendorToken.length : 0
+      });
+
       if (!vendorToken) {
+        console.error('Vendor not authenticated - no token');
         setError('Please log in as a vendor to view task details');
         setLoading(false);
         return;
       }
 
-      // Fetch all vendor bookings and find the specific task
-      const response = await vendorApi.getVendorBookings();
+      console.log('Fetching task details for taskId:', taskId);
+
+      // Test backend connectivity first
+      try {
+        const testResponse = await vendorApi.test();
+        console.log('Backend test response:', testResponse);
+      } catch (testError) {
+        console.error('Backend test failed:', testError);
+        setError('Cannot connect to backend server. Please check your connection.');
+        setLoading(false);
+        return;
+      }
+
+      // Fetch both bookings and support tickets to find the specific task
+      const [bookingsResponse, supportTicketsResponse] = await Promise.all([
+        vendorApi.getVendorBookings(),
+        vendorApi.getAssignedSupportTickets()
+      ]);
       
-      if (response.success && response.data?.bookings) {
-        const bookings = response.data.bookings;
-        const foundTask = bookings.find(booking => booking._id === taskId);
+      console.log('API Responses:', {
+        bookingsResponse,
+        supportTicketsResponse
+      });
+      
+      let foundTask = null;
+      let isSupportTicket = false;
+
+      // Check in bookings first
+      if (bookingsResponse.success && bookingsResponse.data?.bookings) {
+        const bookings = bookingsResponse.data.bookings;
+        const bookingTask = bookings.find(booking => booking._id === taskId);
         
-        if (foundTask) {
+        if (bookingTask) {
           // Transform booking data to task format
-          const transformedTask = {
-            id: foundTask._id,
-            caseId: foundTask.bookingReference || `FIX${foundTask._id.toString().substring(foundTask._id.toString().length - 8).toUpperCase()}`,
-            title: foundTask.services?.[0]?.serviceName || 'Service Request',
-            customer: foundTask.customer?.name || 'Unknown Customer',
-            phone: foundTask.customer?.phone || 'N/A',
-            amount: `₹${foundTask.pricing?.totalAmount || 0}`,
-            date: foundTask.scheduling?.scheduledDate 
-              ? new Date(foundTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
-              : foundTask.scheduling?.preferredDate 
-              ? new Date(foundTask.scheduling.preferredDate).toLocaleDateString('en-IN')
-              : new Date(foundTask.createdAt).toLocaleDateString('en-IN'),
-            time: foundTask.scheduling?.scheduledTime 
-              ? new Date(`2000-01-01T${foundTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+          foundTask = {
+            id: bookingTask._id,
+            caseId: bookingTask.bookingReference || `FIX${bookingTask._id.toString().substring(bookingTask._id.toString().length - 8).toUpperCase()}`,
+            title: bookingTask.services?.[0]?.serviceName || 'Service Request',
+            customer: bookingTask.customer?.name || 'Unknown Customer',
+            phone: bookingTask.customer?.phone || 'N/A',
+            amount: `₹${bookingTask.pricing?.totalAmount || 0}`,
+            date: bookingTask.scheduling?.scheduledDate 
+              ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
+              : bookingTask.scheduling?.preferredDate 
+              ? new Date(bookingTask.scheduling.preferredDate).toLocaleDateString('en-IN')
+              : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
+            time: bookingTask.scheduling?.scheduledTime 
+              ? new Date(`2000-01-01T${bookingTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: true
                 })
-              : foundTask.scheduling?.preferredTimeSlot || 'Not scheduled',
-            status: foundTask.priority === 'urgent' ? 'Emergency' : 
-                   foundTask.priority === 'high' ? 'High Priority' : 
-                   foundTask.priority === 'low' ? 'Low Priority' : 'Normal',
-            address: foundTask.customer?.address 
-              ? typeof foundTask.customer.address === 'object' 
-                ? `${foundTask.customer.address.street || ''}, ${foundTask.customer.address.city || ''}, ${foundTask.customer.address.state || ''} - ${foundTask.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
-                : foundTask.customer.address
+              : bookingTask.scheduling?.preferredTimeSlot || 'Not scheduled',
+            status: bookingTask.priority === 'urgent' ? 'Emergency' : 
+                   bookingTask.priority === 'high' ? 'High Priority' : 
+                   bookingTask.priority === 'low' ? 'Low Priority' : 'Normal',
+            address: bookingTask.customer?.address 
+              ? typeof bookingTask.customer.address === 'object' 
+                ? `${bookingTask.customer.address.street || ''}, ${bookingTask.customer.address.city || ''}, ${bookingTask.customer.address.state || ''} - ${bookingTask.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
+                : bookingTask.customer.address
               : 'Address not provided',
-            issue: foundTask.notes || foundTask.services?.[0]?.serviceName || 'Service request',
-            assignDate: foundTask.vendor?.assignedAt 
-              ? new Date(foundTask.vendor.assignedAt).toLocaleDateString('en-IN')
-              : new Date(foundTask.createdAt).toLocaleDateString('en-IN'),
-            assignTime: foundTask.vendor?.assignedAt 
-              ? new Date(foundTask.vendor.assignedAt).toLocaleTimeString('en-IN', {
+            issue: bookingTask.notes || bookingTask.services?.[0]?.serviceName || 'Service request',
+            assignDate: bookingTask.vendor?.assignedAt 
+              ? new Date(bookingTask.vendor.assignedAt).toLocaleDateString('en-IN')
+              : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
+            assignTime: bookingTask.vendor?.assignedAt 
+              ? new Date(bookingTask.vendor.assignedAt).toLocaleTimeString('en-IN', {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: true
                 })
               : 'Not assigned',
-            taskType: foundTask.services?.[0]?.serviceName || 'Service Request',
-            bookingStatus: foundTask.status,
-            priority: foundTask.priority || 'medium'
+            taskType: bookingTask.services?.[0]?.serviceName || 'Service Request',
+            bookingStatus: bookingTask.status,
+            priority: bookingTask.priority || 'medium',
+            isSupportTicket: false
           };
-          
-          setTask(transformedTask);
-        } else {
-          setError('Task not found');
         }
+      }
+
+      // If not found in bookings, check in support tickets
+      if (!foundTask && supportTicketsResponse.success && supportTicketsResponse.data?.tickets) {
+        const supportTickets = supportTicketsResponse.data.tickets;
+        const supportTicket = supportTickets.find(ticket => ticket.id === taskId);
+        
+        if (supportTicket) {
+          isSupportTicket = true;
+          // Transform support ticket data to task format
+          foundTask = {
+            id: supportTicket.id,
+            caseId: supportTicket.id,
+            title: supportTicket.subject || 'Support Request',
+            customer: supportTicket.customerName || 'Unknown Customer',
+            phone: supportTicket.customerPhone || 'N/A',
+            amount: 'Support Ticket',
+            date: supportTicket.scheduledDate 
+              ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
+              : supportTicket.created 
+              ? new Date(supportTicket.created).toLocaleDateString('en-IN')
+              : new Date().toLocaleDateString('en-IN'),
+            time: supportTicket.scheduledTime 
+              ? (() => {
+                  // Convert 24-hour format to 12-hour format with AM/PM
+                  if (supportTicket.scheduledTime.includes(':')) {
+                    const [hours, minutes] = supportTicket.scheduledTime.split(':');
+                    const hour24 = parseInt(hours);
+                    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                    const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                    return `${hour12}:${minutes} ${ampm}`;
+                  }
+                  return supportTicket.scheduledTime;
+                })()
+              : 'Not scheduled',
+            status: supportTicket.priority === 'High' ? 'High Priority' : 
+                   supportTicket.priority === 'Medium' ? 'Normal' : 'Low Priority',
+            address: supportTicket.address || 'Address not provided',
+            issue: supportTicket.description || supportTicket.subject || 'Support request',
+            assignDate: supportTicket.assignedAt 
+              ? new Date(supportTicket.assignedAt).toLocaleDateString('en-IN')
+              : new Date().toLocaleDateString('en-IN'),
+            assignTime: supportTicket.assignedAt 
+              ? new Date(supportTicket.assignedAt).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })
+              : 'Not assigned',
+            taskType: supportTicket.subject || 'Support Request',
+            vendorStatus: supportTicket.vendorStatus,
+            priority: supportTicket.priority?.toLowerCase() || 'medium',
+            isSupportTicket: true
+          };
+        }
+      }
+
+      if (foundTask) {
+        setTask(foundTask);
       } else {
-        setError(response.message || 'Failed to fetch task details');
+        setError('Task not found');
       }
     } catch (error) {
       console.error('Error fetching task details:', error);
@@ -249,17 +341,23 @@ const VendorClosedTask = () => {
   };
 
   const calculateTotal = () => {
+    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
     const sparePartsTotal = spareParts.reduce((sum, part) => {
       const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
       return sum + amount;
     }, 0);
     
     if (paymentMethod === 'online' && includeGST) {
-      const gstAmount = sparePartsTotal * 0.18; // 18% GST
-      return sparePartsTotal + gstAmount;
+      const gstAmount = sparePartsTotal * 0.18; // 18% GST on spare parts only
+      return sparePartsTotal + gstAmount; // Only spare parts + GST, billing amount separate
     }
     
-    return sparePartsTotal; // Only spare parts amount, no traveling charge
+    return sparePartsTotal; // Only spare parts amount, billing amount separate
+  };
+
+  const calculateBillingTotal = () => {
+    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    return billingAmountValue; // Only billing amount for support tickets
   };
 
   const calculateGSTAmount = () => {
@@ -272,6 +370,8 @@ const VendorClosedTask = () => {
 
   const handleNext = async () => {
     try {
+      setIsCompleting(true);
+      
       // Validate payment method is selected
       if (!paymentMethod) {
         alert('Please select a payment method');
@@ -284,30 +384,65 @@ const VendorClosedTask = () => {
         return;
       }
 
-      // Prepare task completion data
+      // Validate billing amount for support tickets
+      if (task?.isSupportTicket && (!billingAmount || billingAmount.trim() === '')) {
+        alert('Please enter billing amount for support ticket');
+        return;
+      }
+
+      // Validate billing amount value
+      const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+      if (task?.isSupportTicket && billingAmountValue <= 0) {
+        alert('Please enter a valid billing amount greater than 0');
+        return;
+      }
+      console.log('Billing amount calculation:', {
+        originalBillingAmount: billingAmount,
+        billingAmountValue: billingAmountValue,
+        isSupportTicket: task?.isSupportTicket
+      });
+      
       const taskData = {
         resolutionNote: resolutionNote.trim(),
         spareParts: spareParts.filter(part => part.name.trim() !== ''), // Filter out empty parts
         paymentMethod: paymentMethod as 'online' | 'cash',
         includeGST: includeGST,
         gstAmount: includeGST ? calculateGSTAmount() : 0,
-        totalAmount: calculateTotal(),
+        totalAmount: task?.isSupportTicket ? billingAmountValue : calculateTotal(),
+        billingAmount: billingAmountValue,
         travelingAmount: "100"
       };
+      
+      console.log('Task data being sent:', taskData);
 
-      // Call the complete task API
-      const response = await vendorApi.completeTask(taskId!, taskData);
+      // Call the appropriate complete task API based on task type
+      let response;
+      if (task?.isSupportTicket) {
+        response = await vendorApi.completeSupportTicket(taskId!, taskData);
+      } else {
+        response = await vendorApi.completeTask(taskId!, taskData);
+      }
       
       if (response.success) {
         if (paymentMethod === 'online') {
           // For online payment, task is completed and user will pay
-          const totalAmount = calculateTotal();
-          const gstAmount = includeGST ? calculateGSTAmount() : 0;
+          let totalAmount, gstAmount;
+          
+          if (task?.isSupportTicket) {
+            // For support tickets, only billing amount is charged
+            totalAmount = calculateBillingTotal();
+            gstAmount = 0;
+            alert(`Support ticket completed successfully! User will now receive payment request for ₹${totalAmount.toLocaleString()}.`);
+          } else {
+            // For booking tasks, spare parts + GST
+            totalAmount = calculateTotal();
+            gstAmount = includeGST ? calculateGSTAmount() : 0;
           
           if (includeGST) {
             alert(`Task completed successfully! User will now receive payment request for ₹${totalAmount.toLocaleString()} (including 18% GST: ₹${gstAmount.toLocaleString()}).`);
           } else {
             alert(`Task completed successfully! User will now receive payment request for ₹${totalAmount.toLocaleString()}.`);
+            }
           }
           
           // Trigger refresh event for vendor home page
@@ -315,20 +450,30 @@ const VendorClosedTask = () => {
             detail: { taskId, status: 'completed', totalAmount, includeGST, gstAmount } 
           }));
           
-          // Store GST data in localStorage for user booking page
-          const gstData = {
+          // Store payment data in localStorage for user page
+          const paymentData = {
             taskId,
-            includeGST,
-            gstAmount,
+            includeGST: task?.isSupportTicket ? false : includeGST,
+            gstAmount: task?.isSupportTicket ? 0 : gstAmount,
             totalAmount,
-            baseAmount: totalAmount - gstAmount,
+            baseAmount: task?.isSupportTicket ? totalAmount : (totalAmount - gstAmount),
+            isSupportTicket: task?.isSupportTicket || false,
             timestamp: Date.now()
           };
-          localStorage.setItem(`gst_${taskId}`, JSON.stringify(gstData));
+          localStorage.setItem(`payment_${taskId}`, JSON.stringify(paymentData));
           
-          // Also trigger event for user bookings refresh
-          window.dispatchEvent(new CustomEvent('bookingUpdated', { 
-            detail: { taskId, status: 'in_progress', paymentMode: 'online', paymentStatus: 'pending', includeGST, gstAmount } 
+          // Trigger event for user page refresh
+          const eventName = task?.isSupportTicket ? 'supportTicketUpdated' : 'bookingUpdated';
+          window.dispatchEvent(new CustomEvent(eventName, { 
+            detail: { 
+              taskId, 
+              status: 'completed', 
+              paymentMode: 'online', 
+              paymentStatus: 'pending', 
+              includeGST: task?.isSupportTicket ? false : includeGST, 
+              gstAmount: task?.isSupportTicket ? 0 : gstAmount,
+              totalAmount 
+            } 
           }));
           
           navigate('/vendor');
@@ -354,6 +499,8 @@ const VendorClosedTask = () => {
     } catch (error) {
       console.error('Error completing task:', error);
       alert('An error occurred while completing the task. Please try again.');
+    } finally {
+      setIsCompleting(false);
     }
   };
 
@@ -485,11 +632,42 @@ const VendorClosedTask = () => {
             </div>
           </div>
 
+          {/* Billing Amount */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">Billing Amount</h2>
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="billingAmount" className="block text-sm font-medium text-gray-700 mb-2">
+                  Enter Billing Amount
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">₹</span>
+                  <input
+                    type="text"
+                    id="billingAmount"
+                    value={billingAmount}
+                    onChange={(e) => setBillingAmount(e.target.value)}
+                    placeholder="0"
+                    className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-medium"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Total Amount */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
             <h2 className="text-lg font-semibold text-gray-800 mb-3">Amount Summary</h2>
             
             <div className="space-y-2">
+              {/* Billing Amount */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Billing Amount</span>
+                <span className="text-sm font-medium text-gray-800">
+                  ₹{billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0}
+                </span>
+              </div>
+
               {/* Spare Parts Total */}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Spare Parts Total</span>
@@ -511,10 +689,16 @@ const VendorClosedTask = () => {
                 </div>
               )}
 
-              {/* Total Amount */}
+              {/* Spare Parts Total */}
               <div className="flex items-center justify-between border-t border-gray-300 pt-2">
-                <span className="text-lg font-semibold text-gray-800">Total Amount</span>
-                <span className="text-2xl font-bold text-blue-600">₹{calculateTotal().toLocaleString()}</span>
+                <span className="text-lg font-semibold text-gray-800">Spare Parts Total</span>
+                <span className="text-xl font-bold text-blue-600">₹{calculateTotal().toLocaleString()}</span>
+              </div>
+
+              {/* Billing Amount Total */}
+              <div className="flex items-center justify-between border-t border-gray-300 pt-2">
+                <span className="text-lg font-semibold text-gray-800">Billing Amount Total</span>
+                <span className="text-xl font-bold text-green-600">₹{calculateBillingTotal().toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -594,14 +778,22 @@ const VendorClosedTask = () => {
           {/* Next Button */}
           <button
             onClick={handleNext}
-            disabled={!paymentMethod}
-            className={`w-full py-3 px-4 rounded-lg transition-colors font-medium ${
-              paymentMethod 
+            disabled={!paymentMethod || isCompleting}
+            className={`w-full py-3 px-4 rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 ${
+              paymentMethod && !isCompleting
                 ? 'bg-blue-500 text-white hover:bg-blue-600' 
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
-            {paymentMethod === 'online' && includeGST ? 'Complete Task & Send Payment Request' : 'Complete Task'}
+            {isCompleting && <Loader2 className="w-4 h-4 animate-spin" />}
+            <span>
+              {isCompleting 
+                ? 'Completing Task...' 
+                : paymentMethod === 'online' && includeGST 
+                  ? 'Complete Task & Send Payment Request' 
+                  : 'Complete Task'
+              }
+            </span>
           </button>
         </div>
       </main>

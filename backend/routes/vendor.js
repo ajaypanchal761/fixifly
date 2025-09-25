@@ -26,6 +26,17 @@ const uploadMiddleware = require('../middleware/upload');
 const router = express.Router();
 
 // Public routes
+// @route   GET /api/vendors/test
+// @desc    Test endpoint
+// @access  Public
+router.get('/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Vendor API is working',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // @route   POST /api/vendors/register
 // @desc    Register new vendor
 // @access  Public

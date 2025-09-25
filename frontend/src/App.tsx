@@ -9,6 +9,7 @@ import AMC from "./pages/AMC";
 import AMCPlanDetails from "./pages/AMCPlanDetails";
 import AMCSubscribe from "./pages/AMCSubscribe";
 import Support from "./pages/Support";
+import Payment from "./pages/Payment";
 import Profile from "./pages/Profile";
 import TipsTricks from "./pages/TipsTricks";
 import TermsConditions from "./pages/TermsConditions";
@@ -91,6 +92,7 @@ const AppContent = () => {
           <Route path="/amc/plan/:planId" element={<AMCPlanDetails />} />
           <Route path="/amc/subscribe/:planId" element={<AMCSubscribe />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/payment" element={<Payment />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/tips" element={<TipsTricks />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />

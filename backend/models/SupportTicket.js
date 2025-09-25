@@ -539,8 +539,6 @@ SupportTicketSchema.methods.completeByVendor = function(vendorId, completionData
   
   this.vendorStatus = 'Completed';
   this.vendorCompletedAt = new Date();
-  this.status = 'Resolved';
-  this.resolvedAt = new Date();
   
   // Store completion data
   if (completionData) {
@@ -548,6 +546,37 @@ SupportTicketSchema.methods.completeByVendor = function(vendorId, completionData
       ...completionData,
       completedAt: new Date()
     };
+    
+    // Update payment information from completion data
+    if (completionData.paymentMethod) {
+      this.paymentMode = completionData.paymentMethod;
+      this.paymentStatus = completionData.paymentMethod === 'online' ? 'pending' : 'collected';
+      
+      // Set status based on payment method
+      if (completionData.paymentMethod === 'online') {
+        // For online payment, keep status as 'In Progress' until payment is completed
+        this.status = 'In Progress';
+      } else {
+        // For cash payment, mark as resolved immediately
+        this.status = 'Resolved';
+        this.resolvedAt = new Date();
+      }
+    } else {
+      // Default to resolved if no payment method specified
+      this.status = 'Resolved';
+      this.resolvedAt = new Date();
+    }
+    
+    if (completionData.billingAmount !== undefined) {
+      console.log('Setting billing amount in model:', completionData.billingAmount);
+      this.billingAmount = completionData.billingAmount;
+    } else {
+      console.log('Billing amount not provided in completion data');
+    }
+  } else {
+    // If no completion data, mark as resolved
+    this.status = 'Resolved';
+    this.resolvedAt = new Date();
   }
   
   // Update assignment history

@@ -285,6 +285,41 @@ export const adminSupportTicketAPI = {
     } catch (error) {
       throw new Error(error.message || 'Failed to resolve support ticket');
     }
+  },
+
+  // Assign vendor to support ticket
+  assignVendor: async (ticketId, vendorId, scheduledDate, scheduledTime, priority, notes) => {
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      if (!adminToken) {
+        throw new Error('Admin not authenticated. Please login again.');
+      }
+
+      const requestBody = { vendorId };
+      if (scheduledDate) requestBody.scheduledDate = scheduledDate;
+      if (scheduledTime) requestBody.scheduledTime = scheduledTime;
+      if (priority) requestBody.priority = priority;
+      if (notes) requestBody.notes = notes;
+
+      const response = await fetch(`${API_BASE_URL}/support-tickets/admin/${ticketId}/assign-vendor`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to assign vendor to support ticket');
+      }
+
+      return data;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to assign vendor to support ticket');
+    }
   }
 };
 
