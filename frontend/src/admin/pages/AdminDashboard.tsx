@@ -305,20 +305,20 @@ const AdminDashboard = () => {
         </div>
 
         {/* KPI Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
           {kpiCards.map((card, index) => {
             const IconComponent = card.icon;
             return (
               <Card key={index} className="service-card">
-                <CardContent className="p-6">
+                <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-muted-foreground mb-1">{card.title}</p>
-                      <p className="text-2xl font-bold text-foreground mb-1">{card.value}</p>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">{card.title}</p>
+                      <p className="text-lg font-bold text-foreground mb-1">{card.value}</p>
                       <p className="text-xs text-muted-foreground">{card.change}</p>
                     </div>
-                    <div className={`w-12 h-12 ${card.bgColor} rounded-full flex items-center justify-center`}>
-                      <IconComponent className={`w-6 h-6 ${card.textColor}`} />
+                    <div className={`w-8 h-8 ${card.bgColor} rounded-full flex items-center justify-center`}>
+                      <IconComponent className={`w-4 h-4 ${card.textColor}`} />
                     </div>
                   </div>
                 </CardContent>

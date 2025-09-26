@@ -348,17 +348,6 @@ const ServicesGrid = () => {
                         {service.priceDisplay}
                       </p>
                       
-                      {/* Book Service Button */}
-                      <Button 
-                        onClick={() => handleBookService(service)}
-                        className={`w-full font-medium rounded-lg py-2 transition-all duration-300 ${
-                          isCenter 
-                            ? 'bg-blue-500 hover:bg-blue-600 text-white' 
-                            : 'bg-white text-slate-800 hover:bg-gray-100'
-                        }`}
-                      >
-                        Book Service
-                      </Button>
                     </div>
                   </div>
                 );

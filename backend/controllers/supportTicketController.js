@@ -451,7 +451,13 @@ const getAllSupportTickets = asyncHandler(async (req, res) => {
     lastUpdate: ticket.lastUpdate,
     responses: ticket.responseCount,
     caseId: ticket.caseId,
-    assignedTo: ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned',
+    assignedTo: ticket.assignedTo ? {
+      id: ticket.assignedTo._id,
+      name: `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}`,
+      email: ticket.assignedTo.email,
+      phone: ticket.assignedTo.phone
+    } : null,
+    assignedVendor: ticket.assignedTo ? `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}` : 'Not Assigned',
     assignedAt: ticket.assignedAt,
     assignedBy: ticket.assignedBy,
     vendorAcceptedAt: ticket.vendorAcceptedAt,
@@ -527,7 +533,13 @@ const getAdminSupportTicket = asyncHandler(async (req, res) => {
         responses: ticket.responseCount,
         caseId: ticket.caseId,
         description: ticket.description,
-        assignedTo: ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned',
+        assignedTo: ticket.assignedTo ? {
+          id: ticket.assignedTo._id,
+          name: `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}`,
+          email: ticket.assignedTo.email,
+          phone: ticket.assignedTo.phone
+        } : null,
+        assignedVendor: ticket.assignedTo ? `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}` : 'Not Assigned',
         estimatedResolution: ticket.estimatedResolution,
         tags: ticket.tags,
         resolution: ticket.resolution,
@@ -777,6 +789,141 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
     };
 
     await ticket.save();
+
+    // Create admin notification for rescheduled ticket
+    try {
+      const Admin = require('../models/Admin');
+      const Vendor = require('../models/Vendor');
+      
+      // Get vendor details
+      const vendor = await Vendor.findById(vendorId).select('firstName lastName email');
+      
+      // Get all admins to notify them
+      const admins = await Admin.find({ isActive: true }).select('name email');
+      
+      // Create notification for each admin
+      for (const admin of admins) {
+        try {
+          const emailData = {
+            to: admin.email,
+            subject: `Support Ticket Rescheduled - ${ticket.ticketId}`,
+            html: `
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Support Ticket Rescheduled</title>
+                <style>
+                  body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                  .header { background: #F59E0B; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+                  .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+                  .ticket-info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+                  .reschedule-info { background: #FEF3C7; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #F59E0B; }
+                  .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+                  .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+                  .priority-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+                  .priority-high { background: #fecaca; color: #991b1b; }
+                  .priority-medium { background: #fef3c7; color: #92400e; }
+                  .priority-low { background: #d1fae5; color: #065f46; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="header">
+                    <h1>🔄 Support Ticket Rescheduled</h1>
+                    <p>A support ticket has been rescheduled by the assigned vendor</p>
+                  </div>
+                  <div class="content">
+                    <h2>Hello ${admin.name},</h2>
+                    <p>A support ticket has been rescheduled by the assigned vendor. Please review the details below.</p>
+                    
+                    <div class="ticket-info">
+                      <h3>📋 Ticket Information</h3>
+                      <p><strong>Ticket ID:</strong> ${ticket.ticketId}</p>
+                      <p><strong>Subject:</strong> ${ticket.subject}</p>
+                      <p><strong>Customer:</strong> ${ticket.userName} (${ticket.userEmail})</p>
+                      <p><strong>Priority:</strong> <span class="priority-badge priority-${ticket.priority?.toLowerCase()}">${ticket.priority}</span></p>
+                      <p><strong>Status:</strong> <span class="status-badge">${ticket.status}</span></p>
+                    </div>
+
+                    <div class="reschedule-info">
+                      <h3>🔄 Reschedule Details</h3>
+                      <p><strong>Rescheduled by:</strong> ${vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Vendor'}</p>
+                      <p><strong>Original Date:</strong> ${originalDate ? new Date(originalDate).toLocaleDateString('en-GB', { 
+                        day: '2-digit', 
+                        month: 'short', 
+                        year: 'numeric' 
+                      }) : 'Not set'}</p>
+                      <p><strong>Original Time:</strong> ${originalTime || 'Not set'}</p>
+                      <p><strong>New Date:</strong> ${new Date(newDate).toLocaleDateString('en-GB', { 
+                        day: '2-digit', 
+                        month: 'short', 
+                        year: 'numeric' 
+                      })}</p>
+                      <p><strong>New Time:</strong> ${newTime}</p>
+                      <p><strong>Reason:</strong> ${reason || 'No reason provided'}</p>
+                      <p><strong>Rescheduled At:</strong> ${new Date().toLocaleString('en-GB')}</p>
+                    </div>
+
+                    <div class="ticket-info">
+                      <h3>📝 Description</h3>
+                      <p>${ticket.description || 'No description provided'}</p>
+                    </div>
+                  </div>
+                  <div class="footer">
+                    <p>This is an automated notification from Fixifly Support System.</p>
+                    <p>Please log in to the admin panel to view more details.</p>
+                  </div>
+                </div>
+              </body>
+              </html>
+            `
+          };
+
+          const emailResult = await emailService.sendEmail(emailData);
+          
+          if (emailResult.success) {
+            logger.info(`Admin notification sent for rescheduled ticket: ${ticket.ticketId}`, {
+              ticketId: ticket.ticketId,
+              adminEmail: admin.email,
+              vendorId: vendorId,
+              messageId: emailResult.messageId
+            });
+          } else {
+            logger.warn(`Failed to send admin notification for rescheduled ticket: ${ticket.ticketId}`, {
+              ticketId: ticket.ticketId,
+              adminEmail: admin.email,
+              error: emailResult.error
+            });
+          }
+        } catch (emailError) {
+          logger.error(`Error sending admin notification for rescheduled ticket: ${ticket.ticketId}`, {
+            ticketId: ticket.ticketId,
+            adminEmail: admin.email,
+            error: emailError.message
+          });
+        }
+      }
+    } catch (notificationError) {
+      logger.error('Error creating admin notifications for rescheduled ticket:', {
+        ticketId: ticket.ticketId,
+        vendorId: vendorId,
+        error: notificationError.message
+      });
+      // Don't fail the reschedule if notification fails
+    }
+
+    logger.info(`Support ticket rescheduled: ${ticket.ticketId}`, {
+      ticketId: ticket.ticketId,
+      vendorId: vendorId,
+      originalDate: originalDate,
+      originalTime: originalTime,
+      newDate: newDate,
+      newTime: newTime,
+      reason: reason
+    });
 
     return res.json({
       success: true,
@@ -1536,15 +1683,20 @@ const declineSupportTicket = asyncHandler(async (req, res) => {
     });
   }
 
-  // Use the new declineByVendor method
+  // Use the new declineByVendor method (includes penalty application)
   await ticket.declineByVendor(vendorId, reason || '');
 
   res.json({
     success: true,
-    message: 'Support ticket declined successfully',
+    message: 'Support ticket declined successfully. ₹100 penalty has been applied to your wallet.',
     data: {
       ticketId: ticket.ticketId,
       vendorStatus: ticket.vendorStatus
+    },
+    penalty: {
+      applied: true,
+      amount: 100,
+      reason: 'Task rejection in vendor area'
     }
   });
 });

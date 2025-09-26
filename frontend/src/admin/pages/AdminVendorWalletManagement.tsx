@@ -32,6 +32,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import adminApiService from '@/services/adminApi';
 
 interface VendorWallet {
   id: string;
@@ -42,9 +43,14 @@ interface VendorWallet {
   currentBalance: number;
   totalEarnings: number;
   totalWithdrawals: number;
-  pendingAmount: number;
-  lastTransaction: string;
-  status: 'active' | 'suspended' | 'pending';
+  totalDeposits: number;
+  securityDeposit: number;
+  availableBalance: number;
+  onlineCollected: number;
+  cashCollected: number;
+  isActive: boolean;
+  isApproved: boolean;
+  lastTransaction: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -69,87 +75,12 @@ const AdminVendorWalletManagement = () => {
   const [isViewTransactionsOpen, setIsViewTransactionsOpen] = useState(false);
   const [selectedVendorId, setSelectedVendorId] = useState<string>('');
 
-  // Mock data - will be replaced with API calls
-  const [vendorWallets, setVendorWallets] = useState<VendorWallet[]>([
-    {
-      id: '1',
-      vendorId: 'vendor_001',
-      vendorName: 'John Smith',
-      vendorEmail: 'john@example.com',
-      vendorPhone: '+91 98765 43210',
-      currentBalance: 15000,
-      totalEarnings: 25000,
-      totalWithdrawals: 10000,
-      pendingAmount: 2500,
-      lastTransaction: '2024-01-15T10:30:00Z',
-      status: 'active',
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-15T10:30:00Z'
-    },
-    {
-      id: '2',
-      vendorId: 'vendor_002',
-      vendorName: 'Sarah Johnson',
-      vendorEmail: 'sarah@example.com',
-      vendorPhone: '+91 98765 43211',
-      currentBalance: 8500,
-      totalEarnings: 18000,
-      totalWithdrawals: 9500,
-      pendingAmount: 1200,
-      lastTransaction: '2024-01-14T15:45:00Z',
-      status: 'active',
-      createdAt: '2024-01-02T00:00:00Z',
-      updatedAt: '2024-01-14T15:45:00Z'
-    },
-    {
-      id: '3',
-      vendorId: 'vendor_003',
-      vendorName: 'Mike Wilson',
-      vendorEmail: 'mike@example.com',
-      vendorPhone: '+91 98765 43212',
-      currentBalance: 0,
-      totalEarnings: 5000,
-      totalWithdrawals: 5000,
-      pendingAmount: 0,
-      lastTransaction: '2024-01-10T09:20:00Z',
-      status: 'suspended',
-      createdAt: '2024-01-03T00:00:00Z',
-      updatedAt: '2024-01-10T09:20:00Z'
-    }
-  ]);
+  // State for vendor wallets data
+  const [vendorWallets, setVendorWallets] = useState<VendorWallet[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([
-    {
-      id: 'txn_001',
-      vendorId: 'vendor_001',
-      type: 'credit',
-      amount: 2500,
-      description: 'Service completion payment',
-      reference: 'BOOK_12345',
-      status: 'completed',
-      createdAt: '2024-01-15T10:30:00Z'
-    },
-    {
-      id: 'txn_002',
-      vendorId: 'vendor_001',
-      type: 'debit',
-      amount: 1000,
-      description: 'Withdrawal to bank account',
-      reference: 'WTH_001',
-      status: 'completed',
-      createdAt: '2024-01-14T14:20:00Z'
-    },
-    {
-      id: 'txn_003',
-      vendorId: 'vendor_002',
-      type: 'credit',
-      amount: 1200,
-      description: 'Service completion payment',
-      reference: 'BOOK_12346',
-      status: 'pending',
-      createdAt: '2024-01-14T15:45:00Z'
-    }
-  ]);
+  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([]);
 
   const [newTransaction, setNewTransaction] = useState({
     vendorId: '',
@@ -159,11 +90,56 @@ const AdminVendorWalletManagement = () => {
     reference: ''
   });
 
+  // Edit wallet state
+  const [isEditWalletOpen, setIsEditWalletOpen] = useState(false);
+  const [editingWallet, setEditingWallet] = useState<VendorWallet | null>(null);
+  const [editForm, setEditForm] = useState({
+    currentBalance: '',
+    description: '',
+    adjustmentType: 'credit' as 'credit' | 'debit'
+  });
+
+  // Fetch vendor wallets data
+  const fetchVendorWallets = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/wallets`, {
+        method: 'GET'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setVendorWallets(data.data.vendors);
+      } else {
+        throw new Error(data.message || 'Failed to fetch vendor wallets');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchVendorWallets();
+  }, []);
+
   const filteredWallets = vendorWallets.filter(wallet => {
     const matchesSearch = wallet.vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          wallet.vendorEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          wallet.vendorPhone.includes(searchTerm);
-    const matchesStatus = statusFilter === 'all' || wallet.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'active' && wallet.isActive && wallet.isApproved) ||
+                         (statusFilter === 'suspended' && !wallet.isActive) ||
+                         (statusFilter === 'pending' && !wallet.isApproved);
     return matchesSearch && matchesStatus;
   });
 
@@ -179,6 +155,61 @@ const AdminVendorWalletManagement = () => {
   const handleViewTransactions = (vendorId: string) => {
     setSelectedVendorId(vendorId);
     setIsViewTransactionsOpen(true);
+  };
+
+  const handleEditWallet = (wallet: VendorWallet) => {
+    setEditingWallet(wallet);
+    setEditForm({
+      currentBalance: wallet.currentBalance.toString(),
+      description: '',
+      adjustmentType: 'credit'
+    });
+    setIsEditWalletOpen(true);
+  };
+
+  const handleUpdateWallet = async () => {
+    if (!editingWallet) return;
+
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/wallets/${editingWallet.vendorId}/adjust`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          currentBalance: parseFloat(editForm.currentBalance),
+          description: editForm.description,
+          adjustmentType: editForm.adjustmentType
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        // Update the wallet in the local state
+        setVendorWallets(prev => prev.map(wallet => 
+          wallet.vendorId === editingWallet.vendorId 
+            ? { ...wallet, currentBalance: parseFloat(editForm.currentBalance) }
+            : wallet
+        ));
+        
+        setIsEditWalletOpen(false);
+        setEditingWallet(null);
+        setEditForm({ currentBalance: '', description: '', adjustmentType: 'credit' });
+        
+        // Show success message
+        alert('Wallet balance updated successfully!');
+      } else {
+        throw new Error(data.message || 'Failed to update wallet');
+      }
+    } catch (error) {
+      console.error('Error updating wallet:', error);
+      alert('Failed to update wallet balance. Please try again.');
+    }
   };
 
   const handleAddTransaction = () => {
@@ -229,17 +260,13 @@ const AdminVendorWalletManagement = () => {
     }
   };
 
-  const handleWalletStatusChange = (walletId: string, newStatus: 'active' | 'suspended' | 'pending') => {
-    setVendorWallets(prev => prev.map(wallet => 
-      wallet.id === walletId ? { ...wallet, status: newStatus } : wallet
-    ));
-  };
 
   // Calculate total stats
   const totalBalance = vendorWallets.reduce((sum, wallet) => sum + wallet.currentBalance, 0);
+  const totalDeposits = vendorWallets.reduce((sum, wallet) => sum + wallet.totalDeposits, 0);
   const totalEarnings = vendorWallets.reduce((sum, wallet) => sum + wallet.totalEarnings, 0);
   const totalWithdrawals = vendorWallets.reduce((sum, wallet) => sum + wallet.totalWithdrawals, 0);
-  const activeWallets = vendorWallets.filter(wallet => wallet.status === 'active').length;
+  const activeWallets = vendorWallets.filter(wallet => wallet.isActive && wallet.isApproved).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -263,7 +290,7 @@ const AdminVendorWalletManagement = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -272,6 +299,17 @@ const AdminVendorWalletManagement = () => {
                   <p className="text-2xl font-bold">₹{totalBalance.toLocaleString()}</p>
                 </div>
                 <Wallet className="h-8 w-8 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Deposits</p>
+                  <p className="text-2xl font-bold">₹{totalDeposits.toLocaleString()}</p>
+                </div>
+                <CreditCard className="h-8 w-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
@@ -309,6 +347,37 @@ const AdminVendorWalletManagement = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Loading and Error States */}
+        {loading && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center">
+                <RefreshCw className="h-6 w-6 animate-spin mr-2" />
+                <p>Loading vendor wallets...</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {error && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center text-red-600">
+                <AlertTriangle className="h-6 w-6 mr-2" />
+                <p>Error: {error}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={fetchVendorWallets}
+                  className="ml-4"
+                >
+                  Retry
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Tabs defaultValue="wallets" className="space-y-6">
           <TabsList>
@@ -348,94 +417,115 @@ const AdminVendorWalletManagement = () => {
             </Card>
 
             {/* Wallets Table */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Vendor Wallets ({filteredWallets.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Vendor</TableHead>
-                      <TableHead>Current Balance</TableHead>
-                      <TableHead>Total Earnings</TableHead>
-                      <TableHead>Pending Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Last Transaction</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredWallets.map((wallet) => (
-                      <TableRow key={wallet.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{wallet.vendorName}</p>
-                            <p className="text-sm text-muted-foreground">{wallet.vendorEmail}</p>
-                            <p className="text-sm text-muted-foreground">{wallet.vendorPhone}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-1">
-                            <DollarSign className="h-4 w-4 text-green-500" />
-                            <span className="font-medium">₹{wallet.currentBalance.toLocaleString()}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-medium">₹{wallet.totalEarnings.toLocaleString()}</span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4 text-orange-500" />
-                            <span className="font-medium">₹{wallet.pendingAmount.toLocaleString()}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={wallet.status}
-                            onValueChange={(value) => handleWalletStatusChange(wallet.id, value as any)}
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="active">Active</SelectItem>
-                              <SelectItem value="suspended">Suspended</SelectItem>
-                              <SelectItem value="pending">Pending</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm">
-                            {new Date(wallet.lastTransaction).toLocaleDateString()}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center gap-2 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewWallet(wallet)}
-                            >
-                              <Eye className="w-3 h-3 mr-1" />
-                              View
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewTransactions(wallet.vendorId)}
-                            >
-                              <CreditCard className="w-3 h-3 mr-1" />
-                              Transactions
-                            </Button>
-                          </div>
-                        </TableCell>
+            {!loading && !error && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vendor Wallets ({filteredWallets.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Vendor Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Current Balance</TableHead>
+                        <TableHead>Total Deposits</TableHead>
+                        <TableHead>Security Deposit</TableHead>
+                        <TableHead>Available Balance</TableHead>
+                        <TableHead>Total Earnings</TableHead>
+                        <TableHead>Online Collected</TableHead>
+                        <TableHead>Cash Collected</TableHead>
+                        <TableHead>Last Transaction</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredWallets.map((wallet) => (
+                        <TableRow key={wallet.id}>
+                          <TableCell>
+                            <div className="font-medium">{wallet.vendorName}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">{wallet.vendorEmail}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">{wallet.vendorPhone}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <DollarSign className="h-4 w-4 text-green-500" />
+                              <span className="font-medium">₹{wallet.currentBalance.toLocaleString()}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <CreditCard className="h-4 w-4 text-blue-500" />
+                              <span className="font-medium">₹{wallet.totalDeposits.toLocaleString()}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <Banknote className="h-4 w-4 text-purple-500" />
+                              <span className="font-medium">₹{wallet.securityDeposit.toLocaleString()}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <Wallet className="h-4 w-4 text-green-600" />
+                              <span className="font-medium">₹{wallet.availableBalance.toLocaleString()}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="font-medium">₹{wallet.totalEarnings.toLocaleString()}</span>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <CreditCard className="h-4 w-4 text-blue-500" />
+                              <span className="font-medium">₹{wallet.onlineCollected.toLocaleString()}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <Banknote className="h-4 w-4 text-orange-500" />
+                              <span className="font-medium">₹{wallet.cashCollected.toLocaleString()}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm">
+                              {wallet.lastTransaction 
+                                ? new Date(wallet.lastTransaction).toLocaleDateString()
+                                : 'No transactions'
+                              }
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center gap-2 justify-end">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleViewWallet(wallet)}
+                              >
+                                <Eye className="w-3 h-3 mr-1" />
+                                View
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleEditWallet(wallet)}
+                              >
+                                <Edit className="w-3 h-3 mr-1" />
+                                Edit
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="transactions" className="space-y-6">
@@ -626,8 +716,12 @@ const AdminVendorWalletManagement = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                      <Badge variant={selectedWallet.status === 'active' ? 'default' : 'secondary'}>
-                        {selectedWallet.status}
+                      <Badge variant={
+                        selectedWallet.isActive && selectedWallet.isApproved ? 'default' :
+                        !selectedWallet.isActive ? 'destructive' : 'secondary'
+                      }>
+                        {selectedWallet.isActive && selectedWallet.isApproved ? 'Active' :
+                         !selectedWallet.isActive ? 'Suspended' : 'Pending'}
                       </Badge>
                     </div>
                   </div>
@@ -636,7 +730,7 @@ const AdminVendorWalletManagement = () => {
                 {/* Wallet Summary */}
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Wallet Summary</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <Card>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -645,6 +739,39 @@ const AdminVendorWalletManagement = () => {
                             <p className="text-2xl font-bold text-green-600">₹{selectedWallet.currentBalance.toLocaleString()}</p>
                           </div>
                           <Wallet className="h-8 w-8 text-green-500" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Total Deposits</p>
+                            <p className="text-2xl font-bold text-blue-600">₹{selectedWallet.totalDeposits.toLocaleString()}</p>
+                          </div>
+                          <CreditCard className="h-8 w-8 text-blue-500" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Security Deposit</p>
+                            <p className="text-2xl font-bold text-purple-600">₹{selectedWallet.securityDeposit.toLocaleString()}</p>
+                          </div>
+                          <Banknote className="h-8 w-8 text-purple-500" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Available Balance</p>
+                            <p className="text-2xl font-bold text-green-600">₹{selectedWallet.availableBalance.toLocaleString()}</p>
+                          </div>
+                          <Wallet className="h-8 w-8 text-green-600" />
                         </div>
                       </CardContent>
                     </Card>
@@ -663,10 +790,10 @@ const AdminVendorWalletManagement = () => {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">Total Withdrawals</p>
-                            <p className="text-2xl font-bold text-red-600">₹{selectedWallet.totalWithdrawals.toLocaleString()}</p>
+                            <p className="text-sm font-medium text-muted-foreground">Cash Collected</p>
+                            <p className="text-2xl font-bold text-orange-600">₹{selectedWallet.cashCollected.toLocaleString()}</p>
                           </div>
-                          <TrendingDown className="h-8 w-8 text-red-500" />
+                          <Banknote className="h-8 w-8 text-orange-500" />
                         </div>
                       </CardContent>
                     </Card>
@@ -809,9 +936,80 @@ const AdminVendorWalletManagement = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Edit Wallet Dialog */}
+        <Dialog open={isEditWalletOpen} onOpenChange={setIsEditWalletOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Edit Wallet Balance</DialogTitle>
+            </DialogHeader>
+            {editingWallet && (
+            <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="vendor-name">Vendor</Label>
+                  <Input
+                    id="vendor-name"
+                    value={`${editingWallet.vendorName} (${editingWallet.vendorId})`}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="current-balance">Current Balance</Label>
+                  <Input
+                    id="current-balance"
+                    type="number"
+                    value={editForm.currentBalance}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, currentBalance: e.target.value }))}
+                    placeholder="Enter new balance"
+                  />
+              </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="adjustment-type">Adjustment Type</Label>
+                  <Select
+                    value={editForm.adjustmentType}
+                    onValueChange={(value: 'credit' | 'debit') => setEditForm(prev => ({ ...prev, adjustmentType: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="credit">Credit (Add Money)</SelectItem>
+                      <SelectItem value="debit">Debit (Deduct Money)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                    value={editForm.description}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Reason for balance adjustment"
+                  rows={3}
+                />
+              </div>
+
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setIsEditWalletOpen(false)}>
+                  Cancel
+                </Button>
+                  <Button onClick={handleUpdateWallet}>
+                    Update Balance
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
 };
 
 export default AdminVendorWalletManagement;
+
+

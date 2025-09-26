@@ -9,13 +9,13 @@ const walletTransactionSchema = new mongoose.Schema({
   caseId: {
     type: String,
     required: function() {
-      // caseId is required for all transaction types except deposit
-      return this.type !== 'deposit';
+      // caseId is required for all transaction types except deposit and manual_adjustment
+      return this.type !== 'deposit' && this.type !== 'manual_adjustment';
     }
   },
   type: {
     type: String,
-    enum: ['earning', 'penalty', 'deposit', 'withdrawal', 'task_acceptance_fee', 'cash_collection', 'refund'],
+    enum: ['earning', 'penalty', 'deposit', 'withdrawal', 'task_acceptance_fee', 'cash_collection', 'refund', 'manual_adjustment'],
     required: true
   },
   amount: {
@@ -33,12 +33,15 @@ const walletTransactionSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['online', 'cash'],
+    enum: ['online', 'cash', 'system'],
     required: true
   },
   billingAmount: {
     type: Number,
-    required: true
+    required: function() {
+      // billingAmount is required for all transaction types except manual_adjustment
+      return this.type !== 'manual_adjustment';
+    }
   },
   spareAmount: {
     type: Number,
@@ -58,7 +61,10 @@ const walletTransactionSchema = new mongoose.Schema({
   },
   calculatedAmount: {
     type: Number,
-    required: true
+    required: function() {
+      // calculatedAmount is required for all transaction types except manual_adjustment
+      return this.type !== 'manual_adjustment';
+    }
   },
   metadata: {
     adminNotes: String,
@@ -200,10 +206,10 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
   let calculatedAmount = 0;
   let gstAmount = 0;
 
-  // Calculate GST if included
+  // Calculate GST if included (billing amount is GST-inclusive)
   if (gstIncluded) {
-    gstAmount = billingAmount * 0.18; // 18% GST
-    billingAmount = billingAmount - gstAmount;
+    gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
+    billingAmount = billingAmount / 1.18; // GST-excluded amount
   }
 
   // Calculate amount based on payment method
@@ -358,15 +364,20 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
   let gstAmount = 0;
   let netBillingAmount = billingAmount;
 
-  // Calculate GST if included
+  // Calculate GST if included (billing amount is GST-inclusive)
   if (gstIncluded) {
-    gstAmount = billingAmount * 0.18; // 18% GST
-    netBillingAmount = billingAmount - gstAmount;
+    gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
+    netBillingAmount = billingAmount / 1.18; // GST-excluded amount
   }
 
   // Cash collection: (Billing - Spare - Travel) * 50%
   const baseAmount = netBillingAmount - spareAmount - travellingAmount;
   calculatedAmount = baseAmount * 0.5;
+
+  // Add GST amount to cash collection deduction if GST is included
+  if (gstIncluded) {
+    calculatedAmount += gstAmount;
+  }
 
   const transaction = {
     transactionId: `CASH_${this.vendorId}_${Date.now()}`,
@@ -542,6 +553,38 @@ vendorWalletSchema.statics.getRecentTransactions = async function(vendorId, limi
       formattedAmount: `₹${Math.abs(transaction.amount).toLocaleString()}`,
       typeDisplay: transaction.type.replace('_', ' ').toUpperCase()
     }));
+};
+
+// Add manual adjustment transaction
+vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
+  const {
+    amount,
+    type,
+    description,
+    processedBy = 'admin',
+    metadata = {}
+  } = adjustmentData;
+
+  const transaction = {
+    transactionId: `ADJ_${this.vendorId}_${Date.now()}`,
+    type: 'manual_adjustment',
+    amount: type === 'credit' ? amount : -amount,
+    description,
+    paymentMethod: 'system',
+    status: 'completed',
+    processedBy: 'admin',
+    metadata: {
+      ...metadata,
+      adminId: processedBy
+    },
+    verificationStatus: 'approved'
+  };
+
+  this.transactions.push(transaction);
+  // Don't update currentBalance here - it's already updated in the controller
+  this.lastTransactionAt = new Date();
+
+  return this.save();
 };
 
 // Pre-save middleware to update available balance

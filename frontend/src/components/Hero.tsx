@@ -2,6 +2,7 @@ import { Building2, Award, Star, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import publicProductApi, { PublicProduct } from '@/services/publicProductApi';
+import bannerApiService, { Banner } from '@/services/bannerApi';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const Hero = () => {
@@ -11,7 +12,35 @@ const Hero = () => {
   const [productsLoading, setProductsLoading] = useState(true);
   const [showMoreProducts, setShowMoreProducts] = useState(false);
   const [allProducts, setAllProducts] = useState<PublicProduct[]>([]);
-  const banners = ['/banner1.png', '/banner2.png', '/banner3.png'];
+  const [banners, setBanners] = useState<string[]>([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
+  const [bannersError, setBannersError] = useState<string | null>(null);
+
+  // Fetch banners from database
+  const fetchBanners = async () => {
+    try {
+      setBannersLoading(true);
+      setBannersError(null);
+      
+      const bannerUrls = await bannerApiService.getBannerImageUrls();
+      console.log('Banner URLs fetched:', bannerUrls);
+      
+      if (bannerUrls.length > 0) {
+        setBanners(bannerUrls);
+      } else {
+        // Fallback to hardcoded banners if no database banners found
+        console.log('No database banners found, using fallback banners');
+        setBanners(['/banner1.png', '/banner2.png', '/banner3.png']);
+      }
+    } catch (error) {
+      console.error('Error fetching banners:', error);
+      setBannersError(error instanceof Error ? error.message : 'Failed to fetch banners');
+      // Fallback to hardcoded banners on error
+      setBanners(['/banner1.png', '/banner2.png', '/banner3.png']);
+    } finally {
+      setBannersLoading(false);
+    }
+  };
 
   // Fetch featured products from public API
   const fetchProducts = async () => {
@@ -82,8 +111,9 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, [banners.length]);
 
-  // Fetch products on component mount
+  // Fetch banners and products on component mount
   useEffect(() => {
+    fetchBanners();
     fetchProducts();
   }, []);
 
@@ -107,22 +137,28 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:pt-20 lg:pt-24">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:pt-14 lg:pt-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
           <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8" data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
-                <div className="relative w-full h-auto">
+                <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[18rem] xl:h-[20rem]">
                   {banners.map((banner, index) => (
                     <img 
                       key={index}
                       src={banner} 
                       alt={`Fixifly Banner ${index + 1}`} 
-                      className={`w-full h-auto rounded-3xl shadow-2xl transition-opacity duration-1000 ${
+                      className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${
                         index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
                       }`}
+                      onLoad={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        // Ensure image fills container properly
+                        img.style.minHeight = '100%';
+                        img.style.minWidth = '100%';
+                      }}
                     />
                   ))}
                 </div>
@@ -144,9 +180,9 @@ const Hero = () => {
 
           {/* Lottie Animation - Desktop Only, Show when More Services is expanded */}
           {showMoreProducts && (
-            <div className="hidden lg:block absolute bottom-16 right-14 w-full max-w-4xl">
+            <div className="hidden lg:block absolute bottom-16 right-14 w-full max-w-2xl">
               <div className="flex justify-end items-end">
-                <div className="w-full max-w-3xl h-96">
+                <div className="w-full max-w-xl h-64">
                   <DotLottieReact
                     src="https://lottie.host/4b4777ae-24ca-490b-89fc-6a6a49a87b91/RY3zh347Uf.lottie"
                     loop

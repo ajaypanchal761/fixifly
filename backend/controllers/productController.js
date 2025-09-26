@@ -809,6 +809,46 @@ const getPublicProductById = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get products by service type for public access
+// @route   GET /api/public/products/service-type/:serviceType
+// @access  Public
+const getProductsByServiceType = asyncHandler(async (req, res) => {
+  try {
+    const { serviceType } = req.params;
+    const { limit = 6 } = req.query;
+
+    const products = await Product.find({ 
+      serviceType: serviceType,
+      status: 'active' 
+    })
+    .select('productName productImage serviceType categories categoryNames isFeatured')
+    .sort({ isFeatured: -1, updatedAt: -1 }) // Sort featured products first, then by updated date
+    .limit(parseInt(limit))
+    .lean();
+
+    logger.info(`Products by service type retrieved: ${products.length} for ${serviceType}`, {
+      serviceType,
+      productNames: products.map(p => p.productName)
+    });
+
+    res.json({
+      success: true,
+      data: {
+        products,
+        count: products.length,
+        serviceType
+      }
+    });
+  } catch (error) {
+    logger.error('Error retrieving products by service type:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error retrieving products',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -822,5 +862,6 @@ module.exports = {
   removeServiceFromCategory,
   getFeaturedProducts,
   getAllActiveProducts,
-  getPublicProductById
+  getPublicProductById,
+  getProductsByServiceType
 };

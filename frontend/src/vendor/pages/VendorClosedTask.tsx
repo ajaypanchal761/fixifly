@@ -347,9 +347,9 @@ const VendorClosedTask = () => {
       return sum + amount;
     }, 0);
     
-    if (paymentMethod === 'online' && includeGST) {
-      const gstAmount = billingAmountValue * 0.18; // 18% GST on billing amount
-      return billingAmountValue + gstAmount; // Billing amount + GST
+    // If GST is included, billing amount is already GST-inclusive
+    if (includeGST) {
+      return billingAmountValue; // Billing amount is already GST-inclusive
     }
     
     return billingAmountValue; // Billing amount only
@@ -358,9 +358,9 @@ const VendorClosedTask = () => {
   const calculateBillingTotal = () => {
     const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
     
-    if (paymentMethod === 'online' && includeGST) {
-      const gstAmount = billingAmountValue * 0.18; // 18% GST on billing amount
-      return billingAmountValue + gstAmount; // Billing amount + GST
+    // If GST is included, billing amount is already GST-inclusive
+    if (includeGST) {
+      return billingAmountValue; // Billing amount is already GST-inclusive
     }
     
     return billingAmountValue; // Billing amount only
@@ -368,7 +368,24 @@ const VendorClosedTask = () => {
 
   const calculateGSTAmount = () => {
     const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
-    return billingAmountValue * 0.18; // 18% GST on billing amount
+    
+    if (includeGST) {
+      // If GST is included, calculate GST from GST-inclusive amount
+      return billingAmountValue * 0.18 / 1.18; // GST amount from GST-inclusive amount
+    }
+    
+    return 0; // No GST if not included
+  };
+
+  const calculateGSTExcludedAmount = () => {
+    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    
+    if (includeGST) {
+      // If GST is included, calculate GST-excluded amount
+      return billingAmountValue / 1.18; // GST-excluded amount
+    }
+    
+    return billingAmountValue; // No GST, so amount is as is
   };
 
   const handleNext = async () => {
@@ -685,12 +702,22 @@ const VendorClosedTask = () => {
                 </span>
               </div>
 
-              {/* GST (only show if online payment and GST is included) */}
-              {paymentMethod === 'online' && includeGST && (
+              {/* GST (show if GST is included) */}
+              {includeGST && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">GST (18%)</span>
                   <span className="text-sm font-medium text-gray-800">
                     ₹{calculateGSTAmount().toLocaleString()}
+                  </span>
+                </div>
+              )}
+
+              {/* GST-excluded amount (show if GST is included) */}
+              {includeGST && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">GST-excluded Amount</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    ₹{calculateGSTExcludedAmount().toLocaleString()}
                   </span>
                 </div>
               )}
@@ -729,27 +756,30 @@ const VendorClosedTask = () => {
                   </label>
                 </div>
                 
-                {/* GST Option - only show when online payment is selected */}
-                {paymentMethod === 'online' && (
-                  <div className="ml-11 flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      id="includeGST"
-                      checked={includeGST}
-                      onChange={(e) => setIncludeGST(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="includeGST" className="flex items-center space-x-2 cursor-pointer">
-                      <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                        <span className="text-orange-600 text-xs font-bold">📋</span>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-800">Include GST (18%)</span>
-                        <p className="text-xs text-gray-500">Add 18% GST to the total amount</p>
-                      </div>
-                    </label>
-                  </div>
-                )}
+                {/* GST Option - show for both online and cash payment */}
+                <div className="ml-11 flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="includeGST"
+                    checked={includeGST}
+                    onChange={(e) => setIncludeGST(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="includeGST" className="flex items-center space-x-2 cursor-pointer">
+                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span className="text-orange-600 text-xs font-bold">📋</span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-800">Customer wants GST bill</span>
+                      <p className="text-xs text-gray-500">
+                        {paymentMethod === 'online' 
+                          ? 'Billing amount is GST-inclusive. Vendor gets: (GST-excluded - spare - travel) × 50% + spare + travel'
+                          : 'Billing amount is GST-inclusive. Wallet deduction: (GST-excluded - spare - travel) × 50% + 18% GST'
+                        }
+                      </p>
+                    </div>
+                  </label>
+                </div>
               </div>
               
               <div className="flex items-center space-x-3">

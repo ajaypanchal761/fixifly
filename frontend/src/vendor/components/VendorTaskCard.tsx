@@ -8,7 +8,8 @@ import {
   Clock, 
   User, 
   Phone,
-  Calendar
+  Calendar,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -152,9 +153,13 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       }
       
       if (response.success) {
+        const penaltyMessage = response.penalty?.applied 
+          ? ` ₹${response.penalty.amount} penalty has been applied to your wallet.`
+          : '';
+        
         toast({
           title: "Task Declined",
-          description: "You have declined this task. The admin will be notified and may assign it to another vendor.",
+          description: `You have declined this task. The admin will be notified and may assign it to another vendor.${penaltyMessage}`,
           variant: "default"
         });
         
@@ -282,7 +287,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                       Accept
                     </Button>
                     <Button
-                      onClick={() => setIsDeclineModalOpen(true)}
+                      onClick={() => navigate(`/vendor/task/${task.id}/cancel`)}
                       variant="destructive"
                       className="flex-1"
                       size="sm"
@@ -396,6 +401,19 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               <p className="text-sm text-red-700 mt-2">
                 Please provide a reason for declining this task. The admin will be notified 
                 and may assign it to another vendor.
+              </p>
+            </div>
+
+            {/* Penalty Warning */}
+            <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-orange-600" />
+                <h3 className="font-semibold text-orange-800">Penalty Notice</h3>
+              </div>
+              <p className="text-sm text-orange-700 mt-2">
+                <strong>Warning:</strong> Declining this task will result in a <strong>₹100 penalty</strong> 
+                being deducted from your wallet balance. This penalty applies to all task rejections 
+                in your assigned area.
               </p>
             </div>
             
@@ -546,7 +564,10 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               Accept Task
             </Button>
             <Button
-              onClick={() => setIsDeclineModalOpen(true)}
+              onClick={() => {
+                setIsViewModalOpen(false);
+                navigate(`/vendor/task/${task.id}/cancel`);
+              }}
               variant="destructive"
               className="flex-1"
               size="sm"

@@ -37,10 +37,43 @@ const VendorRescheduleTask = () => {
 
       try {
         setLoading(true);
-        const response = await vendorApiService.getBookingById(taskId);
         
-        if (response.success && response.data && response.data.booking) {
-          setTask(response.data.booking);
+        // First, try to fetch from both bookings and support tickets to determine task type
+        const [bookingsResponse, supportTicketsResponse] = await Promise.all([
+          vendorApiService.getVendorBookings(),
+          vendorApiService.getAssignedSupportTickets()
+        ]);
+        
+        let foundTask = null;
+        let taskType = null;
+
+        // Check in bookings first
+        if (bookingsResponse.success && bookingsResponse.data?.bookings) {
+          const bookings = bookingsResponse.data.bookings;
+          const bookingTask = bookings.find(booking => booking._id === taskId);
+          
+          if (bookingTask) {
+            foundTask = bookingTask;
+            taskType = 'booking';
+          }
+        }
+
+        // If not found in bookings, check in support tickets
+        if (!foundTask && supportTicketsResponse.success && supportTicketsResponse.data?.tickets) {
+          const supportTickets = supportTicketsResponse.data.tickets;
+          const supportTicket = supportTickets.find(ticket => ticket.id === taskId);
+          
+          if (supportTicket) {
+            foundTask = supportTicket;
+            taskType = 'support_ticket';
+          }
+        }
+
+        if (foundTask) {
+          setTask({
+            ...foundTask,
+            taskType: taskType
+          });
         } else {
           setError("Task not found");
         }
@@ -149,22 +182,41 @@ const VendorRescheduleTask = () => {
     setIsSubmitting(true);
     
     try {
-      // Call the reschedule API
-      const response = await vendorApiService.rescheduleTask(taskId, {
-        newDate: selectedDate,
-        newTime: selectedTime,
-        reason: reason.trim()
-      });
+      let response;
+      
+      // Call the appropriate reschedule API based on task type
+      if (task.taskType === 'support_ticket') {
+        response = await vendorApiService.rescheduleSupportTicket(taskId, {
+          newDate: selectedDate,
+          newTime: selectedTime,
+          reason: reason.trim()
+        });
+      } else {
+        // Default to booking reschedule
+        response = await vendorApiService.rescheduleTask(taskId, {
+          newDate: selectedDate,
+          newTime: selectedTime,
+          reason: reason.trim()
+        });
+      }
 
       if (response.success) {
         // Create rescheduled task object for event dispatch
         const rescheduledTask = {
-          id: task._id,
-          caseId: task.bookingReference,
-          title: task.services?.[0]?.serviceName || "Service Task",
-          customer: task.customer?.name,
-          phone: task.customer?.phone,
-          amount: `₹0`,
+          id: task.taskType === 'support_ticket' ? task.id : task._id,
+          caseId: task.taskType === 'support_ticket' 
+            ? task.id 
+            : (task.bookingReference || `FIX${task._id.toString().slice(-8).toUpperCase()}`),
+          title: task.taskType === 'support_ticket' 
+            ? (task.subject || "Support Ticket")
+            : (task.services?.[0]?.serviceName || "Service Task"),
+          customer: task.taskType === 'support_ticket' 
+            ? (task.customerName || 'Unknown Customer')
+            : (task.customer?.name || 'Unknown Customer'),
+          phone: task.taskType === 'support_ticket' 
+            ? (task.customerPhone || 'N/A')
+            : (task.customer?.phone || 'N/A'),
+          amount: task.taskType === 'support_ticket' ? 'Support Ticket' : '₹0',
           date: new Date(selectedDate).toLocaleDateString('en-GB', { 
             day: '2-digit', 
             month: 'short', 
@@ -176,22 +228,60 @@ const VendorRescheduleTask = () => {
             hour12: true
           }),
           status: "Rescheduled",
-          address: `${task.customer?.address?.street}, ${task.customer?.address?.city}`,
-          issue: task.notes || "Service request",
-          assignDate: task.scheduling?.scheduledDate ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', { 
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric' 
-          }) : "",
-          assignTime: task.scheduling?.scheduledTime || "",
-          taskType: task.services?.[0]?.serviceName || "Service",
+          address: task.taskType === 'support_ticket' 
+            ? (task.address || "Address not available")
+            : (task.customer?.address ? `${task.customer.address.street}, ${task.customer.address.city}` : "Address not available"),
+          issue: task.taskType === 'support_ticket' 
+            ? (task.description || task.subject || "Support request")
+            : (task.notes || task.services?.[0]?.serviceName || "Service request"),
+          assignDate: task.taskType === 'support_ticket' 
+            ? (task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              }) : new Date().toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              }))
+            : (task.scheduling?.scheduledDate ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              }) : (task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              }) : "")),
+          assignTime: task.taskType === 'support_ticket' 
+            ? (task.scheduledTime || "")
+            : (task.scheduling?.scheduledTime || task.scheduledTime || ""),
+          taskType: task.taskType === 'support_ticket' 
+            ? (task.subject || "Support Ticket")
+            : (task.services?.[0]?.serviceName || "Service"),
           rescheduleReason: reason,
-          originalDate: task.scheduling?.scheduledDate ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', { 
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric' 
-          }) : "",
-          originalTime: task.scheduling?.scheduledTime || "",
+          originalDate: task.taskType === 'support_ticket' 
+            ? (task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              }) : new Date().toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              }))
+            : (task.scheduling?.scheduledDate ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              }) : (task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              }) : "")),
+          originalTime: task.taskType === 'support_ticket' 
+            ? (task.scheduledTime || "")
+            : (task.scheduling?.scheduledTime || task.scheduledTime || ""),
           rescheduledAt: new Date().toISOString()
         };
 
@@ -226,32 +316,69 @@ const VendorRescheduleTask = () => {
             {/* Header */}
             <div className="p-2 border-b border-gray-200 bg-gray-50">
               <h1 className="text-base font-semibold text-gray-800 mb-1">
-                {task.services?.[0]?.serviceName || "Service Task"}
+                {task.taskType === 'support_ticket' 
+                  ? (task.subject || "Support Ticket")
+                  : (task.services?.[0]?.serviceName || "Service Task")
+                }
               </h1>
               <div className="flex items-center space-x-2 mb-2">
                 <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-md border border-blue-200">
-                  {task.bookingReference}
+                  {task.taskType === 'support_ticket' 
+                    ? task.id 
+                    : (task.bookingReference || `FIX${task._id.toString().slice(-8).toUpperCase()}`)
+                  }
                 </span>
                 <span className="px-2 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded">
-                  {task.services?.[0]?.serviceName || "Service"}
+                  {task.taskType === 'support_ticket' 
+                    ? (task.subject || "Support Ticket")
+                    : (task.services?.[0]?.serviceName || "Service")
+                  }
                 </span>
               </div>
               <div className="text-sm text-gray-600">
-                <p><span className="font-medium">Customer:</span> {task.customer?.name}</p>
-                <p><span className="font-medium">Phone:</span> {task.customer?.phone}</p>
+                <p><span className="font-medium">Customer:</span> {
+                  task.taskType === 'support_ticket' 
+                    ? (task.customerName || 'Unknown Customer')
+                    : (task.customer?.name || 'Unknown Customer')
+                }</p>
+                <p><span className="font-medium">Phone:</span> {
+                  task.taskType === 'support_ticket' 
+                    ? (task.customerPhone || 'N/A')
+                    : (task.customer?.phone || 'N/A')
+                }</p>
                 <p><span className="font-medium">Current Schedule:</span> {
-                  task.scheduling?.scheduledDate 
-                    ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', { 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric' 
-                      })
-                    : new Date(task.scheduling?.preferredDate).toLocaleDateString('en-GB', { 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric' 
-                      })
-                } at {task.scheduling?.scheduledTime || task.scheduling?.preferredTimeSlot}</p>
+                  task.taskType === 'support_ticket' 
+                    ? (task.scheduledDate 
+                        ? new Date(task.scheduledDate).toLocaleDateString('en-GB', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })
+                        : new Date().toLocaleDateString('en-GB', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })
+                      ) + ' at ' + (task.scheduledTime || 'Not scheduled')
+                    : (task.scheduling?.scheduledDate 
+                        ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })
+                        : task.scheduledDate 
+                        ? new Date(task.scheduledDate).toLocaleDateString('en-GB', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })
+                        : new Date(task.scheduling?.preferredDate).toLocaleDateString('en-GB', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })
+                      ) + ' at ' + (task.scheduling?.scheduledTime || task.scheduledTime || task.scheduling?.preferredTimeSlot)
+                }</p>
               </div>
             </div>
           </div>
@@ -264,7 +391,10 @@ const VendorRescheduleTask = () => {
                 <h2 className="text-lg font-semibold text-gray-800">New Schedule</h2>
               </div>
               <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-md border border-blue-200">
-                {task.bookingReference}
+                {task.taskType === 'support_ticket' 
+                  ? task.id 
+                  : (task.bookingReference || `FIX${task._id.toString().slice(-8).toUpperCase()}`)
+                }
               </span>
             </div>
             

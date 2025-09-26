@@ -88,6 +88,10 @@ const adminSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
+    contentManagement: {
+      type: Boolean,
+      default: true
+    },
     analytics: {
       type: Boolean,
       default: true

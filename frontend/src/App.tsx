@@ -64,6 +64,7 @@ import AdminBlogManagement from "./admin/pages/AdminBlogManagement";
 import AdminAMCManagement from "./admin/pages/AdminAMCManagement";
 import AdminVendorWalletManagement from "./admin/pages/AdminVendorWalletManagement";
 import AdminSupportManagement from "./admin/pages/AdminSupportManagement";
+import AdminBannerManagement from "./admin/pages/AdminBannerManagement";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminSignup from "./admin/pages/AdminSignup";
 import AdminProfile from "./admin/pages/AdminProfile";
@@ -292,6 +293,11 @@ const AppContent = () => {
           <Route path="/admin/support" element={
             <AdminProtectedRoute>
               <AdminSupportManagement />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/banners" element={
+            <AdminProtectedRoute>
+              <AdminBannerManagement />
             </AdminProtectedRoute>
           } />
           <Route path="/admin/profile" element={

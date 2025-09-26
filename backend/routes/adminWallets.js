@@ -3,7 +3,8 @@ const {
   getAllVendorWallets,
   getVendorWalletDetails,
   addManualTransaction,
-  getWalletStatistics
+  getWalletStatistics,
+  adjustVendorWallet
 } = require('../controllers/adminWalletController');
 const { protectAdmin, requirePermission } = require('../middleware/adminAuth');
 
@@ -28,5 +29,10 @@ router.get('/:vendorId', protectAdmin, requirePermission('vendorManagement'), ge
 // @desc    Add manual transaction to vendor wallet
 // @access  Private (Admin with vendorManagement permission)
 router.post('/:vendorId/transactions', protectAdmin, requirePermission('vendorManagement'), addManualTransaction);
+
+// @route   PUT /api/admin/wallets/:vendorId/adjust
+// @desc    Adjust vendor wallet balance
+// @access  Private (Admin with vendorManagement permission)
+router.put('/:vendorId/adjust', protectAdmin, requirePermission('vendorManagement'), adjustVendorWallet);
 
 module.exports = router;

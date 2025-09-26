@@ -9,16 +9,15 @@ const HomeApplianceProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch products with "Home Appliance" category
+  // Fetch products with "Home Appliance" service type
   const fetchHomeApplianceProducts = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Fetch products with category filter for "Home Appliance"
+      // Fetch products with service type filter for "Home Appliance"
       const response = await publicProductApi.getProducts({
-        category: "Home Appliance",
-        status: "active",
+        serviceType: "Home Appliance",
         limit: 6 // Limit to 6 products to match the original grid layout
       });
       
@@ -114,7 +113,7 @@ const HomeApplianceProducts = () => {
           data-aos-delay="200"
         >
           {products.map((product, index) => {
-            const primaryImage = product.images?.find(img => img.isPrimary)?.url || product.primaryImage;
+            const primaryImage = product.productImage || product.primaryImage;
             
             return (
               <div
@@ -122,7 +121,7 @@ const HomeApplianceProducts = () => {
                 className={`bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-500 ease-out cursor-pointer group animate-slide-left animate-delay-${Math.min(index * 100, 600)}`}
                 data-aos="zoom-in"
                 data-aos-delay={300 + (index * 100)}
-                onClick={() => navigate(`/service/${product.category.name.toLowerCase().replace(/\s+/g, '-')}`)}
+                onClick={() => navigate(`/product/${product._id}`, { state: { product } })}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-10px) scale(1.05)';
                 }}
@@ -136,7 +135,7 @@ const HomeApplianceProducts = () => {
                   >
                     <img 
                       src={primaryImage || '/placeholder.svg'} 
-                      alt={product.name} 
+                      alt={product.productName} 
                       className="w-full h-full object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
@@ -147,7 +146,7 @@ const HomeApplianceProducts = () => {
                   <h3 
                     className={`text-xs sm:text-sm font-bold text-gray-800 leading-tight transition-colors duration-300 group-hover:text-primary animate-slide-bottom animate-delay-${Math.min((index * 100) + 400, 600)}`}
                   >
-                    {product.name}
+                    {product.productName}
                   </h3>
                 </div>
               </div>

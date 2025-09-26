@@ -179,6 +179,20 @@ class UploadMiddleware {
   }
 
   /**
+   * Middleware for single banner image upload (disk storage for Cloudinary)
+   */
+  singleBannerImage() {
+    return multer({
+      storage: this.diskStorage, // Use disk storage for Cloudinary
+      fileFilter: this.fileFilter,
+      limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit for banners
+        files: 1 // Only one file
+      }
+    }).single('image');
+  }
+
+  /**
    * Middleware for mixed file uploads
    */
   mixedUpload() {

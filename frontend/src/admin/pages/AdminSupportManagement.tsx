@@ -33,7 +33,8 @@ import {
   Send,
   Reply,
   Archive,
-  Flag
+  Flag,
+  RefreshCw
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -83,6 +84,15 @@ const AdminSupportManagement = () => {
   useEffect(() => {
     fetchSupportTickets();
   }, [statusFilter, priorityFilter, searchTerm]);
+
+  // Auto-refresh tickets every 30 seconds to catch rescheduled updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchSupportTickets();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchSupportTickets = async () => {
     try {
@@ -523,6 +533,15 @@ const AdminSupportManagement = () => {
                       <SelectItem value="low">Low</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Button 
+                    variant="outline" 
+                    onClick={fetchSupportTickets}
+                    disabled={loading}
+                    className="w-full md:w-auto"
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -568,6 +587,14 @@ const AdminSupportManagement = () => {
                               <span>{ticket.customerPhone}</span>
                             </div>
                             <p className="text-sm text-gray-500">{ticket.customerEmail}</p>
+                            {ticket.rescheduleInfo && (
+                              <div className="mt-1">
+                                <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                                  <Clock className="w-3 h-3 mr-1" />
+                                  Rescheduled
+                                </Badge>
+                              </div>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -582,7 +609,17 @@ const AdminSupportManagement = () => {
                             </p>
                             {ticket.assignedAt && (
                               <p className="text-sm text-gray-500">
-                                {new Date(ticket.assignedAt).toLocaleDateString()}
+                                Assigned: {new Date(ticket.assignedAt).toLocaleDateString()}
+                              </p>
+                            )}
+                            {ticket.rescheduleInfo && (
+                              <p className="text-sm text-orange-600">
+                                Rescheduled: {new Date(ticket.rescheduleInfo.rescheduledAt).toLocaleDateString()}
+                              </p>
+                            )}
+                            {ticket.vendorDeclinedAt && (
+                              <p className="text-sm text-red-600">
+                                Declined: {new Date(ticket.vendorDeclinedAt).toLocaleDateString()}
                               </p>
                             )}
                           </div>
@@ -796,12 +833,16 @@ const AdminSupportManagement = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Assigned To</Label>
-                        <p className="text-sm">{selectedTicket.assignedTo || 'Unassigned'}</p>
+                        <p className="text-sm">{selectedTicket.assignedTo?.name || selectedTicket.assignedVendor || 'Unassigned'}</p>
                     </div>
                       {selectedTicket.estimatedResolution && (
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Estimated Resolution</Label>
-                      <p className="text-sm">{new Date(selectedTicket.estimatedResolution).toLocaleDateString()}</p>
+                      <p className="text-sm">{new Date(selectedTicket.estimatedResolution).toLocaleDateString('en-GB', { 
+                        day: '2-digit', 
+                        month: 'short', 
+                        year: 'numeric'
+                      })}</p>
                     </div>
                       )}
                   </div>
@@ -843,7 +884,11 @@ const AdminSupportManagement = () => {
                         <p className="text-sm leading-relaxed">{selectedTicket.resolution}</p>
                         {selectedTicket.resolvedAt && (
                           <p className="text-xs text-muted-foreground mt-2">
-                            Resolved on: {new Date(selectedTicket.resolvedAt).toLocaleDateString()}
+                            Resolved on: {new Date(selectedTicket.resolvedAt).toLocaleDateString('en-GB', { 
+                              day: '2-digit', 
+                              month: 'short', 
+                              year: 'numeric'
+                            })}
                           </p>
                         )}
                   </div>
@@ -876,7 +921,13 @@ const AdminSupportManagement = () => {
                                 <span className="text-sm font-medium">{response.senderName}</span>
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {new Date(response.createdAt).toLocaleString()}
+                                {new Date(response.createdAt).toLocaleDateString('en-GB', { 
+                                  day: '2-digit', 
+                                  month: 'short', 
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
                               </span>
                             </div>
                             <p className="text-sm leading-relaxed">{response.message}</p>
@@ -1463,11 +1514,11 @@ const AdminSupportManagement = () => {
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Vendor Name</Label>
-                        <p className="font-medium">{selectedTicket.vendorName || 'N/A'}</p>
+                        <p className="font-medium">{selectedTicket.assignedTo?.name || selectedTicket.assignedVendor || 'N/A'}</p>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Vendor ID</Label>
-                        <p className="font-medium">{selectedTicket.assignedTo || 'N/A'}</p>
+                        <p className="font-medium">{selectedTicket.assignedTo?.id || 'N/A'}</p>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Vendor Status</Label>
@@ -1477,7 +1528,11 @@ const AdminSupportManagement = () => {
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Assigned Date</Label>
-                        <p className="font-medium">{selectedTicket.assignedAt ? new Date(selectedTicket.assignedAt).toLocaleDateString() : 'N/A'}</p>
+                        <p className="font-medium">{selectedTicket.assignedAt ? new Date(selectedTicket.assignedAt).toLocaleDateString('en-GB', { 
+                          day: '2-digit', 
+                          month: 'short', 
+                          year: 'numeric'
+                        }) : 'N/A'}</p>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Scheduled Date</Label>
@@ -1487,9 +1542,55 @@ const AdminSupportManagement = () => {
                         <Label className="text-sm font-medium text-muted-foreground">Scheduled Time</Label>
                         <p className="font-medium">{selectedTicket.scheduledTime || 'Not scheduled'}</p>
                       </div>
+                      {selectedTicket.vendorDeclinedAt && (
+                        <>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Declined Date</Label>
+                            <p className="font-medium text-red-600">{new Date(selectedTicket.vendorDeclinedAt).toLocaleDateString('en-GB', { 
+                              day: '2-digit', 
+                              month: 'short', 
+                              year: 'numeric'
+                            })}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Decline Reason</Label>
+                            <p className="font-medium text-red-600">{selectedTicket.vendorDeclineReason || 'No reason provided'}</p>
+                          </div>
+                        </>
+                      )}
+                      {selectedTicket.rescheduleInfo && (
+                        <>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Original Date</Label>
+                            <p className="font-medium">{selectedTicket.rescheduleInfo.originalDate || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Original Time</Label>
+                            <p className="font-medium">{selectedTicket.rescheduleInfo.originalTime || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Reschedule Reason</Label>
+                            <p className="font-medium">{selectedTicket.rescheduleInfo.reason || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Rescheduled At</Label>
+                            <p className="font-medium">{selectedTicket.rescheduleInfo.rescheduledAt ? new Date(selectedTicket.rescheduleInfo.rescheduledAt).toLocaleDateString('en-GB', { 
+                              day: '2-digit', 
+                              month: 'short', 
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : 'N/A'}</p>
+                          </div>
+                        </>
+                      )}
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Completed Date</Label>
-                        <p className="font-medium">{selectedTicket.vendorCompletedAt ? new Date(selectedTicket.vendorCompletedAt).toLocaleDateString() : 'Not completed'}</p>
+                        <p className="font-medium">{selectedTicket.vendorCompletedAt ? new Date(selectedTicket.vendorCompletedAt).toLocaleDateString('en-GB', { 
+                          day: '2-digit', 
+                          month: 'short', 
+                          year: 'numeric'
+                        }) : 'Not completed'}</p>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Schedule Notes</Label>
@@ -1538,7 +1639,13 @@ const AdminSupportManagement = () => {
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Payment Completed At</Label>
-                        <p className="font-medium">{selectedTicket.paymentCompletedAt ? new Date(selectedTicket.paymentCompletedAt).toLocaleString() : 'N/A'}</p>
+                        <p className="font-medium">{selectedTicket.paymentCompletedAt ? new Date(selectedTicket.paymentCompletedAt).toLocaleDateString('en-GB', { 
+                          day: '2-digit', 
+                          month: 'short', 
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 'N/A'}</p>
                       </div>
                     </CardContent>
                   </Card>

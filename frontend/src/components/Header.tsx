@@ -298,21 +298,6 @@ const Header = () => {
                 />
               </Box>
               
-              {/* AMC Subscription Icon */}
-              <IconButton
-                color="inherit"
-                aria-label="AMC subscriptions"
-                onClick={() => navigate('/amc')}
-                sx={{
-                  color: 'black',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                  },
-                }}
-              >
-                <Shield size={24} />
-              </IconButton>
-              
               {/* Cart Icon */}
               <IconButton
                 color="inherit"
@@ -346,23 +331,7 @@ const Header = () => {
                 }}
               >
                 <Search size={24} />
-              </IconButton>
-              
-              {/* Mobile AMC Subscription Icon */}
-              <IconButton
-                color="inherit"
-                aria-label="AMC subscriptions"
-                onClick={() => navigate('/amc')}
-                sx={{
-                  color: 'black',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                  },
-                }}
-              >
-                <Shield size={24} />
-              </IconButton>
-              
+              </IconButton> 
               {/* Mobile Cart Icon */}
               <IconButton
                 color="inherit"

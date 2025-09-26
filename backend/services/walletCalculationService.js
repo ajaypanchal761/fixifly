@@ -23,10 +23,10 @@ class WalletCalculationService {
     let gstAmount = 0;
     let netBillingAmount = billingAmount;
 
-    // Calculate GST if included
+    // Calculate GST if included (billing amount is GST-inclusive)
     if (gstIncluded) {
-      gstAmount = billingAmount * 0.18; // 18% GST
-      netBillingAmount = billingAmount - gstAmount;
+      gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
+      netBillingAmount = billingAmount / 1.18; // GST-excluded amount
     }
 
     let calculatedAmount = 0;
@@ -86,10 +86,10 @@ class WalletCalculationService {
     let gstAmount = 0;
     let netBillingAmount = billingAmount;
 
-    // Calculate GST if included
+    // Calculate GST if included (billing amount is GST-inclusive)
     if (gstIncluded) {
-      gstAmount = billingAmount * 0.18; // 18% GST
-      netBillingAmount = billingAmount - gstAmount;
+      gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
+      netBillingAmount = billingAmount / 1.18; // GST-excluded amount
     }
 
     let calculatedAmount = 0;
@@ -101,6 +101,11 @@ class WalletCalculationService {
       // Cash collection: (Billing - Spare - Travel) * 50%
       const baseAmount = netBillingAmount - spareAmount - travellingAmount;
       calculatedAmount = baseAmount * 0.5;
+    }
+
+    // Add GST amount to cash collection deduction if GST is included
+    if (gstIncluded) {
+      calculatedAmount += gstAmount;
     }
 
     return {

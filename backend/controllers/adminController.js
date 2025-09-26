@@ -3,6 +3,8 @@ const User = require('../models/User');
 const Vendor = require('../models/Vendor');
 const Blog = require('../models/Blog');
 const Card = require('../models/Card');
+const { Booking } = require('../models/Booking');
+const AMCSubscription = require('../models/AMCSubscription');
 const jwt = require('jsonwebtoken');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
@@ -634,24 +636,54 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       User.countDocuments(),
       Vendor.countDocuments(),
       Card.countDocuments({ status: 'active' }),
-      // Assuming we have a Booking model - you may need to create this
-      // Booking.countDocuments(),
-      0, // Placeholder for total bookings
+      Booking.countDocuments(),
       Vendor.countDocuments({ isApproved: false }),
       Vendor.countDocuments({ isApproved: true, isActive: true }),
       Blog.countDocuments(),
       Card.countDocuments(),
-      // Assuming we have AMC model - you may need to create this
-      // AMC.countDocuments({ status: 'active' }),
-      0 // Placeholder for active AMC subscriptions
+      AMCSubscription.countDocuments({ status: 'active' })
     ]);
 
-    // Get monthly revenue (placeholder - you'll need to implement this based on your booking/payment system)
-    const monthlyRevenue = 0; // This should be calculated from actual bookings/payments
-    const totalRevenue = 0; // This should be calculated from all completed bookings
+    // Get revenue calculations from actual bookings
+    const [monthlyRevenueResult, totalRevenueResult, pendingBookingsResult] = await Promise.all([
+      // Monthly revenue from completed bookings
+      Booking.aggregate([
+        {
+          $match: {
+            status: 'completed',
+            'payment.status': 'completed',
+            createdAt: { $gte: startDate, $lte: endDate }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$pricing.totalAmount' }
+          }
+        }
+      ]),
+      // Total revenue from all completed bookings
+      Booking.aggregate([
+        {
+          $match: {
+            status: 'completed',
+            'payment.status': 'completed'
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$pricing.totalAmount' }
+          }
+        }
+      ]),
+      // Pending bookings count
+      Booking.countDocuments({ status: 'pending' })
+    ]);
 
-    // Get pending bookings (placeholder)
-    const pendingBookings = 0; // This should be calculated from actual bookings
+    const monthlyRevenue = monthlyRevenueResult.length > 0 ? monthlyRevenueResult[0].total : 0;
+    const totalRevenue = totalRevenueResult.length > 0 ? totalRevenueResult[0].total : 0;
+    const pendingBookings = pendingBookingsResult;
 
     // Get recent activity (last 7 days)
     const sevenDaysAgo = new Date();
@@ -664,8 +696,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     ] = await Promise.all([
       User.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
       Vendor.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
-      // Booking.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
-      0 // Placeholder for recent bookings
+      Booking.countDocuments({ createdAt: { $gte: sevenDaysAgo } })
     ]);
 
 

@@ -38,6 +38,8 @@ const warrantyClaimsRoutes = require('./routes/warrantyClaims');
 const supportTicketsRoutes = require('./routes/supportTickets');
 const uploadRoutes = require('./routes/upload');
 const invoiceRoutes = require('./routes/invoice');
+const adminBannerRoutes = require('./routes/adminBanners');
+const bannerRoutes = require('./routes/banners');
 
 // Initialize Express app
 const app = express();
@@ -61,6 +63,7 @@ app.use(cors({
   origin: [
     process.env.CORS_ORIGIN || 'http://localhost:3000',
     'http://localhost:8080', // Frontend Vite dev server
+    'http://localhost:8081', // Frontend Vite dev server (alternative port)
     'http://localhost:5173'  // Alternative Vite port
   ],
   credentials: true
@@ -111,6 +114,8 @@ app.use('/api/warranty-claims', warrantyClaimsRoutes);
 app.use('/api/support-tickets', supportTicketsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api', invoiceRoutes);
+app.use('/api/admin/banners', adminBannerRoutes);
+app.use('/api/banners', bannerRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

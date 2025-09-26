@@ -1,4 +1,5 @@
 const Vendor = require('../models/Vendor');
+const VendorWallet = require('../models/VendorWallet');
 const WalletTransaction = require('../models/WalletTransaction');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
@@ -37,30 +38,49 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
 
     // Get vendors with wallet information
     const vendors = await Vendor.find(query)
-      .select('vendorId firstName lastName email phone wallet isActive isApproved')
+      .select('vendorId firstName lastName email phone isActive isApproved')
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
 
+    // Get VendorWallet model
+    const VendorWallet = require('../models/VendorWallet');
+
     // Get wallet summaries for each vendor
     const vendorsWithWallets = await Promise.all(
       vendors.map(async (vendor) => {
-        const summary = await WalletTransaction.getVendorSummary(vendor.vendorId);
-        const recentTransactions = await WalletTransaction.getRecentTransactions(vendor.vendorId, 5);
+        // Get vendor wallet data
+        const vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
+        
+        // Calculate online and cash collections from transactions
+        const onlineCollected = vendorWallet?.transactions
+          ?.filter(t => t.paymentMethod === 'online' && t.type === 'earning')
+          ?.reduce((sum, t) => sum + t.amount, 0) || 0;
+        
+        // Calculate cash collected from cash_collection transactions (sum of absolute amounts)
+        const cashCollected = vendorWallet?.transactions
+          ?.filter(t => t.type === 'cash_collection')
+          ?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0;
         
         return {
           id: vendor._id,
           vendorId: vendor.vendorId,
-          name: `${vendor.firstName} ${vendor.lastName}`,
-          email: vendor.email,
-          phone: vendor.phone,
+          vendorName: `${vendor.firstName} ${vendor.lastName}`,
+          vendorEmail: vendor.email,
+          vendorPhone: vendor.phone,
+          currentBalance: vendorWallet?.currentBalance || 0,
+          totalEarnings: vendorWallet?.totalEarnings || 0,
+          onlineCollected: onlineCollected,
+          cashCollected: cashCollected,
+          totalWithdrawals: vendorWallet?.totalWithdrawals || 0,
+          totalDeposits: vendorWallet?.totalDeposits || 0,
+          securityDeposit: vendorWallet?.securityDeposit || 0,
+          availableBalance: vendorWallet?.availableBalance || 0,
           isActive: vendor.isActive,
           isApproved: vendor.isApproved,
-          wallet: {
-            ...vendor.wallet,
-            summary: summary
-          },
-          recentTransactions: recentTransactions
+          lastTransaction: vendorWallet?.lastTransactionAt || null,
+          createdAt: vendor.createdAt,
+          updatedAt: vendor.updatedAt
         };
       })
     );
@@ -415,9 +435,92 @@ const getWalletStatistics = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Adjust vendor wallet balance
+// @route   PUT /api/admin/wallets/:vendorId/adjust
+// @access  Private (Admin)
+const adjustVendorWallet = asyncHandler(async (req, res) => {
+  try {
+    const { vendorId } = req.params;
+    const { currentBalance, description, adjustmentType } = req.body;
+
+    // Validate input
+    if (!currentBalance || isNaN(parseFloat(currentBalance))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid current balance is required'
+      });
+    }
+
+    // Find the vendor wallet
+    const vendorWallet = await VendorWallet.findOne({ vendorId });
+    if (!vendorWallet) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor wallet not found'
+      });
+    }
+
+    const newBalance = parseFloat(currentBalance);
+    const oldBalance = vendorWallet.currentBalance;
+    const adjustmentAmount = newBalance - oldBalance;
+
+    // Update the wallet balance
+    vendorWallet.currentBalance = newBalance;
+    await vendorWallet.save();
+
+    // Add a transaction record for the adjustment
+    if (adjustmentAmount !== 0) {
+      await vendorWallet.addManualAdjustment({
+        amount: Math.abs(adjustmentAmount),
+        type: adjustmentAmount > 0 ? 'credit' : 'debit',
+        description: description || `Admin balance adjustment: ${adjustmentAmount > 0 ? '+' : ''}₹${adjustmentAmount}`,
+        processedBy: req.admin?.id || 'admin',
+        metadata: {
+          oldBalance,
+          newBalance,
+          adjustmentAmount,
+          adjustmentType: adjustmentType || 'manual'
+        }
+      });
+    }
+
+    // Get updated wallet data
+    const updatedWallet = await VendorWallet.findOne({ vendorId });
+
+    logger.info(`Admin adjusted vendor wallet balance`, {
+      vendorId,
+      oldBalance,
+      newBalance,
+      adjustmentAmount,
+      adminId: req.admin?.id
+    });
+
+    res.json({
+      success: true,
+      message: 'Wallet balance adjusted successfully',
+      data: {
+        vendorId,
+        oldBalance,
+        newBalance,
+        adjustmentAmount,
+        wallet: updatedWallet
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error adjusting vendor wallet:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to adjust wallet balance',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   getAllVendorWallets,
   getVendorWalletDetails,
   addManualTransaction,
-  getWalletStatistics
+  getWalletStatistics,
+  adjustVendorWallet
 };

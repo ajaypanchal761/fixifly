@@ -434,6 +434,16 @@ class VendorApiService {
     return response;
   }
 
+  // Get support ticket by ID
+  async getSupportTicketById(ticketId: string): Promise<ApiResponse<any>> {
+    console.log('Fetching support ticket:', ticketId);
+    const response = await this.request(`/support-tickets/vendor/${ticketId}`, {
+      method: 'GET',
+    });
+    console.log('Get support ticket response:', response);
+    return response;
+  }
+
   // Reschedule support ticket
   async rescheduleSupportTicket(ticketId: string, rescheduleData: {
     newDate: string;

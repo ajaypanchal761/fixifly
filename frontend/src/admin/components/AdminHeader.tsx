@@ -29,7 +29,8 @@ import {
   Calendar as CalendarIcon,
   ChevronDown,
   User,
-  Wallet
+  Wallet,
+  Image
 } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment, Select, MenuItem, Menu, ListItemIcon, ListItemText } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
@@ -147,6 +148,7 @@ const AdminHeader = () => {
     { name: "AMC Management", href: "/admin/amc", icon: Shield },
     { name: "Vendor wallet", href: "/admin/vendor-wallet", icon: Wallet },
     { name: "Support Management", href: "/admin/support", icon: Headphones },
+    { name: "Add Banner", href: "/admin/banners", icon: Image },
   ];
 
   return (

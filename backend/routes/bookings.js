@@ -15,7 +15,7 @@ const {
   createPaymentOrder,
   verifyPayment
 } = require('../controllers/bookingController');
-const { protectVendor } = require('../middleware/vendorAuth');
+const { protectVendor, optionalVendorAuth } = require('../middleware/vendorAuth');
 
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.route('/stats')
   .get(getBookingStats); // Get booking statistics
 
 router.route('/:id')
-  .get(getBookingById); // Get booking by ID
+  .get(optionalVendorAuth, getBookingById); // Get booking by ID
 
 router.route('/:id/status')
   .patch(updateBookingStatus); // Update booking status

@@ -1,5 +1,6 @@
 const { Booking } = require('../models/Booking');
 const Vendor = require('../models/Vendor');
+const VendorWallet = require('../models/VendorWallet');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
@@ -105,19 +106,38 @@ const createBooking = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Get booking by ID
+// @desc    Get booking by ID or booking reference
 // @route   GET /api/bookings/:id
-// @access  Public
+// @access  Public (but with vendor auth check if token provided)
 const getBookingById = asyncHandler(async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id).lean();
+    const { id } = req.params;
+    let booking;
 
-    // Manually populate vendor data
-    if (booking && booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
-        .select('firstName lastName email phone');
-      if (vendor) {
-        booking.vendor.vendorId = vendor;
+    // Check if the id is a valid ObjectId (24 character hex string)
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      // Search by MongoDB ObjectId
+      booking = await Booking.findById(id).lean();
+    } else {
+      // Search by booking reference (e.g., FIX12345678 or TK000001)
+      // Try to extract ObjectId from the reference
+      if (id.toUpperCase().startsWith('FIX') && id.length >= 11) {
+        // Extract the last 8 characters and try to find matching ObjectId
+        const referenceSuffix = id.slice(-8).toUpperCase();
+        
+        // Search for bookings where the last 8 characters of ObjectId match
+        const bookings = await Booking.find({}).lean();
+        booking = bookings.find(b => {
+          const objectIdSuffix = b._id.toString().slice(-8).toUpperCase();
+          return objectIdSuffix === referenceSuffix;
+        });
+      } else {
+        // For other reference formats, search all bookings (less efficient but necessary)
+        const bookings = await Booking.find({}).lean();
+        booking = bookings.find(b => {
+          const bookingRef = `FIX${b._id.toString().slice(-8).toUpperCase()}`;
+          return bookingRef === id.toUpperCase();
+        });
       }
     }
 
@@ -128,16 +148,41 @@ const getBookingById = asyncHandler(async (req, res) => {
       });
     }
 
-    logger.info(`Booking retrieved: ${booking.bookingReference}`, {
+    // Check if vendor is trying to access this booking
+    if (req.vendor) {
+      // If vendor is authenticated, check if they are assigned to this booking
+      if (booking.vendor && booking.vendor.vendorId !== req.vendor.vendorId) {
+        return res.status(403).json({
+          success: false,
+          message: 'You are not authorized to view this booking'
+        });
+      }
+    }
+
+    // Manually populate vendor data
+    if (booking && booking.vendor && booking.vendor.vendorId) {
+      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+        .select('firstName lastName email phone');
+      if (vendor) {
+        booking.vendor.vendorId = vendor;
+      }
+    }
+
+    // Generate booking reference for response
+    const bookingReference = `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
+
+    logger.info(`Booking retrieved: ${bookingReference}`, {
       bookingId: booking._id,
-      status: booking.status
+      status: booking.status,
+      vendorId: req.vendor ? req.vendor.vendorId : 'public',
+      searchId: id
     });
 
     res.json({
       success: true,
       data: {
         booking,
-        bookingReference: booking.bookingReference
+        bookingReference
       }
     });
   } catch (error) {
@@ -632,6 +677,7 @@ const declineTask = asyncHandler(async (req, res) => {
   try {
     const { vendorResponse } = req.body;
     const bookingId = req.params.id;
+    const { vendorId } = req.vendor;
 
     // Verify vendor is assigned to this booking
     const booking = await Booking.findById(bookingId);
@@ -650,6 +696,49 @@ const declineTask = asyncHandler(async (req, res) => {
       });
     }
 
+    // Verify the vendor declining is the assigned vendor
+    if (booking.vendor.vendorId !== vendorId) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to decline this task'
+      });
+    }
+
+    // Check if task is already accepted or completed
+    if (booking.vendorResponse && booking.vendorResponse.status === 'accepted') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot decline an already accepted task'
+      });
+    }
+
+    // Check if task is already declined
+    if (booking.vendorResponse && booking.vendorResponse.status === 'declined') {
+      return res.status(400).json({
+        success: false,
+        message: 'Task has already been declined'
+      });
+    }
+
+    // Apply penalty for task rejection
+    const wallet = await VendorWallet.findOne({ vendorId });
+    
+    if (wallet) {
+      // Add penalty for task rejection
+      await wallet.addPenalty({
+        caseId: bookingId,
+        type: 'rejection',
+        amount: 100, // ₹100 penalty for rejecting task
+        description: `Task rejection penalty - ${booking.bookingReference || bookingId}`
+      });
+
+      logger.info(`Penalty applied for task rejection`, {
+        vendorId,
+        bookingId,
+        penaltyAmount: 100
+      });
+    }
+
     // Update booking with vendor response
     const updateData = {
       'vendorResponse.status': 'declined',
@@ -665,12 +754,21 @@ const declineTask = asyncHandler(async (req, res) => {
       { new: true, runValidators: true }
     ).lean();
 
-    logger.info(`Vendor declined task for booking ${bookingId}`);
+    logger.info(`Vendor declined task for booking ${bookingId}`, {
+      vendorId,
+      bookingId,
+      penaltyApplied: true
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Task declined successfully',
-      data: updatedBooking
+      message: 'Task declined successfully. ₹100 penalty has been applied to your wallet.',
+      data: updatedBooking,
+      penalty: {
+        applied: true,
+        amount: 100,
+        reason: 'Task rejection in vendor area'
+      }
     });
   } catch (error) {
     logger.error('Error declining task:', error);

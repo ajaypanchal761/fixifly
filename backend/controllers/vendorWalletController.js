@@ -24,7 +24,26 @@ const getVendorWallet = asyncHandler(async (req, res) => {
     }
 
     const summary = await VendorWallet.getVendorSummary(vendorId);
-    const recentTransactions = await VendorWallet.getRecentTransactions(vendorId, 10);
+    const allTransactions = wallet.transactions
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .map(transaction => ({
+        _id: transaction._id,
+        transactionId: transaction.transactionId,
+        caseId: transaction.caseId,
+        type: transaction.type,
+        amount: transaction.amount,
+        description: transaction.description,
+        paymentMethod: transaction.paymentMethod,
+        billingAmount: transaction.billingAmount,
+        spareAmount: transaction.spareAmount,
+        travellingAmount: transaction.travellingAmount,
+        gstIncluded: transaction.gstIncluded,
+        gstAmount: transaction.gstAmount,
+        calculatedAmount: transaction.calculatedAmount,
+        status: transaction.status,
+        createdAt: transaction.createdAt,
+        updatedAt: transaction.updatedAt
+      }));
 
     res.json({
       success: true,
@@ -47,7 +66,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
           isActive: wallet.isActive
         },
         summary,
-        recentTransactions
+        transactions: allTransactions
       }
     });
 

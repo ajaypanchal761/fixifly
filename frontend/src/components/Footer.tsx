@@ -33,8 +33,7 @@ const Footer = () => {
       "Help Center",
       "FAQs",
       "Warranty",
-      "Track Repair",
-      "Book Service"
+      "Track Repair"
     ]
   };
 

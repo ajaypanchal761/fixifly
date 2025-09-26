@@ -380,10 +380,14 @@ class AdminApiService {
       }
     }
 
-    const headers = {
-      'Content-Type': 'application/json',
+    const headers: Record<string, string> = {
       ...options.headers,
     };
+
+    // Only set Content-Type for JSON, not for FormData
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -402,7 +406,7 @@ class AdminApiService {
         
         if (newToken) {
           // Retry the request with new token
-          const retryHeaders = {
+          const retryHeaders: Record<string, string> = {
             ...headers,
             'Authorization': `Bearer ${newToken}`
           };

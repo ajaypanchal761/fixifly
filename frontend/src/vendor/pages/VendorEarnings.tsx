@@ -4,7 +4,7 @@ import VendorBenefitsModal from "../components/VendorBenefitsModal";
 import Footer from "../../components/Footer";
 import NotFound from "../../pages/NotFound";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { DollarSign, TrendingUp, TrendingDown, Filter, Download, Wallet, Plus, AlertTriangle, CheckCircle } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Filter, Download, Wallet, Plus, AlertTriangle, CheckCircle, Edit } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useVendor } from "@/contexts/VendorContext";
 import { useToast } from "@/hooks/use-toast";
@@ -171,11 +171,11 @@ const VendorEarnings = () => {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       
       console.log('=== WALLET API CALL ===');
-      console.log('API URL:', `${apiUrl}/api/vendors/wallet`);
+      console.log('API URL:', `${apiUrl}/api/vendor/wallet`);
       console.log('Token present:', token ? 'Yes' : 'No');
       console.log('Making API call...');
       
-      const response = await fetch(`${apiUrl}/api/vendors/wallet`, {
+      const response = await fetch(`${apiUrl}/api/vendor/wallet`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -301,7 +301,7 @@ const VendorEarnings = () => {
       }
 
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiUrl}/api/vendors/wallet`, {
+      const response = await fetch(`${apiUrl}/api/vendor/wallet`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -343,9 +343,11 @@ const VendorEarnings = () => {
               transaction.type === 'withdrawal' ? 'Withdraw Transferred' :
               transaction.type === 'penalty' ? 'Penalty on Cancellation' : 
               transaction.type === 'task_acceptance_fee' ? 'Task Fee' :
-              transaction.type === 'cash_collection' ? 'Cash Collection' : 'Earning Added',
+              transaction.type === 'cash_collection' ? 'Cash Collection' :
+              transaction.type === 'manual_adjustment' ? 'Admin Adjustment' : 'Earning Added',
         amount: transaction.type === 'withdrawal' || transaction.type === 'penalty' || transaction.type === 'task_acceptance_fee' || transaction.type === 'cash_collection' ? 
-                -Math.abs(transaction.amount) : Math.abs(transaction.amount),
+                -Math.abs(transaction.amount) : 
+                transaction.type === 'manual_adjustment' ? transaction.amount : Math.abs(transaction.amount),
         date: transaction.createdAt ? new Date(transaction.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         status: transaction.status || 'completed',
         description: transaction.description || 'Wallet transaction'
@@ -611,6 +613,8 @@ const VendorEarnings = () => {
         return transaction.type === 'Withdraw Transferred';
       case 'Penalty':
         return transaction.type === 'Penalty on Cancellation';
+      case 'Admin Adjustment':
+        return transaction.type === 'Admin Adjustment';
       default:
         return true;
     }
@@ -625,6 +629,8 @@ const VendorEarnings = () => {
       case "Withdraw Transferred":
       case "Penalty on Cancellation":
         return <TrendingDown className="w-5 h-5 text-red-600" />;
+      case "Admin Adjustment":
+        return <Edit className="w-5 h-5 text-purple-600" />;
       default:
         return <DollarSign className="w-5 h-5 text-blue-600" />;
     }
@@ -639,6 +645,8 @@ const VendorEarnings = () => {
       case "Withdraw Transferred":
       case "Penalty on Cancellation":
         return "text-red-600";
+      case "Admin Adjustment":
+        return "text-purple-600";
       default:
         return "text-blue-600";
     }
@@ -865,6 +873,16 @@ const VendorEarnings = () => {
                 onClick={() => setActiveFilter('Penalty')}
               >
                 Penalty
+              </button>
+              <button 
+                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                  activeFilter === 'Admin Adjustment' 
+                    ? 'btn-tech' 
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+                onClick={() => setActiveFilter('Admin Adjustment')}
+              >
+                Admin Adjustment
               </button>
             </div>
           </div>

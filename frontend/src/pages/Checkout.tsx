@@ -317,7 +317,7 @@ const Checkout = () => {
                   value={customerData.email}
                   onChange={(e) => setCustomerData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="Enter your email"
-                  readOnly={isAuthenticated && user?.email} // Make read-only if user is logged in
+                  readOnly={Boolean(isAuthenticated && user?.email)} // Make read-only if user is logged in
                   className={isAuthenticated && user?.email ? "bg-gray-100" : ""}
                 />
               </div>
@@ -464,45 +464,7 @@ const Checkout = () => {
               </div>
             </div>
           </div>
-
-          {/* Payment Section */}
-          <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Payment</h2>
-            
-            {/* Payment Method */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg bg-blue-50">
-                <CreditCard className="h-6 w-6 text-blue-600" />
-                <div>
-                  <h3 className="font-medium text-gray-900">Credit/Debit Card</h3>
-                  <p className="text-sm text-gray-600">Pay securely with your card</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Security Features */}
-            <div className="mt-6 p-4 bg-green-50 rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <Shield className="h-5 w-5 text-green-600" />
-                <span className="font-medium text-green-800">Secure Payment</span>
-              </div>
-              <div className="space-y-1 text-sm text-green-700">
-                <div className="flex items-center space-x-2">
-                  <Check className="h-4 w-4" />
-                  <span>SSL Encrypted</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Check className="h-4 w-4" />
-                  <span>PCI DSS Compliant</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Check className="h-4 w-4" />
-                  <span>Money Back Guarantee</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
+          
           {/* Book Now Button */}
           <Button 
             onClick={handlePayment}

@@ -508,7 +508,7 @@ SupportTicketSchema.methods.acceptByVendor = function(vendorId) {
 };
 
 // Method to decline ticket by vendor
-SupportTicketSchema.methods.declineByVendor = function(vendorId, reason = '') {
+SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = '') {
   if (this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
@@ -526,6 +526,20 @@ SupportTicketSchema.methods.declineByVendor = function(vendorId, reason = '') {
   if (assignment) {
     assignment.status = 'declined';
     assignment.notes = reason;
+  }
+  
+  // Apply penalty for task rejection
+  const VendorWallet = require('./VendorWallet');
+  const wallet = await VendorWallet.findOne({ vendorId });
+  
+  if (wallet) {
+    // Add penalty for task rejection
+    await wallet.addPenalty({
+      caseId: this._id,
+      type: 'rejection',
+      amount: 100, // ₹100 penalty for rejecting task
+      description: `Task rejection penalty - ${this.ticketId}`
+    });
   }
   
   return this.save();
