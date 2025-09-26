@@ -2611,3 +2611,20 @@
 [2025-09-26T11:19:16.306Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
 [2025-09-26T11:19:22.669Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
 [2025-09-26T11:19:23.055Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-26T11:26:56.451Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-26T11:26:57.661Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-26T11:26:57.776Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-26T11:26:59.645Z] [INFO] SMTP connection verified successfully
+[2025-09-26T11:27:11.470Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-26T11:27:11.487Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-26T11:27:11.718Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-26T11:27:41.004Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-26T11:27:41.187Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-26T11:27:42.631Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-26T11:27:42.761Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-26T11:27:44.646Z] [INFO] SMTP connection verified successfully
+[2025-09-26T11:27:48.508Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-26T11:27:48.663Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-26T11:27:51.270Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-26T11:27:51.472Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-26T11:27:53.236Z] [INFO] SMTP connection verified successfully
