@@ -66,6 +66,21 @@ interface WalletTransaction {
   createdAt: string;
 }
 
+interface WithdrawalRequest {
+  _id: string;
+  vendorId: string;
+  vendorName: string;
+  vendorEmail: string;
+  vendorPhone: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'declined' | 'processed';
+  processedBy?: string;
+  processedAt?: string;
+  adminNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const AdminVendorWalletManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -81,6 +96,8 @@ const AdminVendorWalletManagement = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([]);
+  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
+  const [loadingWithdrawals, setLoadingWithdrawals] = useState(false);
 
   const [newTransaction, setNewTransaction] = useState({
     vendorId: '',
@@ -127,9 +144,85 @@ const AdminVendorWalletManagement = () => {
     }
   };
 
+  // Fetch withdrawal requests
+  const fetchWithdrawalRequests = async () => {
+    try {
+      setLoadingWithdrawals(true);
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/withdrawals`, {
+        method: 'GET'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch withdrawal requests');
+      }
+
+      const data = await response.json();
+      setWithdrawalRequests(data.data.requests || []);
+    } catch (error) {
+      console.error('Error fetching withdrawal requests:', error);
+      setWithdrawalRequests([]);
+    } finally {
+      setLoadingWithdrawals(false);
+    }
+  };
+
+  // Approve withdrawal request
+  const approveWithdrawalRequest = async (requestId: string, adminNotes: string = '') => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/withdrawals/${requestId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ adminNotes })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to approve withdrawal request');
+      }
+
+      // Refresh withdrawal requests and vendor wallets
+      await Promise.all([fetchWithdrawalRequests(), fetchVendorWallets()]);
+      
+      alert('Withdrawal request approved successfully!');
+    } catch (error) {
+      console.error('Error approving withdrawal request:', error);
+      alert('Failed to approve withdrawal request. Please try again.');
+    }
+  };
+
+  // Decline withdrawal request
+  const declineWithdrawalRequest = async (requestId: string, adminNotes: string = '') => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/withdrawals/${requestId}/decline`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ adminNotes })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to decline withdrawal request');
+      }
+
+      // Refresh withdrawal requests
+      await fetchWithdrawalRequests();
+      
+      alert('Withdrawal request declined successfully!');
+    } catch (error) {
+      console.error('Error declining withdrawal request:', error);
+      alert('Failed to decline withdrawal request. Please try again.');
+    }
+  };
+
   // Load data on component mount
   useEffect(() => {
     fetchVendorWallets();
+    fetchWithdrawalRequests();
   }, []);
 
   const filteredWallets = vendorWallets.filter(wallet => {
@@ -380,6 +473,7 @@ const AdminVendorWalletManagement = () => {
           <TabsList>
             <TabsTrigger value="wallets">Vendor Wallets</TabsTrigger>
             <TabsTrigger value="transactions">All Transactions</TabsTrigger>
+            <TabsTrigger value="withdrawals">Withdrawal Requests</TabsTrigger>
           </TabsList>
 
           <TabsContent value="wallets" className="space-y-4">
@@ -603,6 +697,134 @@ const AdminVendorWalletManagement = () => {
                     })}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="withdrawals" className="space-y-4">
+            {/* Withdrawal Requests Table */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Withdrawal Requests ({withdrawalRequests.length})</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                {loadingWithdrawals ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="ml-2 text-muted-foreground">Loading withdrawal requests...</span>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Request ID</TableHead>
+                        <TableHead>Vendor Name</TableHead>
+                        <TableHead>Vendor ID</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {withdrawalRequests.map((request) => (
+                        <TableRow key={request._id}>
+                          <TableCell className="font-mono text-sm">
+                            {request._id.slice(-8)}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {request.vendorName}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {request.vendorId}
+                          </TableCell>
+                          <TableCell>{request.vendorEmail}</TableCell>
+                          <TableCell>{request.vendorPhone}</TableCell>
+                          <TableCell className="font-medium">
+                            ₹{request.amount.toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={
+                                request.status === 'pending' ? 'secondary' :
+                                request.status === 'approved' ? 'default' :
+                                request.status === 'declined' ? 'destructive' : 'outline'
+                              }
+                            >
+                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {new Date(request.createdAt).toLocaleString('en-IN', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true
+                            })}
+                          </TableCell>
+                          <TableCell>
+                            {request.status === 'pending' && (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    const notes = prompt('Add admin notes (optional):');
+                                    if (notes !== null) {
+                                      approveWithdrawalRequest(request._id, notes);
+                                    }
+                                  }}
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => {
+                                    const notes = prompt('Add reason for decline:');
+                                    if (notes !== null) {
+                                      declineWithdrawalRequest(request._id, notes);
+                                    }
+                                  }}
+                                >
+                                  <XCircle className="w-4 h-4 mr-1" />
+                                  Decline
+                                </Button>
+                              </div>
+                            )}
+                            {request.status !== 'pending' && (
+                              <span className="text-sm text-muted-foreground">
+                                {request.processedAt ? 
+                                  `Processed on ${new Date(request.processedAt).toLocaleString('en-IN', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true
+                                  })}` : 
+                                  'Processed'
+                                }
+                              </span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {withdrawalRequests.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                            No withdrawal requests found
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -608,6 +608,193 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+  /**
+   * Send withdrawal request notification to admin
+   */
+  async sendWithdrawalRequestNotification({ vendorName, vendorEmail, amount, requestId }) {
+    if (!this.isConfigured) {
+      logger.warn('Email service not configured. Skipping withdrawal request notification.');
+      return;
+    }
+
+    const subject = 'New Withdrawal Request - Fixifly Admin';
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2563eb; margin: 0;">Fixifly Admin</h1>
+          <p style="color: #6b7280; margin: 5px 0 0 0;">Vendor Management Portal</p>
+        </div>
+        
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+          <h2 style="color: #92400e; margin: 0 0 15px 0;">⚠️ New Withdrawal Request</h2>
+          <p style="color: #92400e; margin: 0;">A vendor has submitted a withdrawal request that requires your approval.</p>
+        </div>
+        
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+          <h3 style="color: #1f2937; margin: 0 0 15px 0;">Request Details</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Vendor Name:</td>
+              <td style="padding: 8px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #f3f4f6;">${vendorName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Vendor Email:</td>
+              <td style="padding: 8px 0; color: #1f2937; border-bottom: 1px solid #f3f4f6;">${vendorEmail}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Amount:</td>
+              <td style="padding: 8px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #f3f4f6;">₹${amount.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Request ID:</td>
+              <td style="padding: 8px 0; color: #1f2937; font-family: monospace; border-bottom: 1px solid #f3f4f6;">${requestId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280;">Date:</td>
+              <td style="padding: 8px 0; color: #1f2937;">${new Date().toLocaleDateString()}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background: #dbeafe; border: 1px solid #3b82f6; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+          <p style="color: #1e40af; margin: 0; font-weight: 500;">📋 Please review and process this request in the admin panel.</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <p style="color: #6b7280; font-size: 14px; margin: 0;">Fixifly Admin Portal</p>
+          <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">This is an automated notification.</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to: process.env.ADMIN_EMAIL || 'admin@fixifly.com',
+      subject,
+      html
+    });
+  }
+
+  /**
+   * Send withdrawal approval notification to vendor
+   */
+  async sendWithdrawalApprovalNotification({ vendorName, vendorEmail, amount, requestId }) {
+    if (!this.isConfigured) {
+      logger.warn('Email service not configured. Skipping withdrawal approval notification.');
+      return;
+    }
+
+    const subject = 'Withdrawal Approved - Fixifly';
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2563eb; margin: 0;">Fixifly</h1>
+          <p style="color: #6b7280; margin: 5px 0 0 0;">Professional Service Platform</p>
+        </div>
+        
+        <div style="background: #ecfdf5; border: 1px solid #d1fae5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+          <h2 style="color: #065f46; margin: 0 0 15px 0;">✅ Withdrawal Approved</h2>
+          <p style="color: #374151; margin: 0;">Dear ${vendorName},</p>
+          <p style="color: #374151; margin: 10px 0;">Your withdrawal request has been approved and processed!</p>
+        </div>
+        
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+          <h3 style="color: #1f2937; margin: 0 0 15px 0;">Transaction Details</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Amount:</td>
+              <td style="padding: 8px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #f3f4f6;">₹${amount.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Request ID:</td>
+              <td style="padding: 8px 0; color: #1f2937; font-family: monospace; border-bottom: 1px solid #f3f4f6;">${requestId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280;">Date:</td>
+              <td style="padding: 8px 0; color: #1f2937;">${new Date().toLocaleDateString()}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+          <p style="color: #0c4a6e; margin: 0; font-weight: 500;">💰 The amount will be transferred to your registered bank account within 1-2 business days.</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <p style="color: #6b7280; font-size: 14px; margin: 0;">Thank you for using Fixifly!</p>
+          <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">If you have any questions, please contact our support team.</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to: vendorEmail,
+      subject,
+      html
+    });
+  }
+
+  /**
+   * Send withdrawal decline notification to vendor
+   */
+  async sendWithdrawalDeclineNotification({ vendorName, vendorEmail, amount, requestId, reason }) {
+    if (!this.isConfigured) {
+      logger.warn('Email service not configured. Skipping withdrawal decline notification.');
+      return;
+    }
+
+    const subject = 'Withdrawal Request Declined - Fixifly';
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2563eb; margin: 0;">Fixifly</h1>
+          <p style="color: #6b7280; margin: 5px 0 0 0;">Professional Service Platform</p>
+        </div>
+        
+        <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+          <h2 style="color: #dc2626; margin: 0 0 15px 0;">❌ Withdrawal Request Declined</h2>
+          <p style="color: #374151; margin: 0;">Dear ${vendorName},</p>
+          <p style="color: #374151; margin: 10px 0;">Unfortunately, your withdrawal request could not be processed at this time.</p>
+        </div>
+        
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+          <h3 style="color: #1f2937; margin: 0 0 15px 0;">Request Details</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Amount:</td>
+              <td style="padding: 8px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #f3f4f6;">₹${amount.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Request ID:</td>
+              <td style="padding: 8px 0; color: #1f2937; font-family: monospace; border-bottom: 1px solid #f3f4f6;">${requestId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #f3f4f6;">Reason:</td>
+              <td style="padding: 8px 0; color: #1f2937; border-bottom: 1px solid #f3f4f6;">${reason || 'No specific reason provided'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280;">Date:</td>
+              <td style="padding: 8px 0; color: #1f2937;">${new Date().toLocaleDateString()}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+          <p style="color: #92400e; margin: 0; font-weight: 500;">💡 You can submit a new withdrawal request once the issue is resolved.</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <p style="color: #6b7280; font-size: 14px; margin: 0;">Thank you for using Fixifly!</p>
+          <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">If you have any questions, please contact our support team.</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to: vendorEmail,
+      subject,
+      html
+    });
+  }
 }
 
 // Create singleton instance

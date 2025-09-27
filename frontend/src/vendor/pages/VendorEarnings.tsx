@@ -10,6 +10,7 @@ import { useVendor } from "@/contexts/VendorContext";
 import { useToast } from "@/hooks/use-toast";
 import { vendorDepositService } from "@/services/vendorDepositService";
 import vendorApiService from "@/services/vendorApi";
+import withdrawalService from "@/services/withdrawalService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +38,11 @@ const VendorEarnings = () => {
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState('4000');
   const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
+  
+  // Withdrawal modal state
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [isProcessingWithdraw, setIsProcessingWithdraw] = useState(false);
 
   // Show 404 error on desktop
   if (!isMobile) {
@@ -566,6 +572,65 @@ const VendorEarnings = () => {
     }
   };
 
+  // Handle withdrawal
+  const handleWithdraw = async () => {
+    const amount = parseFloat(withdrawAmount);
+    
+    // Validate amount
+    if (amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid withdrawal amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (amount > walletData.currentBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You can only withdraw up to ₹${walletData.currentBalance.toLocaleString()}.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!vendor) {
+      toast({
+        title: "Error",
+        description: "Vendor information not found. Please try logging in again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessingWithdraw(true);
+    
+    try {
+      const response = await withdrawalService.createWithdrawalRequest(amount);
+      
+      toast({
+        title: "Thank You!",
+        description: `Your withdrawal request for ₹${amount.toLocaleString()} has been submitted successfully. It will be processed within 24-48 hours.`,
+      });
+
+      setIsWithdrawModalOpen(false);
+      setWithdrawAmount('');
+      setIsProcessingWithdraw(false);
+      
+      // Refresh wallet data after withdrawal request
+      await fetchWalletData();
+    } catch (error) {
+      console.error('Error processing withdrawal:', error);
+      toast({
+        title: "Withdrawal Failed",
+        description: error.message || "There was an error processing your withdrawal request. Please try again.",
+        variant: "destructive"
+      });
+      setIsProcessingWithdraw(false);
+    }
+  };
+
   // Export to Excel function
   const exportToExcel = () => {
     // Create CSV content
@@ -810,13 +875,59 @@ const VendorEarnings = () => {
                     </DialogContent>
                   </Dialog>
                   
+                  {/* Withdrawal Modal */}
+                  <Dialog open={isWithdrawModalOpen} onOpenChange={setIsWithdrawModalOpen}>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Request Withdrawal</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="withdrawAmount">Withdrawal Amount (₹)</Label>
+                          <Input
+                            id="withdrawAmount"
+                            type="number"
+                            value={withdrawAmount}
+                            onChange={(e) => setWithdrawAmount(e.target.value)}
+                            placeholder="Enter amount"
+                            min="1"
+                            max={walletData.currentBalance}
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Available balance: ₹{walletData.currentBalance.toLocaleString()}
+                          </p>
+                        </div>
+                        
+                        <Alert>
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertDescription>
+                            Withdrawal requests are processed within 24-48 hours. Please ensure your bank details are up to date.
+                          </AlertDescription>
+                        </Alert>
+                        
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={handleWithdraw} 
+                            className="flex-1"
+                            disabled={isProcessingWithdraw}
+                          >
+                            {isProcessingWithdraw ? 'Processing...' : 'Request for Withdrawal'}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setIsWithdrawModalOpen(false)}
+                            disabled={isProcessingWithdraw}
+                          >
+                            Close
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   
                   <button 
                     className="btn-tech text-sm py-2 px-6"
-                    onClick={() => {
-                      // Add withdraw functionality
-                      alert('Withdraw functionality will be implemented soon!');
-                    }}
+                    onClick={() => setIsWithdrawModalOpen(true)}
                     disabled={!hasInitialDeposit}
                   >
                     Withdraw
