@@ -936,83 +936,77 @@ const AdminBookingManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
                 Booking <span className="text-gradient">Management</span>
               </h1>
-              <p className="text-gray-600">Manage and monitor all service bookings</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreateBooking}>
-                <Calendar className="w-4 h-4 mr-2" />
-                Create Booking
-              </Button>
-            </div>
+              <p className="text-sm text-gray-600">Manage and monitor all service bookings</p>
+            </div>           
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Bookings</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Total Bookings</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {loading ? '...' : (stats?.totalBookings || 0)}
                   </p>
                 </div>
-                <Calendar className="w-8 h-8 text-blue-600" />
+                <Calendar className="w-6 h-6 text-blue-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Pending Bookings</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Pending Bookings</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {loading ? '...' : (stats?.pendingBookings || 0)}
                   </p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-600" />
+                <Clock className="w-6 h-6 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Completed Bookings</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Completed Bookings</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {loading ? '...' : (stats?.completedBookings || 0)}
                   </p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Total Revenue</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {loading ? '...' : `₹${(stats?.totalRevenue || 0).toLocaleString()}`}
                   </p>
                 </div>
-                <DollarSign className="w-8 h-8 text-purple-600" />
+                <DollarSign className="w-6 h-6 text-purple-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters and Search */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -1020,12 +1014,12 @@ const AdminBookingManagement = () => {
                     placeholder="Search bookings by customer, service, vendor, or booking ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1038,7 +1032,7 @@ const AdminBookingManagement = () => {
                 </SelectContent>
               </Select>
               <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by payment" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1050,7 +1044,7 @@ const AdminBookingManagement = () => {
                 </SelectContent>
               </Select>
               <Select value={serviceFilter} onValueChange={setServiceFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by service" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1077,7 +1071,7 @@ const AdminBookingManagement = () => {
                   setSortOrder('desc');
                 }
               }}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1093,8 +1087,8 @@ const AdminBookingManagement = () => {
 
         {/* Bookings Table */}
         <Card>
-          <CardHeader>
-            <CardTitle>Bookings ({filteredBookings.length})</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Bookings ({filteredBookings.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -1119,18 +1113,18 @@ const AdminBookingManagement = () => {
                   <TableRow key={booking._id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900">
                           {booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs text-gray-500">
                           {new Date(booking.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-gray-900">{booking.customer?.name || 'N/A'}</p>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <p className="text-sm font-medium text-gray-900">{booking.customer?.name || 'N/A'}</p>
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
                           <Phone className="w-3 h-3" />
                           <span>{booking.customer?.phone || 'N/A'}</span>
                         </div>
@@ -1138,10 +1132,10 @@ const AdminBookingManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900">
                           {booking.services?.map(service => service.serviceName).join(', ') || 'N/A'}
                         </p>
-                        <p className="text-sm text-gray-500 max-w-xs truncate">
+                        <p className="text-xs text-gray-500 max-w-xs truncate">
                           {(() => {
                             const notes = booking.notes || '';
                             return notes.replace(/Booking created from checkout/gi, '').trim() || '';
@@ -1151,7 +1145,7 @@ const AdminBookingManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900">
                           {(() => {
                             if (!booking.vendor?.vendorId) return 'Unassigned';
                             const vendor = booking.vendor.vendorId as any;
@@ -1163,7 +1157,7 @@ const AdminBookingManagement = () => {
                             return 'Assigned Vendor';
                           })()}
                         </p>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
                           <Phone className="w-3 h-3" />
                           <span>
                             {(() => {
@@ -1182,7 +1176,7 @@ const AdminBookingManagement = () => {
                       <div>
                         <div className="mb-1">
                           <p className="text-xs font-medium text-gray-500">Booking Date:</p>
-                          <p className="font-medium text-gray-900">
+                          <p className="text-sm font-medium text-gray-900">
                             {booking.createdAt 
                               ? new Date(booking.createdAt).toLocaleDateString()
                               : 'N/A'}
@@ -1190,14 +1184,14 @@ const AdminBookingManagement = () => {
                         </div>
                         <div>
                           <p className="text-xs font-medium text-gray-500">Scheduled Date:</p>
-                          <p className="font-medium text-gray-900">
+                          <p className="text-sm font-medium text-gray-900">
                             {booking.scheduling?.scheduledDate 
                               ? new Date(booking.scheduling.scheduledDate).toLocaleDateString()
                               : booking.scheduling?.preferredDate 
                               ? new Date(booking.scheduling.preferredDate).toLocaleDateString()
                               : 'Not scheduled'}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-xs text-gray-500">
                             {booking.scheduling?.scheduledTime 
                               ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
                                   hour: '2-digit',
@@ -1211,16 +1205,16 @@ const AdminBookingManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">₹{booking.pricing?.totalAmount || 0}</span>
+                        <DollarSign className="w-3 h-3 text-gray-400" />
+                        <span className="text-sm font-medium">₹{booking.pricing?.totalAmount || 0}</span>
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(booking.status)}</TableCell>
                     <TableCell>{getPriorityBadge(booking.priority || 'medium')}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm">
+                        <User className="w-3 h-3 text-gray-400" />
+                        <span className="text-xs">
                           {(() => {
                             if (!booking.vendor?.vendorId) return 'Unassigned';
                             const vendor = booking.vendor.vendorId as any;
@@ -1287,33 +1281,33 @@ const AdminBookingManagement = () => {
 
         {/* Engineer Assignment Dialog */}
         <Dialog open={isAssignEngineerOpen} onOpenChange={handleCloseAssignEngineer}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mt-16">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mt-12">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900">Assign Vendor to Booking</DialogTitle>
-              <p className="text-sm text-gray-600">Select a vendor and schedule the appointment for this booking</p>
+              <DialogTitle className="text-lg font-bold text-gray-900">Assign Vendor to Booking</DialogTitle>
+              <p className="text-xs text-gray-600">Select a vendor and schedule the appointment for this booking</p>
             </DialogHeader>
             {selectedBooking && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Booking Information */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Calendar className="w-4 h-4 text-blue-600" />
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Calendar className="w-3 h-3 text-blue-600" />
                     </div>
-                    <h3 className="text-base font-semibold text-gray-900">Booking Information</h3>
-                    </div>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-gray-900">Booking Information</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="space-y-1">
                       <div className="flex justify-between">
                         <span className="text-gray-600 font-medium">Booking ID:</span>
                         <span className="font-semibold text-gray-900">
                           {selectedBooking.bookingReference || `FIX${selectedBooking._id?.toString().substring(selectedBooking._id?.toString().length - 8).toUpperCase()}` || 'N/A'}
                         </span>
-                    </div>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600 font-medium">Customer:</span>
                         <span className="font-semibold text-gray-900">{selectedBooking.customer?.name || 'N/A'}</span>
-                    </div>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600 font-medium">Phone:</span>
                         <span className="font-semibold text-gray-900">{selectedBooking.customer?.phone || 'N/A'}</span>
@@ -1323,7 +1317,7 @@ const AdminBookingManagement = () => {
                         <span className="font-semibold text-gray-900">{selectedBooking.customer?.email || 'N/A'}</span>
                       </div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <div className="flex justify-between">
                         <span className="text-gray-600 font-medium">Service:</span>
                         <span className="font-semibold text-gray-900 text-right">
@@ -1347,7 +1341,7 @@ const AdminBookingManagement = () => {
                     </div>
                     </div>
                   </div>
-                  <div className="mt-3 pt-3 border-t border-blue-200">
+                  <div className="mt-2 pt-2 border-t border-blue-200">
                     <div className="flex items-start gap-2">
                       <MapPin className="w-3 h-3 text-blue-600 mt-0.5" />
                       <div>
@@ -1363,7 +1357,7 @@ const AdminBookingManagement = () => {
                   
                   {/* Issue Description */}
                   {selectedBooking.notes && selectedBooking.notes.replace(/Booking created from checkout/gi, '').trim() && (
-                    <div className="mt-3 pt-3 border-t border-blue-200">
+                    <div className="mt-2 pt-2 border-t border-blue-200">
                       <div className="flex items-start gap-2">
                         <div className="w-3 h-3 bg-orange-100 rounded-full flex items-center justify-center mt-0.5">
                           <span className="text-orange-600 text-xs font-bold">!</span>
@@ -1381,14 +1375,14 @@ const AdminBookingManagement = () => {
 
                 {/* Current Assignment Status */}
                 {selectedBooking.vendor && selectedBooking.vendor.vendorId && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-blue-900 mb-2">Current Assignment</h4>
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <h4 className="text-sm font-semibold text-blue-900 mb-1">Current Assignment</h4>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm">
+                        <p className="text-xs">
                           <span className="font-medium">Vendor:</span> {getVendorName(selectedBooking.vendor?.vendorId)}
                         </p>
-                        <p className="text-sm">
+                        <p className="text-xs">
                           <span className="font-medium">Status:</span> {getAssignmentStatusBadge(selectedBooking.status)}
                         </p>
                       </div>
@@ -1397,59 +1391,59 @@ const AdminBookingManagement = () => {
                 )}
 
                 {/* Vendor Selection */}
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <UserPlus className="w-4 h-4 text-green-600" />
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                      <UserPlus className="w-3 h-3 text-green-600" />
                     </div>
                 <div>
-                      <h3 className="text-base font-semibold text-gray-900">
+                      <h3 className="text-sm font-semibold text-gray-900">
                         {selectedBooking.vendor ? 'Reassign Vendor' : 'Select Vendor'}
                       </h3>
                       <p className="text-xs text-gray-600">Choose a qualified vendor for this booking</p>
                     </div>
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div>
-                      <Label htmlFor="vendor" className="text-sm font-medium text-gray-700">
+                      <Label htmlFor="vendor" className="text-xs font-medium text-gray-700">
                         Available Vendors from Vendor Management *
                   </Label>
                       {assignedEngineer && (
-                        <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="mb-2 p-2 bg-green-50 border border-green-200 rounded-lg">
                           <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm font-medium text-green-800">
+                            <CheckCircle className="w-3 h-3 text-green-600" />
+                            <span className="text-xs font-medium text-green-800">
                               Selected: {getVendorName(assignedEngineer)}
                             </span>
                           </div>
                         </div>
                       )}
                   <Select value={assignedEngineer} onValueChange={setAssignedEngineer}>
-                        <SelectTrigger className="mt-2">
+                        <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Choose a vendor" />
                     </SelectTrigger>
                     <SelectContent>
                           {getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').length > 0 ? (
                             getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').map((vendor) => (
                               <SelectItem key={vendor.id || vendor._id} value={vendor.vendorId}>
-                                <div className="flex items-center justify-between w-full py-2">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                      <User className="w-4 h-4 text-blue-600" />
+                                <div className="flex items-center justify-between w-full py-1">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                      <User className="w-3 h-3 text-blue-600" />
                                     </div>
                             <div>
-                                      <div className="font-medium text-gray-900">
+                                      <div className="text-xs font-medium text-gray-900">
                                         {vendor.firstName && vendor.lastName 
                                           ? `${vendor.firstName} ${vendor.lastName}` 
                                           : vendor.name || 'Vendor'}
                             </div>
-                                      <div className="text-sm text-gray-500">{vendor.specialty || 'General Services'}</div>
+                                      <div className="text-xs text-gray-500">{vendor.specialty || 'General Services'}</div>
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <Star className="w-4 h-4 text-yellow-500" />
-                                    <span className="text-sm font-medium">{vendor.rating || '4.5'}</span>
+                                  <div className="flex items-center gap-1">
+                                    <Star className="w-3 h-3 text-yellow-500" />
+                                    <span className="text-xs font-medium">{vendor.rating || '4.5'}</span>
                             </div>
                           </div>
                         </SelectItem>
@@ -1457,8 +1451,8 @@ const AdminBookingManagement = () => {
                           ) : (
                             <SelectItem value="no-vendors" disabled>
                               <div className="flex items-center gap-2 text-gray-500">
-                                <User className="w-4 h-4" />
-                                <span>No available vendors found</span>
+                                <User className="w-3 h-3" />
+                                <span className="text-xs">No available vendors found</span>
                               </div>
                             </SelectItem>
                           )}
@@ -1467,12 +1461,12 @@ const AdminBookingManagement = () => {
                     </div>
                     
                   {getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').length === 0 && (
-                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <div className="flex items-center gap-2">
-                          <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                          <AlertTriangle className="w-4 h-4 text-yellow-600" />
                           <div>
-                            <p className="text-sm font-medium text-yellow-800">No available vendors found</p>
-                            <p className="text-sm text-yellow-700 mt-1">
+                            <p className="text-xs font-medium text-yellow-800">No available vendors found</p>
+                            <p className="text-xs text-yellow-700 mt-1">
                               Please ensure there are active and approved vendors in the vendor management system.
                             </p>
                           </div>
@@ -1483,20 +1477,20 @@ const AdminBookingManagement = () => {
                 </div>
 
                 {/* Scheduling Section */}
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Clock className="w-4 h-4 text-purple-600" />
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Clock className="w-3 h-3 text-purple-600" />
                     </div>
                   <div>
-                      <h3 className="text-base font-semibold text-gray-900">Schedule Appointment</h3>
+                      <h3 className="text-sm font-semibold text-gray-900">Schedule Appointment</h3>
                       <p className="text-xs text-gray-600">Set the date and time for the service</p>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="scheduledDate" className="text-sm font-medium text-gray-700">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="scheduledDate" className="text-xs font-medium text-gray-700">
                         Scheduled Date *
                       </Label>
                     <Input
@@ -1505,12 +1499,12 @@ const AdminBookingManagement = () => {
                       value={scheduledDate}
                       onChange={(e) => setScheduledDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                        className="w-full"
+                        className="w-full text-xs"
                       required
                     />
                   </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="scheduledTime" className="text-sm font-medium text-gray-700">
+                    <div className="space-y-1">
+                      <Label htmlFor="scheduledTime" className="text-xs font-medium text-gray-700">
                         Scheduled Time *
                       </Label>
                     <Select value={scheduledTime} onValueChange={setScheduledTime}>
@@ -1535,20 +1529,20 @@ const AdminBookingManagement = () => {
                 </div>
 
                 {/* Priority and Notes Section */}
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                      <AlertTriangle className="w-4 h-4 text-orange-600" />
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                      <AlertTriangle className="w-3 h-3 text-orange-600" />
                     </div>
                 <div>
-                      <h3 className="text-base font-semibold text-gray-900">Priority & Instructions</h3>
+                      <h3 className="text-sm font-semibold text-gray-900">Priority & Instructions</h3>
                       <p className="text-xs text-gray-600">Set priority level and add special instructions</p>
                     </div>
                   </div>
                   
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="priority" className="text-sm font-medium text-gray-700">
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="priority" className="text-xs font-medium text-gray-700">
                         Priority Level *
                       </Label>
                   <Select value={priority} onValueChange={setPriority}>
@@ -1559,33 +1553,33 @@ const AdminBookingManagement = () => {
                           <SelectItem value="low">
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span>Low - Standard service</span>
+                              <span className="text-xs">Low - Standard service</span>
                             </div>
                           </SelectItem>
                           <SelectItem value="medium">
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                              <span>Medium - Normal priority</span>
+                              <span className="text-xs">Medium - Normal priority</span>
                             </div>
                           </SelectItem>
                           <SelectItem value="high">
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                              <span>High - Important service</span>
+                              <span className="text-xs">High - Important service</span>
                             </div>
                           </SelectItem>
                           <SelectItem value="urgent">
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                              <span>Urgent - Immediate attention</span>
+                              <span className="text-xs">Urgent - Immediate attention</span>
                             </div>
                           </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
+                    <div className="space-y-1">
+                      <Label htmlFor="notes" className="text-xs font-medium text-gray-700">
                         Assignment Notes (Optional)
                       </Label>
                   <Textarea
@@ -1594,7 +1588,7 @@ const AdminBookingManagement = () => {
                     onChange={(e) => setAssignmentNotes(e.target.value)}
                         placeholder="Add any special instructions, customer preferences, or important notes for the vendor..."
                     rows={3}
-                        className="w-full"
+                        className="w-full text-xs"
                   />
                     </div>
                   </div>
@@ -1604,21 +1598,21 @@ const AdminBookingManagement = () => {
 
 
                 {/* Action Buttons */}
-                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                  <div className="flex flex-col sm:flex-row gap-3">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div className="flex flex-col sm:flex-row gap-2">
                   <Button 
                     onClick={handleSubmitAssignment} 
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3" 
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 text-xs" 
                     disabled={isAssigning}
                     >
                       {isAssigning ? (
                         <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <Loader2 className="w-3 h-3 mr-2 animate-spin" />
                           Assigning Vendor...
                         </>
                       ) : (
                         <>
-                    <UserPlus className="w-4 h-4 mr-2" />
+                    <UserPlus className="w-3 h-3 mr-2" />
                           {selectedBooking.vendor ? 'Reassign Vendor' : 'Assign Vendor'}
                         </>
                       )}
@@ -1627,18 +1621,18 @@ const AdminBookingManagement = () => {
                   <Button 
                     variant="outline"
                       onClick={handleCloseAssignEngineer}
-                      className="px-6 py-3 border-gray-300 text-gray-700 hover:bg-gray-50"
+                      className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 text-xs"
                   >
                     Cancel
                   </Button>
                   </div>
                   
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="flex items-start gap-2">
-                      <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+                      <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
                         <span className="text-blue-600 text-xs font-bold">i</span>
                       </div>
-                      <div className="text-sm text-blue-800">
+                      <div className="text-xs text-blue-800">
                         <p className="font-medium">Assignment Summary:</p>
                         <ul className="mt-1 space-y-1 text-blue-700">
                           <li>• Vendor will be notified immediately after assignment</li>
@@ -1656,92 +1650,92 @@ const AdminBookingManagement = () => {
 
         {/* View Details Modal */}
         <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
-          <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto mt-20">
+          <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto mt-16">
             <DialogHeader>
-              <DialogTitle>Booking Details - {selectedBooking?._id}</DialogTitle>
+              <DialogTitle className="text-lg">Booking Details - {selectedBooking?._id}</DialogTitle>
             </DialogHeader>
             {selectedBooking && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Customer Information */}
                 <div>
-                  <h3 className="text-base font-semibold mb-2">Customer Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h3 className="text-sm font-semibold mb-1">Customer Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                      <p className="text-sm">{selectedBooking.customer.name}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                      <p className="text-xs">{selectedBooking.customer.name}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                      <p className="text-sm">{selectedBooking.customer.email}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Email</Label>
+                      <p className="text-xs">{selectedBooking.customer.email}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
-                      <p className="text-sm">{selectedBooking.customer.phone}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
+                      <p className="text-xs">{selectedBooking.customer.phone}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Address</Label>
-                      <p className="text-sm">{selectedBooking.customer.address.street}, {selectedBooking.customer.address.city}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Address</Label>
+                      <p className="text-xs">{selectedBooking.customer.address.street}, {selectedBooking.customer.address.city}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Service Information */}
                 <div>
-                  <h3 className="text-base font-semibold mb-2">Service Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h3 className="text-sm font-semibold mb-1">Service Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Service</Label>
-                      <p className="text-sm font-medium">{selectedBooking.services.map(s => s.serviceName).join(', ')}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Service</Label>
+                      <p className="text-xs font-medium">{selectedBooking.services.map(s => s.serviceName).join(', ')}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Vendor</Label>
-                      <p className="text-sm">{selectedBooking.vendor?.vendorId ? 
+                      <Label className="text-xs font-medium text-muted-foreground">Vendor</Label>
+                      <p className="text-xs">{selectedBooking.vendor?.vendorId ? 
                         (typeof selectedBooking.vendor.vendorId === 'string' ? 
                           selectedBooking.vendor.vendorId : 
                           `${(selectedBooking.vendor.vendorId as any).firstName} ${(selectedBooking.vendor.vendorId as any).lastName}`) : 
                         'Not assigned'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Vendor Phone</Label>
-                      <p className="text-sm">{selectedBooking.vendor?.vendorId && typeof selectedBooking.vendor.vendorId === 'object' ? 
+                      <Label className="text-xs font-medium text-muted-foreground">Vendor Phone</Label>
+                      <p className="text-xs">{selectedBooking.vendor?.vendorId && typeof selectedBooking.vendor.vendorId === 'object' ? 
                         (selectedBooking.vendor.vendorId as any).phone : 
                         'Not available'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Amount</Label>
-                      <p className="text-sm font-medium">₹{selectedBooking.pricing.totalAmount}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Amount</Label>
+                      <p className="text-xs font-medium">₹{selectedBooking.pricing.totalAmount}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Booking Details */}
                 <div>
-                  <h3 className="text-base font-semibold mb-2">Booking Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h3 className="text-sm font-semibold mb-1">Booking Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Booking Date</Label>
-                      <p className="text-sm">{new Date(selectedBooking.createdAt).toLocaleDateString()}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Booking Date</Label>
+                      <p className="text-xs">{new Date(selectedBooking.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Scheduled Date</Label>
-                      <p className="text-sm">{selectedBooking.scheduling.scheduledDate ? 
+                      <Label className="text-xs font-medium text-muted-foreground">Scheduled Date</Label>
+                      <p className="text-xs">{selectedBooking.scheduling.scheduledDate ? 
                         new Date(selectedBooking.scheduling.scheduledDate).toLocaleDateString() : 
                         'Not scheduled'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Scheduled Time</Label>
-                      <p className="text-sm">{selectedBooking.scheduling.scheduledTime || 'Not scheduled'}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Scheduled Time</Label>
+                      <p className="text-xs">{selectedBooking.scheduling.scheduledTime || 'Not scheduled'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Status</Label>
                       <div className="mt-1">{getStatusBadge(selectedBooking.status)}</div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Priority</Label>
                       <div className="mt-1">{getPriorityBadge(selectedBooking.priority)}</div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Payment Status</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
                       <div className="mt-1">{getPaymentStatusBadge(selectedBooking.payment?.status || 'pending', selectedBooking.payment?.method || 'card')}</div>
                     </div>
                   </div>
@@ -1749,23 +1743,23 @@ const AdminBookingManagement = () => {
 
                 {/* Vendor Assignment */}
                 <div>
-                  <h3 className="text-base font-semibold mb-2">Vendor Assignment</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h3 className="text-sm font-semibold mb-1">Vendor Assignment</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Assigned Vendor</Label>
-                      <p className="text-sm">{getVendorName(selectedBooking.vendor?.vendorId)}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Assigned Vendor</Label>
+                      <p className="text-xs">{getVendorName(selectedBooking.vendor?.vendorId)}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Assignment Status</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Assignment Status</Label>
                       <div className="mt-1">{getAssignmentStatusBadge(selectedBooking.status)}</div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Vendor Response</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Vendor Response</Label>
                       <div className="mt-1">{getVendorStatusBadge(selectedBooking.vendor?.assignedAt ? 'assigned' : 'not_assigned')}</div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Assigned Date</Label>
-                      <p className="text-sm">{selectedBooking.vendor?.assignedAt ? 
+                      <Label className="text-xs font-medium text-muted-foreground">Assigned Date</Label>
+                      <p className="text-xs">{selectedBooking.vendor?.assignedAt ? 
                         new Date(selectedBooking.vendor.assignedAt).toLocaleDateString() : 
                         'Not assigned'}</p>
                     </div>
@@ -1774,19 +1768,19 @@ const AdminBookingManagement = () => {
 
                 {/* Payment Information */}
                 <div>
-                  <h3 className="text-base font-semibold mb-2">Payment Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h3 className="text-sm font-semibold mb-1">Payment Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Payment Mode</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Payment Mode</Label>
                       <div className="mt-1">{getPaymentModeBadge(selectedBooking.payment?.method || 'card')}</div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Payment Status</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
                       <div className="mt-1">{getPaymentStatusBadge(selectedBooking.payment?.status || 'pending', selectedBooking.payment?.method || 'card')}</div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Payment Amount</Label>
-                      <p className="text-sm font-medium">₹{selectedBooking.pricing.totalAmount}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Payment Amount</Label>
+                      <p className="text-xs font-medium">₹{selectedBooking.pricing.totalAmount}</p>
                     </div>
                   </div>
                 </div>
@@ -1794,20 +1788,20 @@ const AdminBookingManagement = () => {
                 {/* Spare Parts */}
                 {(selectedBooking as any).completionData?.spareParts && (selectedBooking as any).completionData.spareParts.length > 0 && (
                   <div>
-                    <h3 className="text-base font-semibold mb-2">Spare Parts Used</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <h3 className="text-sm font-semibold mb-1">Spare Parts Used</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {(selectedBooking as any).completionData.spareParts.map((part: any, index: number) => (
-                        <div key={index} className="border border-gray-200 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium text-sm text-gray-900">{part.name}</h4>
-                            <span className="text-sm font-medium text-green-600">{part.amount}</span>
+                        <div key={index} className="border border-gray-200 rounded-lg p-2">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="font-medium text-xs text-gray-900">{part.name}</h4>
+                            <span className="text-xs font-medium text-green-600">{part.amount}</span>
                           </div>
                           {part.photo && (
-                            <div className="mt-2">
+                            <div className="mt-1">
                               <img
                                 src={part.photo}
                                 alt={part.name}
-                                className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                                className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
                                 onClick={() => handleImageClick(part.photo)}
                               />
                             </div>
@@ -1815,10 +1809,10 @@ const AdminBookingManagement = () => {
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3 p-2 bg-gray-50 rounded">
+                    <div className="mt-2 p-2 bg-gray-50 rounded">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-gray-600">Total Spare Parts Amount:</span>
-                        <span className="text-sm font-bold text-green-600">
+                        <span className="text-xs font-medium text-gray-600">Total Spare Parts Amount:</span>
+                        <span className="text-xs font-bold text-green-600">
                           ₹{(selectedBooking as any).completionData?.spareParts?.reduce((sum: number, part: any) => 
                             sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
                           ).toLocaleString() || '0'}
@@ -1831,9 +1825,9 @@ const AdminBookingManagement = () => {
                 {/* Resolution Note */}
                 {(selectedBooking as any).completionData?.resolutionNote && (
                   <div>
-                    <h3 className="text-base font-semibold mb-2">Resolution Note</h3>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-sm text-gray-700">{(selectedBooking as any).completionData.resolutionNote}</p>
+                    <h3 className="text-sm font-semibold mb-1">Resolution Note</h3>
+                    <div className="bg-gray-50 p-2 rounded">
+                      <p className="text-xs text-gray-700">{(selectedBooking as any).completionData.resolutionNote}</p>
                     </div>
                   </div>
                 )}
@@ -1841,20 +1835,21 @@ const AdminBookingManagement = () => {
                 {/* Notes */}
                 {selectedBooking.notes && (
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Notes</Label>
-                  <p className="text-sm mt-1 p-3 bg-gray-50 rounded-lg">{selectedBooking.notes}</p>
+                  <Label className="text-xs font-medium text-muted-foreground">Notes</Label>
+                  <p className="text-xs mt-1 p-2 bg-gray-50 rounded-lg">{selectedBooking.notes}</p>
                 </div>
                 )}
 
-                <div className="flex gap-2 pt-4">
+                <div className="flex gap-2 pt-3">
                   <Button 
                     onClick={() => handleEditBooking(selectedBooking)} 
-                    className="flex-1"
+                    className="flex-1 text-xs"
+                    size="sm"
                   >
-                    <Edit className="w-4 h-4 mr-2" />
+                    <Edit className="w-3 h-3 mr-2" />
                     Edit Booking
                   </Button>
-                  <Button variant="outline" onClick={() => setIsViewDetailsOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsViewDetailsOpen(false)} size="sm" className="text-xs">
                     Close
                   </Button>
                 </div>

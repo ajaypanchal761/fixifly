@@ -306,87 +306,88 @@ const AdminUserManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
                 User <span className="text-gradient">Management</span>
               </h1>
-              <p className="text-gray-600">Manage and monitor all registered users</p>
+              <p className="text-sm text-gray-600">Manage and monitor all registered users</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Button 
                 variant="outline" 
                 onClick={handleRefresh}
                 disabled={loading}
+                size="sm"
               >
-                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`w-3 h-3 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                <span className="text-xs">Refresh</span>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Users</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Total Users</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {userStats?.totalUsers || 0}
                   </p>
                 </div>
-                <Users className="w-8 h-8 text-blue-600" />
+                <Users className="w-6 h-6 text-blue-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Active Users</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Active Users</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {userStats?.activeUsers || 0}
                   </p>
                 </div>
-                <UserCheck className="w-8 h-8 text-green-600" />
+                <UserCheck className="w-6 h-6 text-green-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Blocked Users</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Blocked Users</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {userStats?.blockedUsers || 0}
                   </p>
                 </div>
-                <UserX className="w-8 h-8 text-red-600" />
+                <UserX className="w-6 h-6 text-red-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Verified Users</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Verified Users</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {userStats?.verifiedUsers || 0}
                   </p>
                 </div>
-                <UserCheck className="w-8 h-8 text-blue-600" />
+                <UserCheck className="w-6 h-6 text-blue-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters and Search */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -399,7 +400,7 @@ const AdminUserManagement = () => {
                 </div>
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -412,7 +413,7 @@ const AdminUserManagement = () => {
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -428,27 +429,27 @@ const AdminUserManagement = () => {
 
         {/* Error Alert */}
         {error && (
-          <Alert className="mb-6" variant="destructive">
+          <Alert className="mb-4" variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="text-sm">{error}</AlertDescription>
           </Alert>
         )}
 
         {/* Users Table */}
         <Card>
-          <CardHeader>
-            <CardTitle>Users ({pagination.totalUsers})</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Users ({pagination.totalUsers})</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="flex items-center justify-center py-8">
+              <div className="flex items-center justify-center py-6">
                 <Loader2 className="w-6 h-6 animate-spin mr-2" />
-                <span>Loading users...</span>
+                <span className="text-sm">Loading users...</span>
               </div>
             ) : users.length === 0 ? (
-              <div className="text-center py-8">
-                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No users found</p>
+              <div className="text-center py-6">
+                <Users className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                <p className="text-sm text-gray-500">No users found</p>
               </div>
             ) : (
               <Table>
@@ -474,21 +475,21 @@ const AdminUserManagement = () => {
                             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium text-gray-900">{user.name}</p>
-                            <p className="text-sm text-gray-500">ID: {user.id}</p>
+                            <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                            <p className="text-xs text-gray-500">ID: {user.id}</p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-2 text-xs">
                             <Mail className="w-3 h-3 text-gray-400" />
                             <span>{user.email}</span>
                             {user.isEmailVerified && (
                               <Badge variant="outline" className="text-xs">Verified</Badge>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-2 text-xs">
                             <Phone className="w-3 h-3 text-gray-400" />
                             <span>{user.phone}</span>
                             {user.isPhoneVerified && (
@@ -498,20 +499,20 @@ const AdminUserManagement = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2 text-sm">
+                        <div className="flex items-center gap-2 text-xs">
                           <MapPin className="w-3 h-3 text-gray-400" />
                           <span>{user.location}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2 text-sm">
+                        <div className="flex items-center gap-2 text-xs">
                           <Calendar className="w-3 h-3 text-gray-400" />
                           <span>{formatDate(user.joinDate)}</span>
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(user.status)}</TableCell>
                       <TableCell>
-                        <div className="text-sm">
+                        <div className="text-xs">
                           <span className="font-medium">{user.totalBookings}</span>
                           <span className="text-gray-500"> total</span>
                         </div>
@@ -522,7 +523,7 @@ const AdminUserManagement = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-xs text-gray-500">
                           {formatLastActive(user.lastActive)}
                         </span>
                       </TableCell>

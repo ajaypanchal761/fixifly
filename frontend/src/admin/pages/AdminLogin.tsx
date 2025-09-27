@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,40 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Check if admin is already authenticated and redirect
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const adminData = localStorage.getItem('adminData');
+        
+        if (token && adminData) {
+          // Check if token is expired
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Date.now() / 1000;
+            
+            if (payload.exp > currentTime) {
+              // Token is still valid, redirect to admin dashboard
+              navigate('/admin');
+            } else {
+              // Token is expired, clear auth data
+              adminApiService.clearAuthData();
+            }
+          } catch (error) {
+            // Invalid token, clear auth data
+            adminApiService.clearAuthData();
+          }
+        }
+      } catch (error) {
+        console.error('Error checking admin auth status:', error);
+        adminApiService.clearAuthData();
+      }
+    };
+
+    checkAuthStatus();
+  }, [navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -88,16 +122,6 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen hero-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Back to Home Button */}
-        <div className="mb-6">
-          <Link 
-            to="/" 
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
-        </div>
 
         <Card className="shadow-xl">
           <CardHeader className="text-center">
@@ -180,13 +204,6 @@ const AdminLogin = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            © 2024 Fixifly. All rights reserved.
-          </p>
-        </div>
       </div>
     </div>
   );

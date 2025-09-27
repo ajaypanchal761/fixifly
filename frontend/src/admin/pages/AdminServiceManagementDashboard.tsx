@@ -344,14 +344,14 @@ const AdminServiceManagementDashboard = () => {
       <main className="flex-1 p-3">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-3">
-            <h1 className="text-xl font-bold text-gray-900 mb-1">Service Management Dashboard</h1>
+          <div className="mb-2">
+            <h1 className="text-lg font-bold text-gray-900 mb-1">Service Management Dashboard</h1>
             <p className="text-xs text-gray-600">Manage and track all service bookings and vendor assignments</p>
           </div>
 
           {/* Filters */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 mb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -360,7 +360,7 @@ const AdminServiceManagementDashboard = () => {
                   placeholder="Search bookings..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
@@ -368,7 +368,7 @@ const AdminServiceManagementDashboard = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -382,7 +382,7 @@ const AdminServiceManagementDashboard = () => {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Priority</option>
                 <option value="low">Low</option>
@@ -394,7 +394,7 @@ const AdminServiceManagementDashboard = () => {
               <select
                 value={vendorStatusFilter}
                 onChange={(e) => setVendorStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Vendor Status</option>
                  <option value="pending">Pending</option>
@@ -406,7 +406,7 @@ const AdminServiceManagementDashboard = () => {
               <select
                 value={paymentModeFilter}
                 onChange={(e) => setPaymentModeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Payment Modes</option>
                 <option value="online">Online</option>
@@ -417,7 +417,7 @@ const AdminServiceManagementDashboard = () => {
               <select
                 value={paymentStatusFilter}
                 onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Payment Status</option>
                 <option value="pending">Pending</option>
@@ -544,8 +544,8 @@ const AdminServiceManagementDashboard = () => {
           </div>
 
           {filteredBookings.length === 0 && (
-            <div className="text-center py-6">
-              <Package className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+            <div className="text-center py-4">
+              <Package className="w-5 h-5 text-gray-400 mx-auto mb-1" />
               <h3 className="text-xs font-medium text-gray-900 mb-1">No bookings found</h3>
               <p className="text-xs text-gray-500">Try adjusting your search or filter criteria.</p>
             </div>
@@ -555,11 +555,11 @@ const AdminServiceManagementDashboard = () => {
 
       {/* View Details Modal */}
       {isModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center pt-3 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-10">
-            <div className="p-3">
-              <div className="flex justify-between items-center mb-3">
-                <h2 className="text-lg font-bold text-gray-900">Booking Details</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center pt-2 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <div className="p-2">
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-base font-bold text-gray-900">Booking Details</h2>
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -568,30 +568,30 @@ const AdminServiceManagementDashboard = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {/* Customer Information */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-900">Customer Information</h3>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-semibold text-gray-900">Customer Information</h3>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <User className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-600">Name:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">{selectedBooking.customer.name}</span>
+                      <User className="w-3 h-3 text-gray-500 mr-1" />
+                      <span className="text-xs text-gray-600">Name:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">{selectedBooking.customer.name}</span>
                     </div>
                     <div className="flex items-center">
-                      <Phone className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-600">Phone:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">{selectedBooking.customer.phone}</span>
+                      <Phone className="w-3 h-3 text-gray-500 mr-1" />
+                      <span className="text-xs text-gray-600">Phone:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">{selectedBooking.customer.phone}</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm text-gray-600">Email:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">{selectedBooking.customer.email}</span>
+                      <span className="text-xs text-gray-600">Email:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">{selectedBooking.customer.email}</span>
                     </div>
                     <div className="flex items-start">
-                      <MapPin className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                      <MapPin className="w-3 h-3 text-gray-500 mr-1 mt-0.5" />
                       <div>
-                        <span className="text-sm text-gray-600">Address:</span>
-                        <p className="text-sm font-medium text-gray-900 ml-2">
+                        <span className="text-xs text-gray-600">Address:</span>
+                        <p className="text-xs font-medium text-gray-900 ml-1">
                           {typeof selectedBooking.customer.address === 'object' 
                             ? `${selectedBooking.customer.address.street || ''}, ${selectedBooking.customer.address.city || ''}, ${selectedBooking.customer.address.state || ''} - ${selectedBooking.customer.address.pincode || ''}`
                             : selectedBooking.customer.address || 'Not provided'
@@ -603,40 +603,40 @@ const AdminServiceManagementDashboard = () => {
                 </div>
 
                 {/* Service Information */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-900">Service Information</h3>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-semibold text-gray-900">Service Information</h3>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <Wrench className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-600">Service:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">{selectedBooking.services[0]?.serviceName || 'N/A'}</span>
+                      <Wrench className="w-3 h-3 text-gray-500 mr-1" />
+                      <span className="text-xs text-gray-600">Service:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">{selectedBooking.services[0]?.serviceName || 'N/A'}</span>
                     </div>
                     <div className="flex items-center">
-                      <Calendar className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-600">Scheduled:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">
+                      <Calendar className="w-3 h-3 text-gray-500 mr-1" />
+                      <span className="text-xs text-gray-600">Scheduled:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">
                         {new Date(selectedBooking.scheduling.scheduledDate).toLocaleDateString()} at {selectedBooking.scheduling.scheduledTime}
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm text-gray-600">Priority:</span>
-                      <span className="ml-2">{getPriorityBadge(selectedBooking.priority)}</span>
+                      <span className="text-xs text-gray-600">Priority:</span>
+                      <span className="ml-1">{getPriorityBadge(selectedBooking.priority)}</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm text-gray-600">Status:</span>
-                      <span className="ml-2">{getStatusBadge(selectedBooking.status)}</span>
+                      <span className="text-xs text-gray-600">Status:</span>
+                      <span className="ml-1">{getStatusBadge(selectedBooking.status)}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Vendor Information */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-900">Vendor Information</h3>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-semibold text-gray-900">Vendor Information</h3>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <User className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-600">Assigned Engineer:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">
+                      <User className="w-3 h-3 text-gray-500 mr-1" />
+                      <span className="text-xs text-gray-600">Assigned Engineer:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">
                         {selectedBooking.vendor?.vendorId ? 
                           `${selectedBooking.vendor.vendorId.firstName} ${selectedBooking.vendor.vendorId.lastName}` : 
                           'Not assigned'
@@ -644,15 +644,15 @@ const AdminServiceManagementDashboard = () => {
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <Phone className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-600">Phone:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">
+                      <Phone className="w-3 h-3 text-gray-500 mr-1" />
+                      <span className="text-xs text-gray-600">Phone:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">
                         {selectedBooking.vendor?.vendorId?.phone || 'N/A'}
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm text-gray-600">Assigned Date:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">
+                      <span className="text-xs text-gray-600">Assigned Date:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">
                         {selectedBooking.vendor?.assignedAt ? 
                           new Date(selectedBooking.vendor.assignedAt).toLocaleDateString() : 
                           'Not assigned'
@@ -660,28 +660,28 @@ const AdminServiceManagementDashboard = () => {
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm text-gray-600">Response:</span>
-                      <span className="ml-2">{getVendorStatusBadge(selectedBooking)}</span>
+                      <span className="text-xs text-gray-600">Response:</span>
+                      <span className="ml-1">{getVendorStatusBadge(selectedBooking)}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Payment Information */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-900">Payment Information</h3>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-semibold text-gray-900">Payment Information</h3>
                   <div className="space-y-1">
                     <div className="flex items-center">
-                      <span className="text-sm text-gray-600">Payment Mode:</span>
-                      <span className="ml-2">{getPaymentModeBadge(selectedBooking.paymentMode || '')}</span>
+                      <span className="text-xs text-gray-600">Payment Mode:</span>
+                      <span className="ml-1">{getPaymentModeBadge(selectedBooking.paymentMode || '')}</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm text-gray-600">Payment Status:</span>
-                      <span className="ml-2">{getPaymentStatusBadge(selectedBooking.paymentStatus || '', selectedBooking.paymentMode || '')}</span>
+                      <span className="text-xs text-gray-600">Payment Status:</span>
+                      <span className="ml-1">{getPaymentStatusBadge(selectedBooking.paymentStatus || '', selectedBooking.paymentMode || '')}</span>
                     </div>
                     <div className="flex items-center">
-                      <DollarSign className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-600">Payment Amount:</span>
-                      <span className="text-sm font-medium text-gray-900 ml-2">
+                      <DollarSign className="w-3 h-3 text-gray-500 mr-1" />
+                      <span className="text-xs text-gray-600">Payment Amount:</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">
                         {selectedBooking.paymentAmount && selectedBooking.paymentAmount > 0 
                           ? `₹${selectedBooking.paymentAmount}` 
                           : selectedBooking.pricing?.totalAmount 
@@ -695,21 +695,21 @@ const AdminServiceManagementDashboard = () => {
 
               {/* Spare Parts */}
               {selectedBooking.completionData?.spareParts && selectedBooking.completionData.spareParts.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Spare Parts Used</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Spare Parts Used</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {selectedBooking.completionData.spareParts.map((part, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-gray-900">{part.name}</h4>
-                          <span className="text-sm font-medium text-green-600">{part.amount}</span>
+                      <div key={index} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="text-xs font-medium text-gray-900">{part.name}</h4>
+                          <span className="text-xs font-medium text-green-600">{part.amount}</span>
                         </div>
                         {part.photo && (
-                          <div className="mt-2">
+                          <div className="mt-1">
                             <img
                               src={part.photo}
                               alt={part.name}
-                              className="w-full h-32 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                              className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
                               onClick={() => handleImageClick(part.photo)}
                             />
                           </div>
@@ -717,10 +717,10 @@ const AdminServiceManagementDashboard = () => {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="mt-3 p-2 bg-gray-50 rounded-lg">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Total Spare Parts Amount:</span>
-                      <span className="text-lg font-bold text-green-600">
+                      <span className="text-xs font-medium text-gray-600">Total Spare Parts Amount:</span>
+                      <span className="text-sm font-bold text-green-600">
                         ₹{selectedBooking.completionData.spareParts.reduce((sum, part) => 
                           sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
                         ).toLocaleString()}
@@ -732,21 +732,21 @@ const AdminServiceManagementDashboard = () => {
 
               {/* Resolution Note */}
               {selectedBooking.completionData?.resolutionNote && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Resolution Note</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-700">{selectedBooking.completionData.resolutionNote}</p>
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">Resolution Note</h3>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-700">{selectedBooking.completionData.resolutionNote}</p>
                   </div>
                 </div>
               )}
 
               {/* Cancellation Reason */}
               {selectedBooking.status === 'cancelled' && (selectedBooking as any).cancellationData?.cancellationReason && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Cancellation Details</h3>
-                  <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-                    <p className="text-sm text-red-800 font-medium mb-2">Cancellation Reason:</p>
-                    <p className="text-sm text-red-700 mb-2">{(selectedBooking as any).cancellationData.cancellationReason}</p>
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">Cancellation Details</h3>
+                  <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+                    <p className="text-xs text-red-800 font-medium mb-1">Cancellation Reason:</p>
+                    <p className="text-xs text-red-700 mb-1">{(selectedBooking as any).cancellationData.cancellationReason}</p>
                     <p className="text-xs text-red-600">
                       Cancelled by: {(selectedBooking as any).cancellationData.cancelledBy} on{' '}
                       {(selectedBooking as any).cancellationData.cancelledAt 

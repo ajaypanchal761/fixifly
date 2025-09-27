@@ -78,36 +78,39 @@ const AdminServiceManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
                 Product <span className="text-gradient">Management</span>
               </h1>
-              <p className="text-gray-600">Manage and monitor all available products and services</p>
+              <p className="text-sm text-gray-600">Manage and monitor all available products and services</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Button 
                 variant="outline"
+                size="sm"
                 onClick={() => setCurrentView('list')}
                 className={currentView === 'list' ? 'bg-blue-50 border-blue-200' : ''}
               >
-                <List className="w-4 h-4 mr-2" />
+                <List className="w-3 h-3 mr-2" />
                 List View
               </Button>
               <Button 
                 variant="outline"
+                size="sm"
                 onClick={() => setCurrentView('form')}
                 className={currentView === 'form' ? 'bg-blue-50 border-blue-200' : ''}
               >
-                <Grid3X3 className="w-4 h-4 mr-2" />
+                <Grid3X3 className="w-3 h-3 mr-2" />
                 Add Product
               </Button>
               <Button 
                 onClick={handleAddProduct}
                 className="bg-blue-600 hover:bg-blue-700"
+                size="sm"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-3 h-3 mr-2" />
                 Add New Product
               </Button>
             </div>

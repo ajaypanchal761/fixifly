@@ -319,8 +319,8 @@ const AdminBannerManagement = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading banners...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
+          <p className="text-sm text-muted-foreground">Loading banners...</p>
         </div>
       </div>
     );
@@ -331,7 +331,7 @@ const AdminBannerManagement = () => {
       <div className="flex items-center justify-center min-h-screen">
         <Alert className="max-w-md">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription className="text-sm">{error}</AlertDescription>
         </Alert>
       </div>
     );
@@ -340,72 +340,74 @@ const AdminBannerManagement = () => {
   return (
     <div className="min-h-screen bg-background">
       <AdminHeader />
-      <main className="container mx-auto px-4 py-8 pt-32 pl-72">
-        <div className="mb-8">
+      <main className="container mx-auto px-4 py-6 pt-32 pl-72">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Banner Management</h1>
-              <p className="text-muted-foreground mt-2">Manage hero section banners</p>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">Banner Management</h1>
+              <p className="text-sm text-muted-foreground mt-1">Manage hero section banners</p>
             </div>
             
             <Dialog open={isAddBannerOpen} onOpenChange={setIsAddBannerOpen}>
               <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
+                <Button className="flex items-center gap-2" size="sm">
+                  <Plus className="w-3 h-3" />
                   Add Banner
                 </Button>
               </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] mt-12">
               <DialogHeader>
-                <DialogTitle>Add New Banner</DialogTitle>
+                <DialogTitle className="text-lg">Add New Banner</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
-                  <Label htmlFor="title">Banner Title</Label>
+                  <Label htmlFor="title" className="text-sm">Banner Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="Enter banner title"
+                    className="text-sm"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="order">Display Order</Label>
+                  <Label htmlFor="order" className="text-sm">Display Order</Label>
                   <Input
                     id="order"
                     type="number"
                     value={formData.order}
                     onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
                     placeholder="0"
+                    className="text-sm"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="image">Banner Image</Label>
+                  <Label htmlFor="image" className="text-sm">Banner Image</Label>
                   <Input
                     id="image"
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="cursor-pointer"
+                    className="cursor-pointer text-sm"
                   />
                   {previewUrl && (
-                    <div className="mt-4">
+                    <div className="mt-3">
                       <img
                         src={previewUrl}
                         alt="Preview"
-                        className="w-full h-48 object-cover rounded-lg border"
+                        className="w-full h-40 object-cover rounded-lg border"
                       />
                     </div>
                   )}
                 </div>
 
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsAddBannerOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsAddBannerOpen(false)} size="sm" className="text-xs">
                     Cancel
                   </Button>
-                  <Button onClick={handleAddBanner} disabled={uploading}>
+                  <Button onClick={handleAddBanner} disabled={uploading} size="sm" className="text-xs">
                     {uploading ? 'Adding...' : 'Add Banner'}
                   </Button>
                 </div>
@@ -416,14 +418,14 @@ const AdminBannerManagement = () => {
         </div>
 
         {/* Banners Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {banners.map((banner) => (
             <Card key={banner._id} className="overflow-hidden">
-              <div className="relative">
+              <div className="relative bg-gray-100">
                 <img
                   src={banner.image.url}
                   alt={banner.title}
-                  className="w-full h-32 object-cover"
+                  className="w-full h-40 object-cover"
                 />
                 <Badge 
                   className={`absolute top-1 right-1 text-xs ${
@@ -434,21 +436,21 @@ const AdminBannerManagement = () => {
                 </Badge>
               </div>
               
-              <CardHeader className="p-3">
-                <CardTitle className="text-sm">{banner.title}</CardTitle>
+              <CardHeader className="p-2">
+                <CardTitle className="text-xs">{banner.title}</CardTitle>
                 <div className="text-xs text-muted-foreground">
                   <p>Order: {banner.order}</p>
                   <p>Created: {new Date(banner.createdAt).toLocaleDateString()}</p>
                 </div>
               </CardHeader>
               
-              <CardContent className="p-3 pt-0">
+              <CardContent className="p-2 pt-0">
                 <div className="flex space-x-1">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleEditBanner(banner)}
-                    className="h-8 w-8 p-0"
+                    className="h-7 w-7 p-0"
                   >
                     <Edit className="w-3 h-3" />
                   </Button>
@@ -457,7 +459,7 @@ const AdminBannerManagement = () => {
                     size="sm"
                     variant="outline"
                     onClick={() => handleToggleStatus(banner._id)}
-                    className="h-8 w-8 p-0"
+                    className="h-7 w-7 p-0"
                   >
                     {banner.isActive ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                   </Button>
@@ -466,7 +468,7 @@ const AdminBannerManagement = () => {
                     size="sm"
                     variant="destructive"
                     onClick={() => handleDeleteBanner(banner._id)}
-                    className="h-8 w-8 p-0"
+                    className="h-7 w-7 p-0"
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>
@@ -477,67 +479,69 @@ const AdminBannerManagement = () => {
         </div>
 
         {banners.length === 0 && (
-          <div className="text-center py-12">
-            <Image className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No banners found</h3>
-            <p className="text-muted-foreground mb-4">Get started by adding your first banner</p>
+          <div className="text-center py-8">
+            <Image className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+            <h3 className="text-sm font-semibold mb-1">No banners found</h3>
+            <p className="text-xs text-muted-foreground mb-3">Get started by adding your first banner</p>
           </div>
         )}
 
 
         {/* Edit Banner Dialog */}
         <Dialog open={isEditBannerOpen} onOpenChange={setIsEditBannerOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[500px] mt-12">
             <DialogHeader>
-              <DialogTitle>Edit Banner</DialogTitle>
+              <DialogTitle className="text-lg">Edit Banner</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <Label htmlFor="edit-title">Banner Title</Label>
+                <Label htmlFor="edit-title" className="text-sm">Banner Title</Label>
                 <Input
                   id="edit-title"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Enter banner title"
+                  className="text-sm"
                 />
               </div>
               
               <div>
-                <Label htmlFor="edit-order">Display Order</Label>
+                <Label htmlFor="edit-order" className="text-sm">Display Order</Label>
                 <Input
                   id="edit-order"
                   type="number"
                   value={formData.order}
                   onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
                   placeholder="0"
+                  className="text-sm"
                 />
               </div>
 
               <div>
-                <Label htmlFor="edit-image">Banner Image (Optional - leave empty to keep current)</Label>
+                <Label htmlFor="edit-image" className="text-sm">Banner Image (Optional - leave empty to keep current)</Label>
                 <Input
                   id="edit-image"
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="cursor-pointer"
+                  className="cursor-pointer text-sm"
                 />
                 {previewUrl && (
-                  <div className="mt-4">
+                  <div className="mt-3">
                     <img
                       src={previewUrl}
                       alt="Preview"
-                      className="w-full h-48 object-cover rounded-lg border"
+                      className="w-full h-40 object-cover rounded-lg border"
                     />
                   </div>
                 )}
               </div>
 
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsEditBannerOpen(false)}>
+                <Button variant="outline" onClick={() => setIsEditBannerOpen(false)} size="sm" className="text-xs">
                   Cancel
                 </Button>
-                <Button onClick={handleUpdateBanner} disabled={uploading}>
+                <Button onClick={handleUpdateBanner} disabled={uploading} size="sm" className="text-xs">
                   {uploading ? 'Updating...' : 'Update Banner'}
                 </Button>
               </div>

@@ -398,41 +398,42 @@ const AdminBlogManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
                 Blog <span className="text-gradient">Management</span>
               </h1>
-              <p className="text-muted-foreground">Manage blog posts and content</p>
+              <p className="text-sm text-muted-foreground">Manage blog posts and content</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Dialog open={isAddBlogOpen} onOpenChange={setIsAddBlogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-primary hover:bg-primary/90">
-                    <Plus className="w-4 h-4 mr-2" />
+                  <Button className="bg-primary hover:bg-primary/90" size="sm">
+                    <Plus className="w-3 h-3 mr-2" />
                     Add Blog Post
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mt-12">
                   <DialogHeader>
-                    <DialogTitle>Add New Blog Post</DialogTitle>
+                    <DialogTitle className="text-lg">Add New Blog Post</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="blogTitle">Blog Title *</Label>
+                      <Label htmlFor="blogTitle" className="text-sm">Blog Title *</Label>
                       <Input
                         id="blogTitle"
                         value={newBlog.title}
                         onChange={(e) => setNewBlog(prev => ({ ...prev, title: e.target.value }))}
                         placeholder="Enter blog title"
+                        className="text-sm"
                       />
                     </div>
                     
                     <div>
-                      <Label htmlFor="blogCategory">Category *</Label>
+                      <Label htmlFor="blogCategory" className="text-sm">Category *</Label>
                       <Select value={newBlog.category} onValueChange={(value) => setNewBlog(prev => ({ ...prev, category: value }))}>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-sm">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -446,21 +447,22 @@ const AdminBlogManagement = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="blogContent">Blog Content *</Label>
+                      <Label htmlFor="blogContent" className="text-sm">Blog Content *</Label>
                       <Textarea
                         id="blogContent"
                         value={newBlog.content}
                         onChange={(e) => setNewBlog(prev => ({ ...prev, content: e.target.value }))}
                         placeholder="Write your blog content here..."
                         rows={5}
+                        className="text-sm"
                       />
                     </div>
 
 
                     <div>
-                      <Label>Featured Image</Label>
+                      <Label className="text-sm">Featured Image</Label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+                        className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
                           dragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
                         }`}
                         onDragOver={handleDragOver}
@@ -472,21 +474,22 @@ const AdminBlogManagement = () => {
                             <img
                               src={URL.createObjectURL(newBlog.image)}
                               alt="Blog preview"
-                              className="w-24 h-24 object-cover rounded mx-auto"
+                              className="w-20 h-20 object-cover rounded mx-auto"
                             />
-                            <p className="text-sm text-muted-foreground">{newBlog.image.name}</p>
+                            <p className="text-xs text-muted-foreground">{newBlog.image.name}</p>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => setNewBlog(prev => ({ ...prev, image: null }))}
+                              className="text-xs"
                             >
-                              <X className="w-4 h-4 mr-2" />
+                              <X className="w-3 h-3 mr-2" />
                               Remove
                             </Button>
                           </div>
                         ) : (
                           <div className="space-y-1">
-                            <Upload className="w-6 h-6 mx-auto text-muted-foreground" />
+                            <Upload className="w-5 h-5 mx-auto text-muted-foreground" />
                             <p className="text-xs text-muted-foreground">
                               Drag & drop image or click to browse
                             </p>
@@ -494,8 +497,9 @@ const AdminBlogManagement = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => fileInputRef.current?.click()}
+                              className="text-xs"
                             >
-                              <Upload className="w-4 h-4 mr-2" />
+                              <Upload className="w-3 h-3 mr-2" />
                               Browse
                             </Button>
                             <input
@@ -513,13 +517,14 @@ const AdminBlogManagement = () => {
                     <div className="flex gap-2">
                       <Button 
                         onClick={editingBlog ? handleUpdateBlog : handleAddBlog} 
-                        className="flex-1"
+                        className="flex-1 text-xs"
                         disabled={loading}
+                        size="sm"
                       >
                         {loading ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <Loader2 className="w-3 h-3 mr-2 animate-spin" />
                         ) : (
-                        <Save className="w-4 h-4 mr-2" />
+                        <Save className="w-3 h-3 mr-2" />
                         )}
                         {editingBlog ? 'Update Blog Post' : 'Add Blog Post'}
                       </Button>
@@ -542,6 +547,8 @@ const AdminBlogManagement = () => {
                           });
                         }}
                         disabled={loading}
+                        size="sm"
+                        className="text-xs"
                       >
                         Cancel
                       </Button>
@@ -554,9 +561,9 @@ const AdminBlogManagement = () => {
         </div>
 
         {/* Filters and Search */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -564,12 +571,12 @@ const AdminBlogManagement = () => {
                     placeholder="Search blogs by title, content, or author..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -582,7 +589,7 @@ const AdminBlogManagement = () => {
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -596,15 +603,17 @@ const AdminBlogManagement = () => {
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
+                  className="text-xs"
                 >
-                  <Grid3X3 className="w-4 h-4" />
+                  <Grid3X3 className="w-3 h-3" />
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('list')}
+                  className="text-xs"
                 >
-                  <List className="w-4 h-4" />
+                  <List className="w-3 h-3" />
                 </Button>
               </div>
             </div>
@@ -613,14 +622,14 @@ const AdminBlogManagement = () => {
 
         {/* Blogs Display */}
         {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin" />
-            <span className="ml-2">Loading blogs...</span>
+          <div className="flex justify-center items-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span className="ml-2 text-sm">Loading blogs...</span>
           </div>
         ) : (
           <>
         {viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {blogs.map((blog) => (
                   <BlogCard
                     key={blog.id}
@@ -635,10 +644,10 @@ const AdminBlogManagement = () => {
           </div>
         ) : (
           <Card>
-            <CardHeader>
-                  <CardTitle>Blog Posts ({blogs.length})</CardTitle>
+            <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Blog Posts ({blogs.length})</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -654,8 +663,8 @@ const AdminBlogManagement = () => {
                       {blogs.map((blog) => (
                     <TableRow key={blog.id}>
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-muted rounded flex items-center justify-center overflow-hidden relative group cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <div className="w-10 h-10 bg-muted rounded flex items-center justify-center overflow-hidden relative group cursor-pointer">
                             {blog.featuredImage ? (
                               <>
                           <img
@@ -672,38 +681,39 @@ const AdminBlogManagement = () => {
                                 </div>
                               </>
                             ) : (
-                              <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                              <ImageIcon className="w-5 h-5 text-muted-foreground" />
                             )}
                           </div>
                           <div>
-                            <p className="font-medium text-foreground">{blog.title}</p>
-                            <p className="text-sm text-muted-foreground">{blog.readTime}</p>
+                            <p className="text-sm font-medium text-foreground">{blog.title}</p>
+                            <p className="text-xs text-muted-foreground">{blog.readTime}</p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <User className="w-3 h-3" />
-                          <span>{blog.author.name}</span>
+                          <span className="text-sm">{blog.author.name}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{blog.category}</Badge>
+                        <Badge variant="outline" className="text-xs">{blog.category}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={blog.status === 'published' ? 'default' : 'secondary'}>
+                        <Badge variant={blog.status === 'published' ? 'default' : 'secondary'} className="text-xs">
                           {blog.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <span>{blog.views}</span>
+                        <span className="text-sm">{blog.views}</span>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center gap-2 justify-end">
+                        <div className="flex items-center gap-1 justify-end">
                           <Button 
                             size="sm" 
                             variant="outline"
                             onClick={() => handleEditBlog(blog)}
+                            className="text-xs"
                           >
                             <Edit className="w-3 h-3 mr-1" />
                             Edit
@@ -712,13 +722,14 @@ const AdminBlogManagement = () => {
                             size="sm" 
                             variant="outline"
                             onClick={() => toggleBlogStatus(blog.id, blog.status)}
+                            className="text-xs"
                           >
                             {blog.status === 'published' ? 'Unpublish' : 'Publish'}
                           </Button>
                           <Button 
                             size="sm" 
                             variant="outline"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs"
                             onClick={() => handleDeleteBlog(blog.id)}
                           >
                             <Trash2 className="w-3 h-3 mr-1" />
@@ -740,7 +751,7 @@ const AdminBlogManagement = () => {
       {/* Image Preview Modal */}
       {previewImage && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setPreviewImage(null)}>
-          <div className="relative max-w-4xl max-h-[90vh] p-4">
+          <div className="relative max-w-4xl max-h-[90vh] p-3">
             <img
               src={previewImage}
               alt="Blog preview"
@@ -749,10 +760,10 @@ const AdminBlogManagement = () => {
             <Button
               variant="outline"
               size="sm"
-              className="absolute top-2 right-2 bg-white/90 hover:bg-white"
+              className="absolute top-2 right-2 bg-white/90 hover:bg-white text-xs"
               onClick={() => setPreviewImage(null)}
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3" />
             </Button>
           </div>
         </div>

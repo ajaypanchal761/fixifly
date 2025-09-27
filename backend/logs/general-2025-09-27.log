@@ -8,3 +8,517 @@
 [2025-09-27T06:05:33.867Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
 [2025-09-27T06:05:33.900Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
 [2025-09-27T06:05:33.978Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T06:26:14.532Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T06:26:14.539Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T06:26:14.639Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T06:26:19.642Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T06:26:19.658Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T06:26:19.734Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T06:26:59.805Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-27T06:26:59.846Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-27T06:26:59.926Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-27T06:26:59.930Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-27T06:27:00.213Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-27T06:27:00.579Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-27T06:27:00.588Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-27T06:27:00.650Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-27T06:27:00.678Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-27T06:27:01.195Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-27T06:50:32.727Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-27T06:50:36.106Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-09-27T06:52:56.701Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-09-27T06:52:56.777Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-27T06:52:57.182Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-27T06:53:02.988Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:53:02.996Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:53:03.275Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:53:03.492Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:53:09.660Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/68d6a413b5896580b0c027dc"}
+[2025-09-27T06:53:10.091Z] [INFO] User deleted by admin | {"adminId":"68ca7f8988ac97b4e9c16645","userId":"68d6a413b5896580b0c027dc"}
+[2025-09-27T06:53:10.110Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:53:10.115Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:53:12.172Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:53:12.176Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:54:33.424Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:54:33.433Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:54:37.131Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:54:37.163Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:54:42.184Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:54:42.233Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:54:48.492Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:54:48.497Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:54:52.826Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:54:52.833Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:55:28.603Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:55:28.608Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:55:28.930Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:55:29.187Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:55:29.428Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-27T06:55:29.870Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-27T06:55:31.137Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:55:31.141Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:28.851Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:28.867Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:35.208Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:35.215Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:37.957Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:38.018Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:40.906Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:40.995Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:43.889Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:43.923Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:46.650Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:46.655Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:49.481Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:49.503Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:54.053Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:54.081Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:56:58.484Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:56:58.495Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:57:01.827Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:01.840Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:57:06.931Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:06.948Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:57:10.968Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:10.983Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:57:16.265Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:16.273Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:57:21.283Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:21.292Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T06:57:25.602Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:25.608Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:57:25.862Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:26.095Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:55.709Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:55.751Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:57:55.980Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:57:56.227Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:04.470Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:04.491Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:04.761Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:05.068Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:08.895Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:08.935Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:09.719Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:10.074Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:13.331Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:13.345Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:13.586Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:14.035Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:17.840Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:17.932Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:18.223Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:18.444Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:22.376Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:22.390Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:22.620Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:23.006Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:28.875Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:28.901Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:29.141Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:29.362Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:31.883Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:31.895Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:32.343Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:32.551Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:38.651Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:38.682Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:38.903Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:39.127Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:42.327Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:42.339Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T06:58:42.775Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:42.976Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T06:58:46.634Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T06:58:47.516Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T06:59:57.096Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T06:59:58.456Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:01.644Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:02.951Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:05.540Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:07.149Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:09.608Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:10.938Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:13.574Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:15.072Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:17.844Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:18.639Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:21.579Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:22.330Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:25.142Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:26.322Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:29.054Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:30.372Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:33.408Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:34.454Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:41.817Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:42.803Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:48.581Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:50.684Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:00:56.390Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:00:57.386Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:01:03.271Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:01:04.218Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:01:12.399Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:01:13.785Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:01:20.716Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:01:21.703Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:01:27.591Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:01:28.997Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:03:47.827Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:03:47.840Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:03:47.856Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:03:48.117Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:03:48.665Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:05:21.177Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:05:21.216Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:05:21.223Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:05:21.684Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:05:22.206Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:05:39.264Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:05:39.275Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:05:39.285Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:05:39.650Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:05:40.181Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:06:05.842Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:06:05.847Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:06:05.853Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:06:06.218Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:06:06.750Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:06:41.667Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:06:41.674Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:06:41.685Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:06:42.253Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:06:42.587Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:06:57.525Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:06:57.538Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:06:57.546Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:06:57.841Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:06:58.566Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:07:19.877Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:07:19.883Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:07:19.888Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:07:20.260Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:07:21.001Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:07:50.029Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:07:50.036Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:07:50.046Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:07:50.402Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:07:51.067Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:08:06.167Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:08:06.184Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:08:06.267Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:08:06.994Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:08:08.159Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:08:22.952Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:08:22.976Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:08:23.001Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:08:23.642Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:08:24.513Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:08:36.752Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:08:36.773Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:08:36.792Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:08:37.650Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:08:39.006Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:08:41.996Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:08:42.263Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:08:42.341Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:08:42.828Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:08:43.609Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:08:47.743Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:08:47.775Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:08:47.790Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:08:48.175Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:08:49.171Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:08:54.710Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-27T07:08:56.321Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:08:57.812Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-27T07:08:57.826Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:09:00.370Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:09:00.389Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T07:09:01.059Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:09:01.341Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:09:03.259Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:09:03.289Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:09:03.319Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:09:03.744Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:09:04.704Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:09:34.877Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:09:34.884Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:09:34.892Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:09:35.336Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:09:36.053Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:09:53.281Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:09:53.285Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-27T07:09:53.290Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-27T07:09:53.848Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":5,"totalRevenue":2764}
+[2025-09-27T07:09:54.827Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:12:41.302Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:12:42.038Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:13:22.168Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:13:22.987Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:13:49.473Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:13:50.573Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:14:03.829Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:14:05.385Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:15:45.362Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:15:46.506Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:16:40.198Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:16:41.180Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:16:56.865Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:16:57.543Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:17:29.059Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:17:29.767Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:17:32.562Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:17:33.285Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:17:56.443Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:17:57.221Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:18:03.104Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:18:03.857Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:18:06.082Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:18:06.813Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:18:20.399Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-27T07:18:21.263Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-27T07:18:27.031Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:18:27.444Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:20:32.991Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:20:33.468Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:20:45.347Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:20:46.428Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:21:55.424Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:21:55.988Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:21.385Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:22.738Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:24.301Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:24.799Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:27.386Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:27.983Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:30.286Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:31.027Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:35.302Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:36.564Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:40.517Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:42.515Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:44.340Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:45.700Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:47.291Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:48.026Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:53.292Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:54.101Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:22:57.319Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:22:58.066Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:23:01.304Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:23:01.847Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:23:05.296Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:23:06.068Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:23:08.948Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-27T07:23:09.411Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-27T07:24:10.222Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:24:52.004Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:25:09.557Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:25:22.750Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:25:41.610Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:25:43.160Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:25:53.168Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:26:34.047Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:26:55.665Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:27:25.664Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T07:28:06.364Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T07:28:30.364Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T07:28:54.425Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T07:29:28.411Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T07:29:56.345Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T07:30:01.221Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T07:30:36.902Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T07:30:47.709Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T07:31:02.757Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:31:02.794Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:31:02.975Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:31:03.191Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:31:03.211Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:31:48.983Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:31:48.993Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:31:49.218Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:31:49.383Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:31:49.447Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:32:17.294Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:32:17.311Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:32:17.522Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:32:17.705Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:32:17.808Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:32:28.113Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:32:28.130Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:32:28.410Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:32:28.591Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:32:28.604Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:32:47.465Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:32:47.489Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:32:47.666Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:32:47.972Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:32:48.023Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:33:13.938Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:33:13.942Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:33:14.145Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:33:14.321Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:33:14.332Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:33:29.335Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:33:29.347Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:33:29.713Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:33:29.837Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:33:29.879Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:33:41.754Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:33:41.761Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:33:42.059Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:33:42.180Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:33:42.194Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:34:07.533Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:34:07.627Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:34:07.768Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:34:07.951Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:34:08.064Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:34:08.602Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:34:08.626Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:34:08.822Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:34:09.030Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:34:09.328Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:35:17.976Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:35:18.064Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:35:18.176Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:35:18.697Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:35:18.849Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:35:40.294Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:35:40.343Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:35:40.493Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:35:40.984Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:35:41.064Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:35:51.069Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:35:51.134Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:35:51.210Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:35:51.367Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:35:51.459Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:36:23.138Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:36:23.168Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:36:23.507Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:36:23.609Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:36:23.695Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:36:59.648Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:36:59.664Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:36:59.786Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:37:00.003Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:37:00.018Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:37:25.104Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:46:55.627Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:47:06.523Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:47:06.540Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:47:06.722Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:47:07.017Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:47:07.057Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:48:16.491Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:48:16.532Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:48:16.637Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:48:16.803Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:48:16.864Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:48:22.981Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:48:23.003Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:48:23.106Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:48:23.286Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:48:23.304Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:48:33.156Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:48:33.161Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:48:33.353Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:48:33.491Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:48:34.022Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:49:07.479Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:49:07.487Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:49:07.668Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:49:07.782Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:49:07.895Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:49:12.413Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:49:12.436Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:49:12.650Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:49:12.731Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:49:12.757Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:49:26.560Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:49:26.572Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:49:27.251Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:49:27.271Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:49:27.293Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:49:30.211Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-27T07:49:30.234Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-27T07:49:30.377Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T07:49:30.525Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-27T07:49:30.547Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-27T07:49:35.818Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:50:13.429Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:50:36.528Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:50:53.576Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:50:55.644Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:51:10.689Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:51:15.159Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:51:29.385Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:51:56.964Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:52:22.247Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:52:42.011Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:52:47.527Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:52:47.678Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:52:49.481Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:53:17.516Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:53:41.620Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-09-27T07:53:41.973Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-27T07:53:42.469Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-27T07:53:44.387Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-27T07:54:42.157Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:54:42.242Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:54:42.724Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:54:44.625Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:54:44.796Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:54:45.159Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:55:02.950Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:55:02.970Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:55:03.411Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:55:21.271Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:55:21.295Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:55:21.791Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:55:51.275Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:56:03.400Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:56:03.413Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:56:04.041Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:56:04.237Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:56:04.742Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:56:05.170Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:56:26.434Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:56:26.458Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:56:27.314Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:56:43.105Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:56:43.135Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:56:43.832Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:57:06.440Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:57:06.456Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:57:06.940Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:57:37.346Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:57:45.263Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:57:45.286Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:57:47.177Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:09.146Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:58:09.154Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:10.282Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:20.642Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:20.656Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:58:21.788Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:34.537Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:34.651Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:58:37.166Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:47.647Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:47.682Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-27T07:58:48.982Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-27T07:58:50.344Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T07:59:46.120Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T07:59:59.294Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T08:00:19.870Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T08:00:36.466Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T08:00:54.313Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T08:01:04.099Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T08:02:38.512Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T08:02:44.905Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T08:05:42.911Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T08:05:49.489Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}

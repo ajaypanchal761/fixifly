@@ -242,8 +242,10 @@ const AdminVendorManagement = () => {
         return <Badge className="bg-green-100 text-green-800">Active</Badge>;
       case 'inactive':
         return <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>;
+      case 'blocked':
+        return <Badge className="bg-red-100 text-red-800">Blocked</Badge>;
       case 'suspended':
-        return <Badge className="bg-red-100 text-red-800">Suspended</Badge>;
+        return <Badge className="bg-orange-100 text-orange-800">Suspended</Badge>;
       default:
         return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
     }
@@ -281,77 +283,77 @@ const AdminVendorManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
                 Vendor <span className="text-gradient">Management</span>
               </h1>
-              <p className="text-gray-600">Manage and monitor all registered vendors</p>
+              <p className="text-sm text-gray-600">Manage and monitor all registered vendors</p>
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Vendors</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Total Vendors</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {vendorStats?.totalVendors || 0}
                   </p>
                 </div>
-                <UserCheck className="w-8 h-8 text-blue-600" />
+                <UserCheck className="w-6 h-6 text-blue-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Verified Vendors</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Verified Vendors</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {vendorStats?.verifiedVendors || 0}
                   </p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Pending Verification</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Pending Verification</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {vendorStats?.pendingVendors || 0}
                   </p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-600" />
+                <Clock className="w-6 h-6 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Active Vendors</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xs font-medium text-gray-600">Active Vendors</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {vendorStats?.activeVendors || 0}
                   </p>
                 </div>
-                <Award className="w-8 h-8 text-purple-600" />
+                <Award className="w-6 h-6 text-purple-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters and Search */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -364,18 +366,19 @@ const AdminVendorManagement = () => {
                 </div>
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="blocked">Blocked</SelectItem>
                   <SelectItem value="suspended">Suspended</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={verificationFilter} onValueChange={setVerificationFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Verification status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -386,7 +389,7 @@ const AdminVendorManagement = () => {
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -417,33 +420,33 @@ const AdminVendorManagement = () => {
 
         {/* Error Alert */}
         {error && (
-          <Alert className="mb-6">
+          <Alert className="mb-4">
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="text-sm">{error}</AlertDescription>
           </Alert>
         )}
 
         {/* Vendors Table */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle>Vendors ({pagination.totalVendors})</CardTitle>
-              <div className="text-sm text-muted-foreground">
+              <CardTitle className="text-lg">Vendors ({pagination.totalVendors})</CardTitle>
+              <div className="text-xs text-muted-foreground">
                 Showing {((pagination.currentPage - 1) * 20) + 1} to {Math.min(pagination.currentPage * 20, pagination.totalVendors)} of {pagination.totalVendors} vendors
               </div>
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin mr-2" />
-                <span>Loading vendors...</span>
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                <span className="text-sm">Loading vendors...</span>
               </div>
             ) : vendors.length === 0 ? (
-              <div className="text-center py-8">
-                <UserCheck className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No vendors found</h3>
-                <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+              <div className="text-center py-6">
+                <UserCheck className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                <h3 className="text-base font-medium text-gray-900 mb-1">No vendors found</h3>
+                <p className="text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
               </div>
             ) : (
               <>
@@ -471,48 +474,48 @@ const AdminVendorManagement = () => {
                               <AvatarFallback>{getInitials(vendor.name)}</AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-medium text-gray-900">{vendor.name}</p>
-                              <p className="text-sm text-gray-500">ID: {vendor.vendorId}</p>
+                              <p className="text-sm font-medium text-gray-900">{vendor.name}</p>
+                              <p className="text-xs text-gray-500">ID: {vendor.vendorId}</p>
                               <p className="text-xs text-gray-400">Joined: {new Date(vendor.joinDate).toLocaleDateString()}</p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            <div className="flex items-center gap-2 text-sm">
+                            <div className="flex items-center gap-2 text-xs">
                               <Mail className="w-3 h-3 text-gray-400" />
                               <span>{vendor.email}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm">
+                            <div className="flex items-center gap-2 text-xs">
                               <Phone className="w-3 h-3 text-gray-400" />
                               <span>{vendor.phone}</span>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-2 text-xs">
                             <MapPin className="w-3 h-3 text-gray-400" />
                             <span>{vendor.location}</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="font-medium">{vendor.rating.toFixed(1)}</span>
-                            <span className="text-sm text-gray-500">({vendor.totalReviews})</span>
+                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                            <span className="text-sm font-medium">{vendor.rating.toFixed(1)}</span>
+                            <span className="text-xs text-gray-500">({vendor.totalReviews})</span>
                           </div>
                         </TableCell>
                         <TableCell>{getStatusBadge(vendor.status)}</TableCell>
                         <TableCell>{getVerificationBadge(vendor.verificationStatus)}</TableCell>
                         <TableCell>
-                          <div className="text-sm">
+                          <div className="text-xs">
                             <div>Total: <span className="font-medium">{vendor.totalBookings}</span></div>
                             <div>Completed: <span className="font-medium text-green-600">{vendor.completedBookings}</span></div>
                             <div>Pending: <span className="font-medium text-yellow-600">{vendor.pendingBookings}</span></div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-xs text-gray-500">
                             {vendor.lastActive ? new Date(vendor.lastActive).toLocaleDateString() : 'Never'}
                           </span>
                         </TableCell>
@@ -543,6 +546,24 @@ const AdminVendorManagement = () => {
                                   Reject Vendor
                                 </DropdownMenuItem>
                               )}
+                              {vendor.status !== 'blocked' && (
+                                <DropdownMenuItem 
+                                  className="text-red-600"
+                                  onClick={() => handleVendorStatusUpdate(vendor.id, 'block')}
+                                >
+                                  <AlertTriangle className="w-4 h-4 mr-2" />
+                                  Block Vendor
+                                </DropdownMenuItem>
+                              )}
+                              {vendor.status === 'blocked' && (
+                                <DropdownMenuItem 
+                                  className="text-green-600"
+                                  onClick={() => handleVendorStatusUpdate(vendor.id, 'unblock')}
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Unblock Vendor
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem onClick={() => {
                                 setSelectedVendor(vendor);
                                 setIsEmailModalOpen(true);
@@ -567,8 +588,8 @@ const AdminVendorManagement = () => {
                 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-6">
-                    <div className="text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="text-xs text-muted-foreground">
                       Page {pagination.currentPage} of {pagination.totalPages}
                     </div>
                     <div className="flex items-center gap-2">
@@ -577,6 +598,7 @@ const AdminVendorManagement = () => {
                         size="sm"
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={!pagination.hasPrev}
+                        className="text-xs"
                       >
                         Previous
                       </Button>
@@ -585,6 +607,7 @@ const AdminVendorManagement = () => {
                         size="sm"
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.totalPages))}
                         disabled={!pagination.hasNext}
+                        className="text-xs"
                       >
                         Next
                       </Button>

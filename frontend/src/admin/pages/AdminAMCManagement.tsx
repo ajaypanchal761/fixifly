@@ -1188,13 +1188,13 @@ const AdminAMCManagement = () => {
       
       <main className="ml-72 pt-32 p-6 pb-16">
         {/* Page Header */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
                 AMC <span className="text-gradient">Management</span>
               </h1>
-              <p className="text-muted-foreground">Manage AMC plans and user subscriptions</p>
+              <p className="text-sm text-muted-foreground">Manage AMC plans and user subscriptions</p>
             </div>
           </div>
         </div>
@@ -1205,48 +1205,48 @@ const AdminAMCManagement = () => {
             <TabsTrigger value="plans">AMC Plans</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscription Management</TabsTrigger>
           </TabsList>
-          <TabsContent value="plans" className="space-y-8 pt-0">
+          <TabsContent value="plans" className="space-y-4 pt-0">
             {/* AMC Plans Cards */}
-            <div className="grid md:grid-cols-3 gap-8 items-stretch mt-12">
+            <div className="grid md:grid-cols-3 gap-4 items-stretch mt-6">
               {amcPlans.map((plan, index) => (
                 <Card key={plan._id || plan.id} className={`relative border-2 hover:shadow-lg transition-shadow flex flex-col h-full ${plan.isPopular ? 'border-blue-500' : ''}`}>
                   {plan.isPopular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-blue-500 text-white px-4 py-1 text-sm font-semibold">
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-blue-500 text-white px-3 py-1 text-xs font-semibold">
                         <Star className="h-3 w-3 mr-1" />
                         Most Popular
                       </Badge>
                     </div>
                   )}
-                  <CardHeader className={`text-center pb-4 ${plan.isPopular ? 'pt-6' : ''}`}>
-                    <CardTitle className="text-xl font-bold text-gray-800">{plan.name}</CardTitle>
-                    <p className="text-sm text-gray-600 mt-2">{plan.description}</p>
-                    <div className="mt-4">
-                      <span className="text-3xl font-bold text-blue-600">₹{plan.price}</span>
-                      <span className="text-gray-500">/{plan.period}</span>
+                  <CardHeader className={`text-center pb-3 ${plan.isPopular ? 'pt-4' : ''}`}>
+                    <CardTitle className="text-lg font-bold text-gray-800">{plan.name}</CardTitle>
+                    <p className="text-xs text-gray-600 mt-1">{plan.description}</p>
+                    <div className="mt-3">
+                      <span className="text-2xl font-bold text-blue-600">₹{plan.price}</span>
+                      <span className="text-sm text-gray-500">/{plan.period}</span>
                     </div>
                   </CardHeader>
                 
-                  <CardContent className="flex flex-col flex-grow">
-                    <div className="space-y-3 flex-grow">
+                  <CardContent className="flex flex-col flex-grow p-4">
+                    <div className="space-y-2 flex-grow">
                       {plan.features && plan.features.map((feature, featureIndex) => (
                         <div key={featureIndex} className="flex items-center space-x-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">
+                          <CheckCircle className="h-3 w-3 text-green-500" />
+                          <span className="text-xs">
                             {typeof feature === 'string' ? feature : feature.title || feature.description}
                           </span>
                         </div>
                       ))}
                     </div>
                     
-                    <div className="pt-4 mt-auto space-y-2">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    <div className="pt-3 mt-auto space-y-2">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs" size="sm">
                         Subscribe to {plan.name}
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="w-full"
+                        className="w-full text-xs"
                         onClick={() => handleEditPlan(plan)}
                       >
                         <Edit className="w-3 h-3 mr-1" />
@@ -1259,85 +1259,85 @@ const AdminAMCManagement = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="subscriptions" className="space-y-8 pt-6">
+          <TabsContent value="subscriptions" className="space-y-4 pt-3">
             {/* Subscription Management Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Subscription Management</h2>
-                <p className="text-muted-foreground">Manage user subscriptions and warranty claims</p>
+                <h2 className="text-lg font-bold text-gray-900">Subscription Management</h2>
+                <p className="text-sm text-muted-foreground">Manage user subscriptions and warranty claims</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
+                <Button variant="outline" size="sm" className="text-xs">
+                  <Download className="h-3 w-3 mr-2" />
                   Export Data
                 </Button>
-                <Button variant="outline" size="sm" onClick={fetchSubscriptions} disabled={subscriptionsLoading}>
-                  <RefreshCw className={`h-4 w-4 mr-2 ${subscriptionsLoading ? 'animate-spin' : ''}`} />
+                <Button variant="outline" size="sm" onClick={fetchSubscriptions} disabled={subscriptionsLoading} className="text-xs">
+                  <RefreshCw className={`h-3 w-3 mr-2 ${subscriptionsLoading ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => {
                   console.log('Current subscriptions:', userSubscriptions);
                   console.log('First subscription details:', userSubscriptions[0]?.userDetails);
-                }}>
+                }} className="text-xs">
                   Debug Data
                 </Button>
               </div>
             </div>
 
             {/* Subscription Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Subscriptions</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-xs font-medium text-muted-foreground">Total Subscriptions</p>
+                      <p className="text-lg font-bold">
                         {subscriptionsLoading ? '...' : userSubscriptions.length}
                       </p>
                     </div>
-                    <Users className="h-8 w-8 text-blue-600" />
+                    <Users className="h-6 w-6 text-blue-600" />
                   </div>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Active</p>
-                      <p className="text-2xl font-bold text-green-600">
+                      <p className="text-xs font-medium text-muted-foreground">Active</p>
+                      <p className="text-lg font-bold text-green-600">
                         {subscriptionsLoading ? '...' : userSubscriptions.filter(sub => sub && sub.status === 'Active').length}
                       </p>
                     </div>
-                    <CheckCircle className="h-8 w-8 text-green-600" />
+                    <CheckCircle className="h-6 w-6 text-green-600" />
                   </div>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Expired</p>
-                      <p className="text-2xl font-bold text-red-600">
+                      <p className="text-xs font-medium text-muted-foreground">Expired</p>
+                      <p className="text-lg font-bold text-red-600">
                         {subscriptionsLoading ? '...' : userSubscriptions.filter(sub => sub && sub.status === 'Expired').length}
                       </p>
                     </div>
-                    <XCircle className="h-8 w-8 text-red-600" />
+                    <XCircle className="h-6 w-6 text-red-600" />
                   </div>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Warranty Claims</p>
-                      <p className="text-2xl font-bold text-orange-600">
+                      <p className="text-xs font-medium text-muted-foreground">Warranty Claims</p>
+                      <p className="text-lg font-bold text-orange-600">
                         {subscriptionsLoading ? '...' : userSubscriptions.filter(sub => sub && sub.warrantyClaimed).length}
                       </p>
                     </div>
-                    <AlertTriangle className="h-8 w-8 text-orange-600" />
+                    <AlertTriangle className="h-6 w-6 text-orange-600" />
                   </div>
                 </CardContent>
               </Card>
@@ -1345,8 +1345,8 @@ const AdminAMCManagement = () => {
 
             {/* Subscription Filters */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-4">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row gap-3">
                   <div className="flex-1">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -1354,13 +1354,13 @@ const AdminAMCManagement = () => {
                         placeholder="Search subscriptions..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 text-sm"
                       />
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-[180px]">
+                      <SelectTrigger className="w-[160px] text-sm">
                         <SelectValue placeholder="Filter by status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1371,8 +1371,8 @@ const AdminAMCManagement = () => {
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button variant="outline" size="sm">
-                      <Filter className="h-4 w-4 mr-2" />
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <Filter className="h-3 w-3 mr-2" />
                       More Filters
                     </Button>
                   </div>
@@ -1383,17 +1383,17 @@ const AdminAMCManagement = () => {
             {/* Error Message */}
             {subscriptionsError && (
               <Card className="border-red-200 bg-red-50">
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center gap-2 text-red-800">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span>{subscriptionsError}</span>
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm">{subscriptionsError}</span>
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={fetchSubscriptions}
-                      className="ml-auto"
+                      className="ml-auto text-xs"
                     >
-                      <RefreshCw className="h-4 w-4 mr-2" />
+                      <RefreshCw className="h-3 w-3 mr-2" />
                       Retry
                     </Button>
                   </div>
@@ -1403,30 +1403,30 @@ const AdminAMCManagement = () => {
 
             {/* Subscriptions Table */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <FileText className="h-4 w-4" />
                   User Subscriptions
                   {subscriptionsLoading && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <RefreshCw className="h-3 w-3 animate-spin" />
                       Loading subscriptions...
                     </div>
                   )}
                   {userDetailsLoading && !subscriptionsLoading && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <RefreshCw className="h-3 w-3 animate-spin" />
                       Loading user details...
                     </div>
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 {subscriptionsLoading ? (
-                  <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center justify-center py-6">
                     <div className="flex items-center gap-2">
-                      <RefreshCw className="h-6 w-6 animate-spin" />
-                      <span>Loading subscriptions...</span>
+                      <RefreshCw className="h-5 w-5 animate-spin" />
+                      <span className="text-sm">Loading subscriptions...</span>
                     </div>
                   </div>
                 ) : (
@@ -1772,279 +1772,7 @@ const AdminAMCManagement = () => {
                 )}
               </DialogContent>
             </Dialog>
-
-            {/* Warranty Claims Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" />
-                  Warranty Claims
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {userSubscriptions.filter(sub => sub && sub.warrantyClaimed).map((subscription) => (
-                    <div key={subscription.id || subscription._id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="flex items-center gap-2">
-                              {subscription.userDetails?.profileImage && (
-                                <img 
-                                  src={subscription.userDetails.profileImage} 
-                                  alt="Profile" 
-                                  className="w-8 h-8 rounded-full"
-                                />
-                              )}
-                              <div>
-                                <span className="font-medium">
-                                  {subscription.userDetails?.name || subscription.userName || 'N/A'}
-                                </span>
-                                <p className="text-xs text-muted-foreground">
-                                  {subscription.userDetails?.email || subscription.userEmail || 'N/A'}
-                                </p>
-                              </div>
-                            </div>
-                            <Badge variant="destructive">Warranty Claimed</Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            Plan: {subscription.planName || 'N/A'} | Amount: ₹{subscription.amount || 0}
-                          </p>
-                          <p className="text-sm">
-                            Claim Date: {subscription.warrantyClaimDate ? new Date(subscription.warrantyClaimDate).toLocaleDateString() : 'N/A'}
-                          </p>
-                          {subscription.userDetails?.phone && (
-                            <p className="text-sm text-muted-foreground">
-                              Contact: {subscription.userDetails.phone}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Approve
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <XCircle className="h-4 w-4 mr-2" />
-                            Reject
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {userSubscriptions.filter(sub => sub.warrantyClaimed).length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No warranty claims at the moment</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="warranty-claims" className="space-y-8 pt-6">
-            {/* Warranty Claims Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Warranty Claims</h2>
-                <p className="text-muted-foreground">Manage warranty claims and assign vendors</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Claims
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => { fetchSubscriptions(); fetchWarrantyClaims(); }}>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh
-                </Button>
-              </div>
-            </div>
-
-            {/* Warranty Claims Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Claims</p>
-                      <p className="text-2xl font-bold">{warrantyClaims.length}</p>
-                    </div>
-                    <FileText className="h-8 w-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Pending</p>
-                      <p className="text-2xl font-bold">{warrantyClaims.filter(claim => claim.status === 'pending').length}</p>
-                    </div>
-                    <Clock className="h-8 w-8 text-yellow-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Approved</p>
-                      <p className="text-2xl font-bold">{warrantyClaims.filter(claim => claim.status === 'approved').length}</p>
-                    </div>
-                    <CheckCircle className="h-8 w-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Completed</p>
-                      <p className="text-2xl font-bold">{warrantyClaims.filter(claim => claim.status === 'completed').length}</p>
-                    </div>
-                    <Award className="h-8 w-8 text-purple-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Warranty Claims Table */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Warranty Claims</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {warrantyClaimsLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="text-muted-foreground mt-2">Loading warranty claims...</p>
-                  </div>
-                ) : warrantyClaimsError ? (
-                  <div className="text-center py-8 text-red-600">
-                    <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
-                    <p>Error loading warranty claims: {warrantyClaimsError}</p>
-                    <Button variant="outline" onClick={fetchWarrantyClaims} className="mt-4">
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Retry
-                    </Button>
-                  </div>
-                ) : warrantyClaims.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 max-w-md mx-auto">
-                      <div className="mb-4">
-                        <FileText className="h-12 w-12 text-gray-400 mx-auto" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">No Warranty Claims</h3>
-                      <p className="text-gray-600 text-sm mb-4">
-                        No warranty claims have been submitted yet.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Claim ID</TableHead>
-                          <TableHead>Subscription ID</TableHead>
-                          <TableHead>User</TableHead>
-                          <TableHead>Mobile</TableHead>
-                          <TableHead>Service Type</TableHead>
-                          <TableHead>Plan</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {warrantyClaims.map((claim) => (
-                          <TableRow key={claim._id}>
-                            <TableCell className="font-mono text-sm">
-                              {claim._id?.slice(-8) || 'N/A'}
-                            </TableCell>
-                            <TableCell className="font-mono text-sm">
-                              {claim.subscriptionId || 'N/A'}
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <p className="font-medium">{claim.userId?.name || 'Unknown User'}</p>
-                                <p className="text-sm text-muted-foreground">{claim.userId?.email || 'N/A'}</p>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="font-mono text-sm">
-                                {claim.userId?.phone || claim.userId?.mobile || 'N/A'}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">
-                                {claim.item || 'N/A'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="secondary">
-                                {claim.planName || 'N/A'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge 
-                                variant={
-                                  claim.status === 'pending' ? 'default' :
-                                  claim.status === 'approved' ? 'secondary' :
-                                  claim.status === 'rejected' ? 'destructive' :
-                                  claim.status === 'completed' ? 'outline' : 'default'
-                                }
-                              >
-                                {claim.status?.charAt(0).toUpperCase() + claim.status?.slice(1) || 'Unknown'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => handleViewIssue(claim)}>
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={() => handleViewIssue(claim)} className="text-blue-600 hover:text-blue-700">
-                                  <FileText className="h-4 w-4" />
-                                </Button>
-                                {claim.status === 'pending' && (
-                                  <>
-                                    <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700" onClick={() => handleApproveWarrantyClaim(claim._id)}>
-                                      <CheckCircle className="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleRejectWarrantyClaim(claim._id)}>
-                                      <XCircle className="h-4 w-4" />
-                                    </Button>
-                                  </>
-                                )}
-                                {claim.status === 'approved' && claim.item === 'Home Visit Service' && (
-                                  <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700" onClick={() => handleOpenVendorModal(claim)}>
-                                    <UserPlus className="h-4 w-4" />
-                                  </Button>
-                                )}
-                                {claim.status === 'approved' && (
-                                  <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700" onClick={() => handleCompleteWarrantyClaim(claim._id)}>
-                                    <CheckCircle className="h-4 w-4" />
-                                  </Button>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+          </TabsContent>  
         </Tabs>
 
         {/* Edit AMC Plan Modal */}

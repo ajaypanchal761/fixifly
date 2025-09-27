@@ -102,7 +102,7 @@ const VendorLogin = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 to-indigo-200 flex items-center justify-center p-0 overflow-hidden">
+    <div className="h-screen  flex items-center justify-center p-0 pt-10 overflow-hidden">
       <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="text-center mb-4 -mt-16">

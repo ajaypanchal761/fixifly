@@ -368,49 +368,50 @@ const AdminCardManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="mb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <CreditCard className="w-8 h-8 text-blue-600" />
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <CreditCard className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                     Card <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Management</span>
                   </h1>
-                  <p className="text-gray-600 mt-1">Manage service provider cards and their details</p>
+                  <p className="text-sm text-gray-600 mt-1">Manage service provider cards and their details</p>
                 </div>
               </div>
               
               {/* Quick Stats */}
-              <div className="flex items-center gap-6 mt-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-4 mt-3">
+                <div className="flex items-center gap-1 text-xs text-gray-600">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span>{cards.filter(card => card.status === 'active').length} Active</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-1 text-xs text-gray-600">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   <span>{cards.filter(card => card.isPopular).length} Popular</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-1 text-xs text-gray-600">
                   <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                   <span>{cards.filter(card => card.isFeatured).length} Featured</span>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Button 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-12 px-6 rounded-xl"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-10 px-4 rounded-lg"
                 onClick={() => {
                   console.log('Add Card button clicked');
                   setIsEditMode(false);
                   setEditingCardId(null);
                   setIsAddCardOpen(true);
                 }}
+                size="sm"
               >
-                <Plus className="w-5 h-5 mr-2" />
+                <Plus className="w-4 h-4 mr-2" />
                 Add New Card
               </Button>
               
@@ -419,27 +420,28 @@ const AdminCardManagement = () => {
                   handleCloseModal();
                 }
               }}>
-                <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto mt-16">
+                <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto mt-12">
                   <DialogHeader>
-                    <DialogTitle>
+                    <DialogTitle className="text-lg">
                       {isEditMode ? 'Edit Service Provider Card' : 'Add New Service Provider Card'}
                     </DialogTitle>
                   </DialogHeader>
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="cardName">Provider Name</Label>
+                      <Label htmlFor="cardName" className="text-sm">Provider Name</Label>
                       <Input
                         id="cardName"
                         value={newCard.name}
                         onChange={(e) => setNewCard(prev => ({ ...prev, name: e.target.value }))}
                         placeholder="Enter provider name"
+                        className="text-sm"
                       />
                     </div>
                     
                     <div>
-                      <Label htmlFor="cardSpeciality">Speciality</Label>
+                      <Label htmlFor="cardSpeciality" className="text-sm">Speciality</Label>
                       <Select value={newCard.speciality} onValueChange={(value) => setNewCard(prev => ({ ...prev, speciality: value }))}>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-sm">
                           <SelectValue placeholder="Select speciality" />
                         </SelectTrigger>
                         <SelectContent>
@@ -453,30 +455,32 @@ const AdminCardManagement = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="cardSubtitle">Subtitle</Label>
+                      <Label htmlFor="cardSubtitle" className="text-sm">Subtitle</Label>
                       <Input
                         id="cardSubtitle"
                         value={newCard.subtitle}
                         onChange={(e) => setNewCard(prev => ({ ...prev, subtitle: e.target.value }))}
                         placeholder="Enter service subtitle"
+                        className="text-sm"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="cardPrice">Price (₹)</Label>
+                      <Label htmlFor="cardPrice" className="text-sm">Price (₹)</Label>
                       <Input
                         id="cardPrice"
                         type="number"
                         value={newCard.price}
                         onChange={(e) => setNewCard(prev => ({ ...prev, price: e.target.value }))}
                         placeholder="Enter service price"
+                        className="text-sm"
                       />
                     </div>
 
                     <div>
-                      <Label>Provider Image</Label>
+                      <Label className="text-sm">Provider Image</Label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+                        className={`border-2 border-dashed rounded-lg p-3 text-center transition-colors ${
                           dragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
                         }`}
                         onDragOver={handleDragOver}
@@ -488,32 +492,34 @@ const AdminCardManagement = () => {
                             <img
                               src={newCard.image instanceof File ? URL.createObjectURL(newCard.image) : newCard.image}
                               alt="Provider preview"
-                              className="w-24 h-24 object-cover rounded mx-auto"
+                              className="w-20 h-20 object-cover rounded mx-auto"
                             />
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs text-muted-foreground">
                               {newCard.image instanceof File ? newCard.image.name : 'Current image'}
                             </p>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => setNewCard(prev => ({ ...prev, image: null }))}
+                              className="text-xs"
                             >
-                              <X className="w-4 h-4 mr-2" />
+                              <X className="w-3 h-3 mr-2" />
                               Remove
                             </Button>
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">
+                            <Upload className="w-6 h-6 mx-auto text-muted-foreground" />
+                            <p className="text-xs text-muted-foreground">
                               Drag & drop provider image here or click to browse
                             </p>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => fileInputRef.current?.click()}
+                              className="text-xs"
                             >
-                              <Upload className="w-4 h-4 mr-2" />
+                              <Upload className="w-3 h-3 mr-2" />
                               Browse
                             </Button>
                             <input
@@ -535,12 +541,13 @@ const AdminCardManagement = () => {
                           console.log('Current form state:', newCard);
                           handleAddCard();
                         }} 
-                        className="flex-1"
+                        className="flex-1 text-xs"
+                        size="sm"
                       >
-                        <Save className="w-4 h-4 mr-2" />
+                        <Save className="w-3 h-3 mr-2" />
                         {isEditMode ? 'Update Card' : 'Add Card'}
                       </Button>
-                      <Button variant="outline" onClick={handleCloseModal}>
+                      <Button variant="outline" onClick={handleCloseModal} size="sm" className="text-xs">
                         Cancel
                       </Button>
                     </div>
@@ -552,27 +559,27 @@ const AdminCardManagement = () => {
         </div>
 
         {/* Filters and Search */}
-        <Card className="mb-8 shadow-sm border-0 bg-gradient-to-r from-white to-gray-50">
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
+        <Card className="mb-4 shadow-sm border-0 bg-gradient-to-r from-white to-gray-50">
+          <CardContent className="p-4">
+            <div className="flex flex-col lg:flex-row gap-3">
               {/* Search */}
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     placeholder="Search cards by name or speciality..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                    className="pl-10 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg text-sm"
                   />
                 </div>
               </div>
               
               {/* Speciality Filter */}
-              <div className="w-full lg:w-64">
+              <div className="w-full lg:w-48">
                 <Select value={specialityFilter} onValueChange={setSpecialityFilter}>
-                  <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl">
-                    <Filter className="w-4 h-4 mr-2 text-gray-400" />
+                  <SelectTrigger className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg">
+                    <Filter className="w-3 h-3 mr-2 text-gray-400" />
                     <SelectValue placeholder="Filter by speciality" />
                   </SelectTrigger>
                   <SelectContent>
@@ -592,27 +599,27 @@ const AdminCardManagement = () => {
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
-                  className="h-12 px-4 rounded-xl"
+                  className="h-10 px-3 rounded-lg text-xs"
                 >
-                  <Grid3X3 className="w-4 h-4 mr-2" />
+                  <Grid3X3 className="w-3 h-3 mr-2" />
                   Grid
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('list')}
-                  className="h-12 px-4 rounded-xl"
+                  className="h-10 px-3 rounded-lg text-xs"
                 >
-                  <List className="w-4 h-4 mr-2" />
+                  <List className="w-3 h-3 mr-2" />
                   List
                 </Button>
               </div>
             </div>
             
             {/* Results Summary */}
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <div className="flex items-center gap-4">
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <div className="flex items-center justify-between text-xs text-gray-600">
+                <div className="flex items-center gap-3">
                   <span className="font-medium">
                     {pagination.totalCards} total cards
                   </span>
@@ -637,43 +644,44 @@ const AdminCardManagement = () => {
 
         {/* Cards Display */}
         {loading ? (
-          <div className="flex justify-center items-center py-20">
+          <div className="flex justify-center items-center py-16">
             <div className="text-center">
               <div className="relative">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <CreditCard className="w-6 h-6 text-blue-600" />
+                  <CreditCard className="w-5 h-5 text-blue-600" />
                 </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Cards</h3>
-              <p className="text-gray-600">Please wait while we fetch your service provider cards...</p>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Loading Cards</h3>
+              <p className="text-xs text-gray-600">Please wait while we fetch your service provider cards...</p>
             </div>
           </div>
         ) : error ? (
-          <div className="text-center py-20">
+          <div className="text-center py-16">
             <div className="max-w-md mx-auto">
-              <div className="p-4 bg-red-50 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-                <CreditCard className="w-8 h-8 text-red-500" />
+              <div className="p-3 bg-red-50 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <CreditCard className="w-6 h-6 text-red-500" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Cards</h3>
-              <p className="text-red-600 mb-6">{error}</p>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Error Loading Cards</h3>
+              <p className="text-xs text-red-600 mb-4">{error}</p>
               <Button 
                 onClick={fetchCards} 
                 variant="outline"
-                className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                size="sm"
+                className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 text-xs"
               >
                 Try Again
               </Button>
             </div>
           </div>
         ) : filteredCards.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="text-center py-16">
             <div className="max-w-md mx-auto">
-              <div className="p-4 bg-gray-50 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-                <CreditCard className="w-8 h-8 text-gray-400" />
+              <div className="p-3 bg-gray-50 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
+                <CreditCard className="w-6 h-6 text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Cards Found</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">No Cards Found</h3>
+              <p className="text-xs text-gray-600 mb-4">
                 {searchTerm || specialityFilter !== 'all' 
                   ? 'No cards match your current filters. Try adjusting your search criteria.'
                   : 'You haven\'t created any service provider cards yet. Get started by adding your first card.'
@@ -685,9 +693,10 @@ const AdminCardManagement = () => {
                   setEditingCardId(null);
                   setIsAddCardOpen(true);
                 }}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs"
+                size="sm"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-3 h-3 mr-2" />
                 Add Your First Card
               </Button>
             </div>
@@ -711,13 +720,14 @@ const AdminCardManagement = () => {
             
             {/* Pagination for Grid View */}
             {pagination.totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center">
+              <div className="mt-6 flex items-center justify-center">
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}
                     disabled={!pagination.hasPrev}
+                    className="text-xs"
                   >
                     Previous
                   </Button>
@@ -731,7 +741,7 @@ const AdminCardManagement = () => {
                           variant={pagination.currentPage === pageNum ? "default" : "outline"}
                           size="sm"
                           onClick={() => setPagination(prev => ({ ...prev, currentPage: pageNum }))}
-                          className="w-8 h-8 p-0"
+                          className="w-6 h-6 p-0 text-xs"
                         >
                           {pageNum}
                         </Button>
@@ -744,6 +754,7 @@ const AdminCardManagement = () => {
                     size="sm"
                     onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))}
                     disabled={!pagination.hasNext}
+                    className="text-xs"
                   >
                     Next
                   </Button>
@@ -753,14 +764,14 @@ const AdminCardManagement = () => {
           </>
         ) : (
           <>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Service Provider Cards ({filteredCards.length})</h3>
-                <div className="text-sm text-muted-foreground">
+                <h3 className="text-sm font-semibold">Service Provider Cards ({filteredCards.length})</h3>
+                <div className="text-xs text-muted-foreground">
                   Showing {((pagination.currentPage - 1) * 20) + 1} to {Math.min(pagination.currentPage * 20, pagination.totalCards)} of {pagination.totalCards} cards
                 </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {filteredCards.map((card) => (
                   <ServiceProviderCard
                     key={card._id}
@@ -778,8 +789,8 @@ const AdminCardManagement = () => {
             
             {/* Pagination for List View */}
             {pagination.totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
+              <div className="mt-6 flex items-center justify-between">
+                <div className="text-xs text-muted-foreground">
                   Page {pagination.currentPage} of {pagination.totalPages}
                 </div>
                 <div className="flex items-center gap-2">
@@ -788,6 +799,7 @@ const AdminCardManagement = () => {
                     size="sm"
                     onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}
                     disabled={!pagination.hasPrev}
+                    className="text-xs"
                   >
                     Previous
                   </Button>
@@ -801,7 +813,7 @@ const AdminCardManagement = () => {
                           variant={pagination.currentPage === pageNum ? "default" : "outline"}
                           size="sm"
                           onClick={() => setPagination(prev => ({ ...prev, currentPage: pageNum }))}
-                          className="w-8 h-8 p-0"
+                          className="w-6 h-6 p-0 text-xs"
                         >
                           {pageNum}
                         </Button>
@@ -814,6 +826,7 @@ const AdminCardManagement = () => {
                     size="sm"
                     onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))}
                     disabled={!pagination.hasNext}
+                    className="text-xs"
                   >
                     Next
                   </Button>

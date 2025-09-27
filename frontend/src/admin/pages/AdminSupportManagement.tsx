@@ -434,21 +434,21 @@ const AdminSupportManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-3">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
                 Support <span className="text-gradient">Management</span>
               </h1>
-              <p className="text-muted-foreground">Manage support tickets</p>
+              <p className="text-sm text-muted-foreground">Manage support tickets</p>
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Total Tickets</p>
@@ -459,7 +459,7 @@ const AdminSupportManagement = () => {
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Open Tickets</p>
@@ -470,7 +470,7 @@ const AdminSupportManagement = () => {
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Resolved</p>
@@ -481,7 +481,7 @@ const AdminSupportManagement = () => {
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Avg Response Time</p>
@@ -493,12 +493,12 @@ const AdminSupportManagement = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="tickets" className="space-y-6">
-          <TabsContent value="tickets" className="space-y-6">
+        <Tabs defaultValue="tickets" className="space-y-4">
+          <TabsContent value="tickets" className="space-y-4">
             {/* Filters and Search */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-4">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row gap-3">
                   <div className="flex-1">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -506,12 +506,12 @@ const AdminSupportManagement = () => {
                         placeholder="Search tickets, customers, Case ID..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 text-sm"
                       />
                     </div>
                   </div>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-full md:w-48">
+                    <SelectTrigger className="w-full md:w-40 text-sm">
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -523,7 +523,7 @@ const AdminSupportManagement = () => {
                     </SelectContent>
                   </Select>
                   <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                    <SelectTrigger className="w-full md:w-48">
+                    <SelectTrigger className="w-full md:w-40 text-sm">
                       <SelectValue placeholder="Filter by priority" />
                     </SelectTrigger>
                     <SelectContent>
@@ -537,9 +537,10 @@ const AdminSupportManagement = () => {
                     variant="outline" 
                     onClick={fetchSupportTickets}
                     disabled={loading}
-                    className="w-full md:w-auto"
+                    className="w-full md:w-auto text-xs"
+                    size="sm"
                   >
-                    <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-3 h-3 mr-2 ${loading ? 'animate-spin' : ''}`} />
                     Refresh
                   </Button>
                 </div>
@@ -548,10 +549,10 @@ const AdminSupportManagement = () => {
 
             {/* Tickets Table */}
             <Card>
-              <CardHeader>
-                <CardTitle>Support Tickets ({filteredTickets.length})</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Support Tickets ({filteredTickets.length})</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -573,20 +574,20 @@ const AdminSupportManagement = () => {
                       <TableRow key={ticket.id}>
                         <TableCell>
                           <div>
-                            <p className="font-medium text-gray-900">{ticket.id}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm font-medium text-gray-900">{ticket.id}</p>
+                            <p className="text-xs text-gray-500">
                               {ticket.caseId || <span className="text-muted-foreground">-</span>}
                             </p>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium text-gray-900">{ticket.customerName}</p>
-                            <div className="flex items-center gap-1 text-sm text-gray-500">
+                            <p className="text-sm font-medium text-gray-900">{ticket.customerName}</p>
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
                               <Phone className="w-3 h-3" />
                               <span>{ticket.customerPhone}</span>
                             </div>
-                            <p className="text-sm text-gray-500">{ticket.customerEmail}</p>
+                            <p className="text-xs text-gray-500">{ticket.customerEmail}</p>
                             {ticket.rescheduleInfo && (
                               <div className="mt-1">
                                 <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
@@ -599,26 +600,26 @@ const AdminSupportManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium text-gray-900">{ticket.category}</p>
+                            <p className="text-sm font-medium text-gray-900">{ticket.category}</p>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium text-gray-900">
+                            <p className="text-sm font-medium text-gray-900">
                               {ticket.assignedVendor || <span className="text-muted-foreground">Not Assigned</span>}
                             </p>
                             {ticket.assignedAt && (
-                              <p className="text-sm text-gray-500">
+                              <p className="text-xs text-gray-500">
                                 Assigned: {new Date(ticket.assignedAt).toLocaleDateString()}
                               </p>
                             )}
                             {ticket.rescheduleInfo && (
-                              <p className="text-sm text-orange-600">
+                              <p className="text-xs text-orange-600">
                                 Rescheduled: {new Date(ticket.rescheduleInfo.rescheduledAt).toLocaleDateString()}
                               </p>
                             )}
                             {ticket.vendorDeclinedAt && (
-                              <p className="text-sm text-red-600">
+                              <p className="text-xs text-red-600">
                                 Declined: {new Date(ticket.vendorDeclinedAt).toLocaleDateString()}
                               </p>
                             )}
@@ -638,8 +639,8 @@ const AdminSupportManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium text-gray-900">{ticket.subject}</p>
-                            <p className="text-sm text-gray-500 max-w-xs truncate">
+                            <p className="text-sm font-medium text-gray-900">{ticket.subject}</p>
+                            <p className="text-xs text-gray-500 max-w-xs truncate">
                               {ticket.description || 'No description provided'}
                             </p>
                           </div>
@@ -671,7 +672,7 @@ const AdminSupportManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="text-sm">{ticket.created}</p>
+                            <p className="text-xs">{ticket.created}</p>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -680,37 +681,37 @@ const AdminSupportManagement = () => {
                               size="sm" 
                               variant="outline"
                               onClick={() => handleViewTicket(ticket)}
-                                className="h-8 w-8 p-0"
+                                className="h-7 w-7 p-0"
                                 title="View Full Details"
                             >
-                                <Eye className="w-4 h-4" />
+                                <Eye className="w-3 h-3" />
                             </Button>
                             <Button 
                               size="sm" 
                               variant="outline"
                               onClick={() => handleReplyTicket(ticket)}
-                                className="h-8 w-8 p-0"
+                                className="h-7 w-7 p-0"
                                 title="Reply to Ticket"
                             >
-                                <Reply className="w-4 h-4" />
+                                <Reply className="w-3 h-3" />
                             </Button>
                             <Button 
                               size="sm" 
                               variant="outline"
                               onClick={() => handleAssignVendor(ticket)}
-                                className="h-8 w-8 p-0"
+                                className="h-7 w-7 p-0"
                                 title="Assign Vendor"
                             >
-                                <UserPlus className="w-4 h-4" />
+                                <UserPlus className="w-3 h-3" />
                             </Button>
                             <Button 
                               size="sm" 
                               variant="outline"
                               onClick={() => handleViewTicketDetails(ticket)}
-                                className="h-8 w-8 p-0"
+                                className="h-7 w-7 p-0"
                                 title="View Complete Details"
                             >
-                                <Info className="w-4 h-4" />
+                                <Info className="w-3 h-3" />
                             </Button>
                           </div>
                         </TableCell>
@@ -721,10 +722,10 @@ const AdminSupportManagement = () => {
                 </div>
                 
                 {filteredTickets.length === 0 && (
-                  <div className="text-center py-8">
-                    <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-base font-semibold mb-2">No Tickets Found</h3>
-                    <p className="text-muted-foreground">
+                  <div className="text-center py-6">
+                    <MessageSquare className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <h3 className="text-sm font-semibold mb-1">No Tickets Found</h3>
+                    <p className="text-xs text-muted-foreground">
                       {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all' 
                         ? 'Try adjusting your filters to see more tickets.'
                         : 'No support tickets have been submitted yet.'
@@ -740,40 +741,40 @@ const AdminSupportManagement = () => {
 
         {/* View Ticket Dialog */}
         <Dialog open={isViewTicketOpen} onOpenChange={setIsViewTicketOpen}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto mt-12">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Eye className="w-5 h-5" />
+              <DialogTitle className="flex items-center gap-2 text-lg">
+                <Eye className="w-4 h-4" />
                 Ticket Details - {selectedTicket?.id}
               </DialogTitle>
             </DialogHeader>
             {selectedTicket && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Header with Status and Priority */}
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-3">
                 <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                      <Badge className={`${getStatusColor(selectedTicket.status)} text-sm px-3 py-1`}>
+                      <Label className="text-xs font-medium text-muted-foreground">Status</Label>
+                      <Badge className={`${getStatusColor(selectedTicket.status)} text-xs px-2 py-1`}>
                         {selectedTicket.status}
                       </Badge>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
-                      <Badge className={`${getPriorityColor(selectedTicket.priority)} text-sm px-3 py-1`}>
+                      <Label className="text-xs font-medium text-muted-foreground">Priority</Label>
+                      <Badge className={`${getPriorityColor(selectedTicket.priority)} text-xs px-2 py-1`}>
                         {selectedTicket.priority}
                       </Badge>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Type</Label>
-                      <Badge variant="outline" className="text-sm px-3 py-1">
+                      <Label className="text-xs font-medium text-muted-foreground">Type</Label>
+                      <Badge variant="outline" className="text-xs px-2 py-1">
                         {selectedTicket.category}
                       </Badge>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Created</p>
-                    <p className="text-sm font-medium">{selectedTicket.created}</p>
+                    <p className="text-xs text-muted-foreground">Created</p>
+                    <p className="text-xs font-medium">{selectedTicket.created}</p>
                   </div>
                 </div>
 
@@ -781,28 +782,28 @@ const AdminSupportManagement = () => {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <User className="w-4 h-4" />
+                      <User className="w-3 h-3" />
                       Customer Information
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                        <p className="text-sm font-medium">{selectedTicket.customerName}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                        <p className="text-xs font-medium">{selectedTicket.customerName}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                      <p className="text-sm">{selectedTicket.customerEmail}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Email</Label>
+                      <p className="text-xs">{selectedTicket.customerEmail}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
-                      <p className="text-sm">{selectedTicket.customerPhone}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
+                      <p className="text-xs">{selectedTicket.customerPhone}</p>
                     </div>
                     {selectedTicket.caseId && (
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Case ID</Label>
-                          <p className="text-sm font-medium">{selectedTicket.caseId}</p>
+                        <Label className="text-xs font-medium text-muted-foreground">Case ID</Label>
+                          <p className="text-xs font-medium">{selectedTicket.caseId}</p>
                       </div>
                     )}
                   </div>
@@ -813,32 +814,32 @@ const AdminSupportManagement = () => {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
+                      <FileText className="w-3 h-3" />
                       Ticket Information
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-2 p-3">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Subject</Label>
-                      <p className="text-sm font-medium mt-1">{selectedTicket.subject}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
+                      <p className="text-xs font-medium mt-1">{selectedTicket.subject}</p>
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Issue Description</Label>
-                      <div className="mt-1 p-3 bg-muted rounded-lg">
-                        <p className="text-sm leading-relaxed">{selectedTicket.description}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Issue Description</Label>
+                      <div className="mt-1 p-2 bg-muted rounded-lg">
+                        <p className="text-xs leading-relaxed">{selectedTicket.description}</p>
                     </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Assigned To</Label>
-                        <p className="text-sm">{selectedTicket.assignedTo?.name || selectedTicket.assignedVendor || 'Unassigned'}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Assigned To</Label>
+                        <p className="text-xs">{selectedTicket.assignedTo?.name || selectedTicket.assignedVendor || 'Unassigned'}</p>
                     </div>
                       {selectedTicket.estimatedResolution && (
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Estimated Resolution</Label>
-                      <p className="text-sm">{new Date(selectedTicket.estimatedResolution).toLocaleDateString('en-GB', { 
+                      <Label className="text-xs font-medium text-muted-foreground">Estimated Resolution</Label>
+                      <p className="text-xs">{new Date(selectedTicket.estimatedResolution).toLocaleDateString('en-GB', { 
                         day: '2-digit', 
                         month: 'short', 
                         year: 'numeric'
@@ -852,16 +853,16 @@ const AdminSupportManagement = () => {
                 {/* Tags */}
                 {selectedTicket.tags && selectedTicket.tags.length > 0 && (
                   <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Tag className="w-5 h-5" />
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Tag className="w-3 h-3" />
                         Tags
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2">
+                    <CardContent className="p-3">
+                      <div className="flex flex-wrap gap-1">
                     {selectedTicket.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline" className="text-sm px-3 py-1">
+                          <Badge key={index} variant="outline" className="text-xs px-2 py-1">
                             {tag}
                           </Badge>
                     ))}
@@ -873,17 +874,17 @@ const AdminSupportManagement = () => {
                 {/* Resolution (if resolved) */}
                 {selectedTicket.resolution && (
                   <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-600" />
                         Resolution
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <p className="text-sm leading-relaxed">{selectedTicket.resolution}</p>
+                    <CardContent className="p-3">
+                      <div className="p-2 bg-green-50 border border-green-200 rounded-lg">
+                        <p className="text-xs leading-relaxed">{selectedTicket.resolution}</p>
                         {selectedTicket.resolvedAt && (
-                          <p className="text-xs text-muted-foreground mt-2">
+                          <p className="text-xs text-muted-foreground mt-1">
                             Resolved on: {new Date(selectedTicket.resolvedAt).toLocaleDateString('en-GB', { 
                               day: '2-digit', 
                               month: 'short', 
@@ -899,26 +900,26 @@ const AdminSupportManagement = () => {
                 {/* Conversation History */}
                 {selectedTicket.responses && selectedTicket.responses.length > 0 && (
                   <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <MessageCircle className="w-5 h-5" />
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <MessageCircle className="w-3 h-3" />
                         Conversation History ({selectedTicket.responses.length} responses)
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3 max-h-60 overflow-y-auto">
+                    <CardContent className="p-3">
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
                         {selectedTicket.responses.map((response, index) => (
-                          <div key={index} className={`p-3 rounded-lg ${
+                          <div key={index} className={`p-2 rounded-lg ${
                             response.sender === 'admin' 
                               ? 'bg-blue-50 border border-blue-200' 
                               : 'bg-gray-50 border border-gray-200'
                           }`}>
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center justify-between mb-1">
                               <div className="flex items-center gap-2">
                                 <Badge variant={response.sender === 'admin' ? 'default' : 'secondary'} className="text-xs">
                                   {response.sender === 'admin' ? 'Admin' : 'Customer'}
                                 </Badge>
-                                <span className="text-sm font-medium">{response.senderName}</span>
+                                <span className="text-xs font-medium">{response.senderName}</span>
                               </div>
                               <span className="text-xs text-muted-foreground">
                                 {new Date(response.createdAt).toLocaleDateString('en-GB', { 
@@ -930,7 +931,7 @@ const AdminSupportManagement = () => {
                                 })}
                               </span>
                             </div>
-                            <p className="text-sm leading-relaxed">{response.message}</p>
+                            <p className="text-xs leading-relaxed">{response.message}</p>
                           </div>
                         ))}
                       </div>
@@ -939,12 +940,13 @@ const AdminSupportManagement = () => {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex gap-2 pt-4 border-t">
+                <div className="flex gap-2 pt-3 border-t">
                   <Button 
                     onClick={() => handleReplyTicket(selectedTicket)} 
-                    className="flex-1"
+                    className="flex-1 text-xs"
+                    size="sm"
                   >
-                    <Reply className="w-4 h-4 mr-2" />
+                    <Reply className="w-3 h-3 mr-2" />
                     Reply to Ticket
                   </Button>
                   <Button 
@@ -953,11 +955,13 @@ const AdminSupportManagement = () => {
                       setIsViewTicketOpen(false);
                       setIsReplyTicketOpen(true);
                     }}
+                    size="sm"
+                    className="text-xs"
                   >
-                    <Edit className="w-4 h-4 mr-2" />
+                    <Edit className="w-3 h-3 mr-2" />
                     Edit Progress
                   </Button>
-                  <Button variant="outline" onClick={() => setIsViewTicketOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsViewTicketOpen(false)} size="sm" className="text-xs">
                     Close
                   </Button>
                 </div>
@@ -968,9 +972,9 @@ const AdminSupportManagement = () => {
 
         {/* Reply Ticket Dialog */}
         <Dialog open={isReplyTicketOpen} onOpenChange={setIsReplyTicketOpen}>
-          <DialogContent className="max-w-xl">
+          <DialogContent className="max-w-xl mt-12">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-2 text-lg">
                 Reply & Edit Ticket - {selectedTicket?.id}
               </DialogTitle>
             </DialogHeader>
@@ -980,12 +984,12 @@ const AdminSupportManagement = () => {
                 <div className="p-2 bg-muted rounded-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Subject</Label>
-                  <p className="text-sm font-medium">{selectedTicket.subject}</p>
+                  <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
+                  <p className="text-xs font-medium">{selectedTicket.subject}</p>
                 </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Customer</Label>
-                      <p className="text-sm">{selectedTicket.customerName}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Customer</Label>
+                      <p className="text-xs">{selectedTicket.customerName}</p>
                     </div>
                   </div>
                 </div>
@@ -994,29 +998,30 @@ const AdminSupportManagement = () => {
                 <Card>
                   <CardHeader className="pb-1">
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <Edit className="w-4 h-4" />
+                      <Edit className="w-3 h-3" />
                       Edit Progress
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-2 p-3">
                     <div className="space-y-2">
                       <div>
-                        <Label htmlFor="subjectInput">Subject</Label>
+                        <Label htmlFor="subjectInput" className="text-xs">Subject</Label>
                         <Input
                           id="subjectInput"
                           value={selectedTicket.subject}
                           onChange={(e) => setSelectedTicket({...selectedTicket, subject: e.target.value})}
                           placeholder="Enter ticket subject..."
+                          className="text-xs"
                         />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>
-                          <Label htmlFor="statusSelect">Status</Label>
+                          <Label htmlFor="statusSelect" className="text-xs">Status</Label>
                           <Select
                             value={selectedTicket.status}
                             onValueChange={(value) => setSelectedTicket({...selectedTicket, status: value})}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className="text-xs">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -1029,12 +1034,12 @@ const AdminSupportManagement = () => {
                           </Select>
                         </div>
                         <div>
-                          <Label htmlFor="prioritySelect">Priority</Label>
+                          <Label htmlFor="prioritySelect" className="text-xs">Priority</Label>
                           <Select
                             value={selectedTicket.priority}
                             onValueChange={(value) => setSelectedTicket({...selectedTicket, priority: value})}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className="text-xs">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -1053,20 +1058,21 @@ const AdminSupportManagement = () => {
                 <Card>
                   <CardHeader className="pb-1">
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <MessageCircle className="w-4 h-4" />
+                      <MessageCircle className="w-3 h-3" />
                       Add Response
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-3">
                     <div className="space-y-2">
                 <div>
-                  <Label htmlFor="replyText">Your Reply</Label>
+                  <Label htmlFor="replyText" className="text-xs">Your Reply</Label>
                   <Textarea
                     id="replyText"
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Type your reply here..."
                           rows={4}
+                          className="text-xs"
                   />
                 </div>
                     </div>
@@ -1074,24 +1080,26 @@ const AdminSupportManagement = () => {
                 </Card>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2 pt-4">
+                <div className="flex gap-2 pt-3">
                   <Button 
                     onClick={handleUpdateProgress} 
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 text-xs"
+                    size="sm"
                   >
-                    <Edit className="w-4 h-4 mr-2" />
+                    <Edit className="w-3 h-3 mr-2" />
                     Update Progress
                   </Button>
                   <Button 
                     onClick={handleSubmitReply} 
-                    className="flex-1"
+                    className="flex-1 text-xs"
                     disabled={!replyText.trim()}
+                    size="sm"
                   >
-                    <Send className="w-4 h-4 mr-2" />
+                    <Send className="w-3 h-3 mr-2" />
                     Send Reply
                   </Button>
-                  <Button variant="outline" onClick={() => setIsReplyTicketOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsReplyTicketOpen(false)} size="sm" className="text-xs">
                     Cancel
                   </Button>
                 </div>
@@ -1102,9 +1110,9 @@ const AdminSupportManagement = () => {
 
         {/* Assign Vendor Dialog */}
         <Dialog open={isAssignVendorOpen} onOpenChange={setIsAssignVendorOpen}>
-          <DialogContent className="max-w-3xl max-h-[70vh] overflow-y-auto mt-16">
+          <DialogContent className="max-w-3xl max-h-[70vh] overflow-y-auto mt-12">
             <DialogHeader>
-              <DialogTitle>Assign Vendor to Ticket</DialogTitle>
+              <DialogTitle className="text-lg">Assign Vendor to Ticket</DialogTitle>
             </DialogHeader>
             {selectedTicket && (
               <div className="space-y-3">
@@ -1362,7 +1370,7 @@ const AdminSupportManagement = () => {
 
         {/* View Ticket Complete Details Dialog */}
         <Dialog open={isViewTicketDetailsOpen} onOpenChange={setIsViewTicketDetailsOpen}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto pt-16">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mt-12">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-lg">
                 <Info className="w-4 h-4" />

@@ -416,7 +416,7 @@ const VendorSignup = () => {
   );
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 overflow-hidden">
+    <div className="h-screen flex items-center justify-center p-4 pt-16 overflow-hidden">
       <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="text-center mb-4 -mt-16">
@@ -505,44 +505,8 @@ const VendorSignup = () => {
                 This process typically takes 1-2 business days.
               </p>
             </div>
-
-            {/* Certified Partner Benefits */}
-            <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
-              <div className="flex items-center gap-2 text-green-800 mb-2">
-                <Briefcase className="h-4 w-4" />
-                <p className="text-sm font-medium">Become a Certified Partner</p>
-              </div>
-              <p className="text-xs text-green-700 mb-3">
-                After approval, make a ₹4,000 deposit to become a certified partner and unlock amazing benefits!
-              </p>
-              <div className="text-center">
-                <VendorBenefitsModal>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="border-green-300 text-green-700 hover:bg-green-100"
-                  >
-                    🎁 View All Benefits
-                  </Button>
-                </VendorBenefitsModal>
-              </div>
-            </div>
           </CardContent>
         </Card>
-
-        {/* Additional Info */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            By creating an account, you agree to our{' '}
-            <Link to="/vendor/terms" className="text-blue-600 hover:underline">
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link to="/vendor/privacy" className="text-blue-600 hover:underline">
-              Privacy Policy
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );

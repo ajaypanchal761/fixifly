@@ -1148,7 +1148,7 @@ class AdminApiService {
   }
 
   // Update vendor status
-  async updateVendorStatus(vendorId: string, action: 'approve' | 'reject' | 'activate' | 'deactivate'): Promise<{
+  async updateVendorStatus(vendorId: string, action: 'approve' | 'reject' | 'activate' | 'deactivate' | 'block' | 'unblock'): Promise<{
     success: boolean;
     message: string;
     data: { vendor: any };

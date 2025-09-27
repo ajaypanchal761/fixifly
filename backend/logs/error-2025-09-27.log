@@ -1,0 +1,3 @@
+[2025-09-27T06:50:32.770Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/dashboard"}
+[2025-09-27T06:50:36.112Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/logout"}
+[2025-09-27T07:53:17.660Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}

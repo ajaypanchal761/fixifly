@@ -270,23 +270,23 @@ const AdminPaymentManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <CreditCard className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Payment Management</h1>
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <CreditCard className="w-6 h-6 text-blue-600" />
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Payment Management</h1>
           </div>
-          <p className="text-gray-600">Manage and track all Razorpay payments</p>
+          <p className="text-sm text-gray-600">Manage and track all Razorpay payments</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-xs font-medium">Total Payments</CardTitle>
+              <CreditCard className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{payments.length}</div>
+            <CardContent className="p-4">
+              <div className="text-lg font-bold">{payments.length}</div>
               <p className="text-xs text-muted-foreground">
                 {payments.filter(p => p.payment?.status === 'completed').length} completed
               </p>
@@ -294,12 +294,12 @@ const AdminPaymentManagement = () => {
           </Card>
           
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-xs font-medium">Total Revenue</CardTitle>
+              <DollarSign className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="p-4">
+              <div className="text-lg font-bold">
                 ₹{payments.reduce((sum, payment) => {
                   const initialAmount = payment.pricing?.totalAmount || 0;
                   const serviceCharges = parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0;
@@ -313,12 +313,12 @@ const AdminPaymentManagement = () => {
           </Card>
           
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Online Payments</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-xs font-medium">Online Payments</CardTitle>
+              <Calendar className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="p-4">
+              <div className="text-lg font-bold">
                 {payments.filter(p => p.paymentMode === 'online').length}
               </div>
               <p className="text-xs text-muted-foreground">
@@ -328,12 +328,12 @@ const AdminPaymentManagement = () => {
           </Card>
           
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Cash Payments</CardTitle>
-              <User className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-xs font-medium">Cash Payments</CardTitle>
+              <User className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="p-4">
+              <div className="text-lg font-bold">
                 {payments.filter(p => p.paymentMode === 'cash').length}
               </div>
               <p className="text-xs text-muted-foreground">
@@ -344,9 +344,9 @@ const AdminPaymentManagement = () => {
         </div>
 
         {/* Filters and Search */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -354,12 +354,12 @@ const AdminPaymentManagement = () => {
                     placeholder="Search by booking ID, customer name, email, or payment ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -374,7 +374,7 @@ const AdminPaymentManagement = () => {
               </Select>
               
               <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Payment Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -387,7 +387,7 @@ const AdminPaymentManagement = () => {
               </Select>
               
               <Select value={paymentModeFilter} onValueChange={setPaymentModeFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Payment Mode" />
                 </SelectTrigger>
                 <SelectContent>
@@ -396,8 +396,8 @@ const AdminPaymentManagement = () => {
                   <SelectItem value="cash">Cash</SelectItem>
                 </SelectContent>
               </Select>
-              <Button onClick={exportToCSV} variant="outline" className="flex items-center gap-2">
-                <Download className="w-4 h-4" />
+              <Button onClick={exportToCSV} variant="outline" size="sm" className="flex items-center gap-2 text-xs">
+                <Download className="w-3 h-3" />
                 Export CSV
               </Button>
             </div>
@@ -406,19 +406,19 @@ const AdminPaymentManagement = () => {
 
         {/* Payments Table */}
         <Card>
-          <CardHeader>
-            <CardTitle>Payment Records</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Payment Records</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-2 text-gray-600">Loading payments...</p>
+              <div className="text-center py-6">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-sm text-gray-600">Loading payments...</p>
               </div>
             ) : filteredPayments.length === 0 ? (
-              <div className="text-center py-8">
-                <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No payment records found</p>
+              <div className="text-center py-6">
+                <CreditCard className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                <p className="text-sm text-gray-600">No payment records found</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -443,25 +443,25 @@ const AdminPaymentManagement = () => {
                   <TableBody>
                     {filteredPayments.map((payment) => (
                       <TableRow key={payment._id}>
-                        <TableCell className="font-medium">
+                        <TableCell className="text-sm font-medium">
                           {payment.bookingReference || `FIX${payment.bookingId.substring(payment.bookingId.length - 8).toUpperCase()}`}
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{payment.customer?.name || 'N/A'}</p>
-                            <p className="text-sm text-gray-600">{payment.customer?.email || 'N/A'}</p>
+                            <p className="text-sm font-medium">{payment.customer?.name || 'N/A'}</p>
+                            <p className="text-xs text-gray-600">{payment.customer?.email || 'N/A'}</p>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-sm">
                           {payment.services?.map(s => s.serviceName).join(', ') || 'N/A'}
                         </TableCell>
-                        <TableCell className="font-medium text-blue-600">
+                        <TableCell className="text-sm font-medium text-blue-600">
                           <div>
                             <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mb-1 inline-block">Completed</div>
                             <div>₹{payment.pricing?.totalAmount || 0}</div>
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium text-green-600">
+                        <TableCell className="text-sm font-medium text-green-600">
                           <div>
                             {(() => {
                               const serviceCharges = parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0;
@@ -478,7 +478,7 @@ const AdminPaymentManagement = () => {
                             })()}
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium text-orange-600">
+                        <TableCell className="text-sm font-medium text-orange-600">
                           <div>
                             {payment.completionData?.spareParts && payment.completionData.spareParts.length > 0 ? (
                               <>
@@ -494,7 +494,7 @@ const AdminPaymentManagement = () => {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium text-purple-600">
+                        <TableCell className="text-sm font-medium text-purple-600">
                           ₹{(payment.pricing?.totalAmount || 0) + (parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0)}
                         </TableCell>
                         <TableCell>
@@ -503,10 +503,10 @@ const AdminPaymentManagement = () => {
                         <TableCell>
                           {getPaymentStatusBadge(payment.paymentStatus || '', payment.paymentMode || '')}
                         </TableCell>
-                        <TableCell className="font-mono text-sm">
+                        <TableCell className="font-mono text-xs">
                           {payment.payment?.razorpayPaymentId || payment.payment?.transactionId || 'N/A'}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-sm">
                           {new Date(payment.payment?.paidAt || payment.createdAt).toLocaleDateString()}
                         </TableCell>
                         <TableCell>{getStatusBadge(payment.status)}</TableCell>
@@ -515,8 +515,9 @@ const AdminPaymentManagement = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => handleViewDetails(payment)}
+                            className="text-xs"
                           >
-                            <Eye className="w-4 h-4 mr-1" />
+                            <Eye className="w-3 h-3 mr-1" />
                             View
                           </Button>
                         </TableCell>
@@ -531,83 +532,83 @@ const AdminPaymentManagement = () => {
 
         {/* Payment Details Modal */}
         <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
-          <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto pt-10">
+          <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto pt-8">
             <DialogHeader>
-              <DialogTitle>Complete Payment Details</DialogTitle>
+              <DialogTitle className="text-lg">Complete Payment Details</DialogTitle>
             </DialogHeader>
             {selectedPayment && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Booking Information */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Booking ID</Label>
-                    <p className="text-sm font-medium">
+                    <Label className="text-xs font-medium text-muted-foreground">Booking ID</Label>
+                    <p className="text-xs font-medium">
                       {selectedPayment.bookingReference || `FIX${selectedPayment.bookingId.substring(selectedPayment.bookingId.length - 8).toUpperCase()}`}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                    <Label className="text-xs font-medium text-muted-foreground">Status</Label>
                     <div className="mt-1">{getStatusBadge(selectedPayment.status)}</div>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
+                    <Label className="text-xs font-medium text-muted-foreground">Priority</Label>
                     <div className="mt-1">
-                      <Badge className="bg-orange-100 text-orange-800">{selectedPayment.priority || 'medium'}</Badge>
+                      <Badge className="bg-orange-100 text-orange-800 text-xs">{selectedPayment.priority || 'medium'}</Badge>
                     </div>
                   </div>
                 </div>
 
                 {/* Payment Information */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Payment ID</Label>
-                    <p className="text-sm font-mono">{selectedPayment.payment?.razorpayPaymentId || selectedPayment.payment?.transactionId || 'N/A'}</p>
+                    <Label className="text-xs font-medium text-muted-foreground">Payment ID</Label>
+                    <p className="text-xs font-mono">{selectedPayment.payment?.razorpayPaymentId || selectedPayment.payment?.transactionId || 'N/A'}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Order ID</Label>
-                    <p className="text-sm font-mono">{selectedPayment.payment?.razorpayOrderId || 'N/A'}</p>
+                    <Label className="text-xs font-medium text-muted-foreground">Order ID</Label>
+                    <p className="text-xs font-mono">{selectedPayment.payment?.razorpayOrderId || 'N/A'}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Payment Date</Label>
-                    <p className="text-sm">
+                    <Label className="text-xs font-medium text-muted-foreground">Payment Date</Label>
+                    <p className="text-xs">
                       {new Date(selectedPayment.payment?.paidAt || selectedPayment.createdAt).toLocaleString()}
                     </p>
                   </div>
                 </div>
 
                 {/* Amount Breakdown */}
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-2">
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
+                    <Label className="text-xs font-medium text-muted-foreground">
                       Initial Payment 
-                      <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Completed</span>
+                      <span className="ml-1 text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">Completed</span>
                     </Label>
-                    <p className="text-sm font-medium text-blue-600">
+                    <p className="text-xs font-medium text-blue-600">
                       ₹{selectedPayment.pricing?.totalAmount || 0}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
+                    <Label className="text-xs font-medium text-muted-foreground">
                       Service Charges Amount
                       {(() => {
                         const serviceCharges = parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0;
                         return serviceCharges > 0 && (
-                        <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                        <span className="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded">
                           {(selectedPayment.paymentStatus === 'payment_done' || selectedPayment.paymentStatus === 'collected') ? 'Paid' : 'Pending'}
                         </span>
                         );
                       })()}
                     </Label>
-                    <p className="text-sm font-medium text-green-600">
+                    <p className="text-xs font-medium text-green-600">
                       ₹{parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
+                    <Label className="text-xs font-medium text-muted-foreground">
                       Spare Parts Amount
-                      <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Admin Only</span>
+                      <span className="ml-1 text-xs bg-orange-100 text-orange-800 px-1 py-0.5 rounded">Admin Only</span>
                     </Label>
-                    <p className="text-sm font-medium text-orange-600">
+                    <p className="text-xs font-medium text-orange-600">
                       ₹{selectedPayment.completionData?.spareParts ? 
                         selectedPayment.completionData.spareParts.reduce((sum: number, part: any) => 
                           sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
@@ -615,51 +616,51 @@ const AdminPaymentManagement = () => {
                     </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Total Amount</Label>
-                    <p className="text-sm font-medium text-purple-600">
+                    <Label className="text-xs font-medium text-muted-foreground">Total Amount</Label>
+                    <p className="text-xs font-medium text-purple-600">
                       ₹{(selectedPayment.pricing?.totalAmount || 0) + (parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0)}
                     </p>
                   </div>
                 </div>
 
                 {/* Payment Mode & Status */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Payment Mode</Label>
+                    <Label className="text-xs font-medium text-muted-foreground">Payment Mode</Label>
                     <div className="mt-1">{getPaymentModeBadge(selectedPayment.paymentMode || '')}</div>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Payment Status</Label>
+                    <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
                     <div className="mt-1">{getPaymentStatusBadge(selectedPayment.paymentStatus || '', selectedPayment.paymentMode || '')}</div>
                   </div>
                 </div>
 
                 {/* Customer Information */}
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Customer Information</Label>
-                  <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm"><strong>Name:</strong> {selectedPayment.customer?.name || 'N/A'}</p>
-                    <p className="text-sm"><strong>Email:</strong> {selectedPayment.customer?.email || 'N/A'}</p>
-                    <p className="text-sm"><strong>Phone:</strong> {selectedPayment.customer?.phone || 'N/A'}</p>
+                  <Label className="text-xs font-medium text-muted-foreground">Customer Information</Label>
+                  <div className="mt-1 p-2 bg-gray-50 rounded-lg">
+                    <p className="text-xs"><strong>Name:</strong> {selectedPayment.customer?.name || 'N/A'}</p>
+                    <p className="text-xs"><strong>Email:</strong> {selectedPayment.customer?.email || 'N/A'}</p>
+                    <p className="text-xs"><strong>Phone:</strong> {selectedPayment.customer?.phone || 'N/A'}</p>
                   </div>
                 </div>
 
                 {/* Service Information */}
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Service Information</Label>
-                  <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm"><strong>Services:</strong> {selectedPayment.services?.map(s => s.serviceName).join(', ') || 'N/A'}</p>
+                  <Label className="text-xs font-medium text-muted-foreground">Service Information</Label>
+                  <div className="mt-1 p-2 bg-gray-50 rounded-lg">
+                    <p className="text-xs"><strong>Services:</strong> {selectedPayment.services?.map(s => s.serviceName).join(', ') || 'N/A'}</p>
                   </div>
                 </div>
 
                 {/* Spare Parts Information */}
                 {selectedPayment.completionData?.spareParts && selectedPayment.completionData.spareParts.length > 0 && (
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Spare Parts Used</Label>
-                    <div className="mt-2 space-y-2">
+                    <Label className="text-xs font-medium text-muted-foreground">Spare Parts Used</Label>
+                    <div className="mt-1 space-y-1">
                       {selectedPayment.completionData.spareParts.map((part, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                          <div className="w-12 h-8 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                        <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                          <div className="w-10 h-6 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
                             {part.photo ? (
                               <img 
                                 src={part.photo} 
@@ -667,11 +668,11 @@ const AdminPaymentManagement = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-4 h-4 bg-gray-400 rounded"></div>
+                              <div className="w-3 h-3 bg-gray-400 rounded"></div>
                             )}
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium">{part.name}</p>
+                            <p className="text-xs font-medium">{part.name}</p>
                             <p className="text-xs text-gray-600">₹{part.amount}</p>
                           </div>
                         </div>
@@ -683,9 +684,9 @@ const AdminPaymentManagement = () => {
                 {/* Resolution Note */}
                 {selectedPayment.completionData?.resolutionNote && (
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Resolution Note</Label>
-                    <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm">{selectedPayment.completionData.resolutionNote}</p>
+                    <Label className="text-xs font-medium text-muted-foreground">Resolution Note</Label>
+                    <div className="mt-1 p-2 bg-gray-50 rounded-lg">
+                      <p className="text-xs">{selectedPayment.completionData.resolutionNote}</p>
                     </div>
                   </div>
                 )}

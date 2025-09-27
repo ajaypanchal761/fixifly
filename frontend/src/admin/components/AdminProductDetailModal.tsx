@@ -124,67 +124,67 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[80vh] mt-16 overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[80vh] mt-12 overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Package className="w-6 h-6 text-blue-600" />
-              <span className="text-2xl font-bold">{product.productName}</span>
+            <div className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-blue-600" />
+              <span className="text-lg font-bold">{product.productName}</span>
             </div>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Product Overview */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Settings className="w-4 h-4" />
                 Product Overview
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Tag className="w-5 h-5 text-gray-600" />
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                  <Tag className="w-4 h-4 text-gray-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Service Type</p>
-                    <Badge className={getServiceTypeColor(product.serviceType)}>
+                    <p className="text-xs text-gray-600">Service Type</p>
+                    <Badge className={`${getServiceTypeColor(product.serviceType)} text-xs`}>
                       {product.serviceType}
                     </Badge>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Package className="w-5 h-5 text-gray-600" />
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                  <Package className="w-4 h-4 text-gray-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Total Services</p>
-                    <p className="font-medium text-lg">{getTotalServices()}</p>
+                    <p className="text-xs text-gray-600">Total Services</p>
+                    <p className="font-medium text-sm">{getTotalServices()}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                   {product.isFeatured ? (
-                    <Star className="w-5 h-5 text-yellow-500" />
+                    <Star className="w-4 h-4 text-yellow-500" />
                   ) : (
-                    <StarOff className="w-5 h-5 text-gray-400" />
+                    <StarOff className="w-4 h-4 text-gray-400" />
                   )}
                   <div>
-                    <p className="text-sm text-gray-600">Featured Status</p>
-                    <Badge className={product.isFeatured ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}>
+                    <p className="text-xs text-gray-600">Featured Status</p>
+                    <Badge className={`${product.isFeatured ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'} text-xs`}>
                       {product.isFeatured ? 'Featured' : 'Not Featured'}
                     </Badge>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-4 flex items-center gap-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Calendar className="w-4 h-4" />
+              <div className="mt-3 flex items-center gap-3">
+                <div className="flex items-center gap-1 text-xs text-gray-600">
+                  <Calendar className="w-3 h-3" />
                   Created: {formatDate(product.createdAt)}
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Clock className="w-4 h-4" />
+                <div className="flex items-center gap-1 text-xs text-gray-600">
+                  <Clock className="w-3 h-3" />
                   Updated: {formatDate(product.updatedAt)}
                 </div>
               </div>
@@ -194,18 +194,18 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
           {/* Product Image */}
           {product.productImage && (
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ImageIcon className="w-4 h-4" />
                   Product Image
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 <div className="flex justify-center">
                   <img 
                     src={product.productImage} 
                     alt={product.productName}
-                    className="max-w-md max-h-64 object-contain rounded-lg border"
+                    className="max-w-md max-h-48 object-contain rounded-lg border"
                   />
                 </div>
               </CardContent>
@@ -213,56 +213,56 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
           )}
 
           {/* Categories and Services */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold">Categories & Services</h3>
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold">Categories & Services</h3>
             
             {Object.entries(product.categories).map(([categoryKey, services]) => {
               if (services.length === 0) return null;
               
               return (
                 <Card key={categoryKey}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center justify-between text-lg">
                       <div className="flex items-center gap-2">
-                        <Tag className="w-5 h-5 text-blue-600" />
+                        <Tag className="w-4 h-4 text-blue-600" />
                         {getCategoryName(categoryKey)}
                       </div>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-xs">
                         {services.length} service{services.length !== 1 ? 's' : ''}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
                       {services.map((service, index) => (
-                        <div key={index} className="p-4 border rounded-lg bg-gray-50">
+                        <div key={index} className="p-3 border rounded-lg bg-gray-50">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h4 className="font-semibold text-lg">{service.serviceName}</h4>
+                              <h4 className="font-semibold text-sm">{service.serviceName}</h4>
                               {service.description && (
-                                <p className="text-gray-600 mt-1">{service.description}</p>
+                                <p className="text-xs text-gray-600 mt-1">{service.description}</p>
                               )}
                             </div>
                             <div className="text-right">
                               <div className="flex items-center gap-2">
-                                <span className="text-lg font-bold text-green-600">
+                                <span className="text-sm font-bold text-green-600">
                                   ₹{service.price.toLocaleString()}
                                 </span>
                                 {service.discountPrice && service.discountPrice !== service.price && (
-                                  <span className="text-sm text-gray-500 line-through">
+                                  <span className="text-xs text-gray-500 line-through">
                                     ₹{service.discountPrice.toLocaleString()}
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2 mt-2">
+                              <div className="flex items-center gap-2 mt-1">
                                 <Badge 
                                   variant={service.isActive ? "default" : "secondary"}
-                                  className={service.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
+                                  className={`${service.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"} text-xs`}
                                 >
                                   {service.isActive ? 'Active' : 'Inactive'}
                                 </Badge>
                                 {service.discountPrice && service.discountPrice !== service.price && (
-                                  <Badge variant="outline" className="text-orange-600 border-orange-200">
+                                  <Badge variant="outline" className="text-orange-600 border-orange-200 text-xs">
                                     {Math.round(((service.price - service.discountPrice) / service.price) * 100)}% OFF
                                   </Badge>
                                 )}
@@ -281,10 +281,10 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
           {/* Empty Categories Message */}
           {getTotalServices() === 0 && (
             <Card>
-              <CardContent className="text-center py-8">
-                <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">No Services Added</h3>
-                <p className="text-gray-500">This product doesn't have any services configured yet.</p>
+              <CardContent className="text-center py-6 p-4">
+                <Package className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                <h3 className="text-sm font-semibold text-gray-600 mb-1">No Services Added</h3>
+                <p className="text-xs text-gray-500">This product doesn't have any services configured yet.</p>
               </CardContent>
             </Card>
           )}

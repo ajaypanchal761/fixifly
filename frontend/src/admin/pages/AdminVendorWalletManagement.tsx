@@ -274,75 +274,72 @@ const AdminVendorWalletManagement = () => {
       
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
                 Vendor <span className="text-gradient">Wallet</span> Management
               </h1>
-              <p className="text-muted-foreground">Manage vendor wallets, transactions, and payments</p>
+              <p className="text-sm text-muted-foreground">Manage vendor wallets, transactions, and payments</p>
             </div>
-            <Button onClick={() => setIsAddTransactionOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Transaction
-            </Button>
+           
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Balance</p>
-                  <p className="text-2xl font-bold">₹{totalBalance.toLocaleString()}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Total Balance</p>
+                  <p className="text-lg font-bold">₹{totalBalance.toLocaleString()}</p>
                 </div>
-                <Wallet className="h-8 w-8 text-muted-foreground" />
+                <Wallet className="h-6 w-6 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Deposits</p>
-                  <p className="text-2xl font-bold">₹{totalDeposits.toLocaleString()}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Total Deposits</p>
+                  <p className="text-lg font-bold">₹{totalDeposits.toLocaleString()}</p>
                 </div>
-                <CreditCard className="h-8 w-8 text-blue-500" />
+                <CreditCard className="h-6 w-6 text-blue-500" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Earnings</p>
-                  <p className="text-2xl font-bold">₹{totalEarnings.toLocaleString()}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Total Earnings</p>
+                  <p className="text-lg font-bold">₹{totalEarnings.toLocaleString()}</p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-green-500" />
+                <TrendingUp className="h-6 w-6 text-green-500" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Withdrawals</p>
-                  <p className="text-2xl font-bold">₹{totalWithdrawals.toLocaleString()}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Total Withdrawals</p>
+                  <p className="text-lg font-bold">₹{totalWithdrawals.toLocaleString()}</p>
                 </div>
-                <TrendingDown className="h-8 w-8 text-red-500" />
+                <TrendingDown className="h-6 w-6 text-red-500" />
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Active Wallets</p>
-                  <p className="text-2xl font-bold">{activeWallets}</p>
+                  <p className="text-xs font-medium text-muted-foreground">Active Wallets</p>
+                  <p className="text-lg font-bold">{activeWallets}</p>
                 </div>
-                <User className="h-8 w-8 text-muted-foreground" />
+                <User className="h-6 w-6 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -351,10 +348,10 @@ const AdminVendorWalletManagement = () => {
         {/* Loading and Error States */}
         {loading && (
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-center">
-                <RefreshCw className="h-6 w-6 animate-spin mr-2" />
-                <p>Loading vendor wallets...</p>
+                <RefreshCw className="h-5 w-5 animate-spin mr-2" />
+                <p className="text-sm">Loading vendor wallets...</p>
               </div>
             </CardContent>
           </Card>
@@ -362,15 +359,15 @@ const AdminVendorWalletManagement = () => {
 
         {error && (
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-center text-red-600">
-                <AlertTriangle className="h-6 w-6 mr-2" />
-                <p>Error: {error}</p>
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                <p className="text-sm">Error: {error}</p>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={fetchVendorWallets}
-                  className="ml-4"
+                  className="ml-4 text-xs"
                 >
                   Retry
                 </Button>
@@ -379,17 +376,17 @@ const AdminVendorWalletManagement = () => {
           </Card>
         )}
 
-        <Tabs defaultValue="wallets" className="space-y-6">
+        <Tabs defaultValue="wallets" className="space-y-4">
           <TabsList>
             <TabsTrigger value="wallets">Vendor Wallets</TabsTrigger>
             <TabsTrigger value="transactions">All Transactions</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="wallets" className="space-y-6">
+          <TabsContent value="wallets" className="space-y-4">
             {/* Filters and Search */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-4">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row gap-3">
                   <div className="flex-1">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -397,12 +394,12 @@ const AdminVendorWalletManagement = () => {
                         placeholder="Search vendors..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 text-sm"
                       />
                     </div>
                   </div>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-full md:w-48">
+                    <SelectTrigger className="w-full md:w-40 text-sm">
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -419,10 +416,10 @@ const AdminVendorWalletManagement = () => {
             {/* Wallets Table */}
             {!loading && !error && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Vendor Wallets ({filteredWallets.length})</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Vendor Wallets ({filteredWallets.length})</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -444,55 +441,55 @@ const AdminVendorWalletManagement = () => {
                       {filteredWallets.map((wallet) => (
                         <TableRow key={wallet.id}>
                           <TableCell>
-                            <div className="font-medium">{wallet.vendorName}</div>
+                            <div className="text-sm font-medium">{wallet.vendorName}</div>
                           </TableCell>
                           <TableCell>
-                            <div className="text-sm">{wallet.vendorEmail}</div>
+                            <div className="text-xs">{wallet.vendorEmail}</div>
                           </TableCell>
                           <TableCell>
-                            <div className="text-sm">{wallet.vendorPhone}</div>
+                            <div className="text-xs">{wallet.vendorPhone}</div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-1">
-                              <DollarSign className="h-4 w-4 text-green-500" />
-                              <span className="font-medium">₹{wallet.currentBalance.toLocaleString()}</span>
+                              <DollarSign className="h-3 w-3 text-green-500" />
+                              <span className="text-sm font-medium">₹{wallet.currentBalance.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-1">
-                              <CreditCard className="h-4 w-4 text-blue-500" />
-                              <span className="font-medium">₹{wallet.totalDeposits.toLocaleString()}</span>
+                              <CreditCard className="h-3 w-3 text-blue-500" />
+                              <span className="text-sm font-medium">₹{wallet.totalDeposits.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-1">
-                              <Banknote className="h-4 w-4 text-purple-500" />
-                              <span className="font-medium">₹{wallet.securityDeposit.toLocaleString()}</span>
+                              <Banknote className="h-3 w-3 text-purple-500" />
+                              <span className="text-sm font-medium">₹{wallet.securityDeposit.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-1">
-                              <Wallet className="h-4 w-4 text-green-600" />
-                              <span className="font-medium">₹{wallet.availableBalance.toLocaleString()}</span>
+                              <Wallet className="h-3 w-3 text-green-600" />
+                              <span className="text-sm font-medium">₹{wallet.availableBalance.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <span className="font-medium">₹{wallet.totalEarnings.toLocaleString()}</span>
+                            <span className="text-sm font-medium">₹{wallet.totalEarnings.toLocaleString()}</span>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-1">
-                              <CreditCard className="h-4 w-4 text-blue-500" />
-                              <span className="font-medium">₹{wallet.onlineCollected.toLocaleString()}</span>
+                              <CreditCard className="h-3 w-3 text-blue-500" />
+                              <span className="text-sm font-medium">₹{wallet.onlineCollected.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-1">
-                              <Banknote className="h-4 w-4 text-orange-500" />
-                              <span className="font-medium">₹{wallet.cashCollected.toLocaleString()}</span>
+                              <Banknote className="h-3 w-3 text-orange-500" />
+                              <span className="text-sm font-medium">₹{wallet.cashCollected.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <span className="text-sm">
+                            <span className="text-xs">
                               {wallet.lastTransaction 
                                 ? new Date(wallet.lastTransaction).toLocaleDateString()
                                 : 'No transactions'
@@ -500,11 +497,12 @@ const AdminVendorWalletManagement = () => {
                             </span>
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center gap-2 justify-end">
+                            <div className="flex items-center gap-1 justify-end">
                               <Button 
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleViewWallet(wallet)}
+                                className="text-xs"
                               >
                                 <Eye className="w-3 h-3 mr-1" />
                                 View
@@ -513,6 +511,7 @@ const AdminVendorWalletManagement = () => {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleEditWallet(wallet)}
+                                className="text-xs"
                               >
                                 <Edit className="w-3 h-3 mr-1" />
                                 Edit
@@ -528,13 +527,13 @@ const AdminVendorWalletManagement = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="transactions" className="space-y-6">
+          <TabsContent value="transactions" className="space-y-4">
             {/* Transactions Table */}
             <Card>
-              <CardHeader>
-                <CardTitle>All Transactions ({filteredTransactions.length})</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">All Transactions ({filteredTransactions.length})</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -553,16 +552,16 @@ const AdminVendorWalletManagement = () => {
                       return (
                         <TableRow key={transaction.id}>
                           <TableCell>
-                            <span className="font-mono text-sm">{transaction.id}</span>
+                            <span className="font-mono text-xs">{transaction.id}</span>
                           </TableCell>
                           <TableCell>
                             <div>
-                              <p className="font-medium">{vendor?.vendorName || 'Unknown'}</p>
-                              <p className="text-sm text-muted-foreground">{vendor?.vendorEmail || ''}</p>
+                              <p className="text-sm font-medium">{vendor?.vendorName || 'Unknown'}</p>
+                              <p className="text-xs text-muted-foreground">{vendor?.vendorEmail || ''}</p>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={transaction.type === 'credit' ? 'default' : 'secondary'}>
+                            <Badge variant={transaction.type === 'credit' ? 'default' : 'secondary'} className="text-xs">
                               {transaction.type === 'credit' ? (
                                 <Plus className="w-3 h-3 mr-1" />
                               ) : (
@@ -573,12 +572,12 @@ const AdminVendorWalletManagement = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-1">
-                              <DollarSign className="h-4 w-4 text-green-500" />
-                              <span className="font-medium">₹{transaction.amount.toLocaleString()}</span>
+                              <DollarSign className="h-3 w-3 text-green-500" />
+                              <span className="text-sm font-medium">₹{transaction.amount.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <span className="text-sm">{transaction.description}</span>
+                            <span className="text-xs">{transaction.description}</span>
                             {transaction.reference && (
                               <p className="text-xs text-muted-foreground">Ref: {transaction.reference}</p>
                             )}
@@ -587,7 +586,7 @@ const AdminVendorWalletManagement = () => {
                             <Badge variant={
                               transaction.status === 'completed' ? 'default' :
                               transaction.status === 'pending' ? 'secondary' : 'destructive'
-                            }>
+                            } className="text-xs">
                               {transaction.status === 'completed' && <CheckCircle className="w-3 h-3 mr-1" />}
                               {transaction.status === 'pending' && <Clock className="w-3 h-3 mr-1" />}
                               {transaction.status === 'failed' && <XCircle className="w-3 h-3 mr-1" />}
@@ -595,7 +594,7 @@ const AdminVendorWalletManagement = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <span className="text-sm">
+                            <span className="text-xs">
                               {new Date(transaction.createdAt).toLocaleDateString()}
                             </span>
                           </TableCell>
@@ -611,15 +610,15 @@ const AdminVendorWalletManagement = () => {
 
         {/* Add Transaction Dialog */}
         <Dialog open={isAddTransactionOpen} onOpenChange={setIsAddTransactionOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl mt-12">
             <DialogHeader>
-              <DialogTitle>Add New Transaction</DialogTitle>
+              <DialogTitle className="text-lg">Add New Transaction</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <Label htmlFor="vendorId">Select Vendor</Label>
+                <Label htmlFor="vendorId" className="text-sm">Select Vendor</Label>
                 <Select value={newTransaction.vendorId} onValueChange={(value) => setNewTransaction(prev => ({ ...prev, vendorId: value }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm">
                     <SelectValue placeholder="Select vendor" />
                   </SelectTrigger>
                   <SelectContent>
@@ -632,11 +631,11 @@ const AdminVendorWalletManagement = () => {
                 </Select>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="transactionType">Transaction Type</Label>
+                  <Label htmlFor="transactionType" className="text-sm">Transaction Type</Label>
                   <Select value={newTransaction.type} onValueChange={(value) => setNewTransaction(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -646,43 +645,46 @@ const AdminVendorWalletManagement = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="amount">Amount (₹)</Label>
+                  <Label htmlFor="amount" className="text-sm">Amount (₹)</Label>
                   <Input
                     id="amount"
                     type="number"
                     value={newTransaction.amount}
                     onChange={(e) => setNewTransaction(prev => ({ ...prev, amount: e.target.value }))}
                     placeholder="Enter amount"
+                    className="text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-sm">Description</Label>
                 <Textarea
                   id="description"
                   value={newTransaction.description}
                   onChange={(e) => setNewTransaction(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Enter transaction description"
                   rows={3}
+                  className="text-sm"
                 />
               </div>
 
               <div>
-                <Label htmlFor="reference">Reference (Optional)</Label>
+                <Label htmlFor="reference" className="text-sm">Reference (Optional)</Label>
                 <Input
                   id="reference"
                   value={newTransaction.reference}
                   onChange={(e) => setNewTransaction(prev => ({ ...prev, reference: e.target.value }))}
                   placeholder="Enter reference number"
+                  className="text-sm"
                 />
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={handleAddTransaction} className="flex-1">
+                <Button onClick={handleAddTransaction} className="flex-1 text-xs" size="sm">
                   Add Transaction
                 </Button>
-                <Button variant="outline" onClick={() => setIsAddTransactionOpen(false)}>
+                <Button variant="outline" onClick={() => setIsAddTransactionOpen(false)} size="sm" className="text-xs">
                   Cancel
                 </Button>
               </div>
@@ -692,34 +694,34 @@ const AdminVendorWalletManagement = () => {
 
         {/* View Wallet Dialog */}
         <Dialog open={isViewWalletOpen} onOpenChange={setIsViewWalletOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mt-12">
             <DialogHeader>
-              <DialogTitle>Wallet Details</DialogTitle>
+              <DialogTitle className="text-lg">Wallet Details</DialogTitle>
             </DialogHeader>
             {selectedWallet && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Vendor Information */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Vendor Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h3 className="text-sm font-semibold mb-2">Vendor Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                      <p className="text-sm">{selectedWallet.vendorName}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                      <p className="text-xs">{selectedWallet.vendorName}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                      <p className="text-sm">{selectedWallet.vendorEmail}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Email</Label>
+                      <p className="text-xs">{selectedWallet.vendorEmail}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
-                      <p className="text-sm">{selectedWallet.vendorPhone}</p>
+                      <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
+                      <p className="text-xs">{selectedWallet.vendorPhone}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Status</Label>
                       <Badge variant={
                         selectedWallet.isActive && selectedWallet.isApproved ? 'default' :
                         !selectedWallet.isActive ? 'destructive' : 'secondary'
-                      }>
+                      } className="text-xs">
                         {selectedWallet.isActive && selectedWallet.isApproved ? 'Active' :
                          !selectedWallet.isActive ? 'Suspended' : 'Pending'}
                       </Badge>
@@ -729,71 +731,71 @@ const AdminVendorWalletManagement = () => {
 
                 {/* Wallet Summary */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Wallet Summary</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <h3 className="text-sm font-semibold mb-2">Wallet Summary</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     <Card>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">Current Balance</p>
-                            <p className="text-2xl font-bold text-green-600">₹{selectedWallet.currentBalance.toLocaleString()}</p>
+                            <p className="text-xs font-medium text-muted-foreground">Current Balance</p>
+                            <p className="text-lg font-bold text-green-600">₹{selectedWallet.currentBalance.toLocaleString()}</p>
                           </div>
-                          <Wallet className="h-8 w-8 text-green-500" />
+                          <Wallet className="h-6 w-6 text-green-500" />
                         </div>
                       </CardContent>
                     </Card>
                     <Card>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">Total Deposits</p>
-                            <p className="text-2xl font-bold text-blue-600">₹{selectedWallet.totalDeposits.toLocaleString()}</p>
+                            <p className="text-xs font-medium text-muted-foreground">Total Deposits</p>
+                            <p className="text-lg font-bold text-blue-600">₹{selectedWallet.totalDeposits.toLocaleString()}</p>
                           </div>
-                          <CreditCard className="h-8 w-8 text-blue-500" />
+                          <CreditCard className="h-6 w-6 text-blue-500" />
                         </div>
                       </CardContent>
                     </Card>
                     <Card>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">Security Deposit</p>
-                            <p className="text-2xl font-bold text-purple-600">₹{selectedWallet.securityDeposit.toLocaleString()}</p>
+                            <p className="text-xs font-medium text-muted-foreground">Security Deposit</p>
+                            <p className="text-lg font-bold text-purple-600">₹{selectedWallet.securityDeposit.toLocaleString()}</p>
                           </div>
-                          <Banknote className="h-8 w-8 text-purple-500" />
+                          <Banknote className="h-6 w-6 text-purple-500" />
                         </div>
                       </CardContent>
                     </Card>
                     <Card>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">Available Balance</p>
-                            <p className="text-2xl font-bold text-green-600">₹{selectedWallet.availableBalance.toLocaleString()}</p>
+                            <p className="text-xs font-medium text-muted-foreground">Available Balance</p>
+                            <p className="text-lg font-bold text-green-600">₹{selectedWallet.availableBalance.toLocaleString()}</p>
                           </div>
-                          <Wallet className="h-8 w-8 text-green-600" />
+                          <Wallet className="h-6 w-6 text-green-600" />
                         </div>
                       </CardContent>
                     </Card>
                     <Card>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">Total Earnings</p>
-                            <p className="text-2xl font-bold text-blue-600">₹{selectedWallet.totalEarnings.toLocaleString()}</p>
+                            <p className="text-xs font-medium text-muted-foreground">Total Earnings</p>
+                            <p className="text-lg font-bold text-blue-600">₹{selectedWallet.totalEarnings.toLocaleString()}</p>
                           </div>
-                          <TrendingUp className="h-8 w-8 text-blue-500" />
+                          <TrendingUp className="h-6 w-6 text-blue-500" />
                         </div>
                       </CardContent>
                     </Card>
                     <Card>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">Cash Collected</p>
-                            <p className="text-2xl font-bold text-orange-600">₹{selectedWallet.cashCollected.toLocaleString()}</p>
+                            <p className="text-xs font-medium text-muted-foreground">Cash Collected</p>
+                            <p className="text-lg font-bold text-orange-600">₹{selectedWallet.cashCollected.toLocaleString()}</p>
                           </div>
-                          <Banknote className="h-8 w-8 text-orange-500" />
+                          <Banknote className="h-6 w-6 text-orange-500" />
                         </div>
                       </CardContent>
                     </Card>
