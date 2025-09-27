@@ -1,0 +1,10 @@
+[2025-09-27T06:04:32.430Z] [INFO] Cleaned 2 old log files
+[2025-09-27T06:04:32.433Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-27T06:04:32.988Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-27T06:04:38.070Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T06:04:38.156Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T06:04:38.404Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T06:04:42.073Z] [INFO] SMTP connection verified successfully
+[2025-09-27T06:05:33.867Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T06:05:33.900Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T06:05:33.978Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}

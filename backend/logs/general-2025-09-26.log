@@ -2628,3 +2628,20 @@
 [2025-09-26T11:27:51.270Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
 [2025-09-26T11:27:51.472Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
 [2025-09-26T11:27:53.236Z] [INFO] SMTP connection verified successfully
+[2025-09-26T11:35:06.885Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-26T11:35:07.221Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-26T11:35:07.601Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-26T11:37:30.612Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-26T11:38:49.623Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-26T11:38:50.122Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-26T11:38:50.996Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-26T11:38:51.037Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-26T11:38:51.066Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-26T11:38:51.068Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-26T11:38:51.374Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-26T12:17:40.440Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-26T12:17:40.460Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-26T12:17:40.583Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-26T12:28:07.124Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-26T12:28:07.277Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-26T12:28:08.759Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}

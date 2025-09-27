@@ -165,15 +165,15 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-teal-500 flex items-start justify-center pt-32 p-4">
-      <div className="w-full max-w-xl animate-slide-up">
+    <div className="h-screen flex items-center justify-center p-4 overflow-hidden" style={{ overflow: 'hidden' }}>
+      <div className="w-screen max-w-2xl animate-slide-up max-h-screen overflow-hidden">
         <Card className="bg-white border-0 rounded-2xl shadow-2xl overflow-hidden">
-          <CardHeader className="text-center pb-0 pt-0">
-            <div className="flex justify-center -mb-12">
+          <CardHeader className="text-center pb-6 pt-4">
+            <div className="flex justify-center mb-4">
               <img 
                 src="/logofixifly.png" 
                 alt="Fixifly Logo" 
-                className="w-36 h-36 object-contain"
+                className="w-56 h-32 object-contain -mb-10"
               />
             </div>
             <CardTitle className="text-2xl font-bold text-blue-600 mb-2">Create Account</CardTitle>

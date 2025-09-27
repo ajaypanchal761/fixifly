@@ -26,6 +26,7 @@ import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MobileBottomNav from "./components/MobileBottomNav";
+import MobileAuthGuard from "./components/MobileAuthGuard";
 import VendorDashboard from "./vendor/pages/VendorDashboard";
 import VendorCustomers from "./vendor/pages/VendorCustomers";
 import VendorShop from "./vendor/pages/VendorShop";
@@ -80,31 +81,101 @@ const AppContent = () => {
   const isProfilePage = location.pathname === "/profile";
   const isVendorPage = location.pathname.startsWith("/vendor");
   const isAdminPage = location.pathname.startsWith("/admin");
+  const isLoginPage = location.pathname === "/login";
+  const isSignupPage = location.pathname === "/signup";
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!isVendorPage && !isAdminPage && <Header />}
+      {!isVendorPage && !isAdminPage && !isLoginPage && !isSignupPage && <Header />}
       <main className="flex-1 pb-24 md:pb-0">
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={
+            <MobileAuthGuard>
+              <Index />
+            </MobileAuthGuard>
+          } />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/amc" element={<AMC />} />
-          <Route path="/amc/plan/:planId" element={<AMCPlanDetails />} />
-          <Route path="/amc/subscribe/:planId" element={<AMCSubscribe />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/tips" element={<TipsTricks />} />
-          <Route path="/terms-conditions" element={<TermsConditions />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/rate" element={<RateUs />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/service/:serviceType" element={<ServicePage />} />
-          <Route path="/product/:productId" element={<ProductDetail />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/booking" element={
+            <MobileAuthGuard>
+              <Booking />
+            </MobileAuthGuard>
+          } />
+          <Route path="/amc" element={
+            <MobileAuthGuard>
+              <AMC />
+            </MobileAuthGuard>
+          } />
+          <Route path="/amc/plan/:planId" element={
+            <MobileAuthGuard>
+              <AMCPlanDetails />
+            </MobileAuthGuard>
+          } />
+          <Route path="/amc/subscribe/:planId" element={
+            <MobileAuthGuard>
+              <AMCSubscribe />
+            </MobileAuthGuard>
+          } />
+          <Route path="/support" element={
+            <MobileAuthGuard>
+              <Support />
+            </MobileAuthGuard>
+          } />
+          <Route path="/payment" element={
+            <MobileAuthGuard>
+              <Payment />
+            </MobileAuthGuard>
+          } />
+          <Route path="/profile" element={
+            <MobileAuthGuard>
+              <Profile />
+            </MobileAuthGuard>
+          } />
+          <Route path="/tips" element={
+            <MobileAuthGuard>
+              <TipsTricks />
+            </MobileAuthGuard>
+          } />
+          <Route path="/terms-conditions" element={
+            <MobileAuthGuard>
+              <TermsConditions />
+            </MobileAuthGuard>
+          } />
+          <Route path="/about" element={
+            <MobileAuthGuard>
+              <About />
+            </MobileAuthGuard>
+          } />
+          <Route path="/rate" element={
+            <MobileAuthGuard>
+              <RateUs />
+            </MobileAuthGuard>
+          } />
+          <Route path="/shop" element={
+            <MobileAuthGuard>
+              <Shop />
+            </MobileAuthGuard>
+          } />
+          <Route path="/search" element={
+            <MobileAuthGuard>
+              <SearchResults />
+            </MobileAuthGuard>
+          } />
+          <Route path="/service/:serviceType" element={
+            <MobileAuthGuard>
+              <ServicePage />
+            </MobileAuthGuard>
+          } />
+          <Route path="/product/:productId" element={
+            <MobileAuthGuard>
+              <ProductDetail />
+            </MobileAuthGuard>
+          } />
+          <Route path="/checkout" element={
+            <MobileAuthGuard>
+              <Checkout />
+            </MobileAuthGuard>
+          } />
           {/* Vendor Routes */}
           <Route path="/vendor/login" element={<VendorLogin />} />
           <Route path="/vendor/signup" element={<VendorSignup />} />
@@ -311,7 +382,7 @@ const AppContent = () => {
         </Routes>
       </main>
       {!isBookingPage && !isProfilePage && !isVendorPage && !isAdminPage && <Footer />}
-      {!isVendorPage && !isAdminPage && <MobileBottomNav />}
+      {!isVendorPage && !isAdminPage && !isLoginPage && !isSignupPage && <MobileBottomNav />}
     </div>
   );
 };
