@@ -182,6 +182,7 @@ const Signup = () => {
             </CardDescription>
           </CardHeader>
           
+          
           <CardContent className="px-6 pb-8">
             {error && (
               <Alert variant="destructive" className="mb-4">
