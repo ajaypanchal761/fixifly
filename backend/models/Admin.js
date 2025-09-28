@@ -103,6 +103,10 @@ const adminSchema = new mongoose.Schema({
     cardManagement: {
       type: Boolean,
       default: true
+    },
+    cityManagement: {
+      type: Boolean,
+      default: true
     }
   },
   

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import ServiceBookingModal from "./ServiceBookingModal";
+import CitySelectionModal from "./CitySelectionModal";
 import cardApiService, { Card } from "@/services/cardApi";
 
 const ServicesGrid = () => {
@@ -23,7 +24,9 @@ const ServicesGrid = () => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const autoScrollInterval = useRef<NodeJS.Timeout | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isCitySelectionModalOpen, setIsCitySelectionModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Card | null>(null);
+  const [selectedCity, setSelectedCity] = useState<any>(null);
   const [services, setServices] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,14 +80,28 @@ const ServicesGrid = () => {
 
   const handleBookService = (service: Card) => {
     setSelectedService(service);
-    setIsBookingModalOpen(true);
+    setIsCitySelectionModalOpen(true);
     // Increment click count
     cardApiService.incrementCardClicks(service._id).catch(console.error);
+  };
+
+  const handleCitySelect = (city: any) => {
+    setSelectedCity(city);
+    // Close city selection modal and open booking modal
+    setIsCitySelectionModalOpen(false);
+    setIsBookingModalOpen(true);
   };
 
   const handleCloseBookingModal = () => {
     setIsBookingModalOpen(false);
     setSelectedService(null);
+    setSelectedCity(null);
+  };
+
+  const handleCloseCitySelectionModal = () => {
+    setIsCitySelectionModalOpen(false);
+    setSelectedService(null);
+    setSelectedCity(null);
   };
 
   const handleScroll = () => {
@@ -284,12 +301,13 @@ const ServicesGrid = () => {
                   <div
                     key={service._id}
                     ref={(el) => (cardRefs.current[index] = el)}
-                    className={`bg-slate-800 rounded-2xl p-6 shadow-lg transition-all duration-500 group relative flex-shrink-0 snap-center ${
+                    className={`bg-slate-800 rounded-2xl p-6 shadow-lg transition-all duration-500 group relative flex-shrink-0 snap-center cursor-pointer ${
                       isCenter 
                         ? 'scale-110 shadow-2xl border-2 border-blue-400' 
                         : 'scale-95 hover:scale-100'
                     }`}
                     style={{ width: '280px' }}
+                    onClick={() => handleBookService(service)}
                   >
                     <div className="text-center">
                       {service.isPopular && (
@@ -377,12 +395,24 @@ const ServicesGrid = () => {
         </div>
       </div>
 
+      {/* City Selection Modal */}
+      {selectedService && (
+        <CitySelectionModal
+          isOpen={isCitySelectionModalOpen}
+          onClose={handleCloseCitySelectionModal}
+          onCitySelect={handleCitySelect}
+          serviceName={selectedService.name}
+          serviceId={selectedService._id}
+        />
+      )}
+
       {/* Service Booking Modal */}
       {selectedService && (
         <ServiceBookingModal
           isOpen={isBookingModalOpen}
           onClose={handleCloseBookingModal}
           service={selectedService}
+          selectedCity={selectedCity}
         />
       )}
     </section>

@@ -1080,3 +1080,341 @@
 [2025-09-27T10:00:46.503Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
 [2025-09-27T10:01:46.291Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
 [2025-09-27T10:01:46.931Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:02:46.296Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:02:46.538Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:03:24.503Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:03:24.517Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:03:24.768Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:03:46.354Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:03:46.602Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:04:18.627Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T10:04:21.527Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68d65d997cefc1a839066a07"}
+[2025-09-27T10:04:21.796Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/vobthczzzqe5tdmvbz87"}
+[2025-09-27T10:04:23.464Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68d659927cefc1a839066664"}
+[2025-09-27T10:04:23.478Z] [INFO] Image deleted successfully | {"public_id":"banners/vobthczzzqe5tdmvbz87"}
+[2025-09-27T10:04:23.572Z] [INFO] Banner deleted successfully | {"bannerId":"68d65d997cefc1a839066a07","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T10:04:23.580Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T10:04:23.707Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/zfq6idhpxcihnrjg3oqd"}
+[2025-09-27T10:04:24.147Z] [INFO] Image deleted successfully | {"public_id":"banners/zfq6idhpxcihnrjg3oqd"}
+[2025-09-27T10:04:24.210Z] [INFO] Banner deleted successfully | {"bannerId":"68d659927cefc1a839066664","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T10:04:24.222Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T10:04:26.908Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68d658a67cefc1a83906646d"}
+[2025-09-27T10:04:27.102Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/tfa83ab4sylibtyz9okv"}
+[2025-09-27T10:04:27.613Z] [INFO] Image deleted successfully | {"public_id":"banners/tfa83ab4sylibtyz9okv"}
+[2025-09-27T10:04:27.679Z] [INFO] Banner deleted successfully | {"bannerId":"68d658a67cefc1a83906646d","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T10:04:27.684Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T10:04:46.287Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:04:46.532Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:05:25.865Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T10:05:26.046Z] [INFO] Creating banner | {"title":"abcd","order":"1","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner1.png","mimetype":"image/png","size":305443,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1758967526028-374059259.png"}}
+[2025-09-27T10:05:26.047Z] [INFO] Uploading to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1758967526028-374059259.png"}
+[2025-09-27T10:05:26.049Z] [INFO] Uploading image to Cloudinary | {"folder":"banners","resource_type":"auto"}
+[2025-09-27T10:05:30.026Z] [INFO] Image uploaded successfully | {"public_id":"banners/ogwts5fvj8itd8mtz2jo","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1758967528/banners/ogwts5fvj8itd8mtz2jo.jpg","bytes":25610}
+[2025-09-27T10:05:30.028Z] [INFO] Cloudinary upload successful | {"public_id":"banners/ogwts5fvj8itd8mtz2jo","url":"https://res.cloudinary.com/fixfly/image/upload/v1758967528/banners/ogwts5fvj8itd8mtz2jo.jpg"}
+[2025-09-27T10:05:30.035Z] [INFO] Saving banner to database | {"bannerData":{"title":"abcd","image":{"public_id":"banners/ogwts5fvj8itd8mtz2jo","url":"https://res.cloudinary.com/fixfly/image/upload/v1758967528/banners/ogwts5fvj8itd8mtz2jo.jpg"},"isActive":true,"order":1,"createdBy":"68ca7f8988ac97b4e9c16645","_id":"68d7b6ea212fff30fea58a1b"}}
+[2025-09-27T10:05:30.110Z] [INFO] Banner saved successfully | {"bannerId":"68d7b6ea212fff30fea58a1b"}
+[2025-09-27T10:05:30.184Z] [INFO] Banner created successfully | {"bannerId":"68d7b6ea212fff30fea58a1b","title":"abcd","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T10:05:30.204Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T10:05:36.880Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:05:36.888Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:05:37.046Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:05:46.287Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:05:46.544Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:06:46.290Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:06:46.553Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:07:46.715Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:07:46.999Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:09:18.440Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:09:18.873Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:09:49.429Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:09:49.986Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:09:52.282Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:09:52.530Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:10:13.860Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:10:13.892Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:10:13.951Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:10:25.702Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:10:26.389Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:10:41.802Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T10:10:41.990Z] [INFO] Creating banner | {"title":"hhgg","order":"2","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner2.png","mimetype":"image/png","size":421659,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1758967841982-256089655.png"}}
+[2025-09-27T10:10:41.991Z] [INFO] Uploading to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1758967841982-256089655.png"}
+[2025-09-27T10:10:41.992Z] [INFO] Uploading image to Cloudinary | {"folder":"banners","resource_type":"auto"}
+[2025-09-27T10:10:47.666Z] [INFO] Image uploaded successfully | {"public_id":"banners/yk6pepkp4ibtdj4zglit","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1758967845/banners/yk6pepkp4ibtdj4zglit.jpg","bytes":42936}
+[2025-09-27T10:10:47.668Z] [INFO] Cloudinary upload successful | {"public_id":"banners/yk6pepkp4ibtdj4zglit","url":"https://res.cloudinary.com/fixfly/image/upload/v1758967845/banners/yk6pepkp4ibtdj4zglit.jpg"}
+[2025-09-27T10:10:47.676Z] [INFO] Saving banner to database | {"bannerData":{"title":"hhgg","image":{"public_id":"banners/yk6pepkp4ibtdj4zglit","url":"https://res.cloudinary.com/fixfly/image/upload/v1758967845/banners/yk6pepkp4ibtdj4zglit.jpg"},"isActive":true,"order":2,"createdBy":"68ca7f8988ac97b4e9c16645","_id":"68d7b827212fff30fea58bcf"}}
+[2025-09-27T10:10:47.755Z] [INFO] Banner saved successfully | {"bannerId":"68d7b827212fff30fea58bcf"}
+[2025-09-27T10:10:47.827Z] [INFO] Banner created successfully | {"bannerId":"68d7b827212fff30fea58bcf","title":"hhgg","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T10:10:47.841Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-27T10:11:03.073Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:11:03.325Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:11:05.273Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:11:05.484Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:11:11.622Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:11:11.638Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:11:11.773Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:12:16.064Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:12:16.278Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:12:16.830Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:12:17.180Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:12:34.482Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:12:34.627Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:12:44.948Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:12:45.596Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:12:50.281Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:12:50.545Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:12:55.075Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:12:55.344Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:13:13.343Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:13:13.543Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:13:18.628Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:13:18.726Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:13:39.455Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:13:39.742Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:13:42.241Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:13:42.341Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:14:09.879Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:14:10.322Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:15:19.170Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:15:19.556Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:15:34.818Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:15:35.208Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:15:41.507Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-09-27T10:15:42.014Z] [INFO] Admin logged out | {"adminId":"ADMIN001","ip":"::1"}
+[2025-09-27T10:23:08.263Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:23:08.658Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:23:10.146Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:24:09.073Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:24:09.090Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:24:09.372Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:30:21.724Z] [INFO] Customer bookings retrieved: 0 for abhay@gamil.com | {"email":"abhay@gamil.com","totalBookings":0,"page":1}
+[2025-09-27T10:30:34.619Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-27T10:30:34.932Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-27T10:30:35.419Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-27T10:31:27.330Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:31:33.113Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:31:33.796Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:33:38.527Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:33:38.997Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:33:45.609Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:34:24.274Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:34:24.421Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:34:25.006Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:34:27.485Z] [INFO] Customer bookings retrieved: 0 for abhay@gamil.com | {"email":"abhay@gamil.com","totalBookings":0,"page":1}
+[2025-09-27T10:35:51.110Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T10:35:51.132Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T10:35:51.382Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T10:36:05.629Z] [INFO] Vendor logged in successfully | {"vendorId":"68d6266219daa6f59c640f56","email":"panchalajay717@gmail.com"}
+[2025-09-27T10:36:05.792Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:36:06.147Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:36:06.676Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:36:07.117Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:36:35.783Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:36:36.276Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:37:05.781Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:37:06.149Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:37:32.949Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-09-27T10:38:04.831Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-09-27T10:38:05.190Z] [INFO] Vendor profile updated successfully | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-27T10:38:12.698Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-27T10:38:12.740Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-27T10:38:12.889Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-27T10:38:12.894Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-27T10:38:13.241Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-27T10:38:13.690Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-27T10:38:13.698Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-27T10:38:13.908Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-27T10:38:13.909Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-27T10:38:14.548Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-27T10:38:20.433Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:38:20.807Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:38:21.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:38:21.441Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T10:38:51.140Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-27T10:38:51.187Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-27T10:38:51.261Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-27T10:38:51.274Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-27T10:38:51.536Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-27T10:38:53.604Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-27T10:38:53.620Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-27T10:38:53.728Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-27T10:38:53.729Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-27T10:38:55.283Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-27T10:39:44.447Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-09-27T10:39:53.300Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-09-27T10:39:53.435Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-27T10:39:54.784Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-27T10:40:09.949Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T10:40:09.961Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T10:40:10.310Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T10:40:10.559Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T11:05:07.333Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T11:05:23.085Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cb167d163f4cc20131b62b"}
+[2025-09-27T11:05:23.808Z] [INFO] Blog updated successfully | {"blogId":"68cb167d163f4cc20131b62b","title":"Car maintenance tips for winter"}
+[2025-09-27T11:05:24.165Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cb167d163f4cc20131b62b/image"}
+[2025-09-27T11:05:24.632Z] [INFO] Starting blog image upload | {"blogId":"68cb167d163f4cc20131b62b","fileName":"cctv.webp","fileSize":36350}
+[2025-09-27T11:05:24.684Z] [INFO] Starting blog image upload | {"blogId":"68cb167d163f4cc20131b62b","fileName":"cctv.webp","fileSize":36350,"mimeType":"image/webp"}
+[2025-09-27T11:05:29.438Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758971124685","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1758971127/fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758971124685.jpg"}
+[2025-09-27T11:05:29.441Z] [INFO] Blog image uploaded successfully | {"blogId":"68cb167d163f4cc20131b62b","publicId":"fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758971124685","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1758971127/fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758971124685.jpg"}
+[2025-09-27T11:05:29.445Z] [INFO] Starting blog image deletion | {"blogId":"68cb167d163f4cc20131b62b","publicId":"fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758140029867"}
+[2025-09-27T11:05:29.447Z] [INFO] Deleting image from Cloudinary | {"public_id":"fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758140029867"}
+[2025-09-27T11:05:29.924Z] [WARN] Image deletion failed | {"public_id":"fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758140029867","result":"not found"}
+[2025-09-27T11:05:29.928Z] [WARN] Blog image deletion failed | {"blogId":"68cb167d163f4cc20131b62b","publicId":"fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758140029867","result":"Image deletion failed"}
+[2025-09-27T11:05:30.050Z] [INFO] Blog image uploaded successfully | {"blogId":"68cb167d163f4cc20131b62b","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1758971127/fixifly/blog-images/68cb167d163f4cc20131b62b/blog_68cb167d163f4cc20131b62b_1758971124685.jpg"}
+[2025-09-27T11:05:30.103Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T11:05:43.959Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T11:05:43.965Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:05:44.208Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:05:55.062Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cb165b163f4cc20131b580"}
+[2025-09-27T11:05:55.462Z] [INFO] Blog updated successfully | {"blogId":"68cb165b163f4cc20131b580","title":"When are your car repairs covered by car insurance"}
+[2025-09-27T11:05:55.475Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cb165b163f4cc20131b580/image"}
+[2025-09-27T11:05:55.696Z] [INFO] Starting blog image upload | {"blogId":"68cb165b163f4cc20131b580","fileName":"plumber.png","fileSize":1162828}
+[2025-09-27T11:05:55.697Z] [INFO] Starting blog image upload | {"blogId":"68cb165b163f4cc20131b580","fileName":"plumber.png","fileSize":1162828,"mimeType":"image/png"}
+[2025-09-27T11:06:03.508Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758971155698","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1758971161/fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758971155698.jpg"}
+[2025-09-27T11:06:03.510Z] [INFO] Blog image uploaded successfully | {"blogId":"68cb165b163f4cc20131b580","publicId":"fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758971155698","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1758971161/fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758971155698.jpg"}
+[2025-09-27T11:06:03.511Z] [INFO] Starting blog image deletion | {"blogId":"68cb165b163f4cc20131b580","publicId":"fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758139995872"}
+[2025-09-27T11:06:03.512Z] [INFO] Deleting image from Cloudinary | {"public_id":"fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758139995872"}
+[2025-09-27T11:06:03.875Z] [WARN] Image deletion failed | {"public_id":"fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758139995872","result":"not found"}
+[2025-09-27T11:06:03.877Z] [WARN] Blog image deletion failed | {"blogId":"68cb165b163f4cc20131b580","publicId":"fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758139995872","result":"Image deletion failed"}
+[2025-09-27T11:06:03.956Z] [INFO] Blog image uploaded successfully | {"blogId":"68cb165b163f4cc20131b580","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1758971161/fixifly/blog-images/68cb165b163f4cc20131b580/blog_68cb165b163f4cc20131b580_1758971155698.jpg"}
+[2025-09-27T11:06:03.974Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T11:06:09.078Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T11:06:16.976Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cb1461dc36343df477ab06"}
+[2025-09-27T11:06:17.302Z] [INFO] Blog updated successfully | {"blogId":"68cb1461dc36343df477ab06","title":"Technician of the month"}
+[2025-09-27T11:06:17.310Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cb1461dc36343df477ab06/image"}
+[2025-09-27T11:06:17.457Z] [INFO] Starting blog image upload | {"blogId":"68cb1461dc36343df477ab06","fileName":"washing.jpg","fileSize":17421}
+[2025-09-27T11:06:17.458Z] [INFO] Starting blog image upload | {"blogId":"68cb1461dc36343df477ab06","fileName":"washing.jpg","fileSize":17421,"mimeType":"image/jpeg"}
+[2025-09-27T11:06:21.335Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758971177459","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1758971179/fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758971177459.jpg"}
+[2025-09-27T11:06:21.339Z] [INFO] Blog image uploaded successfully | {"blogId":"68cb1461dc36343df477ab06","publicId":"fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758971177459","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1758971179/fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758971177459.jpg"}
+[2025-09-27T11:06:21.340Z] [INFO] Starting blog image deletion | {"blogId":"68cb1461dc36343df477ab06","publicId":"fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758139489370"}
+[2025-09-27T11:06:21.341Z] [INFO] Deleting image from Cloudinary | {"public_id":"fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758139489370"}
+[2025-09-27T11:06:21.687Z] [WARN] Image deletion failed | {"public_id":"fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758139489370","result":"not found"}
+[2025-09-27T11:06:21.690Z] [WARN] Blog image deletion failed | {"blogId":"68cb1461dc36343df477ab06","publicId":"fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758139489370","result":"Image deletion failed"}
+[2025-09-27T11:06:21.779Z] [INFO] Blog image uploaded successfully | {"blogId":"68cb1461dc36343df477ab06","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1758971179/fixifly/blog-images/68cb1461dc36343df477ab06/blog_68cb1461dc36343df477ab06_1758971177459.jpg"}
+[2025-09-27T11:06:21.804Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T11:06:36.089Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cb0a6e0c5456ae4596fbe8"}
+[2025-09-27T11:06:36.420Z] [INFO] Blog updated successfully | {"blogId":"68cb0a6e0c5456ae4596fbe8","title":"Computer vs monitor"}
+[2025-09-27T11:06:36.436Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cb0a6e0c5456ae4596fbe8/image"}
+[2025-09-27T11:06:36.583Z] [INFO] Starting blog image upload | {"blogId":"68cb0a6e0c5456ae4596fbe8","fileName":"electrician.jpg","fileSize":44365}
+[2025-09-27T11:06:36.584Z] [INFO] Starting blog image upload | {"blogId":"68cb0a6e0c5456ae4596fbe8","fileName":"electrician.jpg","fileSize":44365,"mimeType":"image/jpeg"}
+[2025-09-27T11:06:39.988Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758971196584","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1758971197/fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758971196584.jpg"}
+[2025-09-27T11:06:39.989Z] [INFO] Blog image uploaded successfully | {"blogId":"68cb0a6e0c5456ae4596fbe8","publicId":"fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758971196584","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1758971197/fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758971196584.jpg"}
+[2025-09-27T11:06:39.990Z] [INFO] Starting blog image deletion | {"blogId":"68cb0a6e0c5456ae4596fbe8","publicId":"fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758136943082"}
+[2025-09-27T11:06:39.991Z] [INFO] Deleting image from Cloudinary | {"public_id":"fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758136943082"}
+[2025-09-27T11:06:40.334Z] [WARN] Image deletion failed | {"public_id":"fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758136943082","result":"not found"}
+[2025-09-27T11:06:40.336Z] [WARN] Blog image deletion failed | {"blogId":"68cb0a6e0c5456ae4596fbe8","publicId":"fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758136943082","result":"Image deletion failed"}
+[2025-09-27T11:06:40.433Z] [INFO] Blog image uploaded successfully | {"blogId":"68cb0a6e0c5456ae4596fbe8","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1758971197/fixifly/blog-images/68cb0a6e0c5456ae4596fbe8/blog_68cb0a6e0c5456ae4596fbe8_1758971196584.jpg"}
+[2025-09-27T11:06:40.449Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T11:06:47.873Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:06:47.886Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T11:06:47.983Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:07:11.068Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68cafe971f901ac6814b3106"}
+[2025-09-27T11:07:11.345Z] [INFO] Starting blog image deletion | {"blogId":"68cafe971f901ac6814b3106","publicId":"fixifly/blog-images/68cafe971f901ac6814b3106/blog_68cafe971f901ac6814b3106_1758133912101"}
+[2025-09-27T11:07:11.347Z] [INFO] Deleting image from Cloudinary | {"public_id":"fixifly/blog-images/68cafe971f901ac6814b3106/blog_68cafe971f901ac6814b3106_1758133912101"}
+[2025-09-27T11:07:12.529Z] [WARN] Image deletion failed | {"public_id":"fixifly/blog-images/68cafe971f901ac6814b3106/blog_68cafe971f901ac6814b3106_1758133912101","result":"not found"}
+[2025-09-27T11:07:12.530Z] [WARN] Blog image deletion failed | {"blogId":"68cafe971f901ac6814b3106","publicId":"fixifly/blog-images/68cafe971f901ac6814b3106/blog_68cafe971f901ac6814b3106_1758133912101","result":"Image deletion failed"}
+[2025-09-27T11:07:12.630Z] [INFO] Blog deleted successfully | {"blogId":"68cafe971f901ac6814b3106","title":"Computer vs Laptop"}
+[2025-09-27T11:07:12.637Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T11:07:16.186Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:07:16.207Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T11:07:16.286Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:27:07.719Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-09-27T11:27:08.593Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:27:08.599Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T11:27:09.062Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:27:09.146Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-09-27T11:34:02.763Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:34:03.067Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T11:34:03.431Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:34:07.281Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-09-27T11:46:05.367Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:46:05.400Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T11:46:06.004Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:56:12.231Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:56:12.347Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:56:19.273Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:56:20.014Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:56:38.382Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:56:38.529Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:56:45.919Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:56:46.171Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:56:53.210Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T11:56:53.359Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T11:57:15.738Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-27T11:57:16.250Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-27T11:57:19.121Z] [INFO] SMTP connection verified successfully
+[2025-09-27T11:58:37.323Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-27T11:58:39.042Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-27T11:58:42.506Z] [INFO] SMTP connection verified successfully
+[2025-09-27T12:02:38.182Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T12:02:38.758Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:02:52.108Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T12:02:52.563Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:04:54.927Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-27T12:04:55.211Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-27T12:05:00.152Z] [INFO] SMTP connection verified successfully
+[2025-09-27T12:05:00.592Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T12:05:00.710Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:05:01.161Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:05:07.402Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T12:05:07.540Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T12:05:08.178Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:06:39.681Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-27T12:06:40.897Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-27T12:06:45.561Z] [INFO] SMTP connection verified successfully
+[2025-09-27T12:07:19.775Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-27T12:07:20.214Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-27T12:07:23.374Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T12:07:23.438Z] [INFO] SMTP connection verified successfully
+[2025-09-27T12:07:23.707Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T12:07:24.369Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:10:03.729Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-09-27T12:10:03.824Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-27T12:10:04.789Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-27T12:10:22.219Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-27T12:10:22.234Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T12:10:24.422Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T12:10:26.041Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-27T12:16:28.552Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-27T12:16:29.585Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-27T12:16:46.049Z] [INFO] SMTP connection verified successfully
+[2025-09-27T12:18:00.724Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T12:18:01.138Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:24:42.220Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T12:24:42.415Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T12:24:42.891Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:26:06.530Z] [INFO] Admin authentication attempt | {"tokenPrefix":"test-token...","tokenLength":10,"endpoint":"/api/admin/cities"}
+[2025-09-27T12:26:48.490Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities"}
+[2025-09-27T12:26:49.548Z] [INFO] New city created | {"cityId":"68d7d8093c6ca0fe61872ce7","name":"Dewas","state":"Madhya Pradesh","createdBy":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T12:27:43.198Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:27:48.648Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:27:59.865Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:28:06.946Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:28:12.991Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:28:20.923Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:28:40.243Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:29:21.658Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:30:39.460Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:30:45.707Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:30:56.404Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:31:21.653Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:31:26.891Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:31:38.982Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:31:57.544Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:32:12.327Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-27T12:32:12.331Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-27T12:32:12.776Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-27T12:33:00.803Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities/68d7d86ffb083a59aba7f028"}
+[2025-09-27T12:33:02.994Z] [INFO] City deleted | {"cityId":"68d7d86ffb083a59aba7f028","name":"Mumbai","state":"Maharashtra","deletedBy":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T12:33:03.150Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:33:05.796Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:33:30.132Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities"}
+[2025-09-27T12:33:30.748Z] [INFO] New city created | {"cityId":"68d7d99a3c6ca0fe618734b0","name":"Mumbai","state":"Maharashtra","createdBy":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T12:33:30.805Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:33:40.616Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities"}
+[2025-09-27T12:33:42.624Z] [INFO] New city created | {"cityId":"68d7d9a63c6ca0fe61873580","name":"Pune","state":"Maharashtra","createdBy":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T12:33:42.639Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:33:48.888Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities/68d7d8093c6ca0fe61872ce7/toggle-status"}
+[2025-09-27T12:33:50.036Z] [INFO] City status toggled | {"cityId":"68d7d8093c6ca0fe61872ce7","name":"Dewas","state":"Madhya Pradesh","newStatus":false,"toggledBy":"68ca7f8988ac97b4e9c16645"}
+[2025-09-27T12:33:50.055Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:35:03.882Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-27T12:35:06.374Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}

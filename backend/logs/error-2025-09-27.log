@@ -74,3 +74,4 @@
 [2025-09-27T09:49:13.871Z] [ERROR] Token verification failed | {"error":"getaddrinfo ENOTFOUND ac-cj6h43u-shard-00-02.okjqrni.mongodb.net","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
 [2025-09-27T09:49:53.080Z] [ERROR] Token verification failed | {"error":"getaddrinfo ENOTFOUND ac-cj6h43u-shard-00-02.okjqrni.mongodb.net","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
 [2025-09-27T09:49:58.091Z] [ERROR] Token verification failed | {"error":"getaddrinfo ENOTFOUND ac-cj6h43u-shard-00-02.okjqrni.mongodb.net","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-27T12:26:06.534Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt malformed","tokenPrefix":"test-token...","endpoint":"/api/admin/cities"}

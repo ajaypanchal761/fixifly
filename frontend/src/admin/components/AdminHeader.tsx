@@ -30,7 +30,8 @@ import {
   ChevronDown,
   User,
   Wallet,
-  Image
+  Image,
+  MapPin
 } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment, Select, MenuItem, Menu, ListItemIcon, ListItemText } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
@@ -144,6 +145,7 @@ const AdminHeader = () => {
     { name: "Payment Management", href: "/admin/payment-management", icon: CreditCard },
     { name: "Product Management", href: "/admin/products", icon: Package },
     { name: "Card Management", href: "/admin/cards", icon: CreditCard },
+    { name: "City Management", href: "/admin/cities", icon: MapPin },
     { name: "Blog Management", href: "/admin/blogs", icon: BookOpen },
     { name: "AMC Management", href: "/admin/amc", icon: Shield },
     { name: "Vendor wallet", href: "/admin/vendor-wallet", icon: Wallet },

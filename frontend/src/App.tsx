@@ -61,6 +61,7 @@ import AdminServiceManagementDashboard from "./admin/pages/AdminServiceManagemen
 import AdminBookingManagement from "./admin/pages/AdminBookingManagement";
 import AdminPaymentManagement from "./admin/pages/AdminPaymentManagement";
 import AdminCardManagement from "./admin/pages/AdminCardManagement";
+import AdminCityManagement from "./admin/pages/AdminCityManagement";
 import AdminBlogManagement from "./admin/pages/AdminBlogManagement";
 import AdminAMCManagement from "./admin/pages/AdminAMCManagement";
 import AdminVendorWalletManagement from "./admin/pages/AdminVendorWalletManagement";
@@ -344,6 +345,11 @@ const AppContent = () => {
           <Route path="/admin/cards" element={
             <AdminProtectedRoute>
               <AdminCardManagement />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/cities" element={
+            <AdminProtectedRoute>
+              <AdminCityManagement />
             </AdminProtectedRoute>
           } />
           <Route path="/admin/blogs" element={

@@ -15,6 +15,14 @@ interface ServiceBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   service: CardType;
+  selectedCity?: {
+    _id: string;
+    name: string;
+    state: string;
+    isActive: boolean;
+    serviceCount: number;
+    estimatedDeliveryTime: string;
+  };
 }
 
 interface FormData {
@@ -31,14 +39,14 @@ interface FormData {
   urgency: string;
 }
 
-const ServiceBookingModal = ({ isOpen, onClose, service }: ServiceBookingModalProps) => {
+const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: ServiceBookingModalProps) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     customerName: "",
     phoneNumber: "",
     email: "",
     address: "",
-    city: "",
+    city: selectedCity?.name || "",
     pincode: "",
     preferredDate: "",
     preferredTime: "",

@@ -42,6 +42,7 @@ const adminBannerRoutes = require('./routes/adminBanners');
 const bannerRoutes = require('./routes/banners');
 const withdrawalRoutes = require('./routes/withdrawals');
 const adminWithdrawalRoutes = require('./routes/adminWithdrawals');
+const cityRoutes = require('./routes/cities');
 
 // Initialize Express app
 const app = express();
@@ -121,6 +122,7 @@ app.use('/api/admin/banners', adminBannerRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/vendors/withdrawal', withdrawalRoutes);
 app.use('/api/admin/withdrawals', adminWithdrawalRoutes);
+app.use('/api', cityRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

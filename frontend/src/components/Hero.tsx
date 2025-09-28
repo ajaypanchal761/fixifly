@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import publicProductApi, { PublicProduct } from '@/services/publicProductApi';
 import bannerApiService, { Banner } from '@/services/bannerApi';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import CitySelectionModal from './CitySelectionModal';
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -15,6 +16,9 @@ const Hero = () => {
   const [banners, setBanners] = useState<string[]>([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [bannersError, setBannersError] = useState<string | null>(null);
+  const [isCitySelectionModalOpen, setIsCitySelectionModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<PublicProduct | null>(null);
+  const [selectedCity, setSelectedCity] = useState<any>(null);
 
   // Fetch banners from database
   const fetchBanners = async () => {
@@ -120,6 +124,35 @@ const Hero = () => {
   // Toggle function for showing more products
   const toggleMoreProducts = () => {
     setShowMoreProducts(!showMoreProducts);
+  };
+
+  // Handle product card click
+  const handleProductClick = (product: PublicProduct) => {
+    setSelectedProduct(product);
+    setIsCitySelectionModalOpen(true);
+  };
+
+  // Handle city selection
+  const handleCitySelect = (city: any) => {
+    setSelectedCity(city);
+    setIsCitySelectionModalOpen(false);
+    if (selectedProduct) {
+      navigate(`/product/${selectedProduct._id}`, { 
+        state: { 
+          product: selectedProduct,
+          selectedCity: city 
+        } 
+      });
+    }
+    setSelectedProduct(null);
+    setSelectedCity(null);
+  };
+
+  // Handle close city selection modal
+  const handleCloseCitySelectionModal = () => {
+    setIsCitySelectionModalOpen(false);
+    setSelectedProduct(null);
+    setSelectedCity(null);
   };
 
 
@@ -233,7 +266,7 @@ const Hero = () => {
                         key={product._id}
                         className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
                         style={{backgroundColor: '#ffffff'}}
-                        onClick={() => navigate(`/product/${product._id}`, { state: { product } })}
+                        onClick={() => handleProductClick(product)}
                       >
                         <div className="text-center">
                           <img 
@@ -297,7 +330,7 @@ const Hero = () => {
                         key={product._id}
                         className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer" 
                         style={{backgroundColor: '#ffffff'}}
-                        onClick={() => navigate(`/product/${product._id}`, { state: { product } })}
+                        onClick={() => handleProductClick(product)}
                       >
                         <div className="text-center">
                           <img 
@@ -346,6 +379,16 @@ const Hero = () => {
         </div>
       </div>
       
+      {/* City Selection Modal */}
+      {selectedProduct && (
+        <CitySelectionModal
+          isOpen={isCitySelectionModalOpen}
+          onClose={handleCloseCitySelectionModal}
+          onCitySelect={handleCitySelect}
+          serviceName={selectedProduct.productName}
+          serviceId={selectedProduct._id}
+        />
+      )}
     </section>
   );
 };
