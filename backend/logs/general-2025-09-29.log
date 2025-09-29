@@ -294,3 +294,209 @@
 [2025-09-29T06:24:34.296Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
 [2025-09-29T06:24:34.539Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
 [2025-09-29T06:24:34.899Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:25:04.747Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:25:04.973Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:25:34.746Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:25:35.007Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:26:04.752Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:26:05.002Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:26:32.281Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:26:32.909Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:27:19.981Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:27:20.352Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:27:29.129Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:27:34.780Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:27:35.005Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:27:56.780Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:27:56.880Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:28:04.402Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:28:04.749Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:28:04.997Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:28:34.736Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:28:35.000Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:29:01.450Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:29:01.584Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:29:05.031Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:29:06.773Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:29:09.218Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:29:32.980Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:29:33.137Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:29:35.534Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:29:36.754Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:29:37.037Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:29:39.349Z] [INFO] Test info message | {"test":"data"}
+[2025-09-29T06:29:45.411Z] [INFO] Logger test from auth context
+[2025-09-29T06:29:50.222Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:29:50.347Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:29:52.958Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:30:07.781Z] [INFO] Starting OTP send process | {"phone":"9752515091"}
+[2025-09-29T06:30:07.873Z] [INFO] Existing user found | {"userId":"68da214834ed7d95155fd9be","phone":"9752515091"}
+[2025-09-29T06:30:07.875Z] [INFO] Generating OTP for real number | {"phone":"9752515091"}
+[2025-09-29T06:30:07.955Z] [INFO] OTP generated and user saved | {"phone":"9752515091","userId":"68da214834ed7d95155fd9be"}
+[2025-09-29T06:30:07.956Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"9752515091"}
+[2025-09-29T06:30:08.073Z] [INFO] SMS sending result | {"phone":"9752515091","success":true,"messageId":"dev-1759127408073","provider":"unknown"}
+[2025-09-29T06:30:36.741Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:30:36.967Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:31:36.743Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:31:36.965Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:32:23.787Z] [INFO] Starting OTP send process | {"phone":"8889948896"}
+[2025-09-29T06:32:23.870Z] [INFO] Creating new user for OTP | {"phone":"8889948896"}
+[2025-09-29T06:32:23.871Z] [INFO] Generating OTP for real number | {"phone":"8889948896"}
+[2025-09-29T06:32:23.958Z] [INFO] OTP generated and user saved | {"phone":"8889948896","userId":"68da27f7b52200e2b0fd3bf4"}
+[2025-09-29T06:32:23.959Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"8889948896"}
+[2025-09-29T06:32:24.107Z] [INFO] SMS sending result | {"phone":"8889948896","success":true,"messageId":"dev-1759127544107","provider":"unknown"}
+[2025-09-29T06:32:36.731Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:32:37.009Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:33:36.732Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:33:36.940Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:33:54.928Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:33:55.164Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:34:02.951Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:34:07.188Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:34:07.315Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:34:14.798Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:34:35.325Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:34:35.482Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:34:39.024Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:34:40.256Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:34:43.108Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:35:36.735Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:35:36.984Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:35:45.833Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-09-29T06:35:45.932Z] [INFO] Creating new user for OTP | {"phone":"7610416911"}
+[2025-09-29T06:35:45.948Z] [INFO] Using test phone number | {"phone":"7610416911"}
+[2025-09-29T06:35:46.120Z] [INFO] Test OTP set | {"phone":"7610416911","otp":"110211"}
+[2025-09-29T06:36:36.759Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:36:36.961Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:36:41.286Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:36:41.496Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:36:46.746Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:36:46.966Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:36:54.753Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:37:36.770Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:37:37.566Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:37:59.770Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:37:59.945Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:38:01.806Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-09-29T06:38:02.524Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:38:02.723Z] [INFO] Existing user found | {"userId":"68da28c13452ca32c0583232","phone":"7610416911"}
+[2025-09-29T06:38:02.724Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-09-29T06:38:03.147Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68da28c13452ca32c0583232"}
+[2025-09-29T06:38:03.149Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-09-29T06:38:04.140Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"dev-1759127884140","provider":"unknown"}
+[2025-09-29T06:38:36.747Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:38:37.006Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:39:30.731Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:39:30.889Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:39:33.519Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:39:36.766Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:39:37.050Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:39:41.318Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:39:41.467Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:39:43.935Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:39:52.596Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:39:52.864Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:39:55.976Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:40:36.797Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:40:37.071Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:41:07.449Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:41:07.553Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:41:09.989Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:41:12.270Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:41:12.508Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:41:15.039Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:41:30.417Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:41:30.536Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:41:32.917Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:41:35.192Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-09-29T06:41:35.319Z] [INFO] Existing user found | {"userId":"68da28c13452ca32c0583232","phone":"7610416911"}
+[2025-09-29T06:41:35.337Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-09-29T06:41:35.449Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68da28c13452ca32c0583232"}
+[2025-09-29T06:41:35.453Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-09-29T06:41:36.291Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"dev-1759128096290","provider":"unknown"}
+[2025-09-29T06:41:36.754Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:41:36.990Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:42:28.709Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:42:28.947Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:42:32.026Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:42:34.452Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-09-29T06:42:34.616Z] [INFO] Existing user found | {"userId":"68da28c13452ca32c0583232","phone":"7610416911"}
+[2025-09-29T06:42:34.623Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-09-29T06:42:34.731Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68da28c13452ca32c0583232"}
+[2025-09-29T06:42:34.737Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-09-29T06:42:35.498Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"dev-1759128155497","provider":"unknown"}
+[2025-09-29T06:42:36.743Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:42:36.995Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:43:37.423Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:43:37.724Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:44:36.757Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:44:37.025Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:45:36.756Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:45:37.021Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:46:36.782Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:46:37.049Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:47:36.746Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:47:36.943Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:47:50.326Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:47:50.662Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:47:58.332Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:48:25.071Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:48:25.365Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:48:33.059Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:48:36.785Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:48:37.179Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:48:47.216Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:48:47.494Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:48:51.044Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-09-29T06:48:51.691Z] [INFO] Existing user found | {"userId":"68da28c13452ca32c0583232","phone":"7610416911"}
+[2025-09-29T06:48:51.692Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-09-29T06:48:52.037Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68da28c13452ca32c0583232"}
+[2025-09-29T06:48:52.040Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-09-29T06:48:52.640Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"dev-1759128532639","provider":"unknown"}
+[2025-09-29T06:48:55.159Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:49:18.757Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:49:18.915Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:49:26.709Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:49:36.748Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:49:37.019Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:50:36.735Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:50:36.954Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:51:54.239Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:51:54.578Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:53:18.078Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:53:19.381Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:53:27.038Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:53:27.695Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:53:35.577Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:53:36.212Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:53:51.143Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:53:51.994Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:54:09.510Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:54:09.817Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:54:18.688Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:54:40.086Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:54:40.550Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:54:48.502Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:54:48.828Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:54:56.087Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-09-29T06:54:56.221Z] [INFO] Existing user found | {"userId":"68da28c13452ca32c0583232","phone":"7610416911"}
+[2025-09-29T06:54:56.237Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-09-29T06:54:56.347Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68da28c13452ca32c0583232"}
+[2025-09-29T06:54:56.358Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-09-29T06:54:56.648Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1759128896643","provider":"SMSIndia Hub"}
+[2025-09-29T06:54:58.402Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:55:15.623Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-29T06:55:15.702Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-29T06:55:16.114Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-29T06:55:48.278Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:55:48.530Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:55:51.171Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:56:08.999Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-09-29T06:56:09.141Z] [INFO] Existing user found | {"userId":"68da28c13452ca32c0583232","phone":"7610416911"}
+[2025-09-29T06:56:09.142Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-09-29T06:56:09.294Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68da28c13452ca32c0583232"}
+[2025-09-29T06:56:09.297Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-09-29T06:56:09.650Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1759128969649","provider":"SMSIndia Hub"}
+[2025-09-29T06:56:24.267Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-29T06:56:24.302Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-29T06:56:24.439Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}

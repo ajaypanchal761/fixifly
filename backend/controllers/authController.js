@@ -2,7 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const smsService = require('../services/smsService');
-const logger = require('../utils/logger');
+const { logger } = require('../utils/logger');
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -54,90 +54,68 @@ const sendOTP = asyncHandler(async (req, res) => {
       logger.info('Existing user found', { userId: user._id, phone: cleanPhone });
     }
 
-    // Check for default test number
-    const isDefaultTestNumber = cleanPhone === '7610416911';
-    let otp, smsResult;
-
-    if (isDefaultTestNumber) {
-      logger.info('Using test phone number', { phone: cleanPhone });
-      // Use default OTP for test number
-      otp = '110211';
-      user.otp = {
-        code: otp,
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-      };
-      await user.save();
+    // Generate random OTP for all phone numbers
+    logger.info('Generating random OTP', { phone: cleanPhone });
+    otp = user.generateOTP();
+    await user.save();
+    
+    logger.info('OTP generated and user saved', { phone: cleanPhone, userId: user._id });
+    
+    // Send OTP via SMS India Hub
+    logger.info('Attempting to send SMS via SMS India Hub', { phone: cleanPhone });
+    
+    let smsResult;
+    
+    try {
+      smsResult = await smsService.sendOTP(cleanPhone, otp);
+      logger.info('SMS sending result', { 
+        phone: cleanPhone, 
+        success: smsResult.success, 
+        messageId: smsResult.messageId || 'unknown',
+        provider: smsResult.provider || 'unknown'
+      });
       
-      // Don't send actual SMS for test number
+      if (!smsResult.success) {
+        logger.error('SMS sending failed', { 
+          phone: cleanPhone, 
+          error: smsResult.error,
+          response: smsResult.response
+        });
+        
+        // Check if it's template approval issue
+        if (smsResult.error && smsResult.error.includes('Template needs approval')) {
+          logger.warn('SMS India Hub template needs approval for phone numbers', { 
+            phone: cleanPhone,
+            senderId: process.env.SMSINDIAHUB_SENDER_ID
+          });
+          console.log(`🔧 SMS India Hub Template Approval Needed - OTP for ${cleanPhone}: ${otp}`);
+        } else {
+          console.log(`🔧 SMS Failed - OTP for ${cleanPhone}: ${otp}`);
+        }
+        
+        // Even if SMS fails, consider it a success for now since OTP is generated
+        smsResult.success = true;
+        smsResult.messageId = 'fallback-' + Date.now();
+      }
+    } catch (smsError) {
+      logger.error('SMS service error', { 
+        phone: cleanPhone, 
+        error: smsError.message,
+        stack: smsError.stack
+      });
+      
+      // Determine if it's a template approval issue
+      if (smsError.message.includes('template not approved')) {
+        logger.warn('SMS template needs approval from SMS India Hub', { phone: cleanPhone });
+      }
+      
+      // Return success with fallback OTP (for development/testing)
       smsResult = {
         success: true,
-        messageId: 'test-' + Date.now(),
-        message: 'Default OTP set for test number'
+        messageId: 'fallback-' + Date.now(),
+        message: 'SMS service temporarily unavailable, using fallback mechanism'
       };
-      
-      logger.info('Test OTP set', { phone: cleanPhone, otp: otp });
-    } else {
-      logger.info('Generating OTP for real number', { phone: cleanPhone });
-      // Generate OTP for real numbers
-      otp = user.generateOTP();
-      await user.save();
-      
-      logger.info('OTP generated and user saved', { phone: cleanPhone, userId: user._id });
-      
-      // Send OTP via SMS India Hub
-      logger.info('Attempting to send SMS via SMS India Hub', { phone: cleanPhone });
-      
-      try {
-        smsResult = await smsService.sendOTP(cleanPhone, otp);
-        logger.info('SMS sending result', { 
-          phone: cleanPhone, 
-          success: smsResult.success, 
-          messageId: smsResult.messageId || 'unknown',
-          provider: smsResult.provider || 'unknown'
-        });
-        
-        if (!smsResult.success) {
-          logger.error('SMS sending failed', { 
-            phone: cleanPhone, 
-            error: smsResult.error,
-            response: smsResult.response
-          });
-          
-          // Check if it's template approval issue
-          if (smsResult.error && smsResult.error.includes('Template needs approval')) {
-            logger.warn('SMS India Hub template needs approval for phone numbers', { 
-              phone: cleanPhone,
-              senderId: process.env.SMS_INDIA_HUB_SENDER_ID
-            });
-            console.log(`🔧 SMS India Hub Template Approval Needed - OTP for ${cleanPhone}: ${otp}`);
-          } else {
-            console.log(`🔧 SMS Failed - OTP for ${cleanPhone}: ${otp}`);
-          }
-          
-          // Even if SMS fails, consider it a success for now since OTP is generated
-          smsResult.success = true;
-          smsResult.messageId = 'fallback-' + Date.now();
-        }
-      } catch (smsError) {
-        logger.error('SMS service error', { 
-          phone: cleanPhone, 
-          error: smsError.message,
-          stack: smsError.stack
-        });
-        
-        // Determine if it's a template approval issue
-        if (smsError.message.includes('template not approved')) {
-          logger.warn('SMS template needs approval from SMS India Hub', { phone: cleanPhone });
-        }
-        
-        // Return success with fallback OTP (for development/testing)
-        smsResult = {
-          success: true,
-          messageId: 'fallback-' + Date.now(),
-          message: 'SMS service temporarily unavailable, using fallback mechanism'
-        };
-        console.log(`🔧 SMS Service Error Fallback - OTP for ${cleanPhone}: ${otp}`);
-      }
+      console.log(`🔧 SMS Service Error Fallback - OTP for ${cleanPhone}: ${otp}`);
     }
 
     // Enhanced response with debugging info
@@ -166,10 +144,60 @@ const sendOTP = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Send OTP Error:', error);
+    logger.error('Send OTP Error:', error);
+    
+    // Check if it's a template approval issue
+    if (error.message && error.message.includes('Template needs approval')) {
+      // Generate and store OTP anyway for testing purposes
+      logger.warn('SMS template approval needed, proceeding with fallback OTP');
+      
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const cleanPhone = req.body.phone.replace(/\D/g, '');
+      
+      try {
+        // Find or create user and store OTP
+        let user = await User.findByPhoneOrEmail(cleanPhone);
+        if (!user) {
+          user = new User({
+            phone: cleanPhone,
+            role: 'user',
+            isPhoneVerified: false
+          });
+        }
+        
+        user.otp = {
+          code: otp,
+          expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+        };
+        await user.save();
+        
+        console.log(`🔧 Fallback OTP Generated - Phone: ${cleanPhone}, OTP: ${otp}`);
+        
+        res.status(200).json({
+          success: true,
+          message: `OTP generated for ${user.formattedPhone}. SMS template approval pending with SMS India Hub.`,
+          data: {
+            phone: user.formattedPhone,
+            messageId: 'fallback-' + Date.now(),
+            provider: 'SMS India Hub (Template Pending Approval)',
+            smsStatus: 'template_approval_pending',
+            otp: otp, // Include OTP in response for testing
+            developmentMode: true,
+            note: 'SMS India Hub template approval needed. OTP available in response for testing.',
+            smsNote: 'SMS template approval required from SMS India Hub for sender ID: SMSHUB'
+          }
+        });
+        return;
+      } catch (dbError) {
+        logger.error('Database error during fallback OTP generation:', dbError);
+      }
+    }
+    
+    // Generic error response for other issues
     res.status(500).json({
       success: false,
-      message: 'Failed to send OTP. Please try again.'
+      message: 'Failed to send OTP. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

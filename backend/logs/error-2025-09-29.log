@@ -5,3 +5,4 @@
 [2025-09-29T06:01:22.523Z] [ERROR] Vendor registration failed | {"error":"connection <monitor> to [64:ff9b::9f29:f06b]:27017 closed","email":"panchalajay717@gmail.com","phone":"9752515091"}
 [2025-09-29T06:06:55.540Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
 [2025-09-29T06:06:59.277Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/logout"}
+[2025-09-29T06:29:39.366Z] [ERROR] Test error message | {"error":"test"}
