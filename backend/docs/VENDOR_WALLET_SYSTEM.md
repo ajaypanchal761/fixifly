@@ -10,7 +10,7 @@ The Vendor Wallet Management System is a comprehensive solution for managing ven
 {
   vendorId: String (unique, required),
   currentBalance: Number (default: 0),
-  securityDeposit: Number (default: 4000, min: 4000),
+  securityDeposit: Number (default: 3999, min: 3999),
   availableBalance: Number (calculated: currentBalance - securityDeposit),
   totalEarnings: Number (default: 0),
   totalPenalties: Number (default: 0),
@@ -52,7 +52,7 @@ The Vendor Wallet Management System is a comprehensive solution for managing ven
 - **Special Case (≤500)**: `Billing Amount` (full amount)
 
 ### 2. Security Deposit
-- **Amount**: ₹4,000 (non-withdrawable)
+- **Amount**: ₹3,999 (non-withdrawable)
 - **Purpose**: Security deposit for vendor account
 - **Rule**: Available balance = Current balance - Security deposit
 

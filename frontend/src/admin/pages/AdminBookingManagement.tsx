@@ -1382,9 +1382,9 @@ const AdminBookingManagement = () => {
                         <p className="text-xs">
                           <span className="font-medium">Vendor:</span> {getVendorName(selectedBooking.vendor?.vendorId)}
                         </p>
-                        <p className="text-xs">
+                        <div className="text-xs">
                           <span className="font-medium">Status:</span> {getAssignmentStatusBadge(selectedBooking.status)}
-                        </p>
+                        </div>
                       </div>
                     </div>
                   </div>

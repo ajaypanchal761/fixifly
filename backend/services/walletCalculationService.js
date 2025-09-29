@@ -7,6 +7,7 @@ class WalletCalculationService {
    * @param {number} params.billingAmount - Total billing amount
    * @param {number} params.spareAmount - Spare parts amount
    * @param {number} params.travellingAmount - Travelling charges
+   * @param {number} params.bookingAmount - Original booking amount
    * @param {string} params.paymentMethod - 'online' or 'cash'
    * @param {boolean} params.gstIncluded - Whether GST is included
    * @returns {Object} Calculation result
@@ -16,6 +17,7 @@ class WalletCalculationService {
       billingAmount,
       spareAmount = 0,
       travellingAmount = 0,
+      bookingAmount = 0,
       paymentMethod,
       gstIncluded = false
     } = params;
@@ -41,13 +43,13 @@ class WalletCalculationService {
     } else {
       // Regular calculation
       if (paymentMethod === 'online') {
-        // Online payment: (Billing - Spare - Travel) * 50% + Spare + Travel
-        const baseAmount = netBillingAmount - spareAmount - travellingAmount;
-        calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
+        // Online payment: (Billing - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
+        const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
+        calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
       } else if (paymentMethod === 'cash') {
-        // Cash payment: (Billing - Spare - Travel) * 50%
-        const baseAmount = netBillingAmount - spareAmount - travellingAmount;
-        calculatedAmount = baseAmount * 0.5;
+        // Cash payment: (Billing - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
+        const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
+        calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
       }
     }
 
@@ -56,15 +58,17 @@ class WalletCalculationService {
       netBillingAmount,
       spareAmount,
       travellingAmount,
+      bookingAmount,
       gstAmount,
       gstIncluded,
       paymentMethod,
       calculatedAmount: Math.round(calculatedAmount * 100) / 100, // Round to 2 decimal places
       breakdown: {
-        baseAmount: netBillingAmount - spareAmount - travellingAmount,
+        baseAmount: netBillingAmount - spareAmount - travellingAmount - bookingAmount,
         percentage: netBillingAmount <= 500 ? (paymentMethod === 'online' ? 'Fixed -20' : '100%') : '50%',
         spareAmount,
         travellingAmount,
+        bookingAmount,
         gstAmount
       }
     };
@@ -80,6 +84,7 @@ class WalletCalculationService {
       billingAmount,
       spareAmount = 0,
       travellingAmount = 0,
+      bookingAmount = 0,
       gstIncluded = false
     } = params;
 
@@ -94,14 +99,9 @@ class WalletCalculationService {
 
     let calculatedAmount = 0;
 
-    // Special case for amounts <= 500
-    if (netBillingAmount <= 500) {
-      calculatedAmount = netBillingAmount; // Full amount for cash collection
-    } else {
-      // Cash collection: (Billing - Spare - Travel) * 50%
-      const baseAmount = netBillingAmount - spareAmount - travellingAmount;
-      calculatedAmount = baseAmount * 0.5;
-    }
+    // Cash collection: (Billing - Spare - Travel - Booking) * 50%
+    const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
+    calculatedAmount = baseAmount * 0.5;
 
     // Add GST amount to cash collection deduction if GST is included
     if (gstIncluded) {
@@ -113,14 +113,16 @@ class WalletCalculationService {
       netBillingAmount,
       spareAmount,
       travellingAmount,
+      bookingAmount,
       gstAmount,
       gstIncluded,
       calculatedAmount: Math.round(calculatedAmount * 100) / 100,
       breakdown: {
-        baseAmount: netBillingAmount - spareAmount - travellingAmount,
-        percentage: netBillingAmount <= 500 ? '100%' : '50%',
+        baseAmount: netBillingAmount - spareAmount - travellingAmount - bookingAmount,
+        percentage: '50%',
         spareAmount,
         travellingAmount,
+        bookingAmount,
         gstAmount
       }
     };

@@ -741,7 +741,7 @@ const createDepositOrder = asyncHandler(async (req, res) => {
       });
     }
 
-    // Check if this is the initial deposit (minimum ₹4,000 required for first deposit)
+    // Check if this is the initial deposit (minimum ₹3,999 required for first deposit)
     const isInitialDeposit = !vendor.wallet.hasInitialDeposit;
     
     // Validate amount based on deposit type
@@ -752,10 +752,10 @@ const createDepositOrder = asyncHandler(async (req, res) => {
       });
     }
     
-    if (isInitialDeposit && amount < 4000) {
+    if (isInitialDeposit && amount < 3999) {
       return res.status(400).json({
         success: false,
-        message: 'Minimum initial deposit amount is ₹4,000'
+        message: 'Minimum initial deposit amount is ₹3,999'
       });
     }
 

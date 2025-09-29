@@ -104,7 +104,7 @@ const VendorClosedTask = () => {
             title: bookingTask.services?.[0]?.serviceName || 'Service Request',
             customer: bookingTask.customer?.name || 'Unknown Customer',
             phone: bookingTask.customer?.phone || 'N/A',
-            amount: `₹0`,
+            amount: `₹${bookingTask.pricing?.totalAmount || 0}`,
             date: bookingTask.scheduling?.scheduledDate 
               ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
               : bookingTask.scheduling?.preferredDate 
@@ -715,6 +715,20 @@ const VendorClosedTask = () => {
                     const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
                     return sum + amount;
                   }, 0).toLocaleString()}
+                </span>
+              </div>
+
+              {/* Traveling Amount */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Traveling Amount</span>
+                <span className="text-sm font-medium text-gray-800">₹100</span>
+              </div>
+
+              {/* Booking Amount */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Booking Amount</span>
+                <span className="text-sm font-medium text-gray-800">
+                  {task?.isSupportTicket ? 'N/A' : task?.amount || '₹0'}
                 </span>
               </div>
 

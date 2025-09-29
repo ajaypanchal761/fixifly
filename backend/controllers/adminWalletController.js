@@ -74,7 +74,7 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
           cashCollected: cashCollected,
           totalWithdrawals: vendorWallet?.totalWithdrawals || 0,
           totalDeposits: vendorWallet?.totalDeposits || 0,
-          securityDeposit: vendorWallet?.securityDeposit || 0,
+          securityDeposit: vendorWallet?.securityDeposit || 3999,
           availableBalance: vendorWallet?.availableBalance || 0,
           isActive: vendor.isActive,
           isApproved: vendor.isApproved,

@@ -63,7 +63,7 @@ class SMSIndiaHubService {
    */
   async sendOTP(phone, otp) {
     try {
-      // Load credentials dynamically
+      // Load credentials dynamically  
       var apiKey = this.apiKey || process.env.SMSINDIAHUB_API_KEY;
       var senderId = this.senderId || process.env.SMSINDIAHUB_SENDER_ID;
       
@@ -82,11 +82,11 @@ class SMSIndiaHubService {
       const message = `Welcome to the Fixifly powered by SMSINDIAHUB. Your OTP for registration is ${otp}`;
       
       // Build the API URL with query parameters (as shown in the example)
-      const params = new URLSearchParams({
-        APIKey: apiKey,
-        msisdn: normalizedPhone,
-        sid: senderId,
-        msg: message,
+        const params = new URLSearchParams({
+          APIKey: apiKey,
+          msisdn: normalizedPhone,
+          sid: senderId,
+          msg: message,
         fl: '0', // Flash message flag (0 = normal SMS)
         dc: '0', // Delivery confirmation (0 = no confirmation)
         gwid: '2' // Gateway ID (2 = transactional)
@@ -95,11 +95,11 @@ class SMSIndiaHubService {
       const apiUrl = `${this.baseUrl}?${params.toString()}`;
 
       // Make GET request to SMSIndia Hub API
-      const response = await axios.get(apiUrl, {
-        headers: {
-          'User-Agent': 'Fixifly/1.0',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-        },
+          const response = await axios.get(apiUrl, {
+            headers: {
+              'User-Agent': 'Fixifly/1.0',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            },
         timeout: 15000 // 15 second timeout
       });
 
@@ -111,12 +111,12 @@ class SMSIndiaHubService {
       
       // Check for success indicators in the response
       if (responseText.includes('success') || responseText.includes('sent') || responseText.includes('accepted')) {
-        return {
-         success: true,
+            return {
+              success: true,
           messageId: `sms_${Date.now()}`, // Generate a message ID since SMSIndia Hub doesn't always return one
-          status: 'sent',
-          to: normalizedPhone,
-          body: message,
+              status: 'sent',
+              to: normalizedPhone,
+              body: message,
           provider: 'SMSIndia Hub',
           response: responseText
         };
@@ -200,7 +200,7 @@ class SMSIndiaHubService {
         },
         timeout: 10000
       });
-
+      
       return {
         success: true,
         message: 'SMSIndia Hub connection successful',

@@ -126,7 +126,9 @@ const Checkout = () => {
   }
 
   const subtotal = checkoutData.totalPrice;
-  const totalAmount = subtotal;
+  const gstRate = 18; // 18% GST
+  const gstAmount = Math.round((subtotal * gstRate) / 100);
+  const totalAmount = subtotal + gstAmount;
 
   const handlePayment = async () => {
     try {
@@ -168,6 +170,8 @@ const Checkout = () => {
         })),
         pricing: {
           subtotal: subtotal,
+          gstRate: gstRate,
+          gstAmount: gstAmount,
           totalAmount: totalAmount
         },
         scheduling: {
@@ -447,6 +451,10 @@ const Checkout = () => {
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
                 <span>₹{subtotal}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>GST ({gstRate}%)</span>
+                <span>₹{gstAmount}</span>
               </div>
               <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between text-lg font-bold text-gray-900">

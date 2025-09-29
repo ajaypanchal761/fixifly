@@ -885,14 +885,16 @@ const completeTask = asyncHandler(async (req, res) => {
           return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
         }, 0) || 0;
         const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
+        const bookingAmount = parseFloat(booking.pricing?.totalAmount) || 0;
         
-        console.log('Calculated amounts:', { billingAmount, spareAmount, travellingAmount });
+        console.log('Calculated amounts:', { billingAmount, spareAmount, travellingAmount, bookingAmount });
         
         // Calculate cash collection deduction
         const calculation = WalletCalculationService.calculateCashCollectionDeduction({
           billingAmount,
           spareAmount,
           travellingAmount,
+          bookingAmount,
           gstIncluded: completionData.includeGST || false
         });
         
@@ -906,6 +908,7 @@ const completeTask = asyncHandler(async (req, res) => {
             billingAmount,
             spareAmount,
             travellingAmount,
+            bookingAmount,
             gstIncluded: completionData.includeGST || false,
             description: `Cash collection - ${updatedBooking.bookingReference || bookingId}`
           });
@@ -916,7 +919,8 @@ const completeTask = asyncHandler(async (req, res) => {
             deductionAmount: calculation.calculatedAmount,
             billingAmount,
             spareAmount,
-            travellingAmount
+            travellingAmount,
+            bookingAmount
           });
         }
       } catch (error) {
@@ -1359,12 +1363,14 @@ const verifyPayment = asyncHandler(async (req, res) => {
             return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
           }, 0) || 0;
           const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
+          const bookingAmount = parseFloat(updatedBooking.pricing?.totalAmount) || 0;
           
           // Calculate vendor earning
           const calculation = WalletCalculationService.calculateEarning({
             billingAmount,
             spareAmount,
             travellingAmount,
+            bookingAmount,
             paymentMethod: 'online',
             gstIncluded: completionData.includeGST || false
           });
@@ -1377,6 +1383,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
               billingAmount,
               spareAmount,
               travellingAmount,
+              bookingAmount,
               paymentMethod: 'online',
               gstIncluded: completionData.includeGST || false,
               description: `Task completion earning - ${updatedBooking.bookingReference || bookingId}`

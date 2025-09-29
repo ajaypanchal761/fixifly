@@ -36,7 +36,7 @@ const VendorEarnings = () => {
   }
   const { toast } = useToast();
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
-  const [depositAmount, setDepositAmount] = useState('4000');
+  const [depositAmount, setDepositAmount] = useState('3999');
   const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
   
   // Withdrawal modal state
@@ -73,7 +73,7 @@ const VendorEarnings = () => {
         id: 'sample-deposit',
         caseId: 'DEP-001',
         type: 'Payment Received',
-        amount: 4000,
+        amount: 3999,
         date: new Date().toISOString().split('T')[0],
         status: 'completed',
         description: 'Initial security deposit'
@@ -224,7 +224,7 @@ const VendorEarnings = () => {
       if (data.success && data.data?.wallet) {
         const walletInfo = {
           currentBalance: data.data.wallet.currentBalance || 0,
-          hasInitialDeposit: data.data.wallet.hasInitialDeposit || (data.data.wallet.currentBalance >= 4000),
+          hasInitialDeposit: data.data.wallet.hasInitialDeposit || (data.data.wallet.currentBalance >= 3999),
           initialDepositAmount: data.data.wallet.initialDepositAmount || 0,
           totalDeposits: data.data.wallet.totalDeposits || 0,
           totalWithdrawals: data.data.wallet.totalWithdrawals || 0,
@@ -392,7 +392,7 @@ const VendorEarnings = () => {
     // Show alert for debugging
     if (vendor?.vendorId) {
       console.log('Vendor ID detected:', vendor.vendorId);
-      console.log('This vendor should show ₹4,000 balance (fallback)');
+      console.log('This vendor should show ₹3,999 balance (fallback)');
     }
     
     // Test API connectivity first
@@ -445,13 +445,13 @@ const VendorEarnings = () => {
   console.log('Vendor ID:', vendor?.vendorId);
   console.log('Using fallback logic for vendor:', vendor?.vendorId);
   
-  const availableBalance = Math.max(0, currentBalance - 4000); // Available for withdrawal
+  const availableBalance = Math.max(0, currentBalance - 3999); // Available for withdrawal
   const totalWithdrawn = walletData.summary?.totalWithdrawals || 0;
   
   // Check hasInitialDeposit from multiple sources - once deposit is made, always show Yes
   const hasInitialDeposit = vendor?.wallet?.hasInitialDeposit || 
                            walletData.hasInitialDeposit || 
-                           (currentBalance >= 4000 && currentBalance > 0) ||
+                           (currentBalance >= 3999 && currentBalance > 0) ||
                            (vendor?.wallet?.totalDeposits > 0) ||
                            (walletData.totalDeposits > 0);
   
@@ -481,10 +481,10 @@ const VendorEarnings = () => {
       return;
     }
     
-    if (!hasInitialDeposit && amount < 4000) {
+    if (!hasInitialDeposit && amount < 3999) {
       toast({
         title: "Minimum Initial Deposit Required",
-        description: "You must deposit at least ₹4,000 for your initial deposit.",
+        description: "You must deposit at least ₹3,999 for your initial deposit.",
         variant: "destructive"
       });
       return;
@@ -547,10 +547,18 @@ const VendorEarnings = () => {
           setTimeout(() => refreshAfterDeposit(1), 1000);
 
           setIsDepositModalOpen(false);
-          setDepositAmount('4000');
+          setDepositAmount('3999');
           setIsProcessingDeposit(false);
         },
         (error) => {
+          // Check if it's a payment cancellation
+          if (error.message === 'PAYMENT_CANCELLED') {
+            console.log('Deposit payment cancelled by user');
+            setIsProcessingDeposit(false);
+            // Don't show error toast for user cancellation
+            return;
+          }
+          
           // Payment failed
           console.error('Deposit payment failed:', error);
           toast({
@@ -733,7 +741,7 @@ const VendorEarnings = () => {
                 <AlertDescription className="text-orange-800">
                   <div className="space-y-3">
                     <div>
-                      <strong>Mandatory Deposit Required:</strong> You must deposit ₹4,000 to access all features. 
+                      <strong>Mandatory Deposit Required:</strong> You must deposit ₹3,999 to access all features. 
                       This is a one-time requirement for new vendors.
                     </div>
                     <div className="flex justify-center">
@@ -800,7 +808,7 @@ const VendorEarnings = () => {
                     ) : (
                       <div>
                         <p className="text-lg font-bold text-primary">₹{currentBalance.toLocaleString()}</p>
-                        {currentBalance >= 4000 && (
+                        {currentBalance >= 3999 && (
                           <p className="text-xs text-muted-foreground">
                             Available for withdrawal: ₹{availableBalance.toLocaleString()}
                           </p>
@@ -833,12 +841,12 @@ const VendorEarnings = () => {
                             value={depositAmount}
                             onChange={(e) => setDepositAmount(e.target.value)}
                             placeholder="Enter amount"
-                            min={hasInitialDeposit ? "1" : "4000"}
+                            min={hasInitialDeposit ? "1" : "3999"}
                           />
                           <p className="text-sm text-muted-foreground mt-1">
                             {hasInitialDeposit 
                               ? "Additional deposit - any amount above ₹1" 
-                              : "Minimum initial deposit: ₹4,000"
+                              : "Minimum initial deposit: ₹3,999"
                             }
                           </p>
                         </div>

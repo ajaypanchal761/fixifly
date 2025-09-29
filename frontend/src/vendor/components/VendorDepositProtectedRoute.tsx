@@ -21,7 +21,7 @@ const VendorDepositProtectedRoute = ({ children }: VendorDepositProtectedRoutePr
     if (!isLoading && isAuthenticated && vendor) {
       // Check if vendor has made the initial deposit - once deposit is made, always show Yes
       const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
-                               (vendor.wallet?.currentBalance >= 4000) ||
+                               (vendor.wallet?.currentBalance >= 3999) ||
                                (vendor.wallet?.totalDeposits > 0);
       
       console.log('=== VENDOR DEPOSIT PROTECTED ROUTE DEBUG ===');

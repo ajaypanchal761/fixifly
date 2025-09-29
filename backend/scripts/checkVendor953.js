@@ -44,7 +44,7 @@ const checkVendor953 = async () => {
       console.log(`Current Balance: ₹${vendorWallet.currentBalance}`);
       console.log(`Total Deposits: ₹${vendorWallet.totalDeposits}`);
       console.log(`Total Transactions: ${vendorWallet.transactions.length}`);
-      console.log(`Has Initial Deposit: ${vendorWallet.currentBalance >= 4000}`);
+      console.log(`Has Initial Deposit: ${vendorWallet.currentBalance >= 3999}`);
       
       if (vendorWallet.transactions.length > 0) {
         console.log('\nTransactions:');

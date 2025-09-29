@@ -52,6 +52,8 @@ interface BookingData {
   }>;
   pricing: {
     subtotal: number;
+    gstRate?: number;
+    gstAmount?: number;
     serviceFee?: number;
     totalAmount: number;
   };
@@ -172,7 +174,8 @@ class RazorpayService {
         },
         modal: {
           ondismiss: () => {
-            paymentData.onError(new Error('Payment cancelled by user'));
+            // User cancellation - don't treat as error, just call onError with a specific cancellation message
+            paymentData.onError(new Error('PAYMENT_CANCELLED'));
           },
         },
       };

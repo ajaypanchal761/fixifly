@@ -100,12 +100,14 @@ const verifyPayment = asyncHandler(async (req, res) => {
               return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
             }, 0) || 0;
             const travellingAmount = 0; // Support tickets don't have travelling amount
+            const bookingAmount = 0; // Support tickets don't have booking amount
             
             // Calculate vendor earning
             const calculation = WalletCalculationService.calculateEarning({
               billingAmount,
               spareAmount,
               travellingAmount,
+              bookingAmount,
               paymentMethod: 'online',
               gstIncluded: ticket.completionData.includeGST || false
             });
@@ -118,6 +120,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
                 billingAmount,
                 spareAmount,
                 travellingAmount,
+                bookingAmount: 0, // Support tickets don't have booking amount
                 paymentMethod: 'online',
                 gstIncluded: ticket.completionData.includeGST || false,
                 description: `Support ticket completion earning - ${ticket.ticketId}`

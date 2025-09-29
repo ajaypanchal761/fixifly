@@ -51,6 +51,10 @@ const walletTransactionSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  bookingAmount: {
+    type: Number,
+    default: 0
+  },
   gstIncluded: {
     type: Boolean,
     default: false
@@ -99,8 +103,8 @@ const vendorWalletSchema = new mongoose.Schema({
   },
   securityDeposit: {
     type: Number,
-    default: 4000,
-    min: 4000
+    default: 3999,
+    min: 3999
   },
   availableBalance: {
     type: Number,
@@ -186,6 +190,7 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
     billingAmount,
     spareAmount = 0,
     travellingAmount = 0,
+    bookingAmount = 0,
     paymentMethod,
     gstIncluded = false,
     description = 'Task completion earning'
@@ -214,13 +219,13 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
 
   // Calculate amount based on payment method
   if (paymentMethod === 'online') {
-    // Online payment: (Billing - Spare - Travel) * 50% + Spare + Travel
-    const baseAmount = billingAmount - spareAmount - travellingAmount;
-    calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
+    // Online payment: (Billing - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
+    const baseAmount = billingAmount - spareAmount - travellingAmount - bookingAmount;
+    calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
   } else if (paymentMethod === 'cash') {
-    // Cash payment: (Billing - Spare - Travel) * 50%
-    const baseAmount = billingAmount - spareAmount - travellingAmount;
-    calculatedAmount = baseAmount * 0.5;
+    // Cash payment: (Billing - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
+    const baseAmount = billingAmount - spareAmount - travellingAmount - bookingAmount;
+    calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
   }
 
   // Special case for amounts <= 500
@@ -242,6 +247,7 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
     billingAmount,
     spareAmount,
     travellingAmount,
+    bookingAmount,
     gstIncluded,
     gstAmount,
     calculatedAmount,
@@ -345,6 +351,7 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
     billingAmount,
     spareAmount = 0,
     travellingAmount = 0,
+    bookingAmount = 0,
     gstIncluded = false,
     description = 'Cash collection deduction'
   } = collectionData;
@@ -370,8 +377,8 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
     netBillingAmount = billingAmount / 1.18; // GST-excluded amount
   }
 
-  // Cash collection: (Billing - Spare - Travel) * 50%
-  const baseAmount = netBillingAmount - spareAmount - travellingAmount;
+  // Cash collection: (Billing - Spare - Travel - Booking) * 50%
+  const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
   calculatedAmount = baseAmount * 0.5;
 
   // Add GST amount to cash collection deduction if GST is included
@@ -389,6 +396,7 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
     billingAmount,
     spareAmount,
     travellingAmount,
+    bookingAmount,
     gstIncluded,
     gstAmount,
     calculatedAmount: -calculatedAmount,

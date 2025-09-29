@@ -17,7 +17,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
       wallet = new VendorWallet({
         vendorId,
         currentBalance: 0,
-        securityDeposit: 4000,
+        securityDeposit: 3999,
         availableBalance: 0
       });
       await wallet.save();
@@ -188,6 +188,7 @@ const addEarning = asyncHandler(async (req, res) => {
       billingAmount,
       spareAmount,
       travellingAmount,
+      bookingAmount: 0, // Default to 0 for manual entries
       paymentMethod,
       gstIncluded,
       description

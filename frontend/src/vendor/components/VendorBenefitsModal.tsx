@@ -131,7 +131,7 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
           <p className="text-center text-muted-foreground mb-6">
             {hasInitialDeposit 
               ? "You are now a certified partner! Here are all the benefits you have access to:"
-              : "Become a certified partner and unlock these amazing benefits with your ₹4,000 deposit"
+              : "Become a certified partner and unlock these amazing benefits with your ₹3,999 deposit"
             }
           </p>
         </DialogHeader>
@@ -146,11 +146,11 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
             <p className="text-gray-600 mb-4">
               {hasInitialDeposit 
                 ? "You have access to all these benefits as a certified partner!"
-                : "All these benefits are included when you make your initial deposit of ₹4,000"
+                : "All these benefits are included when you make your initial deposit of ₹3,999"
               }
             </p>
             <Badge variant="secondary" className="bg-green-100 text-green-800 text-lg px-4 py-2">
-              Total Value: ₹4,000+ Worth of Benefits
+              Total Value: ₹3,999+ Worth of Benefits
             </Badge>
           </div>
 
@@ -199,7 +199,7 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <h4 className="font-bold text-blue-900 mb-2">Ready to Become a Certified Partner?</h4>
               <p className="text-blue-700 text-sm">
-                Make your ₹4,000 deposit now and start enjoying all these benefits immediately!
+                Make your ₹3,999 deposit now and start enjoying all these benefits immediately!
               </p>
             </div>
           )}
