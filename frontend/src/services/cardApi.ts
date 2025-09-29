@@ -5,14 +5,14 @@ interface Card {
   name: string;
   speciality: string;
   subtitle: string;
-  price: number;
-  priceDisplay: string;
+  price?: number;
+  priceDisplay?: string;
   image: string;
   status: 'active' | 'inactive' | 'pending';
   isPopular: boolean;
   isFeatured: boolean;
-  rating: number;
-  totalReviews: number;
+  rating?: number;
+  totalReviews?: number;
   completedJobs: number;
   totalJobs: number;
   location?: {

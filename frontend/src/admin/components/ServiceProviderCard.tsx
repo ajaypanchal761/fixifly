@@ -4,9 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Briefcase, 
-  DollarSign, 
   MapPin, 
-  Star, 
   Users, 
   Edit, 
   Trash2, 
@@ -19,7 +17,7 @@ export interface ServiceProviderCardData {
   name: string;
   speciality: string;
   subtitle: string;
-  price: number;
+  price?: number;
   image: string;
   status: 'active' | 'inactive';
   isPopular: boolean;
@@ -143,10 +141,10 @@ const ServiceProviderCard: React.FC<ServiceProviderCardProps> = ({
           
           {/* Stats and Actions */}
           <div className="flex items-center gap-8">
-            {/* Stats */}
+            {/* Subtitle */}
             <div className="text-center">
-              <div className="flex items-center gap-1 text-green-600 mb-1">
-                <span className="font-bold text-xl">₹{card.price}</span>
+              <div className="flex items-center gap-1 text-blue-600 mb-1">
+                <span className="font-bold text-lg text-blue-700">{card.subtitle}</span>
               </div>
               <Badge 
                 variant={card.status === 'active' ? 'default' : 'secondary'}
@@ -158,15 +156,6 @@ const ServiceProviderCard: React.FC<ServiceProviderCardProps> = ({
               >
                 {card.status}
               </Badge>
-            </div>
-            
-            <div className="text-center">
-              <div className="flex items-center gap-1 mb-1">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <span className="font-bold text-lg">{card.rating.toFixed(1)}</span>
-                <span className="text-sm text-gray-500">({card.totalReviews})</span>
-              </div>
-              <div className="text-sm text-gray-500">Rating</div>
             </div>
             
             {/* Action Buttons */}
@@ -275,20 +264,8 @@ const ServiceProviderCard: React.FC<ServiceProviderCardProps> = ({
               <Briefcase className="w-4 h-4 text-blue-500" />
               <span className="line-clamp-1">{card.speciality}</span>
             </div>
-            <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">{card.subtitle}</p>
           </div>
           
-          {/* Price and Rating */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <span className="font-bold text-lg text-green-600">₹{card.price}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-yellow-500 fill-current" />
-              <span className="text-sm font-medium">{card.rating.toFixed(1)}</span>
-              <span className="text-xs text-gray-500">({card.totalReviews})</span>
-            </div>
-          </div>
           
           {/* Location */}
           {card.location?.city && (

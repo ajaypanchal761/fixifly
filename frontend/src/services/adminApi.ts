@@ -590,7 +590,7 @@ class AdminApiService {
     name: string;
     speciality: string;
     subtitle: string;
-    price: number;
+    price?: number;
     image: string;
     isPopular?: boolean;
     isFeatured?: boolean;

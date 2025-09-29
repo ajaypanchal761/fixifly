@@ -109,10 +109,10 @@ const createCard = asyncHandler(async (req, res) => {
   } = req.body;
 
   // Validation
-  if (!name || !speciality || !subtitle || !price) {
+  if (!name || !speciality || !subtitle) {
     return res.status(400).json({
       success: false,
-      message: 'Please provide all required fields (name, speciality, subtitle, price)'
+      message: 'Please provide all required fields (name, speciality, subtitle)'
     });
   }
 
@@ -160,11 +160,10 @@ const createCard = asyncHandler(async (req, res) => {
   }
 
   // Create card
-  const card = await Card.create({
+  const cardData = {
     name,
     speciality,
     subtitle,
-    price,
     image: imageUrl,
     isPopular: isPopular || false,
     isFeatured: isFeatured || false,
@@ -174,7 +173,14 @@ const createCard = asyncHandler(async (req, res) => {
     tags: tags || [],
     displayOrder: displayOrder || 0,
     createdBy: req.admin._id
-  });
+  };
+
+  // Only add price if provided
+  if (price !== undefined && price !== null && price !== '') {
+    cardData.price = price;
+  }
+
+  const card = await Card.create(cardData);
 
   // Log activity
   logger.info('New card created', {

@@ -1,0 +1,4 @@
+[2025-09-29T04:44:43.650Z] [ERROR] SMTP connection verification failed: | {"errno":-3008,"code":"EDNS","syscall":"getaddrinfo","hostname":"smtp.gmail.com","command":"CONN"}
+[2025-09-29T04:45:05.067Z] [ERROR] SMTP connection verification failed: | {"errno":-3008,"code":"EDNS","syscall":"getaddrinfo","hostname":"smtp.gmail.com","command":"CONN"}
+[2025-09-29T05:06:29.602Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/dashboard"}
+[2025-09-29T05:06:34.015Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/logout"}

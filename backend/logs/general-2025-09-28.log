@@ -1,0 +1,320 @@
+[2025-09-28T12:46:08.596Z] [INFO] Cleaned 2 old log files
+[2025-09-28T12:46:08.597Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-28T12:46:08.878Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-28T12:46:11.334Z] [INFO] SMTP connection verified successfully
+[2025-09-28T12:46:23.450Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-28T12:46:23.497Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-28T12:46:23.771Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-28T12:46:48.260Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T12:46:48.280Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T12:46:48.369Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T12:46:48.370Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T12:46:48.794Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T12:46:49.500Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-28T12:46:49.513Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T12:46:49.595Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T12:46:49.596Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T12:46:51.096Z] [INFO] Vendor bookings retrieved: 3 for vendor 438 | {"vendorId":"438","totalBookings":3,"page":1}
+[2025-09-28T12:47:06.655Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-28T12:47:12.404Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-09-28T12:47:22.581Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-09-28T12:47:22.646Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-28T12:47:23.195Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-28T12:51:39.200Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-28T12:51:40.099Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-28T12:51:44.292Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-28T12:51:46.927Z] [INFO] Admin retrieved bookings: 5 | {"totalBookings":5,"page":1,"filters":{}}
+[2025-09-28T12:51:53.818Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-28T12:51:54.837Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-28T12:52:38.833Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-28T12:52:38.871Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T12:52:46.870Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/68d6266219daa6f59c640f56/status"}
+[2025-09-28T12:52:48.565Z] [INFO] Vendor reject by admin | {"vendorId":"68d6266219daa6f59c640f56","vendorEmail":"panchalajay717@gmail.com","action":"reject"}
+[2025-09-28T12:52:48.589Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T12:53:22.152Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/68d6266219daa6f59c640f56/status"}
+[2025-09-28T12:53:23.375Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Welcome to Fixifly - Your Account is Approved!","from":"Fixifly <fixfly.in@gmail.com>"}
+[2025-09-28T12:53:32.941Z] [INFO] Email sent successfully | {"messageId":"<88ec51c3-5455-e1c1-3456-e15e35659932@gmail.com>","to":"panchalajay717@gmail.com","subject":"Welcome to Fixifly - Your Account is Approved!"}
+[2025-09-28T12:53:32.943Z] [INFO] Vendor approval email sent successfully | {"vendorId":"68d6266219daa6f59c640f56","email":"panchalajay717@gmail.com"}
+[2025-09-28T12:53:32.945Z] [INFO] Vendor approve by admin | {"vendorId":"68d6266219daa6f59c640f56","vendorEmail":"panchalajay717@gmail.com","action":"approve"}
+[2025-09-28T12:53:32.972Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T12:54:12.028Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T12:54:12.040Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-09-28T12:54:12.466Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T12:54:12.871Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T12:54:49.223Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-28T12:54:50.231Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-28T12:55:38.391Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-28T12:55:39.060Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-28T12:56:43.476Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-28T12:56:49.967Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities/68d7d8093c6ca0fe61872ce7/toggle-status"}
+[2025-09-28T12:56:50.489Z] [INFO] City status toggled | {"cityId":"68d7d8093c6ca0fe61872ce7","name":"Dewas","state":"Madhya Pradesh","newStatus":true,"toggledBy":"68ca7f8988ac97b4e9c16645"}
+[2025-09-28T12:56:50.532Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-28T12:57:12.006Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities/68d7d8093c6ca0fe61872ce7/toggle-status"}
+[2025-09-28T12:57:12.982Z] [INFO] City status toggled | {"cityId":"68d7d8093c6ca0fe61872ce7","name":"Dewas","state":"Madhya Pradesh","newStatus":false,"toggledBy":"68ca7f8988ac97b4e9c16645"}
+[2025-09-28T12:57:13.002Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-09-28T12:57:32.282Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-28T12:57:32.866Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-28T12:59:49.711Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-28T12:59:50.235Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-28T13:00:05.707Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-09-28T13:00:06.375Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-09-28T13:00:17.952Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T13:02:27.328Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-28T13:02:27.347Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-28T13:02:27.512Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-28T13:13:13.570Z] [INFO] Booking created with payment: FIX00B5091F | {"bookingId":"68d93464800f47d900b5091f","customerEmail":"abhay@gamil.com","totalAmount":600,"servicesCount":1,"paymentId":"pay_RN2A5EnNFbEekw"}
+[2025-09-28T13:13:14.133Z] [INFO] Customer bookings retrieved: 1 for abhay@gamil.com | {"email":"abhay@gamil.com","totalBookings":1,"page":1}
+[2025-09-28T13:14:06.015Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-28T13:14:06.031Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T13:14:06.039Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-28T13:14:06.539Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":6,"totalRevenue":3364}
+[2025-09-28T13:14:08.214Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:15:05.866Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/68d93464800f47d900b5091f/assign-vendor"}
+[2025-09-28T13:15:06.400Z] [INFO] Admin assigned vendor to booking: undefined | {"bookingId":"68d93464800f47d900b5091f","vendorId":"438","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-09-28T13:15:06.421Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T13:15:07.913Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:15:30.796Z] [INFO] Vendor logged in successfully | {"vendorId":"68d6266219daa6f59c640f56","email":"panchalajay717@gmail.com"}
+[2025-09-28T13:15:31.047Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:15:32.320Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:15:33.547Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:15:34.435Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:15:54.856Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:15:54.870Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:15:55.153Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:15:55.157Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:15:55.649Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:15:57.248Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:15:57.277Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:15:57.471Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:15:57.474Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:15:58.950Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:16:27.228Z] [INFO] Booking retrieved: FIX00B5091F | {"bookingId":"68d93464800f47d900b5091f","status":"confirmed","vendorId":"438","searchId":"68d93464800f47d900b5091f"}
+[2025-09-28T13:16:37.722Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:16:37.759Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:16:37.931Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:16:37.949Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:16:38.379Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:16:40.579Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:16:40.588Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:16:40.728Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:16:40.732Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:16:42.328Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:16:52.928Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/68d93464800f47d900b5091f/accept"}
+[2025-09-28T13:16:53.351Z] [INFO] Vendor accepted task for booking 68d93464800f47d900b5091f
+[2025-09-28T13:16:54.383Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:16:54.390Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:16:54.509Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:16:54.509Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:16:56.276Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:17:00.427Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-28T13:17:01.739Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T13:17:01.746Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-28T13:17:01.759Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-28T13:17:01.998Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:17:02.324Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":6,"totalRevenue":3364}
+[2025-09-28T13:17:03.176Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:17:11.364Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-28T13:17:12.916Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:17:44.507Z] [INFO] Customer bookings retrieved: 1 for abhay@gamil.com | {"email":"abhay@gamil.com","totalBookings":1,"page":1}
+[2025-09-28T13:17:59.976Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:18:00.007Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:18:00.143Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:18:00.153Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:18:01.321Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:18:45.222Z] [INFO] Booking retrieved: FIX00B5091F | {"bookingId":"68d93464800f47d900b5091f","status":"in_progress","vendorId":"438","searchId":"68d93464800f47d900b5091f"}
+[2025-09-28T13:18:59.241Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:18:59.324Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:18:59.537Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:18:59.540Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:19:01.027Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:19:03.202Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:19:03.216Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:19:03.331Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:19:03.335Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:19:04.728Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:19:18.294Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:19:18.310Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:19:18.470Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:19:18.473Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:19:19.466Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:19:24.799Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:19:24.806Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:19:24.976Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:19:24.979Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:19:26.639Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:21:45.245Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/68d93464800f47d900b5091f/complete"}
+[2025-09-28T13:21:46.164Z] [INFO] Task completed successfully | {"bookingId":"68d93464800f47d900b5091f","vendorId":"438","paymentMethod":"online","totalAmount":""}
+[2025-09-28T13:21:48.749Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:21:48.792Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:21:48.882Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:21:48.886Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:21:49.342Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:21:50.577Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:21:50.627Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:21:50.740Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:21:50.742Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:21:51.978Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:22:02.497Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-28T13:22:02.597Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-28T13:22:02.972Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-28T13:22:03.869Z] [INFO] Customer bookings retrieved: 1 for abhay@gamil.com | {"email":"abhay@gamil.com","totalBookings":1,"page":1}
+[2025-09-28T13:22:11.677Z] [INFO] Creating payment order request: | {"bookingId":"68d93464800f47d900b5091f","amount":1000,"currency":"INR"}
+[2025-09-28T13:22:12.032Z] [INFO] Booking found: | {"bookingId":"68d93464800f47d900b5091f","paymentMode":"online","paymentStatus":"pending","status":"in_progress"}
+[2025-09-28T13:22:12.042Z] [INFO] Creating Razorpay order with amount: | {"amount":1000,"amountType":"number","currency":"INR","bookingId":"68d93464800f47d900b5091f"}
+[2025-09-28T13:22:12.432Z] [INFO] Payment order created successfully | {"bookingId":"68d93464800f47d900b5091f","amount":1000,"currency":"INR","orderId":"order_RN2JuApxGXUrd0"}
+[2025-09-28T13:22:46.109Z] [INFO] Payment verification attempt | {"bookingId":"68d93464800f47d900b5091f","razorpayOrderId":"order_RN2JuApxGXUrd0","razorpayPaymentId":"pay_RN2K4eN01PoLBx","expectedSignature":"c744579a1a...","receivedSignature":"c744579a1a..."}
+[2025-09-28T13:22:46.425Z] [INFO] Vendor earning added to wallet | {"vendorId":"438","caseId":"CASE_68d93464800f47d900b5091f","earningAmount":650,"billingAmount":1000,"spareAmount":200,"travellingAmount":100}
+[2025-09-28T13:22:46.428Z] [INFO] Payment verified and booking updated | {"bookingId":"68d93464800f47d900b5091f","razorpayPaymentId":"pay_RN2K4eN01PoLBx","razorpayOrderId":"order_RN2JuApxGXUrd0","status":"completed","paymentStatus":"payment_done"}
+[2025-09-28T13:22:46.710Z] [INFO] Customer bookings retrieved: 1 for abhay@gamil.com | {"email":"abhay@gamil.com","totalBookings":1,"page":1}
+[2025-09-28T13:22:47.041Z] [INFO] Customer bookings retrieved: 1 for abhay@gamil.com | {"email":"abhay@gamil.com","totalBookings":1,"page":1}
+[2025-09-28T13:24:42.403Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:24:43.091Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:24:43.559Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:24:44.091Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:25:04.818Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-09-28T13:25:04.827Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-09-28T13:25:04.836Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T13:25:05.268Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":6,"totalRevenue":3364}
+[2025-09-28T13:25:05.896Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-28T13:25:06.486Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:25:07.266Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:25:12.434Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:25:12.769Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:25:42.434Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:25:42.769Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:26:08.477Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-28T13:26:08.487Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-28T13:26:12.437Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:26:12.722Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:26:42.428Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:26:42.675Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:27:10.801Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-09-28T13:27:12.276Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:27:12.434Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:27:12.787Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:27:17.666Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-09-28T13:27:19.278Z] [INFO] Admin retrieved bookings: 6 | {"totalBookings":6,"page":1,"filters":{}}
+[2025-09-28T13:27:42.435Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:27:42.817Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:28:38.426Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:28:38.705Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:29:38.438Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:29:38.728Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:30:01.551Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:30:03.393Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:30:06.577Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-28T13:30:06.938Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-28T13:30:07.820Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-28T13:30:11.170Z] [INFO] AMC plan details fetched | {"userId":"anonymous","planId":"68d0d6cf5242aefac8654a05"}
+[2025-09-28T13:30:12.447Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:30:13.075Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:30:15.670Z] [INFO] AMC plan details fetched | {"userId":"anonymous","planId":"68d0d6cf5242aefac8654a05"}
+[2025-09-28T13:30:33.494Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-28T13:30:33.680Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-28T13:30:33.983Z] [INFO] User AMC subscriptions fetched | {"userId":"68c9c3a7267e86a4bd7dbf6e","subscriptionsCount":1}
+[2025-09-28T13:30:42.444Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:30:42.794Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:31:13.139Z] [INFO] Sending email | {"to":"abhay@gamil.com","subject":"Support Ticket Submitted - TK000003","from":"Fixifly <fixfly.in@gmail.com>"}
+[2025-09-28T13:31:18.306Z] [INFO] Email sent successfully | {"messageId":"<a74f2a38-1ed5-ffd6-e8e0-1bdcc60be340@gmail.com>","to":"abhay@gamil.com","subject":"Support Ticket Submitted - TK000003"}
+[2025-09-28T13:31:18.307Z] [INFO] Ticket submission confirmation email sent: TK000003 | {"ticketId":"TK000003","userEmail":"abhay@gamil.com","userId":"68c9c3a7267e86a4bd7dbf6e","messageId":"<a74f2a38-1ed5-ffd6-e8e0-1bdcc60be340@gmail.com>"}
+[2025-09-28T13:31:18.308Z] [INFO] New support ticket created: TK000003 by user: 68c9c3a7267e86a4bd7dbf6e
+[2025-09-28T13:31:38.447Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:31:39.029Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:32:15.885Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:32:15.949Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-09-28T13:32:16.476Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:32:30.108Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000003"}
+[2025-09-28T13:32:38.436Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:32:38.680Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:32:45.881Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:32:54.329Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000003"}
+[2025-09-28T13:33:15.891Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:33:20.139Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100&status=active"}
+[2025-09-28T13:33:38.420Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:33:38.881Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:33:45.869Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:33:50.669Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000003/assign-vendor"}
+[2025-09-28T13:33:51.262Z] [INFO] Support ticket assignment notification created | {"vendorId":"68d7a7f550f92df9272d4c51","ticketId":"TK000003","notificationId":"68d9393f800f47d900b519e7"}
+[2025-09-28T13:33:51.342Z] [INFO] Admin assigned vendor to support ticket: TK000003 | {"ticketId":"TK000003","vendorId":"68d7a7f550f92df9272d4c51","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-09-28T13:33:51.352Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:34:00.844Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100&status=active"}
+[2025-09-28T13:34:15.871Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:34:30.014Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000003"}
+[2025-09-28T13:34:38.206Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:34:38.823Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:34:41.380Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:34:41.427Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:34:41.986Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:34:41.998Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:34:42.980Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:34:44.030Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:34:44.717Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:34:45.561Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:34:46.049Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:34:46.074Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:34:46.116Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:34:46.255Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:34:46.270Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:34:46.544Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:34:48.181Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:34:51.206Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:34:51.305Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:34:51.402Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:34:51.427Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:34:52.008Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-28T13:34:52.785Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:34:52.801Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-28T13:34:52.976Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-28T13:34:52.977Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-28T13:34:53.794Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-28T13:35:15.879Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-09-28T13:35:42.254Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-28T13:35:42.314Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-28T13:35:42.572Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-28T13:35:42.731Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-28T13:35:42.849Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-28T13:36:33.772Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-28T13:36:33.799Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/withdrawals"}
+[2025-09-28T13:37:33.816Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:37:34.278Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:37:34.687Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:37:35.084Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:38:03.716Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:38:04.638Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:38:33.687Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:38:34.275Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:39:03.719Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:39:04.229Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:39:33.746Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:39:34.189Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-09-28T13:39:34.326Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:39:35.283Z] [INFO] Withdrawal request created | {"vendorId":"438","vendorName":"Krishna Panchal","amount":250,"requestId":"68d93a97800f47d900b5206a"}
+[2025-09-28T13:39:35.337Z] [INFO] Sending email | {"to":"admin@fixifly.com","subject":"New Withdrawal Request - Fixifly Admin","from":"Fixifly <fixfly.in@gmail.com>"}
+[2025-09-28T13:39:40.077Z] [INFO] Email sent successfully | {"messageId":"<142adf82-88f9-b401-fb53-5597f6dbc828@gmail.com>","to":"admin@fixifly.com","subject":"New Withdrawal Request - Fixifly Admin"}
+[2025-09-28T13:39:40.106Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:39:52.221Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-09-28T13:39:52.278Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-09-28T13:39:54.664Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-28T13:39:54.699Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/withdrawals"}
+[2025-09-28T13:40:00.115Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-09-28T13:40:00.399Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":1,"page":1,"limit":20}
+[2025-09-28T13:40:01.818Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-09-28T13:40:04.434Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:40:04.754Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:40:16.503Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/withdrawals/68d93a97800f47d900b5206a/approve"}
+[2025-09-28T13:40:17.343Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Withdrawal Approved - Fixifly","from":"Fixifly <fixfly.in@gmail.com>"}
+[2025-09-28T13:40:21.525Z] [INFO] Email sent successfully | {"messageId":"<0c0bd97c-8197-9f03-54e1-971a24bc0007@gmail.com>","to":"panchalajay717@gmail.com","subject":"Withdrawal Approved - Fixifly"}
+[2025-09-28T13:40:21.527Z] [INFO] Withdrawal request approved | {"requestId":"68d93a97800f47d900b5206a","vendorId":"438","amount":250,"adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-09-28T13:40:21.539Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/withdrawals"}
+[2025-09-28T13:40:21.546Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
+[2025-09-28T13:40:33.705Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:40:34.762Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:41:03.701Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:41:04.124Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:41:19.204Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-09-28T13:41:34.449Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:41:54.476Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:42:04.447Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:42:04.741Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:42:38.437Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-28T13:42:39.404Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}

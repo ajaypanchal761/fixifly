@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Calendar, Clock, User, Phone, MessageCircle } from "lucide-react";
+import { MapPin, Calendar, Clock, User, Phone, MessageCircle } from "lucide-react";
 import { Card as CardType } from "@/services/cardApi";
 
 interface ServiceBookingModalProps {
@@ -245,13 +245,10 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                   <h3 className="text-lg font-bold text-gray-900">{service.name}</h3>
                   <p className="text-gray-600 text-sm">{service.subtitle}</p>
                   <div className="flex items-center space-x-2 mt-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-yellow-600 font-semibold text-sm">{service.rating.toFixed(1)}</span>
-                    <span className="text-gray-500 text-xs">({service.totalReviews})</span>
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                      {service.speciality}
+                    </span>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-blue-600">{service.priceDisplay}</p>
                 </div>
               </div>
             </CardContent>

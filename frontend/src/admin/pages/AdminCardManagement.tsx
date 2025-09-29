@@ -69,7 +69,6 @@ const AdminCardManagement = () => {
     name: '',
     speciality: '',
     subtitle: '',
-    price: '',
     image: null as File | string | null
   });
 
@@ -224,19 +223,17 @@ const AdminCardManagement = () => {
       name: !!newCard.name,
       speciality: !!newCard.speciality,
       subtitle: !!newCard.subtitle,
-      price: !!newCard.price,
       image: !!newCard.image,
       isEditMode: isEditMode
     });
     
-    if (newCard.name && newCard.speciality && newCard.subtitle && newCard.price) {
+    if (newCard.name && newCard.speciality && newCard.subtitle) {
       try {
         // Create FormData for file upload
         const formData = new FormData();
         formData.append('name', newCard.name);
         formData.append('speciality', newCard.speciality);
         formData.append('subtitle', newCard.subtitle);
-        formData.append('price', newCard.price);
         
         // Add image file if it exists
         if (newCard.image instanceof File) {
@@ -262,7 +259,6 @@ const AdminCardManagement = () => {
           name: '',
           speciality: '',
           subtitle: '',
-          price: '',
           image: null
         });
         setIsAddCardOpen(false);
@@ -281,7 +277,6 @@ const AdminCardManagement = () => {
       if (!newCard.name) missingFields.push('Name');
       if (!newCard.speciality) missingFields.push('Speciality');
       if (!newCard.subtitle) missingFields.push('Subtitle');
-      if (!newCard.price) missingFields.push('Price');
       // Image is now optional with default
       
       alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
@@ -293,7 +288,6 @@ const AdminCardManagement = () => {
       name: card.name,
       speciality: card.speciality,
       subtitle: card.subtitle,
-      price: card.price.toString(),
       image: card.image // Keep the current image (could be URL or File)
     });
     setIsEditMode(true);
@@ -309,7 +303,6 @@ const AdminCardManagement = () => {
       name: '',
       speciality: '',
       subtitle: '',
-      price: '',
       image: null
     });
   };
@@ -465,17 +458,6 @@ const AdminCardManagement = () => {
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="cardPrice" className="text-sm">Price (₹)</Label>
-                      <Input
-                        id="cardPrice"
-                        type="number"
-                        value={newCard.price}
-                        onChange={(e) => setNewCard(prev => ({ ...prev, price: e.target.value }))}
-                        placeholder="Enter service price"
-                        className="text-sm"
-                      />
-                    </div>
 
                     <div>
                       <Label className="text-sm">Provider Image</Label>

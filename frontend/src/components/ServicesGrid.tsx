@@ -8,14 +8,12 @@ import {
   HardDrive,
   Smartphone,
   Tablet,
-  Star,
   ChevronLeft,
   ChevronRight,
   Loader2
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import ServiceBookingModal from "./ServiceBookingModal";
-import CitySelectionModal from "./CitySelectionModal";
 import cardApiService, { Card } from "@/services/cardApi";
 
 const ServicesGrid = () => {
@@ -24,9 +22,7 @@ const ServicesGrid = () => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const autoScrollInterval = useRef<NodeJS.Timeout | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [isCitySelectionModalOpen, setIsCitySelectionModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Card | null>(null);
-  const [selectedCity, setSelectedCity] = useState<any>(null);
   const [services, setServices] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,29 +75,13 @@ const ServicesGrid = () => {
   };
 
   const handleBookService = (service: Card) => {
-    setSelectedService(service);
-    setIsCitySelectionModalOpen(true);
-    // Increment click count
+    // Only increment click count - no modal opening
     cardApiService.incrementCardClicks(service._id).catch(console.error);
-  };
-
-  const handleCitySelect = (city: any) => {
-    setSelectedCity(city);
-    // Close city selection modal and open booking modal
-    setIsCitySelectionModalOpen(false);
-    setIsBookingModalOpen(true);
   };
 
   const handleCloseBookingModal = () => {
     setIsBookingModalOpen(false);
     setSelectedService(null);
-    setSelectedCity(null);
-  };
-
-  const handleCloseCitySelectionModal = () => {
-    setIsCitySelectionModalOpen(false);
-    setSelectedService(null);
-    setSelectedCity(null);
   };
 
   const handleScroll = () => {
@@ -350,21 +330,13 @@ const ServicesGrid = () => {
                         {service.subtitle}
                       </p>
                       
-                      {/* Rating */}
-                      <div className="flex items-center justify-center gap-1 mb-3">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-yellow-400 font-semibold text-sm">
-                          {service.rating.toFixed(1)}
-                        </span>
-                        <span className="text-gray-400 text-xs">
-                          ({service.totalReviews})
+                      
+                      {/* Speciality */}
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm font-semibold">
+                          {service.speciality}
                         </span>
                       </div>
-                      
-                      {/* Price */}
-                      <p className="text-white font-semibold text-lg mb-4">
-                        {service.priceDisplay}
-                      </p>
                       
                     </div>
                   </div>
@@ -395,16 +367,6 @@ const ServicesGrid = () => {
         </div>
       </div>
 
-      {/* City Selection Modal */}
-      {selectedService && (
-        <CitySelectionModal
-          isOpen={isCitySelectionModalOpen}
-          onClose={handleCloseCitySelectionModal}
-          onCitySelect={handleCitySelect}
-          serviceName={selectedService.name}
-          serviceId={selectedService._id}
-        />
-      )}
 
       {/* Service Booking Modal */}
       {selectedService && (
@@ -412,7 +374,6 @@ const ServicesGrid = () => {
           isOpen={isBookingModalOpen}
           onClose={handleCloseBookingModal}
           service={selectedService}
-          selectedCity={selectedCity}
         />
       )}
     </section>

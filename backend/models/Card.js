@@ -43,16 +43,19 @@ const cardSchema = new mongoose.Schema({
   // Pricing
   price: {
     type: Number,
-    required: [true, 'Price is required'],
+    required: false,
     min: [0, 'Price cannot be negative']
   },
   
   priceDisplay: {
     type: String,
-    required: [true, 'Price display is required'],
+    required: false,
     trim: true,
     default: function() {
-      return `Starting at ₹${this.price}`;
+      if (this.price !== undefined && this.price !== null) {
+        return `Starting at ₹${this.price}`;
+      }
+      return 'Contact for price';
     }
   },
   
@@ -242,7 +245,10 @@ cardSchema.index({ displayOrder: 1 });
 
 // Virtual for formatted price
 cardSchema.virtual('formattedPrice').get(function() {
-  return `₹${this.price}`;
+  if (this.price !== undefined && this.price !== null) {
+    return `₹${this.price}`;
+  }
+  return 'Contact for price';
 });
 
 // Virtual for completion rate
@@ -267,7 +273,11 @@ cardSchema.virtual('fullLocation').get(function() {
 // Pre-save middleware to update price display
 cardSchema.pre('save', function(next) {
   if (this.isModified('price')) {
-    this.priceDisplay = `Starting at ₹${this.price}`;
+    if (this.price !== undefined && this.price !== null) {
+      this.priceDisplay = `Starting at ₹${this.price}`;
+    } else {
+      this.priceDisplay = 'Contact for price';
+    }
   }
   next();
 });
