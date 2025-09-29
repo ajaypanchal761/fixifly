@@ -14,36 +14,45 @@ const getVendorWallet = asyncHandler(async (req, res) => {
     
     // Create wallet if it doesn't exist
     if (!wallet) {
-      wallet = new VendorWallet({
+      // Temporarily bypass wallet creation due to index issue
+      console.log('Skipping wallet creation for vendor:', vendorId);
+      wallet = {
         vendorId,
         currentBalance: 0,
         securityDeposit: 3999,
-        availableBalance: 0
-      });
-      await wallet.save();
+        availableBalance: 0,
+        totalDeposits: 0,
+        totalWithdrawals: 0,
+        totalEarnings: 0,
+        totalPenalties: 0,
+        totalTaskAcceptanceFees: 0,
+        totalCashCollections: 0,
+        totalRefunds: 0,
+        totalTasksCompleted: 0,
+        totalTasksRejected: 0,
+        totalTasksCancelled: 0,
+        transactions: []
+      };
     }
 
-    const summary = await VendorWallet.getVendorSummary(vendorId);
-    const allTransactions = wallet.transactions
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .map(transaction => ({
-        _id: transaction._id,
-        transactionId: transaction.transactionId,
-        caseId: transaction.caseId,
-        type: transaction.type,
-        amount: transaction.amount,
-        description: transaction.description,
-        paymentMethod: transaction.paymentMethod,
-        billingAmount: transaction.billingAmount,
-        spareAmount: transaction.spareAmount,
-        travellingAmount: transaction.travellingAmount,
-        gstIncluded: transaction.gstIncluded,
-        gstAmount: transaction.gstAmount,
-        calculatedAmount: transaction.calculatedAmount,
-        status: transaction.status,
-        createdAt: transaction.createdAt,
-        updatedAt: transaction.updatedAt
-      }));
+    // Use default summary if wallet is not a real document
+    const summary = wallet._id ? await VendorWallet.getVendorSummary(vendorId) : {
+      currentBalance: wallet.currentBalance,
+      hasInitialDeposit: wallet.currentBalance >= 3999,
+      initialDepositAmount: wallet.currentBalance >= 3999 ? 3999 : 0,
+      totalDeposits: wallet.totalDeposits,
+      totalWithdrawals: wallet.totalWithdrawals,
+      totalEarnings: wallet.totalEarnings,
+      totalPenalties: wallet.totalPenalties,
+      totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees,
+      totalCashCollections: wallet.totalCashCollections,
+      totalRefunds: wallet.totalRefunds,
+      totalTasksCompleted: wallet.totalTasksCompleted,
+      totalTasksRejected: wallet.totalTasksRejected,
+      totalTasksCancelled: wallet.totalTasksCancelled
+    };
+    
+    const allTransactions = wallet.transactions || [];
 
     res.json({
       success: true,

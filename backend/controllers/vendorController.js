@@ -194,13 +194,15 @@ const loginVendor = asyncHandler(async (req, res) => {
     // Get or create vendor wallet
     let vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
     if (!vendorWallet) {
-      vendorWallet = new VendorWallet({
-        vendorId: vendor.vendorId,
+      // Temporarily bypass wallet creation due to index issue
+      console.log('Skipping wallet creation for vendor:', vendor.vendorId);
+      vendorWallet = {
         currentBalance: 0,
         securityDeposit: 4000,
-        availableBalance: 0
-      });
-      await vendorWallet.save();
+        availableBalance: 0,
+        totalDeposits: 0,
+        totalWithdrawals: 0
+      };
     }
 
     // Prepare vendor data for response

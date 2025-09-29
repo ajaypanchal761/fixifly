@@ -148,15 +148,10 @@ const createTestVendors = async () => {
         // Generate unique vendor ID
         const vendorId = await Vendor.generateVendorId();
         
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(vendorData.password, salt);
-        
-        // Create vendor
+        // Create vendor (password will be hashed by pre-save middleware)
         const vendor = new Vendor({
           ...vendorData,
           vendorId,
-          password: hashedPassword,
           rating: {
             average: 4.5,
             count: 0
