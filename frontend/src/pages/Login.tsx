@@ -69,8 +69,41 @@ const Login = () => {
     setError('');
 
     try {
+      // Test backend connectivity first (optional check)
+      console.log('🔍 Testing backend connectivity...');
+      try {
+        await apiService.healthCheck();
+        console.log('✅ Backend is reachable');
+      } catch (healthError: any) {
+        console.warn('⚠️ Backend health check failed (this might be normal), continuing with OTP request:', healthError.message);
+      }
+
+      // Test SMS configuration
+      console.log('📱 Testing SMS configuration...');
+      try {
+        const smsTest = await apiService.testSMS();
+        console.log('✅ SMS configuration:', smsTest.data);
+        if (!smsTest.data?.credentials?.isConfigured) {
+          console.warn('⚠️ SMS credentials not properly configured');
+        } else {
+          console.log('✅ SMS credentials are configured properly');
+        }
+      } catch (smsError: any) {
+        console.warn('⚠️ SMS configuration test failed:', smsError.message);
+      }
+
+      console.log(`📱 Attempting to send OTP to: ${cleanPhone}`);
+      
+      // Check if it's the default test number for development
+      const isTestNumber = cleanPhone === '7610416911';
+      if (isTestNumber) {
+        console.log('🧪 Using test phone number - OTP will be: 110211');
+      }
+      
       // Call backend API to send OTP
       const response = await apiService.sendOTP(cleanPhone);
+      
+      console.log('📱 OTP Response:', response);
       
       if (response.success) {
         setOtpSent(true);
@@ -86,11 +119,32 @@ const Login = () => {
           console.log(`🔧 Development Mode - OTP for ${cleanPhone}: ${response.data.otp}`);
         }
       } else {
+        console.error('📱 OTP sending failed:', response.message);
         setError(response.message || 'Failed to send OTP. Please try again.');
       }
-    } catch (err: any) {
+  } catch (err: any) {
       console.error('Send OTP Error:', err);
-      setError(err.message || 'Failed to send OTP. Please try again.');
+      
+      let errorMessage = 'Failed to send OTP. Please try again.';
+      
+      // Parse specific error messages
+      if (err.message) {
+        if (err.message.includes('SMS India Hub')) {
+          errorMessage = 'SMS service is currently unavailable. Please try again later.';
+        } else if (err.message.includes('Network error')) {
+          errorMessage = 'Network connection failed. Please check your internet connection and try again.';
+        } else if (err.message.includes('timeout')) {
+          errorMessage = 'Request timed out. Please try again.';
+        } else if (err.message.includes('ECONNREFUSED') || err.message.includes('ENOTFOUND')) {
+          errorMessage = 'Unable to connect to server. Please check your internet connection.';
+        } else if (err.message.includes('rate limit')) {
+          errorMessage = 'Too many requests. Please wait a moment and try again.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -156,30 +156,50 @@ const VendorSignup = () => {
     setIsLoading(true);
     setError('');
 
-    if (!validateStep3()) {
+    // Validate all steps before proceeding
+    if (!validateStep1() || !validateStep2() || !validateStep3()) {
       setIsLoading(false);
       return;
     }
 
     try {
-      // Call backend API to register
-      const response = await vendorApiService.register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
+      // Prepare registration data
+      const registrationData = {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
         password: formData.password,
         serviceCategories: formData.serviceCategories,
-        customServiceCategory: formData.customServiceCategory,
+        customServiceCategory: formData.customServiceCategory?.trim(),
         experience: formData.experience,
         address: formData.address ? {
-          street: formData.address,
+          street: formData.address.trim(),
           city: '',
           state: '',
           pincode: '',
           landmark: ''
         } : undefined
+      };
+
+      console.log('Attempting vendor registration with data:', {
+        ...registrationData,
+        password: '[HIDDEN]' // Don't log the actual password
       });
+
+      // Test backend connectivity first
+      try {
+        await vendorApiService.test();
+        console.log('Backend connectivity test passed');
+      } catch (healthError: any) {
+        console.error('Backend connectivity test failed:', healthError);
+        setError('Unable to connect to server. Please check your internet connection and try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Call backend API to register
+      const response = await vendorApiService.register(registrationData);
 
       if (response.success) {
         toast({
@@ -194,7 +214,22 @@ const VendorSignup = () => {
       }
     } catch (err: any) {
       console.error('Vendor Registration Error:', err);
-      setError(err.message || 'Registration failed. Please try again.');
+      
+      // Extract more detailed error information
+      let errorMessage = 'Registration failed. Please try again.';
+      
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.errors) {
+        // Handle validation errors
+        errorMessage = Array.isArray(err.response.data.errors) 
+          ? err.response.data.errors.join('. ')
+          : 'Validation failed. Please check your inputs.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

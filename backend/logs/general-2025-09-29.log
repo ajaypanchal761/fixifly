@@ -55,3 +55,242 @@
 [2025-09-29T05:24:26.337Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
 [2025-09-29T05:24:26.417Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
 [2025-09-29T05:24:26.717Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-29T05:25:30.890Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards/68cba51605224ea434e16a9a"}
+[2025-09-29T05:25:31.465Z] [INFO] Deleting image from Cloudinary | {"public_id":"fixifly/card-images/rdwgaxlsqzb7mhf3vfgp"}
+[2025-09-29T05:25:35.180Z] [INFO] Image deleted successfully | {"public_id":"fixifly/card-images/rdwgaxlsqzb7mhf3vfgp"}
+[2025-09-29T05:25:35.182Z] [INFO] Card image deleted from Cloudinary | {"public_id":"fixifly/card-images/rdwgaxlsqzb7mhf3vfgp"}
+[2025-09-29T05:25:35.474Z] [INFO] Card deleted | {"cardId":"68cba51605224ea434e16a9a","name":"Ankit Ahirwar","deletedBy":"68ca7f8988ac97b4e9c16645"}
+[2025-09-29T05:25:35.489Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-29T05:25:41.296Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-29T05:25:41.305Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-29T05:25:41.390Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-29T05:26:06.576Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards"}
+[2025-09-29T05:26:11.865Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/card-images/rdpnediqosrzkdzx7kvi","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759123570/fixifly/card-images/rdpnediqosrzkdzx7kvi.jpg"}
+[2025-09-29T05:26:11.868Z] [INFO] Card image uploaded to Cloudinary | {"public_id":"fixifly/card-images/rdpnediqosrzkdzx7kvi","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759123570/fixifly/card-images/rdpnediqosrzkdzx7kvi.jpg"}
+[2025-09-29T05:26:11.947Z] [INFO] New card created | {"cardId":"68da187334ed7d95155fd600","name":"Ankit Ahirwar","speciality":"Electronics Repair","createdBy":"68ca7f8988ac97b4e9c16645","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759123570/fixifly/card-images/rdpnediqosrzkdzx7kvi.jpg"}
+[2025-09-29T05:26:11.980Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-29T05:26:18.260Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-29T05:26:18.274Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-29T05:26:18.559Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-29T05:37:18.164Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:37:19.555Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:37:20.104Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:37:20.555Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:37:48.213Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:37:49.538Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:38:18.207Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:38:18.876Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:38:48.320Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:38:48.585Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:39:18.156Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:39:18.391Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:39:48.191Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:39:49.360Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:40:18.169Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:40:19.237Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:40:38.672Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:40:38.686Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:40:38.809Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:40:38.812Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:40:39.166Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:40:39.836Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:40:39.987Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:40:40.195Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:40:40.196Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:40:41.389Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:40:43.850Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:40:43.856Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:40:44.107Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:40:44.112Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:40:45.570Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:40:46.964Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:40:46.971Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:40:47.034Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:40:47.036Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:40:47.899Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:45:40.117Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:45:40.139Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:45:40.189Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:45:40.198Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:45:40.981Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:45:43.036Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:45:43.056Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:45:43.120Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:45:43.121Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:45:43.948Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:46:56.876Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:46:56.883Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:46:57.012Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:46:57.017Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:46:58.733Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:47:02.907Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:47:02.915Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:47:03.090Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:47:03.096Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:47:04.738Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:47:14.496Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:47:14.548Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:47:14.752Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:47:14.787Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:47:16.545Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:47:29.506Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:47:29.524Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:47:29.639Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:47:29.643Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:47:30.667Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:47:39.320Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:47:39.369Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:47:39.405Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:47:39.424Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:47:40.412Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:47:49.369Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:47:49.387Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:47:49.443Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:47:49.449Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:47:50.437Z] [INFO] Vendor bookings retrieved: 4 for vendor 438 | {"vendorId":"438","totalBookings":4,"page":1}
+[2025-09-29T05:57:16.419Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:57:16.480Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:57:16.800Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:57:16.803Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:57:17.016Z] [INFO] Vendor bookings retrieved: 0 for vendor 438 | {"vendorId":"438","totalBookings":0,"page":1}
+[2025-09-29T05:57:19.176Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-09-29T05:57:19.209Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-09-29T05:57:19.551Z] [INFO] Getting bookings for vendor | {"vendorId":"438","page":1,"limit":10}
+[2025-09-29T05:57:19.559Z] [INFO] Booking query | {"query":{"vendor.vendorId":"438"}}
+[2025-09-29T05:57:20.164Z] [INFO] Vendor bookings retrieved: 0 for vendor 438 | {"vendorId":"438","totalBookings":0,"page":1}
+[2025-09-29T05:57:21.195Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:57:22.092Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:57:22.447Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:57:22.761Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:57:51.788Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:57:52.197Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:58:21.757Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:58:41.787Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:58:41.883Z] [WARN] Vendor not found for token | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-29T05:58:45.055Z] [WARN] Vendor not found for token | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-29T05:58:51.237Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:58:51.339Z] [WARN] Vendor not found for token | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-29T05:58:51.374Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:58:51.469Z] [WARN] Vendor not found for token | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-29T05:59:00.054Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:59:00.156Z] [WARN] Vendor not found for token | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-29T05:59:00.235Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:59:00.431Z] [WARN] Vendor not found for token | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-29T05:59:00.534Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:59:00.633Z] [WARN] Vendor not found for token | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-29T05:59:00.652Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T05:59:00.881Z] [WARN] Vendor not found for token | {"vendorId":"68d6266219daa6f59c640f56"}
+[2025-09-29T06:03:30.187Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop","Printers","Monitor"]}
+[2025-09-29T06:03:30.299Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-09-29T06:03:31.505Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-09-29T06:06:31.931Z] [INFO] Vendor registered successfully | {"vendorId":"68da21e634ed7d95155fd9c2","email":"panchalajay717@gmail.com","phone":"9752515091"}
+[2025-09-29T06:06:39.143Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-29T06:06:39.154Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-29T06:06:43.980Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/68da21e634ed7d95155fd9c2/status"}
+[2025-09-29T06:06:44.345Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Welcome to Fixifly - Your Account is Approved!","from":"Fixifly <fixfly.in@gmail.com>"}
+[2025-09-29T06:06:55.496Z] [INFO] Email sent successfully | {"messageId":"<29db67f3-7aa1-fb2e-1ae3-79e9134ce072@gmail.com>","to":"panchalajay717@gmail.com","subject":"Welcome to Fixifly - Your Account is Approved!"}
+[2025-09-29T06:06:55.498Z] [INFO] Vendor approval email sent successfully | {"vendorId":"68da21e634ed7d95155fd9c2","email":"panchalajay717@gmail.com"}
+[2025-09-29T06:06:55.501Z] [INFO] Vendor approve by admin | {"vendorId":"68da21e634ed7d95155fd9c2","vendorEmail":"panchalajay717@gmail.com","action":"approve"}
+[2025-09-29T06:06:55.535Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-29T06:06:59.254Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-09-29T06:07:06.772Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-09-29T06:07:06.865Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-09-29T06:07:08.901Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-09-29T06:07:08.913Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-09-29T06:07:09.241Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":9,"year":2025}
+[2025-09-29T06:07:19.048Z] [INFO] Vendor logged in successfully | {"vendorId":"68da21e634ed7d95155fd9c2","email":"panchalajay717@gmail.com"}
+[2025-09-29T06:07:19.273Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:07:20.191Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:07:20.837Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:07:21.090Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:07:49.495Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:07:49.739Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:08:19.514Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:08:19.879Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:08:50.081Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:08:51.021Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:09:19.500Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:09:21.074Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:09:49.818Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:09:50.121Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:10:20.056Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:10:20.338Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:11:53.507Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:11:55.054Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:13:36.687Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:13:36.951Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:14:45.216Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:14:46.005Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:14:53.235Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:14:53.513Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:15:02.727Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:15:03.545Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:15:11.862Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:15:32.056Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:15:32.676Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:15:35.310Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:15:35.582Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:15:43.373Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:16:09.232Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:16:09.399Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:16:14.363Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:16:14.510Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:16:22.151Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:16:22.360Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:16:29.992Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:16:58.264Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:16:58.489Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:17:05.945Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:17:09.756Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:17:09.995Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:17:19.725Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:17:19.940Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:17:52.827Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:17:53.171Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:18:01.906Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:18:06.954Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:18:07.154Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:18:14.605Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:18:17.373Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:18:17.575Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:18:26.296Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:18:33.032Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:18:33.192Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:18:40.872Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:19:15.029Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:19:15.235Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:19:24.409Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:20:15.958Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:20:16.080Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:20:22.690Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:20:22.874Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:20:30.588Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:20:37.028Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:20:37.165Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:20:42.833Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:20:42.957Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:20:49.676Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:20:49.782Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:20:57.285Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:21:02.551Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:21:03.021Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:21:11.485Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:22:54.984Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:22:55.099Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:23:04.815Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:23:05.081Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:23:12.774Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:23:37.929Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:23:38.144Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:23:43.481Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:23:45.346Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:23:46.957Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:24:02.340Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-09-29T06:24:02.436Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-09-29T06:24:10.006Z] [INFO] SMTP connection verified successfully
+[2025-09-29T06:24:29.802Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:24:30.092Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:24:33.916Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:24:34.296Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:24:34.539Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-09-29T06:24:34.899Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}

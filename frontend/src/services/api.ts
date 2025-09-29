@@ -79,22 +79,104 @@ class ApiService {
       }
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('API request failed:', error);
       console.error('Error details:', {
         name: error.name,
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
+        url: url,
+        config: config
       });
+      
+      // Handle network errors
+      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch')) {
+        throw new Error('Network error: Please check your internet connection and try again.');
+      }
+      
+      // Handle HTTP errors
+      if (error.response) {
+        const { status, data } = error.response;
+        if (status === 500) {
+          // Server errors - extract meaningful message
+          if (data.message) {
+            throw new Error(data.message);
+          } else if (data.error) {
+            throw new Error(data.error);
+          } else {
+            throw new Error('Server error occurred. Please try again later.');
+          }
+        } else if (status === 400) {
+          // Bad request - validation errors
+          if (data.errors && Array.isArray(data.errors)) {
+            throw new Error(data.errors.join('. '));
+          } else if (data.message) {
+            throw new Error(data.message);
+          } else {
+            throw new Error('Invalid request. Please check your input.');
+          }
+        } else if (status >= 400 && status < 500) {
+          // Client errors
+          throw new Error(data.message || `Error ${status}: ${error.message}`);
+        } else {
+          // Other server errors
+          throw new Error(data.message || `Server error (${status}). Please try again later.`);
+        }
+      }
+      
       throw error;
     }
   }
 
   // Health check method
   async healthCheck(): Promise<ApiResponse> {
-    return this.request('/health', {
+    // Health check endpoint is at root level, not under /api
+    const url = `${this.baseURL.replace('/api', '')}/health`;
+    const config: RequestInit = {
       method: 'GET',
-    });
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('Health check failed:', error);
+      throw new Error(error.message || 'Health check failed');
+    }
+  }
+
+  // SMS test method
+  async testSMS(): Promise<ApiResponse> {
+    const url = `${this.baseURL.replace('/api', '')}/test-sms`;
+    const config: RequestInit = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('SMS test failed:', error);
+      throw new Error(error.message || 'SMS test failed');
+    }
   }
 
   // Auth API methods

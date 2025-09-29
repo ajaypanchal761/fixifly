@@ -60,8 +60,6 @@ const Checkout = () => {
       }));
     }
   }, [user]);
-  
-  const SERVICE_FEE = 100;
 
   // Helper function to format phone number
   const formatPhoneNumber = (value: string) => {
@@ -128,8 +126,7 @@ const Checkout = () => {
   }
 
   const subtotal = checkoutData.totalPrice;
-  const serviceFee = SERVICE_FEE;
-  const totalAmount = subtotal + serviceFee;
+  const totalAmount = subtotal;
 
   const handlePayment = async () => {
     try {
@@ -171,7 +168,6 @@ const Checkout = () => {
         })),
         pricing: {
           subtotal: subtotal,
-          serviceFee: serviceFee,
           totalAmount: totalAmount
         },
         scheduling: {
@@ -451,10 +447,6 @@ const Checkout = () => {
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
                 <span>₹{subtotal}</span>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Service Fee</span>
-                <span>₹{serviceFee}</span>
               </div>
               <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between text-lg font-bold text-gray-900">

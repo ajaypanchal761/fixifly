@@ -21,7 +21,8 @@ import {
   Laptop, 
   Pen,
   Gift,
-  Star
+  Star,
+  Shield
 } from "lucide-react";
 
 interface VendorBenefitsModalProps {
@@ -107,6 +108,13 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
       description: "Branded pens to gift to your customers",
       icon: Pen,
       color: "bg-cyan-100 text-cyan-600"
+    },
+    {
+      id: 12,
+      title: "1 Year Insurance",
+      description: "Complete liability insurance coverage for one year",
+      icon: Shield,
+      color: "bg-emerald-100 text-emerald-600"
     }
   ];
 

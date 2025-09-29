@@ -96,6 +96,42 @@ app.get('/health', (req, res) => {
   });
 });
 
+// SMS Test endpoint for debugging
+app.get('/test-sms', async (req, res) => {
+  const smsService = require('./services/smsService');
+  
+  const credentials = {
+    apiKey: process.env.SMS_INDIA_HUB_API_KEY,
+    senderId: process.env.SMS_INDIA_HUB_SENDER_ID,
+    isConfigured: !!(process.env.SMS_INDIA_HUB_API_KEY && process.env.SMS_INDIA_HUB_SENDER_ID)
+  };
+  
+  // Test SMS India Hub connection with dummy OTP
+  let testResult = { status: 'not_tested' };
+  
+  if (credentials.isConfigured) {
+    try {
+      testResult = await smsService.sendOTP('9999999999', '123456');
+      testResult.status = testResult.success ? 'working' : 'template_approval_needed';
+    } catch (error) {
+      testResult = { 
+        status: 'error', 
+        error: error.message,
+        note: 'SMS India Hub connection error or template approval needed'
+      };
+    }
+  }
+  
+  res.status(200).json({
+    success: true,
+    message: 'SMS India Hub Service Status',
+    credentials: credentials,
+    testResult: testResult,
+    timestamp: new Date().toISOString(),
+    solution: testResult.status !== 'working' ? 'Contact SMS India Hub to approve OTP template for sender ID SMSHUB' : 'SMS service is working correctly'
+  });
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -184,6 +220,7 @@ const startServer = async () => {
 🌍 Environment: ${process.env.NODE_ENV || 'development'}
 🔗 API Base URL: http://localhost:${PORT}/api
 📊 Health Check: http://localhost:${PORT}/health
+📱 SMS Test: http://localhost:${PORT}/test-sms
 🔐 Auth Endpoints: http://localhost:${PORT}/api/auth
 👤 User Endpoints: http://localhost:${PORT}/api/users
 🏪 Vendor Endpoints: http://localhost:${PORT}/api/vendors
@@ -191,6 +228,11 @@ const startServer = async () => {
 🃏 Card Endpoints: http://localhost:${PORT}/api/cards
 📝 Blog Endpoints: http://localhost:${PORT}/api/blogs
 📝 Admin Blog Endpoints: http://localhost:${PORT}/api/admin/blogs
+
+⚠️  SMS India Hub Template Approval Needed:
+   Contact SMS India Hub support to approve OTP template for sender ID: SMSHUB
+   Current status: Template pending approval (Error Code: 006)
+   Users are getting OTP through fallback mechanism for testing
       `);
     });
   } catch (error) {

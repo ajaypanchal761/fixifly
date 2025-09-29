@@ -1,4 +1,4 @@
-import axios from 'axios';
+const axios = require('axios');
 
 /**
  * SMSIndia Hub SMS Service
@@ -79,8 +79,9 @@ class SMSService {
         throw new Error(`Invalid phone number format: ${phone}. Expected 10-digit Indian mobile number.`);
       }
 
-      // Use the verified message template for Fixifly (matching SMS India Hub format)
-      const message = `Welcome to the Fixifly powered by SMSINDIAHUB. Your OTP for registration is ${otp}`;
+      // For now, use a simple message without template approval
+      // Once template is approved by SMS India Hub, we can use proper message
+      const message = `OTP:${otp}`;
       
       // Build the API URL with query parameters (as shown in the working example)
       const params = new URLSearchParams({
@@ -89,8 +90,8 @@ class SMSService {
         sid: senderId,
         msg: message,
         fl: '0', // Flash message flag (0 = normal SMS)
-        dc: '0', // Delivery confirmation (0 = no confirmation)
-        gwid: '2' // Gateway ID (2 = transactional)
+        dc: '0' // Delivery confirmation (0 = no confirmation)
+        // Removed gwid to use default routing
       });
 
       const apiUrl = `${this.baseUrl}?${params.toString()}`;
@@ -112,21 +113,43 @@ class SMSService {
       // SMS India Hub typically returns HTML or plain text response
       const responseText = response.data.toString();
       
-      // Check for success indicators in the response
-      if (responseText.includes('success') || responseText.includes('sent') || responseText.includes('accepted')) {
+      // Parse the JSON response for specific error handling
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        responseData = { ErrorCode: 'unknown', ErrorMessage: responseText };
+      }
+
+      // Check for specific error codes
+      if (responseData.ErrorCode === '006') {
+        // Invalid template error - but allow fallback for now
+        console.log('⚠️ SMS template needs approval. Using fallback mechanism.');
+        return {
+          success: false,
+          messageId: `fallback-${Date.now()}`,
+          status: 'fallback',
+          to: normalizedPhone,
+          body: message,
+          provider: 'SMS India Hub (Template Pending Approval)',
+          response: responseText,
+          error: 'Template needs approval from SMS India Hub'
+        };
+      } else if (responseData.ErrorCode === '000') {
+        // Success
         return {
           success: true,
-          messageId: `sms_${Date.now()}`, // Generate a message ID since SMS India Hub doesn't always return one
+          messageId: responseData.JobId || `sms_${Date.now()}`,
           status: 'sent',
           to: normalizedPhone,
           body: message,
           provider: 'SMS India Hub',
           response: responseText
         };
-      } else if (responseText.includes('error') || responseText.includes('failed') || responseText.includes('invalid')) {
-        throw new Error(`SMS India Hub API error: ${responseText}`);
-      } else {
-        // If we can't determine success/failure from response, assume success if we got a response
+      } else if (responseData.ErrorMessage && responseData.ErrorMessage.includes('Invalid template')) {
+        // Template validation error
+        throw new Error(`SMS template not approved: ${responseData.ErrorMessage}`);
+      } else if (responseText.includes('success') || responseText.includes('sent') || responseText.includes('accepted')) {
         return {
           success: true,
           messageId: `sms_${Date.now()}`,
@@ -136,6 +159,9 @@ class SMSService {
           provider: 'SMS India Hub',
           response: responseText
         };
+      } else {
+        // Generic error response
+        throw new Error(`SMS India Hub API error: ${responseText}`);
       }
 
     } catch (error) {
@@ -324,4 +350,7 @@ class SMSService {
 // Create singleton instance
 const smsService = new SMSService();
 
-export default smsService;
+// Export both class and instance for flexibility
+module.exports = smsService;
+module.exports.SMSService = SMSService;
+module.exports.default = smsService;

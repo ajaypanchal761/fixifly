@@ -127,13 +127,34 @@ class VendorApiService {
       }
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Vendor API request failed:', error);
       console.error('Error details:', {
         name: error.name,
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
+        response: error.response?.data
       });
+      
+      // Handle Network errors
+      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch')) {
+        throw new Error('Network error: Please check your internet connection and try again.');
+      }
+      
+      // Handle HTTP errors with more details
+      if (error.response) {
+        const { status, data } = error.response;
+        if (status === 400 && data.errors) {
+          // Validation errors
+          throw new Error(data.errors.join('. '));
+        } else if (data.message) {
+          // Custom server messages
+          throw new Error(data.message);
+        } else {
+          throw new Error(`Server error (${status}). Please try again.`);
+        }
+      }
+      
       throw error;
     }
   }
@@ -160,6 +181,7 @@ class VendorApiService {
     phone: string;
     password: string;
     serviceCategories: string[];
+    customServiceCategory?: string;
     experience: string;
     address?: any;
   }): Promise<ApiResponse<VendorAuthResponse>> {

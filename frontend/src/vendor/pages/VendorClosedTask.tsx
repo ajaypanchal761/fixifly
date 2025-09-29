@@ -13,6 +13,8 @@ import {
 import VendorHeader from "../components/VendorHeader";
 import VendorBottomNav from "../components/VendorBottomNav";
 import vendorApi from "@/services/vendorApi";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface SparePart {
   id: number;
@@ -35,6 +37,7 @@ const VendorClosedTask = () => {
   const [includeGST, setIncludeGST] = useState(false);
   const [billingAmount, setBillingAmount] = useState("");
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showCashWarning, setShowCashWarning] = useState(false);
   const [spareParts, setSpareParts] = useState<SparePart[]>([
     { id: 1, name: "", amount: "", photo: null }
   ]);
@@ -386,6 +389,19 @@ const VendorClosedTask = () => {
     }
     
     return billingAmountValue; // No GST, so amount is as is
+  };
+
+  const handleCashPaymentClick = () => {
+    setShowCashWarning(true);
+  };
+
+  const handleCashWarningConfirm = () => {
+    setPaymentMethod('cash');
+    setShowCashWarning(false);
+  };
+
+  const handleCashWarningCancel = () => {
+    setShowCashWarning(false);
   };
 
   const handleNext = async () => {
@@ -789,7 +805,7 @@ const VendorClosedTask = () => {
                   name="paymentMethod"
                   value="cash"
                   checked={paymentMethod === 'cash'}
-                  onChange={(e) => setPaymentMethod(e.target.value as 'online' | 'cash')}
+                  onChange={handleCashPaymentClick}
                   className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                 />
                 <label htmlFor="cash" className="flex items-center space-x-2 cursor-pointer">
@@ -828,6 +844,42 @@ const VendorClosedTask = () => {
         </div>
       </main>
       <VendorBottomNav />
+
+      {/* Cash Payment Warning Modal */}
+      <Dialog open={showCashWarning} onOpenChange={setShowCashWarning}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-center">
+              ⚠️ Cash Payment Warning
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="text-center">
+              <p className="text-gray-700 leading-relaxed">
+                <strong>Be a Loyal Vendor</strong>
+              </p>
+              <p className="text-gray-600 mt-2">
+                Click cash only if the user pays in cash. Otherwise, penalties may apply and your ID could be suspended.
+              </p>
+            </div>
+            <div className="flex gap-3 justify-center">
+              <Button
+                variant="outline"
+                onClick={handleCashWarningCancel}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCashWarningConfirm}
+                className="flex-1 bg-red-600 hover:bg-red-700"
+              >
+                Confirm Cash Payment
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

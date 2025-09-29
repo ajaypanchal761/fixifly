@@ -52,7 +52,7 @@ interface BookingData {
   }>;
   pricing: {
     subtotal: number;
-    serviceFee: number;
+    serviceFee?: number;
     totalAmount: number;
   };
   scheduling: {
