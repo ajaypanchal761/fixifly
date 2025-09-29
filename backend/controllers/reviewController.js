@@ -147,7 +147,7 @@ const getReview = asyncHandler(async (req, res) => {
 // @access  Private
 const createReview = asyncHandler(async (req, res) => {
   const { category, rating, comment, cardId, bookingId, isAnonymous } = req.body;
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   // Check if user already reviewed this category recently
   const existingReview = await Review.findOne({
@@ -197,7 +197,7 @@ const createReview = asyncHandler(async (req, res) => {
 // @access  Private
 const updateReview = asyncHandler(async (req, res) => {
   const { rating, comment, isAnonymous } = req.body;
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   let review = await Review.findById(req.params.id);
 
@@ -240,7 +240,7 @@ const updateReview = asyncHandler(async (req, res) => {
 // @route   DELETE /api/reviews/:id
 // @access  Private
 const deleteReview = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   const review = await Review.findById(req.params.id);
 
@@ -271,7 +271,7 @@ const deleteReview = asyncHandler(async (req, res) => {
 // @route   POST /api/reviews/:id/like
 // @access  Private
 const toggleLikeReview = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   const review = await Review.findById(req.params.id);
 
@@ -311,132 +311,6 @@ const getReviewStats = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Admin: Get all reviews (including pending)
-// @route   GET /api/admin/reviews
-// @access  Private (Admin)
-const getAdminReviews = asyncHandler(async (req, res) => {
-  const {
-    status,
-    category,
-    rating,
-    limit = 20,
-    skip = 0,
-    sort = 'newest'
-  } = req.query;
-
-  // Build filter object
-  const filters = {};
-  if (status) filters.status = status;
-  if (category) filters.category = category;
-  if (rating) filters.rating = parseInt(rating);
-
-  // Build sort object
-  let sortObj = {};
-  switch (sort) {
-    case 'newest':
-      sortObj = { createdAt: -1 };
-      break;
-    case 'oldest':
-      sortObj = { createdAt: 1 };
-      break;
-    case 'highest_rating':
-      sortObj = { rating: -1, createdAt: -1 };
-      break;
-    case 'lowest_rating':
-      sortObj = { rating: 1, createdAt: -1 };
-      break;
-    default:
-      sortObj = { createdAt: -1 };
-  }
-
-  const reviews = await Review.find(filters)
-    .populate('userId', 'name email phone')
-    .populate('cardId', 'name speciality')
-    .sort(sortObj)
-    .limit(parseInt(limit))
-    .skip(parseInt(skip));
-
-  const total = await Review.countDocuments(filters);
-
-  res.status(200).json({
-    success: true,
-    count: reviews.length,
-    total,
-    data: reviews
-  });
-});
-
-// @desc    Admin: Update review status
-// @route   PUT /api/admin/reviews/:id/status
-// @access  Private (Admin)
-const updateReviewStatus = asyncHandler(async (req, res) => {
-  const { status } = req.body;
-
-  const review = await Review.findById(req.params.id);
-
-  if (!review) {
-    return res.status(404).json({
-      success: false,
-      message: 'Review not found'
-    });
-  }
-
-  review.status = status;
-  await review.save();
-
-  res.status(200).json({
-    success: true,
-    message: 'Review status updated successfully',
-    data: review
-  });
-});
-
-// @desc    Admin: Add response to review
-// @route   POST /api/admin/reviews/:id/response
-// @access  Private (Admin)
-const addAdminResponse = asyncHandler(async (req, res) => {
-  const { message } = req.body;
-  const adminId = req.user.id;
-
-  const review = await Review.findById(req.params.id);
-
-  if (!review) {
-    return res.status(404).json({
-      success: false,
-      message: 'Review not found'
-    });
-  }
-
-  await review.addAdminResponse(message, adminId);
-
-  res.status(200).json({
-    success: true,
-    message: 'Admin response added successfully',
-    data: review
-  });
-});
-
-// @desc    Admin: Toggle featured status
-// @route   PUT /api/admin/reviews/:id/featured
-// @access  Private (Admin)
-const toggleFeatured = asyncHandler(async (req, res) => {
-  const review = await Review.findById(req.params.id);
-
-  if (!review) {
-    return res.status(404).json({
-      success: false,
-      message: 'Review not found'
-    });
-  }
-
-  await review.toggleFeatured();
-
-  res.status(200).json({
-    success: true,
-    message: 'Featured status toggled successfully',
-    data: review
-  });
-});
 
 module.exports = {
   getReviews,
@@ -448,9 +322,5 @@ module.exports = {
   updateReview,
   deleteReview,
   toggleLikeReview,
-  getReviewStats,
-  getAdminReviews,
-  updateReviewStatus,
-  addAdminResponse,
-  toggleFeatured
+  getReviewStats
 };

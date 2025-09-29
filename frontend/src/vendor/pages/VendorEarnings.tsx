@@ -947,14 +947,10 @@ const VendorEarnings = () => {
           </div>
 
           {/* Filters */}
-          <div className="service-card mb-6 md:hidden">
-            <div className="flex items-center gap-2 mb-3">
-              <Filter className="w-4 h-4 text-primary" />
-              <h2 className="text-base font-semibold text-foreground">Filters</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-4 md:hidden">
+            <div className="flex flex-wrap gap-1.5">
               <button 
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${
                   activeFilter === 'All' 
                     ? 'btn-tech' 
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -964,7 +960,7 @@ const VendorEarnings = () => {
                 All
               </button>
               <button 
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${
                   activeFilter === 'Payment Received' 
                     ? 'btn-tech' 
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -974,7 +970,7 @@ const VendorEarnings = () => {
                 Payment
               </button>
               <button 
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${
                   activeFilter === 'Withdraw' 
                     ? 'btn-tech' 
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -984,7 +980,7 @@ const VendorEarnings = () => {
                 Withdraw
               </button>
               <button 
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${
                   activeFilter === 'Penalty' 
                     ? 'btn-tech' 
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -994,14 +990,14 @@ const VendorEarnings = () => {
                 Penalty
               </button>
               <button 
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${
                   activeFilter === 'Admin Adjustment' 
                     ? 'btn-tech' 
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
                 onClick={() => setActiveFilter('Admin Adjustment')}
               >
-                Admin Adjustment
+                Admin
               </button>
             </div>
           </div>

@@ -40,7 +40,9 @@ const Checkout = () => {
       state: user?.address?.state || "",
       pincode: user?.address?.pincode || ""
     },
-    notes: ""
+    notes: "",
+    scheduledDate: "",
+    scheduledTime: ""
   });
 
   // Update customer data when user changes
@@ -97,7 +99,9 @@ const Checkout = () => {
           state: user.address?.state || "",
           pincode: user.address?.pincode || ""
         },
-        notes: ""
+        notes: "",
+        scheduledDate: "",
+        scheduledTime: ""
       });
     }
   }, [user]);
@@ -135,10 +139,13 @@ const Checkout = () => {
       setLoading(true);
       
       // Validate required fields
-      if (!customerData.name || !customerData.email || !customerData.phone) {
+      if (!customerData.name || !customerData.email || !customerData.phone || 
+          !customerData.address.street || !customerData.address.city || 
+          !customerData.address.state || !customerData.address.pincode || 
+          !customerData.notes || !customerData.scheduledDate || !customerData.scheduledTime) {
         toast({
           title: "Missing Information",
-          description: "Please fill in all required fields (Name, Email, Phone)",
+          description: "Please fill in all required fields (Name, Email, Phone, Address, City, State, Pincode, Issue Description, Schedule Date, Schedule Time)",
           variant: "destructive"
         });
         setLoading(false);
@@ -175,8 +182,8 @@ const Checkout = () => {
           totalAmount: totalAmount
         },
         scheduling: {
-          preferredDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
-          preferredTimeSlot: 'morning'
+          preferredDate: customerData.scheduledDate,
+          preferredTimeSlot: customerData.scheduledTime
         },
         notes: customerData.notes || "Booking created from checkout"
       };
@@ -344,7 +351,7 @@ const Checkout = () => {
               <div className="space-y-2">
                 <Label htmlFor="address" className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4" />
-                  <span>Address</span>
+                  <span>Address *</span>
                 </Label>
                 <Input
                   id="address"
@@ -355,12 +362,13 @@ const Checkout = () => {
                     address: { ...prev.address, street: e.target.value }
                   }))}
                   placeholder="Enter your address"
+                  required
                 />
               </div>
 
               {/* City */}
               <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
+                <Label htmlFor="city">City *</Label>
                 <Input
                   id="city"
                   type="text"
@@ -370,12 +378,13 @@ const Checkout = () => {
                     address: { ...prev.address, city: e.target.value }
                   }))}
                   placeholder="Enter your city"
+                  required
                 />
               </div>
 
               {/* State */}
               <div className="space-y-2">
-                <Label htmlFor="state">State</Label>
+                <Label htmlFor="state">State *</Label>
                 <Input
                   id="state"
                   type="text"
@@ -385,12 +394,13 @@ const Checkout = () => {
                     address: { ...prev.address, state: e.target.value }
                   }))}
                   placeholder="Enter your state"
+                  required
                 />
               </div>
 
               {/* Pincode */}
               <div className="space-y-2">
-                <Label htmlFor="pincode">Pincode</Label>
+                <Label htmlFor="pincode">Pincode *</Label>
                 <Input
                   id="pincode"
                   type="text"
@@ -400,13 +410,14 @@ const Checkout = () => {
                     address: { ...prev.address, pincode: e.target.value }
                   }))}
                   placeholder="Enter your pincode"
+                  required
                 />
               </div>
             </div>
 
             {/* Issue Description */}
             <div className="space-y-2">
-              <Label htmlFor="notes">Issue Description</Label>
+              <Label htmlFor="notes">Issue Description *</Label>
               <Textarea
                 id="notes"
                 value={customerData.notes}
@@ -417,7 +428,47 @@ const Checkout = () => {
                 placeholder="Describe the issue or problem you're facing..."
                 rows={4}
                 className="resize-none"
+                required
               />
+            </div>
+
+            {/* Schedule Date and Time */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Schedule Date */}
+              <div className="space-y-2">
+                <Label htmlFor="scheduledDate">Schedule Date *</Label>
+                <Input
+                  id="scheduledDate"
+                  type="date"
+                  value={customerData.scheduledDate}
+                  onChange={(e) => setCustomerData(prev => ({ 
+                    ...prev, 
+                    scheduledDate: e.target.value 
+                  }))}
+                  min={new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </div>
+
+              {/* Schedule Time */}
+              <div className="space-y-2">
+                <Label htmlFor="scheduledTime">Schedule Time *</Label>
+                <select
+                  id="scheduledTime"
+                  value={customerData.scheduledTime}
+                  onChange={(e) => setCustomerData(prev => ({ 
+                    ...prev, 
+                    scheduledTime: e.target.value 
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select time slot</option>
+                  <option value="morning">Morning (9:00 AM - 12:00 PM)</option>
+                  <option value="afternoon">Afternoon (12:00 PM - 5:00 PM)</option>
+                  <option value="evening">Evening (5:00 PM - 8:00 PM)</option>
+                </select>
+              </div>
             </div>
           </div>
 

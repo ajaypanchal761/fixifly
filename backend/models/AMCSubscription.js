@@ -15,6 +15,22 @@ const amcSubscriptionSchema = new mongoose.Schema({
     required: true
   },
   
+  userName: {
+    type: String,
+    trim: true
+  },
+  
+  userEmail: {
+    type: String,
+    trim: true,
+    lowercase: true
+  },
+  
+  userPhone: {
+    type: String,
+    trim: true
+  },
+  
   // Plan Information
   planId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -40,6 +56,24 @@ const amcSubscriptionSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0
+  },
+  
+  baseAmount: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  
+  gstAmount: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  
+  gstRate: {
+    type: Number,
+    required: true,
+    default: 0.18
   },
   
   currency: {

@@ -3,7 +3,7 @@ const crypto = require('crypto');
 
 // JWT Token Configuration
 const JWT_CONFIG = {
-  ACCESS_TOKEN_EXPIRES_IN: '1h', // 1 hour
+  ACCESS_TOKEN_EXPIRES_IN: '3h', // 1 hour
   REFRESH_TOKEN_EXPIRES_IN: '7d', // 7 days
   ALGORITHM: 'HS256'
 };

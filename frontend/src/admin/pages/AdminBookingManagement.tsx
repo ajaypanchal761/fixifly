@@ -1371,6 +1371,44 @@ const AdminBookingManagement = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Schedule Date and Time */}
+                  {(selectedBooking.scheduling?.scheduledDate || selectedBooking.scheduling?.preferredDate || selectedBooking.scheduling?.scheduledTime || selectedBooking.scheduling?.preferredTimeSlot) && (
+                    <div className="mt-2 pt-2 border-t border-blue-200">
+                      <div className="flex items-start gap-2">
+                        <div className="w-3 h-3 bg-purple-100 rounded-full flex items-center justify-center mt-0.5">
+                          <Clock className="w-2 h-2 text-purple-600" />
+                        </div>
+                        <div>
+                          <span className="text-gray-600 font-medium text-xs">Schedule Details:</span>
+                          <div className="text-gray-900 font-medium text-xs mt-1 bg-purple-50 p-2 rounded border border-purple-200">
+                            <div className="flex justify-between">
+                              <span>Date:</span>
+                              <span>
+                                {selectedBooking.scheduling?.scheduledDate 
+                                  ? new Date(selectedBooking.scheduling.scheduledDate).toLocaleDateString()
+                                  : selectedBooking.scheduling?.preferredDate 
+                                  ? new Date(selectedBooking.scheduling.preferredDate).toLocaleDateString()
+                                  : 'Not scheduled'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between mt-1">
+                              <span>Time:</span>
+                              <span>
+                                {selectedBooking.scheduling?.scheduledTime 
+                                  ? new Date(`2000-01-01T${selectedBooking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                      hour12: true
+                                    })
+                                  : selectedBooking.scheduling?.preferredTimeSlot || 'Not scheduled'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Current Assignment Status */}
@@ -1718,13 +1756,23 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Scheduled Date</Label>
-                      <p className="text-xs">{selectedBooking.scheduling.scheduledDate ? 
+                      <p className="text-xs">{selectedBooking.scheduling?.scheduledDate ? 
                         new Date(selectedBooking.scheduling.scheduledDate).toLocaleDateString() : 
+                        selectedBooking.scheduling?.preferredDate ?
+                        new Date(selectedBooking.scheduling.preferredDate).toLocaleDateString() :
                         'Not scheduled'}</p>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Scheduled Time</Label>
-                      <p className="text-xs">{selectedBooking.scheduling.scheduledTime || 'Not scheduled'}</p>
+                      <p className="text-xs">
+                        {selectedBooking.scheduling?.scheduledTime 
+                          ? new Date(`2000-01-01T${selectedBooking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true
+                            })
+                          : selectedBooking.scheduling?.preferredTimeSlot || 'Not scheduled'}
+                      </p>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Status</Label>
@@ -1740,6 +1788,16 @@ const AdminBookingManagement = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Issue Description */}
+                {selectedBooking.notes && selectedBooking.notes.replace(/Booking created from checkout/gi, '').trim() && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-1">Issue Description</h3>
+                    <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                      <p className="text-xs text-gray-800">{selectedBooking.notes.replace(/Booking created from checkout/gi, '').trim()}</p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Vendor Assignment */}
                 <div>

@@ -18,6 +18,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
   login: (userData: User, token: string) => void;
   logout: () => void;
@@ -42,6 +43,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -67,6 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           try {
             const parsedUserData = JSON.parse(userData);
             setUser(parsedUserData);
+            setToken(token);
           } catch (parseError) {
             console.error('Error parsing user data:', parseError);
             // Clear invalid data
@@ -93,12 +96,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('accessToken', token);
     localStorage.setItem('userData', JSON.stringify(userData));
     setUser(userData);
+    setToken(token);
   };
 
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('userData');
     setUser(null);
+    setToken(null);
   };
 
   const updateUser = (userData: Partial<User>) => {
@@ -141,6 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user,
+    token,
     isAuthenticated: !!user,
     login,
     logout,

@@ -20,6 +20,8 @@ const protect = asyncHandler(async (req, res, next) => {
 
       if (!user) {
         console.log('Auth middleware: User not found for token');
+        console.log('Auth middleware: Token payload:', decoded);
+        console.log('Auth middleware: Looking for userId:', decoded.userId);
         return res.status(401).json({
           success: false,
           message: 'Not authorized, user not found'

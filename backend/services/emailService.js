@@ -232,6 +232,341 @@ class EmailService {
   }
 
   /**
+   * Send AMC purchase confirmation email with benefits and documentation
+   */
+  async sendAMCPurchaseConfirmation(subscriptionData, planData, userData) {
+    console.log('sendAMCPurchaseConfirmation called with:', {
+      subscriptionData,
+      planData,
+      userData
+    });
+    
+    const { subscriptionId, amount, baseAmount, gstAmount, gstRate, startDate, endDate, devices } = subscriptionData;
+    const { name: planName, benefits, features } = planData;
+    const { name: userName, email } = userData;
+    
+    // Validate required fields
+    if (!email || !userName || !subscriptionId || !planName) {
+      console.error('Missing required fields for AMC email:', {
+        email: !!email,
+        userName: !!userName,
+        subscriptionId: !!subscriptionId,
+        planName: !!planName
+      });
+      return {
+        success: false,
+        error: 'Missing required email fields: to, subject, and content'
+      };
+    }
+
+    const subject = `AMC Purchase Confirmation - ${planName} | Fixifly`;
+    
+    // Generate benefits HTML
+    const benefitsHtml = this.generateBenefitsHtml(benefits, features);
+    
+    // Generate devices HTML
+    const devicesHtml = devices.map(device => `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">${device.deviceType}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">${device.modelNumber}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">${device.serialNumber}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AMC Purchase Confirmation</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3B82F6, #1E40AF); color: white; padding: 30px; text-align: center; border-radius: 12px 12px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 12px 12px; }
+          .section { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .amount { font-size: 28px; font-weight: bold; color: #059669; }
+          .subscription-details { background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin: 20px 0; }
+          .benefit-item { background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #3B82F6; }
+          .devices-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+          .devices-table th, .devices-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+          .devices-table th { background: #f3f4f6; font-weight: 600; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          .cta-button { display: inline-block; background: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 15px 0; }
+          .highlight { background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 15px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 AMC Purchase Successful!</h1>
+            <p>Welcome to Fixifly's ${planName}</p>
+            <p style="font-size: 18px; margin: 10px 0;">Your Annual Maintenance Contract is now active</p>
+          </div>
+          
+          <div class="content">
+            <h2>Hello ${userName},</h2>
+            <p>Thank you for choosing Fixifly! We're excited to confirm that your AMC subscription has been successfully activated.</p>
+            
+            <div class="subscription-details">
+              <h3>📋 Subscription Details</h3>
+              <p><strong>Plan:</strong> ${planName}</p>
+              <p><strong>Base Amount:</strong> ₹${baseAmount ? baseAmount.toLocaleString() : amount.toLocaleString()}</p>
+              ${gstAmount ? `<p><strong>GST (${(gstRate * 100).toFixed(0)}%):</strong> ₹${gstAmount.toLocaleString()}</p>` : ''}
+              <p><strong>Total Amount Paid:</strong> <span class="amount">₹${amount.toLocaleString()}</span></p>
+              <p><strong>Subscription ID:</strong> ${subscriptionId}</p>
+              <p><strong>Start Date:</strong> ${new Date(startDate).toLocaleDateString('en-IN')}</p>
+              <p><strong>End Date:</strong> ${new Date(endDate).toLocaleDateString('en-IN')}</p>
+              <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">Active</span></p>
+            </div>
+
+            <div class="section">
+              <h3>📱 Registered Devices</h3>
+              <table class="devices-table">
+                <thead>
+                  <tr>
+                    <th>Device Type</th>
+                    <th>Model Number</th>
+                    <th>Serial Number</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${devicesHtml}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="section">
+              <h3>✨ Your AMC Benefits & Features</h3>
+              ${benefitsHtml}
+            </div>
+
+            <div class="highlight">
+              <h4>📞 How to Use Your AMC</h4>
+              <ul>
+                <li><strong>Call Support:</strong> Dial our 24/7 helpline for immediate assistance</li>
+                <li><strong>Remote Support:</strong> Schedule remote sessions through your dashboard</li>
+                <li><strong>Home Visits:</strong> Book home visits when needed (as per your plan)</li>
+                <li><strong>Online Portal:</strong> Track your service history and manage requests</li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>📚 Important Documentation</h3>
+              <p>Please keep this email as your AMC confirmation. You can also:</p>
+              <ul>
+                <li>Download your AMC certificate from your dashboard</li>
+                <li>Access service history and request new services</li>
+                <li>View your remaining benefits and usage</li>
+                <li>Contact support for any queries</li>
+              </ul>
+              <a href="${process.env.FRONTEND_URL || 'https://fixifly.com'}/amc" class="cta-button">Access Your AMC Dashboard</a>
+            </div>
+
+            <div class="section">
+              <h3>🆘 Need Help?</h3>
+              <p>Our support team is here to help you make the most of your AMC:</p>
+              <ul>
+                <li><strong>Phone:</strong> +91-XXXXXXXXXX (24/7 Support)</li>
+                <li><strong>Email:</strong> support@fixifly.com</li>
+                <li><strong>WhatsApp:</strong> +91-XXXXXXXXXX</li>
+                <li><strong>Live Chat:</strong> Available on our website</li>
+              </ul>
+            </div>
+
+            <p>Thank you for trusting Fixifly with your device maintenance needs. We look forward to providing you with excellent service!</p>
+          </div>
+          
+          <div class="footer">
+            <p><strong>Best regards,<br>The Fixifly Team</strong></p>
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>For support, contact us at support@fixifly.com</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      AMC Purchase Confirmation - ${planName} | Fixifly
+      
+      Hello ${userName},
+      
+      Thank you for choosing Fixifly! Your AMC subscription has been successfully activated.
+      
+      SUBSCRIPTION DETAILS:
+      - Plan: ${planName}
+      - Base Amount: ₹${baseAmount ? baseAmount.toLocaleString() : amount.toLocaleString()}
+      ${gstAmount ? `- GST (${(gstRate * 100).toFixed(0)}%): ₹${gstAmount.toLocaleString()}` : ''}
+      - Total Amount Paid: ₹${amount.toLocaleString()}
+      - Subscription ID: ${subscriptionId}
+      - Start Date: ${new Date(startDate).toLocaleDateString('en-IN')}
+      - End Date: ${new Date(endDate).toLocaleDateString('en-IN')}
+      - Status: Active
+      
+      REGISTERED DEVICES:
+      ${devices.map(device => `- ${device.deviceType} (${device.modelNumber}) - ${device.serialNumber}`).join('\n')}
+      
+      YOUR AMC BENEFITS:
+      ${this.generateBenefitsText(benefits, features)}
+      
+      HOW TO USE YOUR AMC:
+      - Call Support: Dial our 24/7 helpline for immediate assistance
+      - Remote Support: Schedule remote sessions through your dashboard
+      - Home Visits: Book home visits when needed (as per your plan)
+      - Online Portal: Track your service history and manage requests
+      
+      IMPORTANT DOCUMENTATION:
+      - Keep this email as your AMC confirmation
+      - Download your AMC certificate from your dashboard
+      - Access service history and request new services
+      - View your remaining benefits and usage
+      
+      NEED HELP?
+      - Phone: +91-XXXXXXXXXX (24/7 Support)
+      - Email: support@fixifly.com
+      - WhatsApp: +91-XXXXXXXXXX
+      - Live Chat: Available on our website
+      
+      Thank you for trusting Fixifly with your device maintenance needs!
+      
+      Best regards,
+      The Fixifly Team
+    `;
+
+    return await this.sendEmail({
+      to: email,
+      subject: subject,
+      html: html,
+      text: text
+    });
+  }
+
+  /**
+   * Generate benefits HTML for AMC email
+   */
+  generateBenefitsHtml(benefits, features) {
+    let html = '<div class="benefits-grid">';
+    
+    // Add features
+    if (features && features.length > 0) {
+      features.forEach(feature => {
+        html += `
+          <div class="benefit-item">
+            <h4 style="margin: 0 0 8px 0; color: #1e40af;">${feature.title}</h4>
+            <p style="margin: 0; color: #4b5563;">${feature.description}</p>
+          </div>
+        `;
+      });
+    }
+    
+    // Add specific benefits
+    if (benefits) {
+      if (benefits.callSupport === 'unlimited') {
+        html += `
+          <div class="benefit-item">
+            <h4 style="margin: 0 0 8px 0; color: #1e40af;">📞 Unlimited Call Support</h4>
+            <p style="margin: 0; color: #4b5563;">24/7 phone support for all your technical queries</p>
+          </div>
+        `;
+      }
+      
+      if (benefits.remoteSupport === 'unlimited') {
+        html += `
+          <div class="benefit-item">
+            <h4 style="margin: 0 0 8px 0; color: #1e40af;">💻 Unlimited Remote Support</h4>
+            <p style="margin: 0; color: #4b5563;">Unlimited remote assistance sessions</p>
+          </div>
+        `;
+      }
+      
+      if (benefits.homeVisits && benefits.homeVisits.count > 0) {
+        html += `
+          <div class="benefit-item">
+            <h4 style="margin: 0 0 8px 0; color: #1e40af;">🏠 ${benefits.homeVisits.count} Free Home Visits</h4>
+            <p style="margin: 0; color: #4b5563;">${benefits.homeVisits.description || 'Complimentary home visits for service'}</p>
+          </div>
+        `;
+      }
+      
+      if (benefits.antivirus && benefits.antivirus.included) {
+        html += `
+          <div class="benefit-item">
+            <h4 style="margin: 0 0 8px 0; color: #1e40af;">🛡️ Free Antivirus</h4>
+            <p style="margin: 0; color: #4b5563;">${benefits.antivirus.name || 'Premium antivirus'} included</p>
+          </div>
+        `;
+      }
+      
+      if (benefits.softwareInstallation && benefits.softwareInstallation.included) {
+        html += `
+          <div class="benefit-item">
+            <h4 style="margin: 0 0 8px 0; color: #1e40af;">⚙️ Software Installation</h4>
+            <p style="margin: 0; color: #4b5563;">Free software installation and driver updates</p>
+          </div>
+        `;
+      }
+      
+      if (benefits.sparePartsDiscount && benefits.sparePartsDiscount.percentage > 0) {
+        html += `
+          <div class="benefit-item">
+            <h4 style="margin: 0 0 8px 0; color: #1e40af;">💰 Spare Parts Discount</h4>
+            <p style="margin: 0; color: #4b5563;">Up to ${benefits.sparePartsDiscount.percentage}% off on all spare parts</p>
+          </div>
+        `;
+      }
+    }
+    
+    html += '</div>';
+    return html;
+  }
+
+  /**
+   * Generate benefits text for AMC email
+   */
+  generateBenefitsText(benefits, features) {
+    let text = '';
+    
+    // Add features
+    if (features && features.length > 0) {
+      features.forEach(feature => {
+        text += `- ${feature.title}: ${feature.description}\n`;
+      });
+    }
+    
+    // Add specific benefits
+    if (benefits) {
+      if (benefits.callSupport === 'unlimited') {
+        text += '- Unlimited Call Support: 24/7 phone support for all your technical queries\n';
+      }
+      
+      if (benefits.remoteSupport === 'unlimited') {
+        text += '- Unlimited Remote Support: Unlimited remote assistance sessions\n';
+      }
+      
+      if (benefits.homeVisits && benefits.homeVisits.count > 0) {
+        text += `- ${benefits.homeVisits.count} Free Home Visits: ${benefits.homeVisits.description || 'Complimentary home visits for service'}\n`;
+      }
+      
+      if (benefits.antivirus && benefits.antivirus.included) {
+        text += `- Free Antivirus: ${benefits.antivirus.name || 'Premium antivirus'} included\n`;
+      }
+      
+      if (benefits.softwareInstallation && benefits.softwareInstallation.included) {
+        text += '- Software Installation: Free software installation and driver updates\n';
+      }
+      
+      if (benefits.sparePartsDiscount && benefits.sparePartsDiscount.percentage > 0) {
+        text += `- Spare Parts Discount: Up to ${benefits.sparePartsDiscount.percentage}% off on all spare parts\n`;
+      }
+    }
+    
+    return text;
+  }
+
+  /**
    * Send vendor registration approval email
    */
   async sendVendorApprovalEmail(vendorData) {

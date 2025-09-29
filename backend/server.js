@@ -44,7 +44,6 @@ const withdrawalRoutes = require('./routes/withdrawals');
 const adminWithdrawalRoutes = require('./routes/adminWithdrawals');
 const cityRoutes = require('./routes/cities');
 const reviewRoutes = require('./routes/reviews');
-const adminReviewRoutes = require('./routes/adminReviews');
 
 // Initialize Express app
 const app = express();
@@ -162,7 +161,6 @@ app.use('/api/vendors/withdrawal', withdrawalRoutes);
 app.use('/api/admin/withdrawals', adminWithdrawalRoutes);
 app.use('/api', cityRoutes);
 app.use('/api/reviews', reviewRoutes);
-app.use('/api/admin/reviews', adminReviewRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -185,7 +183,6 @@ app.get('/', (req, res) => {
         adminBookings: '/api/admin/bookings',
         amc: '/api/amc',
         reviews: '/api/reviews',
-        adminReviews: '/api/admin/reviews',
         health: '/health'
       }
   });

@@ -71,6 +71,7 @@ import AdminLogin from "./admin/pages/AdminLogin";
 import AdminSignup from "./admin/pages/AdminSignup";
 import AdminProfile from "./admin/pages/AdminProfile";
 import AdminProtectedRoute from "./admin/components/AdminProtectedRoute";
+import AdminAuthDebug from "./admin/components/AdminAuthDebug";
 import { AuthProvider } from "./contexts/AuthContext";
 import { VendorProvider } from "./contexts/VendorContext";
 
@@ -382,6 +383,7 @@ const AppContent = () => {
               <AdminProfile />
             </AdminProtectedRoute>
           } />
+          <Route path="/admin/debug" element={<AdminAuthDebug />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

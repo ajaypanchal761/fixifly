@@ -1503,7 +1503,15 @@ const AdminAMCManagement = () => {
                           </TableCell>
                           
                           {/* Amount */}
-                          <TableCell className="font-medium">₹{subscription.amount || 0}</TableCell>
+                          <TableCell className="font-medium">
+                            <div className="text-sm">
+                              <div>Base: ₹{subscription.baseAmount || subscription.amount || 0}</div>
+                              {subscription.gstAmount && (
+                                <div className="text-xs text-gray-600">GST: ₹{subscription.gstAmount}</div>
+                              )}
+                              <div className="font-semibold">Total: ₹{subscription.amount || 0}</div>
+                            </div>
+                          </TableCell>
 
                           {/* Brands */}
                           <TableCell>
@@ -1687,7 +1695,13 @@ const AdminAMCManagement = () => {
                         <p className="text-xs text-muted-foreground">Plan</p>
                         <p className="font-medium">{selectedSubscription.planName}</p>
                         <p className="text-xs text-muted-foreground">Amount</p>
-                        <p className="font-medium">₹{selectedSubscription.amount || 0}</p>
+                        <div className="text-sm">
+                          <div>Base: ₹{selectedSubscription.baseAmount || selectedSubscription.amount || 0}</div>
+                          {selectedSubscription.gstAmount && (
+                            <div className="text-xs text-gray-600">GST: ₹{selectedSubscription.gstAmount}</div>
+                          )}
+                          <div className="font-semibold">Total: ₹{selectedSubscription.amount || 0}</div>
+                        </div>
                       </div>
                       <div className="p-4 rounded-md border space-y-1">
                         <p className="text-xs text-muted-foreground">Status</p>

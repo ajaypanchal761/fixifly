@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { 
   Upload, 
   X, 
@@ -62,14 +63,17 @@ const AMCSubscribe = () => {
   const [showPayment, setShowPayment] = useState(false);
   const [paymentData, setPaymentData] = useState<any>(null);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+  const [gstDetails, setGstDetails] = useState<{
+    baseAmount: number;
+    gstAmount: number;
+    totalAmount: number;
+    gstRate: number;
+  } | null>(null);
 
   const deviceTypes = [
     { value: "laptop", label: "Laptop", icon: Laptop },
     { value: "desktop", label: "Desktop", icon: Monitor },
-    { value: "printer", label: "Printer", icon: Printer },
-    { value: "mobile", label: "Mobile", icon: Laptop },
-    { value: "tablet", label: "Tablet", icon: Laptop },
-    { value: "other", label: "Other", icon: Laptop }
+    { value: "printer", label: "Printer", icon: Printer }
   ];
 
   const fetchPlanDetails = useCallback(async () => {
@@ -190,6 +194,23 @@ const AMCSubscribe = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  // Calculate GST details
+  const calculateGSTDetails = () => {
+    if (!plan) return null;
+    
+    const baseAmount = plan.price * formData.devices.length;
+    const gstRate = 0.18; // 18% GST
+    const gstAmount = baseAmount * gstRate;
+    const totalAmount = baseAmount + gstAmount;
+    
+    return {
+      baseAmount,
+      gstAmount,
+      totalAmount,
+      gstRate
+    };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -477,16 +498,17 @@ const AMCSubscribe = () => {
             
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span>Plan Price:</span>
-                <span>₹{plan.price}</span>
+                <span>Base Amount ({formData.quantity} device{formData.quantity > 1 ? 's' : ''}):</span>
+                <span>₹{plan.price * formData.quantity}</span>
               </div>
               <div className="flex justify-between">
-                <span>Number of Devices:</span>
-                <span>{formData.quantity}</span>
+                <span>GST (18%):</span>
+                <span>₹{(plan.price * formData.quantity * 0.18).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between font-semibold border-t pt-2">
+              <Separator />
+              <div className="flex justify-between font-semibold">
                 <span>Total Amount:</span>
-                <span>₹{plan.price * formData.quantity}</span>
+                <span>₹{((plan.price * formData.quantity) * 1.18).toFixed(2)}</span>
               </div>
             </div>
 
@@ -496,7 +518,7 @@ const AMCSubscribe = () => {
               size="lg"
             >
               <CreditCard className="h-5 w-5 mr-2" />
-              Pay ₹{plan.price * formData.quantity}
+              Pay ₹{((plan.price * formData.quantity) * 1.18).toFixed(2)}
             </Button>
 
             <Button 
@@ -694,6 +716,32 @@ const AMCSubscribe = () => {
                     ))}
                   </div>
 
+                  {/* GST Breakdown */}
+                  {plan && formData.quantity > 0 && (
+                    <Card className="mb-4">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Pricing Breakdown</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span>Base Amount ({formData.quantity} device{formData.quantity > 1 ? 's' : ''}):</span>
+                            <span>₹{plan.price * formData.quantity}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>GST (18%):</span>
+                            <span>₹{(plan.price * formData.quantity * 0.18).toFixed(2)}</span>
+                          </div>
+                          <Separator />
+                          <div className="flex justify-between font-semibold text-lg">
+                            <span>Total Amount:</span>
+                            <span>₹{((plan.price * formData.quantity) * 1.18).toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   <Button 
                     type="submit" 
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
@@ -707,7 +755,7 @@ const AMCSubscribe = () => {
                     ) : (
                       <>
                         <CreditCard className="h-5 w-5 mr-2" />
-                        Subscribe Now - ₹{plan.price * formData.quantity}
+                        Subscribe Now - ₹{plan ? ((plan.price * formData.quantity) * 1.18).toFixed(2) : '0'}
                       </>
                     )}
                   </Button>

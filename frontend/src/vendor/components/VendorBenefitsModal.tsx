@@ -82,13 +82,6 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
       color: "bg-yellow-100 text-yellow-600"
     },
     {
-      id: 8,
-      title: "1 Diary",
-      description: "Professional diary for keeping records",
-      icon: Notebook,
-      color: "bg-teal-100 text-teal-600"
-    },
-    {
       id: 9,
       title: "Company Stickers",
       description: "Branded stickers for your vehicle/tools",
@@ -96,23 +89,9 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
       color: "bg-red-100 text-red-600"
     },
     {
-      id: 10,
-      title: "Laptop Pouch",
-      description: "Protective pouch for your laptop",
-      icon: Laptop,
-      color: "bg-gray-100 text-gray-600"
-    },
-    {
-      id: 11,
-      title: "Fixfly Pen for Every Customer",
-      description: "Branded pens to gift to your customers",
-      icon: Pen,
-      color: "bg-cyan-100 text-cyan-600"
-    },
-    {
       id: 12,
       title: "1 Year Insurance",
-      description: "Complete liability insurance coverage for one year",
+      description: "₹5,00,000 Accidental insurance for 1 year",
       icon: Shield,
       color: "bg-emerald-100 text-emerald-600"
     }
@@ -179,16 +158,17 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
             })}
           </div>
 
-          {/* Special Gift Section */}
-          <div className="p-4 bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg border border-pink-200">
+
+          {/* Benefits Validity Notice */}
+          <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-pink-100 rounded-full">
-                <Gift className="w-6 h-6 text-pink-600" />
+              <div className="p-2 bg-yellow-100 rounded-full">
+                <Shield className="w-6 h-6 text-yellow-600" />
               </div>
               <div>
-                <h4 className="font-bold text-gray-900">Bonus Gift for Customers</h4>
+                <h4 className="font-bold text-gray-900">Benefits Validity</h4>
                 <p className="text-sm text-gray-600">
-                  You'll receive branded Fixfly pens to gift to every customer, enhancing your professional image
+                  All benefits are valid for 1 year from the date of deposit. After 1 year, benefits will expire and you'll need to recharge with ₹3,999 to continue enjoying these benefits.
                 </p>
               </div>
             </div>

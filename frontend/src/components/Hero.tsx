@@ -1,10 +1,160 @@
-import { Building2, Award, Star, Loader2 } from "lucide-react";
+import { Building2, Award, Star, Loader2, MessageSquare, ThumbsUp, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import publicProductApi, { PublicProduct } from '@/services/publicProductApi';
 import bannerApiService, { Banner } from '@/services/bannerApi';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { reviewService, Review } from '@/services/reviewService';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import CitySelectionModal from './CitySelectionModal';
+
+// Reviews Carousel Component
+const ReviewsCarousel = () => {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await reviewService.getReviews({ 
+          limit: 10, 
+          sort: 'newest'
+        });
+        setReviews(response.data);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  useEffect(() => {
+    if (reviews.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
+      }, 4000); // Change review every 4 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [reviews.length]);
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={14}
+            className={`${
+              star <= rating
+                ? 'text-yellow-400 fill-yellow-400'
+                : 'text-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+        <span className="ml-2 text-sm text-gray-600">Loading reviews...</span>
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full text-center">
+        <div>
+          <MessageSquare className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+          <p className="text-sm text-gray-500">No reviews yet</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentReview = reviews[currentReviewIndex];
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="flex items-center gap-2 mb-3">
+        <MessageSquare className="h-5 w-5 text-blue-600" />
+        <h3 className="text-sm font-semibold text-gray-900">Customer Reviews</h3>
+      </div>
+      
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="flex items-start gap-3 mb-3 animate-fade-in">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-blue-100 text-blue-600 text-xs font-semibold">
+              {currentReview.userInitials}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="text-sm font-medium text-gray-900 truncate">
+                {currentReview.userDisplayName}
+              </h4>
+              <Badge variant="secondary" className="text-xs px-1 py-0">
+                {currentReview.category}
+              </Badge>
+              {currentReview.isVerified && (
+                <Badge variant="outline" className="text-xs text-green-600 border-green-600">
+                  ✓ Verified
+                </Badge>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2 mb-2">
+              {renderStars(currentReview.rating)}
+              <span className="text-xs text-gray-500">
+                {currentReview.formattedDate}
+              </span>
+            </div>
+            
+            <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
+              "{currentReview.comment}"
+            </p>
+            
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-1 text-gray-500">
+                <ThumbsUp size={12} />
+                <span className="text-xs">{currentReview.likes} likes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Review Indicators */}
+      <div className="flex justify-center space-x-1 mt-3">
+        {reviews.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentReviewIndex(index)}
+            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+              index === currentReviewIndex ? 'bg-blue-600' : 'bg-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+      
+      {/* Review Counter */}
+      <div className="text-center mt-2">
+        <span className="text-xs text-gray-500">
+          Review {currentReviewIndex + 1} of {reviews.length}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -211,16 +361,12 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Lottie Animation - Desktop Only, Show when More Services is expanded */}
+          {/* User Reviews Display - Desktop Only, Show when More Services is expanded */}
           {showMoreProducts && (
             <div className="hidden lg:block absolute bottom-16 right-14 w-full max-w-2xl">
               <div className="flex justify-end items-end">
-                <div className="w-full max-w-xl h-64">
-                  <DotLottieReact
-                    src="https://lottie.host/4b4777ae-24ca-490b-89fc-6a6a49a87b91/RY3zh347Uf.lottie"
-                    loop
-                    autoplay
-                  />
+                <div className="w-full max-w-xl h-64 bg-white rounded-lg shadow-lg p-4">
+                  <ReviewsCarousel />
                 </div>
               </div>
             </div>
@@ -352,7 +498,7 @@ const Hero = () => {
 
 
             {/* Company Trust Indicators */}
-            <div className="grid grid-cols-3 gap-2 max-w-md mx-auto lg:mx-0 lg:ml-16" data-aos="fade-up" data-aos-delay="600">
+            <div className="grid grid-cols-3 gap-2 max-w-md mx-auto lg:mx-0 lg:ml-16 mb-8" data-aos="fade-up" data-aos-delay="600">
               <div className="text-center">
                 <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
                   <Building2 className="h-6 w-6 text-white" />

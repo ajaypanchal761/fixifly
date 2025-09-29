@@ -231,8 +231,11 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
     }
   }
 
-  // Calculate total amount (plan price * number of devices)
-  const totalAmount = plan.price * devices.length;
+  // Calculate total amount with GST
+  const baseAmount = plan.price * devices.length;
+  const gstRate = 0.18; // 18% GST
+  const gstAmount = baseAmount * gstRate;
+  const totalAmount = baseAmount + gstAmount;
 
   // Fetch user details to store in subscription
   const user = await User.findById(req.user.userId).select('name email phone');
@@ -244,7 +247,10 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
   }
 
   console.log('Creating AMC subscription with payment integration:', {
+    baseAmount,
+    gstAmount,
     totalAmount,
+    gstRate,
     userId: req.user.userId,
     userName: user.name,
     userEmail: user.email,
@@ -264,6 +270,9 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
     planId: planId,
     planName: plan.name,
     planPrice: plan.price,
+    baseAmount: baseAmount,
+    gstAmount: gstAmount,
+    gstRate: gstRate,
     amount: totalAmount,
     paymentMethod: paymentMethod,
     paymentStatus: 'pending', // Set as pending for payment verification
@@ -571,6 +580,80 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
     console.log('Saving updated subscription...');
     await subscription.save();
     console.log('Subscription saved successfully');
+
+    // Send AMC purchase confirmation email
+    try {
+      const emailService = require('../services/emailService');
+      
+      // Populate plan details for email
+      await subscription.populate('planId', 'name benefits features');
+      
+      // Prepare email data
+      const subscriptionData = {
+        subscriptionId: subscription.subscriptionId,
+        amount: subscription.amount,
+        baseAmount: subscription.baseAmount,
+        gstAmount: subscription.gstAmount,
+        gstRate: subscription.gstRate,
+        startDate: subscription.startDate,
+        endDate: subscription.endDate,
+        devices: subscription.devices
+      };
+      
+      const planData = {
+        name: subscription.planId.name,
+        benefits: subscription.planId.benefits,
+        features: subscription.planId.features
+      };
+      
+      const userData = {
+        name: subscription.userName,
+        email: subscription.userEmail
+      };
+      
+      console.log('Sending AMC purchase confirmation email...');
+      console.log('Email data debug:', {
+        subscriptionData,
+        planData,
+        userData,
+        subscriptionId: subscription.subscriptionId,
+        planName: subscription.planId?.name,
+        userName: subscription.userName,
+        userEmail: subscription.userEmail
+      });
+      
+      const emailResult = await emailService.sendAMCPurchaseConfirmation(
+        subscriptionData,
+        planData,
+        userData
+      );
+      
+      if (emailResult.success) {
+        console.log('AMC confirmation email sent successfully:', emailResult.messageId);
+        logger.info('AMC confirmation email sent', {
+          userId: req.user.userId,
+          subscriptionId: subscription.subscriptionId,
+          email: subscription.userEmail,
+          messageId: emailResult.messageId
+        });
+      } else {
+        console.error('Failed to send AMC confirmation email:', emailResult.error);
+        logger.error('AMC confirmation email failed', {
+          userId: req.user.userId,
+          subscriptionId: subscription.subscriptionId,
+          email: subscription.userEmail,
+          error: emailResult.error
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending AMC confirmation email:', emailError);
+      logger.error('AMC confirmation email error', {
+        userId: req.user.userId,
+        subscriptionId: subscription.subscriptionId,
+        error: emailError.message
+      });
+      // Don't fail the payment verification if email fails
+    }
 
     logger.info('AMC subscription payment verified successfully', {
       userId: req.user.userId,

@@ -40,9 +40,6 @@ const AMCSubscriptionDetailsModal = ({ isOpen, onClose, subscription }: AMCSubsc
         return Laptop;
       case 'desktop':
         return Monitor;
-      case 'mobile':
-      case 'smartphone':
-        return Smartphone;
       case 'printer':
         return Printer;
       default:
