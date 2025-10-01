@@ -670,6 +670,39 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
       // Don't fail the assignment if notification fails
     }
 
+    // Send OneSignal notification to vendor
+    try {
+      const oneSignalService = require('../services/oneSignalService');
+      const Vendor = require('../models/Vendor');
+      const vendor = await Vendor.findById(vendorId);
+      
+      if (vendor) {
+        await oneSignalService.sendVendorAssignmentNotification(vendor._id.toString(), {
+          type: 'support_ticket',
+          id: ticket._id.toString(),
+          title: ticket.subject,
+          description: ticket.description,
+          priority: ticket.priority || 'medium',
+          customerName: ticket.userName,
+          customerPhone: ticket.userPhone,
+          scheduledDate: ticket.scheduledDate,
+          scheduledTime: ticket.scheduledTime
+        });
+        
+        logger.info('OneSignal notification sent to vendor for support ticket assignment', {
+          vendorId: vendor._id,
+          ticketId: ticket._id
+        });
+      }
+    } catch (notificationError) {
+      logger.error('Error sending OneSignal notification for support ticket assignment:', {
+        error: notificationError.message,
+        vendorId,
+        ticketId: ticket._id
+      });
+      // Don't fail the assignment if notification fails
+    }
+
 
     // Populate vendor data for response
     const populatedTicket = await SupportTicket.findOne({ ticketId: id })

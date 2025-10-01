@@ -9,6 +9,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowLeft, AlertTriangle, Clock } from 'lucide
 import { useToast } from '@/hooks/use-toast';
 import { useVendor } from '@/contexts/VendorContext';
 import vendorApiService from '@/services/vendorApi';
+import oneSignalService from '@/services/oneSignalService';
 
 const VendorLogin = () => {
   const navigate = useNavigate();
@@ -82,6 +83,15 @@ const VendorLogin = () => {
 
         // Use vendor context to login
         login(vendor, response.data.token);
+
+        // Set OneSignal external user ID for notifications
+        try {
+          await oneSignalService.setVendorExternalId(vendor._id);
+          console.log('OneSignal external user ID set for vendor:', vendor._id);
+        } catch (error) {
+          console.error('Error setting OneSignal external user ID:', error);
+          // Don't fail login if OneSignal fails
+        }
 
         toast({
           title: "Login Successful!",

@@ -398,6 +398,37 @@ const assignVendor = asyncHandler(async (req, res) => {
       adminId: req.admin._id
     });
 
+    // Send OneSignal notification to vendor
+    try {
+      const oneSignalService = require('../services/oneSignalService');
+      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId });
+      
+      if (vendor) {
+        await oneSignalService.sendVendorAssignmentNotification(vendor._id.toString(), {
+          type: 'booking',
+          id: booking._id.toString(),
+          title: booking.serviceDetails?.serviceName || 'Service Request',
+          description: booking.serviceDetails?.description || 'New service request assigned',
+          priority: priority || 'medium',
+          customerName: booking.customerDetails?.name || 'Customer',
+          customerPhone: booking.customerDetails?.phone || '',
+          scheduledDate: scheduledDate,
+          scheduledTime: scheduledTime
+        });
+        
+        logger.info('OneSignal notification sent to vendor for booking assignment', {
+          vendorId: vendor._id,
+          bookingId: booking._id
+        });
+      }
+    } catch (notificationError) {
+      logger.error('Error sending OneSignal notification for booking assignment:', {
+        error: notificationError.message,
+        vendorId: booking.vendor.vendorId,
+        bookingId: booking._id
+      });
+      // Don't fail the assignment if notification fails
+    }
 
     res.json({
       success: true,

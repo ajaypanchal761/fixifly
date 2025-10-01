@@ -194,6 +194,7 @@ app.use('/api/admin/withdrawals', adminWithdrawalRoutes);
 app.use('/api/admin/notifications', adminNotificationRoutes);
 app.use('/api', cityRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/admin/onesignal', require('./routes/oneSignal'));
 
 // Root endpoint
 app.get('/', (req, res) => {

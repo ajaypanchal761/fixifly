@@ -1,0 +1,4 @@
+[2025-10-01T12:18:52.832Z] [INFO] Cloudinary initialized successfully | {}
+[2025-10-01T12:22:24.933Z] [INFO] Cloudinary initialized successfully | {}
+[2025-10-01T12:22:25.301Z] [WARN] SMTP not configured. Email functionality will be disabled.
+[2025-10-01T12:22:25.689Z] [INFO] Auto-reject service started - checking every minute for pending assignments
