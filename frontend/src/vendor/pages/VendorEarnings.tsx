@@ -347,7 +347,7 @@ const VendorEarnings = () => {
         caseId: transaction.caseId || transaction.bookingId || `TXN-${(transaction._id || transaction.id).toString().slice(-6)}`,
         type: transaction.type === 'deposit' || transaction.type === 'earning' ? 'Payment Received' : 
               transaction.type === 'withdrawal' ? 'Withdraw Transferred' :
-              transaction.type === 'penalty' ? 'Penalty on Cancellation' : 
+              transaction.type === 'penalty' ? (transaction.description && transaction.description.includes('Auto-rejection') ? 'Auto-Rejection Penalty' : 'Penalty on Cancellation') : 
               transaction.type === 'task_acceptance_fee' ? 'Task Fee' :
               transaction.type === 'cash_collection' ? 'Cash Collection' :
               transaction.type === 'manual_adjustment' ? 'Admin Adjustment' : 'Earning Added',
@@ -717,6 +717,7 @@ const VendorEarnings = () => {
         return "text-green-600";
       case "Withdraw Transferred":
       case "Penalty on Cancellation":
+      case "Auto-Rejection Penalty":
         return "text-red-600";
       case "Admin Adjustment":
         return "text-purple-600";
@@ -807,12 +808,7 @@ const VendorEarnings = () => {
                       </div>
                     ) : (
                       <div>
-                        <p className="text-lg font-bold text-primary">₹{currentBalance.toLocaleString()}</p>
-                        {currentBalance >= 3999 && (
-                          <p className="text-xs text-muted-foreground">
-                            Available for withdrawal: ₹{availableBalance.toLocaleString()}
-                          </p>
-                        )}
+                        <p className="text-lg font-bold text-primary">₹{availableBalance.toLocaleString()}</p>
                       </div>
                     )}
                   </div>

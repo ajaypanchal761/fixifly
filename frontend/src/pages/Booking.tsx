@@ -929,9 +929,19 @@ For support, contact us at support@fixifly.com
     }
   };
 
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+
   const handleCancelBooking = async (booking: Booking) => {
+    setBookingToCancel(booking);
+    setIsCancelDialogOpen(true);
+  };
+
+  const confirmCancelBooking = async () => {
+    if (!bookingToCancel) return;
+
     try {
-      const response = await bookingApi.updateBookingStatus(booking._id, 'cancelled');
+      const response = await bookingApi.cancelBookingByUser(bookingToCancel._id, 'Cancelled by user');
       
       if (response.success) {
         toast({
@@ -954,6 +964,9 @@ For support, contact us at support@fixifly.com
         description: "An error occurred while cancelling the booking. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsCancelDialogOpen(false);
+      setBookingToCancel(null);
     }
   };
 
@@ -1759,6 +1772,56 @@ For support, contact us at support@fixifly.com
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Cancel Booking Confirmation Dialog */}
+      <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <DialogContent className="w-[95vw] max-w-md mx-auto rounded-xl">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold text-gray-900 mb-2">
+              Cancel Booking
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-center py-4">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <XCircle className="w-8 h-8 text-red-600" />
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to cancel this booking? This action cannot be undone.
+            </p>
+            {bookingToCancel && (
+              <div className="bg-gray-50 rounded-lg p-3 mb-4 text-left">
+                <p className="text-sm text-gray-600 mb-1">
+                  <strong>Case ID:</strong> {(bookingToCancel as any).bookingReference || `FIX${bookingToCancel._id.toString().substring(bookingToCancel._id.toString().length - 8).toUpperCase()}`}
+                </p>
+                <p className="text-sm text-gray-600 mb-1">
+                  <strong>Service:</strong> {bookingToCancel.services.map(s => s.serviceName).join(', ')}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Amount:</strong> ₹{bookingToCancel.pricing.totalAmount}
+                </p>
+              </div>
+            )}
+            <div className="flex space-x-3 justify-center">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setIsCancelDialogOpen(false);
+                  setBookingToCancel(null);
+                }}
+                className="px-6 py-2"
+              >
+                Keep Booking
+              </Button>
+              <Button 
+                onClick={confirmCancelBooking}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2"
+              >
+                Yes, Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Thank You Popup */}
       <Dialog open={showThankYou} onOpenChange={setShowThankYou}>

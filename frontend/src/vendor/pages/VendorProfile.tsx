@@ -35,7 +35,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useVendor } from '@/contexts/VendorContext';
 import vendorApiService from '@/services/vendorApi';
-import type { Vendor } from '@/services/vendorApi';
+import type { Vendor, ServiceLocation } from '@/services/vendorApi';
 
 const VendorProfile = () => {
   const theme = useTheme();
@@ -68,6 +68,13 @@ const VendorProfile = () => {
     }
   });
 
+  // Service locations state
+  const [serviceLocations, setServiceLocations] = useState<ServiceLocation[]>([]);
+  const [isAddingLocation, setIsAddingLocation] = useState(false);
+  const [newLocation, setNewLocation] = useState({ from: '', to: '' });
+  const [editingLocationId, setEditingLocationId] = useState<string | null>(null);
+  const [editingLocation, setEditingLocation] = useState({ from: '', to: '' });
+
   const serviceCategories = [
     'Electronics Repair',
     'Home Appliances',
@@ -95,6 +102,7 @@ const VendorProfile = () => {
       if (response.success && response.data) {
         const vendorData = response.data.vendor;
         setProfileData(vendorData);
+        setServiceLocations(vendorData.serviceLocations || []);
         setFormData({
           firstName: vendorData.firstName || '',
           lastName: vendorData.lastName || '',
@@ -278,7 +286,8 @@ const VendorProfile = () => {
           specialty: response.data.vendor.specialty,
           bio: response.data.vendor.bio,
           serviceCategories: response.data.vendor.serviceCategories,
-          address: response.data.vendor.address
+          address: response.data.vendor.address,
+          serviceLocations: response.data.vendor.serviceLocations
         });
         
         setIsEditing(false);
@@ -379,6 +388,103 @@ const VendorProfile = () => {
       toast({
         title: "Delete Failed",
         description: error.message || "Failed to delete image",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Service location handlers
+  const handleAddLocation = async () => {
+    if (!newLocation.from.trim() || !newLocation.to.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter both from and to locations",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const response = await vendorApiService.addServiceLocation(newLocation.from.trim(), newLocation.to.trim());
+      
+      if (response.success) {
+        setServiceLocations(response.data.serviceLocations);
+        setNewLocation({ from: '', to: '' });
+        setIsAddingLocation(false);
+        toast({
+          title: "Success",
+          description: "Service location added successfully"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error adding service location:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add service location",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditLocation = (location: ServiceLocation) => {
+    setEditingLocationId(location._id);
+    setEditingLocation({ from: location.from, to: location.to });
+  };
+
+  const handleUpdateLocation = async () => {
+    if (!editingLocation.from.trim() || !editingLocation.to.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter both from and to locations",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!editingLocationId) return;
+
+    try {
+      const response = await vendorApiService.updateServiceLocation(
+        editingLocationId,
+        editingLocation.from.trim(),
+        editingLocation.to.trim()
+      );
+      
+      if (response.success) {
+        setServiceLocations(response.data.serviceLocations);
+        setEditingLocationId(null);
+        setEditingLocation({ from: '', to: '' });
+        toast({
+          title: "Success",
+          description: "Service location updated successfully"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error updating service location:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update service location",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRemoveLocation = async (locationId: string) => {
+    try {
+      const response = await vendorApiService.removeServiceLocation(locationId);
+      
+      if (response.success) {
+        setServiceLocations(response.data.serviceLocations);
+        toast({
+          title: "Success",
+          description: "Service location removed successfully"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error removing service location:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove service location",
         variant: "destructive"
       });
     }
@@ -842,6 +948,164 @@ const VendorProfile = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Service Locations Card */}
+          <Card className="mb-4 shadow-lg border-0 bg-white">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 border-b py-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <LocationIcon className="w-4 h-4 text-green-600" />
+                </div>
+                Service Locations
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                {/* Add new location form */}
+                {isAddingLocation ? (
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-blue-800">Add Service Route</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          placeholder="From (e.g., Thane)"
+                          value={newLocation.from}
+                          onChange={(e) => setNewLocation(prev => ({ ...prev, from: e.target.value }))}
+                          className="h-9 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        />
+                        <Input
+                          placeholder="To (e.g., CST)"
+                          value={newLocation.to}
+                          onChange={(e) => setNewLocation(prev => ({ ...prev, to: e.target.value }))}
+                          className="h-9 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleAddLocation}
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1"
+                        >
+                          <Save className="w-3 h-3 mr-1" />
+                          Add Route
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setIsAddingLocation(false);
+                            setNewLocation({ from: '', to: '' });
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-200 text-gray-600 hover:bg-gray-50 text-xs px-3 py-1"
+                        >
+                          <X className="w-3 h-3 mr-1" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => setIsAddingLocation(true)}
+                    variant="outline"
+                    size="sm"
+                    className="border-green-200 text-green-600 hover:bg-green-50 text-xs px-3 py-1"
+                  >
+                    <LocationIcon className="w-3 h-3 mr-1" />
+                    Add Service Route
+                  </Button>
+                )}
+
+                {/* Service locations list */}
+                {serviceLocations.length > 0 ? (
+                  <div className="space-y-2">
+                    {serviceLocations.map((location) => (
+                      <div key={location._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                        {editingLocationId === location._id ? (
+                          <div className="flex-1 space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input
+                                value={editingLocation.from}
+                                onChange={(e) => setEditingLocation(prev => ({ ...prev, from: e.target.value }))}
+                                className="h-8 text-sm"
+                              />
+                              <Input
+                                value={editingLocation.to}
+                                onChange={(e) => setEditingLocation(prev => ({ ...prev, to: e.target.value }))}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                            <div className="flex gap-1">
+                              <Button
+                                onClick={handleUpdateLocation}
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                              >
+                                <Save className="w-3 h-3 mr-1" />
+                                Save
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setEditingLocationId(null);
+                                  setEditingLocation({ from: '', to: '' });
+                                }}
+                                variant="outline"
+                                size="sm"
+                                className="border-gray-200 text-gray-600 hover:bg-gray-50 text-xs px-2 py-1"
+                              >
+                                <X className="w-3 h-3 mr-1" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                                <LocationIcon className="w-3 h-3 text-green-600" />
+                              </div>
+                              <span className="text-sm font-medium text-gray-700">
+                                {location.from} → {location.to}
+                              </span>
+                              {location.isActive && (
+                                <Badge className="bg-green-100 text-green-800 border-green-200 px-1 py-0.5 text-xs">
+                                  Active
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex gap-1">
+                              <Button
+                                onClick={() => handleEditLocation(location)}
+                                variant="outline"
+                                size="sm"
+                                className="border-blue-200 text-blue-600 hover:bg-blue-50 text-xs px-2 py-1"
+                              >
+                                <Edit3 className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                onClick={() => handleRemoveLocation(location._id)}
+                                variant="outline"
+                                size="sm"
+                                className="border-red-200 text-red-600 hover:bg-red-50 text-xs px-2 py-1"
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    <LocationIcon className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <p className="text-sm">No service locations added yet</p>
+                    <p className="text-xs text-gray-400">Add your service routes to help customers find you</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

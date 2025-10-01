@@ -19,6 +19,7 @@ import Shop from "./pages/Shop";
 import ServicePage from "./pages/LaptopService";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
+import Reschedule from "./pages/Reschedule";
 import SearchResults from "./pages/SearchResults";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -67,6 +68,7 @@ import AdminAMCManagement from "./admin/pages/AdminAMCManagement";
 import AdminVendorWalletManagement from "./admin/pages/AdminVendorWalletManagement";
 import AdminSupportManagement from "./admin/pages/AdminSupportManagement";
 import AdminBannerManagement from "./admin/pages/AdminBannerManagement";
+import AdminPushNotificationManagement from "./admin/pages/AdminPushNotificationManagement";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminSignup from "./admin/pages/AdminSignup";
 import AdminProfile from "./admin/pages/AdminProfile";
@@ -176,6 +178,11 @@ const AppContent = () => {
           <Route path="/checkout" element={
             <MobileAuthGuard>
               <Checkout />
+            </MobileAuthGuard>
+          } />
+          <Route path="/reschedule/:id" element={
+            <MobileAuthGuard>
+              <Reschedule />
             </MobileAuthGuard>
           } />
           {/* Vendor Routes */}
@@ -376,6 +383,11 @@ const AppContent = () => {
           <Route path="/admin/banners" element={
             <AdminProtectedRoute>
               <AdminBannerManagement />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/push-notifications" element={
+            <AdminProtectedRoute>
+              <AdminPushNotificationManagement />
             </AdminProtectedRoute>
           } />
           <Route path="/admin/profile" element={

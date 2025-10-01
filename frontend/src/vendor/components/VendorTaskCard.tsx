@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import vendorApi from '@/services/vendorApi';
 import { useToast } from '@/hooks/use-toast';
+import WalletBalanceCheck from './WalletBalanceCheck';
 
 interface VendorTaskCardProps {
   task: {
@@ -38,6 +39,11 @@ interface VendorTaskCardProps {
     priority: string;
     bookingStatus?: string;
     vendorStatus?: string;
+    vendorResponse?: {
+      status: string;
+      respondedAt?: string;
+      responseNote?: string;
+    };
     isSupportTicket?: boolean;
   };
   onStatusUpdate: (taskId: string, newStatus: string) => void;
@@ -51,6 +57,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isWalletCheckOpen, setIsWalletCheckOpen] = useState(false);
   
   // Local state to track immediate status changes
   const [localTaskStatus, setLocalTaskStatus] = useState(task.vendorStatus || task.bookingStatus);
@@ -142,13 +149,23 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       return;
     }
 
+    // Check wallet balance before proceeding
+    setIsWalletCheckOpen(true);
+  };
+
+  const handleWalletCheckProceed = async () => {
+    setIsWalletCheckOpen(false);
     setIsProcessing(true);
+    
     try {
+      console.log('handleWalletCheckProceed: Starting decline process for task:', task.id);
       let response;
       
       if (task.isSupportTicket) {
+        console.log('handleWalletCheckProceed: Declining support ticket');
         response = await vendorApi.declineSupportTicket(task.id, declineReason);
       } else {
+        console.log('handleWalletCheckProceed: Declining booking task');
         response = await vendorApi.declineTask(task.id, declineReason);
       }
       
@@ -177,12 +194,31 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         });
       }
     } catch (error) {
-      console.error('Error declining task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to decline task. Please try again.",
-        variant: "destructive"
-      });
+      console.error('handleWalletCheckProceed: Error declining task:', error);
+      console.error('handleWalletCheckProceed: Error message:', error.message);
+      
+      // Check if task was already declined
+      if (error.message && error.message.includes('already been declined')) {
+        console.log('handleWalletCheckProceed: Task already declined, updating UI');
+        toast({
+          title: "Task Already Declined",
+          description: "This task has already been declined. Refreshing status...",
+          variant: "default"
+        });
+        
+        // Update local status to reflect the declined state
+        setLocalTaskStatus(task.isSupportTicket ? 'Declined' : 'cancelled');
+        onStatusUpdate(task.id, 'declined');
+        setIsDeclineModalOpen(false);
+        setDeclineReason('');
+      } else {
+        console.log('handleWalletCheckProceed: Other error occurred');
+        toast({
+          title: "Error",
+          description: "Failed to decline task. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -198,13 +234,18 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   // Use local status for immediate UI updates, fallback to task status
   const currentStatus = localTaskStatus || (task.isSupportTicket ? task.vendorStatus : task.bookingStatus);
   
+  // Check if task is declined by vendor (either manually or auto-rejected)
+  const isVendorDeclined = task.vendorResponse?.status === 'declined' || 
+                          (task.isSupportTicket ? task.vendorStatus === 'Declined' : false);
+  
   const isTaskAccepted = task.isSupportTicket 
     ? (currentStatus === 'Accepted' || currentStatus === 'Completed')
     : (currentStatus === 'in_progress' || currentStatus === 'completed');
     
-  const isTaskDeclined = task.isSupportTicket 
-    ? (currentStatus === 'Declined' || currentStatus === 'Cancelled')
-    : (currentStatus === 'cancelled');
+  const isTaskDeclined = isVendorDeclined || 
+    (task.isSupportTicket 
+      ? (currentStatus === 'Declined' || currentStatus === 'Cancelled')
+      : (currentStatus === 'cancelled'));
     
   const isTaskCancelled = task.isSupportTicket 
     ? (currentStatus === 'Cancelled')
@@ -212,7 +253,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
     
   const isTaskPending = task.isSupportTicket 
     ? (currentStatus === 'Pending')
-    : (currentStatus === 'confirmed' || currentStatus === 'waiting_for_engineer');
+    : !isVendorDeclined && (currentStatus === 'confirmed' || currentStatus === 'waiting_for_engineer');
 
   return (
     <>
@@ -287,7 +328,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                       Accept
                     </Button>
                     <Button
-                      onClick={() => navigate(`/vendor/task/${task.id}/cancel`)}
+                      onClick={() => setIsDeclineModalOpen(true)}
                       variant="destructive"
                       className="flex-1"
                       size="sm"
@@ -302,13 +343,13 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               {isTaskAccepted && (
                 <>
                   <Button
-                    onClick={handleViewTask}
                     variant="outline"
-                    className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+                    className="w-full bg-green-50 text-green-700 border-green-200 cursor-default"
                     size="sm"
+                    disabled
                   >
-                    <Eye className="w-4 h-4 mr-2" />
-                    View & Start Task
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Completed
                   </Button>
                 </>
               )}
@@ -585,6 +626,24 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Wallet Balance Check Modal */}
+      <WalletBalanceCheck
+        isOpen={isWalletCheckOpen}
+        onClose={() => setIsWalletCheckOpen(false)}
+        onProceed={handleWalletCheckProceed}
+        requiredAmount={100}
+        action="decline"
+        taskDetails={{
+          id: task.id,
+          caseId: task.caseId,
+          title: task.title
+        }}
+        onDepositSuccess={() => {
+          // Refresh wallet balance after successful deposit
+          console.log('Deposit successful, wallet balance should be refreshed');
+        }}
+      />
     </>
   );
 };

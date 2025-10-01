@@ -16,6 +16,9 @@ if (!process.env.RAZORPAY_KEY_SECRET) {
 // Import database connection
 const connectDB = require('./config/db');
 
+// Import services
+const autoRejectService = require('./services/autoRejectService');
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
@@ -44,6 +47,7 @@ const withdrawalRoutes = require('./routes/withdrawals');
 const adminWithdrawalRoutes = require('./routes/adminWithdrawals');
 const cityRoutes = require('./routes/cities');
 const reviewRoutes = require('./routes/reviews');
+const adminNotificationRoutes = require('./routes/adminNotifications');
 
 // Initialize Express app
 const app = express();
@@ -93,7 +97,35 @@ app.get('/health', (req, res) => {
     success: true,
     message: 'Fixifly Backend Server is running!',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    autoRejectService: autoRejectService.getStatus()
+  });
+});
+
+// Auto-reject service control endpoints (for admin/testing)
+app.post('/admin/auto-reject/trigger', async (req, res) => {
+  try {
+    await autoRejectService.triggerAutoRejectCheck();
+    res.status(200).json({
+      success: true,
+      message: 'Auto-reject check triggered successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to trigger auto-reject check',
+      error: error.message
+    });
+  }
+});
+
+app.get('/admin/auto-reject/status', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Auto-reject service status',
+    status: autoRejectService.getStatus(),
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -159,6 +191,7 @@ app.use('/api/admin/banners', adminBannerRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/vendors/withdrawal', withdrawalRoutes);
 app.use('/api/admin/withdrawals', adminWithdrawalRoutes);
+app.use('/api/admin/notifications', adminNotificationRoutes);
 app.use('/api', cityRoutes);
 app.use('/api/reviews', reviewRoutes);
 
@@ -217,6 +250,9 @@ const startServer = async () => {
     const PORT = process.env.PORT || 5000;
     
     app.listen(PORT, () => {
+      // Start auto-reject service
+      autoRejectService.start();
+      
       console.log(`
 🚀 Fixifly Backend Server Started!
 📡 Server running on port: ${PORT}
@@ -231,6 +267,7 @@ const startServer = async () => {
 🃏 Card Endpoints: http://localhost:${PORT}/api/cards
 📝 Blog Endpoints: http://localhost:${PORT}/api/blogs
 📝 Admin Blog Endpoints: http://localhost:${PORT}/api/admin/blogs
+⏰ Auto-Reject Service: Active (10-minute timer)
 
 ⚠️  SMS India Hub Template Approval Needed:
    Contact SMS India Hub support to approve OTP template for sender ID: SMSHUB

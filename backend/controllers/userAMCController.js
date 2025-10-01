@@ -655,6 +655,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
       // Don't fail the payment verification if email fails
     }
 
+
     logger.info('AMC subscription payment verified successfully', {
       userId: req.user.userId,
       subscriptionId: subscription.subscriptionId,

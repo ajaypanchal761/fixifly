@@ -10,6 +10,9 @@ const RazorpayService = require('../services/razorpayService');
 // @access  Public
 const createBooking = asyncHandler(async (req, res) => {
   try {
+    console.log('=== BOOKING CREATION REQUEST ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    
     const {
       customer,
       services,
@@ -20,6 +23,12 @@ const createBooking = asyncHandler(async (req, res) => {
 
     // Validate required fields
     if (!customer || !services || !pricing || !scheduling) {
+      console.log('Validation failed - missing required fields:', {
+        customer: !!customer,
+        services: !!services,
+        pricing: !!pricing,
+        scheduling: !!scheduling
+      });
       return res.status(400).json({
         success: false,
         message: 'Customer information, services, pricing, and scheduling are required'
@@ -72,14 +81,22 @@ const createBooking = asyncHandler(async (req, res) => {
       notes: notes || '',
       status: 'waiting_for_engineer',
       payment: {
-        status: 'completed',
-        method: 'card',
-        transactionId: `TXN${Date.now()}`,
-        paidAt: new Date()
+        status: req.body.payment?.status || 'completed',
+        method: req.body.payment?.method || 'card',
+        transactionId: req.body.payment?.transactionId || `TXN${Date.now()}`,
+        paidAt: req.body.payment?.method === 'cash' ? null : new Date()
       }
     };
 
+    console.log('About to create booking with data:', JSON.stringify(bookingData, null, 2));
+
     const booking = await Booking.create(bookingData);
+
+    console.log('Booking created successfully:', {
+      id: booking._id,
+      reference: booking.bookingReference,
+      status: booking.status
+    });
 
     logger.info(`Booking created: ${booking.bookingReference}`, {
       bookingId: booking._id,
@@ -87,6 +104,7 @@ const createBooking = asyncHandler(async (req, res) => {
       totalAmount: booking.pricing.totalAmount,
       servicesCount: booking.services.length
     });
+
 
     res.status(201).json({
       success: true,
@@ -97,6 +115,13 @@ const createBooking = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('=== BOOKING CREATION ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Error type:', typeof error);
+    console.error('Full error:', error);
+    console.error('=== END BOOKING CREATION ERROR ===');
+    
     logger.error('Error creating booking:', error);
     res.status(500).json({
       success: false,
@@ -583,6 +608,7 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       paymentId: paymentData.razorpayPaymentId
     });
 
+
     res.status(201).json({
       success: true,
       message: 'Booking created successfully with payment verification',
@@ -644,6 +670,7 @@ const acceptTask = asyncHandler(async (req, res) => {
       'vendorResponse.status': 'accepted',
       'vendorResponse.respondedAt': new Date(),
       status: 'in_progress', // Change status to in_progress when accepted
+      'vendor.autoRejectAt': null, // Clear auto-reject timer
       'tracking.updatedAt': new Date()
     };
 
@@ -720,23 +747,43 @@ const declineTask = asyncHandler(async (req, res) => {
       });
     }
 
-    // Apply penalty for task rejection
+    // Check wallet balance before applying penalty
     const wallet = await VendorWallet.findOne({ vendorId });
     
     if (wallet) {
-      // Add penalty for task rejection
-      await wallet.addPenalty({
-        caseId: bookingId,
-        type: 'rejection',
-        amount: 100, // ₹100 penalty for rejecting task
-        description: `Task rejection penalty - ${booking.bookingReference || bookingId}`
-      });
+      // Check if wallet has sufficient balance for penalty
+      const penaltyAmount = 100;
+      if (wallet.currentBalance >= penaltyAmount) {
+        // Add penalty for task rejection
+        await wallet.addPenalty({
+          caseId: bookingId,
+          type: 'rejection',
+          amount: penaltyAmount, // ₹100 penalty for rejecting task
+          description: `Task rejection penalty - ${booking.bookingReference || bookingId}`
+        });
 
-      logger.info(`Penalty applied for task rejection`, {
-        vendorId,
-        bookingId,
-        penaltyAmount: 100
-      });
+        logger.info(`Penalty applied for task rejection`, {
+          vendorId,
+          bookingId,
+          penaltyAmount: penaltyAmount,
+          balanceAfter: wallet.currentBalance
+        });
+      } else {
+        logger.warn(`Task rejection penalty skipped for vendor ${vendorId} - insufficient balance`, {
+          vendorId,
+          bookingId,
+          requiredAmount: penaltyAmount,
+          currentBalance: wallet.currentBalance
+        });
+        
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient wallet balance. You need at least ₹${penaltyAmount} to decline this task. Current balance: ₹${wallet.currentBalance.toLocaleString()}`,
+          error: 'INSUFFICIENT_WALLET_BALANCE',
+          currentBalance: wallet.currentBalance,
+          requiredAmount: penaltyAmount
+        });
+      }
     }
 
     // Update booking with vendor response
@@ -745,6 +792,7 @@ const declineTask = asyncHandler(async (req, res) => {
       'vendorResponse.respondedAt': new Date(),
       'vendorResponse.responseNote': vendorResponse.responseNote,
       status: 'cancelled', // Change status to cancelled when declined
+      'vendor.autoRejectAt': null, // Clear auto-reject timer
       'tracking.updatedAt': new Date()
     };
 
@@ -789,12 +837,16 @@ const completeTask = asyncHandler(async (req, res) => {
     const bookingId = req.params.id;
 
     console.log('=== BOOKING COMPLETION DEBUG ===');
+    console.log('Request body:', req.body);
+    console.log('Booking ID:', bookingId);
+    console.log('Vendor info:', req.vendor);
     console.log('Received completion data:', completionData);
     console.log('Billing amount received:', completionData?.billingAmount);
     console.log('Payment method received:', completionData?.paymentMethod);
     console.log('Is cash payment?', completionData?.paymentMethod === 'cash');
 
     if (!completionData) {
+      console.log('ERROR: No completion data provided');
       return res.status(400).json({
         success: false,
         message: 'Completion data is required'
@@ -804,22 +856,37 @@ const completeTask = asyncHandler(async (req, res) => {
     // Find the booking
     const booking = await Booking.findById(bookingId);
     if (!booking) {
+      console.log('ERROR: Booking not found for ID:', bookingId);
       return res.status(404).json({
         success: false,
         message: 'Booking not found'
       });
     }
+    
+    console.log('Booking found:', {
+      id: booking._id,
+      status: booking.status,
+      vendor: booking.vendor,
+      customer: booking.customer?.name
+    });
 
     // Check if vendor is assigned to this booking
     if (!booking.vendor || !booking.vendor.vendorId) {
+      console.log('ERROR: No vendor assigned to booking');
       return res.status(400).json({
         success: false,
         message: 'No vendor assigned to this booking'
       });
     }
+    
+    console.log('Vendor assignment check passed:', {
+      assignedVendorId: booking.vendor.vendorId,
+      requestingVendorId: req.vendor.vendorId,
+      isAuthorized: booking.vendor.vendorId === req.vendor.vendorId
+    });
 
     // Calculate spare parts total (for admin tracking)
-    const sparePartsTotal = completionData.spareParts.reduce((sum, part) => {
+    const sparePartsTotal = (completionData.spareParts || []).reduce((sum, part) => {
       const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
       return sum + amount;
     }, 0);
@@ -849,21 +916,33 @@ const completeTask = asyncHandler(async (req, res) => {
     console.log('Update data being saved:', updateData);
     console.log('Billing amount in update data:', updateData.completionData.billingAmount);
 
-    // For online payment, set payment status to pending
+    // For online payment, set payment status to payment_done
     if (completionData.paymentMethod === 'online') {
       updateData.paymentMode = 'online';
-      updateData.paymentStatus = 'pending';
+      updateData.paymentStatus = 'payment_done';
     } else {
       // For cash payment, set as collected
       updateData.paymentMode = 'cash';
       updateData.paymentStatus = 'collected';
+      // Also update the main payment status to completed
+      updateData['payment.status'] = 'completed';
     }
 
+    console.log('About to update booking with data:', updateData);
+    
     const updatedBooking = await Booking.findByIdAndUpdate(
       bookingId,
       updateData,
       { new: true, runValidators: true }
     ).lean();
+
+    if (!updatedBooking) {
+      console.log('ERROR: Failed to update booking');
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update booking'
+      });
+    }
 
     console.log('Updated booking completion data:', updatedBooking.completionData);
     console.log('Billing amount in saved data:', updatedBooking.completionData?.billingData);
@@ -898,11 +977,22 @@ const completeTask = asyncHandler(async (req, res) => {
           gstIncluded: completionData.includeGST || false
         });
         
-        // Deduct from vendor wallet
+        // Check vendor wallet balance before proceeding
         console.log('Looking for vendor wallet with vendorId:', booking.vendor.vendorId);
         const vendorWallet = await VendorWallet.findOne({ vendorId: booking.vendor.vendorId });
         console.log('Vendor wallet found:', !!vendorWallet);
+        
         if (vendorWallet) {
+          // Check if vendor has sufficient balance for cash collection deduction
+          if (vendorWallet.currentBalance < calculation.calculatedAmount) {
+            return res.status(400).json({
+              success: false,
+              message: `Insufficient wallet balance. You need at least ₹${calculation.calculatedAmount.toLocaleString()} to complete this cash task. Current balance: ₹${vendorWallet.currentBalance.toLocaleString()}`,
+              error: 'INSUFFICIENT_WALLET_BALANCE',
+              currentBalance: vendorWallet.currentBalance,
+              requiredAmount: calculation.calculatedAmount
+            });
+          }
           await vendorWallet.addCashCollectionDeduction({
             caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
             billingAmount,
@@ -1163,6 +1253,212 @@ const cancelBooking = asyncHandler(async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to cancel booking',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Cancel booking by user
+// @route   PATCH /api/bookings/:id/cancel-by-user
+// @access  Public (User)
+const cancelBookingByUser = asyncHandler(async (req, res) => {
+  try {
+    const { reason } = req.body;
+    
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cancellation reason is required'
+      });
+    }
+
+    // Find the booking
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+
+    // Check if booking can be cancelled
+    if (booking.status === 'completed' || booking.status === 'cancelled') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot cancel a completed or already cancelled booking'
+      });
+    }
+
+    // Update booking with cancellation data
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          status: 'cancelled',
+          'cancellationData.isCancelled': true,
+          'cancellationData.cancelledBy': 'customer',
+          'cancellationData.cancellationReason': reason.trim(),
+          'cancellationData.cancelledAt': new Date(),
+          'tracking.updatedAt': new Date()
+        }
+      },
+      { new: true, runValidators: true }
+    ).lean();
+
+    // Manually populate vendor data if exists
+    if (updatedBooking && updatedBooking.vendor && updatedBooking.vendor.vendorId) {
+      const vendor = await Vendor.findOne({ vendorId: updatedBooking.vendor.vendorId })
+        .select('firstName lastName email phone');
+      if (vendor) {
+        updatedBooking.vendor.vendorId = vendor;
+      }
+    }
+
+    logger.info(`Booking cancelled by customer: ${updatedBooking.bookingReference}`, {
+      bookingId: updatedBooking._id,
+      reason: reason.trim(),
+      cancelledBy: 'customer'
+    });
+
+    res.json({
+      success: true,
+      message: 'Booking cancelled successfully',
+      data: {
+        booking: updatedBooking,
+        bookingReference: updatedBooking.bookingReference,
+        cancellationInfo: {
+          reason: reason.trim(),
+          cancelledAt: new Date(),
+          cancelledBy: 'customer'
+        }
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error cancelling booking by user:', {
+      error: error.message,
+      stack: error.stack,
+      bookingId: req.params.id
+    });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to cancel booking',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Reschedule booking by user
+// @route   PATCH /api/bookings/:id/reschedule-by-user
+// @access  Public (User)
+const rescheduleBookingByUser = asyncHandler(async (req, res) => {
+  try {
+    const { newDate, newTime, reason } = req.body;
+    
+    if (!newDate || !newTime || !reason) {
+      return res.status(400).json({
+        success: false,
+        message: 'New date, new time, and reason are required'
+      });
+    }
+
+    // Find the booking
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+
+    // Check if booking can be rescheduled
+    if (booking.status === 'completed' || booking.status === 'cancelled') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot reschedule a completed or cancelled booking'
+      });
+    }
+
+    // Check if the new date is at least 2 hours from now
+    const newDateTime = new Date(`${newDate}T${newTime}`);
+    const now = new Date();
+    const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+    
+    if (newDateTime <= twoHoursFromNow) {
+      return res.status(400).json({
+        success: false,
+        message: 'New appointment must be at least 2 hours from now'
+      });
+    }
+
+    // Store original scheduling data
+    const originalDate = booking.scheduling.scheduledDate || booking.scheduling.preferredDate;
+    const originalTime = booking.scheduling.scheduledTime || booking.scheduling.preferredTimeSlot;
+
+    // Update booking with new schedule
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          'scheduling.scheduledDate': new Date(newDate),
+          'scheduling.scheduledTime': newTime,
+          'rescheduleData.isRescheduled': true,
+          'rescheduleData.originalDate': originalDate,
+          'rescheduleData.originalTime': originalTime,
+          'rescheduleData.rescheduledDate': new Date(newDate),
+          'rescheduleData.rescheduledTime': newTime,
+          'rescheduleData.rescheduleReason': reason,
+          'rescheduleData.rescheduledAt': new Date(),
+          'rescheduleData.rescheduledBy': 'customer',
+          'tracking.updatedAt': new Date()
+        }
+      },
+      { new: true, runValidators: true }
+    ).lean();
+
+    // Manually populate vendor data
+    if (updatedBooking && updatedBooking.vendor && updatedBooking.vendor.vendorId) {
+      const vendor = await Vendor.findOne({ vendorId: updatedBooking.vendor.vendorId })
+        .select('firstName lastName email phone');
+      if (vendor) {
+        updatedBooking.vendor.vendorId = vendor;
+      }
+    }
+
+    logger.info(`Booking rescheduled by customer: ${updatedBooking.bookingReference}`, {
+      bookingId: updatedBooking._id,
+      originalDate: originalDate,
+      originalTime: originalTime,
+      newDate: newDate,
+      newTime: newTime,
+      reason: reason
+    });
+
+    res.json({
+      success: true,
+      message: 'Booking rescheduled successfully',
+      data: {
+        booking: updatedBooking,
+        rescheduleInfo: {
+          originalDate: originalDate,
+          originalTime: originalTime,
+          newDate: newDate,
+          newTime: newTime,
+          reason: reason,
+          rescheduledAt: new Date()
+        }
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error rescheduling booking by user:', {
+      error: error.message,
+      stack: error.stack,
+      bookingId: req.params.id
+    });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reschedule booking',
       error: error.message
     });
   }
@@ -1443,6 +1739,8 @@ module.exports = {
   declineTask,
   completeTask,
   cancelBooking,
+  cancelBookingByUser,
+  rescheduleBookingByUser,
   rescheduleBooking,
   createPaymentOrder,
   verifyPayment

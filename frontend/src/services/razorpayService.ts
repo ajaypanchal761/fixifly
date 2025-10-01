@@ -265,7 +265,7 @@ class RazorpayService {
         ...bookingData,
         customer: {
           ...bookingData.customer,
-          phone: bookingData.customer.phone.replace('+91', ''), // Remove +91 prefix for backend
+          phone: bookingData.customer.phone.replace(/^\+91/, '').replace(/^91/, ''), // Remove +91 or 91 prefix for backend
         },
         paymentData: {
           razorpayOrderId: paymentResponse.razorpay_order_id,

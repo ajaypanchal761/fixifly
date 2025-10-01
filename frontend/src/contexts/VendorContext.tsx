@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+interface ServiceLocation {
+  _id: string;
+  from: string;
+  to: string;
+  isActive: boolean;
+  addedAt: string;
+}
+
 interface Vendor {
   id: string;
   vendorId: string;
@@ -18,6 +26,7 @@ interface Vendor {
     pincode?: string;
     landmark?: string;
   };
+  serviceLocations?: ServiceLocation[];
   profileImage?: string;
   specialty?: string;
   bio?: string;

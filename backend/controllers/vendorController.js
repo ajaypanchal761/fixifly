@@ -218,6 +218,7 @@ const loginVendor = asyncHandler(async (req, res) => {
       customServiceCategory: vendor.customServiceCategory,
       experience: vendor.experience,
       address: vendor.address,
+      serviceLocations: vendor.serviceLocations,
       profileImage: vendor.profileImage,
       specialty: vendor.specialty,
       bio: vendor.bio,
@@ -306,6 +307,7 @@ const getVendorProfile = asyncHandler(async (req, res) => {
       customServiceCategory: vendor.customServiceCategory,
       experience: vendor.experience,
       address: vendor.address,
+      serviceLocations: vendor.serviceLocations,
       profileImage: vendor.profileImage,
       specialty: vendor.specialty,
       bio: vendor.bio,
@@ -370,7 +372,7 @@ const updateVendorProfile = asyncHandler(async (req, res) => {
     // Update allowed fields
     const allowedUpdates = [
       'firstName', 'lastName', 'serviceCategories', 'customServiceCategory', 'experience', 
-      'address', 'specialty', 'bio', 'preferences'
+      'address', 'specialty', 'bio', 'preferences', 'serviceLocations'
     ];
 
     allowedUpdates.forEach(field => {
@@ -395,6 +397,7 @@ const updateVendorProfile = asyncHandler(async (req, res) => {
       customServiceCategory: vendor.customServiceCategory,
       experience: vendor.experience,
       address: vendor.address,
+      serviceLocations: vendor.serviceLocations,
       profileImage: vendor.profileImage,
       specialty: vendor.specialty,
       bio: vendor.bio,
@@ -1075,6 +1078,172 @@ const getVendorWallet = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Add service location
+// @route   POST /api/vendors/service-locations
+// @access  Private
+const addServiceLocation = asyncHandler(async (req, res) => {
+  const vendorId = req.vendor._id;
+  const { from, to } = req.body;
+
+  try {
+    if (!from || !to) {
+      return res.status(400).json({
+        success: false,
+        message: 'From and To locations are required'
+      });
+    }
+
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    await vendor.addServiceLocation(from, to);
+
+    logger.info('Service location added successfully', {
+      vendorId: vendor._id,
+      from,
+      to
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Service location added successfully',
+      data: {
+        serviceLocations: vendor.serviceLocations
+      }
+    });
+
+  } catch (error) {
+    logger.error('Add service location failed', {
+      error: error.message,
+      vendorId: vendorId
+    });
+
+    if (error.message === 'Service location already exists') {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add service location. Please try again.'
+    });
+  }
+});
+
+// @desc    Update service location
+// @route   PUT /api/vendors/service-locations/:locationId
+// @access  Private
+const updateServiceLocation = asyncHandler(async (req, res) => {
+  const vendorId = req.vendor._id;
+  const { locationId } = req.params;
+  const { from, to, isActive } = req.body;
+
+  try {
+    if (!from || !to) {
+      return res.status(400).json({
+        success: false,
+        message: 'From and To locations are required'
+      });
+    }
+
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    await vendor.updateServiceLocation(locationId, from, to, isActive);
+
+    logger.info('Service location updated successfully', {
+      vendorId: vendor._id,
+      locationId,
+      from,
+      to
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Service location updated successfully',
+      data: {
+        serviceLocations: vendor.serviceLocations
+      }
+    });
+
+  } catch (error) {
+    logger.error('Update service location failed', {
+      error: error.message,
+      vendorId: vendorId,
+      locationId
+    });
+
+    if (error.message === 'Service location not found' || error.message === 'Service location already exists') {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update service location. Please try again.'
+    });
+  }
+});
+
+// @desc    Remove service location
+// @route   DELETE /api/vendors/service-locations/:locationId
+// @access  Private
+const removeServiceLocation = asyncHandler(async (req, res) => {
+  const vendorId = req.vendor._id;
+  const { locationId } = req.params;
+
+  try {
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    await vendor.removeServiceLocation(locationId);
+
+    logger.info('Service location removed successfully', {
+      vendorId: vendor._id,
+      locationId
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Service location removed successfully',
+      data: {
+        serviceLocations: vendor.serviceLocations
+      }
+    });
+
+  } catch (error) {
+    logger.error('Remove service location failed', {
+      error: error.message,
+      vendorId: vendorId,
+      locationId
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove service location. Please try again.'
+    });
+  }
+});
+
 module.exports = {
   registerVendor,
   loginVendor,
@@ -1087,5 +1256,8 @@ module.exports = {
   deleteVendorProfileImage,
   createDepositOrder,
   verifyDepositPayment,
-  getVendorWallet
+  getVendorWallet,
+  addServiceLocation,
+  updateServiceLocation,
+  removeServiceLocation
 };

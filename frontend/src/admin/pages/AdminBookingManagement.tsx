@@ -611,20 +611,35 @@ const AdminBookingManagement = () => {
         payment_done: { color: 'bg-green-100 text-green-800' }
       };
       const config = statusConfig[paymentStatus as keyof typeof statusConfig] || statusConfig.pending;
+      
+      // Custom display text for better UX
+      let displayText = paymentStatus.replace('_', ' ').toUpperCase();
+      if (paymentStatus === 'payment_done') {
+        displayText = 'COMPLETED';
+      }
+      
       return (
         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-          {paymentStatus.replace('_', ' ').toUpperCase()}
+          {displayText}
         </span>
       );
     } else {
       const statusConfig = {
+        pending: { color: 'bg-yellow-100 text-yellow-800' },
         collected: { color: 'bg-green-100 text-green-800' },
         not_collected: { color: 'bg-red-100 text-red-800' }
       };
-      const config = statusConfig[paymentStatus as keyof typeof statusConfig] || statusConfig.not_collected;
+      const config = statusConfig[paymentStatus as keyof typeof statusConfig] || statusConfig.pending;
+      
+      // Custom display text for better UX
+      let displayText = paymentStatus.replace('_', ' ').toUpperCase();
+      if (paymentStatus === 'collected') {
+        displayText = 'COMPLETED';
+      }
+      
       return (
         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-          {paymentStatus.replace('_', ' ').toUpperCase()}
+          {displayText}
         </span>
       );
     }
@@ -747,7 +762,17 @@ const AdminBookingManagement = () => {
   };
 
   const handleEditBooking = (booking: any) => {
-    setEditingBooking(booking);
+    // Ensure scheduling object exists with proper structure
+    const bookingWithScheduling = {
+      ...booking,
+      scheduling: {
+        scheduledDate: booking.scheduling?.scheduledDate || booking.scheduling?.preferredDate || '',
+        scheduledTime: booking.scheduling?.scheduledTime || '',
+        preferredDate: booking.scheduling?.preferredDate || '',
+        preferredTimeSlot: booking.scheduling?.preferredTimeSlot || ''
+      }
+    };
+    setEditingBooking(bookingWithScheduling);
     setIsEditBookingOpen(true);
   };
 
@@ -1200,6 +1225,13 @@ const AdminBookingManagement = () => {
                                 })
                               : booking.scheduling?.preferredTimeSlot || 'Not scheduled'}
                           </p>
+                          {/* Show reschedule indicator */}
+                          {(booking as any).rescheduleData?.isRescheduled && (
+                            <div className="mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-orange-100 text-orange-800">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Rescheduled
+                            </div>
+                          )}
                         </div>
                       </div>
                     </TableCell>
@@ -1229,7 +1261,7 @@ const AdminBookingManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getAssignmentStatusBadge(booking.vendor ? 'assigned' : 'unassigned')}</TableCell>
-                    <TableCell>{getPaymentStatusBadge(booking.payment?.status || 'pending', booking.payment?.method || 'card')}</TableCell>
+                    <TableCell>{getPaymentStatusBadge(booking.paymentStatus || booking.payment?.status || 'pending', booking.paymentMode || booking.payment?.method || 'card')}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -1761,6 +1793,19 @@ const AdminBookingManagement = () => {
                         selectedBooking.scheduling?.preferredDate ?
                         new Date(selectedBooking.scheduling.preferredDate).toLocaleDateString() :
                         'Not scheduled'}</p>
+                      {/* Show reschedule info if available */}
+                      {(selectedBooking as any).rescheduleData?.isRescheduled && (
+                        <div className="mt-1 p-1 bg-orange-50 rounded text-xs">
+                          <p className="text-orange-600 font-medium">Rescheduled</p>
+                          <p className="text-orange-500">
+                            From: {selectedBooking.rescheduleData?.originalDate ? 
+                              new Date(selectedBooking.rescheduleData.originalDate).toLocaleDateString() : 'N/A'}
+                          </p>
+                          <p className="text-orange-500">
+                            Reason: {(selectedBooking as any).rescheduleData?.rescheduleReason || 'N/A'}
+                          </p>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Scheduled Time</Label>
@@ -1773,6 +1818,14 @@ const AdminBookingManagement = () => {
                             })
                           : selectedBooking.scheduling?.preferredTimeSlot || 'Not scheduled'}
                       </p>
+                      {/* Show reschedule time info if available */}
+                      {(selectedBooking as any).rescheduleData?.isRescheduled && (
+                        <div className="mt-1 p-1 bg-orange-50 rounded text-xs">
+                          <p className="text-orange-500">
+                            From: {selectedBooking.rescheduleData?.originalTime || 'N/A'}
+                          </p>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Status</Label>
@@ -1784,7 +1837,7 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
-                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.payment?.status || 'pending', selectedBooking.payment?.method || 'card')}</div>
+                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.paymentStatus || selectedBooking.payment?.status || 'pending', selectedBooking.paymentMode || selectedBooking.payment?.method || 'card')}</div>
                     </div>
                   </div>
                 </div>
@@ -1834,7 +1887,7 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
-                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.payment?.status || 'pending', selectedBooking.payment?.method || 'card')}</div>
+                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.paymentStatus || selectedBooking.payment?.status || 'pending', selectedBooking.paymentMode || selectedBooking.payment?.method || 'card')}</div>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Amount</Label>
@@ -1980,17 +2033,48 @@ const AdminBookingManagement = () => {
                     <Input
                       id="scheduledDate"
                       type="date"
-                      value={editingBooking.scheduling.scheduledDate ? editingBooking.scheduling.scheduledDate.split('T')[0] : ''}
-                      onChange={(e) => setEditingBooking({...editingBooking, scheduling: {...editingBooking.scheduling, scheduledDate: e.target.value} as any})}
+                      value={editingBooking.scheduling?.scheduledDate ? 
+                        (typeof editingBooking.scheduling.scheduledDate === 'string' ? 
+                          editingBooking.scheduling.scheduledDate.split('T')[0] : 
+                          new Date(editingBooking.scheduling.scheduledDate).toISOString().split('T')[0]) : 
+                        ''}
+                      onChange={(e) => setEditingBooking({
+                        ...editingBooking, 
+                        scheduling: {
+                          ...editingBooking.scheduling, 
+                          scheduledDate: e.target.value
+                        }
+                      })}
                     />
                   </div>
                   <div>
                     <Label htmlFor="scheduledTime">Scheduled Time</Label>
-                    <Input
-                      id="scheduledTime"
-                      value={editingBooking.scheduling.scheduledTime || ''}
-                      onChange={(e) => setEditingBooking({...editingBooking, scheduling: {...editingBooking.scheduling, scheduledTime: e.target.value} as any})}
-                    />
+                    <Select 
+                      value={editingBooking.scheduling?.scheduledTime || ''} 
+                      onValueChange={(value) => setEditingBooking({
+                        ...editingBooking, 
+                        scheduling: {
+                          ...editingBooking.scheduling, 
+                          scheduledTime: value
+                        }
+                      })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select time slot" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="09:00">9:00 AM</SelectItem>
+                        <SelectItem value="10:00">10:00 AM</SelectItem>
+                        <SelectItem value="11:00">11:00 AM</SelectItem>
+                        <SelectItem value="12:00">12:00 PM</SelectItem>
+                        <SelectItem value="13:00">1:00 PM</SelectItem>
+                        <SelectItem value="14:00">2:00 PM</SelectItem>
+                        <SelectItem value="15:00">3:00 PM</SelectItem>
+                        <SelectItem value="16:00">4:00 PM</SelectItem>
+                        <SelectItem value="17:00">5:00 PM</SelectItem>
+                        <SelectItem value="18:00">6:00 PM</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div>

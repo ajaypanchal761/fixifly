@@ -34,6 +34,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
+interface ServiceLocation {
+  _id: string;
+  from: string;
+  to: string;
+  isActive: boolean;
+  addedAt: string;
+}
+
 interface Vendor {
   id: string;
   vendorId: string;
@@ -44,6 +52,7 @@ interface Vendor {
   phone: string;
   location: string;
   address?: any;
+  serviceLocations?: ServiceLocation[];
   joinDate: string;
   status: 'active' | 'inactive' | 'blocked' | 'suspended';
   verificationStatus: 'verified' | 'pending' | 'rejected';
@@ -677,6 +686,31 @@ const AdminVendorManagement = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-500">Bio</label>
                     <p className="text-sm">{selectedVendor.bio}</p>
+                  </div>
+                )}
+                {selectedVendor.serviceLocations && selectedVendor.serviceLocations.length > 0 && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Service Locations</label>
+                    <div className="mt-2 space-y-2">
+                      {selectedVendor.serviceLocations.map((location, index) => (
+                        <div key={location._id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-green-600" />
+                            <span className="text-sm font-medium">
+                              {location.from} → {location.to}
+                            </span>
+                            {location.isActive && (
+                              <Badge className="bg-green-100 text-green-800 border-green-200 px-2 py-0.5 text-xs">
+                                Active
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            Added: {new Date(location.addedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

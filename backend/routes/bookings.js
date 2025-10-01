@@ -1,16 +1,18 @@
 const express = require('express');
-const {
-  createBooking,
-  createBookingWithPayment,
-  getBookingById,
-  getBookingsByCustomer,
-  getBookingsByVendor,
-  updateBookingStatus,
+const { 
+  createBooking, 
+  createBookingWithPayment, 
+  getBookingById, 
+  getBookingsByCustomer, 
+  getBookingsByVendor, 
+  updateBookingStatus, 
   getBookingStats,
   acceptTask,
   declineTask,
   completeTask,
   cancelBooking,
+  cancelBookingByUser,
+  rescheduleBookingByUser,
   rescheduleBooking,
   createPaymentOrder,
   verifyPayment
@@ -29,6 +31,27 @@ router.route('/with-payment')
 router.route('/stats')
   .get(getBookingStats); // Get booking statistics
 
+// Test endpoint to check booking routes
+router.route('/test')
+  .get((req, res) => {
+    res.json({
+      success: true,
+      message: 'Booking routes are working',
+      timestamp: new Date().toISOString()
+    });
+  });
+
+// Test endpoint to check vendor authentication
+router.route('/test-auth')
+  .get(protectVendor, (req, res) => {
+    res.json({
+      success: true,
+      message: 'Vendor authentication is working',
+      vendor: req.vendor,
+      timestamp: new Date().toISOString()
+    });
+  });
+
 router.route('/:id')
   .get(optionalVendorAuth, getBookingById); // Get booking by ID
 
@@ -46,6 +69,12 @@ router.route('/:id/complete')
 
 router.route('/:id/cancel')
   .patch(protectVendor, cancelBooking); // Cancel task by vendor
+
+router.route('/:id/cancel-by-user')
+  .patch(cancelBookingByUser); // Cancel booking by user
+
+router.route('/:id/reschedule-by-user')
+  .patch(rescheduleBookingByUser); // Reschedule booking by user
 
 router.route('/:id/reschedule')
   .patch(protectVendor, rescheduleBooking); // Reschedule task by vendor

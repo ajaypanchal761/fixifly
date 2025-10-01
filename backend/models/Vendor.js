@@ -122,6 +122,30 @@ const vendorSchema = new mongoose.Schema({
       maxlength: [100, 'Landmark cannot exceed 100 characters']
     }
   },
+
+  // Service Locations - Areas where vendor provides services
+  serviceLocations: [{
+    from: {
+      type: String,
+      required: [true, 'From location is required'],
+      trim: true,
+      maxlength: [100, 'From location cannot exceed 100 characters']
+    },
+    to: {
+      type: String,
+      required: [true, 'To location is required'],
+      trim: true,
+      maxlength: [100, 'To location cannot exceed 100 characters']
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   
   // Profile Information
   profileImage: {
@@ -325,6 +349,7 @@ vendorSchema.index({ phone: 1 });
 vendorSchema.index({ 'address.city': 1 });
 vendorSchema.index({ 'address.pincode': 1 });
 vendorSchema.index({ serviceCategories: 1 });
+vendorSchema.index({ 'serviceLocations.from': 1, 'serviceLocations.to': 1 });
 vendorSchema.index({ isActive: 1, isApproved: 1 });
 
 // Pre-save middleware to hash password
@@ -378,6 +403,63 @@ vendorSchema.methods.checkProfileComplete = function() {
   
   this.isProfileComplete = isComplete;
   return isComplete;
+};
+
+// Instance method to add service location
+vendorSchema.methods.addServiceLocation = function(from, to) {
+  // Check if location already exists
+  const existingLocation = this.serviceLocations.find(
+    loc => loc.from.toLowerCase() === from.toLowerCase() && 
+           loc.to.toLowerCase() === to.toLowerCase()
+  );
+  
+  if (existingLocation) {
+    throw new Error('Service location already exists');
+  }
+  
+  this.serviceLocations.push({
+    from: from.trim(),
+    to: to.trim(),
+    isActive: true,
+    addedAt: new Date()
+  });
+  
+  return this.save();
+};
+
+// Instance method to remove service location
+vendorSchema.methods.removeServiceLocation = function(locationId) {
+  this.serviceLocations = this.serviceLocations.filter(
+    loc => loc._id.toString() !== locationId
+  );
+  
+  return this.save();
+};
+
+// Instance method to update service location
+vendorSchema.methods.updateServiceLocation = function(locationId, from, to, isActive = true) {
+  const location = this.serviceLocations.id(locationId);
+  
+  if (!location) {
+    throw new Error('Service location not found');
+  }
+  
+  // Check if updated location already exists (excluding current one)
+  const existingLocation = this.serviceLocations.find(
+    loc => loc._id.toString() !== locationId &&
+           loc.from.toLowerCase() === from.toLowerCase() && 
+           loc.to.toLowerCase() === to.toLowerCase()
+  );
+  
+  if (existingLocation) {
+    throw new Error('Service location already exists');
+  }
+  
+  location.from = from.trim();
+  location.to = to.trim();
+  location.isActive = isActive;
+  
+  return this.save();
 };
 
 // Static method to generate unique 3-digit vendor ID

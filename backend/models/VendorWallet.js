@@ -309,6 +309,9 @@ vendorWalletSchema.methods.addPenalty = async function(penaltyData) {
   } else if (penaltyType === 'cancellation') {
     this.totalTasksCancelled += 1;
     this.totalCancellationPenalties += amount;
+  } else if (penaltyType === 'auto_rejection') {
+    this.totalTasksRejected += 1;
+    this.totalRejectionPenalties += amount;
   }
 
   await this.save();

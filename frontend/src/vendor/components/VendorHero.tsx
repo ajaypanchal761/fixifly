@@ -183,6 +183,7 @@ const VendorHero = () => {
             : 'Not assigned',
           priority: booking.priority || 'medium',
           bookingStatus: booking.status,
+          vendorResponse: booking.vendorResponse,
           isSupportTicket: false
         }));
 
@@ -246,10 +247,13 @@ const VendorHero = () => {
           // Support tickets: Pending, Accepted statuses are "new"
           return task.vendorStatus === 'Pending' || task.vendorStatus === 'Accepted';
         } else {
-          // Bookings: confirmed, waiting_for_engineer, in_progress are "new"
-          return task.bookingStatus === 'confirmed' || 
-                 task.bookingStatus === 'waiting_for_engineer' ||
-                 task.bookingStatus === 'in_progress';
+          // Bookings: confirmed, waiting_for_engineer, in_progress are "new" (but not if declined)
+          const isDeclined = task.vendorResponse?.status === 'declined';
+          return !isDeclined && (
+            task.bookingStatus === 'confirmed' || 
+            task.bookingStatus === 'waiting_for_engineer' ||
+            task.bookingStatus === 'in_progress'
+          );
         }
       });
       
@@ -268,8 +272,8 @@ const VendorHero = () => {
           // Support tickets: Declined, Cancelled statuses
           return task.vendorStatus === 'Declined' || task.vendorStatus === 'Cancelled';
         } else {
-          // Bookings: cancelled status
-          return task.bookingStatus === 'cancelled';
+          // Bookings: cancelled status OR declined by vendor (auto-rejected)
+          return task.bookingStatus === 'cancelled' || task.vendorResponse?.status === 'declined';
         }
       });
       
@@ -424,7 +428,7 @@ const VendorHero = () => {
   }
 
   return (
-    <section className="relative flex items-start justify-center overflow-hidden min-h-[30vh] sm:min-h-[35vh] mb-8">
+    <section className="relative flex items-start justify-center overflow-hidden min-h-[20vh] sm:min-h-[25vh] mb-4">
       {/* Background Gradient */}
       <div className="absolute bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-50" />
       
@@ -436,14 +440,14 @@ const VendorHero = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
                 {bannersLoading ? (
-                  <div className="w-full h-48 sm:h-64 md:h-72 bg-gray-200 rounded-3xl flex items-center justify-center">
+                  <div className="w-full h-32 sm:h-40 md:h-48 bg-gray-200 rounded-3xl flex items-center justify-center">
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
                       <p className="text-sm text-gray-500">Loading banners...</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="relative w-full h-48 sm:h-64 md:h-72">
+                  <div className="relative w-full h-32 sm:h-40 md:h-48">
                     {banners.map((banner, index) => (
                       <img 
                         key={index}
@@ -487,12 +491,8 @@ const VendorHero = () => {
 
           {/* Text Content */}
           <div className="text-center lg:text-left animate-slide-up order-2 lg:w-full lg:pr-8">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              Welcome to Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"><span className="text-3xl font-bold text-gradient mb-8 md:hidden text-center"> Vendor Portal</span></span>
-            </h1>
-            
             {/* Task Blocks */}
-            <div className="-mt-4 space-y-4">
+            <div className="space-y-4">
               {/* Task Tabs */}
               <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
                 <button

@@ -151,6 +151,7 @@ const AdminHeader = () => {
     { name: "Vendor wallet", href: "/admin/vendor-wallet", icon: Wallet },
     { name: "Support Management", href: "/admin/support", icon: Headphones },
     { name: "Add Banner", href: "/admin/banners", icon: Image },
+    { name: "Push Notification", href: "/admin/push-notifications", icon: Bell },
   ];
 
   return (

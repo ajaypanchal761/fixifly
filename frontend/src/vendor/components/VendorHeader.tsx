@@ -7,10 +7,12 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Users, ShoppingBag, LogOut, User, FileText, Star, Info, Search, Lock } from 'lucide-react';
+import { Menu, X, Home, Users, ShoppingBag, LogOut, User, FileText, Star, Info, Search, Lock, Award, Download } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useVendor } from '@/contexts/VendorContext';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 const drawerWidth = 240;
 
@@ -69,6 +71,7 @@ const VendorHeader = () => {
   const navigate = useNavigate();
   const { vendor, isAuthenticated, logout } = useVendor();
   const [open, setOpen] = React.useState(false);
+  const [isCertificateOpen, setIsCertificateOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Check if vendor has made the initial deposit - once deposit is made, always show Yes
@@ -82,6 +85,64 @@ const VendorHeader = () => {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const downloadCertificate = async () => {
+    const vendorName = isAuthenticated && vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Vendor Name';
+    
+    // Create a canvas to draw the certificate with vendor name
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = async () => {
+      // Set canvas size to match image
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      // Draw the certificate image
+      ctx?.drawImage(img, 0, 0);
+      
+      // Add vendor name
+      if (ctx) {
+        ctx.font = 'bold 36px Arial';
+        ctx.fillStyle = '#1e3a8a';
+        ctx.textAlign = 'center';
+        ctx.fillText(vendorName, canvas.width / 2, canvas.height / 2 + 50);
+      }
+      
+      // Convert to PDF using jsPDF
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Convert canvas to image data
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Calculate dimensions to fit A4 landscape
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const finalWidth = imgWidth * ratio;
+      const finalHeight = imgHeight * ratio;
+      
+      // Center the image
+      const x = (pdfWidth - finalWidth) / 2;
+      const y = (pdfHeight - finalHeight) / 2;
+      
+      // Add image to PDF
+      pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
+      
+      // Download the PDF
+      pdf.save(`Fixifly_Certificate_${vendorName.replace(/\s+/g, '_')}.pdf`);
+    };
+    
+    img.src = '/certificate.jpg';
   };
 
   const handleLogoClick = () => {
@@ -236,6 +297,7 @@ const VendorHeader = () => {
         }}>
           {[
             { name: "Profile", icon: User, href: "/vendor/profile", requiresDeposit: true },
+            { name: "Certificate", icon: Award, href: null, requiresDeposit: true, isCertificate: true },
             { name: "My Tasks", icon: ShoppingBag, href: "/vendor", requiresDeposit: true },
             { name: "Privacy Policy", icon: FileText, href: "/vendor/privacy", requiresDeposit: true },
             { name: "Terms & Conditions", icon: FileText, href: "/vendor/terms", requiresDeposit: true },
@@ -248,8 +310,8 @@ const VendorHeader = () => {
             return (
               <Button
                 key={item.name}
-                component={isDisabled ? 'div' : Link}
-                to={isDisabled ? undefined : item.href}
+                component={isDisabled ? 'div' : (item.isCertificate ? 'div' : Link)}
+                to={isDisabled ? undefined : (item.isCertificate ? undefined : item.href)}
                 startIcon={
                   <div className="relative">
                     <IconComponent size={20} />
@@ -257,7 +319,7 @@ const VendorHeader = () => {
                   </div>
                 }
                 fullWidth
-                onClick={isDisabled ? () => navigate("/vendor/earnings") : handleDrawerClose}
+                onClick={isDisabled ? () => navigate("/vendor/earnings") : (item.isCertificate ? () => { setIsCertificateOpen(true); handleDrawerClose(); } : handleDrawerClose)}
                 disabled={isDisabled}
                 sx={{
                   justifyContent: 'flex-start',
@@ -312,6 +374,42 @@ const VendorHeader = () => {
           )}
         </MuiBox>
       </Drawer>
+
+      {/* Certificate Modal */}
+      <Dialog open={isCertificateOpen} onOpenChange={setIsCertificateOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-4">
+          <DialogTitle className="sr-only">
+            Fixifly Certificate - {isAuthenticated && vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Vendor Name'}
+          </DialogTitle>
+          <div className="relative">
+            <img 
+              src="/certificate.jpg" 
+              alt="Fixifly Certificate" 
+              className="w-full h-auto"
+            />
+            {/* Overlay vendor name */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center" style={{ marginTop: '20px' }}>
+                <h2 className="text-lg font-bold text-blue-900" style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                  {isAuthenticated && vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Vendor Name'}
+                </h2>
+              </div>
+            </div>
+          </div>
+          
+          {/* Download Button - Below Certificate */}
+          <div className="flex justify-center mt-4">
+            <Button
+              onClick={downloadCertificate}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              size="lg"
+              startIcon={<Download size={20} />}
+            >
+              Download PDF
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

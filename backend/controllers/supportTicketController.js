@@ -221,6 +221,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
 
   logger.info(`New support ticket created: ${supportTicket.ticketId} by user: ${userId}`);
 
+
   res.status(201).json({
     success: true,
     message: 'Support ticket created successfully',
@@ -668,6 +669,7 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
       console.error('Error creating vendor notification:', notificationError);
       // Don't fail the assignment if notification fails
     }
+
 
     // Populate vendor data for response
     const populatedTicket = await SupportTicket.findOne({ ticketId: id })
@@ -1771,9 +1773,19 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
         gstIncluded: includeGST || false
       });
       
-      // Deduct from vendor wallet
+      // Check vendor wallet balance before proceeding
       const vendorWallet = await VendorWallet.findOne({ vendorId: vendorId });
       if (vendorWallet) {
+        // Check if vendor has sufficient balance for cash collection deduction
+        if (vendorWallet.currentBalance < calculation.calculatedAmount) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient wallet balance. You need at least ₹${calculation.calculatedAmount.toLocaleString()} to complete this cash task. Current balance: ₹${vendorWallet.currentBalance.toLocaleString()}`,
+            error: 'INSUFFICIENT_WALLET_BALANCE',
+            currentBalance: vendorWallet.currentBalance,
+            requiredAmount: calculation.calculatedAmount
+          });
+        }
         await vendorWallet.addCashCollectionDeduction({
           caseId: ticket.ticketId,
           billingAmount,

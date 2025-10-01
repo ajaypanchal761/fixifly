@@ -15,6 +15,8 @@ import VendorBottomNav from "../components/VendorBottomNav";
 import vendorApi from "@/services/vendorApi";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import WalletBalanceCheck from "../components/WalletBalanceCheck";
+import { calculateCashCollectionDeduction } from "@/utils/walletCalculation";
 
 interface SparePart {
   id: number;
@@ -38,6 +40,7 @@ const VendorClosedTask = () => {
   const [billingAmount, setBillingAmount] = useState("");
   const [isCompleting, setIsCompleting] = useState(false);
   const [showCashWarning, setShowCashWarning] = useState(false);
+  const [isWalletCheckOpen, setIsWalletCheckOpen] = useState(false);
   const [spareParts, setSpareParts] = useState<SparePart[]>([
     { id: 1, name: "", amount: "", photo: null }
   ]);
@@ -398,10 +401,40 @@ const VendorClosedTask = () => {
   const handleCashWarningConfirm = () => {
     setPaymentMethod('cash');
     setShowCashWarning(false);
+    // Check wallet balance before proceeding with cash task completion
+    setIsWalletCheckOpen(true);
+  };
+
+  // Calculate required wallet amount for cash payment
+  const calculateRequiredWalletAmount = (): number => {
+    if (paymentMethod !== 'cash') return 0;
+    
+    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    const spareAmountValue = spareParts.reduce((sum, part) => {
+      return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+    }, 0);
+    const travellingAmountValue = 100; // Fixed travelling amount
+    const bookingAmountValue = 0; // For now, booking amount is 0
+    
+    const calculation = calculateCashCollectionDeduction({
+      billingAmount: billingAmountValue,
+      spareAmount: spareAmountValue,
+      travellingAmount: travellingAmountValue,
+      bookingAmount: bookingAmountValue,
+      gstIncluded: includeGST
+    });
+    
+    return calculation.calculatedAmount;
   };
 
   const handleCashWarningCancel = () => {
     setShowCashWarning(false);
+  };
+
+  const handleWalletCheckProceed = () => {
+    setIsWalletCheckOpen(false);
+    // Proceed with task completion
+    handleNext();
   };
 
   const handleNext = async () => {
@@ -894,6 +927,24 @@ const VendorClosedTask = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Wallet Balance Check Modal */}
+      <WalletBalanceCheck
+        isOpen={isWalletCheckOpen}
+        onClose={() => setIsWalletCheckOpen(false)}
+        onProceed={handleWalletCheckProceed}
+        requiredAmount={calculateRequiredWalletAmount()}
+        action="close_cash_task"
+        taskDetails={{
+          id: taskId || '',
+          caseId: task?.caseId || '',
+          title: task?.title || ''
+        }}
+        onDepositSuccess={() => {
+          // Refresh wallet balance after successful deposit
+          console.log('Deposit successful, wallet balance should be refreshed');
+        }}
+      />
     </div>
   );
 };

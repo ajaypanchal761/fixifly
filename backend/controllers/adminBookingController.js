@@ -232,6 +232,19 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
       adminId: req.admin._id
     });
 
+    // Send WhatsApp notification to user about status update
+    try {
+      await WhatsAppService.sendStatusUpdateToUser(booking, status);
+      logger.info('WhatsApp status update sent to user', {
+        bookingId: booking._id,
+        customerPhone: booking.customer.phone,
+        newStatus: status
+      });
+    } catch (error) {
+      logger.error('Failed to send WhatsApp status update to user:', error);
+      // Don't fail the status update if WhatsApp fails
+    }
+
     res.json({
       success: true,
       message: 'Booking status updated successfully',
@@ -330,8 +343,13 @@ const assignVendor = asyncHandler(async (req, res) => {
     const updateData = {
       'vendor.vendorId': vendorId,
       'vendor.assignedAt': new Date(),
+      'vendor.autoRejectAt': new Date(Date.now() + 10 * 60 * 1000), // Set 10-minute auto-reject timer
       'tracking.updatedAt': new Date(),
-      status: 'confirmed' // Automatically confirm booking when vendor is assigned
+      status: 'confirmed', // Automatically confirm booking when vendor is assigned
+      // Reset vendor response when reassigning to new vendor
+      'vendorResponse.status': 'pending',
+      'vendorResponse.respondedAt': null,
+      'vendorResponse.responseNote': null
     };
 
     // Add scheduled date and time if provided
@@ -379,6 +397,7 @@ const assignVendor = asyncHandler(async (req, res) => {
       vendorId,
       adminId: req.admin._id
     });
+
 
     res.json({
       success: true,

@@ -88,6 +88,7 @@ const getVendors = asyncHandler(async (req, res) => {
     phone: vendor.formattedPhone,
     location: vendor.address ? `${vendor.address.city}, ${vendor.address.state}` : 'Not specified',
     address: vendor.address,
+    serviceLocations: vendor.serviceLocations,
     joinDate: vendor.createdAt,
     status: vendor.isBlocked ? 'blocked' : (vendor.isActive ? 'active' : 'inactive'),
     verificationStatus: vendor.isApproved ? 'verified' : 'pending',

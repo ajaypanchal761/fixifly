@@ -127,7 +127,7 @@ const Header = () => {
   };
 
   const handleCartClick = () => {
-    navigate("/shop");
+    window.open("https://fixfly.in/buy-laptop/", "_blank");
   };
 
   // Close mobile search when clicking outside or pressing escape

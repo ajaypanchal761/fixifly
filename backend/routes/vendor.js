@@ -11,7 +11,10 @@ const {
   deleteVendorProfileImage,
   createDepositOrder,
   verifyDepositPayment,
-  getVendorWallet
+  getVendorWallet,
+  addServiceLocation,
+  updateServiceLocation,
+  removeServiceLocation
 } = require('../controllers/vendorController');
 const {
   getVendorNotifications,
@@ -102,6 +105,22 @@ router.post('/deposit/create-order', protectVendor, createDepositOrder);
 // @desc    Verify vendor deposit payment
 // @access  Private
 router.post('/deposit/verify', protectVendor, verifyDepositPayment);
+
+// Service location routes
+// @route   POST /api/vendors/service-locations
+// @desc    Add service location
+// @access  Private
+router.post('/service-locations', protectVendor, addServiceLocation);
+
+// @route   PUT /api/vendors/service-locations/:locationId
+// @desc    Update service location
+// @access  Private
+router.put('/service-locations/:locationId', protectVendor, updateServiceLocation);
+
+// @route   DELETE /api/vendors/service-locations/:locationId
+// @desc    Remove service location
+// @access  Private
+router.delete('/service-locations/:locationId', protectVendor, removeServiceLocation);
 
 // Routes that require complete profile
 

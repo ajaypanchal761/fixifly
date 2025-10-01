@@ -239,6 +239,46 @@ class BookingApi {
       };
     }
   }
+
+  // Cancel booking by user
+  async cancelBookingByUser(bookingId: string, reason: string): Promise<ApiResponse<{ booking: Booking; bookingReference: string }>> {
+    try {
+      const response = await this.request<{ booking: Booking; bookingReference: string }>(`/bookings/${bookingId}/cancel-by-user`, {
+        method: 'PATCH',
+        body: JSON.stringify({ reason })
+      });
+      return response;
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      return {
+        success: false,
+        message: 'Failed to cancel booking',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  // Reschedule booking by user
+  async rescheduleBookingByUser(bookingId: string, rescheduleData: {
+    newDate: string;
+    newTime: string;
+    reason: string;
+  }): Promise<ApiResponse<{ booking: Booking; rescheduleInfo: any }>> {
+    try {
+      const response = await this.request<{ booking: Booking; rescheduleInfo: any }>(`/bookings/${bookingId}/reschedule-by-user`, {
+        method: 'PATCH',
+        body: JSON.stringify(rescheduleData)
+      });
+      return response;
+    } catch (error) {
+      console.error('Error rescheduling booking:', error);
+      return {
+        success: false,
+        message: 'Failed to reschedule booking',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
 }
 
 // Create singleton instance

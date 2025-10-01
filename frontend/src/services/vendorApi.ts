@@ -8,6 +8,14 @@ interface ApiResponse<T = any> {
   error?: string;
 }
 
+interface ServiceLocation {
+  _id: string;
+  from: string;
+  to: string;
+  isActive: boolean;
+  addedAt: string;
+}
+
 interface Vendor {
   id: string;
   vendorId: string;
@@ -26,6 +34,7 @@ interface Vendor {
     pincode?: string;
     landmark?: string;
   };
+  serviceLocations?: ServiceLocation[];
   profileImage?: string;
   specialty?: string;
   bio?: string;
@@ -89,6 +98,9 @@ class VendorApiService {
     const token = localStorage.getItem('vendorToken');
     if (token) {
       defaultHeaders['Authorization'] = `Bearer ${token}`;
+      console.log('Vendor token found, length:', token.length);
+    } else {
+      console.log('No vendor token found in localStorage');
     }
 
     const config: RequestInit = {
@@ -108,12 +120,22 @@ class VendorApiService {
       
       const response = await fetch(url, config);
       console.log('Response status:', response.status);
+      console.log('Response status text:', response.statusText);
       console.log('Response headers:', response.headers);
+      console.log('Response ok:', response.ok);
       
       const data = await response.json();
       console.log('Response data:', data);
 
       if (!response.ok) {
+        console.error('=== API ERROR RESPONSE ===');
+        console.error('Status:', response.status);
+        console.error('Status text:', response.statusText);
+        console.error('Error data:', data);
+        console.error('URL:', url);
+        console.error('Config:', config);
+        console.error('=== END API ERROR RESPONSE ===');
+        
         // Handle authentication errors
         if (response.status === 401) {
           console.error('Authentication failed:', data);
@@ -171,6 +193,14 @@ class VendorApiService {
     return this.request('/vendors/test', {
       method: 'GET',
     });
+  }
+
+  // Test authentication
+  async testAuth(): Promise<ApiResponse<any>> {
+    console.log('=== TESTING VENDOR AUTH ===');
+    const response = await this.request('/bookings/test-auth');
+    console.log('Auth test response:', response);
+    return response;
   }
 
   // Vendor Registration
@@ -327,25 +357,39 @@ class VendorApiService {
     gstAmount?: number;
     totalAmount?: number;
   }): Promise<ApiResponse<any>> {
-    console.log('Completing task:', { bookingId, completionData });
-    const response = await this.request(`/bookings/${bookingId}/complete`, {
-      method: 'PATCH',
-      body: JSON.stringify({ 
-        completionData: {
-          resolutionNote: completionData.resolutionNote,
-          billingAmount: completionData.billingAmount,
-          spareParts: completionData.spareParts,
-          paymentMethod: completionData.paymentMethod,
-          travelingAmount: completionData.travelingAmount,
-          includeGST: completionData.includeGST,
-          gstAmount: completionData.gstAmount,
-          totalAmount: completionData.totalAmount,
-          completedAt: new Date().toISOString()
-        }
-      }),
-    });
-    console.log('Complete task response:', response);
-    return response;
+    console.log('=== VENDOR API COMPLETE TASK DEBUG ===');
+    console.log('Booking ID:', bookingId);
+    console.log('Completion data:', completionData);
+    console.log('API Base URL:', this.baseURL);
+    console.log('Full endpoint:', `${this.baseURL}/bookings/${bookingId}/complete`);
+    
+    const requestBody = { 
+      completionData: {
+        resolutionNote: completionData.resolutionNote,
+        billingAmount: completionData.billingAmount,
+        spareParts: completionData.spareParts,
+        paymentMethod: completionData.paymentMethod,
+        travelingAmount: completionData.travelingAmount,
+        includeGST: completionData.includeGST,
+        gstAmount: completionData.gstAmount,
+        totalAmount: completionData.totalAmount,
+        completedAt: new Date().toISOString()
+      }
+    };
+    
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+    
+    try {
+      const response = await this.request(`/bookings/${bookingId}/complete`, {
+        method: 'PATCH',
+        body: JSON.stringify(requestBody),
+      });
+      console.log('Complete task response:', response);
+      return response;
+    } catch (error) {
+      console.error('Complete task error:', error);
+      throw error;
+    }
   }
 
   // Reschedule Task
@@ -544,10 +588,34 @@ class VendorApiService {
     });
   }
 
+  // Service Location Methods
+  // Add service location
+  async addServiceLocation(from: string, to: string): Promise<ApiResponse<{ serviceLocations: ServiceLocation[] }>> {
+    return this.request('/vendors/service-locations', {
+      method: 'POST',
+      body: JSON.stringify({ from, to }),
+    });
+  }
+
+  // Update service location
+  async updateServiceLocation(locationId: string, from: string, to: string, isActive: boolean = true): Promise<ApiResponse<{ serviceLocations: ServiceLocation[] }>> {
+    return this.request(`/vendors/service-locations/${locationId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ from, to, isActive }),
+    });
+  }
+
+  // Remove service location
+  async removeServiceLocation(locationId: string): Promise<ApiResponse<{ serviceLocations: ServiceLocation[] }>> {
+    return this.request(`/vendors/service-locations/${locationId}`, {
+      method: 'DELETE',
+    });
+  }
+
 }
 
 // Create singleton instance
 const vendorApiService = new VendorApiService();
 
 export default vendorApiService;
-export type { ApiResponse, Vendor, VendorAuthResponse };
+export type { ApiResponse, Vendor, VendorAuthResponse, ServiceLocation };

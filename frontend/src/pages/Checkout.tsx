@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, CreditCard, Shield, Check, Loader2, User, Mail, Phone, MapPin, LogIn } from "lucide-react";
+import { ArrowLeft, CreditCard, Shield, Check, Loader2, User, Mail, Phone, MapPin, LogIn, Banknote } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -134,7 +134,87 @@ const Checkout = () => {
   const gstAmount = Math.round((subtotal * gstRate) / 100);
   const totalAmount = subtotal + gstAmount;
 
-  const handlePayment = async () => {
+  const handleCashPayment = async (bookingData: BookingData) => {
+    try {
+      // Create booking with cash payment - restructure data to match backend expectations
+      const requestData = {
+        customer: {
+          ...bookingData.customer,
+          phone: bookingData.customer.phone.replace(/^\+91/, '').replace(/^91/, ''), // Remove +91 or 91 prefix for backend
+        },
+        services: bookingData.services,
+        pricing: bookingData.pricing,
+        scheduling: bookingData.scheduling,
+        notes: bookingData.notes,
+        payment: {
+          status: 'pending',
+          method: 'cash',
+          transactionId: `CASH_${Date.now()}`,
+          paidAt: null
+        }
+      };
+
+      console.log('Cash payment booking request data:', requestData);
+      console.log('Date validation:', {
+        scheduledDate: customerData.scheduledDate,
+        dateObject: new Date(customerData.scheduledDate),
+        isValidDate: !isNaN(new Date(customerData.scheduledDate).getTime())
+      });
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const data = await response.json();
+
+      console.log('Cash payment booking response:', {
+        status: response.status,
+        success: data.success,
+        message: data.message,
+        error: data.error,
+        data: data.data
+      });
+
+      if (!data.success) {
+        console.error('Backend error details:', {
+          message: data.message,
+          error: data.error,
+          fullResponse: data
+        });
+        throw new Error(data.message || 'Failed to create booking');
+      }
+
+      toast({
+        title: "Booking Created Successfully!",
+        description: `Your booking has been created with reference: ${data.data.booking.bookingReference}. Payment will be collected on delivery.`,
+        variant: "default"
+      });
+
+      // Navigate to success page or booking details
+      navigate('/booking', { 
+        state: { 
+          bookingReference: data.data.booking.bookingReference,
+          message: "Booking created successfully with cash payment"
+        }
+      });
+
+    } catch (error) {
+      console.error('Error creating cash payment booking:', error);
+      toast({
+        title: "Booking Failed",
+        description: error instanceof Error ? error.message : "Failed to create booking. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePayment = async (paymentMethod: 'razorpay' | 'cash') => {
     try {
       setLoading(true);
       
@@ -167,7 +247,7 @@ const Checkout = () => {
         return;
       }
       
-      // Create booking data for Razorpay
+      // Create booking data
       const bookingData: BookingData = {
         customer: customerData,
         services: checkoutData.cartItems.map(item => ({
@@ -177,51 +257,57 @@ const Checkout = () => {
         })),
         pricing: {
           subtotal: subtotal,
+          serviceFee: 100, // Default service fee
           gstRate: gstRate,
           gstAmount: gstAmount,
           totalAmount: totalAmount
         },
         scheduling: {
-          preferredDate: customerData.scheduledDate,
+          preferredDate: new Date(customerData.scheduledDate),
           preferredTimeSlot: customerData.scheduledTime
         },
         notes: customerData.notes || "Booking created from checkout"
       };
 
-      // Process payment with Razorpay
-      await razorpayService.processBookingPayment(
-        bookingData,
-        // Success callback
-        (response) => {
-          toast({
-            title: "Payment Successful!",
-            description: `Your booking has been confirmed. Reference: ${response.bookingReference}`,
-            variant: "default"
-          });
+      if (paymentMethod === 'cash') {
+        // Handle cash payment
+        await handleCashPayment(bookingData);
+      } else {
+        // Process payment with Razorpay
+        await razorpayService.processBookingPayment(
+          bookingData,
+          // Success callback
+          (response) => {
+            toast({
+              title: "Payment Successful!",
+              description: `Your booking has been confirmed. Reference: ${response.bookingReference}`,
+              variant: "default"
+            });
 
-          // Redirect to booking page with booking data
-          navigate('/booking', { 
-            state: { 
-              booking: response.booking,
-              bookingReference: response.bookingReference,
-              fromCheckout: true 
-            } 
-          });
-        },
-        // Failure callback
-        (error) => {
-          console.error('Payment failed:', error);
-          toast({
-            title: "Payment Failed",
-            description: error instanceof Error ? error.message : "Please try again or contact support.",
-            variant: "destructive"
-          });
-        },
-        // Close callback
-        () => {
-          console.log('Payment modal closed');
-        }
-      );
+            // Redirect to booking page with booking data
+            navigate('/booking', { 
+              state: { 
+                booking: response.booking,
+                bookingReference: response.bookingReference,
+                fromCheckout: true 
+              } 
+            });
+          },
+          // Failure callback
+          (error) => {
+            console.error('Payment failed:', error);
+            toast({
+              title: "Payment Failed",
+              description: error instanceof Error ? error.message : "Please try again or contact support.",
+              variant: "destructive"
+            });
+          },
+          // Close callback
+          () => {
+            console.log('Payment modal closed');
+          }
+        );
+      }
       
     } catch (error) {
       console.error('Payment initialization failed:', error);
@@ -516,9 +602,28 @@ const Checkout = () => {
             </div>
           </div>
           
-          {/* Book Now Button */}
+          {/* Cash on Delivery Button */}
           <Button 
-            onClick={handlePayment}
+            onClick={() => handlePayment('cash')}
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold mb-3"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Creating Booking...
+              </>
+            ) : (
+              <>
+                <Banknote className="h-5 w-5 mr-2" />
+                Cash on Delivery - ₹{totalAmount}
+              </>
+            )}
+          </Button>
+
+          {/* Pay with Razorpay Button */}
+          <Button 
+            onClick={() => handlePayment('razorpay')}
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
           >
@@ -528,7 +633,10 @@ const Checkout = () => {
                 Processing Payment...
               </>
             ) : (
-              `Pay with Razorpay - ₹${totalAmount}`
+              <>
+                <CreditCard className="h-5 w-5 mr-2" />
+                Pay with Razorpay - ₹{totalAmount}
+              </>
             )}
           </Button>
 

@@ -10,7 +10,7 @@ const MobileBottomNav = () => {
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
-    { name: "Shop", href: "/shop", icon: Store },
+    { name: "Shop", href: "https://fixfly.in/buy-laptop/", icon: Store, isExternal: true },
   ];
 
   return (
@@ -19,6 +19,26 @@ const MobileBottomNav = () => {
         {navItems.map((item) => {
           const IconComponent = item.icon;
           const isActive = location.pathname === item.href;
+          
+          if (item.isExternal) {
+            return (
+              <a
+                key={item.name}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center py-2 px-3 rounded-lg transition-colors duration-200 text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              >
+                <IconComponent 
+                  size={20} 
+                  className="mb-1 text-gray-600"
+                />
+                <span className="text-xs font-medium text-gray-600">
+                  {item.name}
+                </span>
+              </a>
+            );
+          }
           
           return (
             <Link

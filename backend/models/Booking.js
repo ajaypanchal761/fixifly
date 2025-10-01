@@ -111,7 +111,7 @@ const bookingSchema = new mongoose.Schema({
     },
     method: {
       type: String,
-      enum: ['card', 'upi', 'netbanking', 'wallet'],
+      enum: ['card', 'upi', 'netbanking', 'wallet', 'cash'],
       default: 'card'
     },
     transactionId: {
@@ -173,6 +173,13 @@ const bookingSchema = new mongoose.Schema({
     },
     assignedAt: {
       type: Date
+    },
+    autoRejectAt: {
+      type: Date,
+      default: function() {
+        // Set auto-reject time to 10 minutes from assignment
+        return new Date(Date.now() + 10 * 60 * 1000);
+      }
     }
   },
 
@@ -394,6 +401,7 @@ bookingSchema.methods.updateStatus = function(newStatus) {
 bookingSchema.methods.assignVendor = function(vendorId) {
   this.vendor.vendorId = vendorId;
   this.vendor.assignedAt = new Date();
+  this.vendor.autoRejectAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
   return this.save();
 };
 
