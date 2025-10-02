@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import oneSignalService from '@/services/oneSignalService';
 
 interface ServiceLocation {
   _id: string;
@@ -151,16 +150,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
     setVendor(vendorWithWallet);
   };
 
-  const logout = async () => {
-    // Clear OneSignal external user ID
-    try {
-      await oneSignalService.clearExternalId();
-      console.log('OneSignal external user ID cleared on logout');
-    } catch (error) {
-      console.error('Error clearing OneSignal external user ID:', error);
-      // Don't fail logout if OneSignal fails
-    }
-
+  const logout = () => {
     localStorage.removeItem('vendorToken');
     localStorage.removeItem('vendorData');
     setVendor(null);

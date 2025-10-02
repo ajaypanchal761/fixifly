@@ -971,25 +971,6 @@ const verifyDepositPayment = asyncHandler(async (req, res) => {
       // Don't fail the transaction if email fails
     }
 
-    // Send OneSignal notification
-    try {
-      const oneSignalService = require('../services/oneSignalService');
-      await oneSignalService.sendVendorWalletNotification(vendor._id.toString(), {
-        type: 'deposit',
-        amount: pendingTransaction.amount,
-        description: 'Wallet deposit via Razorpay',
-        transactionId: transactionId,
-        newBalance: vendor.wallet.currentBalance
-      });
-      logger.info('OneSignal notification sent for deposit', {
-        vendorId: vendor.vendorId,
-        amount: pendingTransaction.amount
-      });
-    } catch (notificationError) {
-      logger.error('Failed to send OneSignal notification for deposit:', notificationError);
-      // Don't fail the transaction if notification fails
-    }
-
     // Get updated wallet data
     const updatedVendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
 

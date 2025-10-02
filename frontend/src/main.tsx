@@ -3,9 +3,6 @@ import App from "./App.tsx";
 import "./index.css";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import OneSignalFallback from "./components/OneSignalFallback";
-import "./utils/testOneSignalDomain"; // Auto-test OneSignal domain configuration
-import "./utils/testDomainFix"; // Auto-test domain fix
 
 // Initialize AOS
 AOS.init({
@@ -15,8 +12,4 @@ AOS.init({
   offset: 100
 });
 
-createRoot(document.getElementById("root")!).render(
-  <OneSignalFallback>
-    <App />
-  </OneSignalFallback>
-);
+createRoot(document.getElementById("root")!).render(<App />);

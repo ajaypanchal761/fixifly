@@ -30,51 +30,6 @@
     
     <!-- Razorpay -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    
-    <!-- OneSignal -->
-    <script>
-      // Check domain before loading OneSignal SDK
-      const allowedDomains = ['fixifly.vercel.app', 'fixifly.com', 'localhost', '127.0.0.1'];
-      const currentDomain = window.location.hostname;
-      
-      if (allowedDomains.includes(currentDomain)) {
-        // Load OneSignal SDK only on allowed domains
-        const script = document.createElement('script');
-        script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-        script.defer = true;
-        document.head.appendChild(script);
-        
-        // Initialize OneSignal after SDK loads
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(async function(OneSignal) {
-          try {
-            await OneSignal.init({
-              appId: "fee060ab-695d-45ca-8e35-8fa71ae5b6e0",
-            });
-            console.log('OneSignal initialized successfully for domain:', currentDomain);
-          } catch (error) {
-            console.warn('OneSignal initialization failed:', error);
-          }
-        });
-      } else {
-        console.warn('OneSignal not loaded - domain not allowed:', currentDomain);
-        console.log('Allowed domains:', allowedDomains);
-        console.log('OneSignal will not be available on this domain');
-        
-        // Create a mock OneSignal object to prevent errors
-        window.OneSignal = {
-          _isMock: true, // Flag to identify mock
-          init: () => Promise.resolve(),
-          setExternalUserId: () => Promise.resolve(),
-          removeExternalUserId: () => Promise.resolve(),
-          showNativePrompt: () => Promise.resolve(false),
-          getNotificationPermission: () => Promise.resolve('denied'),
-          getUserId: () => Promise.resolve(null),
-          on: () => {},
-          isPushNotificationsEnabled: () => Promise.resolve(false)
-        };
-      }
-    </script>
   </head>
 
   <body>

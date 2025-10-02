@@ -352,38 +352,6 @@ const assignVendorToClaim = asyncHandler(async (req, res) => {
     });
   }
 
-  // Send OneSignal notification to vendor
-  try {
-    const oneSignalService = require('../services/oneSignalService');
-    const vendor = await Vendor.findById(vendorId);
-    
-    if (vendor) {
-      await oneSignalService.sendVendorAssignmentNotification(vendor._id.toString(), {
-        type: 'warranty_claim',
-        id: claim._id.toString(),
-        title: `Warranty Claim - ${claim.item}`,
-        description: claim.issueDescription,
-        priority: 'high',
-        customerName: claim.userId?.name || 'Customer',
-        customerPhone: claim.userId?.phone || claim.userId?.mobile || '',
-        scheduledDate: null,
-        scheduledTime: null
-      });
-      
-      logger.info('OneSignal notification sent to vendor for warranty claim assignment', {
-        vendorId: vendor._id,
-        claimId: claim._id
-      });
-    }
-  } catch (notificationError) {
-    logger.error('Error sending OneSignal notification for warranty claim assignment:', {
-      error: notificationError.message,
-      vendorId,
-      claimId: claim._id
-    });
-    // Don't fail the assignment if notification fails
-  }
-
   // Log activity
   await req.admin.logActivity(
     'ASSIGN_VENDOR_WARRANTY_CLAIM',
