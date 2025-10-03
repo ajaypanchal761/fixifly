@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Connection Test</title>
+</head>
+<body>
+    <h1>Fixifly API Connection Test</h1>
+    <button onclick="testBookingApi()">Test Booking API</button>
+    <button onclick="testHealthCheck()">Test Health Check</button>
+    <div id="results"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        
+        async function testHealthCheck() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += '<br>Testing health check...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                const data = await response.json();
+                resultsDiv.innerHTML += '<br>✅ Health check: ' + JSON.stringify(data);
+            } catch (error) {
+                resultsDiv.innerHTML += '<br>❌ Health check failed: ' + error.message;
+            }
+        }
+        
+        async function testBookingApi() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += '<br>Testing booking API...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/bookings/test`);
+                const data = await response.json();
+                resultsDiv.innerHTML += '<br>✅ Booking API: ' + JSON.stringify(data);
+            } catch (error) {
+                resultsDiv.innerHTML += '<br>❌ Booking API failed: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

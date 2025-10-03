@@ -91,6 +91,10 @@ class BookingApi {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
+    console.log('Booking API making request to:', url);
+    console.log('Base URL:', this.baseURL);
+    console.log('API_BASE_URL:', API_BASE_URL);
+    
     const config: RequestInit = {
       ...options,
       headers: {
@@ -100,16 +104,27 @@ class BookingApi {
     };
 
     try {
+      console.log('Booking API request config:', config);
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      console.log('Booking API response status:', response.status);
+      console.log('Booking API response ok:', response.ok);
 
       if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
 
+      const data = await response.json();
+      console.log('Booking API success response:', data);
       return data;
     } catch (error) {
       console.error('Booking API request failed:', error);
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        console.error('Network error - backend might be down or CORS issue');
+        console.error('Backend URL:', url);
+        console.error('Check if backend is running on:', this.baseURL);
+      }
       throw error;
     }
   }

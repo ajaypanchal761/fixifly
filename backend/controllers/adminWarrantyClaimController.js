@@ -314,42 +314,12 @@ const assignVendorToClaim = asyncHandler(async (req, res) => {
   await claim.save();
 
   // Create notification for vendor
-  const VendorNotification = require('../models/VendorNotification');
-  const Vendor = require('../models/Vendor');
-  
   try {
-    const vendor = await Vendor.findById(vendorId);
-    if (vendor) {
-      await VendorNotification.create({
-        vendorId: vendorId,
-        type: 'warranty_claim',
-        title: 'New Warranty Claim Assignment',
-        message: `You have been assigned a new warranty claim for ${claim.item}. Please review the details and take action.`,
-        data: {
-          claimId: claim._id,
-          subscriptionId: claim.subscriptionId,
-          item: claim.item,
-          issueDescription: claim.issueDescription,
-          userId: claim.userId,
-          userPhone: claim.userId?.phone || claim.userId?.mobile,
-          userAddress: claim.userId?.address,
-          assignedAt: new Date()
-        },
-        priority: 'high'
-      });
-      
-      logger.info('Vendor notification created for warranty claim assignment', {
-        vendorId: vendorId,
-        claimId: claim._id,
-        notificationType: 'warranty_claim'
-      });
-    }
+    const { createWarrantyClaimAssignmentNotification } = require('./vendorNotificationController');
+    await createWarrantyClaimAssignmentNotification(vendorId, claim);
   } catch (notificationError) {
-    logger.error('Failed to create vendor notification', {
-      error: notificationError.message,
-      vendorId: vendorId,
-      claimId: claim._id
-    });
+    logger.error('Error creating vendor notification for warranty claim assignment:', notificationError);
+    // Don't fail the assignment if notification fails
   }
 
   // Log activity

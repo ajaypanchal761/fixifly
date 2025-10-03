@@ -115,6 +115,7 @@ class VendorApiService {
       console.log('Making vendor API request to:', url);
       console.log('Request config:', config);
       console.log('Base URL:', this.baseURL);
+      console.log('API_BASE_URL:', API_BASE_URL);
       console.log('Endpoint:', endpoint);
       console.log('Token exists:', !!token);
       
@@ -158,8 +159,11 @@ class VendorApiService {
         response: error.response?.data
       });
       
-      // Handle Network errors
-      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch')) {
+      // Handle Network errors  
+      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch') || error.name === 'TypeError') {
+        console.error('Network error - backend might be down or CORS issue');
+        console.error('Backend URL:', url);
+        console.error('Check if backend is running on:', this.baseURL);
         throw new Error('Network error: Please check your internet connection and try again.');
       }
       

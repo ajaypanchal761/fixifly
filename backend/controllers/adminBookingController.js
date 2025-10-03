@@ -392,12 +392,20 @@ const assignVendor = asyncHandler(async (req, res) => {
       });
     }
 
+    // Create notification for vendor
+    try {
+      const { createBookingAssignmentNotification } = require('./vendorNotificationController');
+      await createBookingAssignmentNotification(vendorId, booking);
+    } catch (notificationError) {
+      logger.error('Error creating vendor notification for booking assignment:', notificationError);
+      // Don't fail the assignment if notification fails
+    }
+
     logger.info(`Admin assigned vendor to booking: ${booking.bookingReference}`, {
       bookingId: booking._id,
       vendorId,
       adminId: req.admin._id
     });
-
 
     res.json({
       success: true,

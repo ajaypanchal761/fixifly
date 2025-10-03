@@ -30,6 +30,89 @@
     
     <!-- Razorpay -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <!-- OneSignal Environment Detection - Runs BEFORE OneSignal CDN -->
+    <script>
+      // Early environment detection to prevent IndexedDB errors
+      (function() {
+        'use strict';
+        
+        function detectProblematicEnvironment() {
+          try {
+            // Check if IndexedDB is available
+            if (!window.indexedDB) {
+              console.warn('🚫 OneSignal: IndexedDB not available - browser in restricted mode');
+              return 'indexeddb_unavailable';
+            }
+
+            // Check if we're in incognito/private browsing mode
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isPrivateBrowsing = userAgent.includes('private') || userAgent.includes('incognito');
+            
+            if (isPrivateBrowsing) {
+              console.warn('🚫 OneSignal: Private/incognito browsing detected');
+              return 'private_browsing';
+            }
+
+            // Check for other problematic environments
+            if (window.opener && window.opener.location && window.opener.location.href.includes('chrome-extension://')) {
+              console.warn('🚫 OneSignal: Chrome extension environment detected');
+              return 'chrome_extension';
+            }
+
+            // Test IndexedDB capability
+            try {
+              const testRequest = indexedDB.open('onesignal-detection-test');
+              testRequest.onerror = () => {
+                console.warn('🚫 OneSignal: IndexedDB access failed during detection');
+                window.OneSignalIndexedDBError = true;
+              };
+              
+              testRequest.onsuccess = () => {
+                try {
+                  testRequest.result.close();
+                  indexedDB.deleteDatabase('onesignal-detection-test');
+                } catch (e) {
+                  console.warn('🚫 OneSignal: IndexedDB cleanup failed');
+                }
+              };
+            } catch (e) {
+              console.warn('🚫 OneSignal: IndexedDB test threw error:', e.message);
+              return 'indexeddb_blocked';
+            }
+
+            return null; // Environment looks good
+          } catch (error) {
+            console.warn('🚫 OneSignal: Environment detection failed:', error.message);
+            return 'detection_error';
+          }
+        }
+
+        // Run detection immediately
+        const problematicReason = detectProblematicEnvironment();
+        
+        if (problematicReason) {
+          console.warn('🚫 OneSignal: Will be disabled due to ' + problematicReason);
+          window.OneSignalIndexedDBError = true;
+          window.OneSignalForceDisabled = true;
+          console.info('📧 Email/SMS notifications will be used instead');
+          
+          // Override OneSignal global to prevent unwanted initialization
+          window.OneSignal = {
+            isInitialized: false,
+            init: function() {
+              console.warn('🚫 OneSignal: Skipped initialization due to environment detection');
+              return Promise.resolve(false);
+            },
+            __FORCE_DISABLED: true
+          };
+        } else {
+          console.info('✅ OneSignal: Environment looks good for initialization');
+        }
+      })();
+    </script>
+    
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   </head>
 
   <body>

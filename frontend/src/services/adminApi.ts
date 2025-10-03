@@ -81,35 +81,41 @@ interface AdminProfileResponse {
 
 class AdminApiService {
   private getAccessToken(): string | null {
-    const token = localStorage.getItem('adminToken');
-    return token && typeof token === 'string' && token.trim() !== '' && token !== 'undefined' ? token : null;
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (!token || typeof token !== 'string' || token.trim() === '' || token === 'undefined' || token === 'null') {
+        return null;
+      }
+      return token;
+    } catch (error) {
+      console.error('Error getting access token:', error);
+      return null;
+    }
   }
 
   private getAuthHeaders() {
-    const token = localStorage.getItem('adminToken');
-    const refreshToken = localStorage.getItem('adminRefreshToken');
-    const adminData = localStorage.getItem('adminData');
-    
-    console.log('Admin token retrieval debug:', {
-      token: token ? `${token.substring(0, 20)}...` : 'null',
-      tokenLength: token?.length || 0,
-      refreshToken: refreshToken ? `${refreshToken.substring(0, 20)}...` : 'null',
-      refreshTokenLength: refreshToken?.length || 0,
-      adminData: adminData ? 'present' : 'null',
-      tokenType: typeof token,
-      tokenValue: token === 'undefined' ? 'UNDEFINED STRING' : 'valid'
-    });
-    
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    };
-    
-    if (token && typeof token === 'string' && token.trim() !== '' && token !== 'undefined') {
-      headers['Authorization'] = `Bearer ${token}`;
+    try {
+      const token = this.getAccessToken();
+      const refreshToken = localStorage.getItem('adminRefreshToken');
+      const adminData = localStorage.getItem('adminData');
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        console.warn('No valid admin token found. User may need to login again.');
+      }
+      
+      return headers;
+    } catch (error) {
+      console.error('Error getting auth headers:', error);
+      return {
+        'Content-Type': 'application/json'
+      };
     }
-    
-    console.log('Auth headers object:', headers);
-    return headers;
   }
 
   async register(adminData: AdminRegisterData): Promise<AdminResponse> {
@@ -1349,6 +1355,12 @@ class AdminApiService {
     };
   }> {
     try {
+      // Check if we have a valid token
+      const token = this.getAccessToken();
+      if (!token) {
+        throw new Error('No valid authentication token found. Please login again.');
+      }
+
       const params = new URLSearchParams();
       if (month) params.append('month', month.toString());
       if (year) params.append('year', year.toString());
@@ -1356,14 +1368,24 @@ class AdminApiService {
       const queryString = params.toString();
       const url = `${API_BASE_URL}/admin/dashboard${queryString ? `?${queryString}` : ''}`;
       
+      console.log('Dashboard stats request to:', url);
+
       const response = await fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
 
+      console.log('Dashboard stats response status:', response.status);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || `HTTP error! status: ${response.status}`);
+        if (response.status === 401) {
+          // Token might be expired, try to clear auth data
+          this.clearAuthData();
+          throw new Error('Authentication expired. Please login again.');
+        }
+        
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       return await response.json();

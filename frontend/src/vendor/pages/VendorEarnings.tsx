@@ -22,19 +22,9 @@ const VendorEarnings = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [activeFilter, setActiveFilter] = useState('All');
   const { vendor, updateVendor } = useVendor();
+  const { toast } = useToast(); // Move useToast before any conditional returns
   
-  // Defensive check for vendor context
-  if (!vendor) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading vendor data...</p>
-        </div>
-      </div>
-    );
-  }
-  const { toast } = useToast();
+  // All useState hooks must be declared before ANY conditional returns
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState('3999');
   const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
@@ -43,11 +33,6 @@ const VendorEarnings = () => {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [isProcessingWithdraw, setIsProcessingWithdraw] = useState(false);
-
-  // Show 404 error on desktop
-  if (!isMobile) {
-    return <NotFound />;
-  }
 
   const [transactionHistory, setTransactionHistory] = useState([]);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
@@ -65,22 +50,7 @@ const VendorEarnings = () => {
   const [loadingWallet, setLoadingWallet] = useState(true);
   const [isUpdatingFromAPI, setIsUpdatingFromAPI] = useState(false);
 
-  // Add sample transaction for testing if no transactions exist
-  useEffect(() => {
-    const balance = walletData.currentBalance || vendor?.wallet?.currentBalance || 0;
-    if (transactionHistory.length === 0 && !loadingTransactions && balance > 0) {
-      const sampleTransaction = {
-        id: 'sample-deposit',
-        caseId: 'DEP-001',
-        type: 'Payment Received',
-        amount: 3999,
-        date: new Date().toISOString().split('T')[0],
-        status: 'completed',
-        description: 'Initial security deposit'
-      };
-      setTransactionHistory([sampleTransaction]);
-    }
-  }, [transactionHistory.length, loadingTransactions, walletData.currentBalance, vendor?.wallet?.currentBalance]);
+  // Note: Sample transaction logic removed - now calculating balance from actual transaction history
 
   // Fetch wallet data on component mount
   useEffect(() => {
@@ -422,6 +392,23 @@ const VendorEarnings = () => {
     }
   }, [vendor?.vendorId]);
 
+  // Defensive check for vendor context - MOVED AFTER ALL HOOKS
+  if (!vendor) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading vendor data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show 404 error on desktop - MOVED AFTER ALL HOOKS
+  if (!isMobile) {
+    return <NotFound />;
+  }
+
   // Calculate wallet values from state
   const totalEarnings = walletData.summary?.totalEarnings || 0;
   
@@ -445,13 +432,35 @@ const VendorEarnings = () => {
   console.log('Vendor ID:', vendor?.vendorId);
   console.log('Using fallback logic for vendor:', vendor?.vendorId);
   
-  const availableBalance = Math.max(0, currentBalance - 3999); // Available for withdrawal
+  // Calculate actual balance from transaction history if wallet data doesn't have it
+  let actualCurrentBalance = currentBalance;
+  
+  if (actualCurrentBalance === 0 && transactionHistory.length > 0) {
+    // Calculate balance from transaction history
+    const calculatedBalance = transactionHistory.reduce((total, transaction) => {
+      if (transaction.amount > 0) {
+        return total + transaction.amount; // Add deposits/payments
+      } else {
+        return total + transaction.amount; // Subtract withdrawals/penalties
+      }
+    }, 0);
+    
+    actualCurrentBalance = Math.max(0, calculatedBalance);
+    console.log('🔄 Calculated balance from transactions:', calculatedBalance);
+  }
+  
+  const availableBalance = Math.max(0, actualCurrentBalance - 3999); // Available for withdrawal
   const totalWithdrawn = walletData.summary?.totalWithdrawals || 0;
+  
+  console.log('💰 Final Balance Calculation:');
+  console.log('- API Balance:', currentBalance);
+  console.log('- Calculated Balance:', actualCurrentBalance);
+  console.log('- Available Balance:', availableBalance);
   
   // Check hasInitialDeposit from multiple sources - once deposit is made, always show Yes
   const hasInitialDeposit = vendor?.wallet?.hasInitialDeposit || 
                            walletData.hasInitialDeposit || 
-                           (currentBalance >= 3999 && currentBalance > 0) ||
+                           (actualCurrentBalance >= 3999 && actualCurrentBalance > 0) ||
                            (vendor?.wallet?.totalDeposits > 0) ||
                            (walletData.totalDeposits > 0);
   
@@ -459,7 +468,7 @@ const VendorEarnings = () => {
   console.log('=== CURRENT STATE ===');
   console.log('Vendor ID:', vendor?.vendorId);
   console.log('Wallet data:', walletData);
-  console.log('Current balance:', currentBalance);
+  console.log('Current balance:', actualCurrentBalance);
   console.log('Has initial deposit:', hasInitialDeposit);
   console.log('Loading wallet:', loadingWallet);
   
@@ -594,10 +603,10 @@ const VendorEarnings = () => {
       return;
     }
 
-    if (amount > walletData.currentBalance) {
+    if (amount > actualCurrentBalance) {
       toast({
         title: "Insufficient Balance",
-        description: `You can only withdraw up to ₹${walletData.currentBalance.toLocaleString()}.`,
+        description: `You can only withdraw up to ₹${actualCurrentBalance.toLocaleString()}.`,
         variant: "destructive"
       });
       return;
@@ -808,7 +817,7 @@ const VendorEarnings = () => {
                       </div>
                     ) : (
                       <div>
-                        <p className="text-lg font-bold text-primary">₹{availableBalance.toLocaleString()}</p>
+                        <p className="text-lg font-bold text-primary">₹{actualCurrentBalance.toLocaleString()}</p>
                       </div>
                     )}
                   </div>
@@ -894,11 +903,11 @@ const VendorEarnings = () => {
                             value={withdrawAmount}
                             onChange={(e) => setWithdrawAmount(e.target.value)}
                             placeholder="Enter amount"
-                            min="1"
-                            max={walletData.currentBalance}
+                            min={actualCurrentBalance <= 3999 ? "0" : "1"}
+                            max={actualCurrentBalance}
                           />
                           <p className="text-sm text-muted-foreground mt-1">
-                            Available balance: ₹{walletData.currentBalance.toLocaleString()}
+                            Available balance: ₹{actualCurrentBalance.toLocaleString()}
                           </p>
                         </div>
                         
@@ -929,13 +938,13 @@ const VendorEarnings = () => {
                     </DialogContent>
                   </Dialog>
                   
-                  <button 
-                    className="btn-tech text-sm py-2 px-6"
-                    onClick={() => setIsWithdrawModalOpen(true)}
-                    disabled={!hasInitialDeposit}
-                  >
-                    Withdraw
-                  </button>
+                    <button 
+                      className="btn-tech text-sm py-2 px-6"
+                      onClick={() => setIsWithdrawModalOpen(true)}
+                      disabled={!hasInitialDeposit || actualCurrentBalance <= 3999}
+                    >
+                      Withdraw
+                    </button>
                 </div>
               </div>
             </div>

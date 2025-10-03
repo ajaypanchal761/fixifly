@@ -145,6 +145,11 @@ const userSchema = new mongoose.Schema({
     lastLoginAt: {
       type: Date,
       default: null
+    },
+    
+    lastSubscriptionUpdate: {
+      type: Date,
+      default: null
     }
   }
 }, {

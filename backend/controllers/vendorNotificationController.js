@@ -1,8 +1,10 @@
+const mongoose = require('mongoose');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const VendorNotification = require('../models/VendorNotification');
 const SupportTicket = require('../models/SupportTicket');
 const Vendor = require('../models/Vendor');
+const oneSignalService = require('../services/oneSignalService');
 
 // @desc    Get vendor notifications
 // @route   GET /api/vendor/notifications
@@ -328,8 +330,27 @@ const getVendorDashboard = asyncHandler(async (req, res) => {
 // @access  Private (Admin) - This will be called from admin controller
 const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, ticketData) => {
   try {
+    // Convert vendorId string to ObjectId by finding the vendor if needed
+    let vendorObjectId = vendorId;
+    if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+      // vendorId is a string like "967", need to find the vendor
+      const Vendor = require('../models/Vendor');
+      const vendor = await Vendor.findOne({ vendorId: vendorId });
+      if (!vendor) {
+        throw new Error(`Vendor with ID ${vendorId} not found`);
+      }
+      vendorObjectId = vendor._id;
+      
+      logger.info('Converted string vendorId to ObjectId for support ticket notification', {
+        originalVendorId: vendorId,
+        vendorObjectId: vendorObjectId,
+        vendorName: `${vendor.firstName} ${vendor.lastName}`,
+        ticketId: ticketData.ticketId
+      });
+    }
+
     const notification = new VendorNotification({
-      vendorId,
+      vendorId: vendorObjectId,
       type: 'support_ticket_assignment',
       title: 'New Support Ticket Assigned',
       message: `A new support ticket "${ticketData.subject}" has been assigned to you. Please review and take action.`,
@@ -349,6 +370,29 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
 
     await notification.save();
 
+    // Send push notification via OneSignal
+    try {
+      // For OneSignal, we need to use the original vendorId (string) if it was a string
+      const pushVendorId = (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) ? vendorId : vendorObjectId.toString();
+      await oneSignalService.sendTaskAssignmentNotification(
+        pushVendorId, 
+        ticketData, 
+        'support_ticket'
+      );
+      
+      logger.info('Push notification sent successfully for support ticket assignment', {
+        vendorId,
+        ticketId: ticketData.ticketId
+      });
+    } catch (pushError) {
+      logger.error('Failed to send push notification for support ticket assignment', {
+        error: pushError.message,
+        vendorId,
+        ticketId: ticketData.ticketId
+      });
+      // Don't fail the notification creation if push notification fails
+    }
+
     logger.info('Support ticket assignment notification created', {
       vendorId,
       ticketId: ticketData.ticketId,
@@ -366,11 +410,192 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
   }
 });
 
+// @desc    Create booking assignment notification
+// @route   POST /api/vendor/notifications/create-booking-assignment
+// @access  Private (Admin) - This will be called from admin controller
+const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookingData) => {
+  try {
+    // Convert vendorId string to ObjectId by finding the vendor
+    let vendorObjectId = vendorId;
+    if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+      // vendorId is a string like "967", need to find the vendor
+      const Vendor = require('../models/Vendor');
+      const vendor = await Vendor.findOne({ vendorId: vendorId });
+      if (!vendor) {
+        throw new Error(`Vendor with ID ${vendorId} not found`);
+      }
+      vendorObjectId = vendor._id;
+      
+      logger.info('Converted string vendorId to ObjectId for notification', {
+        originalVendorId: vendorId,
+        vendorObjectId: vendorObjectId,
+        vendorName: `${vendor.firstName} ${vendor.lastName}`
+      });
+    }
+
+    const notification = new VendorNotification({
+      vendorId: vendorObjectId,
+      type: 'booking_assignment',
+      title: 'New Service Booking Assigned',
+      message: `A new service booking for ${bookingData.customer?.name} has been assigned to you. Please review and take action.`,
+      data: {
+        bookingId: bookingData._id,
+        customerName: bookingData.customer?.name,
+        customerEmail: bookingData.customer?.email,
+        customerPhone: bookingData.customer?.phone,
+        customerAddress: bookingData.customer?.address,
+        services: bookingData.services,
+        scheduledDate: bookingData.scheduling?.scheduledDate,
+        scheduledTime: bookingData.scheduling?.scheduledTime,
+        priority: bookingData.priority,
+        totalAmount: bookingData.pricing?.totalAmount,
+        assignedAt: new Date()
+      },
+      priority: bookingData.priority === 'urgent' || bookingData.priority === 'high' ? 'high' : 'medium'
+    });
+
+    await notification.save();
+
+    // Send push notification via OneSignal
+    try {
+      // For OneSignal, we need to use the original vendorId (string) if it was a string
+      const pushVendorId = (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) ? vendorId : vendorObjectId.toString();
+      await oneSignalService.sendTaskAssignmentNotification(
+        pushVendorId, 
+        bookingData, 
+        'booking'
+      );
+      
+      logger.info('Push notification sent successfully for booking assignment', {
+        vendorId,
+        bookingId: bookingData._id
+      });
+    } catch (pushError) {
+      logger.error('Failed to send push notification for booking assignment', {
+        error: pushError.message,
+        vendorId,
+        bookingId: bookingData._id
+      });
+      // Don't fail the notification creation if push notification fails
+    }
+
+    logger.info('Booking assignment notification created', {
+      vendorId,
+      bookingId: bookingData._id,
+      notificationId: notification._id
+    });
+
+    return notification;
+  } catch (error) {
+    logger.error('Error creating booking assignment notification:', {
+      error: error.message,
+      vendorId,
+      bookingId: bookingData._id
+    });
+    throw error;
+  }
+});
+
+// @desc    Create warranty claim assignment notification
+// @route   POST /api/vendor/notifications/create-warranty-assignment
+// @access  Private (Admin) - This will be called from admin controller
+const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, claimData) => {
+  try {
+    // Convert vendorId string to ObjectId by finding the vendor if needed
+    let vendorObjectId = vendorId;
+    if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+      // vendorId is a string like "967", need to find the vendor
+      const Vendor = require('../models/Vendor');
+      const vendor = await Vendor.findOne({ vendorId: vendorId });
+      if (!vendor) {
+        throw new Error(`Vendor with ID ${vendorId} not found`);
+      }
+      vendorObjectId = vendor._id;
+      
+      logger.info('Converted string vendorId to ObjectId for warranty claim notification', {
+        originalVendorId: vendorId,
+        vendorObjectId: vendorObjectId,
+        vendorName: `${vendor.firstName} ${vendor.lastName}`,
+        claimId: claimData._id
+      });
+    }
+
+    const notification = new VendorNotification({
+      vendorId: vendorObjectId,
+      type: 'warranty_claim',
+      title: 'New Warranty Claim Assignment',
+      message: `You have been assigned a new warranty claim for ${claimData.item}. Please review the details and take action.`,
+      data: {
+        claimId: claimData._id,
+        subscriptionId: claimData.subscriptionId,
+        item: claimData.item,
+        issueDescription: claimData.issueDescription,
+        userId: claimData.userId,
+        userPhone: claimData.userId?.phone || claimData.userId?.mobile,
+        userAddress: claimData.userId?.address,
+        assignedAt: new Date()
+      },
+      priority: 'high'
+    });
+
+    await notification.save();
+
+    // Send push notification via OneSignal
+    try {
+      const pushData = {
+        title: '🛠️ New Warranty Claim Assigned',
+        message: `Warranty claim for ${claimData.item}`,
+        data: {
+          claimId: claimData._id,
+          item: claimData.item,
+          issueDescription: claimData.issueDescription,
+          type: 'warranty_claim_assignment',
+          action: 'view_claim'
+        },
+        priority: 'high'
+      };
+
+      // For OneSignal, we need to use the original vendorId (string) if it was a string
+      const pushVendorId = (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) ? vendorId : vendorObjectId.toString();
+      await oneSignalService.sendToVendor(pushVendorId, pushData);
+      
+      logger.info('Push notification sent successfully for warranty claim assignment', {
+        vendorId,
+        claimId: claimData._id
+      });
+    } catch (pushError) {
+      logger.error('Failed to send push notification for warranty claim assignment', {
+        error: pushError.message,
+        vendorId,
+        claimId: claimData._id
+      });
+      // Don't fail the notification creation if push notification fails
+    }
+
+    logger.info('Warranty claim assignment notification created', {
+      vendorId,
+      claimId: claimData._id,
+      notificationId: notification._id
+    });
+
+    return notification;
+  } catch (error) {
+    logger.error('Error creating warranty claim assignment notification:', {
+      error: error.message,
+      vendorId,
+      claimId: claimData._id
+    });
+    throw error;
+  }
+});
+
 module.exports = {
   getVendorNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
   getVendorSupportTickets,
   getVendorDashboard,
-  createSupportTicketAssignmentNotification
+  createSupportTicketAssignmentNotification,
+  createBookingAssignmentNotification,
+  createWarrantyClaimAssignmentNotification
 };

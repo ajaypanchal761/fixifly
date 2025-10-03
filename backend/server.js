@@ -72,8 +72,9 @@ app.use(cors({
     process.env.CORS_ORIGIN || 'http://localhost:3000',
     'http://localhost:8080', // Frontend Vite dev server
     'http://localhost:8081', // Frontend Vite dev server (alternative port)
-    'http://localhost:5173' ,
-    'https://fixifly.vercel.app'// Alternative Vite port
+    'http://localhost:5173', // Alternative Vite port
+    'http://localhost:3001', // Additional frontend port
+    'https://fixifly.vercel.app' // Production frontend
   ],
   credentials: true
 }));

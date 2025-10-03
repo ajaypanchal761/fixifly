@@ -116,8 +116,13 @@ class AdminBookingApi {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
-    // Get admin token from localStorage
+    // Get admin token from localStorage and validate it
     const token = localStorage.getItem('adminToken');
+    
+    if (!token || typeof token !== 'string' || token.trim() === '' || token === 'undefined' || token === 'null') {
+      console.warn('No valid admin token found in Admin Booking API request');
+      throw new Error('No valid authentication token found. Please login again.');
+    }
     
     const config: RequestInit = {
       ...options,
@@ -129,13 +134,26 @@ class AdminBookingApi {
     };
 
     try {
+      console.log('Admin Booking API request:', url);
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      console.log('Admin Booking API response status:', response.status);
 
       if (!response.ok) {
+        if (response.status === 401) {
+          // Clear auth data on 401 errors
+          localStorage.removeItem('adminAuthData');
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminRefreshToken');
+          localStorage.removeItem('adminData');
+          throw new Error('Authentication expired. Please login again.');
+        }
+        
+        const data = await response.json().catch(() => ({}));
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
 
+      const data = await response.json();
       return data;
     } catch (error) {
       console.error('Admin Booking API request failed:', error);

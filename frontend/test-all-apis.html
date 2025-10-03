@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixifly API Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Fixifly All APIs Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>Backend Server Tests</h2>
+        <button onclick="testHealthCheck()">Test Health Check</button>
+        <button onclick="testBookingAPI()">Test Booking API</button>
+        <button onclick="testBannerAPI()">Test Banner API</button>
+        <div id="backend-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Authentication Tests (Mock)</h2>
+        <button onclick="testMockVendorLogin()">Test Mock Vendor Login</button>
+        <button onclick="testMockVendorRequest()">Test Mock Vendor Request</button>
+        <div id="auth-results"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        
+        function addResult(containerId, message, isSuccess = false) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `result ${isSuccess ? 'success' : 'error'}`;
+            div.innerHTML = message;
+            container.appendChild(div);
+        }
+        
+        async function testHealthCheck() {
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                const data = await response.json();
+                addResult('backend-results', `✅ Health check: ${JSON.stringify(data)}`, true);
+            } catch (error) {
+                addResult('backend-results', `❌ Health check failed: ${error.message}`);
+            }
+        }
+        
+        async function testBookingAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/bookings/test`);
+                const data = await response.json();
+                addResult('backend-results', `✅ Booking API: ${JSON.stringify(data)}`)， true);
+            } catch (error) {
+                addResult('backend-results', `❌ Booking API failed: ${error.message}`);
+            }
+        }
+        
+        async function testBannerAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/banners`);
+                const data = await response.json();
+                addResult('backend-results', `✅ Banner API: Success (${data.data?.length || 0} banners)`, true);
+            } catch (error) {
+                addResult('backend-results', `❌ Banner API failed: ${error.message}`);
+            }
+        }
+        
+        async function testMockVendorLogin() {
+            try {
+                // Try vendor login endpoint with invalid credentials to test endpoint availability
+                const response = await fetch(`${API_BASE_URL}/vendors/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test@test.com', password: 'wrongpass' })
+                });
+                
+                if (response.status === 401) {
+                    addResult('auth-results', `✅ Vendor Login endpoint: Available (401 as expected)`, true);
+                } else {
+                    const data = await response.json();
+                    addResult('auth-results', `⚠️ Vendor Login: Unexpected response ${response.status}: ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                addResult('auth-results', `❌ Vendor Login failed: ${error.message}`);
+            }
+        }
+        
+        async function testMockVendorRequest() {
+            try {
+                // Test vendor endpoint without auth token
+                const response = await fetch(`${API_BASE_URL}/vendors/stats`);
+                
+                if (response.status === 401) {
+                    addResult('auth-results', `✅ Vendor Stats endpoint: Available (401 - auth required as expected)`, true);
+                } else {
+                    const data = await response.json();
+                    addResult('auth-results', `⚠️ Vendor Stats: Unexpected response ${response.status}: ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                addResult('auth-results', `❌ Vendor Stats failed: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

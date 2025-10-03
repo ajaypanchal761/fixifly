@@ -28,22 +28,36 @@ class BannerApiService {
    * Fetch all active banners for public use
    */
   async getActiveBanners(): Promise<BannerResponse> {
+    const url = `${this.baseUrl}/banners`;
+    
+    console.log('Banner API making request to:', url);
+    console.log('Base URL:', this.baseUrl);
+    
     try {
-      const response = await fetch(`${this.baseUrl}/banners`, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
+      console.log('Banner API response status:', response.status);
+      console.log('Banner API response ok:', response.ok);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => {});
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       const data: BannerResponse = await response.json();
+      console.log('Banner API success response:', data);
       return data;
     } catch (error) {
-      console.error('Error fetching active banners:', error);
+      console.error('Banner API request failed:', error);
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        console.error('Network error - backend might be down or CORS issue');
+        console.error('Backend URL:', url);
+      }
       throw error;
     }
   }

@@ -321,6 +321,11 @@ const vendorSchema = new mongoose.Schema({
         type: String,
         default: null
       }
+    },
+    
+    lastSubscriptionUpdate: {
+      type: Date,
+      default: null
     }
   }
 }, {
