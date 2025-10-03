@@ -1770,3 +1770,123 @@
 [2025-10-03T08:11:49.879Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
 [2025-10-03T08:11:50.708Z] [INFO] Auto-reject service started - checking every minute for pending assignments
 [2025-10-03T08:11:51.552Z] [INFO] SMTP connection verified successfully
+[2025-10-03T08:12:50.775Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:13:50.728Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:14:50.740Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:15:50.754Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:16:50.759Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:17:50.771Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:18:50.779Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:19:50.786Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:20:50.801Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:21:50.799Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:22:50.811Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:23:50.815Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:24:50.828Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:25:50.855Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:26:50.838Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:27:50.843Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:28:50.847Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:29:50.866Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:30:50.864Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:31:50.876Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:32:50.890Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:33:50.880Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:34:50.876Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:35:50.888Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:36:50.892Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:37:50.897Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:38:50.913Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:39:50.921Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:40:50.928Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:41:50.940Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:42:50.962Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:43:50.954Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:44:50.965Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:45:50.965Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:46:50.983Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:47:50.981Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:48:50.995Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:49:51.009Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:50:51.008Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:51:51.021Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:52:51.036Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:53:51.042Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:54:51.049Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:55:51.060Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:56:51.081Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:57:51.084Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:58:51.090Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T08:59:51.103Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T09:00:51.097Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T09:01:51.110Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T09:02:51.119Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T09:02:54.422Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-03T09:02:54.538Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-03T09:02:54.551Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-03T09:02:54.729Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":2,"totalRevenue":236}
+[2025-10-03T09:02:54.749Z] [INFO] Admin retrieved bookings: 2 | {"totalBookings":2,"page":1,"filters":{}}
+[2025-10-03T09:03:05.365Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/68df7729756441fc464fa620/assign-vendor"}
+[2025-10-03T09:03:05.559Z] [INFO] Admin assigned vendor to booking: undefined | {"bookingId":"68df7729756441fc464fa620","vendorId":"339","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-03T09:03:05.603Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-03T09:03:05.615Z] [INFO] Converted string vendorId to ObjectId for notification | {"originalVendorId":"339","vendorObjectId":"68df6be1756441fc464f79c7","vendorName":"Krishna Panchal"}
+[2025-10-03T09:03:05.686Z] [INFO] Sending OneSignal notification to vendor | {"vendorId":"339","title":"🔧 New Service Booking Assigned","priority":"medium","dataKeys":["bookingId","customerName","customerPhone","services","scheduledDate","type","action"]}
+[2025-10-03T09:03:05.820Z] [INFO] Admin retrieved bookings: 2 | {"totalBookings":2,"page":1,"filters":{}}
+[2025-10-03T09:03:06.391Z] [INFO] OneSignal notification sent successfully | {"vendorId":"339","notificationId":"","responseData":{"id":"","errors":["All included players are not subscribed"]}}
+[2025-10-03T09:03:06.393Z] [WARN] OneSignal notification may not have reached vendor | {"vendorId":"339","notificationId":"","errors":["All included players are not subscribed"]}
+[2025-10-03T09:03:06.396Z] [INFO] Push notification sent successfully for booking assignment | {"vendorId":"339","bookingId":"68df7729756441fc464fa620"}
+[2025-10-03T09:03:06.399Z] [INFO] Booking assignment notification created | {"vendorId":"339","bookingId":"68df7729756441fc464fa620","notificationId":"68df9149f6010f743f942e5f"}
+[2025-10-03T09:03:51.128Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T09:04:29.594Z] [INFO] Sending OneSignal notification to vendor | {"vendorId":"339","priority":"medium","dataKeys":[]}
+[2025-10-03T09:04:30.328Z] [INFO] OneSignal notification sent successfully | {"vendorId":"339","notificationId":"","responseData":{"id":"","errors":["All included players are not subscribed"]}}
+[2025-10-03T09:04:30.342Z] [WARN] OneSignal notification may not have reached vendor | {"vendorId":"339","notificationId":"","errors":["All included players are not subscribed"]}
+[2025-10-03T09:04:51.192Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T09:05:02.724Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-03T09:05:02.743Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-03T09:05:02.752Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-03T09:05:02.910Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":2,"totalRevenue":236}
+[2025-10-03T09:05:02.975Z] [INFO] Admin retrieved bookings: 2 | {"totalBookings":2,"page":1,"filters":{}}
+[2025-10-03T09:05:04.897Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-03T09:05:04.929Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-03T09:05:04.943Z] [INFO] Getting bookings for vendor | {"vendorId":"339","page":1,"limit":10}
+[2025-10-03T09:05:04.950Z] [INFO] Booking query | {"query":{"vendor.vendorId":"339"}}
+[2025-10-03T09:05:05.040Z] [INFO] Vendor bookings retrieved: 1 for vendor 339 | {"vendorId":"339","totalBookings":1,"page":1}
+[2025-10-03T09:05:05.048Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-03T09:05:05.055Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-03T09:05:05.090Z] [INFO] Getting bookings for vendor | {"vendorId":"339","page":1,"limit":10}
+[2025-10-03T09:05:05.091Z] [INFO] Booking query | {"query":{"vendor.vendorId":"339"}}
+[2025-10-03T09:05:05.192Z] [INFO] Vendor bookings retrieved: 1 for vendor 339 | {"vendorId":"339","totalBookings":1,"page":1}
+[2025-10-03T09:05:12.269Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-03T09:05:12.280Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-03T09:05:12.303Z] [INFO] Getting bookings for vendor | {"vendorId":"339","page":1,"limit":10}
+[2025-10-03T09:05:12.304Z] [INFO] Booking query | {"query":{"vendor.vendorId":"339"}}
+[2025-10-03T09:05:12.366Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-03T09:05:12.380Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-03T09:05:12.390Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-03T09:05:12.401Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-03T09:05:12.405Z] [INFO] Vendor bookings retrieved: 1 for vendor 339 | {"vendorId":"339","totalBookings":1,"page":1}
+[2025-10-03T09:05:12.411Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-03T09:05:12.455Z] [INFO] Getting bookings for vendor | {"vendorId":"339","page":1,"limit":10}
+[2025-10-03T09:05:12.457Z] [INFO] Booking query | {"query":{"vendor.vendorId":"339"}}
+[2025-10-03T09:05:12.510Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":2,"totalRevenue":236}
+[2025-10-03T09:05:12.552Z] [INFO] Admin retrieved bookings: 2 | {"totalBookings":2,"page":1,"filters":{}}
+[2025-10-03T09:05:12.555Z] [INFO] Vendor bookings retrieved: 1 for vendor 339 | {"vendorId":"339","totalBookings":1,"page":1}
+[2025-10-03T09:05:47.317Z] [INFO] Sending OneSignal notification to vendor | {"vendorId":"339","priority":"medium","dataKeys":[]}
+[2025-10-03T09:05:48.093Z] [INFO] OneSignal notification sent successfully | {"vendorId":"339","notificationId":"","responseData":{"id":"","errors":["All included players are not subscribed"]}}
+[2025-10-03T09:05:48.098Z] [WARN] OneSignal notification may not have reached vendor | {"vendorId":"339","notificationId":"","errors":["All included players are not subscribed"]}
+[2025-10-03T09:05:51.254Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-03T09:05:56.346Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-03T09:05:56.381Z] [INFO] Getting bookings for vendor | {"vendorId":"339","page":1,"limit":10}
+[2025-10-03T09:05:56.382Z] [INFO] Booking query | {"query":{"vendor.vendorId":"339"}}
+[2025-10-03T09:05:56.488Z] [INFO] Vendor bookings retrieved: 1 for vendor 339 | {"vendorId":"339","totalBookings":1,"page":1}
+[2025-10-03T09:05:56.826Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-03T09:05:56.945Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-03T09:05:56.957Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-03T09:05:56.968Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-03T09:05:56.977Z] [INFO] Getting bookings for vendor | {"vendorId":"339","page":1,"limit":10}
+[2025-10-03T09:05:56.978Z] [INFO] Booking query | {"query":{"vendor.vendorId":"339"}}
+[2025-10-03T09:05:56.995Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-03T09:05:57.032Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-03T09:05:57.075Z] [INFO] Vendor bookings retrieved: 1 for vendor 339 | {"vendorId":"339","totalBookings":1,"page":1}
+[2025-10-03T09:05:57.140Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":2,"totalRevenue":236}
+[2025-10-03T09:05:57.148Z] [INFO] Admin retrieved bookings: 2 | {"totalBookings":2,"page":1,"filters":{}}

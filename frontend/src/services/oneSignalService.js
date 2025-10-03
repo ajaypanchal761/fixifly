@@ -100,12 +100,24 @@ class OneSignalService {
           // Prevent automatic welcome notifications
           autoPromptForNotificationPermission: false,
           disableWelcomeNotification: true,
-          // Prevent subscription confirmation messages
+          // Mobile web app specific configuration
           promptOptions: {
             slidedownPermissionMessage: {
-              force: false
+              enabled: true,
+              actionMessage: "🔔 Enable push notifications for instant task alerts!",
+              acceptButton: "Allow",
+              cancelButton: "Not Now"
+            },
+            fullscreenPermissionMessage: {
+              enabled: true,
+              title: "🔔 Enable Notifications",
+              message: "Get instant alerts when new tasks are assigned to you via Fixifly mobile web app.",
+              acceptButton: "Allow",
+              cancelButton: "Skip"
             }
-          }
+          },
+          // Mobile browser optimization
+          safari_web_id: 'fixifly-vendor-notifications'
         });
       } catch (initError) {
         const errorMessage = initError.message || initError.toString();
@@ -255,21 +267,38 @@ class OneSignalService {
       console.log('OneSignal permission status:', permission);
 
       if (permission === 'default' || permission === false) {
-        // Force permission request to ensure subscription
+        // Force permission request to ensure subscription (Mobile Web App Optimized)
         try {
-          console.log('OneSignal: Requesting notification permission...');
+          console.log('OneSignal: Requesting notification permission for mobile web app...');
           
-          // Use the most reliable method for each browser
+          // Detect if we're on mobile
+          const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          console.log('OneSignal: Mobile device detected:', isMobile);
+          
+          // Use the most reliable method for each browser with mobile optimizations
           if (window.OneSignal.Notifications && window.OneSignal.Notifications.requestPermission) {
+            // For OneSignal v16 API
             const permissionResult = await window.OneSignal.Notifications.requestPermission();
             console.log('OneSignal: Permission request result:', permissionResult);
+            
+            // If on mobile and permission granted, wait a bit for subscription to process
+            if (isMobile && permissionResult === 'granted') {
+              console.log('OneSignal: Mobile permission granted, waiting for subscription processing...');
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+            }
           } else if (window.OneSignal.showHttpPrompt) {
             await window.OneSignal.showHttpPrompt();
             console.log('OneSignal: HTTP prompt method used');
-          } else if (window.OneSignal.isPushNotificationsEnabled && typeof window.OneSignal.isPushNotificationsEnabled === 'function') {
+            if (isMobile) {
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for mobile processing
+            }
+          } else if (window.OneSignal.registerForPushNotifications) {
             // Legacy method - try to enable
             await window.OneSignal.registerForPushNotifications();
             console.log('OneSignal: Legacy registration method used');
+            if (isMobile) {
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for mobile processing
+            }
           }
           
           // Wait a moment for subscription to complete

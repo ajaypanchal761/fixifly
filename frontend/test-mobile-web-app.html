@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Mobile Web App - Push Notifications Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .mobile-banner {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 5px solid #007bff;
+        }
+        .code-block {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 15px 0;
+            overflow-x: auto;
+            white-space: pre-line;
+        }
+        .step {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+            border: 1px solid #c3e6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+            margin: 15px 0;
+        }
+        h1 { color: #333; text-align: center; }
+        h2 { color: #007bff; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
+        .mobile-icon { font-size: 1.5em; margin-right: 10px; }
+        .test-instructions {
+            background: linear-gradient(135deg, #FF6B6B 0%, #EE5A24 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="mobile-icon">📱</span>Mobile Web App Push Notifications</h1>
+        
+        <div class="mobile-banner">
+            ✅ Fixifly Mobile Web App - Push Notifications Setup Complete!
+        </div>
+
+        <div class="test-section">
+            <h2>📱 Mobile Browser Support</h2>
+            <div class="step">
+                <h3>✅ Android Chrome (Full Support)</h3>
+                <p>Push notifications work perfectly with background notifications</p>
+            </div>
+            <div class="step">
+                <h3>⚠️ iPhone Safari (Limited Support)</h3>
+                <p>Notifications work when app is open, limited background support</p>
+            </div>
+            <div class="step">
+                <h3>❌ Other Mobile Browsers</h3>
+                <p>May have limited or no support - fallback to email/SMS</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔔 What Was Fixed for Mobile</h2>
+            <div class="step">
+                <h3>📱 Mobile Detection & Optimization</h3>
+                <div class="code-block">
+// oneSignalService.js me mobile detection add kiya
+const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+if (isMobile && permissionResult === 'granted') {
+  await new Promise(resolve => setTimeout(resolve, 2000)); 
+  // Mobile ke liye subscription processing time
+}
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3>🚀 Enhanced Permission Prompts</h3>
+                <div class="code-block">
+promptOptions: {
+  slidedownPermissionMessage: {
+    enabled: true,
+    actionMessage: "🔔 Enable push notifications for instant task alerts!",
+    acceptButton: "Allow",
+    cancelButton: "Not Now"
+  },
+  fullscreenPermissionMessage: {
+    title: "🔔 Enable Notifications",
+    message: "Get instant alerts for Fixifly mobile web app"
+  }
+}
+                </div>
+            </div>
+        </div>
+
+        <div class="test-instructions">
+            <h2>🧪 Mobile Testing Instructions</h2>
+            <div class="step">
+                <h3>📱 Android Chrome Test:</h3>
+                <ol>
+                    <li>Android phone me Chrome browser open karo</li>
+                    <li><code>https://fixifly.vercel.app/vendor/login</code> par jaao</li>
+                    <li>Vendor login karo</li>
+                    <li>Permission popup me "Allow" dabayo</li>
+                    <li>Background me notification permission check karo</li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <h3>🍎 iPhone Safari Test:</h3>
+                <ol>
+                    <li>iPhone me Safari browser open karo</li>
+                    <li><code>https://fixifly.vercel.app/vendor/login</code> par jaao</li>
+                    <li>Vendor login karo</li>
+                    <li>Settings > Safari > Notifications check karo</li>
+                    <li>App ko "Add to Home Screen" karo for better notifications</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Expected Console Output (Mobile):</h2>
+            <div class="code-block">
+OneSignal: Mobile device detected: true
+OneSignal: Requesting notification permission for mobile web app...
+OneSignal: Permission request result: granted
+OneSignal: Mobile permission granted, waiting for subscription processing...
+OneSignal: Vendor subscription confirmed for notifications
+✅ Vendor registered for push notifications
+            </div>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ Important Mobile Notes:</h3>
+            <ul>
+                <li><strong>Android Chrome:</strong> Full background notification support</li>
+                <li><strong>iPhone Safari:</strong> Limited background support (iOS ki limitation)</li>
+                <li><strong>Add to Home Screen:</strong> iPhone me better notification experience</li>
+                <li><strong>HTTPS Required:</strong> Vercel me already enabled ✅</li>
+                <li><strong>Fallback:</strong> Agar notification fail ho toh email/SMS automatically</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Testing Checklist</h2>
+            <div class="step">
+                <h3>✅ Browser Test on Mobile:</h3>
+                <ul>
+                    <li>📱 Open Chrome/Chrome/Firefox on mobile</li>
+                    <li>🌐 Go to https://fixifly.vercel.app/vendor/login</li>
+                    <li>🔐 Login with vendor credentials</li>
+                    <li>🔔 Allow notification permission when prompted</li>
+                    <li>📋 Check browser console for success messages</li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <h3>📲 Home Screen App Test:</h3>
+                <ul>
+                    <li>📱 Add web app to mobile home screen</li>
+                    <li>🌐 Open web app from home screen</li>
+                    <li>🔔 Test notifications from home screen app</li>
+                    <li>📞 Verify email/SMS fallback works</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🚀 Mobile Optimization Features</h2>
+            <div class="step">
+                <ul>
+                    <li><strong>📱 Auto Detection:</strong> Mobile devices are detected and optimized</li>
+                    <li><strong>⏱️ Subscription Timeout:</strong> 2-second wait for mobile processing</li>
+                    <li><strong>🔔 Enhanced Prompts:</strong> Better permission messages for mobile</li>
+                    <li><strong>🎯 Safari ID:</strong> fixifly-vendor-notifications configured</li>
+                    <li><strong>📧 Instant Fallback:</strong> Email/SMS if push fails</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mobile-banner">
+            <h3>🎉 Ready for Mobile Testing!</h3>
+            <p><strong>Production URL:</strong> https://fixifly.vercel.app/vendor/login</p>
+            <p>Login kar ke mobile browser par test karo - push notifications milenge!</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Mobile device detection test
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        console.log('📱 Mobile Detection Test:');
+        console.log('   User Agent:', navigator.userAgent);
+        console.log('   Is Mobile:', isMobile);
+        
+        // Test if we're on mobile
+        if (isMobile) {
+            console.log('📱 Mobile web app detected - push notifications will be optimized');
+            console.log('🔔 OneSignal will show enhanced permission prompts');
+        } else {
+            console.log('💻 Desktop browser detected - standard OneSignal behavior');
+        }
+        
+        console.log('🌐 Next: Test on actual mobile device for push notifications!');
+    </script>
+</body>
+</html>
