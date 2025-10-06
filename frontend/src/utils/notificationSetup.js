@@ -95,6 +95,47 @@ export const saveTokenToBackend = async (fcmToken, vendorId) => {
   }
 };
 
+// Save FCM token to backend for users
+export const saveUserTokenToBackend = async (fcmToken) => {
+  try {
+    console.log('💾 Saving user FCM token to backend...');
+    console.log('FCM Token:', fcmToken.substring(0, 20) + '...');
+    
+    const token = localStorage.getItem('accessToken');
+    console.log('Access token found:', token ? 'Yes' : 'No');
+    console.log('Token length:', token ? token.length : 0);
+    
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    console.log('API URL:', `${API_BASE_URL}/api/user/notifications/fcm-token`);
+    
+    const response = await fetch(`${API_BASE_URL}/api/user/notifications/fcm-token`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        fcmToken
+      })
+    });
+
+    console.log('Response status:', response.status);
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ User FCM token saved to backend successfully:', result);
+      return true;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('❌ Failed to save user FCM token:', errorData);
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error saving user FCM token:', error);
+    return false;
+  }
+};
+
 // Save FCM token to backend for admins
 export const saveAdminTokenToBackend = async (fcmToken) => {
   try {
@@ -177,6 +218,72 @@ export const setupNotifications = async (vendorId) => {
     
   } catch (error) {
     console.error('❌ Notification setup failed:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Setup complete notification system for users
+export const setupUserNotifications = async () => {
+  try {
+    console.log('🚀 Setting up user notification system...');
+    
+    // Step 1: Register service worker
+    const registration = await registerServiceWorker();
+    if (!registration) {
+      throw new Error('Service worker registration failed');
+    }
+    
+    // Step 2: Get messaging instance
+    const messaging = getMessaging();
+    
+    // Step 3: Request permission and get token
+    const fcmToken = await requestNotificationPermission(messaging);
+    if (!fcmToken) {
+      throw new Error('Failed to get FCM token');
+    }
+    
+    // Step 4: Save token to backend
+    const saved = await saveUserTokenToBackend(fcmToken);
+    if (!saved) {
+      throw new Error('Failed to save FCM token to backend');
+    }
+    
+    // Step 5: Setup foreground message listener
+    onMessage(messaging, (payload) => {
+      console.log('📱 User foreground message received:', payload);
+      
+      // Show notification in foreground
+      if (payload.notification) {
+        const notification = new Notification(payload.notification.title, {
+          body: payload.notification.body,
+          icon: '/favicon.ico',
+          badge: '/favicon.ico',
+          data: payload.data
+        });
+        
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+          
+          // Navigate to appropriate page based on notification type
+          if (payload.data?.type === 'admin_notification') {
+            window.location.href = '/notifications';
+          } else if (payload.data?.type === 'booking') {
+            window.location.href = '/booking';
+          } else if (payload.data?.type === 'payment') {
+            window.location.href = '/profile';
+          } else {
+            window.location.href = '/notifications';
+          }
+        };
+      }
+    });
+    
+    console.log('✅ User notification system setup successful!');
+    return { success: true, fcmToken };
+    
+  } catch (error) {
+    console.error('❌ User notification setup failed:', error);
     return { success: false, error: error.message };
   }
 };

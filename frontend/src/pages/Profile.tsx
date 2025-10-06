@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import apiService from '@/services/api';
+import UserNotificationEnable from '@/components/UserNotificationEnable';
 
 interface UserProfile {
   id: string;
@@ -569,6 +570,21 @@ const Profile = () => {
                       </div>
                     </div>
               </div>
+            </div>
+
+            {/* Notification Settings */}
+            <div className="border-t pt-4 sm:pt-6">
+              <h4 className="text-md font-medium text-gray-900 mb-4">Notification Settings</h4>
+              <UserNotificationEnable 
+                onTokenGenerated={(token) => {
+                  console.log('✅ FCM Token generated for user');
+                  toast({
+                    title: "Success",
+                    description: "Push notifications enabled successfully!",
+                    variant: "default"
+                  });
+                }}
+              />
             </div>
 
             {/* Save Button */}

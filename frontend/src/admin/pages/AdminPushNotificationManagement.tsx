@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import { useToast } from '@/hooks/use-toast';
+import adminNotificationApi, { AdminNotification, SendNotificationRequest } from '@/services/adminNotificationApi';
 import { 
   Bell, 
   Send, 
@@ -12,7 +13,6 @@ import {
   AlertTriangle,
   Plus,
   Edit,
-  Trash2,
   Eye,
   Filter,
   Search,
@@ -33,23 +33,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-interface Notification {
-  _id: string;
-  title: string;
-  message: string;
-  targetAudience: 'all' | 'users' | 'vendors' | 'specific';
-  targetUsers?: string[];
-  targetVendors?: string[];
-  scheduledAt?: Date;
-  sentAt?: Date;
-  status: 'draft' | 'scheduled' | 'sent' | 'failed';
-  sentCount: number;
-  deliveredCount: number;
-  readCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 interface NotificationStats {
   totalNotifications: number;
   sentNotifications: number;
@@ -67,7 +50,7 @@ const AdminPushNotificationManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
   // Form states
@@ -82,7 +65,7 @@ const AdminPushNotificationManagement = () => {
   });
 
   // Data states
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [stats, setStats] = useState<NotificationStats | null>(null);
   const [totalPages, setTotalPages] = useState(1);
   const [totalNotifications, setTotalNotifications] = useState(0);
@@ -92,21 +75,25 @@ const AdminPushNotificationManagement = () => {
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
-      // TODO: Replace with actual API call
-      // await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Initialize with empty data
-      setNotifications([]);
-      setStats({
-        totalNotifications: 0,
-        sentNotifications: 0,
-        scheduledNotifications: 0,
-        draftNotifications: 0,
-        totalRecipients: 0,
-        averageDeliveryRate: 0
+      const response = await adminNotificationApi.getNotifications({
+        page: currentPage,
+        limit: 10,
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        targetAudience: audienceFilter === 'all' ? undefined : audienceFilter
       });
-      setTotalPages(1);
-      setTotalNotifications(0);
+      
+      if (response.success) {
+        setNotifications(response.data.notifications);
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalNotifications(response.data.pagination.totalNotifications);
+      }
+      
+      // Fetch stats
+      const statsResponse = await adminNotificationApi.getNotificationStats();
+      if (statsResponse.success) {
+        setStats(statsResponse.data);
+      }
     } catch (error) {
       console.error('Error fetching notifications:', error);
       toast({
@@ -133,14 +120,32 @@ const AdminPushNotificationManagement = () => {
         return;
       }
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const notificationData: SendNotificationRequest = {
+        title: formData.title,
+        message: formData.message,
+        targetAudience: formData.targetAudience,
+        targetUsers: formData.targetUsers.length > 0 ? formData.targetUsers : undefined,
+        targetVendors: formData.targetVendors.length > 0 ? formData.targetVendors : undefined,
+        scheduledAt: formData.isScheduled ? formData.scheduledAt : undefined,
+        isScheduled: formData.isScheduled
+      };
+
+      const response = await adminNotificationApi.sendNotification(notificationData);
       
-      toast({
-        title: "Success",
-        description: "Notification sent successfully",
-        variant: "default"
-      });
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: `Notification sent successfully to ${response.data.sentCount} recipients`,
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to send notification",
+          variant: "destructive"
+        });
+        return;
+      }
       
       setIsCreateModalOpen(false);
       setFormData({
@@ -166,36 +171,9 @@ const AdminPushNotificationManagement = () => {
     }
   };
 
-  // Delete notification
-  const handleDeleteNotification = async (notificationId: string) => {
-    if (!confirm('Are you sure you want to delete this notification?')) return;
-
-    try {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Success",
-        description: "Notification deleted successfully",
-        variant: "default"
-      });
-      
-      fetchNotifications();
-    } catch (error) {
-      console.error('Error deleting notification:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete notification",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // View notification details
-  const handleViewNotification = (notification: Notification) => {
+  const handleViewNotification = (notification: AdminNotification) => {
     setSelectedNotification(notification);
     setIsViewModalOpen(true);
   };
@@ -224,12 +202,6 @@ const AdminPushNotificationManagement = () => {
     switch (audience) {
       case 'all':
         return <Badge className="bg-purple-100 text-purple-800">All Users</Badge>;
-      case 'users':
-        return <Badge className="bg-blue-100 text-blue-800">Users Only</Badge>;
-      case 'vendors':
-        return <Badge className="bg-green-100 text-green-800">Vendors Only</Badge>;
-      case 'specific':
-        return <Badge className="bg-orange-100 text-orange-800">Specific</Badge>;
       default:
         return <Badge className="bg-gray-100 text-gray-800">{audience}</Badge>;
     }
@@ -348,10 +320,7 @@ const AdminPushNotificationManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Audience</SelectItem>
-                  <SelectItem value="all">All Users</SelectItem>
-                  <SelectItem value="users">Users Only</SelectItem>
-                  <SelectItem value="vendors">Vendors Only</SelectItem>
-                  <SelectItem value="specific">Specific</SelectItem>
+                 
                 </SelectContent>
               </Select>
               <Button 
@@ -465,14 +434,6 @@ const AdminPushNotificationManagement = () => {
                               <Edit className="w-4 h-4" />
                             </Button>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteNotification(notification._id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -524,21 +485,8 @@ const AdminPushNotificationManagement = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Users</SelectItem>
-                    <SelectItem value="users">Users Only</SelectItem>
-                    <SelectItem value="vendors">Vendors Only</SelectItem>
-                    <SelectItem value="specific">Specific Users/Vendors</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="isScheduled"
-                  checked={formData.isScheduled}
-                  onChange={(e) => setFormData({...formData, isScheduled: e.target.checked})}
-                />
-                <Label htmlFor="isScheduled">Schedule for later</Label>
               </div>
               
               {formData.isScheduled && (

@@ -1,104 +1,271 @@
-const { Notification } = require('../models/Notification');
+const User = require('../models/User');
+const UserNotification = require('../models/UserNotification');
+const AdminNotification = require('../models/AdminNotification');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
+const { sendMulticastPushNotification } = require('../services/firebasePushService');
 
-// @desc    Get all notifications for admin
-// @route   GET /api/admin/notifications
-// @access  Admin
-const getAllNotifications = asyncHandler(async (req, res) => {
+// @desc    Send push notification to users
+// @route   POST /api/admin/notifications/send
+// @access  Private (Admin)
+const sendNotification = asyncHandler(async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      status, 
-      targetAudience, 
-      search,
-      sortBy = 'createdAt',
-      sortOrder = 'desc'
-    } = req.query;
+    const {
+      title,
+      message,
+      targetAudience,
+      targetUsers,
+      targetVendors,
+      scheduledAt,
+      isScheduled
+    } = req.body;
+
+    // Validate required fields
+    if (!title || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title and message are required'
+      });
+    }
+
+    // Create admin notification record
+    const adminNotificationData = {
+      title,
+      message,
+      targetAudience,
+      targetUsers: targetUsers || [],
+      targetVendors: targetVendors || [],
+      scheduledAt: isScheduled && scheduledAt ? new Date(scheduledAt) : null,
+      isScheduled: isScheduled || false,
+      status: 'draft',
+      sentBy: req.admin._id,
+      data: {
+        type: 'admin_notification',
+        title,
+        message,
+        timestamp: new Date().toISOString()
+      }
+    };
+
+    // Handle scheduled notifications
+    if (isScheduled && scheduledAt) {
+      const scheduledDate = new Date(scheduledAt);
+      if (scheduledDate <= new Date()) {
+      return res.status(400).json({
+        success: false,
+          message: 'Scheduled time must be in the future'
+        });
+      }
+      
+      adminNotificationData.status = 'scheduled';
+      const adminNotification = await AdminNotification.create(adminNotificationData);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Notification scheduled successfully',
+        data: {
+          notification: adminNotification,
+          sentCount: 0,
+          deliveredCount: 0,
+          failedCount: 0
+        }
+      });
+    }
+
+    // Get target users based on audience
+    let targetUserIds = [];
+    
+    if (targetAudience === 'all') {
+      // Get all users with FCM tokens
+      const users = await User.find({
+        fcmToken: { $exists: true, $ne: null },
+        'preferences.notifications.push': true,
+        isActive: true,
+        isBlocked: false
+      }).select('_id fcmToken');
+      targetUserIds = users.map(user => user._id);
+    } else if (targetAudience === 'users') {
+      // Get all users with FCM tokens
+      const users = await User.find({
+        role: 'user',
+        fcmToken: { $exists: true, $ne: null },
+        'preferences.notifications.push': true,
+        isActive: true,
+        isBlocked: false
+      }).select('_id fcmToken');
+      targetUserIds = users.map(user => user._id);
+    } else if (targetAudience === 'specific' && targetUsers && targetUsers.length > 0) {
+      // Get specific users
+      const users = await User.find({
+        _id: { $in: targetUsers },
+        fcmToken: { $exists: true, $ne: null },
+        'preferences.notifications.push': true,
+        isActive: true,
+        isBlocked: false
+      }).select('_id fcmToken');
+      targetUserIds = users.map(user => user._id);
+    }
+
+    if (targetUserIds.length === 0) {
+        return res.status(400).json({
+          success: false,
+        message: 'No target users found with FCM tokens'
+      });
+    }
+
+    // Get FCM tokens for push notification
+    const users = await User.find({
+      _id: { $in: targetUserIds },
+      fcmToken: { $exists: true, $ne: null }
+    }).select('_id fcmToken');
+
+    const fcmTokens = users.map(user => user.fcmToken).filter(token => token);
+
+    if (fcmTokens.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No valid FCM tokens found'
+      });
+    }
+
+    // Prepare push notification payload
+    const pushNotification = {
+      title,
+      body: message,
+      icon: '/favicon.ico',
+      badge: '/favicon.ico',
+      data: {
+        type: 'admin_notification',
+        title,
+        message,
+        timestamp: new Date().toISOString()
+      }
+    };
+
+    const pushData = {
+      type: 'admin_notification',
+      title,
+      message,
+      timestamp: new Date().toISOString()
+    };
+
+    // Send push notification
+    let pushResult = { successCount: 0, failureCount: 0 };
+    try {
+      pushResult = await sendMulticastPushNotification(fcmTokens, pushNotification, pushData);
+      logger.info('Push notification sent', {
+        totalTokens: fcmTokens.length,
+        successCount: pushResult.successCount,
+        failureCount: pushResult.failureCount
+      });
+    } catch (error) {
+      logger.error('Error sending push notification:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send push notification',
+        error: error.message
+      });
+    }
+
+    // Create user notifications in database
+    const userNotifications = targetUserIds.map(userId => ({
+      user: userId,
+      title,
+      message,
+      type: 'system',
+      priority: 'medium',
+      data: {
+        type: 'admin_notification',
+        title,
+        message,
+        timestamp: new Date().toISOString()
+      },
+      sentBy: req.admin._id,
+      pushSent: true,
+      pushSentAt: new Date()
+    }));
+
+    await UserNotification.insertMany(userNotifications);
+
+    // Update admin notification record with results
+    adminNotificationData.status = 'sent';
+    adminNotificationData.sentAt = new Date();
+    adminNotificationData.sentCount = pushResult.successCount;
+    adminNotificationData.deliveredCount = pushResult.successCount;
+    adminNotificationData.failedCount = pushResult.failureCount;
+    adminNotificationData.readCount = 0; // Initially no reads
+
+    const adminNotification = await AdminNotification.create(adminNotificationData);
+
+    logger.info('Admin notification sent successfully', {
+      adminId: req.admin._id,
+      adminNotificationId: adminNotification._id,
+      title,
+      targetAudience,
+      totalUsers: targetUserIds.length,
+      sentCount: pushResult.successCount,
+      failedCount: pushResult.failureCount
+    });
+
+    res.json({
+      success: true,
+      message: 'Notification sent successfully',
+      data: {
+        notification: adminNotification,
+        sentCount: pushResult.successCount,
+        deliveredCount: pushResult.successCount,
+        failedCount: pushResult.failureCount
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error sending admin notification:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error sending notification',
+      error: error.message
+    });
+  }
+});
+
+// @desc    Get all admin notifications
+// @route   GET /api/admin/notifications
+// @access  Private (Admin)
+const getNotifications = asyncHandler(async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status, targetAudience, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    // Build filter object
     const filter = {};
-    
-    if (status) {
+
+    if (status && status !== 'all') {
       filter.status = status;
     }
-    
-    if (targetAudience) {
+
+    if (targetAudience && targetAudience !== 'all') {
       filter.targetAudience = targetAudience;
-    }
-    
-    if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { message: { $regex: search, $options: 'i' } }
-      ];
     }
 
     // Build sort object
     const sort = {};
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
-    const notifications = await Notification.find(filter)
+    const notifications = await AdminNotification.find(filter)
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit))
+      .populate('sentBy', 'name email')
       .lean();
 
-    const totalNotifications = await Notification.countDocuments(filter);
+    const totalNotifications = await AdminNotification.countDocuments(filter);
     const totalPages = Math.ceil(totalNotifications / parseInt(limit));
 
-    // Calculate statistics
-    const stats = await Notification.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalNotifications: { $sum: 1 },
-          sentNotifications: {
-            $sum: { $cond: [{ $eq: ['$status', 'sent'] }, 1, 0] }
-          },
-          scheduledNotifications: {
-            $sum: { $cond: [{ $eq: ['$status', 'scheduled'] }, 1, 0] }
-          },
-          draftNotifications: {
-            $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] }
-          },
-          failedNotifications: {
-            $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] }
-          },
-          totalRecipients: { $sum: '$sentCount' },
-          totalDelivered: { $sum: '$deliveredCount' },
-          totalRead: { $sum: '$readCount' }
-        }
-      }
-    ]);
-
-    const notificationStats = stats[0] || {
-      totalNotifications: 0,
-      sentNotifications: 0,
-      scheduledNotifications: 0,
-      draftNotifications: 0,
-      failedNotifications: 0,
-      totalRecipients: 0,
-      totalDelivered: 0,
-      totalRead: 0
-    };
-
-    // Calculate average delivery rate
-    if (notificationStats.totalRecipients > 0) {
-      notificationStats.averageDeliveryRate = Math.round(
-        (notificationStats.totalDelivered / notificationStats.totalRecipients) * 100
-      );
-    } else {
-      notificationStats.averageDeliveryRate = 0;
-    }
-
-    logger.info(`Admin retrieved notifications: ${notifications.length}`, {
+    logger.info(`Admin retrieved notifications`, {
+      adminId: req.admin._id,
       totalNotifications,
       page: parseInt(page),
-      filters: { status, targetAudience, search }
+      status,
+      targetAudience
     });
 
     res.json({
@@ -112,297 +279,40 @@ const getAllNotifications = asyncHandler(async (req, res) => {
           hasNextPage: page < totalPages,
           hasPrevPage: page > 1,
           limit: parseInt(limit)
-        },
-        stats: notificationStats
+        }
       }
     });
   } catch (error) {
-    logger.error('Error retrieving admin notifications:', error);
+    logger.error('Error fetching admin notifications:', error);
     res.status(500).json({
       success: false,
-      message: 'Error retrieving notifications',
+      message: 'Error fetching notifications',
       error: error.message
     });
   }
 });
 
-// @desc    Get single notification for admin
-// @route   GET /api/admin/notifications/:id
-// @access  Admin
-const getNotificationById = asyncHandler(async (req, res) => {
+// @desc    Get notification statistics
+// @route   GET /api/admin/notifications/stats
+// @access  Private (Admin)
+const getNotificationStats = asyncHandler(async (req, res) => {
   try {
-    const notification = await Notification.findById(req.params.id).lean();
+    const stats = await AdminNotification.getStats();
 
-    if (!notification) {
-      return res.status(404).json({
-        success: false,
-        message: 'Notification not found'
-      });
-    }
-
-    logger.info(`Admin retrieved notification: ${notification._id}`, {
-      notificationId: notification._id,
-      status: notification.status
+    logger.info(`Admin retrieved notification stats`, {
+      adminId: req.admin._id,
+      stats
     });
 
     res.json({
       success: true,
-      data: {
-        notification
-      }
+      data: stats
     });
   } catch (error) {
-    logger.error('Error retrieving admin notification:', error);
+    logger.error('Error fetching notification stats:', error);
     res.status(500).json({
       success: false,
-      message: 'Error retrieving notification',
-      error: error.message
-    });
-  }
-});
-
-// @desc    Create new notification
-// @route   POST /api/admin/notifications
-// @access  Admin
-const createNotification = asyncHandler(async (req, res) => {
-  try {
-    const {
-      title,
-      message,
-      targetAudience,
-      targetUsers,
-      targetVendors,
-      isScheduled,
-      scheduledAt,
-      data
-    } = req.body;
-
-    // Validate required fields
-    if (!title || !message) {
-      return res.status(400).json({
-        success: false,
-        message: 'Title and message are required'
-      });
-    }
-
-    // Validate target audience
-    if (!['all', 'users', 'vendors', 'specific'].includes(targetAudience)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid target audience'
-      });
-    }
-
-    // Validate specific targets
-    if (targetAudience === 'specific') {
-      if (!targetUsers && !targetVendors) {
-        return res.status(400).json({
-          success: false,
-          message: 'Target users or vendors required for specific audience'
-        });
-      }
-    }
-
-    // Validate scheduled date
-    if (isScheduled && scheduledAt) {
-      const scheduledDate = new Date(scheduledAt);
-      if (scheduledDate <= new Date()) {
-        return res.status(400).json({
-          success: false,
-          message: 'Scheduled date must be in the future'
-        });
-      }
-    }
-
-    const notificationData = {
-      title,
-      message,
-      targetAudience,
-      isScheduled: isScheduled || false,
-      scheduledAt: isScheduled && scheduledAt ? new Date(scheduledAt) : null,
-      status: isScheduled ? 'scheduled' : 'draft',
-      createdBy: req.admin._id,
-      data: data || {}
-    };
-
-    // Add specific targets if provided
-    if (targetUsers && targetUsers.length > 0) {
-      notificationData.targetUsers = targetUsers;
-    }
-    if (targetVendors && targetVendors.length > 0) {
-      notificationData.targetVendors = targetVendors;
-    }
-
-    const notification = await Notification.create(notificationData);
-
-    logger.info(`Admin created notification: ${notification._id}`, {
-      notificationId: notification._id,
-      title: notification.title,
-      targetAudience: notification.targetAudience,
-      isScheduled: notification.isScheduled,
-      adminId: req.admin._id
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Notification created successfully',
-      data: {
-        notification
-      }
-    });
-  } catch (error) {
-    logger.error('Error creating notification:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error creating notification',
-      error: error.message
-    });
-  }
-});
-
-// @desc    Update notification
-// @route   PUT /api/admin/notifications/:id
-// @access  Admin
-const updateNotification = asyncHandler(async (req, res) => {
-  try {
-    const {
-      title,
-      message,
-      targetAudience,
-      targetUsers,
-      targetVendors,
-      isScheduled,
-      scheduledAt,
-      data
-    } = req.body;
-
-    const notification = await Notification.findById(req.params.id);
-
-    if (!notification) {
-      return res.status(404).json({
-        success: false,
-        message: 'Notification not found'
-      });
-    }
-
-    // Check if notification can be updated
-    if (notification.status === 'sent') {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot update sent notification'
-      });
-    }
-
-    // Update fields
-    if (title) notification.title = title;
-    if (message) notification.message = message;
-    if (targetAudience) notification.targetAudience = targetAudience;
-    if (targetUsers) notification.targetUsers = targetUsers;
-    if (targetVendors) notification.targetVendors = targetVendors;
-    if (isScheduled !== undefined) notification.isScheduled = isScheduled;
-    if (scheduledAt) notification.scheduledAt = new Date(scheduledAt);
-    if (data) notification.data = data;
-
-    // Update status based on scheduling
-    if (notification.isScheduled && notification.scheduledAt) {
-      notification.status = 'scheduled';
-    } else if (!notification.isScheduled) {
-      notification.status = 'draft';
-    }
-
-    await notification.save();
-
-    logger.info(`Admin updated notification: ${notification._id}`, {
-      notificationId: notification._id,
-      adminId: req.admin._id
-    });
-
-    res.json({
-      success: true,
-      message: 'Notification updated successfully',
-      data: {
-        notification
-      }
-    });
-  } catch (error) {
-    logger.error('Error updating notification:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error updating notification',
-      error: error.message
-    });
-  }
-});
-
-// @desc    Send notification
-// @route   POST /api/admin/notifications/:id/send
-// @access  Admin
-const sendNotification = asyncHandler(async (req, res) => {
-  try {
-    const notification = await Notification.findById(req.params.id);
-
-    if (!notification) {
-      return res.status(404).json({
-        success: false,
-        message: 'Notification not found'
-      });
-    }
-
-    // Check if notification can be sent
-    if (notification.status === 'sent') {
-      return res.status(400).json({
-        success: false,
-        message: 'Notification already sent'
-      });
-    }
-
-    if (notification.isScheduled && notification.scheduledAt > new Date()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot send scheduled notification before scheduled time'
-      });
-    }
-
-    // TODO: Implement actual push notification sending logic here
-    // This would integrate with FCM, APNS, or other push notification services
-    
-    // For now, simulate sending
-    const sentCount = Math.floor(Math.random() * 1000) + 100; // Mock sent count
-    const deliveredCount = Math.floor(sentCount * 0.95); // Mock delivery rate
-    const readCount = Math.floor(deliveredCount * 0.7); // Mock read rate
-
-    // Update notification status
-    notification.status = 'sent';
-    notification.sentAt = new Date();
-    notification.sentCount = sentCount;
-    notification.deliveredCount = deliveredCount;
-    notification.readCount = readCount;
-
-    await notification.save();
-
-    logger.info(`Admin sent notification: ${notification._id}`, {
-      notificationId: notification._id,
-      sentCount,
-      deliveredCount,
-      readCount,
-      adminId: req.admin._id
-    });
-
-    res.json({
-      success: true,
-      message: 'Notification sent successfully',
-      data: {
-        notification,
-        sentCount,
-        deliveredCount,
-        readCount
-      }
-    });
-  } catch (error) {
-    logger.error('Error sending notification:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error sending notification',
+      message: 'Error fetching notification statistics',
       error: error.message
     });
   }
@@ -410,11 +320,13 @@ const sendNotification = asyncHandler(async (req, res) => {
 
 // @desc    Delete notification
 // @route   DELETE /api/admin/notifications/:id
-// @access  Admin
+// @access  Private (Admin)
 const deleteNotification = asyncHandler(async (req, res) => {
   try {
-    const notification = await Notification.findById(req.params.id);
+    const { id } = req.params;
 
+    const notification = await AdminNotification.findById(id);
+    
     if (!notification) {
       return res.status(404).json({
         success: false,
@@ -422,19 +334,19 @@ const deleteNotification = asyncHandler(async (req, res) => {
       });
     }
 
-    // Check if notification can be deleted
-    if (notification.status === 'sent') {
+    // Check if notification can be deleted (only draft and failed notifications)
+    if (notification.status === 'sent' || notification.status === 'scheduled') {
       return res.status(400).json({
         success: false,
-        message: 'Cannot delete sent notification'
+        message: 'Cannot delete sent or scheduled notifications'
       });
     }
 
-    await Notification.findByIdAndDelete(req.params.id);
+    await AdminNotification.findByIdAndDelete(id);
 
-    logger.info(`Admin deleted notification: ${notification._id}`, {
-      notificationId: notification._id,
-      adminId: req.admin._id
+    logger.info(`Admin deleted notification: ${id}`, {
+      adminId: req.admin._id,
+      notificationId: id
     });
 
     res.json({
@@ -451,127 +363,9 @@ const deleteNotification = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Get notification statistics
-// @route   GET /api/admin/notifications/stats
-// @access  Admin
-const getNotificationStats = asyncHandler(async (req, res) => {
-  try {
-    const { period = '30d' } = req.query;
-    
-    let dateFilter = {};
-    const now = new Date();
-    
-    switch (period) {
-      case '7d':
-        dateFilter = { createdAt: { $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) } };
-        break;
-      case '30d':
-        dateFilter = { createdAt: { $gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) } };
-        break;
-      case '90d':
-        dateFilter = { createdAt: { $gte: new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000) } };
-        break;
-      case '1y':
-        dateFilter = { createdAt: { $gte: new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000) } };
-        break;
-    }
-
-    const stats = await Notification.aggregate([
-      { $match: dateFilter },
-      {
-        $group: {
-          _id: null,
-          totalNotifications: { $sum: 1 },
-          sentNotifications: {
-            $sum: { $cond: [{ $eq: ['$status', 'sent'] }, 1, 0] }
-          },
-          scheduledNotifications: {
-            $sum: { $cond: [{ $eq: ['$status', 'scheduled'] }, 1, 0] }
-          },
-          draftNotifications: {
-            $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] }
-          },
-          failedNotifications: {
-            $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] }
-          },
-          totalRecipients: { $sum: '$sentCount' },
-          totalDelivered: { $sum: '$deliveredCount' },
-          totalRead: { $sum: '$readCount' }
-        }
-      }
-    ]);
-
-    // Get daily notification trends for the last 30 days
-    const dailyTrends = await Notification.aggregate([
-      { $match: { createdAt: { $gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) } } },
-      {
-        $group: {
-          _id: {
-            year: { $year: '$createdAt' },
-            month: { $month: '$createdAt' },
-            day: { $dayOfMonth: '$createdAt' }
-          },
-          notifications: { $sum: 1 },
-          sent: { $sum: { $cond: [{ $eq: ['$status', 'sent'] }, 1, 0] } },
-          recipients: { $sum: '$sentCount' }
-        }
-      },
-      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
-    ]);
-
-    const result = stats[0] || {
-      totalNotifications: 0,
-      sentNotifications: 0,
-      scheduledNotifications: 0,
-      draftNotifications: 0,
-      failedNotifications: 0,
-      totalRecipients: 0,
-      totalDelivered: 0,
-      totalRead: 0
-    };
-
-    // Calculate rates
-    if (result.totalRecipients > 0) {
-      result.averageDeliveryRate = Math.round((result.totalDelivered / result.totalRecipients) * 100);
-    } else {
-      result.averageDeliveryRate = 0;
-    }
-
-    if (result.totalDelivered > 0) {
-      result.averageReadRate = Math.round((result.totalRead / result.totalDelivered) * 100);
-    } else {
-      result.averageReadRate = 0;
-    }
-
-    logger.info(`Admin retrieved notification statistics for period: ${period}`, {
-      totalNotifications: result.totalNotifications,
-      totalRecipients: result.totalRecipients
-    });
-
-    res.json({
-      success: true,
-      data: {
-        ...result,
-        dailyTrends,
-        period
-      }
-    });
-  } catch (error) {
-    logger.error('Error retrieving notification statistics:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error retrieving notification statistics',
-      error: error.message
-    });
-  }
-});
-
 module.exports = {
-  getAllNotifications,
-  getNotificationById,
-  createNotification,
-  updateNotification,
   sendNotification,
-  deleteNotification,
-  getNotificationStats
+  getNotifications,
+  getNotificationStats,
+  deleteNotification
 };

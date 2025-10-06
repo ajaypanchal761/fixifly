@@ -1,52 +1,34 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getAllNotifications,
-  getNotificationById,
-  createNotification,
-  updateNotification,
   sendNotification,
-  deleteNotification,
-  getNotificationStats
+  getNotifications,
+  getNotificationStats,
+  deleteNotification
 } = require('../controllers/adminNotificationController');
 const { protectAdmin } = require('../middleware/adminAuth');
 
-// All routes are protected with admin authentication
+// All routes are protected and require admin authentication
 router.use(protectAdmin);
 
+// @route   POST /api/admin/notifications/send
+// @desc    Send push notification to users
+// @access  Private (Admin)
+router.post('/send', sendNotification);
+
 // @route   GET /api/admin/notifications
-// @desc    Get all notifications for admin
-// @access  Admin
-router.get('/', getAllNotifications);
+// @desc    Get all admin notifications
+// @access  Private (Admin)
+router.get('/', getNotifications);
 
 // @route   GET /api/admin/notifications/stats
 // @desc    Get notification statistics
-// @access  Admin
+// @access  Private (Admin)
 router.get('/stats', getNotificationStats);
-
-// @route   GET /api/admin/notifications/:id
-// @desc    Get single notification for admin
-// @access  Admin
-router.get('/:id', getNotificationById);
-
-// @route   POST /api/admin/notifications
-// @desc    Create new notification
-// @access  Admin
-router.post('/', createNotification);
-
-// @route   PUT /api/admin/notifications/:id
-// @desc    Update notification
-// @access  Admin
-router.put('/:id', updateNotification);
-
-// @route   POST /api/admin/notifications/:id/send
-// @desc    Send notification
-// @access  Admin
-router.post('/:id/send', sendNotification);
 
 // @route   DELETE /api/admin/notifications/:id
 // @desc    Delete notification
-// @access  Admin
+// @access  Private (Admin)
 router.delete('/:id', deleteNotification);
 
 module.exports = router;

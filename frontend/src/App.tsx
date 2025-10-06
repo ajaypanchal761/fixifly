@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useUserPushNotifications } from "./hooks/useUserPushNotifications";
 import Index from "./pages/Index";
 import Booking from "./pages/Booking";
 import AMC from "./pages/AMC";
@@ -21,6 +22,7 @@ import Reschedule from "./pages/Reschedule";
 import LaptopService from "./pages/LaptopService";
 import RateUs from "./pages/RateUs";
 import Shop from "./pages/Shop";
+import Notifications from "./pages/Notifications";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
@@ -80,6 +82,9 @@ const AppContent = () => {
   const isLoginPage = location.pathname === '/login';
   const isSignupPage = location.pathname === '/signup';
   const isAuthPage = isLoginPage || isSignupPage;
+  
+  // Initialize user push notifications
+  useUserPushNotifications();
 
   return (
     <div className="min-h-screen bg-background">
@@ -117,6 +122,7 @@ const AppContent = () => {
         
         {/* Profile & Settings Routes */}
         <Route path="/profile" element={<MobileAuthGuard><Profile /></MobileAuthGuard>} />
+        <Route path="/notifications" element={<MobileAuthGuard><Notifications /></MobileAuthGuard>} />
         
         {/* Information Pages Routes */}
         <Route path="/tips-tricks" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />

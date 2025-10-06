@@ -640,7 +640,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* View Task Details Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-2xl h-[90vh] flex flex-col overflow-hidden mt-20">
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col mt-20">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2 text-lg">
               <Eye className="w-4 h-4" />

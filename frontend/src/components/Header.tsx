@@ -7,7 +7,7 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Calendar, Wrench, Phone, ShoppingCart, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield } from 'lucide-react';
+import { Menu, X, Home, Calendar, Wrench, Phone, Bell, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -126,8 +126,8 @@ const Header = () => {
     }
   };
 
-  const handleCartClick = () => {
-    window.open("https://fixfly.in/buy-laptop/", "_blank");
+  const handleNotificationClick = () => {
+    navigate("/notifications");
   };
 
   // Close mobile search when clicking outside or pressing escape
@@ -298,11 +298,11 @@ const Header = () => {
                 />
               </Box>
               
-              {/* Cart Icon */}
+              {/* Notification Bell Icon */}
               <IconButton
                 color="inherit"
-                aria-label="shopping cart"
-                onClick={handleCartClick}
+                aria-label="notifications"
+                onClick={handleNotificationClick}
                 sx={{
                   color: 'black',
                   '&:hover': {
@@ -310,7 +310,7 @@ const Header = () => {
                   },
                 }}
               >
-                <ShoppingCart size={24} />
+                <Bell size={24} />
               </IconButton>
             </Box>
           )}
@@ -332,11 +332,11 @@ const Header = () => {
               >
                 <Search size={24} />
               </IconButton> 
-              {/* Mobile Cart Icon */}
+              {/* Mobile Notification Bell Icon */}
               <IconButton
                 color="inherit"
-                aria-label="shopping cart"
-                onClick={handleCartClick}
+                aria-label="notifications"
+                onClick={handleNotificationClick}
                 sx={{
                   color: 'black',
                   '&:hover': {
@@ -344,7 +344,7 @@ const Header = () => {
                   },
                 }}
               >
-                <ShoppingCart size={24} />
+                <Bell size={24} />
               </IconButton>
             </Box>
           )}
