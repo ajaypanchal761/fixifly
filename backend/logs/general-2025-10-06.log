@@ -4462,3 +4462,62 @@
 [2025-10-06T11:48:28.390Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
 [2025-10-06T11:48:29.359Z] [INFO] Auto-reject service started - checking every minute for pending assignments
 [2025-10-06T11:48:31.325Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:49:29.422Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:49:42.822Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-06T11:49:43.910Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T11:49:44.030Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T11:49:51.839Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards/68da187334ed7d95155fd600"}
+[2025-10-06T11:49:51.991Z] [INFO] Deleting image from Cloudinary | {"public_id":"fixifly/card-images/rdpnediqosrzkdzx7kvi"}
+[2025-10-06T11:49:54.202Z] [INFO] Image deleted successfully | {"public_id":"fixifly/card-images/rdpnediqosrzkdzx7kvi"}
+[2025-10-06T11:49:54.204Z] [INFO] Card image deleted from Cloudinary | {"public_id":"fixifly/card-images/rdpnediqosrzkdzx7kvi"}
+[2025-10-06T11:49:54.239Z] [INFO] Card deleted | {"cardId":"68da187334ed7d95155fd600","name":"Ankit Ahirwar","deletedBy":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T11:49:54.247Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-06T11:50:02.158Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:50:02.163Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:50:02.296Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:50:02.463Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:50:02.590Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:50:19.775Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards"}
+[2025-10-06T11:50:24.739Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/card-images/j3xwccglydlrl3mwqfhv","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759751423/fixifly/card-images/j3xwccglydlrl3mwqfhv.jpg"}
+[2025-10-06T11:50:24.741Z] [INFO] Card image uploaded to Cloudinary | {"public_id":"fixifly/card-images/j3xwccglydlrl3mwqfhv","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759751423/fixifly/card-images/j3xwccglydlrl3mwqfhv.jpg"}
+[2025-10-06T11:50:24.807Z] [INFO] New card created | {"cardId":"68e3ad00ba46ce0792bee500","name":"Ankit Ahirwar","speciality":"Plumbing Services","createdBy":"68ca7f8988ac97b4e9c16645","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759751423/fixifly/card-images/j3xwccglydlrl3mwqfhv.jpg"}
+[2025-10-06T11:50:24.819Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-06T11:50:29.570Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:50:29.652Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:50:29.682Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:50:29.784Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:50:29.801Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:50:29.953Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:51:29.411Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:51:58.378Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:51:59.440Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:52:26.574Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:52:26.638Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:52:29.418Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:53:16.279Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:53:16.343Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:53:29.426Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:54:29.436Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:55:04.871Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:55:05.261Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:55:29.500Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:55:39.463Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:55:51.191Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:55:51.416Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:55:51.735Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:55:51.885Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:55:54.266Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:56:29.458Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:56:32.136Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:56:32.588Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:56:39.421Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:56:39.583Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:56:52.316Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:56:52.495Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:57:14.815Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:57:15.171Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:57:20.118Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:57:20.600Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:57:23.920Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:57:24.081Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:57:29.601Z] [INFO] Found 0 pending assignments to check for auto-rejection

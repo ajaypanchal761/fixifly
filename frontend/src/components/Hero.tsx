@@ -297,7 +297,7 @@ const Hero = () => {
 
 
   return (
-    <section className="relative flex items-center justify-center overflow-hidden min-h-[90vh] sm:min-h-screen">
+    <section className="relative flex items-center justify-center min-h-[90vh] sm:min-h-screen">
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
       
@@ -317,14 +317,14 @@ const Hero = () => {
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
                 {bannersLoading ? (
-                  <div className="w-full h-48 sm:h-64 md:h-72 lg:h-[18rem] xl:h-[20rem] bg-gray-200 rounded-3xl flex items-center justify-center">
+                  <div className="w-full h-44 sm:h-56 md:h-64 lg:h-72 xl:h-80 bg-gray-200 rounded-3xl flex items-center justify-center">
                     <div className="text-center">
                       <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
                       <p className="text-sm text-gray-500">Loading banners...</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[18rem] xl:h-[20rem]">
+                  <div className="relative w-full h-44 sm:h-56 md:h-64 lg:h-72 xl:h-80">
                     {banners.map((banner, index) => (
                       <img 
                         key={index}
