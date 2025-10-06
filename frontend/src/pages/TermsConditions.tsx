@@ -12,8 +12,8 @@ const TermsConditions = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20">
-      <div className="container mx-auto px-4 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 pb-20 sm:pb-8 overflow-y-auto">
+      <div className="container mx-auto px-4 lg:px-8 py-8 min-h-full">
         {/* Back Button */}
         <div className="mb-6">
           <Button
@@ -37,7 +37,7 @@ const TermsConditions = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg mb-4">
             <CardHeader>
               <CardTitle className="text-2xl text-center text-gray-800">
                 Service Terms and Conditions

@@ -1715,3 +1715,1310 @@
 [2025-10-06T06:24:46.943Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
 [2025-10-06T06:24:59.594Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/wallets"}
 [2025-10-06T06:24:59.600Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/withdrawals"}
+[2025-10-06T06:25:18.579Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:26:18.588Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:27:18.588Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:28:18.599Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:29:18.608Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:29:53.768Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:29:53.999Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:30:01.978Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:30:02.427Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:30:18.616Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:30:37.184Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:30:37.364Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:30:59.076Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:30:59.081Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T06:30:59.591Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:31:04.156Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:31:04.697Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:31:17.973Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:31:18.035Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:31:18.623Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:31:40.755Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:31:40.956Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:31:58.619Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:31:59.135Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:32:01.817Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:32:01.881Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:32:05.825Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:32:05.875Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:32:10.100Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:32:10.214Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:32:17.463Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:32:17.612Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:32:18.641Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:32:22.392Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:32:22.500Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:32:30.132Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:32:30.205Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:32:31.286Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:32:31.353Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:32:54.564Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:32:55.825Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:32:55.932Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:32:57.478Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68d7b6ea212fff30fea58a1b/toggle"}
+[2025-10-06T06:32:57.633Z] [INFO] Banner status toggled | {"bannerId":"68d7b6ea212fff30fea58a1b","isActive":false,"adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:32:57.641Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:32:58.556Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68d7b6ea212fff30fea58a1b/toggle"}
+[2025-10-06T06:32:58.714Z] [INFO] Banner status toggled | {"bannerId":"68d7b6ea212fff30fea58a1b","isActive":true,"adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:32:58.721Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:32:58.784Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:32:58.874Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:32:59.860Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:32:59.963Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:33:18.654Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:34:18.656Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:34:48.008Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:34:49.327Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:34:49.465Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:34:51.543Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:34:52.768Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:34:52.885Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:34:55.781Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:34:57.040Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:34:57.153Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:35:00.278Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:35:01.526Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:35:01.646Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:35:09.001Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:35:10.191Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:35:10.291Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:35:18.682Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:36:18.678Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:36:34.766Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:36:34.862Z] [INFO] Creating banner | {"title":"abcd","order":"3","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner1.png","mimetype":"image/png","size":305443,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759732594845-240892379.png"}}
+[2025-10-06T06:36:34.863Z] [INFO] Uploading to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759732594845-240892379.png"}
+[2025-10-06T06:36:34.864Z] [INFO] Uploading image to Cloudinary | {"folder":"banners","resource_type":"auto"}
+[2025-10-06T06:36:38.684Z] [INFO] Image uploaded successfully | {"public_id":"banners/r81y42jfd8rntmqrvhow","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759732599/banners/r81y42jfd8rntmqrvhow.jpg","bytes":25610}
+[2025-10-06T06:36:38.685Z] [INFO] Cloudinary upload successful | {"public_id":"banners/r81y42jfd8rntmqrvhow","url":"https://res.cloudinary.com/fixfly/image/upload/v1759732599/banners/r81y42jfd8rntmqrvhow.jpg"}
+[2025-10-06T06:36:38.692Z] [INFO] Saving banner to database | {"bannerData":{"title":"abcd","image":{"public_id":"banners/r81y42jfd8rntmqrvhow","url":"https://res.cloudinary.com/fixfly/image/upload/v1759732599/banners/r81y42jfd8rntmqrvhow.jpg"},"isActive":true,"order":3,"createdBy":"68ca7f8988ac97b4e9c16645","_id":"68e36376de1f5912d3c8ecda"}}
+[2025-10-06T06:36:38.727Z] [INFO] Banner saved successfully | {"bannerId":"68e36376de1f5912d3c8ecda"}
+[2025-10-06T06:36:38.759Z] [INFO] Banner created successfully | {"bannerId":"68e36376de1f5912d3c8ecda","title":"abcd","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:36:38.767Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:36:39.926Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:36:40.016Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:37:18.708Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:38:09.867Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:38:11.057Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:38:11.237Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:38:15.720Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:38:16.895Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:38:17.001Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:38:18.720Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:38:20.872Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:38:22.122Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:38:22.252Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:38:26.037Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:38:27.252Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:38:27.373Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:39:18.727Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:39:41.533Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:39:42.714Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:39:42.824Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:40:18.728Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:41:18.730Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:41:52.739Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68e36376de1f5912d3c8ecda"}
+[2025-10-06T06:41:52.834Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/r81y42jfd8rntmqrvhow"}
+[2025-10-06T06:41:55.028Z] [INFO] Image deleted successfully | {"public_id":"banners/r81y42jfd8rntmqrvhow"}
+[2025-10-06T06:41:55.080Z] [INFO] Banner deleted successfully | {"bannerId":"68e36376de1f5912d3c8ecda","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:41:55.086Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:41:56.266Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:41:56.406Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:41:58.078Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68d7b6ea212fff30fea58a1b"}
+[2025-10-06T06:41:58.228Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/umlvi7vm5rf4w9ioj7st"}
+[2025-10-06T06:41:58.780Z] [INFO] Image deleted successfully | {"public_id":"banners/umlvi7vm5rf4w9ioj7st"}
+[2025-10-06T06:41:58.832Z] [INFO] Banner deleted successfully | {"bannerId":"68d7b6ea212fff30fea58a1b","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:41:58.838Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:42:00.058Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:42:00.160Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:42:15.884Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:42:15.956Z] [INFO] Creating banner | {"title":"abcd","order":"2","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner1.png","mimetype":"image/png","size":305443,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759732935951-319759982.png"}}
+[2025-10-06T06:42:15.957Z] [INFO] Uploading to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759732935951-319759982.png"}
+[2025-10-06T06:42:15.957Z] [INFO] Uploading image to Cloudinary | {"folder":"banners","resource_type":"auto"}
+[2025-10-06T06:42:18.737Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:42:19.599Z] [INFO] Image uploaded successfully | {"public_id":"banners/e8a5oxbw1xsflq5t3onw","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759732940/banners/e8a5oxbw1xsflq5t3onw.jpg","bytes":25610}
+[2025-10-06T06:42:19.601Z] [INFO] Cloudinary upload successful | {"public_id":"banners/e8a5oxbw1xsflq5t3onw","url":"https://res.cloudinary.com/fixfly/image/upload/v1759732940/banners/e8a5oxbw1xsflq5t3onw.jpg"}
+[2025-10-06T06:42:19.604Z] [INFO] Saving banner to database | {"bannerData":{"title":"abcd","image":{"public_id":"banners/e8a5oxbw1xsflq5t3onw","url":"https://res.cloudinary.com/fixfly/image/upload/v1759732940/banners/e8a5oxbw1xsflq5t3onw.jpg"},"isActive":true,"order":2,"createdBy":"68ca7f8988ac97b4e9c16645","_id":"68e364cbde1f5912d3c8f47e"}}
+[2025-10-06T06:42:19.637Z] [INFO] Banner saved successfully | {"bannerId":"68e364cbde1f5912d3c8f47e"}
+[2025-10-06T06:42:19.668Z] [INFO] Banner created successfully | {"bannerId":"68e364cbde1f5912d3c8f47e","title":"abcd","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:42:19.691Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:42:20.851Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:42:20.947Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:42:30.402Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T06:42:30.428Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:42:30.687Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:43:18.747Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:43:30.894Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:43:32.115Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:43:32.230Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:43:36.398Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:43:37.679Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:43:37.832Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:43:43.178Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:43:44.358Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:43:44.479Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:43:46.720Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:43:47.949Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:43:48.047Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:43:53.563Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:43:54.793Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:43:54.909Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:44:01.551Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:44:02.729Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:44:02.861Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:44:09.487Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:44:10.591Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:44:11.859Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:44:11.986Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:44:18.758Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:45:12.514Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:45:12.597Z] [INFO] Creating banner | {"title":"abcd","order":"2","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner1.png","mimetype":"image/png","size":305443,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733112583-180812628.png"}}
+[2025-10-06T06:45:12.598Z] [INFO] Uploading to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733112583-180812628.png"}
+[2025-10-06T06:45:12.599Z] [INFO] Uploading image to Cloudinary | {"folder":"banners","resource_type":"auto"}
+[2025-10-06T06:45:17.506Z] [INFO] Image uploaded successfully | {"public_id":"banners/bnk1rl0k6aadio51oovi","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759733118/banners/bnk1rl0k6aadio51oovi.jpg","bytes":25610}
+[2025-10-06T06:45:17.508Z] [INFO] Cloudinary upload successful | {"public_id":"banners/bnk1rl0k6aadio51oovi","url":"https://res.cloudinary.com/fixfly/image/upload/v1759733118/banners/bnk1rl0k6aadio51oovi.jpg"}
+[2025-10-06T06:45:17.511Z] [INFO] Saving banner to database | {"bannerData":{"title":"abcd","image":{"public_id":"banners/bnk1rl0k6aadio51oovi","url":"https://res.cloudinary.com/fixfly/image/upload/v1759733118/banners/bnk1rl0k6aadio51oovi.jpg"},"isActive":true,"order":2,"createdBy":"68ca7f8988ac97b4e9c16645","_id":"68e3657dde1f5912d3c8fbc1"}}
+[2025-10-06T06:45:17.543Z] [INFO] Banner saved successfully | {"bannerId":"68e3657dde1f5912d3c8fbc1"}
+[2025-10-06T06:45:17.573Z] [INFO] Banner created successfully | {"bannerId":"68e3657dde1f5912d3c8fbc1","title":"abcd","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:45:17.580Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:45:18.742Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:45:18.767Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:45:18.848Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:45:32.742Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68e3657dde1f5912d3c8fbc1"}
+[2025-10-06T06:45:32.838Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/bnk1rl0k6aadio51oovi"}
+[2025-10-06T06:45:34.914Z] [INFO] Image deleted successfully | {"public_id":"banners/bnk1rl0k6aadio51oovi"}
+[2025-10-06T06:45:34.946Z] [INFO] Banner deleted successfully | {"bannerId":"68e3657dde1f5912d3c8fbc1","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:45:34.954Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:45:36.109Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:45:36.204Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:46:18.775Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:46:51.405Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:46:52.104Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:47:01.651Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:47:01.703Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:47:02.420Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:47:02.922Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:47:05.593Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:47:07.511Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:47:07.632Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:47:18.800Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:47:50.398Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:47:53.809Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:47:53.927Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:48:04.644Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:48:06.513Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:48:06.629Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:48:13.568Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:48:16.485Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:48:16.597Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:48:18.807Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:48:29.452Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:48:30.640Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:48:30.736Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:49:18.828Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:49:49.379Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68d7b827212fff30fea58bcf"}
+[2025-10-06T06:49:49.491Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/yk6pepkp4ibtdj4zglit"}
+[2025-10-06T06:49:51.838Z] [INFO] Image deleted successfully | {"public_id":"banners/yk6pepkp4ibtdj4zglit"}
+[2025-10-06T06:49:51.883Z] [INFO] Banner deleted successfully | {"bannerId":"68d7b827212fff30fea58bcf","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:49:51.928Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:49:53.153Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:49:53.269Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:50:01.011Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:50:01.080Z] [INFO] Creating banner | {"title":"abcd","order":"2","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner1.png","mimetype":"image/png","size":305443,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733401075-645650250.png"}}
+[2025-10-06T06:50:01.081Z] [INFO] Uploading to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733401075-645650250.png"}
+[2025-10-06T06:50:01.082Z] [INFO] Uploading image to Cloudinary | {"folder":"banners","resource_type":"auto"}
+[2025-10-06T06:50:18.833Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:50:33.537Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:50:34.754Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:50:34.860Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:50:41.643Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:50:42.856Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:50:42.967Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:50:47.374Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:50:48.682Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:50:48.805Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:50:53.464Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:50:54.739Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:50:54.890Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:51:06.372Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:51:07.656Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:51:07.766Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:51:18.830Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:51:46.911Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:51:46.979Z] [INFO] Creating banner | {"title":"hghtg","order":"2","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner1.png","mimetype":"image/png","size":305443,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733506975-78996852.png"}}
+[2025-10-06T06:51:46.980Z] [INFO] Uploading to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733506975-78996852.png"}
+[2025-10-06T06:51:46.980Z] [INFO] Uploading image to Cloudinary | {"folder":"banners","resource_type":"auto"}
+[2025-10-06T06:51:50.830Z] [INFO] Image uploaded successfully | {"public_id":"banners/dmijmphpq9x0aftcrodk","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759733511/banners/dmijmphpq9x0aftcrodk.jpg","bytes":25610}
+[2025-10-06T06:51:50.832Z] [INFO] Cloudinary upload successful | {"public_id":"banners/dmijmphpq9x0aftcrodk","url":"https://res.cloudinary.com/fixfly/image/upload/v1759733511/banners/dmijmphpq9x0aftcrodk.jpg"}
+[2025-10-06T06:51:50.837Z] [INFO] Saving banner to database | {"bannerData":{"title":"hghtg","image":{"public_id":"banners/dmijmphpq9x0aftcrodk","url":"https://res.cloudinary.com/fixfly/image/upload/v1759733511/banners/dmijmphpq9x0aftcrodk.jpg"},"isActive":true,"order":2,"createdBy":"68ca7f8988ac97b4e9c16645","_id":"68e36706de1f5912d3c907d5"}}
+[2025-10-06T06:51:50.874Z] [INFO] Banner saved successfully | {"bannerId":"68e36706de1f5912d3c907d5"}
+[2025-10-06T06:51:50.907Z] [INFO] Banner created successfully | {"bannerId":"68e36706de1f5912d3c907d5","title":"hghtg","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:51:50.923Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:51:52.114Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:51:52.230Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:52:18.900Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:52:24.592Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T06:52:24.701Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T06:52:34.026Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T06:52:34.088Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:52:46.522Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T06:52:46.625Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T06:52:48.855Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T06:52:48.931Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:53:07.455Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T06:53:07.957Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T06:53:19.202Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T06:53:20.353Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T06:53:22.339Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T06:53:23.122Z] [INFO] SMTP connection verified successfully
+[2025-10-06T06:53:24.284Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T06:53:24.450Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T06:53:30.951Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T06:53:31.040Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T06:53:31.878Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T06:53:32.802Z] [INFO] SMTP connection verified successfully
+[2025-10-06T06:54:21.558Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68e36706de1f5912d3c907d5"}
+[2025-10-06T06:54:21.687Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/dmijmphpq9x0aftcrodk"}
+[2025-10-06T06:54:23.962Z] [INFO] Image deleted successfully | {"public_id":"banners/dmijmphpq9x0aftcrodk"}
+[2025-10-06T06:54:24.004Z] [INFO] Banner deleted successfully | {"bannerId":"68e36706de1f5912d3c907d5","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:54:24.019Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:54:25.234Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:54:25.353Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:54:26.724Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners/68e364cbde1f5912d3c8f47e"}
+[2025-10-06T06:54:26.831Z] [INFO] Deleting image from Cloudinary | {"public_id":"banners/e8a5oxbw1xsflq5t3onw"}
+[2025-10-06T06:54:27.477Z] [INFO] Image deleted successfully | {"public_id":"banners/e8a5oxbw1xsflq5t3onw"}
+[2025-10-06T06:54:27.510Z] [INFO] Banner deleted successfully | {"bannerId":"68e364cbde1f5912d3c8f47e","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:54:27.516Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:54:28.642Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:54:28.757Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:54:31.923Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:54:39.635Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:54:39.721Z] [INFO] Creating banner | {"title":"abcd","order":"1","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner1.png","mimetype":"image/png","size":305443,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733679711-669245415.png"}}
+[2025-10-06T06:54:39.722Z] [INFO] Uploading banner to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733679711-669245415.png"}
+[2025-10-06T06:54:39.723Z] [INFO] Uploading banner image to Cloudinary | {"folder":"banners","resource_type":"image"}
+[2025-10-06T06:54:43.882Z] [INFO] Banner image uploaded successfully | {"public_id":"banners/f4tfgu6cd0sn7m3fygjf","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759733684/banners/f4tfgu6cd0sn7m3fygjf.jpg","bytes":60984,"width":883,"height":440}
+[2025-10-06T06:54:43.885Z] [INFO] Banner upload successful | {"public_id":"banners/f4tfgu6cd0sn7m3fygjf","url":"https://res.cloudinary.com/fixfly/image/upload/v1759733684/banners/f4tfgu6cd0sn7m3fygjf.jpg"}
+[2025-10-06T06:54:43.892Z] [INFO] Saving banner to database | {"bannerData":{"title":"abcd","image":{"public_id":"banners/f4tfgu6cd0sn7m3fygjf","url":"https://res.cloudinary.com/fixfly/image/upload/v1759733684/banners/f4tfgu6cd0sn7m3fygjf.jpg"},"isActive":true,"order":1,"createdBy":"68ca7f8988ac97b4e9c16645","_id":"68e367b360caf69e32ba9842"}}
+[2025-10-06T06:54:43.944Z] [INFO] Banner saved successfully | {"bannerId":"68e367b360caf69e32ba9842"}
+[2025-10-06T06:54:43.977Z] [INFO] Banner created successfully | {"bannerId":"68e367b360caf69e32ba9842","title":"abcd","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:54:43.995Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:54:45.215Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:54:45.342Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:54:56.858Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:54:56.880Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T06:54:57.166Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:55:31.932Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:56:20.938Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:56:22.306Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:56:22.448Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:56:31.999Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:56:33.057Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:56:34.227Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:56:34.360Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:56:50.698Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:56:51.911Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:56:52.015Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:56:56.636Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:56:57.949Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:56:58.074Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:57:15.031Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:57:15.123Z] [INFO] Creating banner | {"title":"abcd","order":"2","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner2.png","mimetype":"image/png","size":421659,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733835105-915907757.png"}}
+[2025-10-06T06:57:15.130Z] [INFO] Uploading banner to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759733835105-915907757.png"}
+[2025-10-06T06:57:15.135Z] [INFO] Uploading banner image to Cloudinary | {"folder":"banners","resource_type":"image"}
+[2025-10-06T06:57:22.431Z] [INFO] Banner image uploaded successfully | {"public_id":"banners/i8vjafonsp9izpiakabt","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759733843/banners/i8vjafonsp9izpiakabt.jpg","bytes":83648,"width":890,"height":441}
+[2025-10-06T06:57:22.434Z] [INFO] Banner upload successful | {"public_id":"banners/i8vjafonsp9izpiakabt","url":"https://res.cloudinary.com/fixfly/image/upload/v1759733843/banners/i8vjafonsp9izpiakabt.jpg"}
+[2025-10-06T06:57:22.439Z] [INFO] Saving banner to database | {"bannerData":{"title":"abcd","image":{"public_id":"banners/i8vjafonsp9izpiakabt","url":"https://res.cloudinary.com/fixfly/image/upload/v1759733843/banners/i8vjafonsp9izpiakabt.jpg"},"isActive":true,"order":2,"createdBy":"68ca7f8988ac97b4e9c16645","_id":"68e3685260caf69e32ba9cb7"}}
+[2025-10-06T06:57:22.473Z] [INFO] Banner saved successfully | {"bannerId":"68e3685260caf69e32ba9cb7"}
+[2025-10-06T06:57:22.503Z] [INFO] Banner created successfully | {"bannerId":"68e3685260caf69e32ba9cb7","title":"abcd","adminId":"68ca7f8988ac97b4e9c16645"}
+[2025-10-06T06:57:22.514Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:57:23.733Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:57:23.835Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:57:25.663Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T06:57:25.684Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T06:57:25.750Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:57:25.806Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T06:57:27.531Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T06:57:27.594Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:57:27.921Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T06:57:28.587Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:57:28.597Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T06:57:28.656Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:57:31.997Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:58:13.843Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:58:14.112Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:58:18.949Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T06:58:19.717Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:58:19.764Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T06:58:19.884Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:58:21.028Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:58:21.075Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:58:32.045Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T06:58:33.964Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:58:34.346Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:58:41.563Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T06:58:41.869Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T06:58:43.612Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T06:58:44.572Z] [INFO] SMTP connection verified successfully
+[2025-10-06T06:58:45.578Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T06:58:45.943Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:58:46.164Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T06:58:46.458Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:58:46.919Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T06:58:55.640Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:58:55.773Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:58:57.790Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T06:58:58.312Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:58:58.409Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T06:58:58.744Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:59:03.058Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:59:03.122Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:59:19.034Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T06:59:19.153Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T06:59:38.356Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T06:59:38.637Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T06:59:58.584Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T06:59:59.601Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T07:00:07.151Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T07:00:08.016Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:00:08.083Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:00:09.597Z] [INFO] SMTP connection verified successfully
+[2025-10-06T07:00:09.669Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:00:11.020Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:00:11.618Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:00:19.930Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:00:19.984Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:00:20.577Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T07:00:20.639Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:00:20.960Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:00:20.976Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:00:21.052Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:00:23.685Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T07:00:23.815Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:01:07.179Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:01:17.207Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:01:17.321Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:01:18.522Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:01:18.595Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:01:52.727Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:01:52.865Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:01:53.919Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:01:53.993Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:01:55.910Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:01:55.928Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:01:55.935Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:01:55.952Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:01:55.954Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:01:56.017Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:01:56.033Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:01:56.089Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:01:56.093Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:01:56.154Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:01:56.821Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:01:56.931Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:01:56.946Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:02:07.193Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:03:07.189Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:03:41.666Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:03:41.806Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:03:47.304Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:03:47.769Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:03:47.875Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:03:48.086Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:04:07.188Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:04:14.279Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:04:14.411Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:05:07.220Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:05:21.255Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:05:21.311Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:05:21.375Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:05:21.489Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:05:21.506Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:05:21.669Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:05:21.802Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:05:21.887Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:05:21.905Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:05:21.984Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:05:22.376Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:05:25.510Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:05:25.572Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:05:25.583Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:05:25.652Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:05:25.675Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:05:25.761Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:05:25.775Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:05:25.820Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:05:25.824Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:05:25.886Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:05:26.392Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:06:07.213Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:06:26.896Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:06:27.052Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:06:53.213Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T07:06:54.272Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T07:06:55.865Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T07:06:56.372Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:06:56.660Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:06:56.680Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:06:56.724Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:06:56.772Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:06:56.789Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:06:56.826Z] [INFO] SMTP connection verified successfully
+[2025-10-06T07:06:56.846Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:06:56.849Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:06:56.904Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T07:06:57.062Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:06:57.071Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:06:57.158Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:06:57.160Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:06:57.691Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:06:57.755Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:07:03.441Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:07:03.598Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:07:03.644Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:07:03.660Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:07:03.671Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:07:03.725Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:07:03.746Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:07:03.783Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:07:03.792Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:07:03.856Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:07:04.203Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:07:04.509Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:07:04.582Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:07:26.702Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T07:07:26.832Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:07:56.020Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:07:57.851Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:07:57.860Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:07:57.868Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:07:57.887Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:07:57.888Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:07:57.968Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:07:57.988Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:07:58.039Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:07:58.069Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:07:58.145Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:07:58.475Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:00.274Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:08:00.308Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:00.330Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:08:00.373Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:08:00.465Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:08:00.535Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:08:00.551Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:08:00.582Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:08:00.583Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:08:00.639Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:08:01.105Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:04.166Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:08:04.192Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:04.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:08:04.272Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:08:04.284Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:08:04.342Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:08:04.363Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:08:04.398Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:08:04.400Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:08:04.460Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:08:05.001Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:12.052Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:08:12.071Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:12.080Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:08:12.234Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:08:12.235Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:08:12.313Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:08:12.347Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:08:12.383Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:08:12.386Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:08:12.445Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:08:12.799Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:15.238Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:08:15.547Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:08:15.556Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:08:15.633Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:08:32.797Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:32.810Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:08:32.818Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:08:32.862Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:08:32.869Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:08:32.954Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:08:32.980Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:08:33.030Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:08:33.033Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:08:33.110Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:08:33.351Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:08:55.961Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:09:16.557Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:16.572Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:16.592Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:09:16.649Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:16.659Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:16.757Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:16.891Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:16.989Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:16.999Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:17.099Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:17.206Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:19.810Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:19.843Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:19.862Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:09:19.897Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:19.923Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:20.122Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:20.221Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:20.269Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:20.285Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:20.373Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:20.428Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:24.922Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:24.930Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:24.940Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:09:24.964Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:24.965Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:25.034Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:25.041Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:25.077Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:25.079Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:25.148Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:25.340Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:41.222Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:09:42.232Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:09:42.330Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:09:45.324Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:45.340Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:09:45.357Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:45.372Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:45.373Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:45.441Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:45.448Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:45.484Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:45.485Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:45.559Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:45.841Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:46.253Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:09:46.332Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:09:49.551Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:49.564Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:49.638Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:09:49.705Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:49.734Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:49.876Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:50.007Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:09:50.076Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:09:50.080Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:09:50.158Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:09:50.310Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:09:50.376Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:09:50.433Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:09:55.975Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:10:55.988Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:11:02.750Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:11:02.841Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:11:32.047Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:11:32.071Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:11:32.090Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:11:32.105Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:11:32.108Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:11:32.176Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:11:32.210Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:11:32.242Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:11:32.246Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:11:32.300Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:11:32.479Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:11:32.994Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:11:33.072Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:11:36.054Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:11:36.122Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:11:36.220Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:11:36.229Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:11:36.245Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:11:36.257Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:11:36.260Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:11:36.314Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:11:36.321Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:11:36.350Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:11:36.351Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:11:36.402Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:11:36.736Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:11:37.213Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:11:37.297Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:11:56.001Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:12:18.543Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:12:18.550Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:12:18.557Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:12:18.575Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:12:18.583Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:12:18.635Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:12:18.642Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:12:18.671Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:12:18.672Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:12:18.724Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:12:19.073Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:12:19.499Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:12:19.584Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:12:56.010Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:13:10.413Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:13:10.507Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:13:10.535Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:13:10.669Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:13:10.682Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:13:10.834Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:13:11.068Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:13:11.446Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:13:11.577Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:13:11.634Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:13:11.655Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:13:11.678Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:13:11.774Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:13:13.542Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:13:13.635Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:13:14.512Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:13:14.561Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:13:14.581Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:13:14.601Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:13:14.617Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:13:14.707Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:13:14.714Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:13:14.742Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:13:14.743Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:13:14.793Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:13:15.011Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:13:15.440Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:13:15.613Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:13:56.008Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:14:40.553Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:14:40.633Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:14:48.915Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:14:48.985Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:14:51.536Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:14:51.549Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:14:51.553Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:14:51.589Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:14:51.594Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:14:51.664Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:14:51.682Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:14:51.729Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:14:51.731Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:14:51.801Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:14:51.935Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:14:52.489Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:14:52.565Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:14:56.018Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:14:56.280Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:14:56.388Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:15:35.897Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T07:15:36.696Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T07:15:38.366Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T07:15:38.521Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:15:38.595Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-06T07:15:39.037Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:15:39.321Z] [INFO] SMTP connection verified successfully
+[2025-10-06T07:15:40.530Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T07:15:40.640Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:15:41.075Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:15:41.082Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:15:41.109Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:15:41.110Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:15:41.179Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:15:50.669Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:15:50.732Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:16:02.712Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:16:02.735Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:16:02.772Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:16:02.809Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:16:02.819Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:16:03.035Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:16:03.060Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:16:03.106Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:16:03.108Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:16:03.168Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:16:03.213Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:16:03.293Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:16:03.561Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:16:38.399Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:17:06.387Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:17:06.485Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:17:19.926Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:17:19.999Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:17:35.658Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:17:35.670Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:17:35.677Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:17:35.693Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:17:35.696Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:17:35.757Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:17:35.762Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:17:35.819Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:17:35.837Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:17:35.905Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:17:36.153Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:17:36.627Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:17:36.695Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:17:38.403Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:17:39.857Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:17:39.920Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:18:38.409Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:19:34.530Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:19:34.597Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:19:34.797Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:19:38.518Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:19:43.088Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:19:43.097Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:19:43.129Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:19:43.160Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:19:43.177Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:19:43.261Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:19:43.271Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:19:43.305Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:19:43.307Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:19:43.364Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:19:43.570Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:19:43.705Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:19:43.785Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:19:47.081Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:19:47.153Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:19:53.262Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:19:53.339Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:20:38.527Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:20:57.328Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:20:57.408Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:21:38.480Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:21:58.070Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:21:58.156Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:22:38.472Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:23:38.485Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:24:26.882Z] [INFO] Vendor logged in successfully | {"vendorId":"68e34a9903b689ac70713d56","email":"panchalajay717@gmail.com"}
+[2025-10-06T07:24:26.980Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:24:27.102Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:24:27.208Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:24:27.318Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:24:27.976Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:28.039Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:28.160Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:28.225Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:28.380Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:28.448Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:30.331Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:24:30.342Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:24:30.362Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:24:30.377Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:24:30.392Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:24:30.455Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:24:30.460Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:24:30.493Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:24:30.495Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:24:30.552Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:24:30.888Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:24:31.313Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:31.376Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:38.506Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:24:38.516Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:24:38.622Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:24:38.719Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:24:38.815Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:24:39.473Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:39.532Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:39.663Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:39.723Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:39.844Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:39.904Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:40.685Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:24:40.767Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:40.831Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:41.687Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:24:41.747Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:24:55.989Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile/image"}
+[2025-10-06T07:24:56.066Z] [INFO] Vendor found for profile image upload | {"vendorId":"68e34a9903b689ac70713d56","vendorIdString":"68e34a9903b689ac70713d56","vendorIdType":"object"}
+[2025-10-06T07:24:56.068Z] [INFO] Starting image upload to Cloudinary | {"vendorId":"68e34a9903b689ac70713d56","fileName":"card1.jpg","fileSize":86577}
+[2025-10-06T07:24:56.070Z] [INFO] Starting profile image upload | {"userId":"68e34a9903b689ac70713d56","fileName":"card1.jpg","fileSize":86577,"mimeType":"image/jpeg"}
+[2025-10-06T07:24:59.169Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/profile-images/68e34a9903b689ac70713d56/profile_68e34a9903b689ac70713d56_1759735496071","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759735500/fixifly/profile-images/68e34a9903b689ac70713d56/profile_68e34a9903b689ac70713d56_1759735496071.jpg"}
+[2025-10-06T07:24:59.171Z] [INFO] Profile image uploaded successfully | {"userId":"68e34a9903b689ac70713d56","publicId":"fixifly/profile-images/68e34a9903b689ac70713d56/profile_68e34a9903b689ac70713d56_1759735496071","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759735500/fixifly/profile-images/68e34a9903b689ac70713d56/profile_68e34a9903b689ac70713d56_1759735496071.jpg"}
+[2025-10-06T07:24:59.172Z] [INFO] Image upload result | {"uploadResult":{"success":true,"data":{"publicId":"fixifly/profile-images/68e34a9903b689ac70713d56/profile_68e34a9903b689ac70713d56_1759735496071","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759735500/fixifly/profile-images/68e34a9903b689ac70713d56/profile_68e34a9903b689ac70713d56_1759735496071.jpg","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759735500/fixifly/profile-images/68e34a9903b689ac70713d56/profile_68e34a9903b689ac70713d56_1759735496071.jpg","width":500,"height":500,"bytes":25359,"format":"jpg"}}}
+[2025-10-06T07:24:59.204Z] [INFO] Vendor profile image uploaded successfully for vendor: 299
+[2025-10-06T07:25:00.272Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:25:00.336Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:25:00.668Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:25:00.764Z] [INFO] Vendor profile updated successfully | {"vendorId":"68e34a9903b689ac70713d56"}
+[2025-10-06T07:25:01.825Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:25:01.892Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:25:03.083Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:25:03.249Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:25:03.347Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:25:03.448Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T07:25:04.041Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:25:04.101Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:25:04.219Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:25:04.277Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:25:04.383Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:25:04.401Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:25:04.407Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:25:04.441Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:25:04.442Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:25:04.503Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:25:04.519Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:25:04.538Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:25:04.570Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:25:04.571Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:25:04.591Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:25:04.636Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:25:04.671Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:25:04.754Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:25:04.858Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:25:05.375Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:25:05.446Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:25:07.468Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:25:07.487Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:25:07.500Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T07:25:07.522Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:25:07.537Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:25:07.602Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:25:07.611Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T07:25:07.646Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T07:25:07.647Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T07:25:07.730Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T07:25:07.974Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T07:25:08.366Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T07:25:08.477Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T07:25:19.767Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:25:19.777Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:25:19.979Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:25:23.921Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:25:23.952Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:25:24.023Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:25:38.521Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:25:45.477Z] [INFO] Starting profile image upload | {"userId":"68da5cffdb809ec5368c0f40","fileName":"card1.jpg","fileSize":86577}
+[2025-10-06T07:25:45.478Z] [INFO] Starting profile image upload | {"userId":"68da5cffdb809ec5368c0f40","fileName":"card1.jpg","fileSize":86577,"mimeType":"image/jpeg"}
+[2025-10-06T07:25:48.614Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/profile-images/68da5cffdb809ec5368c0f40/profile_68da5cffdb809ec5368c0f40_1759735545478","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759735549/fixifly/profile-images/68da5cffdb809ec5368c0f40/profile_68da5cffdb809ec5368c0f40_1759735545478.jpg"}
+[2025-10-06T07:25:48.616Z] [INFO] Profile image uploaded successfully | {"userId":"68da5cffdb809ec5368c0f40","publicId":"fixifly/profile-images/68da5cffdb809ec5368c0f40/profile_68da5cffdb809ec5368c0f40_1759735545478","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759735549/fixifly/profile-images/68da5cffdb809ec5368c0f40/profile_68da5cffdb809ec5368c0f40_1759735545478.jpg"}
+[2025-10-06T07:25:48.662Z] [INFO] Profile image uploaded successfully | {"userId":"68da5cffdb809ec5368c0f40","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759735549/fixifly/profile-images/68da5cffdb809ec5368c0f40/profile_68da5cffdb809ec5368c0f40_1759735545478.jpg"}
+[2025-10-06T07:26:38.527Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:27:19.538Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T07:27:19.555Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T07:27:19.632Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T07:27:23.755Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:27:38.522Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:28:21.363Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:28:31.280Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:28:38.540Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:28:53.457Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:29:38.542Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:29:47.562Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:29:52.079Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:29:54.055Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:29:56.238Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:30:02.083Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:30:12.941Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:30:19.980Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:30:27.365Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:30:38.546Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:30:54.566Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:30:58.813Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:03.708Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:06.096Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:13.204Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:17.582Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:18.917Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:31.240Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:35.178Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:38.565Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:31:39.409Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:48.189Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:50.500Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:54.761Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:31:58.819Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:32:04.854Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:32:09.480Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:32:12.537Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:32:21.682Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:32:26.088Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:32:37.137Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:32:38.568Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:32:41.543Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:32:45.271Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:33:16.693Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:33:19.541Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:33:24.733Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:33:30.336Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:33:38.571Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:33:44.218Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:05.109Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:12.721Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:16.892Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:21.795Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:25.137Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:36.912Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:38.630Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:34:39.933Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:55.591Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:34:58.513Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:35:03.595Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-06T07:35:29.467Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-06T07:35:29.504Z] [INFO] User AMC subscriptions fetched | {"userId":"68da5cffdb809ec5368c0f40","subscriptionsCount":2}
+[2025-10-06T07:35:30.352Z] [INFO] User AMC subscriptions fetched | {"userId":"68da5cffdb809ec5368c0f40","subscriptionsCount":2}
+[2025-10-06T07:35:38.592Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:36:38.601Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:37:38.608Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:38:38.617Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:39:38.627Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:40:39.030Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:41:38.647Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:42:38.656Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:43:38.665Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T07:44:38.678Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:01:17.270Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T08:01:17.311Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T08:01:17.343Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T08:01:19.585Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:01:22.294Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T08:01:22.334Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T08:03:40.025Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:04:41.348Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:05:41.359Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:06:12.800Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-10-06T08:06:12.847Z] [INFO] Existing user found | {"userId":"68da5cffdb809ec5368c0f40","phone":"7610416911"}
+[2025-10-06T08:06:12.848Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-10-06T08:06:12.903Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68da5cffdb809ec5368c0f40"}
+[2025-10-06T08:06:12.904Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-10-06T08:06:14.048Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1759737974048","provider":"SMSIndia Hub"}
+[2025-10-06T08:06:28.282Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:06:28.818Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:06:28.907Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:06:41.378Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:07:41.484Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:08:30.174Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-10-06T08:08:30.268Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-06T08:08:30.897Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":10,"year":2025}
+[2025-10-06T08:08:31.298Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T08:08:31.409Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:08:32.110Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-06T08:08:32.119Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-06T08:08:32.124Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-06T08:08:32.264Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":2,"totalRevenue":944}
+[2025-10-06T08:08:32.390Z] [INFO] Admin retrieved bookings: 2 | {"totalBookings":2,"page":1,"filters":{}}
+[2025-10-06T08:08:33.105Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T08:08:33.216Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:08:38.850Z] [INFO] Vendor logged in successfully | {"vendorId":"68e34a9903b689ac70713d56","email":"panchalajay717@gmail.com"}
+[2025-10-06T08:08:38.982Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:08:39.084Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:08:39.205Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:08:39.313Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:08:39.960Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:08:40.034Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:08:40.156Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:08:40.216Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:08:40.355Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:08:40.420Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:08:41.394Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:09:09.129Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:09:09.242Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:09:11.137Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:09:11.202Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:09:39.123Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:09:39.210Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:09:41.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:09:41.198Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:09:41.409Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:10:12.026Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:10:12.128Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:10:14.145Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:10:14.209Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:10:39.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:10:39.229Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:10:41.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:10:41.184Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:10:41.406Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:10:53.511Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:10:53.529Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:10:53.593Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:10:58.799Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-06T08:10:58.849Z] [INFO] User AMC subscriptions fetched | {"userId":"68da5cffdb809ec5368c0f40","subscriptionsCount":2}
+[2025-10-06T08:10:58.969Z] [INFO] User AMC subscriptions fetched | {"userId":"68da5cffdb809ec5368c0f40","subscriptionsCount":2}
+[2025-10-06T08:11:06.281Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:11:06.301Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:11:06.347Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:11:09.126Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:11:09.230Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:11:11.148Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:11:11.211Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:11:39.167Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:11:39.337Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:11:41.183Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:11:41.262Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:11:41.430Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:11:49.024Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:11:49.044Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:11:49.336Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:11:59.008Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:11:59.031Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:11:59.204Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:12:19.992Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:12:20.510Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:12:20.833Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:12:25.926Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:12:26.204Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:12:26.478Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:12:33.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:12:33.249Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:12:35.177Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:12:35.275Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:12:41.510Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:12:56.189Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:12:56.339Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:12:58.157Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:12:58.255Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:13:09.187Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:13:09.200Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:13:09.296Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:13:41.474Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:13:56.122Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:13:56.226Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:13:58.144Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:13:58.228Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:14:41.493Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:14:56.161Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:14:56.262Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:14:58.142Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:14:58.207Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:15:41.522Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:15:56.142Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:15:56.305Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:15:58.137Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:15:58.237Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:16:41.515Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:16:56.142Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:16:56.248Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:16:58.146Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:16:58.221Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:17:41.516Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:17:56.129Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:17:56.237Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:17:58.137Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:17:58.201Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:18:41.540Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:18:56.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:18:56.251Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:18:58.133Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:18:58.199Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:19:41.545Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:19:56.136Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:19:56.242Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:19:58.180Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:19:58.254Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:20:41.556Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:20:56.121Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:20:56.224Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:20:58.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:20:58.201Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:21:41.574Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:21:56.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:21:56.227Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:21:58.148Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:21:58.247Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:22:41.586Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:22:56.140Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:22:56.248Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:22:58.132Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:22:58.206Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:23:41.594Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:23:56.141Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:23:56.242Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:23:58.136Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:23:58.207Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:24:41.617Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:24:56.138Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:24:56.243Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:24:58.175Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:24:58.565Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:25:41.602Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:25:56.142Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:25:56.248Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:25:58.125Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:25:58.191Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:26:41.609Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:26:56.140Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:26:56.240Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:26:58.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:26:58.202Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:27:41.618Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:27:56.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:27:56.233Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:27:58.137Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:27:58.213Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:28:41.653Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:28:56.130Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:28:56.242Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:28:58.140Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:28:58.207Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:29:41.637Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:29:56.125Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:29:56.223Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:29:58.145Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:29:58.217Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:30:41.646Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:30:56.123Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:30:56.243Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:30:58.142Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:30:58.216Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:31:41.646Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:31:56.141Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:31:56.256Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:31:58.142Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:31:58.207Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:32:41.658Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:32:56.130Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:32:56.230Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:32:58.133Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:32:58.208Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:33:41.661Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:33:56.132Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:33:56.238Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:33:58.132Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:33:58.206Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:34:41.665Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:34:56.129Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:34:56.254Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:34:58.140Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:34:58.204Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:59:06.797Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T08:59:21.712Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:59:21.853Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:59:25.953Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-06T08:59:26.002Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-06T08:59:26.034Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-06T08:59:26.655Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":2,"totalRevenue":944}
+[2025-10-06T08:59:26.784Z] [INFO] Admin retrieved bookings: 2 | {"totalBookings":2,"page":1,"filters":{}}
+[2025-10-06T08:59:26.876Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T08:59:27.021Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:59:28.036Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-10-06T08:59:28.362Z] [INFO] Admin logged out | {"adminId":"ADMIN001","ip":"::1"}
+[2025-10-06T08:59:29.761Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:59:29.921Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:59:30.101Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:59:30.256Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T08:59:31.287Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:59:31.398Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:59:32.263Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:59:32.270Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T08:59:32.328Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:59:32.370Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:59:33.975Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-10-06T08:59:34.018Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-06T08:59:34.683Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":10,"year":2025}
+[2025-10-06T08:59:35.031Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T08:59:35.172Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T08:59:38.096Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:59:38.113Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:59:38.186Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T08:59:53.238Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T08:59:53.270Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T08:59:53.337Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:00:00.197Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:00:00.359Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:00:02.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:00:02.252Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:00:04.886Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:00:30.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:00:30.276Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:00:32.133Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:00:32.227Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:00:55.830Z] [INFO] Starting OTP send process | {"phone":"6232091656"}
+[2025-10-06T09:00:55.881Z] [INFO] Creating new user for OTP | {"phone":"6232091656"}
+[2025-10-06T09:00:55.895Z] [INFO] Generating random OTP | {"phone":"6232091656"}
+[2025-10-06T09:00:55.945Z] [INFO] OTP generated and user saved | {"phone":"6232091656","userId":"68e385473ad7bb8b35d43629"}
+[2025-10-06T09:00:55.946Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"6232091656"}
+[2025-10-06T09:00:59.378Z] [INFO] SMS sending result | {"phone":"6232091656","success":true,"messageId":"sms_1759741259378","provider":"SMSIndia Hub"}
+[2025-10-06T09:01:00.132Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:01:00.250Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:01:02.134Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:01:02.209Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:01:04.896Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:01:23.078Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:01:23.104Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T09:01:23.201Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:01:30.140Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:01:30.290Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:01:32.126Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:01:32.221Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:01:44.117Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:01:44.173Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T09:01:44.251Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:02:00.127Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:02:00.251Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:02:02.146Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:02:02.215Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:02:04.900Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:02:29.446Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T09:02:29.568Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:02:30.138Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:02:30.236Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:02:32.139Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:02:32.205Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:03:04.894Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:03:56.134Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:03:56.274Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:03:58.153Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:03:58.220Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:04:04.936Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:04:56.124Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:04:56.223Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:04:58.146Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:04:58.222Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:05:04.923Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:05:56.131Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:05:56.252Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:05:58.207Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:05:58.278Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:06:04.929Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:06:56.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:06:56.255Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:06:58.132Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:06:58.192Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:07:04.914Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:04.963Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:07:04.983Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:09.261Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:09.366Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:22.086Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:22.181Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:25.759Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:25.830Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:30.020Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:30.091Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:35.656Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:35.712Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:40.142Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:40.224Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:46.590Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:46.656Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:54.744Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:07:54.890Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:07:57.017Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:07:57.119Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:07:59.140Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:07:59.207Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:08:04.991Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:08:05.268Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:08:05.336Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:08:09.687Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:08:09.741Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:08:13.218Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:08:13.269Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:08:35.115Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-10-06T09:08:35.151Z] [INFO] Existing user found | {"userId":"68da5cffdb809ec5368c0f40","phone":"7610416911"}
+[2025-10-06T09:08:35.152Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-10-06T09:08:35.196Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68da5cffdb809ec5368c0f40"}
+[2025-10-06T09:08:35.197Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-10-06T09:08:35.515Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1759741715515","provider":"SMSIndia Hub"}
+[2025-10-06T09:08:53.291Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T09:08:53.299Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-06T09:08:53.378Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-06T09:08:56.123Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:08:56.254Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:08:58.228Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:08:58.306Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:09:04.981Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T09:09:56.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:09:56.264Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-06T09:10:00.129Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T09:10:00.210Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T09:10:04.980Z] [INFO] Found 0 pending assignments to check for auto-rejection

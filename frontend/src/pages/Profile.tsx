@@ -249,7 +249,7 @@ const Profile = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 pb-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 pt-20 pb-8 flex items-center justify-center overflow-y-auto">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
@@ -260,7 +260,7 @@ const Profile = () => {
 
   if (!userProfile) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 pb-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 pt-20 pb-8 flex items-center justify-center overflow-y-auto">
         <div className="text-center">
           <p className="text-gray-600 mb-4">Failed to load profile</p>
           <Button onClick={loadUserProfile} variant="contained">
@@ -272,8 +272,8 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-20 pb-4 sm:pb-8">
-      <div className="max-w-4xl mx-auto px-3 sm:px-4">
+    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-20 pb-20 sm:pb-8 overflow-y-auto">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 min-h-full">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
           <div className="flex items-center justify-between">
@@ -387,7 +387,7 @@ const Profile = () => {
         </div>
 
         {/* Profile Form */}
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4">
           <div className="space-y-4 sm:space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
                 

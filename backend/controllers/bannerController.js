@@ -76,13 +76,12 @@ const createBanner = asyncHandler(async (req, res) => {
       });
     }
 
-    // Upload image to Cloudinary
-    logger.info('Uploading to Cloudinary', { filePath: req.file.path });
-    const result = await cloudinary.uploadImage(req.file.path, {
-      folder: 'banners',
-      resource_type: 'auto'
+    // Upload image to Cloudinary without cropping
+    logger.info('Uploading banner to Cloudinary', { filePath: req.file.path });
+    const result = await cloudinary.uploadBannerImage(req.file.path, {
+      folder: 'banners'
     });
-    logger.info('Cloudinary upload successful', { public_id: result.public_id, url: result.secure_url });
+    logger.info('Banner upload successful', { public_id: result.public_id, url: result.secure_url });
 
     const banner = new Banner({
       title,
@@ -170,10 +169,9 @@ const updateBanner = asyncHandler(async (req, res) => {
         logger.error('Error deleting old image from Cloudinary:', cloudinaryError);
       }
 
-      // Upload new image
-      const result = await cloudinary.uploadImage(req.file.path, {
-        folder: 'banners',
-        resource_type: 'auto'
+      // Upload new image without cropping
+      const result = await cloudinary.uploadBannerImage(req.file.path, {
+        folder: 'banners'
       });
 
       banner.image = {

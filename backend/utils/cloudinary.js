@@ -145,6 +145,57 @@ class CloudinaryService {
   }
 
   /**
+   * Upload banner image without cropping
+   * @param {Buffer|string} file - File buffer or file path
+   * @param {Object} options - Upload options
+   * @returns {Promise<Object>} Upload result
+   */
+  async uploadBannerImage(file, options = {}) {
+    try {
+      const defaultOptions = {
+        folder: 'fixifly/banners',
+        resource_type: 'image',
+        quality: 'auto',
+        fetch_format: 'auto'
+        // No transformation - keep original dimensions
+      };
+
+      const uploadOptions = { ...defaultOptions, ...options };
+
+      logger.info('Uploading banner image to Cloudinary', {
+        folder: uploadOptions.folder,
+        resource_type: uploadOptions.resource_type
+      });
+
+      const result = await cloudinaryV2.uploader.upload(file, uploadOptions);
+
+      logger.info('Banner image uploaded successfully', {
+        public_id: result.public_id,
+        secure_url: result.secure_url,
+        bytes: result.bytes,
+        width: result.width,
+        height: result.height
+      });
+
+      return {
+        success: true,
+        public_id: result.public_id,
+        secure_url: result.secure_url,
+        width: result.width,
+        height: result.height,
+        bytes: result.bytes,
+        format: result.format
+      };
+    } catch (error) {
+      logger.error('Failed to upload banner image to Cloudinary', { 
+        error: error.message,
+        options: options
+      });
+      throw new Error(`Banner image upload failed: ${error.message}`);
+    }
+  }
+
+  /**
    * Upload product image from buffer
    * @param {Buffer} buffer - File buffer
    * @param {string} productName - Product name for folder organization

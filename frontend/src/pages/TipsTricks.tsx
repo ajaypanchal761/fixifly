@@ -168,8 +168,8 @@ const TipsTricks = () => {
   const allCategories = ["All", ...categories.map(cat => cat.name)];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20">
-      <div className="container mx-auto px-2 sm:px-4 lg:px-8 py-8 sm:py-4">
+    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 pb-20 sm:pb-8 overflow-y-auto">
+      <div className="container mx-auto px-2 sm:px-4 lg:px-8 py-8 sm:py-4 min-h-full">
         {/* Back Button */}
         <div className="mb-6">
           <Button
@@ -212,7 +212,7 @@ const TipsTricks = () => {
             <span className="ml-2">Loading blog posts...</span>
           </div>
         ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 -mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
             {blogs.map((post, index) => (
             <Card 
               key={post.id} 

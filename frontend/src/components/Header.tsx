@@ -513,9 +513,9 @@ const Header = () => {
             { name: "Booking", icon: Calendar, href: "/booking" },
             { name: "AMC Plan", icon: Wrench, href: "/amc" },
             { name: "Services Booking T&C", icon: FileText, href: "/terms-conditions" },
-            { name: "Tips & Tricks", icon: Info, href: "/tips" },
+            { name: "Tips & Tricks", icon: Info, href: "/tips-tricks" },
             { name: "About Fixfly", icon: Info, href: "/about" },
-            { name: "Rate Us", icon: Star, href: "/rate" }
+            { name: "Rate Us", icon: Star, href: "/rate-us" }
           ].map((item) => {
             const IconComponent = item.icon;
             return (

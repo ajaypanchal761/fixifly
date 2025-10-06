@@ -40,13 +40,13 @@ const VendorPenaltyCharges = () => {
                 </div>
                 Task Cancellation Penalty
                 <Badge className="bg-red-100 text-red-800 border-red-200 ml-auto">
-                  ₹350
+                  ₹100
                 </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
               <p className="text-sm text-gray-700 mb-3">
-                If you accept a task and later cancel it for any reason, a flat penalty of <span className="font-bold text-red-600">₹350</span> will be charged.
+                If you accept a task and later cancel it for any reason, a flat penalty of <span className="font-bold text-red-600">₹100</span> will be charged.
               </p>
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                 <div className="flex items-start gap-2">

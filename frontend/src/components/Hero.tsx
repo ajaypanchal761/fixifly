@@ -2,7 +2,7 @@ import { Building2, Award, Star, Loader2, MessageSquare, ThumbsUp, Clock } from 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import publicProductApi, { PublicProduct } from '@/services/publicProductApi';
-import bannerApiService, { Banner } from '@/services/bannerApi';
+import bannerApiService from '@/services/bannerApi';
 import { reviewService, Review } from '@/services/reviewService';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -122,13 +122,6 @@ const ReviewsCarousel = () => {
             <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
               "{currentReview.comment}"
             </p>
-            
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1 text-gray-500">
-                <ThumbsUp size={12} />
-                <span className="text-xs">{currentReview.likes} likes</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -165,7 +158,6 @@ const Hero = () => {
   const [allProducts, setAllProducts] = useState<PublicProduct[]>([]);
   const [banners, setBanners] = useState<string[]>([]);
   const [bannersLoading, setBannersLoading] = useState(true);
-  const [bannersError, setBannersError] = useState<string | null>(null);
   const [isCitySelectionModalOpen, setIsCitySelectionModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PublicProduct | null>(null);
   const [selectedCity, setSelectedCity] = useState<any>(null);
@@ -174,22 +166,17 @@ const Hero = () => {
   const fetchBanners = async () => {
     try {
       setBannersLoading(true);
-      setBannersError(null);
-      
       const bannerUrls = await bannerApiService.getBannerImageUrls();
-      console.log('Banner URLs fetched:', bannerUrls);
       
       if (bannerUrls.length > 0) {
         setBanners(bannerUrls);
+        console.log('Loaded banners from database:', bannerUrls.length);
       } else {
-        // Fallback to hardcoded banners if no database banners found
-        console.log('No database banners found, using fallback banners');
+        console.log('No banners found in database, using fallback banners');
         setBanners(['/banner1.png', '/banner2.png', '/banner3.png']);
       }
     } catch (error) {
       console.error('Error fetching banners:', error);
-      setBannersError(error instanceof Error ? error.message : 'Failed to fetch banners');
-      // Fallback to hardcoded banners on error
       setBanners(['/banner1.png', '/banner2.png', '/banner3.png']);
     } finally {
       setBannersLoading(false);
@@ -257,6 +244,8 @@ const Hero = () => {
     }
   };
 
+
+  // Banner rotation effect
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
@@ -323,40 +312,56 @@ const Hero = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:pt-14 lg:pt-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-          <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8" data-aos="fade-left" data-aos-delay="200">
+          <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 mt-6 lg:mt-0" data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
-                <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[18rem] xl:h-[20rem]">
-                  {banners.map((banner, index) => (
-                    <img 
-                      key={index}
-                      src={banner} 
-                      alt={`Fixfly Banner ${index + 1}`} 
-                      className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${
-                        index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
-                      }`}
-                      onLoad={(e) => {
-                        const img = e.target as HTMLImageElement;
-                        // Ensure image fills container properly
-                        img.style.minHeight = '100%';
-                        img.style.minWidth = '100%';
-                      }}
-                    />
-                  ))}
-                </div>
+                {bannersLoading ? (
+                  <div className="w-full h-48 sm:h-64 md:h-72 lg:h-[18rem] xl:h-[20rem] bg-gray-200 rounded-3xl flex items-center justify-center">
+                    <div className="text-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">Loading banners...</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative w-full h-48 sm:h-64 md:h-72 lg:h-[18rem] xl:h-[20rem]">
+                    {banners.map((banner, index) => (
+                      <img 
+                        key={index}
+                        src={banner} 
+                        alt={`Fixfly Banner ${index + 1}`} 
+                        className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${
+                          index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
+                        }`}
+                        onLoad={(e) => {
+                          const img = e.target as HTMLImageElement;
+                          // Ensure image fills container properly
+                          img.style.minHeight = '100%';
+                          img.style.minWidth = '100%';
+                        }}
+                        onError={(e) => {
+                          console.error('Banner image failed to load:', banner);
+                          // Hide the broken image
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
                 {/* Banner Indicators */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                  {banners.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentBanner(index)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        index === currentBanner ? 'bg-white' : 'bg-white/50'
-                      }`}
-                    />
-                  ))}
-                </div>
+                {!bannersLoading && banners.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    {banners.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentBanner(index)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          index === currentBanner ? 'bg-white' : 'bg-white/50'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -12,8 +12,8 @@ const About = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20">
-      <div className="container mx-auto px-4 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 pb-20 sm:pb-8 overflow-y-auto">
+      <div className="container mx-auto px-4 lg:px-8 py-8 min-h-full">
         {/* Back Button */}
         <div className="mb-6">
           <Button
@@ -238,7 +238,7 @@ const About = () => {
           </Card>
 
           {/* Final Message */}
-          <Card className="shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <Card className="shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 mb-4">
             <CardContent className="pt-6">
               <p className="text-gray-800 text-center text-lg font-medium">
                 At Fixfly, we are dedicated to delivering exceptional IT services, ensuring your technology functions seamlessly.

@@ -49,6 +49,11 @@ const AdminBannerManagement = () => {
   const [isEditBannerOpen, setIsEditBannerOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
+
+  // Debug modal state
+  console.log('Modal state:', { isImagePreviewOpen, previewImageUrl });
 
   const [formData, setFormData] = useState({
     title: '',
@@ -133,6 +138,35 @@ const AdminBannerManagement = () => {
       return;
     }
 
+    // Validate file
+    if (formData.image.size === 0) {
+      toast({
+        title: "Error",
+        description: "Selected file is empty",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (formData.image.size > 10 * 1024 * 1024) { // 10MB limit
+      toast({
+        title: "Error",
+        description: "File size too large. Maximum size is 10MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(formData.image.type)) {
+      toast({
+        title: "Error",
+        description: "Invalid file type. Only JPEG, PNG, and WebP images are allowed",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setUploading(true);
       
@@ -142,16 +176,53 @@ const AdminBannerManagement = () => {
       formDataToSend.append('order', formData.order.toString());
       formDataToSend.append('image', formData.image);
 
+      console.log('FormData contents:', {
+        title: formData.title,
+        order: formData.order,
+        imageFile: formData.image ? {
+          name: formData.image.name,
+          size: formData.image.size,
+          type: formData.image.type
+        } : null
+      });
+
+      // Debug FormData entries
+      console.log('FormData entries:');
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}:`, value);
+      }
+
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/banners`, {
         method: 'POST',
         body: formDataToSend
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorData = {};
+        let responseText = '';
+        
+        try {
+          responseText = await response.text();
+          errorData = JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error('Failed to parse error response as JSON:', jsonError);
+          errorData = { message: `Server error: ${response.status} ${response.statusText}` };
+        }
+        
+        console.error('Banner upload error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          responseText
+        });
+        
+        const errorMessage = errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      console.log('Banner upload response:', data);
+      
       if (data.success) {
         toast({
           title: "Success",
@@ -212,16 +283,35 @@ const AdminBannerManagement = () => {
         formDataToSend.append('image', formData.image);
       }
 
+      console.log('Update FormData contents:', {
+        title: formData.title,
+        order: formData.order,
+        hasNewImage: !!formData.image,
+        imageFile: formData.image ? {
+          name: formData.image.name,
+          size: formData.image.size,
+          type: formData.image.type
+        } : null
+      });
+
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/banners/${editingBanner._id}`, {
         method: 'PUT',
         body: formDataToSend
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Banner update error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Banner update response:', data);
+      
       if (data.success) {
         toast({
           title: "Success",
@@ -280,6 +370,18 @@ const AdminBannerManagement = () => {
         variant: "destructive"
       });
     }
+  };
+
+  // Open image preview
+  const handleImagePreview = (imageUrl: string) => {
+    console.log('Opening image preview for URL:', imageUrl);
+    setPreviewImageUrl(imageUrl);
+    setIsImagePreviewOpen(true);
+    
+    // Force a small delay to ensure state updates
+    setTimeout(() => {
+      console.log('Modal should be open now:', isImagePreviewOpen);
+    }, 100);
   };
 
   // Toggle banner status
@@ -397,8 +499,10 @@ const AdminBannerManagement = () => {
                       <img
                         src={previewUrl}
                         alt="Preview"
-                        className="w-full h-40 object-cover rounded-lg border"
+                        className="w-full h-40 object-contain rounded-lg border cursor-pointer hover:opacity-90 transition-opacity bg-gray-50"
+                        onClick={() => handleImagePreview(previewUrl)}
                       />
+                      <p className="text-xs text-gray-500 mt-1">Click image to view full size</p>
                     </div>
                   )}
                 </div>
@@ -425,7 +529,7 @@ const AdminBannerManagement = () => {
                 <img
                   src={banner.image.url}
                   alt={banner.title}
-                  className="w-full h-40 object-cover"
+                  className="w-full h-40 object-contain"
                 />
                 <Badge 
                   className={`absolute top-1 right-1 text-xs ${
@@ -531,8 +635,13 @@ const AdminBannerManagement = () => {
                     <img
                       src={previewUrl}
                       alt="Preview"
-                      className="w-full h-40 object-cover rounded-lg border"
+                      className="w-full h-40 object-contain rounded-lg border cursor-pointer hover:opacity-90 transition-opacity bg-gray-50"
+                      onClick={() => {
+                        console.log('Image clicked, previewUrl:', previewUrl);
+                        handleImagePreview(previewUrl);
+                      }}
                     />
+                    <p className="text-xs text-gray-500 mt-1">Click image to view full size</p>
                   </div>
                 )}
               </div>
@@ -545,6 +654,40 @@ const AdminBannerManagement = () => {
                   {uploading ? 'Updating...' : 'Update Banner'}
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Image Preview Modal */}
+        <Dialog open={isImagePreviewOpen} onOpenChange={(open) => {
+          console.log('Dialog onOpenChange called with:', open);
+          setIsImagePreviewOpen(open);
+        }}>
+          <DialogContent className="sm:max-w-[60vw] sm:max-h-[50vh] mt-12 p-3">
+            <DialogHeader>
+              <DialogTitle className="text-sm">Banner Preview</DialogTitle>
+            </DialogHeader>
+            <div className="relative flex justify-center items-center bg-gray-50 rounded-lg p-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="absolute top-1 right-1 z-10 bg-white/90 hover:bg-white h-6 w-6 p-0"
+                onClick={() => {
+                  console.log('Closing image preview modal');
+                  setIsImagePreviewOpen(false);
+                }}
+              >
+                <X className="w-3 h-3" />
+              </Button>
+              {previewImageUrl && (
+                <img
+                  src={previewImageUrl}
+                  alt="Banner preview"
+                  className="max-w-full max-h-[35vh] object-contain rounded shadow-sm"
+                  onLoad={() => console.log('Preview image loaded successfully')}
+                  onError={(e) => console.error('Preview image failed to load:', e)}
+                />
+              )}
             </div>
           </DialogContent>
         </Dialog>

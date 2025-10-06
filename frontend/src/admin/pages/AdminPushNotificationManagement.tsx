@@ -87,86 +87,26 @@ const AdminPushNotificationManagement = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalNotifications, setTotalNotifications] = useState(0);
 
-  // Mock data for demonstration
-  const mockNotifications: Notification[] = [
-    {
-      _id: '1',
-      title: 'New Service Available',
-      message: 'Check out our new AC repair service with 24/7 support',
-      targetAudience: 'all',
-      status: 'sent',
-      sentCount: 1250,
-      deliveredCount: 1200,
-      readCount: 850,
-      sentAt: new Date('2024-01-15T10:30:00Z'),
-      createdAt: new Date('2024-01-15T09:00:00Z'),
-      updatedAt: new Date('2024-01-15T10:30:00Z')
-    },
-    {
-      _id: '2',
-      title: 'Vendor Training Session',
-      message: 'Join our monthly training session for new features',
-      targetAudience: 'vendors',
-      status: 'scheduled',
-      sentCount: 0,
-      deliveredCount: 0,
-      readCount: 0,
-      scheduledAt: new Date('2024-01-20T14:00:00Z'),
-      createdAt: new Date('2024-01-16T11:00:00Z'),
-      updatedAt: new Date('2024-01-16T11:00:00Z')
-    },
-    {
-      _id: '3',
-      title: 'Maintenance Notice',
-      message: 'System maintenance scheduled for tonight 2 AM to 4 AM',
-      targetAudience: 'all',
-      status: 'draft',
-      sentCount: 0,
-      deliveredCount: 0,
-      readCount: 0,
-      createdAt: new Date('2024-01-17T15:30:00Z'),
-      updatedAt: new Date('2024-01-17T15:30:00Z')
-    }
-  ];
-
-  const mockStats: NotificationStats = {
-    totalNotifications: 3,
-    sentNotifications: 1,
-    scheduledNotifications: 1,
-    draftNotifications: 1,
-    totalRecipients: 1250,
-    averageDeliveryRate: 96.0
-  };
 
   // Fetch notifications
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // TODO: Replace with actual API call
+      // await new Promise(resolve => setTimeout(resolve, 1000));
       
-      let filteredNotifications = mockNotifications;
-      
-      // Apply filters
-      if (statusFilter !== 'all') {
-        filteredNotifications = filteredNotifications.filter(n => n.status === statusFilter);
-      }
-      
-      if (audienceFilter !== 'all') {
-        filteredNotifications = filteredNotifications.filter(n => n.targetAudience === audienceFilter);
-      }
-      
-      if (searchTerm) {
-        filteredNotifications = filteredNotifications.filter(n => 
-          n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          n.message.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-      
-      setNotifications(filteredNotifications);
-      setStats(mockStats);
+      // Initialize with empty data
+      setNotifications([]);
+      setStats({
+        totalNotifications: 0,
+        sentNotifications: 0,
+        scheduledNotifications: 0,
+        draftNotifications: 0,
+        totalRecipients: 0,
+        averageDeliveryRate: 0
+      });
       setTotalPages(1);
-      setTotalNotifications(filteredNotifications.length);
+      setTotalNotifications(0);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       toast({

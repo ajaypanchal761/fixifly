@@ -463,14 +463,14 @@ const VendorHero = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
                 {bannersLoading ? (
-                  <div className="w-full h-32 sm:h-40 md:h-48 bg-gray-200 rounded-3xl flex items-center justify-center">
+                  <div className="w-full h-40 sm:h-48 md:h-52 bg-gray-200 rounded-3xl flex items-center justify-center">
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
                       <p className="text-sm text-gray-500">Loading banners...</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="relative w-full h-32 sm:h-40 md:h-48">
+                  <div className="relative w-full h-40 sm:h-48 md:h-52">
                     {banners.map((banner, index) => (
                       <img 
                         key={index}

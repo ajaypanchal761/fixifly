@@ -66,6 +66,10 @@ import VendorCancelTaskDetail from "./vendor/pages/VendorCancelTaskDetail";
 import VendorCancelledTaskDetail from "./vendor/pages/VendorCancelledTaskDetail";
 import VendorClosedTask from "./vendor/pages/VendorClosedTask";
 import VendorClosedTaskDetail from "./vendor/pages/VendorClosedTaskDetail";
+import VendorPrivacy from "./vendor/pages/VendorPrivacyPolicy";
+import VendorTermsConditions from "./vendor/pages/VendorTermsConditions";
+import VendorAbout from "./vendor/pages/VendorAbout";
+import VendorPenaltyCharges from "./vendor/pages/VendorPenaltyCharges";
 
 const queryClient = new QueryClient();
 
@@ -116,9 +120,11 @@ const AppContent = () => {
         
         {/* Information Pages Routes */}
         <Route path="/tips-tricks" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
+        <Route path="/tips" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
         <Route path="/terms-conditions" element={<MobileAuthGuard><TermsConditions /></MobileAuthGuard>} />
         <Route path="/about" element={<MobileAuthGuard><About /></MobileAuthGuard>} />
         <Route path="/rate-us" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
+        <Route path="/rate" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
         <Route path="/shop" element={<MobileAuthGuard><Shop /></MobileAuthGuard>} />
 
         {/* ================== ADMIN PROTECTED ROUTES ================== */}
@@ -168,6 +174,10 @@ const AppContent = () => {
         <Route path="/vendor/notifications" element={<VendorNotifications />} />
         <Route path="/vendor/support" element={<VendorSupport />} />
         <Route path="/vendor/shop" element={<VendorShop />} />
+        <Route path="/vendor/privacy" element={<VendorPrivacy />} />
+        <Route path="/vendor/terms" element={<VendorTermsConditions />} />
+        <Route path="/vendor/about" element={<VendorAbout />} />
+        <Route path="/vendor/penalty" element={<VendorPenaltyCharges />} />
         
         {/* Vendor Task Routes */}
         <Route path="/vendor/task/:taskId" element={<VendorTaskDetail />} />

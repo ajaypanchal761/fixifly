@@ -1266,13 +1266,13 @@ For support, contact us at info@fixfly.in
   return (
     <div className="min-h-screen bg-blue-50">
       {/* Header with Categories */}
-      <div className="bg-white shadow-sm border-b pb-0 mb-6 mt-10">
+      <div className="bg-white shadow-sm border-b pb-0 mb-4 mt-2">
         <div className="container px-2 py-24">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-0 pt-0">
             <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-0 h-auto rounded-lg">
               <TabsTrigger 
                 value="ongoing" 
-                className="text-base font-medium py-3 px-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all"
+                className="text-base font-medium py-6 px-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all"
               >
                 <div className="flex items-center space-x-2">
                   <span>Ongoing</span>
