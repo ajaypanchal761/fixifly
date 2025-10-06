@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { ClipboardList, DollarSign, Headphones, Store, Lock } from 'lucide-react';
+import { ClipboardList, DollarSign, Headphones, User, Lock } from 'lucide-react';
 import { useVendor } from '@/contexts/VendorContext';
 
 const VendorBottomNav = () => {
@@ -32,9 +32,9 @@ const VendorBottomNav = () => {
       requiresDeposit: false 
     },
     { 
-      name: "Shop", 
-      href: "/vendor/shop", 
-      icon: Store, 
+      name: "Profile", 
+      href: "/vendor/profile", 
+      icon: User, 
       requiresDeposit: true 
     },
   ];

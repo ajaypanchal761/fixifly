@@ -221,6 +221,27 @@ const VendorClosedTask = () => {
     }
   }, [taskId]);
 
+  // Calculate GST amount (18% of billing amount)
+  const calculateGSTAmount = () => {
+    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    if (!includeGST) return 0;
+    return billingAmountValue * 0.18; // 18% GST on base amount
+  };
+
+  // Calculate GST-excluded amount (base amount without GST)
+  const calculateGSTExcludedAmount = () => {
+    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    if (!includeGST) return billingAmountValue;
+    return billingAmountValue; // Base amount (GST-excluded)
+  };
+
+  // Calculate total billing amount (base amount + GST if GST is included)
+  const calculateBillingTotal = () => {
+    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    if (!includeGST) return billingAmountValue;
+    return billingAmountValue + (billingAmountValue * 0.18); // Base amount + 18% GST
+  };
+
   // Show 404 error on desktop
   if (!isMobile) {
     return (
@@ -238,7 +259,7 @@ const VendorClosedTask = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
@@ -258,7 +279,7 @@ const VendorClosedTask = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Error Loading Task</h1>
@@ -299,7 +320,7 @@ const VendorClosedTask = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
@@ -361,38 +382,8 @@ const VendorClosedTask = () => {
     return billingAmountValue; // Billing amount only
   };
 
-  const calculateBillingTotal = () => {
-    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
-    
-    // If GST is included, billing amount is already GST-inclusive
-    if (includeGST) {
-      return billingAmountValue; // Billing amount is already GST-inclusive
-    }
-    
-    return billingAmountValue; // Billing amount only
-  };
 
-  const calculateGSTAmount = () => {
-    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
-    
-    if (includeGST) {
-      // If GST is included, calculate GST from GST-inclusive amount
-      return billingAmountValue * 0.18 / 1.18; // GST amount from GST-inclusive amount
-    }
-    
-    return 0; // No GST if not included
-  };
 
-  const calculateGSTExcludedAmount = () => {
-    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
-    
-    if (includeGST) {
-      // If GST is included, calculate GST-excluded amount
-      return billingAmountValue / 1.18; // GST-excluded amount
-    }
-    
-    return billingAmountValue; // No GST, so amount is as is
-  };
 
   const handleCashPaymentClick = () => {
     setShowCashWarning(true);
@@ -539,12 +530,21 @@ const VendorClosedTask = () => {
           window.dispatchEvent(new CustomEvent(eventName, { 
             detail: { 
               taskId, 
-              status: 'completed', 
+              status: 'in_progress', // Keep as in_progress to show Pay Now button
               paymentMode: 'online', 
               paymentStatus: 'pending', 
               includeGST: task?.isSupportTicket ? false : includeGST, 
               gstAmount: task?.isSupportTicket ? 0 : gstAmount,
-              totalAmount 
+              totalAmount,
+              completionData: {
+                resolutionNote: resolutionNote.trim(),
+                billingAmount: billingAmountValue,
+                spareParts: spareParts.filter(part => part.name.trim() !== ''),
+                paymentMethod: 'online',
+                includeGST: includeGST,
+                gstAmount: includeGST ? calculateGSTAmount() : 0,
+                totalAmount: totalAmount
+              }
             } 
           }));
           

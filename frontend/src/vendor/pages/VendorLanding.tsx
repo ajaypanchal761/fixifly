@@ -40,7 +40,7 @@ const VendorLanding = () => {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <img 
             src="/logofixifly.png" 
-            alt="Fixifly Logo" 
+            alt="Fixfly Logo" 
             className="h-12"
           />
           <div className="flex gap-4">
@@ -57,12 +57,12 @@ const VendorLanding = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-          Join Fixifly as a
+          Join Fixfly as a
           <span className="text-blue-600"> Service Provider</span>
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
           Connect with customers, grow your business, and earn more with India's leading 
-          home services platform. Join thousands of skilled professionals already earning with Fixifly.
+          home services platform. Join thousands of skilled professionals already earning with Fixfly.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" asChild>
@@ -80,7 +80,7 @@ const VendorLanding = () => {
       {/* Features Section */}
       <section className="container mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-          Why Choose Fixifly?
+          Why Choose Fixfly?
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => {
@@ -130,7 +130,7 @@ const VendorLanding = () => {
           Ready to Start Earning?
         </h2>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Join Fixifly today and start connecting with customers who need your expertise. 
+          Join Fixfly today and start connecting with customers who need your expertise. 
           The registration process is quick and easy.
         </p>
         <Button size="lg" asChild>
@@ -145,7 +145,7 @@ const VendorLanding = () => {
       <footer className="bg-gray-900 text-white py-8">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-400">
-            © 2024 Fixifly. All rights reserved. | 
+            © 2025 Fixfly. All rights reserved. | 
             <Link to="/vendor/terms" className="ml-2 hover:text-white">Terms</Link> | 
             <Link to="/vendor/privacy" className="ml-2 hover:text-white">Privacy</Link>
           </p>

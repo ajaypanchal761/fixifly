@@ -34,7 +34,7 @@ const sendOTP = async (phone, otp) => {
  */
 const sendBookingConfirmationSMS = async (phone, bookingNumber, serviceType, date, time) => {
   try {
-    const message = `Your Fixifly booking #${bookingNumber} is confirmed! Service: ${serviceType}, Date: ${date}, Time: ${time}. We'll contact you soon.`;
+    const message = `Your Fixfly booking #${bookingNumber} is confirmed! Service: ${serviceType}, Date: ${date}, Time: ${time}. We'll contact you soon.`;
     return await smsIndiaHubService.sendOTP(phone, message);
   } catch (error) {
     console.error('Error sending booking confirmation SMS:', error);
@@ -51,7 +51,7 @@ const sendBookingConfirmationSMS = async (phone, bookingNumber, serviceType, dat
  */
 const sendStatusUpdateSMS = async (phone, status, details) => {
   try {
-    const message = `Fixifly Status Update: ${status}. ${details ? details : ''} Thank you for choosing Fixifly.`;
+    const message = `Fixfly Status Update: ${status}. ${details ? details : ''} Thank you for choosing Fixfly.`;
     return await smsIndiaHubService.sendOTP(phone, message);
   } catch (error) {
     console.error('Error sending status update SMS:', error);

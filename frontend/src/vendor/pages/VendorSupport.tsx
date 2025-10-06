@@ -13,7 +13,7 @@ const VendorSupport = () => {
   };
 
   const handleEmail = () => {
-    window.open('mailto:support@fixifly.com?subject=Vendor Support Request', '_self');
+    window.open('mailto:info@fixfly.in?subject=Vendor Support Request', '_self');
   };
 
   // Show 404 error on desktop
@@ -31,7 +31,7 @@ const VendorSupport = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
         <div className="container mx-auto px-4 py-8">
           {/* Page Header */}
           <div className="text-center mb-8">
@@ -81,7 +81,7 @@ const VendorSupport = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Email Support</h3>
                     <p className="text-sm text-gray-600">Send us your queries</p>
-                    <p className="text-sm font-medium text-gray-800">support@fixifly.com</p>
+                    <p className="text-sm font-medium text-gray-800">info@fixfly.in</p>
                   </div>
                 </div>
                 <button

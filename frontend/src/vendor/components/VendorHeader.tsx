@@ -13,6 +13,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useVendor } from '@/contexts/VendorContext';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import VendorNotificationStatus from './VendorNotificationStatus';
+import VendorNotificationEnable from './VendorNotificationEnable';
+import VendorNotificationEnableCompact from './VendorNotificationEnableCompact';
 
 const drawerWidth = 240;
 
@@ -72,12 +75,75 @@ const VendorHeader = () => {
   const { vendor, isAuthenticated, logout } = useVendor();
   const [open, setOpen] = React.useState(false);
   const [isCertificateOpen, setIsCertificateOpen] = useState(false);
+  const [vendorId, setVendorId] = useState<string>('');
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Check if vendor has made the initial deposit - once deposit is made, always show Yes
   const hasInitialDeposit = vendor?.wallet?.hasInitialDeposit || 
                            (vendor?.wallet?.currentBalance >= 4000) ||
                            (vendor?.wallet?.totalDeposits > 0);
+
+  // Get vendor ID for notifications and auto-enable notifications
+  React.useEffect(() => {
+    if (vendor && vendor.vendorId) {
+      setVendorId(vendor.vendorId);
+      console.log('🔔 Vendor ID set for notifications:', vendor.vendorId);
+      
+      // Auto-enable notifications in background
+      const autoEnableNotifications = async () => {
+        try {
+          // Check if notifications are supported
+          if ('Notification' in window && 'serviceWorker' in navigator) {
+            const permission = Notification.permission;
+            
+            if (permission === 'default') {
+              console.log('🔔 Auto-requesting notification permission for vendor:', vendor.vendorId);
+              const result = await Notification.requestPermission();
+              
+              if (result === 'granted') {
+                console.log('✅ Notification permission granted automatically');
+                
+                // Import and setup notifications
+                const { setupNotifications } = await import('../../utils/notificationSetup');
+                const notificationResult = await setupNotifications(vendor.vendorId);
+                
+                if (notificationResult.success) {
+                  console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
+                } else {
+                  console.log('⚠️ Background notification setup failed:', notificationResult.error);
+                }
+              } else {
+                console.log('❌ Notification permission denied automatically');
+              }
+            } else if (permission === 'granted') {
+              console.log('✅ Notifications already enabled for vendor:', vendor.vendorId);
+              
+              // Still setup the notification system to ensure FCM token is generated
+              try {
+                const { setupNotifications } = await import('../../utils/notificationSetup');
+                const notificationResult = await setupNotifications(vendor.vendorId);
+                
+                if (notificationResult.success) {
+                  console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
+                }
+              } catch (error) {
+                console.log('⚠️ Error setting up background notifications:', error);
+              }
+            } else {
+              console.log('❌ Notifications blocked for vendor:', vendor.vendorId);
+            }
+          } else {
+            console.log('❌ Push notifications not supported in this browser');
+          }
+        } catch (error) {
+          console.error('❌ Error in auto-enable notifications:', error);
+        }
+      };
+      
+      // Run auto-enable after a short delay to ensure page is loaded
+      setTimeout(autoEnableNotifications, 1000);
+    }
+  }, [vendor]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -139,7 +205,7 @@ const VendorHeader = () => {
       pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
       
       // Download the PDF
-      pdf.save(`Fixifly_Certificate_${vendorName.replace(/\s+/g, '_')}.pdf`);
+      pdf.save(`Fixfly_Certificate_${vendorName.replace(/\s+/g, '_')}.pdf`);
     };
     
     img.src = '/certificate.jpg';
@@ -194,7 +260,7 @@ const VendorHeader = () => {
              </IconButton>
              <img 
                src="/logofixifly.png" 
-               alt="Fixifly Logo" 
+               alt="Fixfly Logo" 
                onClick={handleLogoClick}
                style={{
                  height: '100px',
@@ -212,9 +278,22 @@ const VendorHeader = () => {
              />
            </Box>
           
-          {/* Right side - Search and Notifications - Hide when sidebar is open */}
+          {/* Right side - Search only - Hide when sidebar is open */}
           {!open && (
             <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 1 }}>
+              {/* Hidden notification components - they work in background */}
+              {vendorId && (
+                <div style={{ display: 'none' }}>
+                  <VendorNotificationStatus vendorId={vendorId} compact={true} />
+                  <VendorNotificationEnableCompact 
+                    vendorId={vendorId || 'unknown'} 
+                    onTokenGenerated={(token) => {
+                      console.log('✅ FCM Token generated for vendor:', vendorId);
+                    }}
+                  />
+                </div>
+              )}
+              
               <IconButton
                 color="inherit"
                 aria-label="search"
@@ -224,10 +303,6 @@ const VendorHeader = () => {
                   '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
                 }}
               >
-                <div className="relative">
-                  <Search size={20} />
-                  {!hasInitialDeposit && <Lock size={10} className="absolute -top-1 -right-1" />}
-                </div>
               </IconButton>
             </Box>
           )}
@@ -301,7 +376,7 @@ const VendorHeader = () => {
             { name: "My Tasks", icon: ShoppingBag, href: "/vendor", requiresDeposit: true },
             { name: "Privacy Policy", icon: FileText, href: "/vendor/privacy", requiresDeposit: true },
             { name: "Terms & Conditions", icon: FileText, href: "/vendor/terms", requiresDeposit: true },
-            { name: "About Fixifly", icon: Info, href: "/vendor/about", requiresDeposit: true },
+            { name: "About Fixfly", icon: Info, href: "/vendor/about", requiresDeposit: true },
             { name: "Penalty & Charges", icon: Star, href: "/vendor/penalty", requiresDeposit: true }
           ].map((item) => {
             const IconComponent = item.icon;
@@ -379,12 +454,12 @@ const VendorHeader = () => {
       <Dialog open={isCertificateOpen} onOpenChange={setIsCertificateOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] p-4">
           <DialogTitle className="sr-only">
-            Fixifly Certificate - {isAuthenticated && vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Vendor Name'}
+            Fixfly Certificate - {isAuthenticated && vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Vendor Name'}
           </DialogTitle>
           <div className="relative">
             <img 
               src="/certificate.jpg" 
-              alt="Fixifly Certificate" 
+              alt="Fixfly Certificate" 
               className="w-full h-auto"
             />
             {/* Overlay vendor name */}
@@ -402,7 +477,7 @@ const VendorHeader = () => {
             <Button
               onClick={downloadCertificate}
               className="bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
+              size="large"
               startIcon={<Download size={20} />}
             >
               Download PDF

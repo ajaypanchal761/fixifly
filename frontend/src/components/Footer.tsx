@@ -54,7 +54,7 @@ const Footer = () => {
             <div className="flex items-center space-x-3 mb-6">
               <img 
                 src="/logofixifly.png" 
-                alt="FixiFly Logo" 
+                alt="FixFly Logo" 
                 className="h-28 w-auto"
               />
             </div>

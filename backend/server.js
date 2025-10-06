@@ -96,7 +96,7 @@ app.use('/uploads', express.static('uploads'));
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Fixifly Backend Server is running!',
+    message: 'Fixfly Backend Server is running!',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     autoRejectService: autoRejectService.getStatus()
@@ -196,11 +196,17 @@ app.use('/api/admin/notifications', adminNotificationRoutes);
 app.use('/api', cityRoutes);
 app.use('/api/reviews', reviewRoutes);
 
+// Test routes for push notifications (development only)
+if (process.env.NODE_ENV !== 'production') {
+  const testPushRoutes = require('./routes/testPushRoutes');
+  app.use('/api/test', testPushRoutes);
+}
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Welcome to Fixifly Backend API',
+    message: 'Welcome to Fixfly Backend API',
     version: '1.0.0',
       endpoints: {
         auth: '/api/auth',
@@ -255,7 +261,7 @@ const startServer = async () => {
       autoRejectService.start();
       
       console.log(`
-🚀 Fixifly Backend Server Started!
+🚀 Fixfly Backend Server Started!
 📡 Server running on port: ${PORT}
 🌍 Environment: ${process.env.NODE_ENV || 'development'}
 🔗 API Base URL: http://localhost:${PORT}/api

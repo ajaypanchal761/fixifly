@@ -14,7 +14,9 @@ const {
   getVendorWallet,
   addServiceLocation,
   updateServiceLocation,
-  removeServiceLocation
+  removeServiceLocation,
+  generateOneSignalIdentityToken,
+  updateFCMToken
 } = require('../controllers/vendorController');
 const {
   getVendorNotifications,
@@ -145,6 +147,12 @@ router.get('/tasks', protectVendor, requireCompleteProfile, requireApproval, (re
 // @access  Private
 router.get('/notifications', protectVendor, getVendorNotifications);
 
+// OneSignal identity token route
+// @route   GET /api/vendors/onesignal/identity-token
+// @desc    Get OneSignal identity token for authenticated vendor
+// @access  Private
+router.get('/onesignal/identity-token', protectVendor, generateOneSignalIdentityToken);
+
 // @route   PUT /api/vendors/notifications/:id/read
 // @desc    Mark notification as read
 // @access  Private
@@ -190,5 +198,11 @@ router.put('/support-tickets/:id/complete', protectVendor, async (req, res) => {
 // @desc    Get vendor dashboard with new tasks
 // @access  Private
 router.get('/dashboard', protectVendor, getVendorDashboard);
+
+// FCM Token route
+// @route   POST /api/vendors/update-fcm-token
+// @desc    Update FCM token for push notifications
+// @access  Private
+router.post('/update-fcm-token', protectVendor, updateFCMToken);
 
 module.exports = router;

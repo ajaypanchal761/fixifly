@@ -103,7 +103,7 @@ const AdminLogin = () => {
 
         toast({
           title: "Login Successful!",
-          description: response.message || "Welcome to Fixifly Admin Panel",
+          description: response.message || "Welcome to Fixfly Admin Panel",
         });
 
         // Redirect to admin dashboard
@@ -132,7 +132,7 @@ const AdminLogin = () => {
               Admin <span className="text-gradient">Login</span>
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Access the Fixifly Admin Panel
+              Access the Fixfly Admin Panel
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -151,7 +151,7 @@ const AdminLogin = () => {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="admin@fixifly.com"
+                    placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleInputChange}
                     className="pl-10"

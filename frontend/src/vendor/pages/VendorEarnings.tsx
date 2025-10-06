@@ -99,7 +99,7 @@ const VendorEarnings = () => {
       if (profileResponse.success && profileResponse.data.vendor) {
         updateVendor(profileResponse.data.vendor);
         console.log('✅ Vendor profile refreshed successfully');
-        console.log('Updated vendor wallet:', profileResponse.data.vendor.wallet);
+        console.log('Updated vendor wallet:', (profileResponse.data.vendor as any).wallet);
       }
     } catch (error) {
       console.error('❌ Failed to refresh vendor profile:', error);
@@ -151,12 +151,21 @@ const VendorEarnings = () => {
       console.log('Token present:', token ? 'Yes' : 'No');
       console.log('Making API call...');
       
-      const response = await fetch(`${apiUrl}/api/vendor/wallet`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      let response;
+      try {
+        response = await fetch(`${apiUrl}/api/vendor/wallet`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'include'
+        });
+      } catch (networkError) {
+        console.error('Network error:', networkError);
+        throw new Error(`Network error: ${networkError.message}. Please check if the backend server is running.`);
+      }
       
       console.log('Response received, status:', response.status);
       console.log('Response ok:', response.ok);
@@ -247,9 +256,13 @@ const VendorEarnings = () => {
       console.log('Error message:', error.message);
       console.log('Error stack:', error.stack);
       
-      // Check if it's a JSON parsing error (server not running)
-      if (error.message.includes('Unexpected token') || error.message.includes('<!doctype')) {
+      // Check if it's a network error or server not running
+      if (error.message.includes('Network error') || 
+          error.message.includes('Unexpected token') || 
+          error.message.includes('<!doctype') ||
+          error.message.includes('Failed to fetch')) {
         console.warn('Backend server appears to be down, using default wallet data');
+        console.warn('Please ensure the backend server is running on http://localhost:5000');
       }
       
       // Keep default wallet data on error
@@ -277,12 +290,21 @@ const VendorEarnings = () => {
       }
 
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiUrl}/api/vendor/wallet`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      let response;
+      try {
+        response = await fetch(`${apiUrl}/api/vendor/wallet`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'include'
+        });
+      } catch (networkError) {
+        console.error('Network error:', networkError);
+        throw new Error(`Network error: ${networkError.message}. Please check if the backend server is running.`);
+      }
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -312,31 +334,107 @@ const VendorEarnings = () => {
       }
       
       // Transform API data to match component interface
-      const transformedTransactions = data.data.transactions.map((transaction: any) => ({
-        id: transaction._id || transaction.id,
-        caseId: transaction.caseId || transaction.bookingId || `TXN-${(transaction._id || transaction.id).toString().slice(-6)}`,
-        type: transaction.type === 'deposit' || transaction.type === 'earning' ? 'Payment Received' : 
-              transaction.type === 'withdrawal' ? 'Withdraw Transferred' :
-              transaction.type === 'penalty' ? (transaction.description && transaction.description.includes('Auto-rejection') ? 'Auto-Rejection Penalty' : 'Penalty on Cancellation') : 
-              transaction.type === 'task_acceptance_fee' ? 'Task Fee' :
-              transaction.type === 'cash_collection' ? 'Cash Collection' :
-              transaction.type === 'manual_adjustment' ? 'Admin Adjustment' : 'Earning Added',
-        amount: transaction.type === 'withdrawal' || transaction.type === 'penalty' || transaction.type === 'task_acceptance_fee' || transaction.type === 'cash_collection' ? 
-                -Math.abs(transaction.amount) : 
-                transaction.type === 'manual_adjustment' ? transaction.amount : Math.abs(transaction.amount),
-        date: transaction.createdAt ? new Date(transaction.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        status: transaction.status || 'completed',
-        description: transaction.description || 'Wallet transaction'
-      }));
+      const transformedTransactions = data.data.transactions.map((transaction: any) => {
+        // Generate proper case ID based on transaction type
+        let caseId = transaction.caseId || transaction.bookingId;
+        
+        console.log('Processing transaction:', {
+          id: transaction._id || transaction.id,
+          type: transaction.type,
+          description: transaction.description,
+          caseId: transaction.caseId,
+          bookingId: transaction.bookingId
+        });
+        
+        if (!caseId) {
+          if (transaction.type === 'deposit') {
+            caseId = `TXN-${(transaction._id || transaction.id).toString().slice(-6)}`;
+          } else if (transaction.type === 'earning') {
+            // For earnings, prioritize booking ID from transaction data
+            if (transaction.bookingId) {
+              caseId = transaction.bookingId;
+              console.log('Using transaction bookingId:', caseId);
+            } else {
+              // Try to extract booking reference from description
+              const description = transaction.description || '';
+              console.log('Earning transaction description:', description);
+              
+              // Try to extract FIX booking reference first
+              const bookingRefMatch = description.match(/FIX[A-Z0-9]+/);
+              if (bookingRefMatch) {
+                caseId = bookingRefMatch[0];
+                console.log('Found FIX booking reference:', caseId);
+              } else {
+                // Try to extract booking ID from description (long alphanumeric string)
+                const bookingIdMatch = description.match(/[a-f0-9]{24}/);
+                if (bookingIdMatch) {
+                  caseId = bookingIdMatch[0];
+                  console.log('Found booking ID from description:', caseId);
+                } else {
+                  // Try to extract any booking ID pattern
+                  const anyBookingMatch = description.match(/[a-f0-9]{8,}/);
+                  if (anyBookingMatch) {
+                    caseId = anyBookingMatch[0];
+                    console.log('Found any booking pattern:', caseId);
+                  } else {
+                    caseId = `CASE_${(transaction._id || transaction.id).toString().slice(-8)}`;
+                    console.log('Using fallback case ID:', caseId);
+                  }
+                }
+              }
+            }
+          } else if (transaction.type === 'penalty') {
+            // For penalties, prioritize booking ID from transaction data
+            if (transaction.bookingId) {
+              caseId = transaction.bookingId;
+              console.log('Using penalty transaction bookingId:', caseId);
+            } else {
+              // Try to extract booking reference from description
+              const description = transaction.description || '';
+              const bookingRefMatch = description.match(/FIX[A-Z0-9]+/);
+              if (bookingRefMatch) {
+                caseId = bookingRefMatch[0];
+                console.log('Found FIX booking reference for penalty:', caseId);
+              } else {
+                caseId = (transaction._id || transaction.id).toString().slice(-8);
+                console.log('Using fallback case ID for penalty:', caseId);
+              }
+            }
+          } else {
+            caseId = `TXN-${(transaction._id || transaction.id).toString().slice(-6)}`;
+          }
+        }
+        
+        return {
+          id: transaction._id || transaction.id,
+          caseId: caseId,
+          type: transaction.type === 'deposit' || transaction.type === 'earning' ? 'Payment Received' : 
+                transaction.type === 'withdrawal' ? 'Withdrawal Successful' :
+                transaction.type === 'penalty' ? (transaction.description && transaction.description.includes('Auto-rejection') ? 'Auto-Rejection Penalty' : 'Penalty on Cancellation') : 
+                transaction.type === 'task_acceptance_fee' ? 'Task Fee' :
+                transaction.type === 'cash_collection' ? 'Cash Collection' :
+                transaction.type === 'manual_adjustment' ? 'Admin Adjustment' : 'Earning Added',
+          amount: transaction.type === 'withdrawal' || transaction.type === 'penalty' || transaction.type === 'task_acceptance_fee' || transaction.type === 'cash_collection' ? 
+                  -Math.abs(transaction.amount) : 
+                  transaction.type === 'manual_adjustment' ? transaction.amount : Math.abs(transaction.amount),
+          date: transaction.createdAt ? new Date(transaction.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          status: transaction.status || 'completed',
+          description: transaction.description || 'Wallet transaction'
+        };
+      });
       
       setTransactionHistory(transformedTransactions);
     } catch (error) {
       console.error('Error fetching transaction history:', error);
       setTransactionHistory([]);
       
-      // Check if it's a JSON parsing error (server not running)
-      if (error.message.includes('Unexpected token') || error.message.includes('<!doctype')) {
+      // Check if it's a network error or server not running
+      if (error.message.includes('Network error') || 
+          error.message.includes('Unexpected token') || 
+          error.message.includes('<!doctype') ||
+          error.message.includes('Failed to fetch')) {
         console.warn('Backend server appears to be down, using empty transaction history');
+        console.warn('Please ensure the backend server is running on http://localhost:5000');
         // Removed toast notification for server unavailability
       } else {
         // Show user-friendly error message for other errors
@@ -603,10 +701,10 @@ const VendorEarnings = () => {
       return;
     }
 
-    if (amount > actualCurrentBalance) {
+    if (amount > availableBalance) {
       toast({
         title: "Insufficient Balance",
-        description: `You can only withdraw up to ₹${actualCurrentBalance.toLocaleString()}.`,
+        description: `You can only withdraw up to ₹${availableBalance.toLocaleString()}.`,
         variant: "destructive"
       });
       return;
@@ -692,7 +790,7 @@ const VendorEarnings = () => {
       case 'Payment Received':
         return transaction.type === 'Payment Received';
       case 'Withdraw':
-        return transaction.type === 'Withdraw Transferred';
+        return transaction.type === 'Withdraw Transferred' || transaction.type === 'Withdrawal Successful';
       case 'Penalty':
         return transaction.type === 'Penalty on Cancellation';
       case 'Admin Adjustment':
@@ -709,6 +807,7 @@ const VendorEarnings = () => {
       case "Cash Received by Customer":
         return <TrendingUp className="w-5 h-5 text-green-600" />;
       case "Withdraw Transferred":
+      case "Withdrawal Successful":
       case "Penalty on Cancellation":
         return <TrendingDown className="w-5 h-5 text-red-600" />;
       case "Admin Adjustment":
@@ -725,6 +824,7 @@ const VendorEarnings = () => {
       case "Cash Received by Customer":
         return "text-green-600";
       case "Withdraw Transferred":
+      case "Withdrawal Successful":
       case "Penalty on Cancellation":
       case "Auto-Rejection Penalty":
         return "text-red-600";
@@ -738,7 +838,7 @@ const VendorEarnings = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
         <div className="container mx-auto px-4 py-4">
         <h1 className="text-3xl font-bold mb-4 md:hidden text-center">Vendor <span className="text-3xl font-bold text-gradient mb-4 md:hidden text-center"> Earning</span></h1>
         
@@ -817,7 +917,7 @@ const VendorEarnings = () => {
                       </div>
                     ) : (
                       <div>
-                        <p className="text-lg font-bold text-primary">₹{actualCurrentBalance.toLocaleString()}</p>
+                        <p className="text-lg font-bold text-primary">₹{availableBalance.toLocaleString()}</p>
                       </div>
                     )}
                   </div>
@@ -903,11 +1003,11 @@ const VendorEarnings = () => {
                             value={withdrawAmount}
                             onChange={(e) => setWithdrawAmount(e.target.value)}
                             placeholder="Enter amount"
-                            min={actualCurrentBalance <= 3999 ? "0" : "1"}
-                            max={actualCurrentBalance}
+                            min={availableBalance <= 0 ? "0" : "1"}
+                            max={availableBalance}
                           />
                           <p className="text-sm text-muted-foreground mt-1">
-                            Available balance: ₹{actualCurrentBalance.toLocaleString()}
+                            Available balance: ₹{availableBalance.toLocaleString()}
                           </p>
                         </div>
                         
@@ -941,7 +1041,7 @@ const VendorEarnings = () => {
                     <button 
                       className="btn-tech text-sm py-2 px-6"
                       onClick={() => setIsWithdrawModalOpen(true)}
-                      disabled={!hasInitialDeposit || actualCurrentBalance <= 3999}
+                      disabled={!hasInitialDeposit || availableBalance <= 0}
                     >
                       Withdraw
                     </button>

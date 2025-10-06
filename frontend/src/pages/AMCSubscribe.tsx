@@ -537,36 +537,36 @@ const AMCSubscribe = () => {
   const selectedDeviceType = deviceTypes.find(dt => dt.value === formData.deviceType);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-8">
       {/* Header */}
       <div className="bg-white border-b pt-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
               <Button 
                 onClick={() => navigate(`/amc/plan/${planId}`)} 
                 variant="ghost" 
                 size="sm"
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 mb-2 sm:mb-0"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Plan
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Subscribe to {plan.name}</h1>
-                <p className="text-gray-600 mt-1">Complete the form below to subscribe to your AMC plan</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Subscribe to {plan.name}</h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">Complete the form below to subscribe to your AMC plan</p>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-blue-600">₹{plan.price}</div>
+            <div className="text-left sm:text-right">
+              <div className="text-xl sm:text-2xl font-bold text-blue-600">₹{plan.price}</div>
               <div className="text-sm text-gray-600">per {plan.period === 'yearly' ? 'year' : 'month'}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="w-full">
           {/* Form */}
           <div>
             <Card>
@@ -744,7 +744,7 @@ const AMCSubscribe = () => {
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold whitespace-nowrap overflow-visible mb-4"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

@@ -6,3 +6,6 @@
 [2025-10-03T05:57:07.167Z] [ERROR] Error creating support ticket assignment notification: | {"error":"Attempted to check out a connection from closed connection pool","vendorId":"317","ticketId":"TK_TEST_123"}
 [2025-10-03T06:15:59.969Z] [ERROR] Error creating support ticket assignment notification: | {"error":"Client must be connected before running operations","vendorId":"317","ticketId":"TK000DEBUG"}
 [2025-10-03T06:19:36.184Z] [ERROR] SMTP connection verification failed: | {"code":"EDNS","syscall":"queryA","hostname":"smtp.gmail.com","command":"CONN"}
+[2025-10-03T10:33:34.380Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-03T10:33:34.464Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-03T10:33:34.527Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/vendors?page=1&limit=100"}

@@ -55,7 +55,7 @@ const RateUs = () => {
       if (user) {
         const likedSet = new Set<string>();
         response.data.forEach(review => {
-          if (review.likedBy.includes(user._id)) {
+          if (review.likedBy.includes(user.id)) {
             likedSet.add(review._id);
           }
         });

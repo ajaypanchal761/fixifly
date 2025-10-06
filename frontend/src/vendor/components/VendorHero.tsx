@@ -6,6 +6,9 @@ import { useMediaQuery, useTheme } from "@mui/material";
 import vendorApi from "@/services/vendorApi";
 import bannerApiService from "@/services/bannerApi";
 import VendorTaskCard from "./VendorTaskCard";
+import VendorNotificationStatus from "./VendorNotificationStatus";
+import VendorFCMTokenGenerator from "./VendorFCMTokenGenerator";
+import VendorNotificationEnable from "./VendorNotificationEnable";
 
 const VendorHero = () => {
   const theme = useTheme();
@@ -24,6 +27,7 @@ const VendorHero = () => {
   const [error, setError] = useState(null);
   const [banners, setBanners] = useState<string[]>(['/banner1.png', '/banner2.png', '/banner3.png']); // Fallback banners
   const [bannersLoading, setBannersLoading] = useState(true);
+  const [vendorId, setVendorId] = useState<string>('');
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [vendorStats, setVendorStats] = useState([
@@ -216,6 +220,12 @@ const VendorHero = () => {
         status: ticket.priority === 'High' ? 'High Priority' : 
                ticket.priority === 'Medium' ? 'Normal' : 'Low Priority',
         address: ticket.address || 'Address not provided',
+        street: ticket.street || ticket.userId?.address?.street || 'Not provided',
+        city: ticket.city || ticket.userId?.address?.city || 'Not provided',
+        state: ticket.state || ticket.userId?.address?.state || 'Not provided',
+        pincode: ticket.pincode || ticket.userId?.address?.pincode || 'Not provided',
+        landmark: ticket.landmark || ticket.userId?.address?.landmark || 'Not provided',
+        userId: ticket.userId, // Include full user object for address access
         issue: ticket.description || ticket.subject || 'Support request',
         assignDate: ticket.assignedAt 
           ? new Date(ticket.assignedAt).toLocaleDateString('en-IN')
@@ -300,6 +310,19 @@ const VendorHero = () => {
     fetchBanners();
     fetchVendorStats();
     fetchVendorBookings();
+    
+    // Get vendor ID for notifications
+    const getVendorId = async () => {
+      try {
+        const response = await vendorApi.getVendorProfile();
+        if (response.success && (response.data as any)._id) {
+          setVendorId((response.data as any)._id);
+        }
+      } catch (error) {
+        console.error('Error getting vendor ID:', error);
+      }
+    };
+    getVendorId();
     
     const interval = setInterval(() => {
       setCurrentStat((prev) => (prev + 1) % vendorStats.length);
@@ -452,7 +475,7 @@ const VendorHero = () => {
                       <img 
                         key={index}
                         src={banner} 
-                        alt={`Fixifly Banner ${index + 1}`} 
+                        alt={`Fixfly Banner ${index + 1}`} 
                         className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${
                           index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
                         }`}
@@ -602,6 +625,29 @@ const VendorHero = () => {
                 </div>
               </div>
             </div>
+
+            {/* Notification Status */}
+            {vendorId && (
+              <div className="mt-4">
+                <VendorNotificationStatus vendorId={vendorId} />
+              </div>
+            )}
+
+            {/* Notification Enable Button */}
+            {vendorId && (
+              <div className="mt-4">
+                <VendorNotificationEnable 
+                  vendorId={vendorId} 
+                  onTokenGenerated={(token) => {
+                    console.log('✅ FCM Token generated for vendor:', vendorId);
+                    // Refresh the page to update notification status
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 2000);
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

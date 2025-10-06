@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowRight, Star, Loader2, Heart } from "lucide-react";
 import BlogDetailModal from "./BlogDetailModal";
 import { useState, useEffect } from "react";
-import { blogApi, Blog } from "@/services/blogApi";
+import { blogApi, type Blog } from "@/services/blogApi";
 import { toast } from "@/hooks/use-toast";
 
 const Blog = () => {

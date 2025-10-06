@@ -33,6 +33,20 @@ interface VendorTaskCardProps {
     time: string;
     status: string;
     address: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    landmark?: string;
+    userId?: {
+      address?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        pincode?: string;
+        landmark?: string;
+      };
+    };
     issue: string;
     assignDate: string;
     assignTime: string;
@@ -52,12 +66,100 @@ interface VendorTaskCardProps {
 const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Safe render helper to prevent object rendering
+  const safeRender = (value: any, fallback: string = 'N/A'): string => {
+    if (value === null || value === undefined) return fallback;
+    if (typeof value === 'object') {
+      // Try to extract meaningful data from objects
+      if (Array.isArray(value)) {
+        return value.length > 0 ? value.join(', ') : fallback;
+      }
+      
+      // Check if it's an empty object
+      if (Object.keys(value).length === 0) {
+        console.warn('Empty object detected:', { value, taskId: task.id, taskCaseId: task.caseId });
+        return fallback;
+      }
+      
+      // Try to extract string values from objects
+      const stringValues = Object.values(value).filter(v => typeof v === 'string' && v.trim() !== '');
+      if (stringValues.length > 0) {
+        return stringValues.join(', ');
+      }
+      
+      console.error('Attempted to render object directly:', {
+        value,
+        type: typeof value,
+        keys: Object.keys(value),
+        taskId: task.id,
+        taskCaseId: task.caseId
+      });
+      return fallback;
+    }
+    return String(value);
+  };
   const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isWalletCheckOpen, setIsWalletCheckOpen] = useState(false);
+  
+  // Debug: Log task data to identify object issues
+  useEffect(() => {
+    console.log('VendorTaskCard - Task data received:', {
+      id: task.id,
+      caseId: task.caseId,
+      title: task.title,
+      customer: task.customer,
+      phone: task.phone,
+      address: task.address,
+      street: task.street,
+      city: task.city,
+      state: task.state,
+      pincode: task.pincode,
+      landmark: task.landmark,
+      userId: task.userId,
+      date: task.date,
+      time: task.time,
+      amount: task.amount,
+      status: task.status,
+      priority: task.priority,
+      issue: task.issue,
+      assignDate: task.assignDate,
+      assignTime: task.assignTime,
+      vendorStatus: task.vendorStatus,
+      bookingStatus: task.bookingStatus,
+      vendorResponse: task.vendorResponse,
+      isSupportTicket: task.isSupportTicket
+    });
+    
+    // Check each property for object types
+    const checkProperty = (propName: string, value: any) => {
+      if (typeof value === 'object' && value !== null) {
+        console.warn(`⚠️ Property ${propName} is an object:`, value);
+      }
+    };
+    
+    checkProperty('id', task.id);
+    checkProperty('caseId', task.caseId);
+    checkProperty('title', task.title);
+    checkProperty('customer', task.customer);
+    checkProperty('phone', task.phone);
+    checkProperty('address', task.address);
+    checkProperty('date', task.date);
+    checkProperty('time', task.time);
+    checkProperty('amount', task.amount);
+    checkProperty('status', task.status);
+    checkProperty('priority', task.priority);
+    checkProperty('issue', task.issue);
+    checkProperty('assignDate', task.assignDate);
+    checkProperty('assignTime', task.assignTime);
+    checkProperty('vendorStatus', task.vendorStatus);
+    checkProperty('bookingStatus', task.bookingStatus);
+    checkProperty('vendorResponse', task.vendorResponse);
+  }, [task]);
   
   // Local state to track immediate status changes
   const [localTaskStatus, setLocalTaskStatus] = useState(task.vendorStatus || task.bookingStatus);
@@ -68,7 +170,8 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   }, [task.vendorStatus, task.bookingStatus]);
 
   const getPriorityBadge = (priority: string) => {
-    switch (priority) {
+    const safePriority = safeRender(priority, 'Unknown');
+    switch (safePriority) {
       case 'urgent':
         return <Badge className="bg-red-100 text-red-800">Urgent</Badge>;
       case 'high':
@@ -78,12 +181,13 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       case 'low':
         return <Badge className="bg-gray-100 text-gray-800">Low</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800">{priority}</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800">{safePriority}</Badge>;
     }
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
+    const safeStatus = safeRender(status, 'Unknown');
+    switch (safeStatus) {
       case 'Emergency':
         return <Badge className="bg-red-100 text-red-800">Emergency</Badge>;
       case 'High Priority':
@@ -93,7 +197,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       case 'Low Priority':
         return <Badge className="bg-gray-100 text-gray-800">Low Priority</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800">{safeStatus}</Badge>;
     }
   };
 
@@ -120,6 +224,17 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         
         onStatusUpdate(task.id, 'accepted');
         setIsAcceptModalOpen(false);
+        
+        // Dispatch support ticket update event for admin interface
+        if (task.isSupportTicket) {
+          window.dispatchEvent(new CustomEvent('supportTicketUpdated', { 
+            detail: { 
+              ticketId: task.id,
+              type: 'accepted',
+              vendorStatus: 'Accepted'
+            } 
+          }));
+        }
       } else {
         toast({
           title: "Error",
@@ -186,6 +301,18 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         onStatusUpdate(task.id, 'declined');
         setIsDeclineModalOpen(false);
         setDeclineReason('');
+        
+        // Dispatch support ticket update event for admin interface
+        if (task.isSupportTicket) {
+          window.dispatchEvent(new CustomEvent('supportTicketUpdated', { 
+            detail: { 
+              ticketId: task.id,
+              type: 'declined',
+              vendorStatus: 'Declined',
+              reason: declineReason
+            } 
+          }));
+        }
       } else {
         toast({
           title: "Error",
@@ -242,6 +369,11 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
     ? (currentStatus === 'Accepted' || currentStatus === 'Completed')
     : (currentStatus === 'in_progress' || currentStatus === 'completed');
     
+  // Check if task is completed/closed
+  const isTaskCompleted = task.isSupportTicket 
+    ? (currentStatus === 'Completed')
+    : (currentStatus === 'completed');
+    
   const isTaskDeclined = isVendorDeclined || 
     (task.isSupportTicket 
       ? (currentStatus === 'Declined' || currentStatus === 'Cancelled')
@@ -262,10 +394,10 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg font-semibold text-gray-900">
-                {task.caseId}
+                {safeRender(task.caseId)}
               </CardTitle>
               <p className="text-sm text-gray-600 mt-1">
-                {task.title}
+                {safeRender(task.title)}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -280,26 +412,26 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
             {/* Customer Information */}
             <div className="flex items-center gap-2 text-sm">
               <User className="w-4 h-4 text-gray-500" />
-              <span className="font-medium">{task.customer}</span>
+              <span className="font-medium">{safeRender(task.customer)}</span>
               <Phone className="w-4 h-4 text-gray-500 ml-2" />
-              <span className="text-gray-600">{task.phone}</span>
+              <span className="text-gray-600">{safeRender(task.phone)}</span>
             </div>
 
             {/* Address */}
             <div className="flex items-start gap-2 text-sm">
               <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-              <span className="text-gray-600">{task.address}</span>
+              <span className="text-gray-600">{safeRender(task.address)}</span>
             </div>
 
             {/* Date and Time */}
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-600">{task.date}</span>
+                <span className="text-gray-600">{safeRender(task.date)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-600">{task.time}</span>
+                <span className="text-gray-600">{safeRender(task.time)}</span>
               </div>
             </div>
 
@@ -343,13 +475,13 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               {isTaskAccepted && (
                 <>
                   <Button
+                    onClick={handleViewTask}
                     variant="outline"
-                    className="w-full bg-green-50 text-green-700 border-green-200 cursor-default"
+                    className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
                     size="sm"
-                    disabled
                   >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Completed
+                    <Eye className="w-4 h-4 mr-2" />
+                    {isTaskCompleted ? 'View' : 'View & Start Task'}
                   </Button>
                 </>
               )}
@@ -372,7 +504,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* Accept Task Modal */}
       <Dialog open={isAcceptModalOpen} onOpenChange={setIsAcceptModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-20">
           <DialogHeader>
             <DialogTitle>Accept Task</DialogTitle>
           </DialogHeader>
@@ -391,9 +523,9 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
             <div className="space-y-2">
               <Label className="text-sm font-medium">Task Details:</Label>
               <div className="text-sm text-gray-600 space-y-1">
-                <p><strong>Customer:</strong> {task.customer}</p>
-                <p><strong>Service:</strong> {task.title}</p>
-                <p><strong>Date:</strong> {task.date} at {task.time}</p>
+                <p><strong>Customer:</strong> {safeRender(task.customer)}</p>
+                <p><strong>Service:</strong> {safeRender(task.title)}</p>
+                <p><strong>Date:</strong> {safeRender(task.date)} at {safeRender(task.time)}</p>
               </div>
             </div>
 
@@ -429,7 +561,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* Decline Task Modal */}
       <Dialog open={isDeclineModalOpen} onOpenChange={setIsDeclineModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-20">
           <DialogHeader>
             <DialogTitle>Decline Task</DialogTitle>
           </DialogHeader>
@@ -508,25 +640,25 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* View Task Details Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[92vh] flex flex-col">
+        <DialogContent className="max-w-2xl h-[90vh] flex flex-col overflow-hidden mt-20">
           <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-blue-600" />
-              Task Details - {task.caseId}
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Eye className="w-4 h-4" />
+              Task Details - {safeRender(task.caseId)}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-6 overflow-y-auto flex-1 pr-2 pb-2">
+          <div className="space-y-6 overflow-y-auto flex-1 pr-2 pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 min-h-0">
             {/* Task Overview */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <h3 className="font-semibold text-blue-800 mb-2">Task Overview</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
                   <span className="font-medium text-blue-700">Service:</span>
-                  <p className="text-blue-600">{task.title}</p>
+                  <p className="text-blue-600">{safeRender(task.title)}</p>
                 </div>
                 <div>
                   <span className="font-medium text-blue-700">Amount:</span>
-                  <p className="text-blue-600">{task.isSupportTicket ? task.amount : '₹0'}</p>
+                  <p className="text-blue-600">{task.isSupportTicket ? safeRender(task.amount) : '₹0'}</p>
                 </div>
                 <div>
                   <span className="font-medium text-blue-700">Priority:</span>
@@ -548,15 +680,52 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
                   <span className="font-medium text-gray-700">Name:</span>
-                  <p className="text-gray-600">{task.customer}</p>
+                  <p className="text-gray-600">{safeRender(task.customer)}</p>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Phone:</span>
-                  <p className="text-gray-600">{task.phone}</p>
+                  <p className="text-gray-600">{safeRender(task.phone)}</p>
                 </div>
                 <div className="md:col-span-2">
-                  <span className="font-medium text-gray-700">Address:</span>
-                  <p className="text-gray-600 mt-1">{task.address}</p>
+                  <span className="font-medium text-gray-700">Complete Address:</span>
+                  <div className="mt-1 space-y-1">
+                    {(() => {
+                      // Try to get address from multiple possible sources
+                      const address = task.userId?.address || task.address || task.userAddress;
+                      const street = address?.street || task.street || task.address;
+                      const city = address?.city || task.city;
+                      const state = address?.state || task.state;
+                      const pincode = address?.pincode || task.pincode;
+                      const landmark = address?.landmark || task.landmark;
+                      
+                      if (street || city || state || pincode) {
+                        return (
+                          <div className="text-sm">
+                            {street && (
+                              <p className="font-medium text-gray-900">{safeRender(street)}</p>
+                            )}
+                            <div className="flex flex-wrap gap-2 text-muted-foreground">
+                              {city && <span>{safeRender(city)}</span>}
+                              {state && <span>{safeRender(state)}</span>}
+                              {pincode && <span>{safeRender(pincode)}</span>}
+                            </div>
+                            {landmark && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                <span className="font-medium">Landmark:</span> {safeRender(landmark)}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="text-sm text-muted-foreground">
+                            <p>Address not available</p>
+                            <p className="text-xs mt-1">Phone: {safeRender(task.phone)}</p>
+                          </div>
+                        );
+                      }
+                    })()}
+                  </div>
                 </div>
               </div>
             </div>
@@ -570,19 +739,19 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
                   <span className="font-medium text-green-700">Scheduled Date:</span>
-                  <p className="text-green-600">{task.date}</p>
+                  <p className="text-green-600">{safeRender(task.date)}</p>
                 </div>
                 <div>
                   <span className="font-medium text-green-700">Scheduled Time:</span>
-                  <p className="text-green-600">{task.time}</p>
+                  <p className="text-green-600">{safeRender(task.time)}</p>
                 </div>
                 <div>
                   <span className="font-medium text-green-700">Assigned Date:</span>
-                  <p className="text-green-600">{task.assignDate}</p>
+                  <p className="text-green-600">{safeRender(task.assignDate)}</p>
                 </div>
                 <div>
                   <span className="font-medium text-green-700">Assigned Time:</span>
-                  <p className="text-green-600">{task.assignTime}</p>
+                  <p className="text-green-600">{safeRender(task.assignTime)}</p>
                 </div>
               </div>
             </div>
@@ -590,12 +759,12 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
             {/* Issue Description */}
             <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
               <h3 className="font-semibold text-orange-800 mb-2">Issue Description</h3>
-              <p className="text-orange-700 text-sm">{task.issue}</p>
+              <p className="text-orange-700 text-sm">{safeRender(task.issue)}</p>
             </div>
           </div>
           
           {/* Action Buttons - Fixed at bottom */}
-          <div className="flex gap-3 pb-4 border-t flex-shrink-0 bg-white">
+          <div className="flex gap-3 p-4 border-t flex-shrink-0 bg-white mt-auto">
             <Button
               onClick={() => setIsAcceptModalOpen(true)}
               className="flex-1 bg-green-600 hover:bg-green-700"

@@ -16,8 +16,8 @@ const sendTestEmail = asyncHandler(async (req, res) => {
       });
     }
 
-    const emailSubject = subject || 'Test Email - Fixifly Admin';
-    const emailMessage = message || 'This is a test email sent from the Fixifly admin panel.';
+    const emailSubject = subject || 'Test Email - Fixfly Admin';
+    const emailMessage = message || 'This is a test email sent from the Fixfly admin panel.';
 
     const result = await emailService.sendTestEmail(to);
 
@@ -105,20 +105,20 @@ const sendEmailToVendor = asyncHandler(async (req, res) => {
         <body>
           <div class="container">
             <div class="header">
-              <h1>Fixifly Admin Message</h1>
+              <h1>Fixfly Admin Message</h1>
             </div>
             <div class="content">
               <h2>Hello ${vendor.fullName},</h2>
               <div style="white-space: pre-wrap;">${message}</div>
             </div>
             <div class="footer">
-              <p>Best regards,<br>The Fixifly Admin Team</p>
+              <p>Best regards,<br>The Fixfly Admin Team</p>
             </div>
           </div>
         </body>
         </html>
       `,
-      text: `Fixifly Admin Message\n\nHello ${vendor.fullName},\n\n${message}\n\nBest regards,\nThe Fixifly Admin Team`
+      text: `Fixfly Admin Message\n\nHello ${vendor.fullName},\n\n${message}\n\nBest regards,\nThe Fixfly Admin Team`
     };
 
     const result = await emailService.sendEmail(emailData);
@@ -222,20 +222,20 @@ const sendBulkEmail = asyncHandler(async (req, res) => {
           <body>
             <div class="container">
               <div class="header">
-                <h1>Fixifly Announcement</h1>
+                <h1>Fixfly Announcement</h1>
               </div>
               <div class="content">
                 <h2>Hello ${vendor.fullName},</h2>
                 <div style="white-space: pre-wrap;">${message}</div>
               </div>
               <div class="footer">
-                <p>Best regards,<br>The Fixifly Team</p>
+                <p>Best regards,<br>The Fixfly Team</p>
               </div>
             </div>
           </body>
           </html>
         `,
-        text: `Fixifly Announcement\n\nHello ${vendor.fullName},\n\n${message}\n\nBest regards,\nThe Fixifly Team`
+        text: `Fixfly Announcement\n\nHello ${vendor.fullName},\n\n${message}\n\nBest regards,\nThe Fixfly Team`
       };
 
       return emailService.sendEmail(emailData);

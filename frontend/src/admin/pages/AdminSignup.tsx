@@ -141,7 +141,7 @@ const AdminSignup = () => {
               Admin <span className="text-gradient">Signup</span>
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Create your Fixifly Admin Account
+              Create your Fixfly Admin Account
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -177,7 +177,7 @@ const AdminSignup = () => {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="admin@fixifly.com"
+                    placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleInputChange}
                     className="pl-10"
@@ -285,7 +285,7 @@ const AdminSignup = () => {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © 2024 Fixifly. All rights reserved.
+            © 2024 Fixfly. All rights reserved.
           </p>
         </div>
       </div>

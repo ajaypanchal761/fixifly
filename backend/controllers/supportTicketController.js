@@ -111,7 +111,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
           <div class="container">
             <div class="header">
               <h1>✅ Support Ticket Submitted Successfully!</h1>
-              <p>Thank you for contacting Fixifly Support</p>
+              <p>Thank you for contacting Fixfly Support</p>
             </div>
             <div class="content">
               <h2>Hello ${user.name},</h2>
@@ -139,7 +139,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
                   <li>Our support team will review your ticket within 24 hours</li>
                   <li>You will receive updates via email as we work on your request</li>
                   <li>Our team will contact you directly if additional information is needed</li>
-                  <li>You can track your ticket status anytime through your Fixifly account</li>
+                  <li>You can track your ticket status anytime through your Fixfly account</li>
                 </ul>
               </div>
 
@@ -150,16 +150,16 @@ const createSupportTicket = asyncHandler(async (req, res) => {
               </a>
             </div>
             <div class="footer">
-              <p>Best regards,<br>The Fixifly Support Team</p>
+              <p>Best regards,<br>The Fixfly Support Team</p>
               <p>This is an automated confirmation. Please do not reply directly to this email.</p>
-              <p>For any queries, please contact us through your Fixifly account or visit our support center.</p>
+              <p>For any queries, please contact us through your Fixfly account or visit our support center.</p>
             </div>
           </div>
         </body>
         </html>
       `,
       text: `
-        Support Ticket Submitted Successfully - Fixifly
+        Support Ticket Submitted Successfully - Fixfly
         
         Hello ${user.name},
         
@@ -181,14 +181,14 @@ const createSupportTicket = asyncHandler(async (req, res) => {
         - Our support team will review your ticket within 24 hours
         - You will receive updates via email as we work on your request
         - Our team will contact you directly if additional information is needed
-        - You can track your ticket status anytime through your Fixifly account
+        - You can track your ticket status anytime through your Fixfly account
         
         Need immediate assistance? For urgent matters, please call our customer support hotline.
         
         View your tickets: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/support
         
         Best regards,
-        The Fixifly Support Team
+        The Fixfly Support Team
         
         This is an automated confirmation. Please do not reply directly to this email.
       `
@@ -247,7 +247,7 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
   const userId = req.user.userId || req.user._id;
 
   const tickets = await SupportTicket.find({ userId })
-    .select('ticketId subject type status priority createdAt lastResponseAt responseCount caseId paymentMode paymentStatus billingAmount vendorStatus completionData')
+    .select('ticketId subject type status priority createdAt lastResponseAt responseCount caseId paymentMode paymentStatus billingAmount vendorStatus completionData description')
     .sort({ createdAt: -1 });
 
   const formattedTickets = tickets.map(ticket => ({
@@ -260,6 +260,7 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
     lastUpdate: ticket.lastUpdate,
     responses: ticket.responseCount,
     caseId: ticket.caseId,
+    description: ticket.description,
     paymentMode: ticket.paymentMode,
     paymentStatus: ticket.paymentStatus,
     billingAmount: ticket.billingAmount || 0,
@@ -603,12 +604,15 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
       });
     }
 
-    // Check if ticket can be assigned (not resolved or closed)
+    // Check if ticket can be assigned (not resolved or closed, but allow reassignment of declined tickets)
     if (ticket.status === 'Resolved' || ticket.status === 'Closed') {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot assign vendor to resolved or closed ticket'
-      });
+      // Allow reassignment if the ticket was declined by vendor
+      if (ticket.vendorStatus !== 'Declined') {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot assign vendor to resolved or closed ticket'
+        });
+      }
     }
 
     // Use the assignVendor method from SupportTicket model
@@ -777,6 +781,9 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
     ticket.scheduledDate = new Date(newDate);
     ticket.scheduledTime = newTime;
     ticket.scheduleNotes = reason || 'Rescheduled by vendor';
+    
+    // Update status to Rescheduled
+    ticket.status = 'Rescheduled';
 
     // Store reschedule data (matching booking task format)
     ticket.rescheduleData = {
@@ -875,7 +882,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
                     </div>
                   </div>
                   <div class="footer">
-                    <p>This is an automated notification from Fixifly Support System.</p>
+                    <p>This is an automated notification from Fixfly Support System.</p>
                     <p>Please log in to the admin panel to view more details.</p>
                   </div>
                 </div>
@@ -1126,7 +1133,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
                   </a>
                 </div>
                 <div class="footer">
-                  <p>Best regards,<br>The Fixifly Support Team</p>
+                  <p>Best regards,<br>The Fixfly Support Team</p>
                   <p>This is an automated assignment notification. Please do not reply directly to this email.</p>
                   <p>For any questions about this assignment, please contact the admin team.</p>
                 </div>
@@ -1135,7 +1142,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
             </html>
           `,
           text: `
-            New Support Ticket Assignment - Fixifly
+            New Support Ticket Assignment - Fixfly
             
             Hello ${vendor.firstName} ${vendor.lastName},
             
@@ -1180,7 +1187,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
             View in Dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard
             
             Best regards,
-            The Fixifly Support Team
+            The Fixfly Support Team
             
             This is an automated assignment notification. Please do not reply directly to this email.
           `
@@ -1281,8 +1288,10 @@ const addAdminResponse = asyncHandler(async (req, res) => {
   );
 
   // Send email notification to user (only if not internal)
+  console.log('Admin response - isInternal:', isInternal, 'userEmail:', ticket.userEmail);
   if (!isInternal) {
     try {
+      console.log('Attempting to send email notification...');
       const emailData = {
         to: ticket.userEmail,
         subject: `Response to Your Support Ticket #${ticket.ticketId}`,
@@ -1317,7 +1326,7 @@ const addAdminResponse = asyncHandler(async (req, res) => {
               </div>
               <div class="content">
                 <h2>Hello ${ticket.userName},</h2>
-                <p>Thank you for contacting Fixifly support. We have received your ticket and our team has responded.</p>
+                <p>Thank you for contacting Fixfly support. We have received your ticket and our team has responded.</p>
                 
                 <div class="ticket-info">
                   <h3>Ticket Information</h3>
@@ -1333,26 +1342,26 @@ const addAdminResponse = asyncHandler(async (req, res) => {
                   <h3>Our Response:</h3>
                   <div style="white-space: pre-wrap; background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 3px solid #3B82F6;">${message.trim()}</div>
                   <p style="margin-top: 15px; font-size: 14px; color: #6b7280;">
-                    <strong>Responded by:</strong> ${admin.name} (Fixifly Support Team)<br>
+                    <strong>Responded by:</strong> ${admin.name} (Fixfly Support Team)<br>
                     <strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN')}
                   </p>
                 </div>
 
-                <p>If you need further assistance or have additional questions, please reply to this ticket through your Fixifly account or contact our support team.</p>
+                <p>If you need further assistance or have additional questions, please reply to this ticket through your Fixfly account or contact our support team.</p>
                 
                 <p>We appreciate your patience and look forward to resolving your concern.</p>
               </div>
               <div class="footer">
-                <p>Best regards,<br>The Fixifly Support Team</p>
+                <p>Best regards,<br>The Fixfly Support Team</p>
                 <p>This is an automated message. Please do not reply directly to this email.</p>
-                <p>To view your ticket or submit a new one, please visit: <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/support">Fixifly Support</a></p>
+                <p>To view your ticket or submit a new one, please visit: <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/support">Fixfly Support</a></p>
               </div>
             </div>
           </body>
           </html>
         `,
         text: `
-          Support Ticket Response - Fixifly
+          Support Ticket Response - Fixfly
           
           Hello ${ticket.userName},
           
@@ -1369,19 +1378,20 @@ const addAdminResponse = asyncHandler(async (req, res) => {
           Our Response:
           ${message.trim()}
           
-          Responded by: ${admin.name} (Fixifly Support Team)
+          Responded by: ${admin.name} (Fixfly Support Team)
           Date: ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN')}
           
-          If you need further assistance, please reply to this ticket through your Fixifly account.
+          If you need further assistance, please reply to this ticket through your Fixfly account.
           
           Best regards,
-          The Fixifly Support Team
+          The Fixfly Support Team
           
           To view your ticket: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/support
         `
       };
 
       const emailResult = await emailService.sendEmail(emailData);
+      console.log('Email sending result:', emailResult);
       
       if (emailResult.success) {
         logger.info(`Email notification sent for ticket response: ${ticket.ticketId}`, {
@@ -1578,7 +1588,12 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
     customerEmail: ticket.userEmail,
     customerPhone: ticket.userPhone,
     address: ticket.userId?.address?.street || ticket.userId?.address || 'Not provided',
+    street: ticket.userId?.address?.street || 'Not provided',
+    city: ticket.userId?.address?.city || 'Not provided',
+    state: ticket.userId?.address?.state || 'Not provided',
     pincode: ticket.userId?.address?.pincode || 'Not provided',
+    landmark: ticket.userId?.address?.landmark || 'Not provided',
+    userId: ticket.userId, // Include full user object for address access
     subject: ticket.subject,
     category: ticket.type,
     status: ticket.status,
@@ -1616,6 +1631,88 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
         hasNext: skip + tickets.length < totalTickets,
         hasPrev: parseInt(page) > 1
       }
+    }
+  });
+});
+
+// @desc    Get a single support ticket by ID for vendor
+// @route   GET /api/support-tickets/vendor/:id
+// @access  Private (Vendor)
+const getVendorSupportTicket = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const vendorId = req.vendor._id;
+
+  console.log('Fetching support ticket for vendor:', { ticketId: id, vendorId });
+
+  const ticket = await SupportTicket.findOne({ ticketId: id })
+    .populate('userId', 'firstName lastName email phone address')
+    .populate('assignedTo', 'firstName lastName email phone serviceCategories')
+    .populate('assignedBy', 'name email');
+
+  if (!ticket) {
+    return res.status(404).json({
+      success: false,
+      message: 'Support ticket not found'
+    });
+  }
+
+  // Check if vendor is assigned to this ticket
+  if (!ticket.assignedTo || ticket.assignedTo._id.toString() !== vendorId.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: 'You are not assigned to this ticket'
+    });
+  }
+
+  // Format the ticket data
+  const formattedTicket = {
+    id: ticket.ticketId,
+    caseId: ticket.caseId,
+    subject: ticket.subject,
+    description: ticket.description,
+    supportType: ticket.supportType,
+    type: ticket.type,
+    status: ticket.status,
+    priority: ticket.priority,
+    vendorStatus: ticket.vendorStatus || 'Pending',
+    created: ticket.formattedCreatedAt,
+    lastUpdate: ticket.lastUpdate,
+    responses: ticket.responseCount,
+    scheduledDate: ticket.scheduledDate,
+    scheduledTime: ticket.scheduledTime,
+    scheduleNotes: ticket.scheduleNotes,
+    assignedAt: ticket.assignedAt,
+    assignedBy: ticket.assignedBy,
+    vendorAcceptedAt: ticket.vendorAcceptedAt,
+    vendorDeclinedAt: ticket.vendorDeclinedAt,
+    vendorDeclineReason: ticket.vendorDeclineReason,
+    vendorCompletedAt: ticket.vendorCompletedAt,
+    assignedVendor: ticket.assignedTo ? `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}` : null,
+    vendorAssignmentHistory: ticket.vendorAssignmentHistory,
+    vendorCommunications: ticket.vendorCommunications,
+    vendorPerformance: ticket.vendorPerformance,
+    completionData: ticket.completionData,
+    rescheduleData: ticket.rescheduleData,
+    rescheduleInfo: ticket.rescheduleInfo,
+    // Customer information
+    customerName: ticket.userId ? `${ticket.userId.firstName} ${ticket.userId.lastName}` : 'Unknown',
+    customerEmail: ticket.userId?.email || 'Unknown',
+    customerPhone: ticket.userId?.phone || 'Unknown',
+    customerAddress: ticket.userId?.address || null,
+    // Address details
+    street: ticket.userId?.address?.street || ticket.street || null,
+    city: ticket.userId?.address?.city || ticket.city || null,
+    state: ticket.userId?.address?.state || ticket.state || null,
+    pincode: ticket.userId?.address?.pincode || ticket.pincode || null,
+    landmark: ticket.userId?.address?.landmark || ticket.landmark || null,
+    // User ID for reference
+    userId: ticket.userId
+  };
+
+  res.json({
+    success: true,
+    data: {
+      ticket: formattedTicket
     }
   });
 });
@@ -1739,7 +1836,7 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
 
   if (completionData) {
     // Complex completion data (matching booking task format)
-    console.log('Support ticket completion data received:', completionData);
+    console.log('🔧 COMPLETION DEBUG: Support ticket completion data received:', completionData);
     resolutionText = completionData.resolutionNote || resolutionText;
     spareParts = completionData.spareParts || [];
     paymentMethod = completionData.paymentMethod || 'cash';
@@ -1747,35 +1844,57 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
     includeGST = completionData.includeGST || false;
     gstAmount = completionData.gstAmount || 0;
     billingAmount = completionData.billingAmount || 0;
-    console.log('Extracted billing amount:', billingAmount);
+    console.log('🔧 COMPLETION DEBUG: Extracted values:', {
+      paymentMethod,
+      billingAmount,
+      totalAmount,
+      includeGST,
+      sparePartsCount: spareParts.length
+    });
   }
 
   // Use the new completeByVendor method (payment info is handled in the model)
   await ticket.completeByVendor(vendorId, completionData);
 
-  // Handle vendor wallet deduction for cash payment (support tickets)
-  if (paymentMethod === 'cash') {
-    try {
-      const VendorWallet = require('../models/VendorWallet');
-      const WalletCalculationService = require('../services/walletCalculationService');
-      
-      const billingAmount = parseFloat(billingAmount) || 0;
-      const spareAmount = spareParts?.reduce((sum, part) => {
-        return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
-      }, 0) || 0;
-      const travellingAmount = 0; // Support tickets don't have travelling amount
-      
-      // Calculate cash collection deduction
-      const calculation = WalletCalculationService.calculateCashCollectionDeduction({
-        billingAmount,
-        spareAmount,
-        travellingAmount,
-        gstIncluded: includeGST || false
-      });
-      
-      // Check vendor wallet balance before proceeding
-      const vendorWallet = await VendorWallet.findOne({ vendorId: vendorId });
-      if (vendorWallet) {
+  // Handle vendor wallet operations based on payment method
+  try {
+    console.log('🔧 WALLET DEBUG: Starting vendor wallet operations...');
+    console.log('🔧 WALLET DEBUG: Payment method:', paymentMethod);
+    console.log('🔧 WALLET DEBUG: Billing amount:', billingAmount);
+    console.log('🔧 WALLET DEBUG: Spare parts:', spareParts);
+    console.log('🔧 WALLET DEBUG: GST included:', includeGST);
+    
+    const VendorWallet = require('../models/VendorWallet');
+    const WalletCalculationService = require('../services/walletCalculationService');
+    
+    const parsedBillingAmount = parseFloat(billingAmount) || 0;
+    const spareAmount = spareParts?.reduce((sum, part) => {
+      return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+    }, 0) || 0;
+    const travellingAmount = parseFloat(completionData?.travelingAmount || completionData?.travellingAmount || '0') || 0;
+    
+    console.log('🔧 WALLET DEBUG: Calculated amounts:', {
+      billingAmount: parsedBillingAmount,
+      spareAmount,
+      travellingAmount
+    });
+    
+  const vendorWallet = await VendorWallet.findOne({ vendorId: req.vendor.vendorId });
+  console.log('🔧 WALLET DEBUG: Vendor wallet found:', !!vendorWallet);
+  console.log('🔧 WALLET DEBUG: Current balance:', vendorWallet?.currentBalance);
+  console.log('🔧 WALLET DEBUG: Vendor ID:', req.vendor.vendorId);
+  console.log('🔧 WALLET DEBUG: Vendor ID type:', typeof req.vendor.vendorId);
+    
+    if (vendorWallet) {
+      if (paymentMethod === 'cash') {
+        // Handle cash collection deduction
+        const calculation = WalletCalculationService.calculateCashCollectionDeduction({
+          billingAmount: parsedBillingAmount,
+          spareAmount,
+          travellingAmount,
+          gstIncluded: includeGST || false
+        });
+        
         // Check if vendor has sufficient balance for cash collection deduction
         if (vendorWallet.currentBalance < calculation.calculatedAmount) {
           return res.status(400).json({
@@ -1786,27 +1905,65 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
             requiredAmount: calculation.calculatedAmount
           });
         }
-        await vendorWallet.addCashCollectionDeduction({
+        
+        console.log('🔧 WALLET DEBUG: About to call addCashCollectionDeduction with:', {
           caseId: ticket.ticketId,
-          billingAmount,
+          billingAmount: parsedBillingAmount,
+          spareAmount,
+          travellingAmount,
+          gstIncluded: includeGST || false
+        });
+        
+        const deductionResult = await vendorWallet.addCashCollectionDeduction({
+          caseId: ticket.ticketId,
+          billingAmount: parsedBillingAmount,
           spareAmount,
           travellingAmount,
           gstIncluded: includeGST || false,
           description: `Support ticket cash collection - ${ticket.ticketId}`
         });
         
+        console.log('🔧 WALLET DEBUG: Cash collection deduction result:', deductionResult);
+        
         logger.info('Support ticket cash collection deducted from vendor wallet', {
           vendorId: vendorId,
           ticketId: ticket.ticketId,
           deductionAmount: calculation.calculatedAmount,
-          billingAmount,
+          billingAmount: parsedBillingAmount,
           spareAmount
         });
+      } else if (paymentMethod === 'online') {
+        console.log('🔧 WALLET DEBUG: Online payment detected - vendor wallet will be credited after payment verification');
+        // For online payments, don't credit wallet immediately
+        // Wallet will be credited after payment verification via /api/support-tickets/payment/verify
+        console.log('🔧 WALLET DEBUG: Skipping immediate wallet credit for online payment');
+        console.log('🔧 WALLET DEBUG: Vendor earning will be processed after user payment verification');
+      } else {
+        console.log('🔧 WALLET DEBUG: Unknown payment method:', paymentMethod);
       }
-    } catch (error) {
-      logger.error('Error deducting support ticket cash collection from vendor wallet:', error);
-      // Don't fail the ticket completion if wallet update fails
     }
+  } catch (error) {
+    logger.error('Error updating vendor wallet for support ticket completion:', {
+      error: error.message,
+      stack: error.stack,
+      vendorId: req.vendor.vendorId,
+      ticketId: ticket.ticketId,
+      paymentMethod,
+      billingAmount: parsedBillingAmount,
+      spareAmount,
+      travellingAmount
+    });
+    
+    // Return error response if wallet update fails for cash payments
+    if (paymentMethod === 'cash') {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to process wallet deduction. Please contact support.',
+        error: 'WALLET_DEDUCTION_FAILED',
+        details: error.message
+      });
+    }
+    // For online payments, don't fail the completion since wallet will be credited after payment
   }
 
   res.json({
@@ -1820,6 +1977,200 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
       paymentMethod: paymentMethod
     }
   });
+});
+
+// @desc    Verify support ticket payment and credit vendor wallet
+// @route   POST /api/support-tickets/payment/verify
+// @access  Public
+const verifySupportTicketPayment = asyncHandler(async (req, res) => {
+  try {
+    const { ticketId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+
+    if (!ticketId || !razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+      return res.status(400).json({
+        success: false,
+        message: 'All payment verification fields are required'
+      });
+    }
+
+    // Find the support ticket
+    const ticket = await SupportTicket.findOne({ ticketId });
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: 'Support ticket not found'
+      });
+    }
+
+    // Verify payment with Razorpay
+    const crypto = require('crypto');
+    const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
+    
+    if (!razorpaySecret) {
+      logger.error('Razorpay secret key not configured');
+      return res.status(500).json({
+        success: false,
+        message: 'Payment verification service not configured'
+      });
+    }
+    
+    const body = razorpayOrderId + "|" + razorpayPaymentId;
+    const expectedSignature = crypto
+      .createHmac('sha256', razorpaySecret)
+      .update(body.toString())
+      .digest('hex');
+
+    logger.info('Support ticket payment verification attempt', {
+      ticketId,
+      razorpayOrderId,
+      razorpayPaymentId,
+      expectedSignature: expectedSignature.substring(0, 10) + '...',
+      receivedSignature: razorpaySignature.substring(0, 10) + '...'
+    });
+
+    if (expectedSignature !== razorpaySignature) {
+      logger.error('Support ticket payment signature verification failed', {
+        ticketId,
+        expectedSignature: expectedSignature.substring(0, 10) + '...',
+        receivedSignature: razorpaySignature.substring(0, 10) + '...'
+      });
+      return res.status(400).json({
+        success: false,
+        message: 'Payment verification failed'
+      });
+    }
+
+    // Update ticket payment status and mark as resolved
+    ticket.paymentStatus = 'collected';
+    ticket.status = 'Resolved';
+    ticket.resolvedAt = new Date();
+    ticket.paymentDetails = {
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature,
+      paidAt: new Date()
+    };
+    await ticket.save();
+
+    logger.info('Support ticket payment verified and status updated to Resolved', {
+      ticketId,
+      status: ticket.status,
+      paymentStatus: ticket.paymentStatus,
+      resolvedAt: ticket.resolvedAt
+    });
+
+    // Credit vendor wallet after payment verification
+    if (ticket.assignedTo) {
+      try {
+        const VendorWallet = require('../models/VendorWallet');
+        // Get vendor details first to get the vendorId string
+        const Vendor = require('../models/Vendor');
+        const vendor = await Vendor.findById(ticket.assignedTo);
+        if (!vendor) {
+          logger.error('Vendor not found for ticket assignment:', ticket.assignedTo);
+          return;
+        }
+        
+        const vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
+        
+        if (vendorWallet && ticket.completionData) {
+          // Check if earning already exists for this ticket
+          const existingEarning = vendorWallet.transactions.find(t => 
+            t.caseId === ticket.ticketId && 
+            t.type === 'earning' && 
+            t.paymentMethod === 'online'
+          );
+
+          if (existingEarning) {
+            logger.info('Earning already exists for ticket, skipping duplicate credit', {
+              ticketId: ticket.ticketId,
+              existingAmount: existingEarning.amount
+            });
+            return;
+          }
+
+          const completionData = ticket.completionData;
+          const billingAmount = parseFloat(completionData.billingAmount) || 0;
+          const spareAmount = completionData.spareParts?.reduce((sum, part) => {
+            return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+          }, 0) || 0;
+          const travellingAmount = parseFloat(completionData.travelingAmount || completionData.travellingAmount || '0') || 0;
+          
+          console.log('🔧 PAYMENT VERIFICATION: Crediting vendor wallet after payment verification', {
+            ticketId,
+            vendorId: ticket.assignedTo,
+            billingAmount,
+            spareAmount,
+            travellingAmount
+          });
+          
+          const earningResult = await vendorWallet.addEarning({
+            caseId: ticket.ticketId,
+            billingAmount,
+            spareAmount,
+            travellingAmount,
+            bookingAmount: 0,
+            paymentMethod: 'online',
+            gstIncluded: completionData.includeGST || false,
+            description: `Support ticket payment verified earning - ${ticket.ticketId}`
+          });
+          
+          console.log('🔧 PAYMENT VERIFICATION: Vendor earning added to wallet', {
+            ticketId,
+            vendorId: ticket.assignedTo,
+            earningAmount: earningResult.amount,
+            newBalance: vendorWallet.currentBalance
+          });
+          
+          logger.info('Support ticket vendor earning added to wallet after payment verification', {
+            ticketId,
+            vendorId: ticket.assignedTo,
+            earningAmount: earningResult.amount,
+            billingAmount,
+            spareAmount
+          });
+        }
+      } catch (error) {
+        logger.error('Error crediting vendor wallet after support ticket payment verification:', error);
+        // Don't fail the payment verification if wallet update fails
+      }
+    }
+
+    // Update ticket status to Resolved after successful payment verification
+    ticket.status = 'Resolved';
+    ticket.paymentStatus = 'collected';
+    ticket.resolvedAt = new Date();
+    await ticket.save();
+
+    console.log('🔧 PAYMENT VERIFICATION: Ticket status updated to Resolved', {
+      ticketId,
+      status: ticket.status,
+      paymentStatus: ticket.paymentStatus
+    });
+
+    logger.info('Support ticket payment verified successfully', {
+      ticketId,
+      razorpayOrderId,
+      razorpayPaymentId
+    });
+
+    res.json({
+      success: true,
+      message: 'Payment verified successfully',
+      data: {
+        ticketId: ticket.ticketId,
+        status: ticket.status,
+        paymentStatus: ticket.paymentStatus
+      }
+    });
+
+  } catch (error) {
+    logger.error('Support ticket payment verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error during payment verification'
+    });
+  }
 });
 
 // @desc    Vendor cancels a support ticket
@@ -1994,10 +2345,12 @@ module.exports = {
   resolveSupportTicket,
   getSupportTicketStats,
   getVendorSupportTickets,
+  getVendorSupportTicket,
   acceptSupportTicket,
   declineSupportTicket,
   completeSupportTicket,
   cancelSupportTicket,
   assignVendorToSupportTicket,
-  sendInvoiceEmail
+  sendInvoiceEmail,
+  verifySupportTicketPayment
 };

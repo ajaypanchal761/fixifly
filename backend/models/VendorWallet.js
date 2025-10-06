@@ -211,29 +211,35 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
   let calculatedAmount = 0;
   let gstAmount = 0;
 
-  // Calculate GST if included (billing amount is GST-inclusive)
+  // Calculate GST if included (billing amount is GST-exclusive, GST added on top)
+  let netBillingAmount = billingAmount;
   if (gstIncluded) {
-    gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
-    billingAmount = billingAmount / 1.18; // GST-excluded amount
+    gstAmount = billingAmount * 0.18; // 18% GST on base amount
+    netBillingAmount = billingAmount; // Base amount (GST-excluded)
   }
 
   // Calculate amount based on payment method
   if (paymentMethod === 'online') {
     // Online payment: (Billing - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
-    const baseAmount = billingAmount - spareAmount - travellingAmount - bookingAmount;
+    const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
     calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
   } else if (paymentMethod === 'cash') {
     // Cash payment: (Billing - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
-    const baseAmount = billingAmount - spareAmount - travellingAmount - bookingAmount;
+    const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
     calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
   }
 
+  // Add GST amount to vendor earning if GST is included
+  if (gstIncluded) {
+    calculatedAmount += gstAmount;
+  }
+
   // Special case for amounts <= 500
-  if (billingAmount <= 500) {
+  if (netBillingAmount <= 500) {
     if (paymentMethod === 'online') {
-      calculatedAmount = billingAmount - 20; // 20 rupees cut for online
+      calculatedAmount = netBillingAmount - 20; // 20 rupees cut for online
     } else {
-      calculatedAmount = billingAmount; // Full amount for cash
+      calculatedAmount = netBillingAmount; // Full amount for cash
     }
   }
 
@@ -244,7 +250,7 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
     amount: calculatedAmount,
     description,
     paymentMethod,
-    billingAmount,
+    billingAmount: netBillingAmount, // Use net billing amount for consistency
     spareAmount,
     travellingAmount,
     bookingAmount,
@@ -578,7 +584,7 @@ vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
 
   const transaction = {
     transactionId: `ADJ_${this.vendorId}_${Date.now()}`,
-    type: 'manual_adjustment',
+    type: type === 'withdrawal' ? 'withdrawal' : 'manual_adjustment',
     amount: type === 'credit' ? amount : -amount,
     description,
     paymentMethod: 'system',

@@ -54,7 +54,7 @@ const SupportTicketSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Submitted', 'In Progress', 'Waiting for Response', 'Resolved', 'Closed'],
+    enum: ['Submitted', 'In Progress', 'Waiting for Response', 'Rescheduled', 'Cancelled', 'Resolved', 'Closed'],
     default: 'Submitted',
     index: true
   },
@@ -145,6 +145,7 @@ const SupportTicketSchema = new mongoose.Schema({
       default: 'cash'
     },
     totalAmount: Number,
+    billingAmount: Number,
     includeGST: Boolean,
     gstAmount: Number,
     travelingAmount: String,
@@ -516,8 +517,12 @@ SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = 
   this.vendorStatus = 'Declined';
   this.vendorDeclinedAt = new Date();
   this.vendorDeclineReason = reason;
-  this.assignedTo = null;
-  this.assignedAt = null;
+  
+  // Update ticket status to Cancelled
+  this.status = 'Cancelled';
+  // Keep assignedTo to show in vendor's cancelled tab
+  // this.assignedTo = null;
+  // this.assignedAt = null;
   
   // Update assignment history
   const assignment = this.vendorAssignmentHistory.find(a => 
@@ -530,9 +535,24 @@ SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = 
   
   // Apply penalty for task rejection
   const VendorWallet = require('./VendorWallet');
-  const wallet = await VendorWallet.findOne({ vendorId });
+  const Vendor = require('./Vendor');
+  
+  // Get vendor details to get the vendorId string
+  const vendor = await Vendor.findById(vendorId);
+  if (!vendor) {
+    console.error('Vendor not found for penalty application:', vendorId);
+    return this.save();
+  }
+  
+  const wallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
   
   if (wallet) {
+    console.log('🔧 PENALTY DEBUG: Applying penalty for task rejection', {
+      ticketId: this.ticketId,
+      vendorId: vendor.vendorId,
+      amount: 100
+    });
+    
     // Add penalty for task rejection
     await wallet.addPenalty({
       caseId: this._id,
@@ -540,6 +560,13 @@ SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = 
       amount: 100, // ₹100 penalty for rejecting task
       description: `Task rejection penalty - ${this.ticketId}`
     });
+    
+    console.log('🔧 PENALTY DEBUG: Penalty applied successfully', {
+      newBalance: wallet.currentBalance,
+      totalPenalties: wallet.totalPenalties
+    });
+  } else {
+    console.error('Vendor wallet not found for penalty application:', vendor.vendorId);
   }
   
   return this.save();

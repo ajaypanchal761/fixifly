@@ -76,6 +76,9 @@ const getAllBookings = asyncHandler(async (req, res) => {
           pendingBookings: {
             $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
           },
+          waitingForEngineerBookings: {
+            $sum: { $cond: [{ $eq: ['$status', 'waiting_for_engineer'] }, 1, 0] }
+          },
           confirmedBookings: {
             $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] }
           },
@@ -102,6 +105,7 @@ const getAllBookings = asyncHandler(async (req, res) => {
       totalBookings: 0,
       totalRevenue: 0,
       pendingBookings: 0,
+      waitingForEngineerBookings: 0,
       confirmedBookings: 0,
       inProgressBookings: 0,
       completedBookings: 0,
@@ -392,10 +396,22 @@ const assignVendor = asyncHandler(async (req, res) => {
       });
     }
 
-    // Create notification for vendor
+    // Create notification for vendor using simple notification service
     try {
-      const { createBookingAssignmentNotification } = require('./vendorNotificationController');
-      await createBookingAssignmentNotification(vendorId, booking);
+      const simpleNotificationService = require('../services/simpleNotificationService');
+      const notificationSent = await simpleNotificationService.sendBookingAssignmentNotification(vendorId, booking);
+      
+      if (notificationSent) {
+        logger.info('Vendor notification sent successfully for booking assignment', {
+          vendorId,
+          bookingId: booking._id
+        });
+      } else {
+        logger.warn('Failed to send vendor notification for booking assignment', {
+          vendorId,
+          bookingId: booking._id
+        });
+      }
     } catch (notificationError) {
       logger.error('Error creating vendor notification for booking assignment:', notificationError);
       // Don't fail the assignment if notification fails
@@ -537,6 +553,9 @@ const getBookingStats = asyncHandler(async (req, res) => {
           pendingBookings: {
             $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
           },
+          waitingForEngineerBookings: {
+            $sum: { $cond: [{ $eq: ['$status', 'waiting_for_engineer'] }, 1, 0] }
+          },
           confirmedBookings: {
             $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] }
           },
@@ -584,6 +603,7 @@ const getBookingStats = asyncHandler(async (req, res) => {
       totalRevenue: 0,
       averageOrderValue: 0,
       pendingBookings: 0,
+      waitingForEngineerBookings: 0,
       confirmedBookings: 0,
       inProgressBookings: 0,
       completedBookings: 0,

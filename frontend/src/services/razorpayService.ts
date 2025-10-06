@@ -155,7 +155,7 @@ class RazorpayService {
         key: this.razorpayKey,
         amount: paymentData.amount, // Amount is already in paise from backend
         currency: paymentData.currency,
-        name: 'Fixifly',
+        name: 'Fixfly',
         description: paymentData.description,
         order_id: paymentData.orderId,
         prefill: {
@@ -218,7 +218,7 @@ class RazorpayService {
         key: this.razorpayKey,
         amount: order.amount,
         currency: order.currency,
-        name: 'Fixifly',
+        name: 'Fixfly',
         description: 'Service Booking Payment',
         order_id: order.orderId,
         prefill: {

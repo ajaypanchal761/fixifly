@@ -504,7 +504,7 @@ const AMCSubscriptionModal = ({
               ) : (
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5" />
-                  <span>Subscribe Now - ₹{(parseFloat(planPrice.replace('₹', '')) * formData.quantity).toFixed(2)}</span>
+                  <span>Subsibe Now - ₹{(parseFloat(planPrice.replace('₹', '')) * formData.quantity).toFixed(2)}</span>
                 </div>
               )}
             </Button>

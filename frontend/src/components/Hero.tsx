@@ -332,7 +332,7 @@ const Hero = () => {
                     <img 
                       key={index}
                       src={banner} 
-                      alt={`Fixifly Banner ${index + 1}`} 
+                      alt={`Fixfly Banner ${index + 1}`} 
                       className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${
                         index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
                       }`}

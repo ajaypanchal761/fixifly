@@ -52,6 +52,12 @@ export interface Booking {
   };
   notes?: string;
   assignmentNotes?: string;
+  rescheduleData?: {
+    isRescheduled: boolean;
+    originalDate?: string;
+    originalTime?: string;
+    rescheduleReason?: string;
+  };
   createdAt: string;
   updatedAt: string;
   bookingReference: string;
@@ -62,6 +68,7 @@ export interface BookingStats {
   totalRevenue: number;
   averageOrderValue: number;
   pendingBookings: number;
+  waitingForEngineerBookings: number;
   confirmedBookings: number;
   inProgressBookings: number;
   completedBookings: number;
@@ -324,4 +331,4 @@ class AdminBookingApi {
 const adminBookingApi = new AdminBookingApi();
 
 export default adminBookingApi;
-export type { Booking, BookingStats, BookingsResponse, PaginationInfo, ApiResponse };
+export type { Booking as AdminBooking, BookingStats as AdminBookingStats, BookingsResponse, PaginationInfo, ApiResponse };

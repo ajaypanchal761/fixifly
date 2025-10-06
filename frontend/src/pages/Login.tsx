@@ -188,7 +188,7 @@ const Login = () => {
 
         toast({
           title: "Login Successful!",
-          description: response.data.message || "Welcome back to Fixifly",
+          description: response.data.message || "Welcome back to Fixfly",
         });
 
         // Redirect based on backend response or intended page
@@ -213,13 +213,13 @@ const Login = () => {
             <div className="flex justify-center mb-4">
               <img 
                 src="/logofixifly.png" 
-                alt="Fixifly Logo" 
+                alt="Fixfly Logo" 
                 className="w-56 h-32 object-contain -mb-10"
               />
             </div>
             <CardTitle className="text-2xl font-bold text-blue-600 mb-2">Welcome Back</CardTitle>
             <CardDescription className="text-gray-600">
-              Sign in to your Fixifly account
+              Sign in to your Fixfly account
             </CardDescription>
           </CardHeader>
           

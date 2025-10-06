@@ -45,10 +45,10 @@ export function calculateCashCollectionDeduction(params: CashCollectionParams): 
   let gstAmount = 0;
   let netBillingAmount = billingAmount;
 
-  // Calculate GST if included (billing amount is GST-inclusive)
+  // Calculate GST if included (billing amount is GST-exclusive, GST added on top)
   if (gstIncluded) {
-    gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
-    netBillingAmount = billingAmount / 1.18; // GST-excluded amount
+    gstAmount = billingAmount * 0.18; // 18% GST on base amount
+    netBillingAmount = billingAmount; // Base amount (GST-excluded)
   }
 
   let calculatedAmount = 0;

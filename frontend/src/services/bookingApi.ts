@@ -300,4 +300,12 @@ class BookingApi {
 const bookingApi = new BookingApi();
 
 export default bookingApi;
-export type { BookingService, CustomerInfo, BookingPricing, BookingScheduling, BookingData, Booking, ApiResponse };
+export type { 
+  BookingService as BookingApiService, 
+  CustomerInfo as BookingCustomerInfo, 
+  BookingPricing as BookingApiPricing, 
+  BookingScheduling as BookingApiScheduling, 
+  BookingData as BookingApiData, 
+  Booking as BookingApiBooking, 
+  ApiResponse as BookingApiResponse 
+};

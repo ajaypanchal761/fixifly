@@ -200,7 +200,7 @@ const Header = () => {
              </IconButton>
              <img 
                src="/logofixifly.png" 
-               alt="Fixifly Logo" 
+               alt="Fixfly Logo" 
                onClick={handleLogoClick}
                style={{
                  height: '100px',

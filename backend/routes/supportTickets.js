@@ -12,12 +12,14 @@ const {
   resolveSupportTicket,
   getSupportTicketStats,
   getVendorSupportTickets,
+  getVendorSupportTicket,
   acceptSupportTicket,
   declineSupportTicket,
   completeSupportTicket,
   cancelSupportTicket,
   assignVendorToSupportTicket,
-  sendInvoiceEmail
+  sendInvoiceEmail,
+  verifySupportTicketPayment
 } = require('../controllers/supportTicketController');
 const { protect } = require('../middleware/auth');
 const { protectAdmin, requirePermission } = require('../middleware/adminAuth');
@@ -41,10 +43,14 @@ router.patch('/admin/:id/assign-vendor', protectAdmin, requirePermission('suppor
 
 // Vendor routes
 router.get('/vendor/assigned', protectVendor, getVendorSupportTickets);
+router.get('/vendor/:id', protectVendor, getVendorSupportTicket);
 router.put('/vendor/:id', protectVendor, updateSupportTicket);
 router.put('/vendor/:id/accept', protectVendor, acceptSupportTicket);
 router.put('/vendor/:id/decline', protectVendor, declineSupportTicket);
 router.put('/vendor/:id/complete', protectVendor, completeSupportTicket);
 router.put('/vendor/:id/cancel', protectVendor, cancelSupportTicket);
+
+// Payment verification route (public)
+router.post('/payment/verify', verifySupportTicketPayment);
 
 module.exports = router;

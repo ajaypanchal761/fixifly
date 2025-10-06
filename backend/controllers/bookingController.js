@@ -4,6 +4,7 @@ const VendorWallet = require('../models/VendorWallet');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
+const adminNotificationService = require('../services/adminNotificationService');
 
 // @desc    Create a new booking
 // @route   POST /api/bookings
@@ -105,6 +106,32 @@ const createBooking = asyncHandler(async (req, res) => {
       servicesCount: booking.services.length
     });
 
+    // Send notification to admins about new booking
+    try {
+      console.log('🔔 Attempting to send admin notification for new booking:', {
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference,
+        customerName: booking.customer.name
+      });
+      
+      const notificationResult = await adminNotificationService.sendNewBookingNotification(booking);
+      
+      console.log('📊 Admin notification result:', {
+        successCount: notificationResult.successCount,
+        failureCount: notificationResult.failureCount,
+        totalResponses: notificationResult.responses ? notificationResult.responses.length : 0
+      });
+      
+      logger.info('Admin notification sent for new booking', {
+        bookingId: booking._id,
+        successCount: notificationResult.successCount,
+        failureCount: notificationResult.failureCount
+      });
+    } catch (error) {
+      console.error('❌ Failed to send admin notification for new booking:', error);
+      logger.error('Failed to send admin notification for new booking:', error);
+      // Don't fail the booking creation if notification fails
+    }
 
     res.status(201).json({
       success: true,
@@ -608,6 +635,32 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       paymentId: paymentData.razorpayPaymentId
     });
 
+    // Send notification to admins about new booking
+    try {
+      console.log('🔔 Attempting to send admin notification for new booking with payment:', {
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference,
+        customerName: booking.customer.name
+      });
+      
+      const notificationResult = await adminNotificationService.sendNewBookingNotification(booking);
+      
+      console.log('📊 Admin notification result (with payment):', {
+        successCount: notificationResult.successCount,
+        failureCount: notificationResult.failureCount,
+        totalResponses: notificationResult.responses ? notificationResult.responses.length : 0
+      });
+      
+      logger.info('Admin notification sent for new booking with payment', {
+        bookingId: booking._id,
+        successCount: notificationResult.successCount,
+        failureCount: notificationResult.failureCount
+      });
+    } catch (error) {
+      console.error('❌ Failed to send admin notification for new booking with payment:', error);
+      logger.error('Failed to send admin notification for new booking with payment:', error);
+      // Don't fail the booking creation if notification fails
+    }
 
     res.status(201).json({
       success: true,
@@ -916,10 +969,10 @@ const completeTask = asyncHandler(async (req, res) => {
     console.log('Update data being saved:', updateData);
     console.log('Billing amount in update data:', updateData.completionData.billingAmount);
 
-    // For online payment, set payment status to payment_done
+    // For online payment, set payment status to pending (user needs to pay)
     if (completionData.paymentMethod === 'online') {
       updateData.paymentMode = 'online';
-      updateData.paymentStatus = 'payment_done';
+      updateData.paymentStatus = 'pending'; // User needs to pay
     } else {
       // For cash payment, set as collected
       updateData.paymentMode = 'cash';
@@ -1084,10 +1137,19 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
     });
 
     // Check if booking is ready for payment (completed task with online payment)
-    if (booking.paymentMode !== 'online' || booking.paymentStatus !== 'pending') {
+    // More flexible check - allow if booking has completion data or is in_progress
+    const hasCompletionData = booking.completionData && booking.completionData.resolutionNote;
+    const isOnlinePayment = booking.paymentMode === 'online' || booking.payment?.method === 'online';
+    const isPaymentPending = booking.paymentStatus === 'pending' || booking.payment?.status === 'pending' || !booking.payment?.status;
+    
+    if (!hasCompletionData && !isOnlinePayment && !isPaymentPending) {
       logger.error('Booking not ready for payment:', {
         paymentMode: booking.paymentMode,
-        paymentStatus: booking.paymentStatus
+        paymentStatus: booking.paymentStatus,
+        hasCompletionData,
+        isOnlinePayment,
+        isPaymentPending,
+        status: booking.status
       });
       return res.status(400).json({
         success: false,
@@ -1188,11 +1250,53 @@ const cancelBooking = asyncHandler(async (req, res) => {
 
     // Get vendor information
     let vendorName = 'Unknown Vendor';
-    if (booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+    const vendorId = booking.vendor?.vendorId;
+    if (booking.vendor && vendorId) {
+      const vendor = await Vendor.findOne({ vendorId })
         .select('firstName lastName');
       if (vendor) {
         vendorName = `${vendor.firstName} ${vendor.lastName}`;
+      }
+    }
+
+    // Apply penalty for task cancellation
+    if (vendorId) {
+      const wallet = await VendorWallet.findOne({ vendorId });
+      
+      if (wallet) {
+        // Check if wallet has sufficient balance for penalty
+        const penaltyAmount = 100;
+        if (wallet.currentBalance >= penaltyAmount) {
+          // Add penalty for task cancellation
+          await wallet.addPenalty({
+            caseId: booking.bookingReference || req.params.id,
+            type: 'cancellation',
+            amount: penaltyAmount, // ₹100 penalty for cancelling task
+            description: `Task cancellation penalty - ${booking.bookingReference || req.params.id}`
+          });
+
+          logger.info(`Penalty applied for task cancellation`, {
+            vendorId,
+            bookingId: req.params.id,
+            penaltyAmount: penaltyAmount,
+            balanceAfter: wallet.currentBalance
+          });
+        } else {
+          logger.warn(`Task cancellation penalty skipped for vendor ${vendorId} - insufficient balance`, {
+            vendorId,
+            bookingId: req.params.id,
+            requiredAmount: penaltyAmount,
+            currentBalance: wallet.currentBalance
+          });
+          
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient wallet balance. You need at least ₹${penaltyAmount} to cancel this task. Current balance: ₹${wallet.currentBalance.toLocaleString()}`,
+            error: 'INSUFFICIENT_WALLET_BALANCE',
+            currentBalance: wallet.currentBalance,
+            requiredAmount: penaltyAmount
+          });
+        }
       }
     }
 

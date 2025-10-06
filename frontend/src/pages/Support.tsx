@@ -219,18 +219,26 @@ const Support = () => {
         handler: async function (response) {
           try {
             // Verify payment on backend
-            const verifyResponse = await fetch(`${API_BASE_URL}/payment/verify`, {
+            console.log('🔧 PAYMENT DEBUG: API_BASE_URL:', API_BASE_URL);
+            console.log('🔧 PAYMENT DEBUG: Full URL:', `${API_BASE_URL}/support-tickets/payment/verify`);
+            console.log('🔧 PAYMENT DEBUG: Request body:', {
+              ticketId: ticket.id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            });
+            
+            const verifyResponse = await fetch(`${API_BASE_URL}/support-tickets/payment/verify`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
               },
               body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
                 ticketId: ticket.id,
-                amount: ticket.billingAmount || ticket.totalAmount || 0
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
               })
             });
 
@@ -255,7 +263,17 @@ const Support = () => {
             }
           } catch (error) {
             console.error('Payment verification error:', error);
-            alert('Payment verification failed. Please contact support.');
+            console.error('Error details:', {
+              name: error.name,
+              message: error.message,
+              stack: error.stack
+            });
+            
+            if (error.message.includes('Failed to fetch')) {
+              alert('Network error: Cannot connect to payment server. Please check your internet connection and try again.');
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
           }
         },
         prefill: {
@@ -684,9 +702,27 @@ const Support = () => {
   };
 
   // Handle view ticket details
-  const handleViewDetails = (ticket) => {
-    setSelectedTicket(ticket);
-    setShowTicketDetails(true);
+  const handleViewDetails = async (ticket) => {
+    try {
+      setLoading(true);
+      // Fetch full ticket details from API
+      const response = await supportTicketAPI.getTicket(ticket.id);
+      if (response.success) {
+        setSelectedTicket(response.data.ticket);
+        setShowTicketDetails(true);
+      } else {
+        // Fallback to using the ticket from the list
+        setSelectedTicket(ticket);
+        setShowTicketDetails(true);
+      }
+    } catch (error) {
+      console.error('Error fetching ticket details:', error);
+      // Fallback to using the ticket from the list
+      setSelectedTicket(ticket);
+      setShowTicketDetails(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Handle add response

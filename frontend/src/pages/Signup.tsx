@@ -147,7 +147,7 @@ const Signup = () => {
 
         toast({
           title: "Account Created Successfully!",
-          description: response.data.message || "Welcome to Fixifly! Your account has been created.",
+          description: response.data.message || "Welcome to Fixfly! Your account has been created.",
         });
 
         // Redirect based on backend response
@@ -172,13 +172,13 @@ const Signup = () => {
             <div className="flex justify-center mb-4">
               <img 
                 src="/logofixifly.png" 
-                alt="Fixifly Logo" 
+                alt="Fixfly Logo" 
                 className="w-56 h-32 object-contain -mb-10"
               />
             </div>
             <CardTitle className="text-2xl font-bold text-blue-600 mb-2">Create Account</CardTitle>
             <CardDescription className="text-gray-600">
-              Join Fixifly and get started with our services
+              Join Fixfly and get started with our services
             </CardDescription>
           </CardHeader>
           

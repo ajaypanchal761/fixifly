@@ -35,25 +35,55 @@ const VendorCancelTaskDetail = () => {
       try {
         setLoading(true);
 
-        // Try to fetch as booking first
-        let response = await vendorApiService.getBookingById(taskId);
+        // Check if it's a support ticket by ID format (TK prefix)
+        if (taskId.startsWith('TK')) {
+          console.log('Detected support ticket ID, fetching as support ticket...');
+          try {
+            const response = await vendorApiService.getSupportTicketById(taskId);
 
-        if (response.success && response.data && response.data.booking) {
-          setTask({
-            ...response.data.booking,
-            taskType: 'booking'
-          });
+            if (response.success && response.data && response.data.ticket) {
+              setTask({
+                ...response.data.ticket,
+                taskType: 'support_ticket'
+              });
+            } else {
+              setError(response.message || "Support ticket not found");
+            }
+          } catch (supportError) {
+            console.error('Error fetching support ticket:', supportError);
+            setError("Support ticket not found");
+          }
         } else {
-          // If not found as booking, try to fetch as support ticket
-          response = await vendorApiService.getSupportTicketById(taskId);
+          // Try to fetch as booking first
+          try {
+            const response = await vendorApiService.getBookingById(taskId);
 
-          if (response.success && response.data && response.data.ticket) {
-            setTask({
-              ...response.data.ticket,
-              taskType: 'support_ticket'
-            });
-          } else {
-            setError(response.message || "Task not found");
+            if (response.success && response.data && response.data.booking) {
+              setTask({
+                ...response.data.booking,
+                taskType: 'booking'
+              });
+              return; // Success, exit early
+            }
+          } catch (bookingError) {
+            console.log('Not a booking, trying support ticket...');
+            
+            // If booking fails, try support ticket as fallback
+            try {
+              const response = await vendorApiService.getSupportTicketById(taskId);
+
+              if (response.success && response.data && response.data.ticket) {
+                setTask({
+                  ...response.data.ticket,
+                  taskType: 'support_ticket'
+                });
+              } else {
+                setError(response.message || "Task not found");
+              }
+            } catch (supportError) {
+              console.error('Error fetching support ticket:', supportError);
+              setError("Task not found in bookings or support tickets");
+            }
           }
         }
       } catch (err) {
@@ -84,7 +114,7 @@ const VendorCancelTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
@@ -103,7 +133,7 @@ const VendorCancelTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
@@ -203,6 +233,18 @@ const VendorCancelTaskDetail = () => {
 
         // Dispatch event to notify VendorHero component
         window.dispatchEvent(new CustomEvent('taskCancelled', { detail: cancelledTask }));
+        
+        // Dispatch support ticket update event for admin interface
+        if (task.taskType === 'support_ticket') {
+          window.dispatchEvent(new CustomEvent('supportTicketUpdated', { 
+            detail: { 
+              ticketId: taskId,
+              type: 'cancelled',
+              vendorStatus: 'Declined',
+              reason: reason.trim()
+            } 
+          }));
+        }
         
         // Show success message
         const successMessage = task.taskType === 'support_ticket' 

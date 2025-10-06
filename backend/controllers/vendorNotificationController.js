@@ -4,7 +4,10 @@ const { logger } = require('../utils/logger');
 const VendorNotification = require('../models/VendorNotification');
 const SupportTicket = require('../models/SupportTicket');
 const Vendor = require('../models/Vendor');
-const oneSignalService = require('../services/oneSignalService');
+const notificationService = require('../services/notificationService');
+const firebasePushService = require('../services/firebasePushService');
+const firebaseRealtimeService = require('../services/firebaseRealtimeService');
+const notificationConnectionService = require('../services/notificationConnectionService');
 
 // @desc    Get vendor notifications
 // @route   GET /api/vendor/notifications
@@ -330,6 +333,9 @@ const getVendorDashboard = asyncHandler(async (req, res) => {
 // @access  Private (Admin) - This will be called from admin controller
 const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, ticketData) => {
   try {
+    // Use connection service to ensure MongoDB is ready
+    await notificationConnectionService.ensureConnection();
+
     // Convert vendorId string to ObjectId by finding the vendor if needed
     let vendorObjectId = vendorId;
     if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
@@ -370,23 +376,85 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
 
     await notification.save();
 
-    // Send push notification via OneSignal
+    // Email/SMS notifications disabled - only push notifications
+    logger.info('Email/SMS notifications disabled - using push notifications only', {
+      vendorId,
+      ticketId: ticketData.ticketId
+    });
+
+    // Send push notification
     try {
-      // For OneSignal, we need to use the original vendorId (string) if it was a string
-      const pushVendorId = (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) ? vendorId : vendorObjectId.toString();
-      await oneSignalService.sendTaskAssignmentNotification(
-        pushVendorId, 
-        ticketData, 
-        'support_ticket'
-      );
-      
-      logger.info('Push notification sent successfully for support ticket assignment', {
+      logger.info('Attempting to send push notification for support ticket assignment', {
         vendorId,
-        ticketId: ticketData.ticketId
+        ticketId: ticketData.ticketId,
+        vendorObjectId: vendorObjectId.toString()
       });
+
+      const vendor = await Vendor.findById(vendorObjectId).select('fcmToken notificationSettings firstName lastName email');
+      
+      logger.info('Vendor details for push notification', {
+        vendorId,
+        vendorFound: !!vendor,
+        hasFcmToken: !!vendor?.fcmToken,
+        fcmTokenLength: vendor?.fcmToken?.length || 0,
+        pushNotificationsEnabled: vendor?.notificationSettings?.pushNotifications,
+        vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found'
+      });
+
+      if (vendor && vendor.fcmToken && vendor.notificationSettings?.pushNotifications) {
+        const pushNotification = {
+          title: '🛠️ New Support Ticket Assigned',
+          body: `You have been assigned a new support ticket: ${ticketData.subject}`
+        };
+
+        const pushData = {
+          type: 'support_ticket_assignment',
+          ticketId: ticketData.ticketId,
+          subject: ticketData.subject,
+          priority: ticketData.priority,
+          customerName: ticketData.userName,
+          action: 'view_ticket'
+        };
+
+        logger.info('Sending push notification with data', {
+          vendorId,
+          ticketId: ticketData.ticketId,
+          notificationTitle: pushNotification.title,
+          notificationBody: pushNotification.body,
+          fcmTokenPreview: vendor.fcmToken.substring(0, 20) + '...'
+        });
+
+        // Send complete notification (both push and realtime database)
+        const results = await firebaseRealtimeService.sendCompleteNotification(
+          vendorId,
+          vendor.fcmToken,
+          pushNotification,
+          pushData
+        );
+
+        logger.info('Complete notification result for support ticket assignment', {
+          vendorId,
+          ticketId: ticketData.ticketId,
+          pushNotification: results.pushNotification,
+          realtimeNotification: results.realtimeNotification,
+          fcmToken: vendor.fcmToken ? 'present' : 'missing'
+        });
+      } else {
+        logger.warn('Push notification skipped for support ticket assignment', {
+          vendorId,
+          ticketId: ticketData.ticketId,
+          hasToken: !!vendor?.fcmToken,
+          pushEnabled: vendor?.notificationSettings?.pushNotifications,
+          vendorExists: !!vendor,
+          reason: !vendor ? 'Vendor not found' : 
+                  !vendor.fcmToken ? 'No FCM token' : 
+                  'Push notifications disabled'
+        });
+      }
     } catch (pushError) {
       logger.error('Failed to send push notification for support ticket assignment', {
         error: pushError.message,
+        stack: pushError.stack,
         vendorId,
         ticketId: ticketData.ticketId
       });
@@ -415,6 +483,9 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
 // @access  Private (Admin) - This will be called from admin controller
 const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookingData) => {
   try {
+    // Use connection service to ensure MongoDB is ready
+    await notificationConnectionService.ensureConnection();
+
     // Convert vendorId string to ObjectId by finding the vendor
     let vendorObjectId = vendorId;
     if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
@@ -456,20 +527,52 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
 
     await notification.save();
 
-    // Send push notification via OneSignal
+    // Email/SMS notifications disabled - only push notifications
+    logger.info('Email/SMS notifications disabled - using push notifications only', {
+      vendorId,
+      bookingId: bookingData._id
+    });
+
+    // Send push notification
     try {
-      // For OneSignal, we need to use the original vendorId (string) if it was a string
-      const pushVendorId = (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) ? vendorId : vendorObjectId.toString();
-      await oneSignalService.sendTaskAssignmentNotification(
-        pushVendorId, 
-        bookingData, 
-        'booking'
-      );
-      
-      logger.info('Push notification sent successfully for booking assignment', {
+      const vendor = await Vendor.findById(vendorObjectId).select('fcmToken notificationSettings');
+      if (vendor && vendor.fcmToken && vendor.notificationSettings?.pushNotifications) {
+        const pushNotification = {
+          title: '📅 New Service Booking Assigned',
+          body: `You have been assigned a new service booking for ${bookingData.customer?.name}`
+        };
+
+        const pushData = {
+          type: 'booking_assignment',
+          bookingId: bookingData._id,
+          customerName: bookingData.customer?.name,
+          scheduledDate: bookingData.scheduling?.scheduledDate,
+          totalAmount: bookingData.pricing?.totalAmount,
+          action: 'view_booking'
+        };
+
+        // Send complete notification (both push and realtime database)
+        const results = await firebaseRealtimeService.sendCompleteNotification(
+          vendorId,
+          vendor.fcmToken,
+          pushNotification,
+          pushData
+        );
+
+        logger.info('Complete notification sent for booking assignment', {
+          vendorId,
+          bookingId: bookingData._id,
+          pushNotification: results.pushNotification,
+          realtimeNotification: results.realtimeNotification,
+          fcmToken: vendor.fcmToken ? 'present' : 'missing'
+        });
+      } else {
+        logger.info('Push notification skipped - no FCM token or disabled', {
         vendorId,
-        bookingId: bookingData._id
-      });
+          hasToken: !!vendor?.fcmToken,
+          pushEnabled: vendor?.notificationSettings?.pushNotifications
+        });
+      }
     } catch (pushError) {
       logger.error('Failed to send push notification for booking assignment', {
         error: pushError.message,
@@ -501,6 +604,19 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
 // @access  Private (Admin) - This will be called from admin controller
 const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, claimData) => {
   try {
+    // Ensure MongoDB connection is active
+    if (mongoose.connection.readyState !== 1) {
+      logger.warn('MongoDB connection not ready, attempting to reconnect...');
+      await mongoose.connect(process.env.MONGODB_URI);
+      // Wait for connection to be established
+      await new Promise((resolve) => {
+        if (mongoose.connection.readyState === 1) {
+          resolve();
+        } else {
+          mongoose.connection.once('connected', resolve);
+        }
+      });
+    }
     // Convert vendorId string to ObjectId by finding the vendor if needed
     let vendorObjectId = vendorId;
     if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
@@ -540,29 +656,47 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
 
     await notification.save();
 
-    // Send push notification via OneSignal
+    // Email/SMS notifications disabled - only push notifications
+    logger.info('Email/SMS notifications disabled - using push notifications only', {
+      vendorId,
+      claimId: claimData._id
+    });
+
+    // Send push notification
     try {
+      const vendor = await Vendor.findById(vendorObjectId).select('fcmToken notificationSettings');
+      if (vendor && vendor.fcmToken && vendor.notificationSettings?.pushNotifications) {
+        const pushNotification = {
+          title: '🛠️ New Warranty Claim Assigned',
+          body: `You have been assigned a new warranty claim for ${claimData.item}`
+        };
+
       const pushData = {
-        title: '🛠️ New Warranty Claim Assigned',
-        message: `Warranty claim for ${claimData.item}`,
-        data: {
+          type: 'warranty_claim_assignment',
           claimId: claimData._id,
           item: claimData.item,
           issueDescription: claimData.issueDescription,
-          type: 'warranty_claim_assignment',
           action: 'view_claim'
-        },
-        priority: 'high'
       };
 
-      // For OneSignal, we need to use the original vendorId (string) if it was a string
-      const pushVendorId = (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) ? vendorId : vendorObjectId.toString();
-      await oneSignalService.sendToVendor(pushVendorId, pushData);
+        await firebasePushService.sendPushNotification(
+          vendor.fcmToken,
+          pushNotification,
+        pushData
+      );
       
-      logger.info('Push notification sent successfully for warranty claim assignment', {
+        logger.info('Push notification sent for warranty claim assignment', {
+          vendorId,
+          claimId: claimData._id,
+          fcmToken: vendor.fcmToken ? 'present' : 'missing'
+        });
+      } else {
+        logger.info('Push notification skipped - no FCM token or disabled', {
         vendorId,
-        claimId: claimData._id
-      });
+          hasToken: !!vendor?.fcmToken,
+          pushEnabled: vendor?.notificationSettings?.pushNotifications
+        });
+      }
     } catch (pushError) {
       logger.error('Failed to send push notification for warranty claim assignment', {
         error: pushError.message,

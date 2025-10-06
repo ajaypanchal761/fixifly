@@ -105,7 +105,7 @@ const VendorRescheduleTask = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -124,7 +124,7 @@ const VendorRescheduleTask = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
@@ -288,6 +288,19 @@ const VendorRescheduleTask = () => {
         // Dispatch event to notify VendorHero component
         window.dispatchEvent(new CustomEvent('taskRescheduled', { detail: rescheduledTask }));
         
+        // Dispatch support ticket update event for admin interface
+        if (task.taskType === 'support_ticket') {
+          window.dispatchEvent(new CustomEvent('supportTicketUpdated', { 
+            detail: { 
+              ticketId: taskId,
+              type: 'rescheduled',
+              newDate: selectedDate,
+              newTime: selectedTime,
+              reason: reason.trim()
+            } 
+          }));
+        }
+        
         // Show success message
         alert("Task has been rescheduled successfully.");
         
@@ -305,10 +318,10 @@ const VendorRescheduleTask = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-hidden">
-        <div className="container mx-auto px-4 py-4 h-full flex flex-col">
+      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <div className="container mx-auto px-4 py-4">
          
 
           {/* Task Details Card */}
@@ -404,14 +417,45 @@ const VendorRescheduleTask = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select New Date *
                 </label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  min={getMinDate()}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => {
+                      console.log('Date selected:', e.target.value);
+                      setSelectedDate(e.target.value);
+                    }}
+                    onClick={(e) => {
+                      console.log('Date input clicked');
+                      (e.target as HTMLInputElement).showPicker?.();
+                    }}
+                    min={getMinDate()}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                    required
+                    style={{ 
+                      colorScheme: 'light'
+                    }}
+                  />
+                  <Calendar 
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
+                    onClick={() => {
+                      const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+                      if (dateInput) {
+                        dateInput.showPicker?.();
+                      }
+                    }}
+                  />
+                </div>
+                {selectedDate && (
+                  <p className="text-sm text-green-600 mt-1">
+                    Selected: {new Date(selectedDate).toLocaleDateString('en-IN', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                )}
               </div>
 
               {/* Time Selection */}
@@ -419,19 +463,46 @@ const VendorRescheduleTask = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select New Time *
                 </label>
-                <select
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                >
-                  <option value="">Choose a time slot</option>
-                  {timeSlots.map((slot) => (
-                    <option key={slot.value} value={slot.value}>
-                      {slot.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedTime}
+                    onChange={(e) => {
+                      console.log('Time selected:', e.target.value);
+                      setSelectedTime(e.target.value);
+                    }}
+                    onClick={(e) => {
+                      console.log('Time dropdown clicked');
+                    }}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                    required
+                  >
+                    <option value="">Choose a time slot</option>
+                    {timeSlots.map((slot) => (
+                      <option key={slot.value} value={slot.value}>
+                        {slot.label}
+                      </option>
+                    ))}
+                  </select>
+                  <Clock 
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
+                    onClick={() => {
+                      const timeSelect = document.querySelector('select') as HTMLSelectElement;
+                      if (timeSelect) {
+                        timeSelect.focus();
+                        timeSelect.click();
+                      }
+                    }}
+                  />
+                </div>
+                {selectedTime && (
+                  <p className="text-sm text-green-600 mt-1">
+                    Selected: {new Date(`2000-01-01T${selectedTime}`).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}
+                  </p>
+                )}
               </div>
             </div>
           </div>

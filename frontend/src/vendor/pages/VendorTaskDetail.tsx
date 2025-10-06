@@ -141,6 +141,12 @@ const VendorTaskDetail = () => {
             status: supportTicket.priority === 'High' ? 'High Priority' : 
                    supportTicket.priority === 'Medium' ? 'Normal' : 'Low Priority',
             address: supportTicket.address || 'Address not provided',
+            street: supportTicket.street || supportTicket.userId?.address?.street || 'Not provided',
+            city: supportTicket.city || supportTicket.userId?.address?.city || 'Not provided',
+            state: supportTicket.state || supportTicket.userId?.address?.state || 'Not provided',
+            pincode: supportTicket.pincode || supportTicket.userId?.address?.pincode || 'Not provided',
+            landmark: supportTicket.landmark || supportTicket.userId?.address?.landmark || 'Not provided',
+            userId: supportTicket.userId, // Include full user object for address access
             issue: supportTicket.description || supportTicket.subject || 'Support request',
             assignDate: supportTicket.assignedAt 
               ? new Date(supportTicket.assignedAt).toLocaleDateString('en-IN')
@@ -196,7 +202,7 @@ const VendorTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
@@ -216,7 +222,7 @@ const VendorTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Error Loading Task</h1>
@@ -257,7 +263,7 @@ const VendorTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
@@ -294,7 +300,7 @@ const VendorTaskDetail = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
         <div className="container mx-auto px-4 py-4">
           {/* Back Button */}
           <button
@@ -361,10 +367,47 @@ const VendorTaskDetail = () => {
 
               {/* Address */}
               <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-600">Service Address</h3>
+                <h3 className="text-sm font-medium text-gray-600">Complete Address</h3>
                 <div className="flex items-start space-x-2">
                   <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-                  <p className="text-sm text-gray-800">{task.address}</p>
+                  <div className="text-sm text-gray-800 space-y-1">
+                    {(() => {
+                      // Try to get address from multiple possible sources
+                      const address = task.userId?.address || task.address || task.userAddress;
+                      const street = address?.street || task.street || task.address;
+                      const city = address?.city || task.city;
+                      const state = address?.state || task.state;
+                      const pincode = address?.pincode || task.pincode;
+                      const landmark = address?.landmark || task.landmark;
+                      
+                      if (street || city || state || pincode) {
+                        return (
+                          <div>
+                            {street && (
+                              <p className="font-medium text-gray-900">{street}</p>
+                            )}
+                            <div className="flex flex-wrap gap-2 text-muted-foreground">
+                              {city && <span>{city}</span>}
+                              {state && <span>{state}</span>}
+                              {pincode && <span>{pincode}</span>}
+                            </div>
+                            {landmark && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                <span className="font-medium">Landmark:</span> {landmark}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div>
+                            <p>Address not available</p>
+                            <p className="text-xs mt-1">Phone: {task.phone}</p>
+                          </div>
+                        );
+                      }
+                    })()}
+                  </div>
                 </div>
               </div>
 
@@ -409,28 +452,82 @@ const VendorTaskDetail = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="p-4 border-t border-gray-200 space-y-2">
-              <button 
-                onClick={handleCloseTask}
-                className="w-full py-3 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors font-medium flex items-center justify-center space-x-2"
-              >
-                <CheckCircle className="w-5 h-5" />
-                <span>Complete Task</span>
-              </button>
-              <button 
-                onClick={handleRescheduleTask}
-                className="w-full py-3 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors font-medium flex items-center justify-center space-x-2"
-              >
-                <Clock className="w-5 h-5" />
-                <span>Reschedule Task</span>
-              </button>
-              <button 
-                onClick={handleCancelTask}
-                className="w-full py-3 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors font-medium flex items-center justify-center space-x-2"
-              >
-                <XCircle className="w-5 h-5" />
-                <span>Cancel Task</span>
-              </button>
+            <div className="p-4 border-t border-gray-200 space-y-2 bg-white">
+              {/* Show different buttons based on task status */}
+              {(() => {
+                const currentStatus = task.bookingStatus || task.vendorStatus;
+                const isCompleted = currentStatus === 'completed' || currentStatus === 'Completed';
+                const isInProgress = currentStatus === 'in_progress' || currentStatus === 'Accepted';
+                const isCancelled = currentStatus === 'cancelled' || currentStatus === 'Cancelled';
+                const isDeclined = currentStatus === 'declined' || currentStatus === 'Declined';
+
+                if (isCompleted) {
+                  return (
+                    <div className="text-center py-4">
+                      <div className="flex items-center justify-center mb-2">
+                        <CheckCircle className="w-8 h-8 text-green-500" />
+                      </div>
+                      <p className="text-green-600 font-medium">Task Completed Successfully</p>
+                      <p className="text-sm text-gray-600 mt-1">This task has been completed and closed.</p>
+                    </div>
+                  );
+                }
+
+                if (isCancelled || isDeclined) {
+                  return (
+                    <div className="text-center py-4">
+                      <div className="flex items-center justify-center mb-2">
+                        <XCircle className="w-8 h-8 text-red-500" />
+                      </div>
+                      <p className="text-red-600 font-medium">
+                        {isCancelled ? 'Task Cancelled' : 'Task Declined'}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {isCancelled ? 'This task has been cancelled.' : 'This task has been declined.'}
+                      </p>
+                    </div>
+                  );
+                }
+
+                if (isInProgress) {
+                  return (
+                    <>
+                      <button 
+                        onClick={handleCloseTask}
+                        className="w-full py-3 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors font-medium flex items-center justify-center space-x-2"
+                      >
+                        <CheckCircle className="w-5 h-5" />
+                        <span>Complete Task</span>
+                      </button>
+                      <button 
+                        onClick={handleRescheduleTask}
+                        className="w-full py-3 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors font-medium flex items-center justify-center space-x-2"
+                      >
+                        <Clock className="w-5 h-5" />
+                        <span>Reschedule Task</span>
+                      </button>
+                      <button 
+                        onClick={handleCancelTask}
+                        className="w-full py-3 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors font-medium flex items-center justify-center space-x-2"
+                      >
+                        <XCircle className="w-5 h-5" />
+                        <span>Cancel Task</span>
+                      </button>
+                    </>
+                  );
+                }
+
+                // Default case - task is pending/assigned
+                return (
+                  <div className="text-center py-4">
+                    <div className="flex items-center justify-center mb-2">
+                      <Clock className="w-8 h-8 text-yellow-500" />
+                    </div>
+                    <p className="text-yellow-600 font-medium">Task Pending</p>
+                    <p className="text-sm text-gray-600 mt-1">Please accept this task first to start working on it.</p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

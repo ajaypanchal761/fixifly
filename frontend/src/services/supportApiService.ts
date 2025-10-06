@@ -305,16 +305,33 @@ export const adminSupportTicketAPI = {
   // Assign vendor to support ticket
   assignVendor: async (ticketId, vendorId, scheduledDate, scheduledTime, priority, notes) => {
     try {
+      console.log('🔧 API DEBUG: Starting assignVendor API call...');
+      console.log('🔧 API DEBUG: Parameters:', {
+        ticketId,
+        vendorId,
+        scheduledDate,
+        scheduledTime,
+        priority,
+        notes
+      });
+
       const adminToken = localStorage.getItem('adminToken');
       if (!adminToken) {
+        console.error('❌ API DEBUG: No admin token found');
         throw new Error('Admin not authenticated. Please login again.');
       }
 
-      const requestBody = { vendorId };
+      console.log('🔧 API DEBUG: Admin token found:', adminToken.substring(0, 20) + '...');
+
+      const requestBody: any = { vendorId };
       if (scheduledDate) requestBody.scheduledDate = scheduledDate;
       if (scheduledTime) requestBody.scheduledTime = scheduledTime;
       if (priority) requestBody.priority = priority;
       if (notes) requestBody.notes = notes;
+
+      console.log('🔧 API DEBUG: Request body:', requestBody);
+      console.log('🔧 API DEBUG: API Base URL:', API_BASE_URL);
+      console.log('🔧 API DEBUG: Full URL:', `${API_BASE_URL}/support-tickets/admin/${ticketId}/assign-vendor`);
 
       const response = await fetch(`${API_BASE_URL}/support-tickets/admin/${ticketId}/assign-vendor`, {
         method: 'PATCH',
@@ -325,14 +342,22 @@ export const adminSupportTicketAPI = {
         body: JSON.stringify(requestBody)
       });
 
+      console.log('🔧 API DEBUG: Response status:', response.status);
+      console.log('🔧 API DEBUG: Response ok:', response.ok);
+
       const data = await response.json();
+      console.log('🔧 API DEBUG: Response data:', data);
 
       if (!response.ok) {
+        console.error('❌ API DEBUG: Request failed with status:', response.status);
+        console.error('❌ API DEBUG: Error data:', data);
         throw new Error(data.message || 'Failed to assign vendor to support ticket');
       }
 
+      console.log('✅ API DEBUG: Request successful');
       return data;
     } catch (error) {
+      console.error('❌ API DEBUG: Error in assignVendor:', error);
       throw new Error(error.message || 'Failed to assign vendor to support ticket');
     }
   }

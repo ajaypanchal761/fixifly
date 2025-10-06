@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import oneSignalService from "./services/oneSignalService";
 import Index from "./pages/Index";
 import Booking from "./pages/Booking";
 import AMC from "./pages/AMC";
@@ -58,6 +57,15 @@ import VendorDashboard from "./vendor/pages/VendorDashboard";
 import VendorProfile from "./vendor/pages/VendorProfile";
 import VendorEarnings from "./vendor/pages/VendorEarnings";
 import VendorNotifications from "./vendor/pages/VendorNotifications";
+import VendorSupport from "./vendor/pages/VendorSupport";
+import VendorShop from "./vendor/pages/VendorShop";
+import VendorTaskDetail from "./vendor/pages/VendorTaskDetail";
+import VendorTaskPreview from "./vendor/pages/VendorTaskPreview";
+import VendorRescheduleTask from "./vendor/pages/VendorRescheduleTask";
+import VendorCancelTaskDetail from "./vendor/pages/VendorCancelTaskDetail";
+import VendorCancelledTaskDetail from "./vendor/pages/VendorCancelledTaskDetail";
+import VendorClosedTask from "./vendor/pages/VendorClosedTask";
+import VendorClosedTaskDetail from "./vendor/pages/VendorClosedTaskDetail";
 
 const queryClient = new QueryClient();
 
@@ -96,7 +104,7 @@ const AppContent = () => {
         
         {/* AMC Routes */}
         <Route path="/amc" element={<MobileAuthGuard><AMC /></MobileAuthGuard>} />
-        <Route path="/amc/:planId" element={<MobileAuthGuard><AMCPlanDetails /></MobileAuthGuard>} />
+        <Route path="/amc/plan/:planId" element={<MobileAuthGuard><AMCPlanDetails /></MobileAuthGuard>} />
         <Route path="/amc/subscribe/:planId" element={<MobileAuthGuard><AMCSubscribe /></MobileAuthGuard>} />
         
         {/* Support Routes */}
@@ -158,6 +166,17 @@ const AppContent = () => {
         <Route path="/vendor/profile" element={<VendorProfile />} />
         <Route path="/vendor/earnings" element={<VendorEarnings />} />
         <Route path="/vendor/notifications" element={<VendorNotifications />} />
+        <Route path="/vendor/support" element={<VendorSupport />} />
+        <Route path="/vendor/shop" element={<VendorShop />} />
+        
+        {/* Vendor Task Routes */}
+        <Route path="/vendor/task/:taskId" element={<VendorTaskDetail />} />
+        <Route path="/vendor/task/:taskId/preview" element={<VendorTaskPreview />} />
+        <Route path="/vendor/task/:taskId/reschedule" element={<VendorRescheduleTask />} />
+        <Route path="/vendor/task/:taskId/cancel" element={<VendorCancelTaskDetail />} />
+        <Route path="/vendor/task/:taskId/cancelled" element={<VendorCancelledTaskDetail />} />
+        <Route path="/vendor/task/:taskId/close" element={<VendorClosedTask />} />
+        <Route path="/vendor/task/:taskId/closed" element={<VendorClosedTaskDetail />} />
         
         {/* ================== 404 ROUTE ================== */}
         <Route path="*" element={<NotFound />} />
@@ -170,53 +189,8 @@ const AppContent = () => {
 
 const App = () => {
   useEffect(() => {
-    // Initialize OneSignal once for the entire app
-    const initializeOneSignal = async () => {
-      try {
-        const OneSignalUtils = await import('./utils/oneSignalUtils');
-        const success = await OneSignalUtils.OneSignalUtils.initialize();
-        
-        if (success) {
-          console.log('✅ OneSignal initialized successfully');
-        } else if (window.OneSignalIndexedDBError) {
-          console.warn('⚠️ OneSignal: Push notifications disabled due to IndexedDB error');
-          console.info('💡 This usually happens in incognito mode or with storage disabled');
-          console.info('📧 Vendor notifications will still work via email/SMS');
-          
-          // Initialize fallback service
-          try {
-            const notificationFallback = await import('./services/notificationFallback');
-            notificationFallback.default.initialize('OneSignal IndexedDB error');
-            console.log('✅ Fallback notification service initialized');
-          } catch (e) {
-            console.error('❌ Failed to initialize fallback service:', e);
-          }
-        } else {
-          console.warn('⚠️ OneSignal initialization failed for unknown reasons');
-        }
-      } catch (error) {
-        console.error('❌ Error initializing OneSignal:', error);
-        
-        // Check if it's an IndexedDB-related error
-        const errorMessage = error.message || error.toString();
-        if (errorMessage.includes('indexedDB.open') || errorMessage.includes('backing store')) {
-          console.warn('🔧 OneSignal: Detected IndexedDB error, push notifications disabled');
-          console.info('💡 Possible solutions: clear browser storage, disable incognito mode, or check browser permissions');
-          window.OneSignalIndexedDBError = true;
-          
-          // Initialize fallback service
-          try {
-            const notificationFallback = await import('./services/notificationFallback');
-            notificationFallback.default.initialize(`IndexedDB error: ${errorMessage}`);
-            console.log('✅ Fallback notification service activated');
-          } catch (e) {
-            console.error('❌ Failed to initialize fallback service:', e);
-          }
-        }
-      }
-    };
-
-    initializeOneSignal();
+    // App initialized - push notifications enabled
+    console.log('✅ App initialized - push notifications enabled');
   }, []);
 
   return (

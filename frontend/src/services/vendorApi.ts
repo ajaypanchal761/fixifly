@@ -1,4 +1,4 @@
-// Vendor API service for Fixifly backend communication
+// Vendor API service for Fixfly backend communication
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 interface ApiResponse<T = any> {
@@ -227,9 +227,43 @@ class VendorApiService {
 
   // Vendor Login
   async login(email: string, password: string): Promise<ApiResponse<VendorAuthResponse>> {
+    // Generate device token (FCM token) for push notifications
+    let deviceToken = null;
+    try {
+      console.log('🔔 Generating device token for vendor login...');
+      
+      // Check if notifications are supported
+      if ('Notification' in window && 'serviceWorker' in navigator) {
+        // Request permission
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          // Import Firebase messaging
+          const { getMessaging, getToken } = await import('firebase/messaging');
+          const { messaging } = await import('../firebase-messaging');
+          
+          // Get FCM token
+          const token = await getToken(messaging, {
+            vapidKey: "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU"
+          });
+          
+          if (token) {
+            deviceToken = token;
+            console.log('✅ Device token generated for vendor login:', token.substring(0, 20) + '...');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error generating device token during login:', error);
+      // Don't fail login if device token generation fails
+    }
+
     return this.request('/vendors/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ 
+        email, 
+        password, 
+        deviceToken 
+      }),
     });
   }
 

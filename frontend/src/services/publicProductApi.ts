@@ -134,7 +134,7 @@ class PublicProductApi {
       const filteredProducts = response.data.products.filter(product => {
         const searchTerm = query.toLowerCase();
         const productName = (product.name || product.productName || '').toLowerCase();
-        const categoryName = (product.category?.name || product.serviceType || '').toLowerCase();
+        const categoryName = (product.category || product.serviceType || '').toLowerCase();
         
         return productName.includes(searchTerm) || categoryName.includes(searchTerm);
       });
@@ -146,7 +146,7 @@ class PublicProductApi {
       const suggestions: ProductSuggestion[] = limitedProducts.map(product => ({
         _id: product._id,
         name: product.name || product.productName || 'Unknown Product',
-        category: product.category?.name || product.serviceType || 'General',
+        category: product.category || product.serviceType || 'General',
         primaryImage: product.primaryImage || product.productImage,
         slug: product.slug || product._id
       }));
@@ -247,11 +247,13 @@ class PublicProductApi {
               _id: suggestion._id,
               name: suggestion.name,
               productName: suggestion.name,
-              category: { name: suggestion.category },
+              category: suggestion.category,
               serviceType: suggestion.category,
               primaryImage: suggestion.primaryImage,
               productImage: suggestion.primaryImage,
-              slug: suggestion.slug
+              slug: suggestion.slug,
+              categories: { A: [], B: [], C: [], D: [] },
+              categoryNames: { A: '', B: '', C: '', D: '' }
             } as PublicProduct)),
             pagination: searchResponse.data.pagination
           }
@@ -276,7 +278,7 @@ class PublicProductApi {
       // Apply category filter
       if (filters.category) {
         filteredProducts = filteredProducts.filter(product => 
-          (product.category?.name || product.serviceType || '').toLowerCase().includes(filters.category!.toLowerCase())
+          (product.category || product.serviceType || '').toLowerCase().includes(filters.category!.toLowerCase())
         );
       }
 
@@ -330,7 +332,7 @@ class PublicProductApi {
       const filteredProducts = response.data.products.filter(product => {
         const searchTerm = query.toLowerCase();
         const productName = (product.name || product.productName || '').toLowerCase();
-        const categoryName = (product.category?.name || product.serviceType || '').toLowerCase();
+        const categoryName = (product.category || product.serviceType || '').toLowerCase();
         
         return productName.includes(searchTerm) || categoryName.includes(searchTerm);
       });
@@ -346,7 +348,7 @@ class PublicProductApi {
       const suggestions: ProductSuggestion[] = paginatedProducts.map(product => ({
         _id: product._id,
         name: product.name || product.productName || 'Unknown Product',
-        category: product.category?.name || product.serviceType || 'General',
+        category: product.category || product.serviceType || 'General',
         primaryImage: product.primaryImage || product.productImage,
         slug: product.slug || product._id
       }));
@@ -388,4 +390,4 @@ class PublicProductApi {
 const publicProductApi = new PublicProductApi();
 
 export default publicProductApi;
-export type { ProductSuggestion, PublicProduct, ApiResponse };
+export type { ProductSuggestion as PublicProductSuggestion, PublicProduct as PublicProductData, ApiResponse as PublicProductApiResponse };

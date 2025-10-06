@@ -110,7 +110,7 @@ class EmailService {
       }
 
       const mailOptions = {
-        from: `Fixifly <${from}>`,
+        from: `Fixfly <${from}>`,
         to: Array.isArray(to) ? to.join(', ') : to,
         subject: subject,
         html: html,
@@ -155,7 +155,7 @@ class EmailService {
     const { name, email } = vendorData;
     const { amount, transactionId, newBalance } = transactionData;
 
-    const subject = 'Deposit Confirmation - Fixifly';
+    const subject = 'Deposit Confirmation - Fixfly';
     const html = `
       <!DOCTYPE html>
       <html>
@@ -191,12 +191,12 @@ class EmailService {
               <p><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
             </div>
 
-            <p>You can now access all premium features of the Fixifly platform. Thank you for your trust in our services!</p>
+            <p>You can now access all premium features of the Fixfly platform. Thank you for your trust in our services!</p>
             
             <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
           </div>
           <div class="footer">
-            <p>Best regards,<br>The Fixifly Team</p>
+            <p>Best regards,<br>The Fixfly Team</p>
             <p>This is an automated message. Please do not reply to this email.</p>
           </div>
         </div>
@@ -205,7 +205,7 @@ class EmailService {
     `;
 
     const text = `
-      Deposit Confirmation - Fixifly
+      Deposit Confirmation - Fixfly
       
       Hello ${name},
       
@@ -217,10 +217,10 @@ class EmailService {
       - New Balance: ₹${newBalance.toLocaleString()}
       - Date: ${new Date().toLocaleDateString('en-IN')}
       
-      Thank you for using Fixifly!
+      Thank you for using Fixfly!
       
       Best regards,
-      The Fixifly Team
+      The Fixfly Team
     `;
 
     return await this.sendEmail({
@@ -259,7 +259,7 @@ class EmailService {
       };
     }
 
-    const subject = `AMC Purchase Confirmation - ${planName} | Fixifly`;
+    const subject = `AMC Purchase Confirmation - ${planName} | Fixfly`;
     
     // Generate benefits HTML
     const benefitsHtml = this.generateBenefitsHtml(benefits, features);
@@ -302,13 +302,13 @@ class EmailService {
         <div class="container">
           <div class="header">
             <h1>🎉 AMC Purchase Successful!</h1>
-            <p>Welcome to Fixifly's ${planName}</p>
+            <p>Welcome to Fixfly's ${planName}</p>
             <p style="font-size: 18px; margin: 10px 0;">Your Annual Maintenance Contract is now active</p>
           </div>
           
           <div class="content">
             <h2>Hello ${userName},</h2>
-            <p>Thank you for choosing Fixifly! We're excited to confirm that your AMC subscription has been successfully activated.</p>
+            <p>Thank you for choosing Fixfly! We're excited to confirm that your AMC subscription has been successfully activated.</p>
             
             <div class="subscription-details">
               <h3>📋 Subscription Details</h3>
@@ -362,7 +362,7 @@ class EmailService {
                 <li>View your remaining benefits and usage</li>
                 <li>Contact support for any queries</li>
               </ul>
-              <a href="${process.env.FRONTEND_URL || 'https://fixifly.com'}/amc" class="cta-button">Access Your AMC Dashboard</a>
+              <a href="${process.env.FRONTEND_URL || 'https://fixfly.com'}/amc" class="cta-button">Access Your AMC Dashboard</a>
             </div>
 
             <div class="section">
@@ -370,19 +370,19 @@ class EmailService {
               <p>Our support team is here to help you make the most of your AMC:</p>
               <ul>
                 <li><strong>Phone:</strong> +91-XXXXXXXXXX (24/7 Support)</li>
-                <li><strong>Email:</strong> support@fixifly.com</li>
+                <li><strong>Email:</strong> info@fixfly.in</li>
                 <li><strong>WhatsApp:</strong> +91-XXXXXXXXXX</li>
                 <li><strong>Live Chat:</strong> Available on our website</li>
               </ul>
             </div>
 
-            <p>Thank you for trusting Fixifly with your device maintenance needs. We look forward to providing you with excellent service!</p>
+            <p>Thank you for trusting Fixfly with your device maintenance needs. We look forward to providing you with excellent service!</p>
           </div>
           
           <div class="footer">
-            <p><strong>Best regards,<br>The Fixifly Team</strong></p>
+            <p><strong>Best regards,<br>The Fixfly Team</strong></p>
             <p>This is an automated message. Please do not reply to this email.</p>
-            <p>For support, contact us at support@fixifly.com</p>
+            <p>For support, contact us at info@fixfly.in</p>
           </div>
         </div>
       </body>
@@ -390,11 +390,11 @@ class EmailService {
     `;
 
     const text = `
-      AMC Purchase Confirmation - ${planName} | Fixifly
+      AMC Purchase Confirmation - ${planName} | Fixfly
       
       Hello ${userName},
       
-      Thank you for choosing Fixifly! Your AMC subscription has been successfully activated.
+      Thank you for choosing Fixfly! Your AMC subscription has been successfully activated.
       
       SUBSCRIPTION DETAILS:
       - Plan: ${planName}
@@ -426,14 +426,14 @@ class EmailService {
       
       NEED HELP?
       - Phone: +91-XXXXXXXXXX (24/7 Support)
-      - Email: support@fixifly.com
+      - Email: info@fixfly.in
       - WhatsApp: +91-XXXXXXXXXX
       - Live Chat: Available on our website
       
-      Thank you for trusting Fixifly with your device maintenance needs!
+      Thank you for trusting Fixfly with your device maintenance needs!
       
       Best regards,
-      The Fixifly Team
+      The Fixfly Team
     `;
 
     return await this.sendEmail({
@@ -572,7 +572,7 @@ class EmailService {
   async sendVendorApprovalEmail(vendorData) {
     const { name, email, vendorId } = vendorData;
 
-    const subject = 'Welcome to Fixifly - Your Account is Approved!';
+    const subject = 'Welcome to Fixfly - Your Account is Approved!';
     const html = `
       <!DOCTYPE html>
       <html>
@@ -592,7 +592,7 @@ class EmailService {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🎉 Welcome to Fixifly!</h1>
+            <h1>🎉 Welcome to Fixfly!</h1>
             <p>Your vendor account has been approved</p>
           </div>
           <div class="content">
@@ -618,7 +618,7 @@ class EmailService {
             <p>If you have any questions, our support team is here to help!</p>
           </div>
           <div class="footer">
-            <p>Best regards,<br>The Fixifly Team</p>
+            <p>Best regards,<br>The Fixfly Team</p>
             <p>This is an automated message. Please do not reply to this email.</p>
           </div>
         </div>
@@ -627,7 +627,7 @@ class EmailService {
     `;
 
     const text = `
-      Welcome to Fixifly - Account Approved!
+      Welcome to Fixfly - Account Approved!
       
       Congratulations ${name}!
       
@@ -640,7 +640,7 @@ class EmailService {
       Login: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/login
       
       Best regards,
-      The Fixifly Team
+      The Fixfly Team
     `;
 
     return await this.sendEmail({
@@ -695,7 +695,7 @@ class EmailService {
             <p>Please review this notification in your admin dashboard.</p>
           </div>
           <div class="footer">
-            <p>Fixifly Admin System</p>
+            <p>Fixfly Admin System</p>
             <p>This is an automated notification.</p>
           </div>
         </div>
@@ -714,7 +714,7 @@ class EmailService {
       
       Please review in your admin dashboard.
       
-      Fixifly Admin System
+      Fixfly Admin System
     `;
 
     return await this.sendEmail({
@@ -736,7 +736,7 @@ class EmailService {
     const emoji = isCredit ? '💰' : '💸';
     const color = isCredit ? '#059669' : '#DC2626';
 
-    const subject = `${emoji} Wallet ${isCredit ? 'Credit' : 'Debit'} - Fixifly`;
+    const subject = `${emoji} Wallet ${isCredit ? 'Credit' : 'Debit'} - Fixfly`;
     const html = `
       <!DOCTYPE html>
       <html>
@@ -774,10 +774,10 @@ class EmailService {
               <p><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
             </div>
 
-            <p>Thank you for using Fixifly!</p>
+            <p>Thank you for using Fixfly!</p>
           </div>
           <div class="footer">
-            <p>Best regards,<br>The Fixifly Team</p>
+            <p>Best regards,<br>The Fixfly Team</p>
             <p>This is an automated message. Please do not reply to this email.</p>
           </div>
         </div>
@@ -786,7 +786,7 @@ class EmailService {
     `;
 
     const text = `
-      Wallet ${isCredit ? 'Credit' : 'Debit'} - Fixifly
+      Wallet ${isCredit ? 'Credit' : 'Debit'} - Fixfly
       
       Hello ${name},
       
@@ -799,10 +799,10 @@ class EmailService {
       New Balance: ₹${newBalance.toLocaleString()}
       Date: ${new Date().toLocaleDateString('en-IN')}
       
-      Thank you for using Fixifly!
+      Thank you for using Fixfly!
       
       Best regards,
-      The Fixifly Team
+      The Fixfly Team
     `;
 
     return await this.sendEmail({
@@ -817,7 +817,7 @@ class EmailService {
    * Send test email
    */
   async sendTestEmail(to) {
-    const subject = 'Test Email - Fixifly SMTP Service';
+    const subject = 'Test Email - Fixfly SMTP Service';
     const html = `
       <!DOCTYPE html>
       <html>
@@ -952,11 +952,11 @@ class EmailService {
       return;
     }
 
-    const subject = 'New Withdrawal Request - Fixifly Admin';
+    const subject = 'New Withdrawal Request - Fixfly Admin';
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563eb; margin: 0;">Fixifly Admin</h1>
+          <h1 style="color: #2563eb; margin: 0;">Fixfly Admin</h1>
           <p style="color: #6b7280; margin: 5px 0 0 0;">Vendor Management Portal</p>
         </div>
         
@@ -996,14 +996,14 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin-top: 30px;">
-          <p style="color: #6b7280; font-size: 14px; margin: 0;">Fixifly Admin Portal</p>
+          <p style="color: #6b7280; font-size: 14px; margin: 0;">Fixfly Admin Portal</p>
           <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">This is an automated notification.</p>
         </div>
       </div>
     `;
 
     return this.sendEmail({
-      to: process.env.ADMIN_EMAIL || 'admin@fixifly.com',
+      to: process.env.ADMIN_EMAIL || 'info@fixfly.in',
       subject,
       html
     });
@@ -1018,11 +1018,11 @@ class EmailService {
       return;
     }
 
-    const subject = 'Withdrawal Approved - Fixifly';
+    const subject = 'Withdrawal Approved - Fixfly';
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563eb; margin: 0;">Fixifly</h1>
+          <h1 style="color: #2563eb; margin: 0;">Fixfly</h1>
           <p style="color: #6b7280; margin: 5px 0 0 0;">Professional Service Platform</p>
         </div>
         
@@ -1055,7 +1055,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin-top: 30px;">
-          <p style="color: #6b7280; font-size: 14px; margin: 0;">Thank you for using Fixifly!</p>
+          <p style="color: #6b7280; font-size: 14px; margin: 0;">Thank you for using Fixfly!</p>
           <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">If you have any questions, please contact our support team.</p>
         </div>
       </div>
@@ -1077,11 +1077,11 @@ class EmailService {
       return;
     }
 
-    const subject = 'Withdrawal Request Declined - Fixifly';
+    const subject = 'Withdrawal Request Declined - Fixfly';
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563eb; margin: 0;">Fixifly</h1>
+          <h1 style="color: #2563eb; margin: 0;">Fixfly</h1>
           <p style="color: #6b7280; margin: 5px 0 0 0;">Professional Service Platform</p>
         </div>
         
@@ -1118,7 +1118,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin-top: 30px;">
-          <p style="color: #6b7280; font-size: 14px; margin: 0;">Thank you for using Fixifly!</p>
+          <p style="color: #6b7280; font-size: 14px; margin: 0;">Thank you for using Fixfly!</p>
           <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">If you have any questions, please contact our support team.</p>
         </div>
       </div>

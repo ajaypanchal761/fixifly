@@ -25,10 +25,10 @@ class WalletCalculationService {
     let gstAmount = 0;
     let netBillingAmount = billingAmount;
 
-    // Calculate GST if included (billing amount is GST-inclusive)
+    // Calculate GST if included (billing amount is GST-exclusive, GST added on top)
     if (gstIncluded) {
-      gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
-      netBillingAmount = billingAmount / 1.18; // GST-excluded amount
+      gstAmount = billingAmount * 0.18; // 18% GST on base amount
+      netBillingAmount = billingAmount; // Base amount (GST-excluded)
     }
 
     let calculatedAmount = 0;
@@ -51,6 +51,11 @@ class WalletCalculationService {
         const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
         calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
       }
+    }
+
+    // Add GST amount to vendor earning if GST is included
+    if (gstIncluded) {
+      calculatedAmount += gstAmount;
     }
 
     return {
@@ -91,10 +96,10 @@ class WalletCalculationService {
     let gstAmount = 0;
     let netBillingAmount = billingAmount;
 
-    // Calculate GST if included (billing amount is GST-inclusive)
+    // Calculate GST if included (billing amount is GST-exclusive, GST added on top)
     if (gstIncluded) {
-      gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
-      netBillingAmount = billingAmount / 1.18; // GST-excluded amount
+      gstAmount = billingAmount * 0.18; // 18% GST on base amount
+      netBillingAmount = billingAmount; // Base amount (GST-excluded)
     }
 
     let calculatedAmount = 0;

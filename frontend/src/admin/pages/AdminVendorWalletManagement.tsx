@@ -253,7 +253,7 @@ const AdminVendorWalletManagement = () => {
   const handleEditWallet = (wallet: VendorWallet) => {
     setEditingWallet(wallet);
     setEditForm({
-      currentBalance: wallet.currentBalance.toString(),
+      currentBalance: wallet.availableBalance.toString(),
       description: '',
       adjustmentType: 'credit'
     });
@@ -271,7 +271,7 @@ const AdminVendorWalletManagement = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          currentBalance: parseFloat(editForm.currentBalance),
+          currentBalance: parseFloat(editForm.currentBalance) + editingWallet.securityDeposit,
           description: editForm.description,
           adjustmentType: editForm.adjustmentType
         })
@@ -286,7 +286,7 @@ const AdminVendorWalletManagement = () => {
         // Update the wallet in the local state
         setVendorWallets(prev => prev.map(wallet => 
           wallet.vendorId === editingWallet.vendorId 
-            ? { ...wallet, currentBalance: parseFloat(editForm.currentBalance) }
+            ? { ...wallet, currentBalance: parseFloat(editForm.currentBalance) + editingWallet.securityDeposit }
             : wallet
         ));
         
@@ -472,7 +472,6 @@ const AdminVendorWalletManagement = () => {
         <Tabs defaultValue="wallets" className="space-y-4">
           <TabsList>
             <TabsTrigger value="wallets">Vendor Wallets</TabsTrigger>
-            <TabsTrigger value="transactions">All Transactions</TabsTrigger>
             <TabsTrigger value="withdrawals">Withdrawal Requests</TabsTrigger>
           </TabsList>
 
@@ -522,6 +521,7 @@ const AdminVendorWalletManagement = () => {
                         <TableHead>Phone</TableHead>
                         <TableHead>Current Balance</TableHead>
                         <TableHead>Total Deposits</TableHead>
+                        <TableHead>Total Withdrawals</TableHead>
                         <TableHead>Security Deposit</TableHead>
                         <TableHead>Available Balance</TableHead>
                         <TableHead>Total Earnings</TableHead>
@@ -553,6 +553,12 @@ const AdminVendorWalletManagement = () => {
                             <div className="flex items-center space-x-1">
                               <CreditCard className="h-3 w-3 text-blue-500" />
                               <span className="text-sm font-medium">₹{wallet.totalDeposits.toLocaleString()}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <TrendingDown className="h-3 w-3 text-red-500" />
+                              <span className="text-sm font-medium">₹{wallet.totalWithdrawals.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -621,85 +627,6 @@ const AdminVendorWalletManagement = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="transactions" className="space-y-4">
-            {/* Transactions Table */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">All Transactions ({filteredTransactions.length})</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Transaction ID</TableHead>
-                      <TableHead>Vendor</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredTransactions.map((transaction) => {
-                      const vendor = vendorWallets.find(w => w.vendorId === transaction.vendorId);
-                      return (
-                        <TableRow key={transaction.id}>
-                          <TableCell>
-                            <span className="font-mono text-xs">{transaction.id}</span>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="text-sm font-medium">{vendor?.vendorName || 'Unknown'}</p>
-                              <p className="text-xs text-muted-foreground">{vendor?.vendorEmail || ''}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={transaction.type === 'credit' ? 'default' : 'secondary'} className="text-xs">
-                              {transaction.type === 'credit' ? (
-                                <Plus className="w-3 h-3 mr-1" />
-                              ) : (
-                                <Minus className="w-3 h-3 mr-1" />
-                              )}
-                              {transaction.type}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <DollarSign className="h-3 w-3 text-green-500" />
-                              <span className="text-sm font-medium">₹{transaction.amount.toLocaleString()}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-xs">{transaction.description}</span>
-                            {transaction.reference && (
-                              <p className="text-xs text-muted-foreground">Ref: {transaction.reference}</p>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={
-                              transaction.status === 'completed' ? 'default' :
-                              transaction.status === 'pending' ? 'secondary' : 'destructive'
-                            } className="text-xs">
-                              {transaction.status === 'completed' && <CheckCircle className="w-3 h-3 mr-1" />}
-                              {transaction.status === 'pending' && <Clock className="w-3 h-3 mr-1" />}
-                              {transaction.status === 'failed' && <XCircle className="w-3 h-3 mr-1" />}
-                              {transaction.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-xs">
-                              {new Date(transaction.createdAt).toLocaleDateString()}
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="withdrawals" className="space-y-4">
             {/* Withdrawal Requests Table */}
@@ -1180,13 +1107,13 @@ const AdminVendorWalletManagement = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="current-balance">Current Balance</Label>
+                  <Label htmlFor="current-balance">Available Balance</Label>
                   <Input
                     id="current-balance"
                     type="number"
                     value={editForm.currentBalance}
                     onChange={(e) => setEditForm(prev => ({ ...prev, currentBalance: e.target.value }))}
-                    placeholder="Enter new balance"
+                    placeholder="Enter new available balance"
                   />
               </div>
 

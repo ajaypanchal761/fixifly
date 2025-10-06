@@ -54,7 +54,7 @@ const ProductDetail = () => {
         if (productId) {
           const response = await publicProductApi.getProductById(productId);
           if (response.success && response.data?.product) {
-            setProduct(response.data.product);
+            setProduct(response.data.product as ProductDetailData);
           } else {
             console.error('Failed to fetch product:', response.message);
           }

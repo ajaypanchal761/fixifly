@@ -246,50 +246,68 @@ export const blogApi = {
     }
     const queryString = queryParams.toString();
     const endpoint = `/blogs${queryString ? `?${queryString}` : ''}`;
-    return await apiService.request(endpoint, { method: 'GET' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { method: 'GET' });
+    return await response.json() as BlogResponse;
   },
 
   // Get single blog by slug
   getBlogBySlug: async (slug: string): Promise<SingleBlogResponse> => {
-    return await apiService.request(`/blogs/${slug}`, { method: 'GET' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}/blogs/${slug}`, { method: 'GET' });
+    return await response.json() as SingleBlogResponse;
   },
 
   // Get featured blogs
   getFeaturedBlogs: async (limit?: number): Promise<BlogResponse> => {
     const endpoint = limit ? `/blogs/featured?limit=${limit}` : '/blogs/featured';
-    return await apiService.request(endpoint, { method: 'GET' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { method: 'GET' });
+    return await response.json() as BlogResponse;
   },
 
   // Get recent blogs
   getRecentBlogs: async (limit?: number): Promise<BlogResponse> => {
     const endpoint = limit ? `/blogs/recent?limit=${limit}` : '/blogs/recent';
-    return await apiService.request(endpoint, { method: 'GET' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { method: 'GET' });
+    return await response.json() as BlogResponse;
   },
 
   // Get popular blogs
   getPopularBlogs: async (limit?: number): Promise<BlogResponse> => {
     const endpoint = limit ? `/blogs/popular?limit=${limit}` : '/blogs/popular';
-    return await apiService.request(endpoint, { method: 'GET' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { method: 'GET' });
+    return await response.json() as BlogResponse;
   },
 
   // Get blog categories
   getBlogCategories: async (): Promise<BlogCategoriesResponse> => {
-    return await apiService.request('/blogs/categories', { method: 'GET' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}/blogs/categories`, { method: 'GET' });
+    return await response.json() as BlogCategoriesResponse;
   },
 
   // Like a blog
   likeBlog: async (id: string): Promise<{ success: boolean; data: { likes: number }; message: string }> => {
-    return await apiService.request(`/blogs/${id}/like`, { method: 'POST' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}/blogs/${id}/like`, { method: 'POST' });
+    return await response.json();
   },
 
   // Unlike a blog
   unlikeBlog: async (id: string): Promise<{ success: boolean; data: { likes: number; hasLiked: boolean }; message: string }> => {
-    return await apiService.request(`/blogs/${id}/unlike`, { method: 'POST' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}/blogs/${id}/unlike`, { method: 'POST' });
+    return await response.json();
   },
 
   // Check if user has liked a blog
   getLikeStatus: async (id: string): Promise<{ success: boolean; data: { hasLiked: boolean; likes: number } }> => {
-    return await apiService.request(`/blogs/${id}/like-status`, { method: 'GET' });
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${API_BASE_URL}/blogs/${id}/like-status`, { method: 'GET' });
+    return await response.json();
   }
 };
 

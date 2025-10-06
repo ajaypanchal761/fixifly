@@ -508,7 +508,7 @@ const VendorProfile = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 pt-20">
+      <main className="flex-1 pb-24 pt-20 overflow-y-auto">
         <div className="container mx-auto px-4 py-4">
           {/* Profile Header */}
           <div className="text-center mb-4">
@@ -1153,7 +1153,7 @@ const VendorProfile = () => {
                 )}
                 <Badge variant="outline" className="border-gray-200 text-gray-700 px-1 py-0.5 text-xs font-medium">
                   <Calendar className="w-3 h-3 mr-1" />
-                  Joined {new Date(profileData.createdAt).toLocaleDateString('en-US', { 
+                  Joined {new Date((profileData as any).createdAt).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'short'
                   })}

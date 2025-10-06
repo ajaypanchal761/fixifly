@@ -7,6 +7,8 @@ const { logger } = require('../utils/logger');
 const imageUploadService = require('../utils/imageUpload');
 const RazorpayService = require('../services/razorpayService');
 const emailService = require('../services/emailService');
+const crypto = require('crypto');
+const ONE_SIGNAL_USER_AUTH_KEY = process.env.ONESIGNAL_USER_AUTH_KEY;
 
 // Generate JWT Token
 const generateToken = (vendorId) => {
@@ -138,7 +140,7 @@ const registerVendor = asyncHandler(async (req, res) => {
 // @route   POST /api/vendors/login
 // @access  Public
 const loginVendor = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, deviceToken } = req.body;
 
   try {
     // Check if vendor exists and include password
@@ -187,6 +189,20 @@ const loginVendor = asyncHandler(async (req, res) => {
 
     // Update last login
     await vendor.updateLastLogin();
+
+    // Save device token (FCM token) if provided
+    if (deviceToken) {
+      try {
+        console.log('🔔 Saving device token for vendor:', vendor.vendorId);
+        vendor.fcmToken = deviceToken;
+        vendor.notificationSettings.pushNotifications = true;
+        await vendor.save();
+        console.log('✅ Device token saved successfully for vendor:', vendor.vendorId);
+      } catch (error) {
+        console.error('❌ Error saving device token:', error);
+        // Don't fail login if device token saving fails
+      }
+    }
 
     // Generate token
     const token = generateToken(vendor._id);
@@ -1004,6 +1020,28 @@ const verifyDepositPayment = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Generate OneSignal identity token for vendor
+// @route   GET /api/vendors/onesignal/identity-token
+// @access  Private
+const generateOneSignalIdentityToken = asyncHandler(async (req, res) => {
+  try {
+    if (!ONE_SIGNAL_USER_AUTH_KEY) {
+      return res.status(500).json({ success: false, message: 'OneSignal user auth key not configured' });
+    }
+
+    const vendorMongoId = req.vendor._id.toString();
+
+    const hmac = crypto.createHmac('sha256', ONE_SIGNAL_USER_AUTH_KEY);
+    hmac.update(vendorMongoId);
+    const token = hmac.digest('base64');
+
+    return res.json({ success: true, data: { externalId: vendorMongoId, token } });
+  } catch (error) {
+    logger.error('Failed to generate OneSignal identity token', { error: error.message, vendorId: req.vendor?._id });
+    return res.status(500).json({ success: false, message: 'Failed to generate identity token' });
+  }
+});
+
 // @desc    Get vendor wallet information
 // @route   GET /api/vendors/wallet
 // @access  Private
@@ -1244,6 +1282,65 @@ const removeServiceLocation = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update FCM token for push notifications
+// @route   POST /api/vendor/update-fcm-token
+// @access  Private (Vendor)
+const updateFCMToken = asyncHandler(async (req, res) => {
+  const { fcmToken } = req.body;
+  const vendorId = req.vendor._id;
+
+  if (!fcmToken) {
+    return res.status(400).json({
+      success: false,
+      message: 'FCM token is required'
+    });
+  }
+
+  try {
+    const vendor = await Vendor.findByIdAndUpdate(
+      vendorId,
+      { 
+        fcmToken,
+        'notificationSettings.pushNotifications': true
+      },
+      { new: true }
+    ).select('fcmToken notificationSettings');
+
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    logger.info('FCM token updated for vendor', {
+      vendorId: vendorId.toString(),
+      vendorEmail: req.vendor.email,
+      hasToken: !!vendor.fcmToken
+    });
+
+    res.json({
+      success: true,
+      message: 'FCM token updated successfully',
+      data: {
+        fcmToken: vendor.fcmToken,
+        pushNotificationsEnabled: vendor.notificationSettings.pushNotifications
+      }
+    });
+  } catch (error) {
+    logger.error('Error updating FCM token:', {
+      error: error.message,
+      vendorId: vendorId.toString()
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update FCM token',
+      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
+    });
+  }
+});
+
 module.exports = {
   registerVendor,
   loginVendor,
@@ -1259,5 +1356,7 @@ module.exports = {
   getVendorWallet,
   addServiceLocation,
   updateServiceLocation,
-  removeServiceLocation
+  removeServiceLocation,
+  generateOneSignalIdentityToken,
+  updateFCMToken
 };

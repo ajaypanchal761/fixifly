@@ -263,7 +263,7 @@ const Checkout = () => {
           totalAmount: totalAmount
         },
         scheduling: {
-          preferredDate: new Date(customerData.scheduledDate),
+          preferredDate: customerData.scheduledDate,
           preferredTimeSlot: customerData.scheduledTime
         },
         notes: customerData.notes || "Booking created from checkout"

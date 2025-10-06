@@ -457,11 +457,11 @@ const VendorSignup = () => {
         <div className="text-center mb-4 -mt-16">
           <img 
             src="/logofixifly.png" 
-            alt="Fixifly Logo" 
+            alt="Fixfly Logo" 
             className="h-32 mx-auto"
           />
           <h1 className="text-2xl font-bold text-gray-900 -mt-6">Vendor Registration</h1>
-          <p className="text-gray-600 -mt-2">Join Fixifly as a service provider</p>
+          <p className="text-gray-600 -mt-2">Join Fixfly as a service provider</p>
         </div>
 
         <Card className="shadow-lg max-h-[calc(100vh-200px)] overflow-y-auto">

@@ -41,11 +41,12 @@ const createWithdrawalRequest = asyncHandler(async (req, res) => {
       });
     }
 
-    // Check if withdrawal amount exceeds available balance
-    if (withdrawalAmount > vendorWallet.currentBalance) {
+    // Check if withdrawal amount exceeds available balance (current balance - security deposit)
+    const availableBalance = Math.max(0, vendorWallet.currentBalance - vendorWallet.securityDeposit);
+    if (withdrawalAmount > availableBalance) {
       return res.status(400).json({
         success: false,
-        message: `Insufficient balance. Available balance: ₹${vendorWallet.currentBalance.toLocaleString()}`
+        message: `Insufficient balance. Available balance: ₹${availableBalance.toLocaleString()}`
       });
     }
 

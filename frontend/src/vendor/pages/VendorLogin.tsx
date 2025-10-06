@@ -81,11 +81,11 @@ const VendorLogin = () => {
         }
 
         // Use vendor context to login
-        login(vendor, response.data.token);
+        login(vendor as any, response.data.token);
 
         toast({
           title: "Login Successful!",
-          description: response.data.message || "Welcome back to Fixifly Vendor Portal!",
+          description: response.data.message || "Welcome back to Fixfly Vendor Portal!",
         });
 
         // Redirect to vendor earnings page for mandatory deposit
@@ -108,7 +108,7 @@ const VendorLogin = () => {
         <div className="text-center mb-4 -mt-16">
           <img 
             src="/logofixifly.png" 
-            alt="Fixifly Logo" 
+            alt="Fixfly Logo" 
             className="h-32 mx-auto"
           />
           <h1 className="text-2xl font-bold text-gray-900 -mt-6">Vendor Login</h1>

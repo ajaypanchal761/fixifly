@@ -327,6 +327,28 @@ const vendorSchema = new mongoose.Schema({
       type: Date,
       default: null
     }
+  },
+
+  // Push Notification Settings
+  fcmToken: {
+    type: String,
+    default: null,
+    trim: true
+  },
+
+  notificationSettings: {
+    pushNotifications: {
+      type: Boolean,
+      default: true
+    },
+    emailNotifications: {
+      type: Boolean,
+      default: true
+    },
+    smsNotifications: {
+      type: Boolean,
+      default: true
+    }
   }
 }, {
   timestamps: true
@@ -349,8 +371,7 @@ vendorSchema.virtual('formattedPhone').get(function() {
 });
 
 // Index for better query performance
-vendorSchema.index({ email: 1 });
-vendorSchema.index({ phone: 1 });
+// Note: email and phone already have unique indexes from schema definition
 vendorSchema.index({ 'address.city': 1 });
 vendorSchema.index({ 'address.pincode': 1 });
 vendorSchema.index({ serviceCategories: 1 });

@@ -201,6 +201,32 @@ const adminSchema = new mongoose.Schema({
     }
   },
   
+  // FCM Token for push notifications
+  fcmToken: {
+    type: String,
+    default: null
+  },
+  
+  // Notification Settings
+  notificationSettings: {
+    pushNotifications: {
+      type: Boolean,
+      default: true
+    },
+    newBookings: {
+      type: Boolean,
+      default: true
+    },
+    newVendors: {
+      type: Boolean,
+      default: true
+    },
+    systemAlerts: {
+      type: Boolean,
+      default: true
+    }
+  },
+
   // Preferences
   preferences: {
     notifications: {

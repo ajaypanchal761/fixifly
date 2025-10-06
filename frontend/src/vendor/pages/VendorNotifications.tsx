@@ -160,7 +160,7 @@ const VendorNotifications = () => {
         </div>
       </div>
 
-      <main className="flex-1 pb-24">
+      <main className="flex-1 pb-24 overflow-y-auto">
         <div className="container mx-auto px-4 py-4">
           {/* Notifications List */}
           <div className="space-y-3">

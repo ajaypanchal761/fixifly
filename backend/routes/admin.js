@@ -10,7 +10,8 @@ const {
   changePassword,
   getActivityLog,
   getAdminStats,
-  getDashboardStats
+  getDashboardStats,
+  updateFCMToken
 } = require('../controllers/adminController');
 
 const {
@@ -77,6 +78,10 @@ router.get('/activity-log', protectAdmin, getActivityLog);
 // @route   POST /api/admin/logout
 // @access  Private (Admin)
 router.post('/logout', protectAdmin, logoutAdmin);
+
+// @route   POST /api/admin/update-fcm-token
+// @access  Private (Admin)
+router.post('/update-fcm-token', protectAdmin, updateFCMToken);
 
 // @desc    Admin statistics routes
 // @route   GET /api/admin/stats

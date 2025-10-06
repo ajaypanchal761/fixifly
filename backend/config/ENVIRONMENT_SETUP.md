@@ -6,7 +6,7 @@ Create a `.env` file in the backend root directory with the following variables:
 
 ```env
 # Database Configuration
-MONGODB_URI=mongodb://localhost:27017/fixifly
+MONGODB_URI=mongodb://localhost:27017/fixfly
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-here-make-it-long-and-random
@@ -14,7 +14,7 @@ JWT_EXPIRES_IN=30d
 
 # SMS India Hub Configuration
 SMS_INDIA_HUB_API_KEY=your-sms-india-hub-api-key-here
-SMS_INDIA_HUB_SENDER_ID=FIXIFLY
+SMS_INDIA_HUB_SENDER_ID=FIXFLY
 SMS_INDIA_HUB_BASE_URL=https://api.smsindiahub.in
 
 # Server Configuration
@@ -68,17 +68,17 @@ The system includes pre-built templates for:
 1. Visit [SMS India Hub](https://smsindiahub.in)
 2. Sign up for an account
 3. Get your API key from the dashboard
-4. Set up your sender ID (FIXIFLY)
+4. Set up your sender ID (FIXFLY)
 
 ### 2. API Configuration
 - **API Key**: Your unique API key from SMS India Hub
-- **Sender ID**: FIXIFLY (or your preferred sender ID)
+- **Sender ID**: FIXFLY (or your preferred sender ID)
 - **Base URL**: https://api.smsindiahub.in
 
 ### 3. SMS Templates
 Create these templates in your SMS India Hub dashboard:
-- **FIXIFLY_OTP**: For login OTP
-- **FIXIFLY_REGISTRATION**: For registration OTP
+- **FIXFLY_OTP**: For login OTP
+- **FIXFLY_REGISTRATION**: For registration OTP
 
 ### 4. Testing
 In development mode, OTPs will be logged to console if SMS sending fails.

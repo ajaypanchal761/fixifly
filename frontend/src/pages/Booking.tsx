@@ -100,8 +100,8 @@ Status: Completed
 Method: Card
 Transaction ID: ${newBooking.payment?.transactionId || 'N/A'}
 
-Thank you for choosing Fixifly!
-For support, contact us at support@fixifly.com
+Thank you for choosing Fixfly!
+For support, contact us at info@fixfly.in
     `.trim();
 
     // Create and download the receipt as PDF
@@ -109,7 +109,7 @@ For support, contact us at support@fixifly.com
     element.innerHTML = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563eb; margin: 0;">Fixifly</h1>
+          <h1 style="color: #2563eb; margin: 0;">Fixfly</h1>
           <h2 style="color: #374151; margin: 10px 0;">BOOKING RECEIPT</h2>
           <hr style="border: 1px solid #e5e7eb;">
         </div>
@@ -169,8 +169,8 @@ For support, contact us at support@fixifly.com
         </div>
 
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-          <p style="color: #6b7280; margin: 0;">Thank you for choosing Fixifly!</p>
-          <p style="color: #6b7280; margin: 5px 0;">For support, contact us at support@fixifly.com</p>
+          <p style="color: #6b7280; margin: 0;">Thank you for choosing Fixfly!</p>
+          <p style="color: #6b7280; margin: 5px 0;">For support, contact us at info@fixfly.in</p>
         </div>
       </div>
     `;
@@ -181,7 +181,7 @@ For support, contact us at support@fixifly.com
       printWindow.document.write(`
         <html>
           <head>
-            <title>Fixifly Receipt - ${bookingReference}</title>
+            <title>Fixfly Receipt - ${bookingReference}</title>
             <style>
               @media print {
                 body { margin: 0; }
@@ -583,7 +583,7 @@ For support, contact us at support@fixifly.com
         <!DOCTYPE html>
         <html>
         <head>
-          <title>Fixifly Receipt - ${bookingRef}</title>
+          <title>Fixfly Receipt - ${bookingRef}</title>
           <style>
             body { font-family: Arial, sans-serif; margin: 20px; }
             .header { text-align: center; margin-bottom: 30px; }
@@ -596,7 +596,7 @@ For support, contact us at support@fixifly.com
         </head>
         <body>
           <div class="header">
-            <h1 style="color: #2563eb; margin: 0;">Fixifly</h1>
+            <h1 style="color: #2563eb; margin: 0;">Fixfly</h1>
             <h2 style="color: #374151; margin: 10px 0;">SERVICE RECEIPT</h2>
             <hr style="border: 1px solid #e5e7eb;">
           </div>
@@ -610,7 +610,7 @@ For support, contact us at support@fixifly.com
               ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
               : new Date(booking.updatedAt).toLocaleDateString('en-IN')
             }</p>
-            ${booking.vendor?.vendorId?.firstName && booking.vendor?.vendorId?.lastName ? 
+            ${booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName ? 
               `<p><strong>Assigned Engineer:</strong> ${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}</p>` : ''
             }
           </div>
@@ -659,12 +659,12 @@ For support, contact us at support@fixifly.com
               <span>₹${totalAmount}</span>
             </div>
             <p><strong>Payment Status:</strong> ${booking.payment?.status || 'Completed'}</p>
-            ${booking.payment?.razorpayPaymentId ? `<p><strong>Transaction ID:</strong> ${booking.payment.razorpayPaymentId}</p>` : ''}
+            ${booking.payment?.transactionId ? `<p><strong>Transaction ID:</strong> ${booking.payment.transactionId}</p>` : ''}
           </div>
 
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-            <p style="color: #6b7280; margin: 0;">Thank you for choosing Fixifly!</p>
-            <p style="color: #6b7280; margin: 5px 0;">For support, contact us at support@fixifly.com</p>
+            <p style="color: #6b7280; margin: 0;">Thank you for choosing Fixfly!</p>
+            <p style="color: #6b7280; margin: 5px 0;">For support, contact us at info@fixfly.in</p>
           </div>
         </body>
         </html>
@@ -709,6 +709,19 @@ For support, contact us at support@fixifly.com
       generateSimpleReceipt(booking);
       return;
       
+      // Initialize GST variables early
+      const gstData = getGSTData(booking._id);
+      let includeGST = false;
+      let gstAmount = 0;
+      
+      if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
+        includeGST = gstData.includeGST;
+        gstAmount = gstData.gstAmount;
+      } else {
+        includeGST = (booking as any).includeGST;
+        gstAmount = (booking as any).gstAmount || 0;
+      }
+      
       const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -729,7 +742,7 @@ For support, contact us at support@fixifly.com
     // Header
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    yPosition = addText('FIXIFLY SERVICE RECEIPT', pageWidth / 2, yPosition);
+    yPosition = addText('FIXFLY SERVICE RECEIPT', pageWidth / 2, yPosition);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
     yPosition = addText('Service Completion Receipt', pageWidth / 2, yPosition);
@@ -751,8 +764,11 @@ For support, contact us at support@fixifly.com
       ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
       : new Date(booking.updatedAt).toLocaleDateString('en-IN')
     }`, 20, yPosition);
-    if (booking.vendor?.vendorId?.firstName && booking.vendor?.vendorId?.lastName) {
-      yPosition = addText(`Assigned Engineer: ${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}`, 20, yPosition);
+    if (booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object') {
+      const vendor = booking.vendor.vendorId as { firstName: string; lastName: string };
+      if (vendor.firstName && vendor.lastName) {
+        yPosition = addText(`Assigned Engineer: ${vendor.firstName} ${vendor.lastName}`, 20, yPosition);
+      }
     }
     yPosition += 10;
 
@@ -814,8 +830,8 @@ For support, contact us at support@fixifly.com
     if (booking.payment?.paidAt) {
       yPosition = addText(`Payment Date: ${new Date(booking.payment.paidAt).toLocaleDateString('en-IN')}`, 20, yPosition);
     }
-    if (booking.payment?.razorpayPaymentId) {
-      yPosition = addText(`Transaction ID: ${booking.payment.razorpayPaymentId}`, 20, yPosition);
+    if (booking.payment?.transactionId) {
+      yPosition = addText(`Transaction ID: ${booking.payment.transactionId}`, 20, yPosition);
     }
     yPosition += 10;
 
@@ -878,23 +894,7 @@ For support, contact us at support@fixifly.com
 
     // Total Amount Section
     const baseAmount = booking.pricing.totalAmount + ((booking as any).completionData?.totalAmount || 0);
-    
-    // Check for GST data in localStorage first
-    const gstData = getGSTData(booking._id);
-    let totalAmount = baseAmount;
-    let includeGST = false;
-    let gstAmount = 0;
-    
-    if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
-      totalAmount = gstData.totalAmount;
-      includeGST = gstData.includeGST;
-      gstAmount = gstData.gstAmount;
-    } else {
-      // Fallback to booking data
-      includeGST = (booking as any).includeGST;
-      gstAmount = (booking as any).gstAmount || 0;
-      totalAmount = includeGST && gstAmount > 0 ? baseAmount + gstAmount : baseAmount;
-    }
+    let totalAmount = includeGST && gstAmount > 0 ? baseAmount + gstAmount : baseAmount;
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     yPosition = addText('TOTAL AMOUNT', 20, yPosition);
@@ -906,11 +906,11 @@ For support, contact us at support@fixifly.com
     // Footer
     doc.setFontSize(8);
     doc.setFont('helvetica', 'italic');
-    yPosition = addText('Thank you for choosing Fixifly for your service needs!', pageWidth / 2, pageHeight - 20);
-    yPosition = addText('For any queries, contact us at support@fixifly.com', pageWidth / 2, pageHeight - 15);
+    yPosition = addText('Thank you for choosing Fixfly for your service needs!', pageWidth / 2, pageHeight - 20);
+    yPosition = addText('For any queries, contact us at info@fixfly.in', pageWidth / 2, pageHeight - 15);
 
     // Save the PDF
-    const fileName = `Fixifly_Receipt_${bookingRef}_${new Date().toISOString().split('T')[0]}.pdf`;
+    const fileName = `Fixfly_Receipt_${bookingRef}_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
     
     toast({
@@ -1511,12 +1511,56 @@ For support, contact us at support@fixifly.com
 
                     {/* Action Buttons */}
                     <div className="flex space-x-1 mb-1">
-                      {/* Show Pay Now button only if task is completed by vendor with online payment pending */}
-                      {booking.status === 'in_progress' && 
-                       (booking as any).completionData && 
-                       (booking as any).completionData.resolutionNote &&
-                       (booking as any).paymentMode === 'online' && 
-                       (booking as any).paymentStatus === 'pending' ? (
+                      {/* Debug: Log booking data */}
+                      {(() => {
+                        console.log('Booking Debug:', {
+                          id: booking._id,
+                          status: booking.status,
+                          completionData: (booking as any).completionData,
+                          paymentMode: (booking as any).paymentMode,
+                          paymentStatus: (booking as any).paymentStatus,
+                          payment: (booking as any).payment
+                        });
+                        return null;
+                      })()}
+                      
+                      {/* Show Pay Now button - check multiple conditions */}
+                      {(() => {
+                        // Check localStorage for payment data
+                        const paymentData = localStorage.getItem(`payment_${booking._id}`);
+                        const gstData = localStorage.getItem(`gst_${booking._id}`);
+                        
+                        // Check if booking has completion data
+                        const hasCompletionData = (booking as any).completionData && (booking as any).completionData.resolutionNote;
+                        
+                        // Check if payment mode is online
+                        const isOnlinePayment = (booking as any).paymentMode === 'online' || 
+                                             (booking as any).payment?.method === 'online' ||
+                                             (paymentData && JSON.parse(paymentData).paymentMethod === 'online');
+                        
+                        // Check if payment status is pending
+                        const isPaymentPending = (booking as any).paymentStatus === 'pending' || 
+                                               (booking as any).payment?.status === 'pending';
+                        
+                        // Show Pay Now button if any of these conditions are met
+                        const shouldShowPayNow = booking.status === 'in_progress' && 
+                                               (hasCompletionData || paymentData || gstData) &&
+                                               (isOnlinePayment || paymentData) &&
+                                               (isPaymentPending || !(booking as any).payment?.status);
+                        
+                        console.log('Pay Now Button Debug:', {
+                          bookingId: booking._id,
+                          status: booking.status,
+                          hasCompletionData,
+                          isOnlinePayment,
+                          isPaymentPending,
+                          paymentData: !!paymentData,
+                          gstData: !!gstData,
+                          shouldShowPayNow
+                        });
+                        
+                        return shouldShowPayNow;
+                      })() ? (
                         <Button 
                           className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs py-1.5"
                           onClick={() => handlePayNow(booking)}
@@ -1645,7 +1689,7 @@ For support, contact us at support@fixifly.com
                         <div className="text-xs">
                           <span className="text-gray-600">Assigned Engineer</span>
                           <div className="font-medium text-sm">
-                            {booking.vendor?.vendorId?.firstName && booking.vendor?.vendorId?.lastName 
+                            {booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName 
                               ? `${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}`
                               : 'Engineer Assigned'
                             }

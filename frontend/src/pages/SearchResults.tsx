@@ -49,7 +49,7 @@ const SearchResults: React.FC = () => {
 
   const handleProductClick = (product: PublicProduct) => {
     // Navigate to product detail or service page
-    navigate(`/service/${product.category.name.toLowerCase().replace(/\s+/g, '-')}`);
+    navigate(`/service/${product.category.toLowerCase().replace(/\s+/g, '-')}`);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -133,7 +133,7 @@ const SearchResults: React.FC = () => {
             <>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 mb-8">
                 {products.map((product) => {
-                  const primaryImage = product.images?.find(img => img.isPrimary)?.url || product.primaryImage;
+                  const primaryImage = product.primaryImage;
                   
                   return (
                     <div
@@ -157,11 +157,11 @@ const SearchResults: React.FC = () => {
                           {product.name}
                         </h3>
                         <p className="text-xs text-gray-600 mb-0.5">
-                          {product.category.name}
+                          {product.category}
                         </p>
-                        {product.currentPrice && (
+                        {product.price && (
                           <p className="text-xs font-bold text-blue-600">
-                            ₹{product.currentPrice.toLocaleString()}
+                            ₹{product.price.toLocaleString()}
                           </p>
                         )}
                       </div>

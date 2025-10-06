@@ -79,7 +79,7 @@ class SMSIndiaHubService {
       }
 
                   // Use the verified message template from SMSIndia Hub
-      const message = `Welcome to the Fixifly powered by SMSINDIAHUB. Your OTP for registration is ${otp}`;
+      const message = `Welcome to the Fixfly powered by SMSINDIAHUB. Your OTP for registration is ${otp}`;
       
       // Build the API URL with query parameters (as shown in the example)
         const params = new URLSearchParams({
@@ -97,7 +97,7 @@ class SMSIndiaHubService {
       // Make GET request to SMSIndia Hub API
           const response = await axios.get(apiUrl, {
             headers: {
-              'User-Agent': 'Fixifly/1.0',
+              'User-Agent': 'Fixfly/1.0',
               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
             },
         timeout: 15000 // 15 second timeout
@@ -179,7 +179,7 @@ class SMSIndiaHubService {
 
       // Test with a simple SMS to verify connection
       const testPhone = '919109992290'; // Use the phone number from the example
-      const testMessage = 'Welcome to the Fixifly powered by SMSINDIAHUB. Your OTP for registration is 12345';
+      const testMessage = 'Welcome to the Fixfly powered by SMSINDIAHUB. Your OTP for registration is 12345';
 
       const params = new URLSearchParams({
         APIKey: apiKey,
@@ -195,7 +195,7 @@ class SMSIndiaHubService {
 
       const response = await axios.get(testUrl, {
         headers: {
-          'User-Agent': 'Fixifly/1.0',
+          'User-Agent': 'Fixfly/1.0',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
         },
         timeout: 10000
@@ -233,7 +233,7 @@ class SMSIndiaHubService {
       
       const response = await axios.get(balanceUrl, {
         headers: {
-          'User-Agent': 'Fixifly/1.0',
+          'User-Agent': 'Fixfly/1.0',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
         },
         timeout: 10000

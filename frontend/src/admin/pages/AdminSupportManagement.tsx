@@ -52,6 +52,16 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 const AdminSupportManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Safe render helper to prevent object rendering
+  const safeRender = (value: any, fallback: string = 'N/A'): string => {
+    if (value === null || value === undefined) return fallback;
+    if (typeof value === 'object') {
+      console.error('Attempted to render object directly:', value);
+      return fallback;
+    }
+    return String(value);
+  };
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
@@ -92,6 +102,20 @@ const AdminSupportManagement = () => {
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Listen for support ticket updates (reschedule, status changes, etc.)
+  useEffect(() => {
+    const handleSupportTicketUpdate = (event: any) => {
+      console.log('Support ticket updated event received in admin:', event.detail);
+      fetchSupportTickets(); // Refresh tickets when vendor reschedules or updates
+    };
+
+    window.addEventListener('supportTicketUpdated', handleSupportTicketUpdate);
+    
+    return () => {
+      window.removeEventListener('supportTicketUpdated', handleSupportTicketUpdate);
+    };
   }, []);
 
   const fetchSupportTickets = async () => {
@@ -146,6 +170,10 @@ const AdminSupportManagement = () => {
         return 'bg-blue-100 text-blue-800';
       case 'Waiting for Response':
         return 'bg-yellow-100 text-yellow-800';
+      case 'Rescheduled':
+        return 'bg-orange-100 text-orange-800';
+      case 'Cancelled':
+        return 'bg-red-100 text-red-800';
       case 'Resolved':
         return 'bg-green-100 text-green-800';
       case 'Closed':
@@ -362,17 +390,28 @@ const AdminSupportManagement = () => {
     }
 
     try {
-      console.log('Assigning vendor to ticket:', {
+      console.log('🔧 DEBUG: Starting vendor assignment process...');
+      console.log('🔧 DEBUG: Assignment data:', {
         ticketId: selectedTicket.id,
         vendorId: vendorId,
-        vendorName: `${selectedVendor.firstName} ${selectedVendor.lastName}`,
+        vendorName: `${selectedVendor?.firstName || ''} ${selectedVendor?.lastName || ''}`,
         selectedVendor: selectedVendor,
         scheduledDate: scheduledDate,
         scheduledTime: scheduledTime,
         scheduleNotes: scheduleNotes
       });
 
+      // Check admin token
+      const adminToken = localStorage.getItem('adminToken');
+      console.log('🔧 DEBUG: Admin token exists:', !!adminToken);
+      console.log('🔧 DEBUG: Admin token preview:', adminToken ? adminToken.substring(0, 20) + '...' : 'null');
+
+      // Check API base URL
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      console.log('🔧 DEBUG: API Base URL:', API_BASE_URL);
+
       // Use the new assignVendor API method
+      console.log('🔧 DEBUG: Calling assignVendor API...');
       const response = await adminSupportTicketAPI.assignVendor(
         selectedTicket.id,
         vendorId,
@@ -382,15 +421,15 @@ const AdminSupportManagement = () => {
         scheduleNotes || undefined
       );
       
-      console.log('Assignment response:', response);
+      console.log('🔧 DEBUG: Assignment response received:', response);
 
       if (response.success) {
-        console.log('Vendor assigned successfully');
+        console.log('✅ DEBUG: Vendor assigned successfully');
         
         // Show success message
         toast({
           title: "Vendor Assigned Successfully",
-          description: `Vendor ${selectedVendor.firstName} ${selectedVendor.lastName} has been assigned to ticket ${selectedTicket.id}`,
+          description: `Vendor ${selectedVendor?.firstName || ''} ${selectedVendor?.lastName || ''} has been assigned to ticket ${selectedTicket.id}`,
           variant: "default"
         });
         
@@ -405,7 +444,7 @@ const AdminSupportManagement = () => {
         setScheduledTime('');
         setScheduleNotes('');
       } else {
-        console.error('Assignment failed:', response.message);
+        console.error('❌ DEBUG: Assignment failed:', response.message);
         toast({
           title: "Assignment Failed",
           description: response.message || 'Failed to assign vendor to ticket',
@@ -413,7 +452,12 @@ const AdminSupportManagement = () => {
         });
       }
     } catch (error) {
-      console.error('Error assigning vendor:', error);
+      console.error('❌ DEBUG: Error assigning vendor:', error);
+      console.error('❌ DEBUG: Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       toast({
         title: "Error",
         description: error.message || 'Failed to assign vendor to ticket',
@@ -452,7 +496,7 @@ const AdminSupportManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Total Tickets</p>
-                  <p className="text-lg font-bold">{totalTickets}</p>
+                  <p className="text-lg font-bold">{safeRender(totalTickets)}</p>
                 </div>
                 <MessageSquare className="h-6 w-6 text-muted-foreground" />
               </div>
@@ -463,7 +507,7 @@ const AdminSupportManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Open Tickets</p>
-                  <p className="text-lg font-bold">{openTickets}</p>
+                  <p className="text-lg font-bold">{safeRender(openTickets)}</p>
                 </div>
                 <Clock className="h-6 w-6 text-muted-foreground" />
               </div>
@@ -474,7 +518,7 @@ const AdminSupportManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Resolved</p>
-                  <p className="text-lg font-bold">{resolvedTickets}</p>
+                  <p className="text-lg font-bold">{safeRender(resolvedTickets)}</p>
                 </div>
                 <CheckCircle className="h-6 w-6 text-muted-foreground" />
               </div>
@@ -485,7 +529,7 @@ const AdminSupportManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Avg Response Time</p>
-                  <p className="text-lg font-bold">{avgResponseTime}</p>
+                  <p className="text-lg font-bold">{safeRender(avgResponseTime)}</p>
                 </div>
                 <Headphones className="h-6 w-6 text-muted-foreground" />
               </div>
@@ -515,11 +559,13 @@ const AdminSupportManagement = () => {
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="submitted">Submitted</SelectItem>
-                      <SelectItem value="in progress">In Progress</SelectItem>
-                      <SelectItem value="waiting for response">Waiting for Response</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
+                      <SelectItem key="all" value="all">All Status</SelectItem>
+                      <SelectItem key="submitted" value="submitted">Submitted</SelectItem>
+                      <SelectItem key="in progress" value="in progress">In Progress</SelectItem>
+                      <SelectItem key="waiting for response" value="waiting for response">Waiting for Response</SelectItem>
+                      <SelectItem key="rescheduled" value="rescheduled">Rescheduled</SelectItem>
+                      <SelectItem key="cancelled" value="cancelled">Cancelled</SelectItem>
+                      <SelectItem key="resolved" value="resolved">Resolved</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={priorityFilter} onValueChange={setPriorityFilter}>
@@ -527,10 +573,10 @@ const AdminSupportManagement = () => {
                       <SelectValue placeholder="Filter by priority" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Priority</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem key="all" value="all">All Priority</SelectItem>
+                      <SelectItem key="high" value="high">High</SelectItem>
+                      <SelectItem key="medium" value="medium">Medium</SelectItem>
+                      <SelectItem key="low" value="low">Low</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button 
@@ -574,7 +620,7 @@ const AdminSupportManagement = () => {
                       <TableRow key={ticket.id}>
                         <TableCell>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{ticket.id}</p>
+                            <p className="text-sm font-medium text-gray-900">{safeRender(ticket.id)}</p>
                             <p className="text-xs text-gray-500">
                               {ticket.caseId || <span className="text-muted-foreground">-</span>}
                             </p>
@@ -582,12 +628,12 @@ const AdminSupportManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{ticket.customerName}</p>
+                            <p className="text-sm font-medium text-gray-900">{safeRender(ticket.customerName)}</p>
                             <div className="flex items-center gap-1 text-xs text-gray-500">
                               <Phone className="w-3 h-3" />
                               <span>{ticket.customerPhone}</span>
                             </div>
-                            <p className="text-xs text-gray-500">{ticket.customerEmail}</p>
+                            <p className="text-xs text-gray-500">{safeRender(ticket.customerEmail)}</p>
                             {ticket.rescheduleInfo && (
                               <div className="mt-1">
                                 <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
@@ -600,7 +646,7 @@ const AdminSupportManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{ticket.category}</p>
+                            <p className="text-sm font-medium text-gray-900">{safeRender(ticket.category)}</p>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -615,7 +661,7 @@ const AdminSupportManagement = () => {
                             )}
                             {ticket.rescheduleInfo && (
                               <p className="text-xs text-orange-600">
-                                Rescheduled: {new Date(ticket.rescheduleInfo.rescheduledAt).toLocaleDateString()}
+                                Rescheduled: {new Date(ticket.rescheduleInfo?.rescheduledAt).toLocaleDateString()}
                               </p>
                             )}
                             {ticket.vendorDeclinedAt && (
@@ -639,7 +685,7 @@ const AdminSupportManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{ticket.subject}</p>
+                            <p className="text-sm font-medium text-gray-900">{safeRender(ticket.subject)}</p>
                             <p className="text-xs text-gray-500 max-w-xs truncate">
                               {ticket.description || 'No description provided'}
                             </p>
@@ -672,7 +718,22 @@ const AdminSupportManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="text-xs">{ticket.created}</p>
+                            {ticket.status === 'Rescheduled' && ticket.scheduledDate ? (
+                              <div>
+                                <p className="text-xs font-medium text-orange-600">
+                                  Scheduled: {new Date(ticket.scheduledDate).toLocaleDateString('en-GB', { 
+                                    day: '2-digit', 
+                                    month: 'short', 
+                                    year: 'numeric'
+                                  })} at {ticket.scheduledTime}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Created: {safeRender(ticket.created)}
+                                </p>
+                              </div>
+                            ) : (
+                              <p className="text-xs">{safeRender(ticket.created)}</p>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -774,7 +835,7 @@ const AdminSupportManagement = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">Created</p>
-                    <p className="text-xs font-medium">{selectedTicket.created}</p>
+                    <p className="text-xs font-medium">{safeRender(selectedTicket.created)}</p>
                   </div>
                 </div>
 
@@ -790,20 +851,20 @@ const AdminSupportManagement = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Name</Label>
-                        <p className="text-xs font-medium">{selectedTicket.customerName}</p>
+                        <p className="text-xs font-medium">{safeRender(selectedTicket.customerName)}</p>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Email</Label>
-                      <p className="text-xs">{selectedTicket.customerEmail}</p>
+                      <p className="text-xs">{safeRender(selectedTicket.customerEmail)}</p>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
-                      <p className="text-xs">{selectedTicket.customerPhone}</p>
+                      <p className="text-xs">{safeRender(selectedTicket.customerPhone)}</p>
                     </div>
                     {selectedTicket.caseId && (
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Case ID</Label>
-                          <p className="text-xs font-medium">{selectedTicket.caseId}</p>
+                          <p className="text-xs font-medium">{safeRender(selectedTicket.caseId)}</p>
                       </div>
                     )}
                   </div>
@@ -821,20 +882,25 @@ const AdminSupportManagement = () => {
                   <CardContent className="space-y-2 p-3">
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
-                      <p className="text-xs font-medium mt-1">{selectedTicket.subject}</p>
+                      <p className="text-xs font-medium mt-1">{safeRender(selectedTicket.subject)}</p>
                     </div>
                     
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Issue Description</Label>
                       <div className="mt-1 p-2 bg-muted rounded-lg">
-                        <p className="text-xs leading-relaxed">{selectedTicket.description}</p>
+                        <p className="text-xs leading-relaxed">{safeRender(selectedTicket.description)}</p>
                     </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Assigned To</Label>
-                        <p className="text-xs">{selectedTicket.assignedTo?.name || selectedTicket.assignedVendor || 'Unassigned'}</p>
+                        <p className="text-xs">
+                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null 
+                            ? selectedTicket.assignedTo.name || selectedTicket.assignedVendor || 'Unassigned'
+                            : selectedTicket.assignedVendor || 'Unassigned'
+                          }
+                        </p>
                     </div>
                       {selectedTicket.estimatedResolution && (
                     <div>
@@ -882,7 +948,7 @@ const AdminSupportManagement = () => {
                     </CardHeader>
                     <CardContent className="p-3">
                       <div className="p-2 bg-green-50 border border-green-200 rounded-lg">
-                        <p className="text-xs leading-relaxed">{selectedTicket.resolution}</p>
+                        <p className="text-xs leading-relaxed">{safeRender(selectedTicket.resolution)}</p>
                         {selectedTicket.resolvedAt && (
                           <p className="text-xs text-muted-foreground mt-1">
                             Resolved on: {new Date(selectedTicket.resolvedAt).toLocaleDateString('en-GB', { 
@@ -931,7 +997,7 @@ const AdminSupportManagement = () => {
                                 })}
                               </span>
                             </div>
-                            <p className="text-xs leading-relaxed">{response.message}</p>
+                            <p className="text-xs leading-relaxed">{safeRender(response.message)}</p>
                           </div>
                         ))}
                       </div>
@@ -985,11 +1051,11 @@ const AdminSupportManagement = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
-                  <p className="text-xs font-medium">{selectedTicket.subject}</p>
+                  <p className="text-xs font-medium">{safeRender(selectedTicket.subject)}</p>
                 </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Customer</Label>
-                      <p className="text-xs">{selectedTicket.customerName}</p>
+                      <p className="text-xs">{safeRender(selectedTicket.customerName)}</p>
                     </div>
                   </div>
                 </div>
@@ -1025,11 +1091,11 @@ const AdminSupportManagement = () => {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Submitted">Submitted</SelectItem>
-                              <SelectItem value="In Progress">In Progress</SelectItem>
-                              <SelectItem value="Waiting for Response">Waiting for Response</SelectItem>
-                              <SelectItem value="Resolved">Resolved</SelectItem>
-                              <SelectItem value="Closed">Closed</SelectItem>
+                              <SelectItem key="Submitted" value="Submitted">Submitted</SelectItem>
+                              <SelectItem key="In Progress" value="In Progress">In Progress</SelectItem>
+                              <SelectItem key="Waiting for Response" value="Waiting for Response">Waiting for Response</SelectItem>
+                              <SelectItem key="Resolved" value="Resolved">Resolved</SelectItem>
+                              <SelectItem key="Closed" value="Closed">Closed</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -1043,9 +1109,9 @@ const AdminSupportManagement = () => {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="High">High</SelectItem>
-                              <SelectItem value="Medium">Medium</SelectItem>
-                              <SelectItem value="Low">Low</SelectItem>
+                              <SelectItem key="High" value="High">High</SelectItem>
+                              <SelectItem key="Medium" value="Medium">Medium</SelectItem>
+                              <SelectItem key="Low" value="Low">Low</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -1128,27 +1194,59 @@ const AdminSupportManagement = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Customer Name</Label>
-                        <p className="text-sm font-medium">{selectedTicket.customerName}</p>
+                        <p className="text-sm font-medium">{safeRender(selectedTicket.customerName)}</p>
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Email</Label>
-                        <p className="text-sm">{selectedTicket.customerEmail}</p>
+                        <p className="text-sm">{safeRender(selectedTicket.customerEmail)}</p>
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Phone Number</Label>
-                        <p className="text-sm">{selectedTicket.customerPhone}</p>
+                        <p className="text-sm">{safeRender(selectedTicket.customerPhone)}</p>
                       </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Address</Label>
-                        <p className="text-sm">{selectedTicket.address || 'Not provided'}</p>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Pincode</Label>
-                        <p className="text-sm">{selectedTicket.pincode || 'Not provided'}</p>
+                      <div className="col-span-2">
+                        <Label className="text-xs font-medium text-muted-foreground">Complete Address</Label>
+                        <div className="mt-1 space-y-1">
+                          {(() => {
+                            const address = selectedTicket.userId?.address || selectedTicket.address || selectedTicket.userAddress;
+                            const street = address?.street || selectedTicket.street;
+                            const city = address?.city || selectedTicket.city;
+                            const state = address?.state || selectedTicket.state;
+                            const pincode = address?.pincode || selectedTicket.pincode;
+                            const landmark = address?.landmark || selectedTicket.landmark;
+                            
+                            if (street || city || state || pincode) {
+                              return (
+                                <div className="text-sm">
+                                  {street && (
+                                    <p className="font-medium text-gray-900">{safeRender(street)}</p>
+                                  )}
+                                  <div className="flex flex-wrap gap-2 text-muted-foreground">
+                                    {city && <span>{safeRender(city)}</span>}
+                                    {state && <span>{safeRender(state)}</span>}
+                                    {pincode && <span>{safeRender(pincode)}</span>}
+                                  </div>
+                                  {landmark && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      <span className="font-medium">Landmark:</span> {safeRender(landmark)}
+                                    </p>
+                                  )}
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="text-sm text-muted-foreground">
+                                  <p>Address not available</p>
+                                  <p className="text-xs mt-1">Phone: {safeRender(selectedTicket.customerPhone)}</p>
+                                </div>
+                              );
+                            }
+                          })()}
+                        </div>
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Ticket ID</Label>
-                        <p className="text-sm font-medium">{selectedTicket.id}</p>
+                        <p className="text-sm font-medium">{safeRender(selectedTicket.id)}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -1166,11 +1264,11 @@ const AdminSupportManagement = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
-                        <p className="text-sm font-medium">{selectedTicket.subject}</p>
+                        <p className="text-sm font-medium">{safeRender(selectedTicket.subject)}</p>
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Type of Support</Label>
-                        <p className="text-sm">{selectedTicket.category}</p>
+                        <p className="text-sm">{safeRender(selectedTicket.category)}</p>
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Priority</Label>
@@ -1198,7 +1296,7 @@ const AdminSupportManagement = () => {
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Issue Description</Label>
                       <div className="mt-1 p-3 bg-muted rounded-md">
-                        <p className="text-sm whitespace-pre-wrap">{selectedTicket.description || 'No description provided'}</p>
+                        <p className="text-sm whitespace-pre-wrap">{safeRender(selectedTicket.description, 'No description provided')}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -1268,9 +1366,11 @@ const AdminSupportManagement = () => {
                     ) : (
                       <div className="space-y-2">
                         <Label htmlFor="vendorSelect">Select Vendor</Label>
-                        <Select value={selectedVendor?._id || ''} onValueChange={(value) => {
+                        <Select value={selectedVendor?._id || selectedVendor?.id || ''} onValueChange={(value) => {
                           const vendor = vendors.find(v => v._id === value);
-                          setSelectedVendor(vendor);
+                          if (vendor) {
+                            setSelectedVendor(vendor);
+                          }
                         }}>
                           <SelectTrigger>
                             <SelectValue placeholder="Choose a vendor to assign this ticket" />
@@ -1280,9 +1380,9 @@ const AdminSupportManagement = () => {
                               <SelectItem key={vendor._id} value={vendor._id}>
                                 <div className="flex items-center gap-2">
                                   <div>
-                                    <p className="font-medium">{vendor.firstName} {vendor.lastName}</p>
+                                    <p className="font-medium">{safeRender(vendor.firstName)} {safeRender(vendor.lastName)}</p>
                                     <p className="text-xs text-muted-foreground">
-                                      {vendor.serviceCategories?.join(', ')} | Rating: {vendor.rating?.average || 'N/A'} | Tasks: {vendor.stats?.completedTasks || 0}
+                                      {Array.isArray(vendor.serviceCategories) ? vendor.serviceCategories.join(', ') : 'No categories'} | Rating: {vendor.rating?.average || 'N/A'} | Tasks: {vendor.stats?.completedTasks || 0}
                                     </p>
                                   </div>
                                 </div>
@@ -1308,19 +1408,19 @@ const AdminSupportManagement = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">Vendor Name</Label>
-                          <p className="text-sm font-medium">{selectedVendor.firstName} {selectedVendor.lastName}</p>
+                          <p className="text-sm font-medium">{safeRender(selectedVendor?.firstName)} {safeRender(selectedVendor?.lastName)}</p>
                         </div>
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">Email</Label>
-                          <p className="text-sm">{selectedVendor.email}</p>
+                          <p className="text-sm">{safeRender(selectedVendor?.email, 'N/A')}</p>
                         </div>
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
-                          <p className="text-sm">{selectedVendor.phone}</p>
+                          <p className="text-sm">{safeRender(selectedVendor?.phone, 'N/A')}</p>
                         </div>
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">Experience</Label>
-                          <p className="text-sm">{selectedVendor.experience}</p>
+                          <p className="text-sm">{safeRender(selectedVendor?.experience, 'N/A')}</p>
                         </div>
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">Rating</Label>
@@ -1332,7 +1432,7 @@ const AdminSupportManagement = () => {
                         </div>
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">Tasks Completed</Label>
-                          <p className="text-sm">{selectedVendor.stats?.completedTasks || 0}</p>
+                          <p className="text-sm">{safeRender(selectedVendor.stats?.completedTasks, '0')}</p>
                         </div>
                         <div className="col-span-2">
                           <Label className="text-xs font-medium text-muted-foreground">Service Categories</Label>
@@ -1387,11 +1487,11 @@ const AdminSupportManagement = () => {
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Ticket ID</Label>
-                      <p className="font-medium">{selectedTicket.id}</p>
+                      <p className="font-medium">{safeRender(selectedTicket.id)}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Subject</Label>
-                      <p className="font-medium">{selectedTicket.subject}</p>
+                      <p className="font-medium">{safeRender(selectedTicket.subject)}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Status</Label>
@@ -1416,11 +1516,11 @@ const AdminSupportManagement = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Created Date</Label>
-                      <p className="font-medium">{selectedTicket.created}</p>
+                      <p className="font-medium">{safeRender(selectedTicket.created)}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Last Update</Label>
-                      <p className="font-medium">{selectedTicket.lastUpdate}</p>
+                      <p className="font-medium">{safeRender(selectedTicket.lastUpdate)}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -1433,19 +1533,55 @@ const AdminSupportManagement = () => {
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Customer Name</Label>
-                      <p className="font-medium">{selectedTicket.customerName || 'N/A'}</p>
+                      <p className="font-medium">{safeRender(selectedTicket.customerName, 'N/A')}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
-                      <p className="font-medium">{selectedTicket.customerPhone || 'N/A'}</p>
+                      <p className="font-medium">{safeRender(selectedTicket.customerPhone, 'N/A')}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                      <p className="font-medium">{selectedTicket.customerEmail || 'N/A'}</p>
+                      <p className="font-medium">{safeRender(selectedTicket.customerEmail, 'N/A')}</p>
                     </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Address</Label>
-                      <p className="font-medium">{selectedTicket.address || 'N/A'}</p>
+                    <div className="md:col-span-2">
+                      <Label className="text-sm font-medium text-muted-foreground">Complete Address</Label>
+                      <div className="mt-1 space-y-1">
+                        {(() => {
+                          const address = selectedTicket.userId?.address || selectedTicket.address || selectedTicket.userAddress;
+                          const street = address?.street || selectedTicket.street;
+                          const city = address?.city || selectedTicket.city;
+                          const state = address?.state || selectedTicket.state;
+                          const pincode = address?.pincode || selectedTicket.pincode;
+                          const landmark = address?.landmark || selectedTicket.landmark;
+                          
+                          if (street || city || state || pincode) {
+                            return (
+                              <div className="text-sm">
+                                {street && (
+                                  <p className="font-medium text-gray-900">{safeRender(street)}</p>
+                                )}
+                                <div className="flex flex-wrap gap-2 text-muted-foreground">
+                                  {city && <span>{safeRender(city)}</span>}
+                                  {state && <span>{safeRender(state)}</span>}
+                                  {pincode && <span>{safeRender(pincode)}</span>}
+                                </div>
+                                {landmark && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    <span className="font-medium">Landmark:</span> {safeRender(landmark)}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div className="text-sm text-muted-foreground">
+                                <p>Address not available</p>
+                                <p className="text-xs mt-1">Phone: {safeRender(selectedTicket.customerPhone)}</p>
+                              </div>
+                            );
+                          }
+                        })()}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1488,11 +1624,11 @@ const AdminSupportManagement = () => {
                             <div className="flex-1">
                               <div className="flex items-start justify-between">
                                 <div>
-                                  <h4 className="font-semibold text-gray-900">{part.name}</h4>
-                                  <p className="text-sm text-gray-600">Part ID: #{part.id}</p>
+                                  <h4 className="font-semibold text-gray-900">{part.name || 'Unknown Part'}</h4>
+                                  <p className="text-sm text-gray-600">Part ID: #{part.id || 'N/A'}</p>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-lg font-bold text-green-600">₹{part.amount}</p>
+                                  <p className="text-lg font-bold text-green-600">₹{part.amount || 0}</p>
                                 </div>
                               </div>
                             </div>
@@ -1504,7 +1640,7 @@ const AdminSupportManagement = () => {
                           <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg">
                             <span className="text-lg font-semibold text-gray-800">Spare Parts Total:</span>
                             <span className="text-xl font-bold text-blue-600">
-                              ₹{selectedTicket.completionData.spareParts.reduce((sum: number, part: any) => sum + parseFloat(part.amount), 0)}
+                              ₹{selectedTicket.completionData.spareParts.reduce((sum: number, part: any) => sum + (parseFloat(part.amount) || 0), 0)}
                             </span>
                           </div>
                         </div>
@@ -1522,11 +1658,21 @@ const AdminSupportManagement = () => {
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Vendor Name</Label>
-                        <p className="font-medium">{selectedTicket.assignedTo?.name || selectedTicket.assignedVendor || 'N/A'}</p>
+                        <p className="font-medium">
+                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null 
+                            ? selectedTicket.assignedTo.name || selectedTicket.assignedVendor || 'N/A'
+                            : selectedTicket.assignedVendor || 'N/A'
+                          }
+                        </p>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Vendor ID</Label>
-                        <p className="font-medium">{selectedTicket.assignedTo?.id || 'N/A'}</p>
+                        <p className="font-medium">
+                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null 
+                            ? selectedTicket.assignedTo.id || selectedTicket.assignedTo._id || 'N/A'
+                            : 'N/A'
+                          }
+                        </p>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Vendor Status</Label>
@@ -1570,19 +1716,31 @@ const AdminSupportManagement = () => {
                         <>
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Original Date</Label>
-                            <p className="font-medium">{selectedTicket.rescheduleInfo.originalDate || 'N/A'}</p>
+                            <p className="font-medium">{selectedTicket.rescheduleInfo?.originalDate || 'N/A'}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Original Time</Label>
-                            <p className="font-medium">{selectedTicket.rescheduleInfo.originalTime || 'N/A'}</p>
+                            <p className="font-medium">{selectedTicket.rescheduleInfo?.originalTime || 'N/A'}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Reschedule Reason</Label>
-                            <p className="font-medium">{selectedTicket.rescheduleInfo.reason || 'N/A'}</p>
+                            <p className="font-medium">{selectedTicket.rescheduleInfo?.reason || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">New Date</Label>
+                            <p className="font-medium text-green-600">{selectedTicket.scheduledDate ? new Date(selectedTicket.scheduledDate).toLocaleDateString('en-GB', { 
+                              day: '2-digit', 
+                              month: 'short', 
+                              year: 'numeric'
+                            }) : 'N/A'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">New Time</Label>
+                            <p className="font-medium text-green-600">{selectedTicket.scheduledTime || 'N/A'}</p>
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Rescheduled At</Label>
-                            <p className="font-medium">{selectedTicket.rescheduleInfo.rescheduledAt ? new Date(selectedTicket.rescheduleInfo.rescheduledAt).toLocaleDateString('en-GB', { 
+                            <p className="font-medium">{selectedTicket.rescheduleInfo?.rescheduledAt ? new Date(selectedTicket.rescheduleInfo.rescheduledAt).toLocaleDateString('en-GB', { 
                               day: '2-digit', 
                               month: 'short', 
                               year: 'numeric',
@@ -1679,7 +1837,7 @@ const AdminSupportManagement = () => {
                     </CardHeader>
                     <CardContent className="p-3">
                       <div className="bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm whitespace-pre-wrap">{selectedTicket.completionData.resolutionNote}</p>
+                        <p className="text-sm whitespace-pre-wrap">{selectedTicket.completionData?.resolutionNote || 'No resolution notes'}</p>
                       </div>
                     </CardContent>
                   </Card>

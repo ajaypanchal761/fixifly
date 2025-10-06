@@ -387,7 +387,7 @@ class AdminApiService {
     }
 
     const headers: Record<string, string> = {
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     // Only set Content-Type for JSON, not for FormData
@@ -1624,6 +1624,32 @@ class AdminApiService {
       return await response.json();
     } catch (error) {
       console.error('Get product stats request failed:', error);
+      throw error;
+    }
+  }
+
+  // Update FCM token for push notifications
+  async updateFCMToken(fcmToken: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/update-fcm-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAccessToken()}`
+        },
+        body: JSON.stringify({
+          fcmToken
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Update FCM token request failed:', error);
       throw error;
     }
   }

@@ -1,7 +1,7 @@
 # Authentication System Documentation
 
 ## Overview
-Complete authentication system for Fixifly with phone-based OTP verification, JWT tokens, and comprehensive user management.
+Complete authentication system for Fixfly with phone-based OTP verification, JWT tokens, and comprehensive user management.
 
 ## 🚀 Features
 
@@ -331,7 +331,7 @@ Add these to your `.env` file:
 
 ```env
 JWT_SECRET=your-super-secret-jwt-key-here
-MONGODB_URI=mongodb://localhost:27017/fixifly
+MONGODB_URI=mongodb://localhost:27017/fixfly
 NODE_ENV=development
 ```
 

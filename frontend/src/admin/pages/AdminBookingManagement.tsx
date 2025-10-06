@@ -991,12 +991,12 @@ const AdminBookingManagement = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-gray-600">Pending Bookings</p>
+                  <p className="text-xs font-medium text-gray-600">Waiting for Engineer(Pending Bookings)</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {loading ? '...' : (stats?.pendingBookings || 0)}
+                    {loading ? '...' : (stats?.waitingForEngineerBookings || 0)}
                   </p>
                 </div>
-                <Clock className="w-6 h-6 text-yellow-600" />
+                <User className="w-6 h-6 text-orange-600" />
               </div>
             </CardContent>
           </Card>
@@ -1261,7 +1261,7 @@ const AdminBookingManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getAssignmentStatusBadge(booking.vendor ? 'assigned' : 'unassigned')}</TableCell>
-                    <TableCell>{getPaymentStatusBadge(booking.paymentStatus || booking.payment?.status || 'pending', booking.paymentMode || booking.payment?.method || 'card')}</TableCell>
+                    <TableCell>{getPaymentStatusBadge((booking as any).paymentStatus || booking.payment?.status || 'pending', (booking as any).paymentMode || booking.payment?.method || 'card')}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -1798,8 +1798,8 @@ const AdminBookingManagement = () => {
                         <div className="mt-1 p-1 bg-orange-50 rounded text-xs">
                           <p className="text-orange-600 font-medium">Rescheduled</p>
                           <p className="text-orange-500">
-                            From: {selectedBooking.rescheduleData?.originalDate ? 
-                              new Date(selectedBooking.rescheduleData.originalDate).toLocaleDateString() : 'N/A'}
+                            From: {(selectedBooking as any).rescheduleData?.originalDate ? 
+                              new Date((selectedBooking as any).rescheduleData.originalDate).toLocaleDateString() : 'N/A'}
                           </p>
                           <p className="text-orange-500">
                             Reason: {(selectedBooking as any).rescheduleData?.rescheduleReason || 'N/A'}
@@ -1837,7 +1837,7 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
-                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.paymentStatus || selectedBooking.payment?.status || 'pending', selectedBooking.paymentMode || selectedBooking.payment?.method || 'card')}</div>
+                      <div className="mt-1">{getPaymentStatusBadge((selectedBooking as any).paymentStatus || selectedBooking.payment?.status || 'pending', (selectedBooking as any).paymentMode || selectedBooking.payment?.method || 'card')}</div>
                     </div>
                   </div>
                 </div>
@@ -1887,7 +1887,7 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
-                      <div className="mt-1">{getPaymentStatusBadge(selectedBooking.paymentStatus || selectedBooking.payment?.status || 'pending', selectedBooking.paymentMode || selectedBooking.payment?.method || 'card')}</div>
+                      <div className="mt-1">{getPaymentStatusBadge((selectedBooking as any).paymentStatus || selectedBooking.payment?.status || 'pending', (selectedBooking as any).paymentMode || selectedBooking.payment?.method || 'card')}</div>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Amount</Label>
