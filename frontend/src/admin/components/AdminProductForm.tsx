@@ -27,6 +27,7 @@ interface Service {
   price: number | string;
   discountPrice: number | string;
   isActive?: boolean;
+  serviceImage?: string;
 }
 
 interface ProductFormData {
@@ -60,6 +61,8 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [serviceImageFiles, setServiceImageFiles] = useState<Record<string, File | null>>({});
+  const [serviceImagePreviews, setServiceImagePreviews] = useState<Record<string, string>>({});
 
   const [product, setProduct] = useState<ProductFormData>({
     productName: '',
@@ -96,7 +99,8 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       description: '',
       price: '',
       discountPrice: '',
-      isActive: true
+      isActive: true,
+      serviceImage: ''
     };
 
     setProduct(prev => ({
@@ -126,6 +130,26 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       ...prev,
       categories: { ...prev.categories, [category]: updated }
     }));
+  };
+
+  const handleServiceImageChange = (category: string, index: number, file: File | null) => {
+    const serviceKey = `${category}_${index}`;
+    
+    if (file) {
+      setServiceImageFiles(prev => ({ ...prev, [serviceKey]: file }));
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setServiceImagePreviews(prev => ({ 
+          ...prev, 
+          [serviceKey]: e.target?.result as string 
+        }));
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setServiceImageFiles(prev => ({ ...prev, [serviceKey]: null }));
+      setServiceImagePreviews(prev => ({ ...prev, [serviceKey]: '' }));
+    }
   };
 
   const handleInputChange = (field: keyof ProductFormData, value: string | boolean) => {
@@ -259,6 +283,17 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       if (selectedProduct.productImage) {
         setImagePreview(selectedProduct.productImage);
       }
+
+      // Set up service image previews for existing services
+      const newServiceImagePreviews: Record<string, string> = {};
+      Object.entries(selectedProduct.categories || {}).forEach(([categoryKey, services]) => {
+        services.forEach((service: any, index: number) => {
+          if (service.serviceImage) {
+            newServiceImagePreviews[`${categoryKey}_${index}`] = service.serviceImage;
+          }
+        });
+      });
+      setServiceImagePreviews(newServiceImagePreviews);
     }
   }, [selectedProduct]);
 
@@ -334,6 +369,41 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       if (selectedFile) {
         formData.append('productImage', selectedFile);
       }
+
+      // Add service images
+      const serviceImageKeys: string[] = [];
+      Object.entries(serviceImageFiles).forEach(([serviceKey, file]) => {
+        if (file) {
+          formData.append(`serviceImages`, file);
+          serviceImageKeys.push(serviceKey);
+        }
+      });
+      
+      // Add service image keys as a single array
+      if (serviceImageKeys.length > 0) {
+        serviceImageKeys.forEach(key => {
+          formData.append(`serviceImageKeys`, key);
+        });
+      }
+
+      // Debug: Log FormData contents
+      console.log('=== FormData Debug ===');
+      console.log('FormData entries:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+      
+      const productDataString = formData.get('productData') as string;
+      if (productDataString) {
+        console.log('Product data found:', JSON.parse(productDataString));
+      } else {
+        console.log('❌ Product data: NOT FOUND in FormData');
+      }
+      console.log('Service image files count:', Object.keys(serviceImageFiles).length);
+      console.log('Service image keys:', serviceImageKeys);
+      console.log('Product image file:', selectedFile ? 'Present' : 'Not present');
+      console.log('========================');
+
 
       let response;
       
@@ -685,6 +755,47 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
                                 onChange={(e) => handleServiceChange(categoryKey, index, 'description', e.target.value)}
                                 rows={2}
                               />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Service Image</Label>
+                              <div className="space-y-4">
+                                {/* File Upload */}
+                                <div className="space-y-2">
+                                  <Input
+                                    type="file"
+                                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                                    onChange={(e) => handleServiceImageChange(categoryKey, index, e.target.files?.[0] || null)}
+                                    className="cursor-pointer"
+                                  />
+                                  <p className="text-xs text-gray-500">
+                                    Supported formats: JPEG, PNG, WebP (Max 5MB)
+                                  </p>
+                                </div>
+
+                                {/* Image Preview */}
+                                {serviceImagePreviews[`${categoryKey}_${index}`] && (
+                                  <div className="space-y-2">
+                                    <Label>Preview:</Label>
+                                    <div className="relative inline-block">
+                                      <img
+                                        src={serviceImagePreviews[`${categoryKey}_${index}`]}
+                                        alt="Service preview"
+                                        className="w-32 h-32 object-cover rounded-lg border"
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                                        onClick={() => handleServiceImageChange(categoryKey, index, null)}
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

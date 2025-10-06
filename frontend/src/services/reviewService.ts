@@ -108,6 +108,11 @@ export const reviewService = {
 
   // Create new review
   createReview: async (reviewData: CreateReviewData, token: string): Promise<{ success: boolean; data: Review; message: string }> => {
+    console.log('Creating review with data:', reviewData);
+    console.log('API_BASE_URL:', API_BASE_URL);
+    console.log('Full URL:', `${API_BASE_URL}/reviews`);
+    console.log('Token present:', !!token);
+    
     const response = await axios.post(`${API_BASE_URL}/reviews`, reviewData, {
       headers: {
         'Authorization': `Bearer ${token}`,

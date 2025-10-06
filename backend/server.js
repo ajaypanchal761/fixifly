@@ -64,6 +64,7 @@ process.on('uncaughtException', (error) => {
   // Don't exit the process, just log the error
 });
 
+
 // Security middleware
 app.use(helmet());
 
@@ -80,9 +81,26 @@ app.use(cors({
   credentials: true
 }));
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing middleware - but skip for routes that use multer
+app.use((req, res, next) => {
+  // Skip body parsing for routes that use multer (file uploads)
+  if (req.path.includes('/admin/products') && (req.method === 'POST' || req.method === 'PUT')) {
+    console.log('Skipping body parsing for product route:', req.path, req.method);
+    return next();
+  }
+  console.log('Using body parsing for route:', req.path, req.method);
+  express.json({ limit: '10mb' })(req, res, next);
+});
+
+app.use((req, res, next) => {
+  // Skip body parsing for routes that use multer (file uploads)
+  if (req.path.includes('/admin/products') && (req.method === 'POST' || req.method === 'PUT')) {
+    console.log('Skipping urlencoded parsing for product route:', req.path, req.method);
+    return next();
+  }
+  console.log('Using urlencoded parsing for route:', req.path, req.method);
+  express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
+});
 
 // Cookie parser
 app.use(cookieParser());
@@ -101,6 +119,35 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     autoRejectService: autoRejectService.getStatus()
+  });
+});
+
+// Test endpoint for frontend connectivity
+app.get('/api/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Backend is accessible from frontend',
+    timestamp: new Date().toISOString(),
+    origin: req.get('Origin'),
+    userAgent: req.get('User-Agent')
+  });
+});
+
+// Debug endpoint for FormData testing
+app.post('/debug-formdata', (req, res) => {
+  console.log('=== Debug FormData Endpoint ===');
+  console.log('Headers:', req.headers);
+  console.log('Body keys:', Object.keys(req.body));
+  console.log('Body content:', req.body);
+  console.log('Files:', req.files);
+  console.log('================================');
+  
+  res.json({
+    success: true,
+    message: 'Debug endpoint hit',
+    bodyKeys: Object.keys(req.body),
+    hasProductData: !!req.body.productData,
+    contentType: req.headers['content-type']
   });
 });
 

@@ -27,6 +27,7 @@ interface Service {
   price: number;
   discountPrice?: number;
   isActive: boolean;
+  serviceImage?: string;
 }
 
 interface Product {
@@ -124,7 +125,7 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[80vh] mt-12 overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[70vh] mt-8 overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -238,10 +239,21 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
                         <div key={index} className="p-3 border rounded-lg bg-gray-50">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h4 className="font-semibold text-sm">{service.serviceName}</h4>
-                              {service.description && (
-                                <p className="text-xs text-gray-600 mt-1">{service.description}</p>
-                              )}
+                              <div className="flex items-start gap-3">
+                                {service.serviceImage && (
+                                  <img 
+                                    src={service.serviceImage} 
+                                    alt={service.serviceName}
+                                    className="w-12 h-12 object-cover rounded-lg border"
+                                  />
+                                )}
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-sm">{service.serviceName}</h4>
+                                  {service.description && (
+                                    <p className="text-xs text-gray-600 mt-1">{service.description}</p>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             <div className="text-right">
                               <div className="flex items-center gap-2">

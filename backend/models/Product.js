@@ -36,6 +36,17 @@ const serviceSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  serviceImage: { 
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(value) {
+        if (!value) return true; // Optional field
+        return /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i.test(value);
+      },
+      message: 'Service image must be a valid image URL'
+    }
   }
 }, { timestamps: true });
 

@@ -1421,6 +1421,9 @@ class AdminApiService {
 
   async createProductWithImage(formData: FormData) {
     try {
+      console.log('Making request to:', `${API_BASE_URL}/admin/products`);
+      console.log('API_BASE_URL:', API_BASE_URL);
+      
       const response = await fetch(`${API_BASE_URL}/admin/products`, {
         method: 'POST',
         headers: {
@@ -1438,6 +1441,9 @@ class AdminApiService {
       return await response.json();
     } catch (error) {
       console.error('Create product with image request failed:', error);
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Cannot connect to server. Please make sure the backend server is running on port 5000.');
+      }
       throw error;
     }
   }

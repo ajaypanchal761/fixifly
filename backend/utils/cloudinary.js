@@ -94,6 +94,10 @@ class CloudinaryService {
     return new Promise((resolve, reject) => {
       // Set up timeout
       const timeout = setTimeout(() => {
+        logger.error('Cloudinary upload timeout', { 
+          timeout: '30 seconds',
+          folder: options.folder || 'fixifly/products'
+        });
         reject(new Error('Image upload timeout - request took too long'));
       }, 30000); // 30 second timeout
 
@@ -113,7 +117,11 @@ class CloudinaryService {
           clearTimeout(timeout); // Clear timeout on completion
           
           if (error) {
-            logger.error('Failed to upload from buffer', { error: error.message });
+            logger.error('Failed to upload from buffer', { 
+              error: error.message,
+              http_code: error.http_code,
+              name: error.name
+            });
             reject(new Error(`Image upload failed: ${error.message}`));
           } else {
             logger.info('Image uploaded from buffer successfully', {
@@ -136,7 +144,10 @@ class CloudinaryService {
       // Handle stream errors
       uploadStream.on('error', (error) => {
         clearTimeout(timeout);
-        logger.error('Upload stream error', { error: error.message });
+        logger.error('Upload stream error', { 
+          error: error.message,
+          errorType: error.name
+        });
         reject(new Error(`Upload stream failed: ${error.message}`));
       });
 
@@ -236,6 +247,52 @@ class CloudinaryService {
       logger.error('Failed to upload product image', { 
         error: error.message,
         productName: productName
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Upload service image from buffer
+   * @param {Buffer} buffer - File buffer
+   * @param {string} serviceKey - Service key for folder organization
+   * @param {Object} options - Upload options
+   * @returns {Promise<Object>} Upload result
+   */
+  async uploadServiceImage(buffer, serviceKey = 'general', options = {}) {
+    try {
+      const sanitizedServiceKey = serviceKey.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      
+      const defaultOptions = {
+        folder: `fixifly/services/${sanitizedServiceKey}`,
+        resource_type: 'image',
+        quality: 'auto',
+        fetch_format: 'auto',
+        transformation: [
+          { width: 400, height: 300, crop: 'fill', gravity: 'auto' },
+          { quality: 'auto' }
+        ],
+        ...options
+      };
+
+      logger.info('Uploading service image to Cloudinary', {
+        folder: defaultOptions.folder,
+        serviceKey: serviceKey
+      });
+
+      const result = await this.uploadFromBuffer(buffer, defaultOptions);
+
+      logger.info('Service image uploaded successfully', {
+        public_id: result.public_id,
+        secure_url: result.secure_url,
+        serviceKey: serviceKey
+      });
+
+      return result;
+    } catch (error) {
+      logger.error('Failed to upload service image', { 
+        error: error.message,
+        serviceKey: serviceKey
       });
       throw error;
     }

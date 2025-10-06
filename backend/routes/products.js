@@ -22,7 +22,7 @@ router.use(adminAuth);
 // Product routes
 router.route('/')
   .post(
-    uploadMiddleware.singleProductImage(), // Handle image upload
+    uploadMiddleware.productWithServiceImages(), // Handle product and service image uploads
     uploadMiddleware.handleUploadError,    // Handle upload errors
     createProduct                          // Create new product
   )
@@ -34,7 +34,7 @@ router.route('/stats')
 router.route('/:id')
   .get(getProduct)          // Get single product
   .put(
-    uploadMiddleware.singleProductImage(), // Handle image upload for updates
+    uploadMiddleware.productWithServiceImages(), // Handle product and service image uploads for updates
     uploadMiddleware.handleUploadError,    // Handle upload errors
     updateProduct                          // Update product
   )

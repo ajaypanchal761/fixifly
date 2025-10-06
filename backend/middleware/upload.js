@@ -193,6 +193,45 @@ class UploadMiddleware {
   }
 
   /**
+   * Middleware for product with service images upload (memory storage for Cloudinary)
+   */
+  productWithServiceImages() {
+    const upload = multer({
+      storage: this.memoryStorage, // Use memory storage for Cloudinary
+      fileFilter: this.fileFilter,
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB per file
+        files: 10 // Allow up to 10 files (1 product image + up to 9 service images)
+      }
+    }).fields([
+      { name: 'productImage', maxCount: 1 },
+      { name: 'serviceImages', maxCount: 9 }
+    ]);
+
+    return (req, res, next) => {
+      upload(req, res, (err) => {
+        if (err) {
+          logger.error('Upload middleware error:', {
+            error: err.message,
+            code: err.code,
+            field: err.field
+          });
+          return this.handleUploadError(err, req, res, next);
+        }
+        
+        logger.info('Upload middleware success', {
+          hasFiles: !!(req.files),
+          filesCount: req.files ? Object.keys(req.files).length : 0,
+          productImageCount: req.files?.productImage?.length || 0,
+          serviceImagesCount: req.files?.serviceImages?.length || 0
+        });
+        
+        next();
+      });
+    };
+  }
+
+  /**
    * Middleware for mixed file uploads
    */
   mixedUpload() {

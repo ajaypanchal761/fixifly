@@ -30,6 +30,7 @@ interface Service {
   price: number;
   discountPrice?: number;
   isActive: boolean;
+  serviceImage?: string;
 }
 
 interface Product {

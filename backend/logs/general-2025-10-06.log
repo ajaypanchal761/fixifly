@@ -3925,3 +3925,540 @@
 [2025-10-06T10:54:15.412Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
 [2025-10-06T10:54:15.469Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
 [2025-10-06T10:54:15.530Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T10:55:00.372Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T10:55:48.566Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-10-06T10:55:48.580Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-10-06T10:55:48.648Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-06T10:55:48.741Z] [INFO] Warranty claims fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalClaims":3,"page":1,"limit":20}
+[2025-10-06T10:55:48.765Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","totalSubscriptions":2,"page":1,"limit":20}
+[2025-10-06T10:55:49.407Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-06T10:55:49.573Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T10:55:49.729Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T10:55:50.415Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T10:55:50.516Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T10:55:54.504Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-10-06T10:55:54.797Z] [INFO] Admin retrieved bookings: 3 | {"totalBookings":3,"page":1,"filters":{}}
+[2025-10-06T10:55:55.070Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T10:55:55.220Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T10:55:55.515Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T10:55:55.636Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T10:55:56.075Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T10:55:56.182Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T10:56:00.372Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T10:57:00.379Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T10:58:00.396Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T10:58:53.494Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T10:58:54.343Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T10:58:59.058Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T10:59:00.004Z] [INFO] SMTP connection verified successfully
+[2025-10-06T10:59:43.604Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T10:59:44.087Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T10:59:46.320Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T10:59:47.119Z] [INFO] SMTP connection verified successfully
+[2025-10-06T10:59:59.384Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T10:59:59.750Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:00:02.498Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:00:03.308Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:00:08.265Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:00:08.800Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:00:11.298Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:00:12.984Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:00:25.301Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:00:26.159Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:00:29.395Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:00:30.479Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:00:41.997Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:00:42.893Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:00:44.884Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:00:49.470Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:00:49.696Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:00:51.693Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:00:52.815Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:01:45.470Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:01:45.666Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:01:46.714Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:01:47.596Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:02:46.770Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:03:46.769Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:04:46.783Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:05:46.785Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:06:46.799Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:07:19.107Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:07:19.325Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:07:21.758Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:07:22.779Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:07:30.956Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:07:31.255Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:07:32.940Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:07:33.939Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:07:41.425Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:07:41.622Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:07:43.272Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:07:44.288Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:08:00.397Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:08:00.662Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:08:05.055Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:08:05.473Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:08:06.996Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:08:08.056Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:08:17.403Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:08:18.051Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:08:20.196Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:08:21.130Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:08:34.765Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:08:35.449Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:08:37.527Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:08:37.675Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:08:38.678Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:08:39.663Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:09:38.718Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:10:32.396Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:10:32.540Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:10:32.541Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:10:32.542Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:10:36.041Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/s8cv35fecgv3ou1w8c3o","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749034/fixifly/services/plumber-a-0/s8cv35fecgv3ou1w8c3o.png"}
+[2025-10-06T11:10:36.045Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/s8cv35fecgv3ou1w8c3o","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749034/fixifly/services/plumber-a-0/s8cv35fecgv3ou1w8c3o.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:10:36.047Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749034/fixifly/services/plumber-a-0/s8cv35fecgv3ou1w8c3o.png"}
+[2025-10-06T11:10:36.048Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759749034/fixifly/services/plumber-a-0/s8cv35fecgv3ou1w8c3o.png"}}
+[2025-10-06T11:10:36.049Z] [INFO] Processing service A | {"index":0,"serviceName":"free service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749034/fixifly/services/plumber-a-0/s8cv35fecgv3ou1w8c3o.png"}
+[2025-10-06T11:10:38.716Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:11:34.633Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:11:34.959Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:11:36.279Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:11:37.226Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:11:44.346Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:11:44.539Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:11:46.427Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:11:47.210Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:11:55.923Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:11:56.502Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:11:59.175Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:12:00.192Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:12:07.311Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:12:07.438Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:12:10.289Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:12:11.354Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:12:15.764Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:12:15.997Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:12:17.028Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:12:18.033Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:12:24.017Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:12:24.132Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:12:24.134Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"]}
+[2025-10-06T11:12:24.135Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:12:24.166Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:12:24.166Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:12:24.167Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:12:27.354Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/zdotqlzj9kpk1urtlju4","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749146/fixifly/services/plumber-a-0/zdotqlzj9kpk1urtlju4.png"}
+[2025-10-06T11:12:27.359Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/zdotqlzj9kpk1urtlju4","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749146/fixifly/services/plumber-a-0/zdotqlzj9kpk1urtlju4.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:12:27.360Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749146/fixifly/services/plumber-a-0/zdotqlzj9kpk1urtlju4.png"}
+[2025-10-06T11:12:27.362Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759749146/fixifly/services/plumber-a-0/zdotqlzj9kpk1urtlju4.png"}}
+[2025-10-06T11:12:27.365Z] [INFO] Processing service A | {"index":0,"serviceName":"free service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749146/fixifly/services/plumber-a-0/zdotqlzj9kpk1urtlju4.png"}
+[2025-10-06T11:13:17.962Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:13:18.546Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:13:20.226Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:13:20.864Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:13:24.781Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:13:25.129Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:13:27.113Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:13:28.277Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:13:51.644Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:13:52.361Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:13:54.379Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:13:55.342Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:13:58.382Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:13:58.499Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:13:59.406Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:14:00.486Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:14:06.623Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:14:06.737Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:14:06.741Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"free service\",\"description\":\"dfgfrghhngbf\",\"price\":50,\"discountPrice\":100,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"A\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundary6ZBCHL5wTcDsVroa"}
+[2025-10-06T11:14:06.745Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:14:06.784Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:14:06.786Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:14:06.787Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:14:10.137Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/ubxbhmsisoczl3cntx4k","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749248/fixifly/services/plumber-a-0/ubxbhmsisoczl3cntx4k.png"}
+[2025-10-06T11:14:10.142Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/ubxbhmsisoczl3cntx4k","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749248/fixifly/services/plumber-a-0/ubxbhmsisoczl3cntx4k.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:14:10.144Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749248/fixifly/services/plumber-a-0/ubxbhmsisoczl3cntx4k.png"}
+[2025-10-06T11:14:10.146Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759749248/fixifly/services/plumber-a-0/ubxbhmsisoczl3cntx4k.png"}}
+[2025-10-06T11:14:10.148Z] [INFO] Processing service A | {"index":0,"serviceName":"free service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749248/fixifly/services/plumber-a-0/ubxbhmsisoczl3cntx4k.png"}
+[2025-10-06T11:14:37.352Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:14:37.545Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:14:39.097Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:14:39.986Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:14:52.013Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:14:52.418Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:14:54.246Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:14:55.239Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:15:11.727Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:15:12.313Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:15:14.968Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:15:15.872Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:15:20.203Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:15:20.859Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:15:25.190Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:15:26.547Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:15:32.310Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:15:32.574Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:15:33.646Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:15:33.857Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:15:34.206Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:15:34.208Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"free service\",\"description\":\"dfgfrghhngbf\",\"price\":50,\"discountPrice\":100,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"A\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundaryS3d3753aFvOManrF","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"free service\\\",\\\"description\\\":\\\"dfgfrghhngbf\\\",\\\"price\\\":50,\\\"discountPrice\\\":100,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[],\\\"C\\\":[],\\\"D\\\":[]},\\\"categoryNames\\\":{\\\"A\\\":\\\"A\\\",\\\"B\\\":\\\"Enter Category 2\\\",\\\"C\\\":\\\"Enter Category 3\\\",\\\"D\\\":\\\"Enter Category 4\\\"}}\",\"serviceImageKeys\":\"A_0\"}"}
+[2025-10-06T11:15:34.209Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:15:34.352Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:15:34.353Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:15:34.354Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:15:34.635Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:15:37.901Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/kdcsn1ivivpsc9vyarnj","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749336/fixifly/services/plumber-a-0/kdcsn1ivivpsc9vyarnj.png"}
+[2025-10-06T11:15:37.906Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/kdcsn1ivivpsc9vyarnj","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749336/fixifly/services/plumber-a-0/kdcsn1ivivpsc9vyarnj.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:15:37.908Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749336/fixifly/services/plumber-a-0/kdcsn1ivivpsc9vyarnj.png"}
+[2025-10-06T11:15:37.911Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759749336/fixifly/services/plumber-a-0/kdcsn1ivivpsc9vyarnj.png"}}
+[2025-10-06T11:15:37.914Z] [INFO] Processing service A | {"index":0,"serviceName":"free service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749336/fixifly/services/plumber-a-0/kdcsn1ivivpsc9vyarnj.png"}
+[2025-10-06T11:15:50.490Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-10-06T11:15:50.829Z] [INFO] Admin retrieved bookings: 3 | {"totalBookings":3,"page":1,"filters":{}}
+[2025-10-06T11:15:51.162Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T11:15:51.320Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T11:15:51.584Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T11:15:51.687Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T11:15:52.158Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T11:15:52.256Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T11:15:53.417Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T11:15:53.591Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T11:15:53.755Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:15:53.887Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:15:54.429Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T11:15:54.532Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T11:16:29.789Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:16:29.872Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:16:29.878Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"Free\",\"description\":\"egghtghtvcberhrt\",\"price\":50,\"discountPrice\":100,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"Enter Category 1\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundaryzOSoLMtALPonAQ9B","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Free\\\",\\\"description\\\":\\\"egghtghtvcberhrt\\\",\\\"price\\\":50,\\\"discountPrice\\\":100,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[],\\\"C\\\":[],\\\"D\\\":[]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Enter Category 1\\\",\\\"B\\\":\\\"Enter Category 2\\\",\\\"C\\\":\\\"Enter Category 3\\\",\\\"D\\\":\\\"Enter Category 4\\\"}}\",\"serviceImageKeys\":\"A_0\"}"}
+[2025-10-06T11:16:29.882Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:16:29.911Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:16:29.912Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:16:29.913Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:16:33.681Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:18:05.711Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:18:07.091Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:18:10.750Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:18:11.761Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:18:13.744Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-10-06T11:18:13.975Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-06T11:18:14.376Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":10,"year":2025}
+[2025-10-06T11:18:14.916Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T11:18:15.109Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T11:18:19.296Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T11:18:19.598Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T11:18:20.214Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T11:18:20.355Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T11:18:56.073Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:18:56.425Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:18:56.435Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"Free\",\"description\":\"ngjmgjm\",\"price\":50,\"discountPrice\":100,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"Enter Category 1\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundary7w65MtbB8eNcZ8Mx","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Free\\\",\\\"description\\\":\\\"ngjmgjm\\\",\\\"price\\\":50,\\\"discountPrice\\\":100,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[],\\\"C\\\":[],\\\"D\\\":[]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Enter Category 1\\\",\\\"B\\\":\\\"Enter Category 2\\\",\\\"C\\\":\\\"Enter Category 3\\\",\\\"D\\\":\\\"Enter Category 4\\\"}}\",\"serviceImageKeys\":\"A_0\"}"}
+[2025-10-06T11:18:56.436Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:18:56.472Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:18:56.486Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:18:56.488Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:18:59.926Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/oxysvkifr6gc8w9gmuvf","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749538/fixifly/services/plumber-a-0/oxysvkifr6gc8w9gmuvf.png"}
+[2025-10-06T11:18:59.930Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/oxysvkifr6gc8w9gmuvf","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749538/fixifly/services/plumber-a-0/oxysvkifr6gc8w9gmuvf.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:18:59.931Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749538/fixifly/services/plumber-a-0/oxysvkifr6gc8w9gmuvf.png"}
+[2025-10-06T11:18:59.931Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759749538/fixifly/services/plumber-a-0/oxysvkifr6gc8w9gmuvf.png"}}
+[2025-10-06T11:18:59.932Z] [INFO] Processing service A | {"index":0,"serviceName":"Free","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749538/fixifly/services/plumber-a-0/oxysvkifr6gc8w9gmuvf.png"}
+[2025-10-06T11:19:10.785Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:19:15.069Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:19:15.169Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:19:15.172Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"Free\",\"description\":\"ngjmgjm\",\"price\":50,\"discountPrice\":100,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"Enter Category 1\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundaryjAB4FQtRCRgnDETe","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Free\\\",\\\"description\\\":\\\"ngjmgjm\\\",\\\"price\\\":50,\\\"discountPrice\\\":100,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[],\\\"C\\\":[],\\\"D\\\":[]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Enter Category 1\\\",\\\"B\\\":\\\"Enter Category 2\\\",\\\"C\\\":\\\"Enter Category 3\\\",\\\"D\\\":\\\"Enter Category 4\\\"}}\",\"serviceImageKeys\":\"A_0\"}"}
+[2025-10-06T11:19:15.174Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:19:15.208Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:19:15.208Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:19:15.209Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:22:23.355Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:22:23.721Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:22:26.123Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:22:26.230Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:22:34.638Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:22:35.655Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:22:39.375Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:22:40.358Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:22:46.460Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:22:46.854Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:22:48.255Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:22:51.202Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:22:51.622Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:22:53.117Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:22:54.183Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:23:01.649Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:23:01.872Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:23:02.804Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:23:03.850Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:23:08.220Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:23:08.408Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:23:09.435Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:23:10.639Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:23:15.746Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:23:16.023Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:23:17.065Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:23:18.065Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:23:31.218Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:23:31.320Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:23:32.043Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:23:33.155Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:24:16.203Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:24:16.311Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:24:16.313Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"Free\",\"description\":\"ngjmgjm\",\"price\":50,\"discountPrice\":100,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"Enter Category 1\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundaryRqGp7MT39hQ5NCSK","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Free\\\",\\\"description\\\":\\\"ngjmgjm\\\",\\\"price\\\":50,\\\"discountPrice\\\":100,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[],\\\"C\\\":[],\\\"D\\\":[]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Enter Category 1\\\",\\\"B\\\":\\\"Enter Category 2\\\",\\\"C\\\":\\\"Enter Category 3\\\",\\\"D\\\":\\\"Enter Category 4\\\"}}\",\"serviceImageKeys\":\"A_0\"}"}
+[2025-10-06T11:24:16.317Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:24:16.353Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:24:16.354Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:24:16.355Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:25:08.687Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:25:08.902Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:25:10.202Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:25:10.951Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:25:37.009Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:25:37.255Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:25:38.321Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:25:39.369Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:25:40.775Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:25:40.916Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:25:41.929Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:25:43.001Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:26:07.461Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:26:07.549Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:26:08.456Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:26:09.428Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:26:20.162Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:26:20.278Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:26:20.280Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"Free\",\"description\":\"ngjmgjm\",\"price\":50,\"discountPrice\":100,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"Enter Category 1\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundaryVYWO1WZw3TO6aZJL","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Free\\\",\\\"description\\\":\\\"ngjmgjm\\\",\\\"price\\\":50,\\\"discountPrice\\\":100,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[],\\\"C\\\":[],\\\"D\\\":[]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Enter Category 1\\\",\\\"B\\\":\\\"Enter Category 2\\\",\\\"C\\\":\\\"Enter Category 3\\\",\\\"D\\\":\\\"Enter Category 4\\\"}}\",\"serviceImageKeys\":\"A_0\"}"}
+[2025-10-06T11:26:20.283Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:26:20.319Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:26:20.320Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:26:20.321Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:26:23.480Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/xg1f9h9dmpj3sgtw6zjp","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749982/fixifly/services/plumber-a-0/xg1f9h9dmpj3sgtw6zjp.png"}
+[2025-10-06T11:26:23.484Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/xg1f9h9dmpj3sgtw6zjp","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759749982/fixifly/services/plumber-a-0/xg1f9h9dmpj3sgtw6zjp.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:26:23.487Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749982/fixifly/services/plumber-a-0/xg1f9h9dmpj3sgtw6zjp.png"}
+[2025-10-06T11:26:23.490Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759749982/fixifly/services/plumber-a-0/xg1f9h9dmpj3sgtw6zjp.png"}}
+[2025-10-06T11:26:23.492Z] [INFO] Processing service A | {"index":0,"serviceName":"Free","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759749982/fixifly/services/plumber-a-0/xg1f9h9dmpj3sgtw6zjp.png"}
+[2025-10-06T11:26:38.361Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:26:41.971Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:27:08.506Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:27:38.375Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:27:41.972Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:27:52.309Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:27:52.424Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:27:52.467Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"Free\",\"description\":\"ngjmgjm\",\"price\":50,\"discountPrice\":100,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"Enter Category 1\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundaryoHd4tcGFFg4nvso2","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Free\\\",\\\"description\\\":\\\"ngjmgjm\\\",\\\"price\\\":50,\\\"discountPrice\\\":100,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[],\\\"C\\\":[],\\\"D\\\":[]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Enter Category 1\\\",\\\"B\\\":\\\"Enter Category 2\\\",\\\"C\\\":\\\"Enter Category 3\\\",\\\"D\\\":\\\"Enter Category 4\\\"}}\",\"serviceImageKeys\":\"A_0\"}"}
+[2025-10-06T11:27:52.471Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:27:52.513Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:27:52.523Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:27:52.527Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:27:56.907Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/riu2xc0hbua1chac7z2s","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750075/fixifly/services/plumber-a-0/riu2xc0hbua1chac7z2s.png"}
+[2025-10-06T11:27:56.909Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/riu2xc0hbua1chac7z2s","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750075/fixifly/services/plumber-a-0/riu2xc0hbua1chac7z2s.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:27:56.910Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750075/fixifly/services/plumber-a-0/riu2xc0hbua1chac7z2s.png"}
+[2025-10-06T11:27:56.910Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759750075/fixifly/services/plumber-a-0/riu2xc0hbua1chac7z2s.png"}}
+[2025-10-06T11:27:56.912Z] [INFO] Processing service A | {"index":0,"serviceName":"Free","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750075/fixifly/services/plumber-a-0/riu2xc0hbua1chac7z2s.png"}
+[2025-10-06T11:28:08.505Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:28:38.490Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:28:42.041Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:28:45.490Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-06T11:28:45.839Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:28:45.988Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"Free\",\"description\":\"ngjmgjm\",\"price\":500,\"discountPrice\":50,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[],\"C\":[],\"D\":[]},\"categoryNames\":{\"A\":\"Enter Category 1\",\"B\":\"Enter Category 2\",\"C\":\"Enter Category 3\",\"D\":\"Enter Category 4\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundary7omn9MrFTxYMjSJ4","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Free\\\",\\\"description\\\":\\\"ngjmgjm\\\",\\\"price\\\":500,\\\"discountPrice\\\":50,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[],\\\"C\\\":[],\\\"D\\\":[]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Enter Category 1\\\",\\\"B\\\":\\\"Enter Category 2\\\",\\\"C\\\":\\\"Enter Category 3\\\",\\\"D\\\":\\\"Enter Category 4\\\"}}\",\"serviceImageKeys\":\"A_0\"}"}
+[2025-10-06T11:28:46.074Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-06T11:28:46.172Z] [INFO] Processing service images | {"filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:28:46.323Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:28:46.527Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:28:48.495Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-06T11:28:49.111Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:28:49.427Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T11:28:50.227Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:28:51.206Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/ugnaikd83tkfjcclmqiz","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750129/fixifly/services/plumber-a-0/ugnaikd83tkfjcclmqiz.png"}
+[2025-10-06T11:28:51.210Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/ugnaikd83tkfjcclmqiz","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750129/fixifly/services/plumber-a-0/ugnaikd83tkfjcclmqiz.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:28:51.227Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750129/fixifly/services/plumber-a-0/ugnaikd83tkfjcclmqiz.png"}
+[2025-10-06T11:28:51.244Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759750129/fixifly/services/plumber-a-0/ugnaikd83tkfjcclmqiz.png"}}
+[2025-10-06T11:28:51.326Z] [INFO] Processing service A | {"index":0,"serviceName":"Free","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750129/fixifly/services/plumber-a-0/ugnaikd83tkfjcclmqiz.png"}
+[2025-10-06T11:28:51.477Z] [INFO] Product created: Plumber by admin: panchalajay717@gmail.com | {"productId":"68e3a7f3ae4a799b72e876af","hasImage":false,"serviceType":"Home Appliance","totalServices":1,"serviceImagesCount":1,"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759750129/fixifly/services/plumber-a-0/ugnaikd83tkfjcclmqiz.png"}}
+[2025-10-06T11:28:53.292Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:28:54.140Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:28:57.307Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T11:28:57.560Z] [INFO] Products retrieved: 5 of 5 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T11:29:29.465Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e3a7f3ae4a799b72e876af"}
+[2025-10-06T11:29:29.546Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":1}
+[2025-10-06T11:29:29.579Z] [INFO] Uploading updated product image to Cloudinary | {"productId":"68e3a7f3ae4a799b72e876af","productName":"Plumber","fileSize":1162828}
+[2025-10-06T11:29:29.581Z] [INFO] Uploading product image to Cloudinary | {"folder":"fixifly/products/plumber","productName":"Plumber"}
+[2025-10-06T11:29:36.000Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/products/plumber/updcyudqk9edsdgbm0f9","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750174/fixifly/products/plumber/updcyudqk9edsdgbm0f9.jpg"}
+[2025-10-06T11:29:36.002Z] [INFO] Product image uploaded successfully | {"public_id":"fixifly/products/plumber/updcyudqk9edsdgbm0f9","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750174/fixifly/products/plumber/updcyudqk9edsdgbm0f9.jpg","productName":"Plumber"}
+[2025-10-06T11:29:36.003Z] [INFO] Product image updated successfully | {"productId":"68e3a7f3ae4a799b72e876af","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750174/fixifly/products/plumber/updcyudqk9edsdgbm0f9.jpg"}
+[2025-10-06T11:29:36.004Z] [INFO] Processing updated service images | {"productId":"68e3a7f3ae4a799b72e876af","filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:29:36.004Z] [INFO] Uploading updated service image to Cloudinary | {"productId":"68e3a7f3ae4a799b72e876af","serviceKey":"A_0","fileSize":9676,"mimetype":"image/webp"}
+[2025-10-06T11:29:36.005Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:29:37.434Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/addr9ls4vghso5re0ygc","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750176/fixifly/services/plumber-a-0/addr9ls4vghso5re0ygc.png"}
+[2025-10-06T11:29:37.435Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/addr9ls4vghso5re0ygc","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750176/fixifly/services/plumber-a-0/addr9ls4vghso5re0ygc.png","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:29:37.436Z] [INFO] Service image updated successfully | {"productId":"68e3a7f3ae4a799b72e876af","serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750176/fixifly/services/plumber-a-0/addr9ls4vghso5re0ygc.png"}
+[2025-10-06T11:29:37.437Z] [INFO] Updated service image URLs mapping | {"productId":"68e3a7f3ae4a799b72e876af","serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759750176/fixifly/services/plumber-a-0/addr9ls4vghso5re0ygc.png"}}
+[2025-10-06T11:29:37.443Z] [INFO] Processing updated service A | {"productId":"68e3a7f3ae4a799b72e876af","index":0,"serviceName":"Free","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750176/fixifly/services/plumber-a-0/addr9ls4vghso5re0ygc.png"}
+[2025-10-06T11:29:37.543Z] [INFO] Product updated: Plumber by admin: panchalajay717@gmail.com | {"productId":"68e3a7f3ae4a799b72e876af","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":1,"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759750176/fixifly/services/plumber-a-0/addr9ls4vghso5re0ygc.png"}}
+[2025-10-06T11:29:37.675Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T11:29:37.860Z] [INFO] Products retrieved: 5 of 5 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T11:29:38.385Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:29:41.985Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:29:53.336Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:30:05.022Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:30:05.034Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:30:05.145Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:30:05.284Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:30:05.412Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:30:38.393Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:30:42.000Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:30:50.342Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e3a7f3ae4a799b72e876af"}
+[2025-10-06T11:30:50.410Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":1,"productImageCount":0,"serviceImagesCount":1}
+[2025-10-06T11:30:50.437Z] [INFO] Processing updated service images | {"productId":"68e3a7f3ae4a799b72e876af","filesCount":1,"keysCount":1,"keys":["A_0"]}
+[2025-10-06T11:30:50.439Z] [INFO] Uploading updated service image to Cloudinary | {"productId":"68e3a7f3ae4a799b72e876af","serviceKey":"A_0","fileSize":205764,"mimetype":"image/jpeg"}
+[2025-10-06T11:30:50.440Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:30:53.334Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:30:54.186Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/arigxfzid7yhisamplmy","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750253/fixifly/services/plumber-a-0/arigxfzid7yhisamplmy.jpg"}
+[2025-10-06T11:30:54.187Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/arigxfzid7yhisamplmy","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759750253/fixifly/services/plumber-a-0/arigxfzid7yhisamplmy.jpg","serviceKey":"Plumber_A_0"}
+[2025-10-06T11:30:54.189Z] [INFO] Service image updated successfully | {"productId":"68e3a7f3ae4a799b72e876af","serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750253/fixifly/services/plumber-a-0/arigxfzid7yhisamplmy.jpg"}
+[2025-10-06T11:30:54.190Z] [INFO] Updated service image URLs mapping | {"productId":"68e3a7f3ae4a799b72e876af","serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759750253/fixifly/services/plumber-a-0/arigxfzid7yhisamplmy.jpg"}}
+[2025-10-06T11:30:54.191Z] [INFO] Processing updated service A | {"productId":"68e3a7f3ae4a799b72e876af","index":0,"serviceName":"Free","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750253/fixifly/services/plumber-a-0/arigxfzid7yhisamplmy.jpg"}
+[2025-10-06T11:30:54.271Z] [INFO] Product updated: Plumber by admin: panchalajay717@gmail.com | {"productId":"68e3a7f3ae4a799b72e876af","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":1,"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759750253/fixifly/services/plumber-a-0/arigxfzid7yhisamplmy.jpg"}}
+[2025-10-06T11:30:54.316Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T11:30:54.518Z] [INFO] Products retrieved: 5 of 5 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T11:30:59.410Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:30:59.453Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:30:59.489Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:31:53.517Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:32:22.920Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:32:23.359Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:32:31.827Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:32:32.524Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:32:35.625Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:32:40.861Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:32:56.950Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:32:57.340Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:33:00.461Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:33:01.555Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:33:06.811Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:33:12.709Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:33:13.374Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:33:17.023Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:33:17.827Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:33:51.016Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:33:51.416Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:33:53.279Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:33:53.781Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:33:53.818Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:33:54.064Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:33:54.121Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:33:54.320Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:33:54.702Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:34:14.456Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:34:14.464Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:34:14.500Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:34:22.256Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:34:22.274Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:34:22.367Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:34:22.395Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:34:22.533Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:34:47.446Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:34:47.473Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:34:47.564Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:34:47.738Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:34:47.948Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:34:53.345Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:35:22.876Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:35:23.539Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:35:26.177Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:35:27.041Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:35:48.921Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:35:49.370Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:35:51.488Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:35:52.914Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:36:04.485Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:36:04.750Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:36:06.696Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:36:07.818Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:36:23.415Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:36:23.832Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:36:27.783Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:36:28.779Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:36:42.598Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:36:43.281Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:36:45.127Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:36:45.927Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:37:14.144Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:37:14.743Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:37:21.836Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:37:22.311Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:37:51.271Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:37:51.347Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:37:52.436Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:37:53.186Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:38:52.482Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:39:04.259Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:39:04.339Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:39:05.455Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:39:06.223Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:39:31.650Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:39:31.759Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:39:33.056Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:39:33.860Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:39:38.972Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:39:39.074Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:39:39.947Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:39:40.927Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:40:36.032Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:40:36.415Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:40:37.818Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:40:39.985Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:41:03.746Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:41:03.973Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:41:07.382Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:41:11.226Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:41:22.627Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:41:22.908Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:41:24.473Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:41:25.643Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:41:33.668Z] [INFO] Booking created with payment: FIXCD5F2C14 | {"bookingId":"68e3aaed1e100f0fcd5f2c14","customerEmail":"panchalajay717@gmail.com","totalAmount":59,"servicesCount":1,"paymentId":"pay_RQAsIyhqoqLEWy"}
+[2025-10-06T11:41:33.671Z] [INFO] Sending new booking notification to admins | {"bookingId":"68e3aaed1e100f0fcd5f2c14","bookingReference":"FIXCD5F2C14","customerName":"Ajay Panchal","totalAmount":59}
+[2025-10-06T11:41:33.718Z] [INFO] Sending notification to 1 admins | {"notificationTitle":"🆕 New Booking Received","adminCount":1}
+[2025-10-06T11:41:33.832Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-06T11:41:34.572Z] [INFO] Multicast push notification sent: | {"successCount":1,"failureCount":0,"totalTokens":1}
+[2025-10-06T11:41:34.573Z] [INFO] Admin notification sent for new booking with payment | {"bookingId":"68e3aaed1e100f0fcd5f2c14","successCount":1,"failureCount":0}
+[2025-10-06T11:41:35.051Z] [INFO] Customer bookings retrieved: 4 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":4,"page":1}
+[2025-10-06T11:42:12.433Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:42:12.441Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:42:12.659Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:42:24.512Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:42:34.698Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T11:42:34.936Z] [INFO] Products retrieved: 5 of 5 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T11:43:24.536Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:43:54.718Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:43:54.957Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:43:56.164Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:43:56.877Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:44:38.588Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:44:38.782Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:44:40.035Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:44:40.753Z] [INFO] SMTP connection verified successfully
+[2025-10-06T11:45:26.656Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e3a7f3ae4a799b72e876af"}
+[2025-10-06T11:45:26.781Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":1,"productImageCount":0,"serviceImagesCount":1}
+[2025-10-06T11:45:26.828Z] [INFO] Processing updated service images | {"productId":"68e3a7f3ae4a799b72e876af","filesCount":1,"keysCount":1,"keys":["A_1"]}
+[2025-10-06T11:45:26.829Z] [INFO] Uploading updated service image to Cloudinary | {"productId":"68e3a7f3ae4a799b72e876af","serviceKey":"A_1","fileSize":577047,"mimetype":"image/png"}
+[2025-10-06T11:45:26.831Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-1","serviceKey":"Plumber_A_1"}
+[2025-10-06T11:45:31.076Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-1/vkuezagqjmftl4216nvo","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759751130/fixifly/services/plumber-a-1/vkuezagqjmftl4216nvo.jpg"}
+[2025-10-06T11:45:31.081Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-1/vkuezagqjmftl4216nvo","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759751130/fixifly/services/plumber-a-1/vkuezagqjmftl4216nvo.jpg","serviceKey":"Plumber_A_1"}
+[2025-10-06T11:45:31.084Z] [INFO] Service image updated successfully | {"productId":"68e3a7f3ae4a799b72e876af","serviceKey":"A_1","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759751130/fixifly/services/plumber-a-1/vkuezagqjmftl4216nvo.jpg"}
+[2025-10-06T11:45:31.087Z] [INFO] Updated service image URLs mapping | {"productId":"68e3a7f3ae4a799b72e876af","serviceImageUrls":{"A_1":"https://res.cloudinary.com/fixfly/image/upload/v1759751130/fixifly/services/plumber-a-1/vkuezagqjmftl4216nvo.jpg"}}
+[2025-10-06T11:45:31.092Z] [INFO] Processing updated service A | {"productId":"68e3a7f3ae4a799b72e876af","index":0,"serviceName":"Free","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759750253/fixifly/services/plumber-a-0/arigxfzid7yhisamplmy.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-06T11:45:31.096Z] [INFO] Processing updated service A | {"productId":"68e3a7f3ae4a799b72e876af","index":1,"serviceName":"paid","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759751130/fixifly/services/plumber-a-1/vkuezagqjmftl4216nvo.jpg","hasNewImage":true,"hasRequestImage":false,"hasExistingImage":false}
+[2025-10-06T11:45:31.271Z] [INFO] Product updated: Plumber by admin: panchalajay717@gmail.com | {"productId":"68e3a7f3ae4a799b72e876af","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":1,"serviceImageUrls":{"A_1":"https://res.cloudinary.com/fixfly/image/upload/v1759751130/fixifly/services/plumber-a-1/vkuezagqjmftl4216nvo.jpg"}}
+[2025-10-06T11:45:31.341Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-06T11:45:31.524Z] [INFO] Products retrieved: 5 of 5 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-06T11:45:38.998Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:45:39.077Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:45:39.507Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:45:40.087Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:45:47.815Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T11:45:47.844Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T11:45:47.944Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T11:46:40.100Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:47:40.108Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:48:28.242Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-06T11:48:28.390Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-06T11:48:29.359Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-06T11:48:31.325Z] [INFO] SMTP connection verified successfully

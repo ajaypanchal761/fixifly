@@ -8,14 +8,58 @@ const cloudinaryService = require('../utils/cloudinary');
 // @access  Private (Admin only)
 const createProduct = asyncHandler(async (req, res) => {
   try {
+    logger.info('Create product request received', {
+      hasFiles: !!(req.files),
+      filesCount: req.files ? Object.keys(req.files).length : 0,
+      hasProductData: !!req.body.productData,
+      bodyKeys: Object.keys(req.body),
+      bodyProductData: req.body.productData,
+      contentType: req.headers['content-type'],
+      method: req.method,
+      url: req.url,
+      bodyType: typeof req.body,
+      bodyString: JSON.stringify(req.body)
+    });
+
     // Handle both JSON and FormData requests
     let productData;
     if (req.body.productData) {
       // FormData request - parse the JSON string
-      productData = JSON.parse(req.body.productData);
+      try {
+        productData = JSON.parse(req.body.productData);
+        logger.info('Parsed product data from FormData', {
+          productName: productData.productName,
+          serviceType: productData.serviceType,
+          categoriesCount: Object.keys(productData.categories || {}).length
+        });
+      } catch (parseError) {
+        logger.error('Failed to parse productData JSON', {
+          error: parseError.message,
+          productDataString: req.body.productData
+        });
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid productData JSON format',
+          error: parseError.message
+        });
+      }
     } else {
       // Regular JSON request
       productData = req.body;
+      logger.info('Using direct body as product data', {
+        productName: productData.productName,
+        serviceType: productData.serviceType
+      });
+    }
+
+    // Validate that we have product data
+    if (!productData) {
+      logger.error('No product data found in request');
+      return res.status(400).json({
+        success: false,
+        message: 'productData is not defined',
+        error: 'No product data provided in request'
+      });
     }
 
     const { productName, serviceType, categories, categoryNames } = productData;
@@ -76,24 +120,111 @@ const createProduct = asyncHandler(async (req, res) => {
       }
     }
 
+    // Handle service images upload
+    const serviceImageUrls = {};
+    if (req.files && req.files.serviceImages) {
+      const serviceImageKeys = req.body.serviceImageKeys ? 
+        (Array.isArray(req.body.serviceImageKeys) ? req.body.serviceImageKeys : [req.body.serviceImageKeys]) : [];
+      
+      logger.info('Processing service images', {
+        filesCount: req.files.serviceImages.length,
+        keysCount: serviceImageKeys.length,
+        keys: serviceImageKeys
+      });
+      
+      for (let i = 0; i < req.files.serviceImages.length; i++) {
+        const file = req.files.serviceImages[i];
+        const serviceKey = serviceImageKeys[i];
+        
+        if (serviceKey && file) {
+          try {
+            logger.info('Uploading service image to Cloudinary', {
+              serviceKey: serviceKey,
+              fileSize: file.size,
+              mimetype: file.mimetype
+            });
+
+            // Add timeout wrapper to prevent server crashes
+            const uploadPromise = cloudinaryService.uploadServiceImage(
+              file.buffer,
+              `${productName}_${serviceKey}`
+            );
+
+            // Set a timeout for the upload
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000);
+            });
+
+            const uploadResult = await Promise.race([uploadPromise, timeoutPromise]);
+
+            serviceImageUrls[serviceKey] = uploadResult.secure_url;
+
+            logger.info('Service image uploaded successfully', {
+              serviceKey: serviceKey,
+              imageUrl: uploadResult.secure_url
+            });
+          } catch (uploadError) {
+            logger.error('Failed to upload service image', {
+              serviceKey: serviceKey,
+              error: uploadError.message,
+              errorType: uploadError.name
+            });
+            
+            // Don't crash the server - just continue without this service image
+            logger.warn('Continuing product creation without service image', {
+              serviceKey: serviceKey,
+              productName: productName
+            });
+            
+            // Set a placeholder or null for the service image
+            serviceImageUrls[serviceKey] = null;
+          }
+        }
+      }
+      
+      logger.info('Service image URLs mapping', {
+        serviceImageUrls: serviceImageUrls
+      });
+    }
+
     // Process categories - ensure A, B, C, D structure and validate prices
     const processedCategories = {
-      A: (categories?.A || []).map(service => ({
-        ...service,
-        discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined
-      })),
-      B: (categories?.B || []).map(service => ({
-        ...service,
-        discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined
-      })),
-      C: (categories?.C || []).map(service => ({
-        ...service,
-        discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined
-      })),
-      D: (categories?.D || []).map(service => ({
-        ...service,
-        discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined
-      }))
+      A: (categories?.A || []).map((service, index) => {
+        const serviceImageUrl = serviceImageUrls[`A_${index}`] || service.serviceImage;
+        logger.info('Processing service A', { index, serviceName: service.serviceName, serviceImageUrl });
+        return {
+          ...service,
+          discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined,
+          serviceImage: serviceImageUrl
+        };
+      }),
+      B: (categories?.B || []).map((service, index) => {
+        const serviceImageUrl = serviceImageUrls[`B_${index}`] || service.serviceImage;
+        logger.info('Processing service B', { index, serviceName: service.serviceName, serviceImageUrl });
+        return {
+          ...service,
+          discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined,
+          serviceImage: serviceImageUrl
+        };
+      }),
+      C: (categories?.C || []).map((service, index) => {
+        const serviceImageUrl = serviceImageUrls[`C_${index}`] || service.serviceImage;
+        logger.info('Processing service C', { index, serviceName: service.serviceName, serviceImageUrl });
+        return {
+          ...service,
+          discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined,
+          serviceImage: serviceImageUrl
+        };
+      }),
+      D: (categories?.D || []).map((service, index) => {
+        const serviceImageUrl = serviceImageUrls[`D_${index}`] || service.serviceImage;
+        logger.info('Processing service D', { index, serviceName: service.serviceName, serviceImageUrl });
+        return {
+          ...service,
+          discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined,
+          serviceImage: serviceImageUrl
+        };
+      })
     };
 
     // Process category names
@@ -122,7 +253,9 @@ const createProduct = asyncHandler(async (req, res) => {
       productId: product._id,
       hasImage: !!productImage,
       serviceType: product.serviceType,
-      totalServices: product.totalServices
+      totalServices: product.totalServices,
+      serviceImagesCount: Object.keys(serviceImageUrls).length,
+      serviceImageUrls: serviceImageUrls
     });
 
     res.status(201).json({
@@ -134,7 +267,12 @@ const createProduct = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('Error creating product:', error);
+    logger.error('Error creating product:', {
+      error: error.message,
+      stack: error.stack,
+      productName: productData?.productName,
+      serviceType: productData?.serviceType
+    });
     res.status(500).json({
       success: false,
       message: 'Error creating product',
@@ -294,17 +432,17 @@ const updateProduct = asyncHandler(async (req, res) => {
       });
     }
 
-    // Handle image upload if file is provided
-    if (req.file) {
+    // Handle product image upload if file is provided
+    if (req.files && req.files.productImage) {
       try {
         logger.info('Uploading updated product image to Cloudinary', {
           productId: product._id,
           productName: product.productName,
-          fileSize: req.file.size
+          fileSize: req.files.productImage[0].size
         });
 
         const uploadResult = await cloudinaryService.uploadProductImage(
-          req.file.buffer,
+          req.files.productImage[0].buffer,
           product.productName
         );
 
@@ -332,25 +470,154 @@ const updateProduct = asyncHandler(async (req, res) => {
       }
     }
 
+    // Handle service images upload
+    const serviceImageUrls = {};
+    if (req.files && req.files.serviceImages) {
+      const serviceImageKeys = req.body.serviceImageKeys ? 
+        (Array.isArray(req.body.serviceImageKeys) ? req.body.serviceImageKeys : [req.body.serviceImageKeys]) : [];
+      
+      logger.info('Processing updated service images', {
+        productId: product._id,
+        filesCount: req.files.serviceImages.length,
+        keysCount: serviceImageKeys.length,
+        keys: serviceImageKeys
+      });
+      
+      for (let i = 0; i < req.files.serviceImages.length; i++) {
+        const file = req.files.serviceImages[i];
+        const serviceKey = serviceImageKeys[i];
+        
+        if (serviceKey && file) {
+          try {
+            logger.info('Uploading updated service image to Cloudinary', {
+              productId: product._id,
+              serviceKey: serviceKey,
+              fileSize: file.size,
+              mimetype: file.mimetype
+            });
+
+            // Add timeout wrapper to prevent server crashes
+            const uploadPromise = cloudinaryService.uploadServiceImage(
+              file.buffer,
+              `${product.productName}_${serviceKey}`
+            );
+
+            // Set a timeout for the upload
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000);
+            });
+
+            const uploadResult = await Promise.race([uploadPromise, timeoutPromise]);
+
+            serviceImageUrls[serviceKey] = uploadResult.secure_url;
+
+            logger.info('Service image updated successfully', {
+              productId: product._id,
+              serviceKey: serviceKey,
+              imageUrl: uploadResult.secure_url
+            });
+          } catch (uploadError) {
+            logger.error('Failed to upload updated service image', {
+              productId: product._id,
+              serviceKey: serviceKey,
+              error: uploadError.message,
+              errorType: uploadError.name
+            });
+            
+            // Don't crash the server - just continue without this service image
+            logger.warn('Continuing product update without service image', {
+              productId: product._id,
+              serviceKey: serviceKey
+            });
+            
+            // Set a placeholder or null for the service image
+            serviceImageUrls[serviceKey] = null;
+          }
+        }
+      }
+      
+      logger.info('Updated service image URLs mapping', {
+        productId: product._id,
+        serviceImageUrls: serviceImageUrls
+      });
+    }
+
     // Process categories if provided
     if (productData.categories) {
       productData.categories = {
-        A: (productData.categories.A || []).map(service => ({
-          ...service,
-          discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined
-        })),
-        B: (productData.categories.B || []).map(service => ({
-          ...service,
-          discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined
-        })),
-        C: (productData.categories.C || []).map(service => ({
-          ...service,
-          discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined
-        })),
-        D: (productData.categories.D || []).map(service => ({
-          ...service,
-          discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined
-        }))
+        A: (productData.categories.A || []).map((service, index) => {
+          // Priority: new uploaded image > existing service image from request > existing service image from database
+          const existingServiceImage = product.categories?.A?.[index]?.serviceImage;
+          const serviceImageUrl = serviceImageUrls[`A_${index}`] || service.serviceImage || existingServiceImage;
+          logger.info('Processing updated service A', { 
+            productId: product._id, 
+            index, 
+            serviceName: service.serviceName, 
+            serviceImageUrl,
+            hasNewImage: !!serviceImageUrls[`A_${index}`],
+            hasRequestImage: !!service.serviceImage,
+            hasExistingImage: !!existingServiceImage
+          });
+          return {
+            ...service,
+            discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined,
+            serviceImage: serviceImageUrl
+          };
+        }),
+        B: (productData.categories.B || []).map((service, index) => {
+          const existingServiceImage = product.categories?.B?.[index]?.serviceImage;
+          const serviceImageUrl = serviceImageUrls[`B_${index}`] || service.serviceImage || existingServiceImage;
+          logger.info('Processing updated service B', { 
+            productId: product._id, 
+            index, 
+            serviceName: service.serviceName, 
+            serviceImageUrl,
+            hasNewImage: !!serviceImageUrls[`B_${index}`],
+            hasRequestImage: !!service.serviceImage,
+            hasExistingImage: !!existingServiceImage
+          });
+          return {
+            ...service,
+            discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined,
+            serviceImage: serviceImageUrl
+          };
+        }),
+        C: (productData.categories.C || []).map((service, index) => {
+          const existingServiceImage = product.categories?.C?.[index]?.serviceImage;
+          const serviceImageUrl = serviceImageUrls[`C_${index}`] || service.serviceImage || existingServiceImage;
+          logger.info('Processing updated service C', { 
+            productId: product._id, 
+            index, 
+            serviceName: service.serviceName, 
+            serviceImageUrl,
+            hasNewImage: !!serviceImageUrls[`C_${index}`],
+            hasRequestImage: !!service.serviceImage,
+            hasExistingImage: !!existingServiceImage
+          });
+          return {
+            ...service,
+            discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined,
+            serviceImage: serviceImageUrl
+          };
+        }),
+        D: (productData.categories.D || []).map((service, index) => {
+          const existingServiceImage = product.categories?.D?.[index]?.serviceImage;
+          const serviceImageUrl = serviceImageUrls[`D_${index}`] || service.serviceImage || existingServiceImage;
+          logger.info('Processing updated service D', { 
+            productId: product._id, 
+            index, 
+            serviceName: service.serviceName, 
+            serviceImageUrl,
+            hasNewImage: !!serviceImageUrls[`D_${index}`],
+            hasRequestImage: !!service.serviceImage,
+            hasExistingImage: !!existingServiceImage
+          });
+          return {
+            ...service,
+            discountPrice: service.discountPrice && service.discountPrice > 0 ? service.discountPrice : undefined,
+            serviceImage: serviceImageUrl
+          };
+        })
       };
     }
 
@@ -377,7 +644,9 @@ const updateProduct = asyncHandler(async (req, res) => {
 
     logger.info(`Product updated: ${updatedProduct.productName} by admin: ${req.admin.email}`, {
       productId: updatedProduct._id,
-      changes: Object.keys(productData)
+      changes: Object.keys(productData),
+      serviceImagesCount: Object.keys(serviceImageUrls).length,
+      serviceImageUrls: serviceImageUrls
     });
 
     res.json({

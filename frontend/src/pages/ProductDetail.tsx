@@ -10,6 +10,7 @@ interface Service {
   price: number;
   discountPrice?: number;
   isActive: boolean;
+  serviceImage?: string;
   _id: string;
 }
 
@@ -120,7 +121,7 @@ const ProductDetail = () => {
         id: service._id, 
         title: service.serviceName, 
         price: service.discountPrice || service.price, 
-        image: product.productImage || '/placeholder.svg' 
+        image: service.serviceImage || product.productImage || '/placeholder.svg' 
       }]);
     }
   };
@@ -295,7 +296,7 @@ const ProductDetail = () => {
                   <div className="flex flex-col items-center space-y-3">
                     <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                       <img 
-                        src={product.productImage || '/placeholder.svg'} 
+                        src={service.serviceImage || product.productImage || '/placeholder.svg'} 
                         alt={service.serviceName}
                         className="w-full h-full object-cover rounded-xl hover:scale-105 transition-transform duration-200"
                       />
