@@ -7266,3 +7266,162 @@
 [2025-10-07T12:52:42.023Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
 [2025-10-07T12:52:42.095Z] [INFO] FCM token updated for vendor | {"vendorId":"68e4b46775999b89e7ae5651","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
 [2025-10-07T12:52:59.401Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:23:56.880Z] [INFO] Cleaned 2 old log files
+[2025-10-07T17:23:57.388Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T17:23:57.688Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T17:24:01.873Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T17:24:01.898Z] [INFO] SMTP connection verified successfully
+[2025-10-07T17:24:32.181Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:24:32.244Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:24:33.137Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:24:43.479Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-07T17:24:43.529Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-07T17:24:43.593Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-07T17:24:43.749Z] [INFO] Getting bookings for vendor | {"vendorId":"693","page":1,"limit":10}
+[2025-10-07T17:24:43.755Z] [INFO] Booking query | {"query":{"vendor.vendorId":"693"}}
+[2025-10-07T17:24:44.337Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-07T17:24:45.159Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T17:24:45.633Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:24:45.640Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:24:45.674Z] [INFO] FCM token updated for vendor | {"vendorId":"68e4b46775999b89e7ae5651","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T17:24:46.232Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:24:46.596Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:24:49.233Z] [INFO] Vendor bookings retrieved: 10 for vendor 693 | {"vendorId":"693","totalBookings":13,"page":1}
+[2025-10-07T17:24:49.270Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-07T17:24:49.388Z] [INFO] Getting bookings for vendor | {"vendorId":"693","page":1,"limit":10}
+[2025-10-07T17:24:49.390Z] [INFO] Booking query | {"query":{"vendor.vendorId":"693"}}
+[2025-10-07T17:24:51.810Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-07T17:24:52.730Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:24:52.822Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T17:24:52.970Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":10,"year":2025}
+[2025-10-07T17:24:53.219Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:24:53.433Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T17:24:54.600Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-10-07T17:24:54.911Z] [INFO] Vendor bookings retrieved: 10 for vendor 693 | {"vendorId":"693","totalBookings":13,"page":1}
+[2025-10-07T17:24:55.496Z] [INFO] Admin logged out | {"adminId":"ADMIN001","ip":"::1"}
+[2025-10-07T17:25:02.075Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:25:02.560Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-10-07T17:25:02.618Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-07T17:25:03.171Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":10,"year":2025}
+[2025-10-07T17:25:03.635Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T17:25:03.987Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T17:25:58.754Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:25:58.763Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:25:59.565Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:25:59.846Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:26:00.215Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:26:01.149Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:26:02.216Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:26:08.148Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:26:08.643Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:26:46.637Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:26:48.342Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:26:48.867Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:26:49.721Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:26:58.103Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:26:58.524Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:27:02.039Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:27:59.275Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-07T17:27:59.294Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-07T17:27:59.298Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-07T17:27:59.371Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T17:27:59.397Z] [INFO] Getting bookings for vendor | {"vendorId":"693","page":1,"limit":10}
+[2025-10-07T17:27:59.399Z] [INFO] Booking query | {"query":{"vendor.vendorId":"693"}}
+[2025-10-07T17:27:59.597Z] [INFO] FCM token updated for vendor | {"vendorId":"68e4b46775999b89e7ae5651","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T17:27:59.711Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:27:59.832Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-07T17:28:01.432Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:28:02.166Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:28:02.249Z] [INFO] Vendor bookings retrieved: 10 for vendor 693 | {"vendorId":"693","totalBookings":13,"page":1}
+[2025-10-07T17:28:02.498Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-07T17:28:02.745Z] [INFO] Getting bookings for vendor | {"vendorId":"693","page":1,"limit":10}
+[2025-10-07T17:28:02.763Z] [INFO] Booking query | {"query":{"vendor.vendorId":"693"}}
+[2025-10-07T17:28:06.225Z] [INFO] Vendor bookings retrieved: 10 for vendor 693 | {"vendorId":"693","totalBookings":13,"page":1}
+[2025-10-07T17:28:10.404Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:28:11.471Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:28:31.104Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:28:31.381Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:29:02.110Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:30:02.531Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:30:58.747Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:30:58.942Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:30:59.015Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:31:00.908Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:31:01.225Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:31:01.556Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:31:02.107Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:31:05.352Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:31:14.992Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-07T17:31:15.836Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T17:31:16.208Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:31:16.640Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T17:31:16.688Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68ca7f8988ac97b4e9c16645","month":10,"year":2025}
+[2025-10-07T17:31:17.021Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:31:29.572Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:31:33.920Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:31:34.086Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:31:35.483Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:32:02.736Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:33:02.237Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:33:31.245Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:33:37.118Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:33:37.191Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:33:37.365Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:33:53.979Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:33:54.071Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:33:54.492Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:33:54.596Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:33:55.059Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:33:56.837Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:34:02.239Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:34:59.239Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:34:59.434Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:34:59.573Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:35:02.749Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:35:33.963Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:36:02.595Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:37:01.204Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:37:02.271Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:37:21.450Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:37:30.172Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:37:30.921Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:37:31.843Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:37:33.248Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:37:34.027Z] [INFO] User retrieved notifications: 0 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":0,"unreadCount":0,"page":1,"filters":{}}
+[2025-10-07T17:37:43.898Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/notifications?page=1&limit=10"}
+[2025-10-07T17:37:44.884Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T17:37:45.175Z] [INFO] Admin retrieved notifications | {"adminId":"68ca7f8988ac97b4e9c16645","totalNotifications":2,"page":1}
+[2025-10-07T17:37:45.614Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/notifications/stats"}
+[2025-10-07T17:37:45.729Z] [INFO] FCM token updated for admin | {"adminId":"68ca7f8988ac97b4e9c16645","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T17:37:46.531Z] [INFO] Admin retrieved notification stats | {"adminId":"68ca7f8988ac97b4e9c16645","stats":{"totalNotifications":2,"sentNotifications":2,"scheduledNotifications":0,"draftNotifications":0,"failedNotifications":0,"totalRecipients":2,"averageDeliveryRate":100,"averageReadRate":0}}
+[2025-10-07T17:38:02.970Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:38:14.267Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/notifications/send"}
+[2025-10-07T17:38:14.986Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-07T17:38:15.966Z] [INFO] Multicast push notification sent: | {"successCount":1,"failureCount":0,"totalTokens":1}
+[2025-10-07T17:38:15.970Z] [INFO] Push notification sent | {"totalTokens":1,"successCount":1,"failureCount":0}
+[2025-10-07T17:38:16.199Z] [INFO] Admin notification sent successfully | {"adminId":"68ca7f8988ac97b4e9c16645","adminNotificationId":"68e55008d16e05eb1fce8a30","title":"Happy Diwali","targetAudience":"all","totalUsers":1,"sentCount":1,"failedCount":0}
+[2025-10-07T17:38:16.220Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/notifications?page=1&limit=10"}
+[2025-10-07T17:38:16.809Z] [INFO] Admin retrieved notifications | {"adminId":"68ca7f8988ac97b4e9c16645","totalNotifications":3,"page":1}
+[2025-10-07T17:38:16.822Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/notifications/stats"}
+[2025-10-07T17:38:17.115Z] [INFO] Admin retrieved notification stats | {"adminId":"68ca7f8988ac97b4e9c16645","stats":{"totalNotifications":3,"sentNotifications":3,"scheduledNotifications":0,"draftNotifications":0,"failedNotifications":0,"totalRecipients":3,"averageDeliveryRate":100,"averageReadRate":0}}
+[2025-10-07T17:38:20.524Z] [INFO] User retrieved notifications: 1 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":1,"unreadCount":1,"page":1,"filters":{}}
+[2025-10-07T17:38:49.879Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:38:50.414Z] [INFO] User retrieved notifications: 1 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":1,"unreadCount":1,"page":1,"filters":{}}
+[2025-10-07T17:38:50.476Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:39:02.398Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:39:12.499Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:39:12.910Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:39:12.972Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:39:14.698Z] [INFO] User retrieved notifications: 1 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":1,"unreadCount":1,"page":1,"filters":{}}
+[2025-10-07T17:39:15.928Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:39:15.942Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:39:16.129Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:39:23.649Z] [INFO] User retrieved notifications: 1 | {"userId":"68e4a464ae866036470fe3a3","totalNotifications":1,"unreadCount":1,"page":1,"filters":{}}
+[2025-10-07T17:39:29.892Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:39:29.919Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:39:30.228Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:39:32.909Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-07T17:39:32.937Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T17:39:33.134Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-07T17:39:33.225Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:39:33.618Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}

@@ -7,10 +7,10 @@ import Footer from '../../components/Footer';
 import NotFound from '../../pages/NotFound';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
-const VendorNotifications = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+// Desktop Vendor Notifications Component
+const DesktopVendorNotifications = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([
     {
@@ -60,10 +60,209 @@ const VendorNotifications = () => {
     }
   ]);
 
-  // Show 404 error on desktop
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'task_assigned':
+        return <User className="w-5 h-5 text-blue-600" />;
+      case 'payment_received':
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'task_reminder':
+        return <Clock className="w-5 h-5 text-yellow-600" />;
+      case 'system_update':
+        return <Info className="w-5 h-5 text-purple-600" />;
+      case 'task_cancelled':
+        return <AlertTriangle className="w-5 h-5 text-red-600" />;
+      default:
+        return <Bell className="w-5 h-5 text-gray-600" />;
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === id 
+          ? { ...notification, isRead: true }
+          : notification
+      )
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notification => ({ ...notification, isRead: true }))
+    );
+  };
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Desktop Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/vendor")}
+                className="p-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">Vendor Notifications</h1>
+                {unreadCount > 0 && (
+                  <p className="text-sm text-gray-500">{unreadCount} unread</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              {unreadCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={markAllAsRead}
+                  className="text-sm"
+                >
+                  Mark all as read
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Notifications List */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {notifications.length === 0 ? (
+          <Card>
+            <CardContent className="text-center py-12">
+              <Bell className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-medium text-gray-900 mb-2">No notifications</h3>
+              <p className="text-gray-500">You're all caught up! We'll notify you when something new happens.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {notifications.map((notification) => (
+              <Card 
+                key={notification.id} 
+                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                  !notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
+                }`}
+                onClick={() => markAsRead(notification.id)}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0">
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className={`text-base font-medium ${
+                          !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                        }`}>
+                          {notification.title}
+                        </h3>
+                        <div className="flex items-center space-x-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${getPriorityColor(notification.priority)}`}
+                          >
+                            {notification.priority}
+                          </Badge>
+                          {!notification.isRead && (
+                            <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-3">{notification.message}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500">{notification.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const VendorNotifications = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  // Show desktop version - must be before any other hooks
   if (!isMobile) {
-    return <NotFound />;
+    return <DesktopVendorNotifications />;
   }
+
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      type: 'task_assigned',
+      title: 'New Task Assigned',
+      message: 'AC Repair task assigned in Sector 15, Gurgaon',
+      time: '2 minutes ago',
+      isRead: false,
+      priority: 'high'
+    },
+    {
+      id: 2,
+      type: 'payment_received',
+      title: 'Payment Received',
+      message: 'Payment of ₹2,500 received for Case ID: CASE-2024-001',
+      time: '1 hour ago',
+      isRead: false,
+      priority: 'medium'
+    },
+    {
+      id: 3,
+      type: 'task_reminder',
+      title: 'Task Reminder',
+      message: 'Washing Machine service scheduled for 2:00 PM today',
+      time: '3 hours ago',
+      isRead: true,
+      priority: 'medium'
+    },
+    {
+      id: 4,
+      type: 'system_update',
+      title: 'System Update',
+      message: 'New features added to vendor dashboard. Check it out!',
+      time: '1 day ago',
+      isRead: true,
+      priority: 'low'
+    },
+    {
+      id: 5,
+      type: 'task_cancelled',
+      title: 'Task Cancelled',
+      message: 'Refrigerator repair task cancelled by customer',
+      time: '2 days ago',
+      isRead: true,
+      priority: 'low'
+    }
+  ]);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {

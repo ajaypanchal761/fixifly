@@ -27,9 +27,22 @@ interface SparePart {
 
 const VendorClosedTask = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  // Show 404 error on desktop - must be before any other hooks
+  if (!isMobile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Page Not Found</h1>
+          <p className="text-gray-600">This page is only available on mobile devices.</p>
+        </div>
+      </div>
+    );
+  }
+
   const navigate = useNavigate();
   const { taskId } = useParams();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -241,18 +254,6 @@ const VendorClosedTask = () => {
     if (!includeGST) return billingAmountValue;
     return billingAmountValue + (billingAmountValue * 0.18); // Base amount + 18% GST
   };
-
-  // Show 404 error on desktop
-  if (!isMobile) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Page Not Found</h1>
-          <p className="text-gray-600">This page is only available on mobile devices.</p>
-        </div>
-      </div>
-    );
-  }
 
   // Loading state
   if (loading) {

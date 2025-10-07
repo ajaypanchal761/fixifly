@@ -40,6 +40,12 @@ import type { Vendor, ServiceLocation } from '@/services/vendorApi';
 const VendorProfile = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  // Show 404 error on desktop - must be before any other hooks
+  if (!isMobile) {
+    return <NotFound />;
+  }
+
   const { toast } = useToast();
   const { vendor, updateVendor } = useVendor();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -132,11 +138,6 @@ const VendorProfile = () => {
       setIsLoading(false);
     }
   };
-
-  // Show 404 error on desktop
-  if (!isMobile) {
-    return <NotFound />;
-  }
 
   if (isLoading) {
     return (

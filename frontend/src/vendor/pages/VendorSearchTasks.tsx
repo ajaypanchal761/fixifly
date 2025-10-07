@@ -12,15 +12,17 @@ import { Badge } from '@/components/ui/badge';
 const VendorSearchTasks = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-
+  
+  // Show 404 error on desktop - must be before any other hooks
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
+
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Sample task data - in real app this would come from API
   const sampleTasks = [

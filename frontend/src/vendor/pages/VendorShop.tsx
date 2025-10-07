@@ -9,10 +9,14 @@ const VendorShop = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  
+  // Show 404 error on desktop - must be before any other hooks
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
+
+  
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
