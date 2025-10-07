@@ -1424,12 +1424,9 @@ class AdminApiService {
       console.log('Making request to:', `${API_BASE_URL}/admin/products`);
       console.log('API_BASE_URL:', API_BASE_URL);
       
-      const response = await fetch(`${API_BASE_URL}/admin/products`, {
+      const response = await this.makeAuthenticatedRequest(`${API_BASE_URL}/admin/products`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.getAccessToken()}`
-          // Don't set Content-Type header, let browser set it with boundary for FormData
-        },
+        // Don't set Content-Type header, let browser set it with boundary for FormData
         body: formData
       });
 
@@ -1450,12 +1447,9 @@ class AdminApiService {
 
   async updateProductWithImage(productId: string, formData: FormData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
+      const response = await this.makeAuthenticatedRequest(`${API_BASE_URL}/admin/products/${productId}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${this.getAccessToken()}`
-          // Don't set Content-Type header, let browser set it with boundary for FormData
-        },
+        // Don't set Content-Type header, let browser set it with boundary for FormData
         body: formData
       });
 
@@ -1480,11 +1474,10 @@ class AdminApiService {
       if (params?.serviceType) queryParams.append('serviceType', params.serviceType);
       if (params?.search) queryParams.append('search', params.search);
 
-      const response = await fetch(`${API_BASE_URL}/admin/products?${queryParams}`, {
+      const response = await this.makeAuthenticatedRequest(`${API_BASE_URL}/admin/products?${queryParams}`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAccessToken()}`
+          'Content-Type': 'application/json'
         }
       });
 
@@ -1502,11 +1495,10 @@ class AdminApiService {
 
   async getProduct(productId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
+      const response = await this.makeAuthenticatedRequest(`${API_BASE_URL}/admin/products/${productId}`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAccessToken()}`
+          'Content-Type': 'application/json'
         }
       });
 

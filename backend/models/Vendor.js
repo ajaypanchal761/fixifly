@@ -114,7 +114,13 @@ const vendorSchema = new mongoose.Schema({
     pincode: {
       type: String,
       trim: true,
-      match: [/^[1-9][0-9]{5}$/, 'Please enter a valid 6-digit pincode']
+      validate: {
+        validator: function(v) {
+          // Allow empty string or valid 6-digit pincode
+          return !v || /^[1-9][0-9]{5}$/.test(v);
+        },
+        message: 'Please enter a valid 6-digit pincode'
+      }
     },
     landmark: {
       type: String,

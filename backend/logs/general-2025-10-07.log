@@ -7425,3 +7425,828 @@
 [2025-10-07T17:39:33.134Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
 [2025-10-07T17:39:33.225Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
 [2025-10-07T17:39:33.618Z] [INFO] User updated FCM token | {"userId":"68e4a464ae866036470fe3a3","fcmTokenLength":142}
+[2025-10-07T17:40:02.590Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T17:56:27.111Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T17:56:27.327Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T17:56:32.003Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T17:56:36.217Z] [INFO] SMTP connection verified successfully
+[2025-10-07T17:57:37.990Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T17:57:38.115Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T17:57:44.984Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T17:57:46.523Z] [INFO] SMTP connection verified successfully
+[2025-10-07T18:00:57.209Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T18:00:57.493Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T18:01:02.353Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T18:01:05.556Z] [INFO] SMTP connection verified successfully
+[2025-10-07T18:02:03.324Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T18:02:03.450Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T18:02:07.483Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T18:02:11.234Z] [INFO] SMTP connection verified successfully
+[2025-10-07T18:02:38.963Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/notifications?page=1&limit=10"}
+[2025-10-07T18:02:39.084Z] [WARN] Admin not found for token | {"adminId":"68ca7f8988ac97b4e9c16645","decoded":{"adminId":"68ca7f8988ac97b4e9c16645","role":"admin","email":"panchalajay717@gmail.com","type":"access","iat":1759857902,"exp":1759944302}}
+[2025-10-07T18:02:39.947Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:02:40.027Z] [WARN] Admin not found for token | {"adminId":"68ca7f8988ac97b4e9c16645","decoded":{"adminId":"68ca7f8988ac97b4e9c16645","role":"admin","email":"panchalajay717@gmail.com","type":"access","iat":1759857902,"exp":1759944302}}
+[2025-10-07T18:02:41.467Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
+[2025-10-07T18:02:41.557Z] [WARN] Admin not found for token | {"adminId":"68ca7f8988ac97b4e9c16645","decoded":{"adminId":"68ca7f8988ac97b4e9c16645","role":"admin","email":"panchalajay717@gmail.com","type":"access","iat":1759857902,"exp":1759944302}}
+[2025-10-07T18:02:45.203Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-07T18:02:45.230Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-07T18:02:45.244Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-07T18:02:45.292Z] [WARN] Vendor not found for token | {"vendorId":"68e4b46775999b89e7ae5651"}
+[2025-10-07T18:02:45.356Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-07T18:02:45.387Z] [WARN] Vendor not found for token | {"vendorId":"68e4b46775999b89e7ae5651"}
+[2025-10-07T18:02:45.442Z] [WARN] Vendor not found for token | {"vendorId":"68e4b46775999b89e7ae5651"}
+[2025-10-07T18:02:45.554Z] [WARN] Vendor not found for token | {"vendorId":"68e4b46775999b89e7ae5651"}
+[2025-10-07T18:02:45.630Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-07T18:02:45.809Z] [WARN] Vendor not found for token | {"vendorId":"68e4b46775999b89e7ae5651"}
+[2025-10-07T18:02:53.444Z] [INFO] Featured products retrieved: 0 | {"productNames":[]}
+[2025-10-07T18:02:53.458Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:02:53.771Z] [INFO] All active products retrieved: 0 | {"featuredCount":0,"totalCount":0}
+[2025-10-07T18:03:07.901Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:03:59.198Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-10-07T18:03:59.309Z] [INFO] Creating new user for OTP | {"phone":"7610416911"}
+[2025-10-07T18:03:59.331Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-10-07T18:03:59.525Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68e5560f4152df81db3bbb29"}
+[2025-10-07T18:03:59.526Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-10-07T18:04:00.075Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1759860240075","provider":"SMSIndia Hub"}
+[2025-10-07T18:04:07.559Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:04:18.844Z] [INFO] Featured products retrieved: 0 | {"productNames":[]}
+[2025-10-07T18:04:18.880Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:04:18.992Z] [INFO] All active products retrieved: 0 | {"featuredCount":0,"totalCount":0}
+[2025-10-07T18:04:18.997Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:04:19.162Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:05:07.692Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:05:09.565Z] [INFO] New admin registered | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","department":"Operations"}
+[2025-10-07T18:05:09.643Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-07T18:05:10.048Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-07T18:05:10.650Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:05:10.796Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:05:22.008Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:05:22.016Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-10-07T18:05:22.332Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:05:22.544Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:05:23.025Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:05:23.222Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:06:01.733Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-07T18:06:02.949Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:06:03.158Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:06:07.609Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:06:17.758Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-07T18:06:17.844Z] [INFO] Creating banner | {"title":"Banner 1","order":"1","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner1.png","mimetype":"image/png","size":305443,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759860377835-458374813.png"}}
+[2025-10-07T18:06:17.845Z] [INFO] Uploading banner to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759860377835-458374813.png"}
+[2025-10-07T18:06:17.847Z] [INFO] Uploading banner image to Cloudinary | {"folder":"banners","resource_type":"image"}
+[2025-10-07T18:06:21.263Z] [INFO] Banner image uploaded successfully | {"public_id":"banners/ouvw5ggq5vbdarcuquqz","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759860379/banners/ouvw5ggq5vbdarcuquqz.jpg","bytes":60984,"width":883,"height":440}
+[2025-10-07T18:06:21.265Z] [INFO] Banner upload successful | {"public_id":"banners/ouvw5ggq5vbdarcuquqz","url":"https://res.cloudinary.com/fixfly/image/upload/v1759860379/banners/ouvw5ggq5vbdarcuquqz.jpg"}
+[2025-10-07T18:06:21.268Z] [INFO] Saving banner to database | {"bannerData":{"title":"Banner 1","image":{"public_id":"banners/ouvw5ggq5vbdarcuquqz","url":"https://res.cloudinary.com/fixfly/image/upload/v1759860379/banners/ouvw5ggq5vbdarcuquqz.jpg"},"isActive":true,"order":1,"createdBy":"68e556544152df81db3bbb41","_id":"68e5569d4152df81db3bbb7a"}}
+[2025-10-07T18:06:21.371Z] [INFO] Banner saved successfully | {"bannerId":"68e5569d4152df81db3bbb7a"}
+[2025-10-07T18:06:21.457Z] [INFO] Banner created successfully | {"bannerId":"68e5569d4152df81db3bbb7a","title":"Banner 1","adminId":"68e556544152df81db3bbb41"}
+[2025-10-07T18:06:21.466Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-07T18:06:22.735Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:06:22.860Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:06:36.791Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-07T18:06:36.891Z] [INFO] Creating banner | {"title":"Banner 2","order":"2","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner2.png","mimetype":"image/png","size":421659,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759860396873-769125802.png"}}
+[2025-10-07T18:06:36.893Z] [INFO] Uploading banner to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759860396873-769125802.png"}
+[2025-10-07T18:06:36.895Z] [INFO] Uploading banner image to Cloudinary | {"folder":"banners","resource_type":"image"}
+[2025-10-07T18:06:40.327Z] [INFO] Banner image uploaded successfully | {"public_id":"banners/hvdtoql343un3pjfvroi","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759860398/banners/hvdtoql343un3pjfvroi.jpg","bytes":83648,"width":890,"height":441}
+[2025-10-07T18:06:40.329Z] [INFO] Banner upload successful | {"public_id":"banners/hvdtoql343un3pjfvroi","url":"https://res.cloudinary.com/fixfly/image/upload/v1759860398/banners/hvdtoql343un3pjfvroi.jpg"}
+[2025-10-07T18:06:40.332Z] [INFO] Saving banner to database | {"bannerData":{"title":"Banner 2","image":{"public_id":"banners/hvdtoql343un3pjfvroi","url":"https://res.cloudinary.com/fixfly/image/upload/v1759860398/banners/hvdtoql343un3pjfvroi.jpg"},"isActive":true,"order":2,"createdBy":"68e556544152df81db3bbb41","_id":"68e556b04152df81db3bbb86"}}
+[2025-10-07T18:06:40.426Z] [INFO] Banner saved successfully | {"bannerId":"68e556b04152df81db3bbb86"}
+[2025-10-07T18:06:40.526Z] [INFO] Banner created successfully | {"bannerId":"68e556b04152df81db3bbb86","title":"Banner 2","adminId":"68e556544152df81db3bbb41"}
+[2025-10-07T18:06:40.536Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-07T18:06:41.804Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:06:42.021Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:06:59.933Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-07T18:07:00.025Z] [INFO] Creating banner | {"title":"Banner 3","order":"3","hasFile":true,"fileInfo":{"fieldname":"image","originalname":"banner3.png","mimetype":"image/png","size":582638,"path":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759860420017-467180464.png"}}
+[2025-10-07T18:07:00.027Z] [INFO] Uploading banner to Cloudinary | {"filePath":"C:\\Users\\ss\\OneDrive\\Desktop\\CompanyProjects\\Fixifly\\backend\\uploads\\temp\\image-1759860420017-467180464.png"}
+[2025-10-07T18:07:00.028Z] [INFO] Uploading banner image to Cloudinary | {"folder":"banners","resource_type":"image"}
+[2025-10-07T18:07:04.469Z] [INFO] Banner image uploaded successfully | {"public_id":"banners/xzn3sd9un36gkiklgaih","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759860421/banners/xzn3sd9un36gkiklgaih.jpg","bytes":73307,"width":882,"height":443}
+[2025-10-07T18:07:04.469Z] [INFO] Banner upload successful | {"public_id":"banners/xzn3sd9un36gkiklgaih","url":"https://res.cloudinary.com/fixfly/image/upload/v1759860421/banners/xzn3sd9un36gkiklgaih.jpg"}
+[2025-10-07T18:07:04.471Z] [INFO] Saving banner to database | {"bannerData":{"title":"Banner 3","image":{"public_id":"banners/xzn3sd9un36gkiklgaih","url":"https://res.cloudinary.com/fixfly/image/upload/v1759860421/banners/xzn3sd9un36gkiklgaih.jpg"},"isActive":true,"order":3,"createdBy":"68e556544152df81db3bbb41","_id":"68e556c84152df81db3bbb92"}}
+[2025-10-07T18:07:04.569Z] [INFO] Banner saved successfully | {"bannerId":"68e556c84152df81db3bbb92"}
+[2025-10-07T18:07:04.668Z] [INFO] Banner created successfully | {"bannerId":"68e556c84152df81db3bbb92","title":"Banner 3","adminId":"68e556544152df81db3bbb41"}
+[2025-10-07T18:07:04.677Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-07T18:07:05.962Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:07:06.108Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:07:07.595Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:08:07.686Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:08:44.898Z] [INFO] Featured products retrieved: 0 | {"productNames":[]}
+[2025-10-07T18:08:44.910Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:08:45.065Z] [INFO] All active products retrieved: 0 | {"featuredCount":0,"totalCount":0}
+[2025-10-07T18:08:45.073Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:08:45.294Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:09:00.655Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:09:00.997Z] [INFO] Products retrieved: 0 of 0 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":0}}
+[2025-10-07T18:09:01.675Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:09:01.871Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:09:06.720Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:09:07.721Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:09:07.723Z] [INFO] Products retrieved: 0 of 0 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":0}}
+[2025-10-07T18:10:07.638Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:11:07.826Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:12:07.692Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:13:07.695Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:14:07.727Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:15:07.648Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:16:07.684Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:17:07.676Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:18:07.680Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:18:56.881Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-07T18:18:56.969Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":6}
+[2025-10-07T18:18:56.974Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Laptop \",\"productImage\":\"\",\"serviceType\":\"IT Needs\",\"isFeatured\":false,\"categories\":{\"A\":[{\"serviceName\":\"Windows Laptop service\",\"description\":\"We can perform a full check-up of your Windows system, so you ensure that everyt...\",\"price\":500,\"discountPrice\":399,\"isActive\":true,\"serviceImage\":\"\"},{\"serviceName\":\"MacBook Service\",\"description\":\"The MacBook service is a comprehensive maintenance, software optimization and fact checking better than new.\",\"price\":599,\"discountPrice\":299,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[{\"serviceName\":\"Windows laptop repair\",\"description\":\"Our technicians are specialised in diagnosing and repairing problems with your W...\",\"price\":288,\"discountPrice\":88,\"isActive\":true,\"serviceImage\":\"\"},{\"serviceName\":\"MacBook repair\",\"description\":\"From broken screens to battery failures and system errors, we offer all-inclusiv...\",\"price\":999,\"discountPrice\":500,\"isActive\":true,\"serviceImage\":\"\"}],\"C\":[{\"serviceName\":\"Data Recovery/ Backup\",\"description\":\"We specialize in data recovery from crashed systems, deleted files, hardware fai...\",\"price\":999,\"discountPrice\":299,\"isActive\":true,\"serviceImage\":\"\"}],\"D\":[{\"serviceName\":\"OS Installation\",\"description\":\"We assist you in installing / reinstalling operating systems such as Windows or ...\",\"price\":599,\"discountPrice\":299,\"isActive\":true,\"serviceImage\":\"\"}]},\"categoryNames\":{\"A\":\"Laptop Service\",\"B\":\"Laptop Repair\",\"C\":\"Data Recovery\",\"D\":\"Installation\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundaryYukgdT5rXbYSd25n","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Laptop \\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"IT Needs\\\",\\\"isFeatured\\\":false,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Windows Laptop service\\\",\\\"description\\\":\\\"We can perform a full check-up of your Windows system, so you ensure that everyt...\\\",\\\"price\\\":500,\\\"discountPrice\\\":399,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"},{\\\"serviceName\\\":\\\"MacBook Service\\\",\\\"description\\\":\\\"The MacBook service is a comprehensive maintenance, software optimization and fact checking better than new.\\\",\\\"price\\\":599,\\\"discountPrice\\\":299,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[{\\\"serviceName\\\":\\\"Windows laptop repair\\\",\\\"description\\\":\\\"Our technicians are specialised in diagnosing and repairing problems with your W...\\\",\\\"price\\\":288,\\\"discountPrice\\\":88,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"},{\\\"serviceName\\\":\\\"MacBook repair\\\",\\\"description\\\":\\\"From broken screens to battery failures and system errors, we offer all-inclusiv...\\\",\\\"price\\\":999,\\\"discountPrice\\\":500,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"C\\\":[{\\\"serviceName\\\":\\\"Data Recovery/ Backup\\\",\\\"description\\\":\\\"We specialize in data recovery from crashed systems, deleted files, hardware fai...\\\",\\\"price\\\":999,\\\"discountPrice\\\":299,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"D\\\":[{\\\"serviceName\\\":\\\"OS Installation\\\",\\\"description\\\":\\\"We assist you in installing / reinstalling operating systems such as Windows or ...\\\",\\\"price\\\":599,\\\"discountPrice\\\":299,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Laptop Service\\\",\\\"B\\\":\\\"Laptop Repair\\\",\\\"C\\\":\\\"Data Recovery\\\",\\\"D\\\":\\\"Installation\\\"}}\",\"serviceImageKeys\":[\"A_0\",\"A_1\",\"B_0\",\"B_1\",\"C_0\",\"D_0\"]}"}
+[2025-10-07T18:18:56.976Z] [INFO] Parsed product data from FormData | {"productName":"Laptop ","serviceType":"IT Needs","categoriesCount":4}
+[2025-10-07T18:18:57.038Z] [INFO] Processing service images | {"filesCount":6,"keysCount":6,"keys":["A_0","A_1","B_0","B_1","C_0","D_0"]}
+[2025-10-07T18:18:57.042Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":20304,"mimetype":"image/webp"}
+[2025-10-07T18:18:57.046Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/laptop--a-0","serviceKey":"Laptop _A_0"}
+[2025-10-07T18:18:59.342Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861136/fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau.jpg"}
+[2025-10-07T18:18:59.344Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861136/fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau.jpg","serviceKey":"Laptop _A_0"}
+[2025-10-07T18:18:59.344Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861136/fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau.jpg"}
+[2025-10-07T18:18:59.345Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_1","fileSize":10204,"mimetype":"image/jpeg"}
+[2025-10-07T18:18:59.346Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/laptop--a-1","serviceKey":"Laptop _A_1"}
+[2025-10-07T18:19:00.462Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861138/fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k.jpg"}
+[2025-10-07T18:19:00.463Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861138/fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k.jpg","serviceKey":"Laptop _A_1"}
+[2025-10-07T18:19:00.464Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_1","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861138/fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k.jpg"}
+[2025-10-07T18:19:00.465Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"B_0","fileSize":9547,"mimetype":"image/jpeg"}
+[2025-10-07T18:19:00.465Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/laptop--b-0","serviceKey":"Laptop _B_0"}
+[2025-10-07T18:19:01.582Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/laptop--b-0/a4va538ydecip261sjio","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861139/fixifly/services/laptop--b-0/a4va538ydecip261sjio.jpg"}
+[2025-10-07T18:19:01.584Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/laptop--b-0/a4va538ydecip261sjio","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861139/fixifly/services/laptop--b-0/a4va538ydecip261sjio.jpg","serviceKey":"Laptop _B_0"}
+[2025-10-07T18:19:01.585Z] [INFO] Service image uploaded successfully | {"serviceKey":"B_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861139/fixifly/services/laptop--b-0/a4va538ydecip261sjio.jpg"}
+[2025-10-07T18:19:01.586Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"B_1","fileSize":30607,"mimetype":"image/jpeg"}
+[2025-10-07T18:19:01.587Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/laptop--b-1","serviceKey":"Laptop _B_1"}
+[2025-10-07T18:19:04.497Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861141/fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2.jpg"}
+[2025-10-07T18:19:04.499Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861141/fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2.jpg","serviceKey":"Laptop _B_1"}
+[2025-10-07T18:19:04.499Z] [INFO] Service image uploaded successfully | {"serviceKey":"B_1","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861141/fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2.jpg"}
+[2025-10-07T18:19:04.500Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"C_0","fileSize":20258,"mimetype":"image/webp"}
+[2025-10-07T18:19:04.500Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/laptop--c-0","serviceKey":"Laptop _C_0"}
+[2025-10-07T18:19:05.605Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861143/fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd.jpg"}
+[2025-10-07T18:19:05.615Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861143/fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd.jpg","serviceKey":"Laptop _C_0"}
+[2025-10-07T18:19:05.618Z] [INFO] Service image uploaded successfully | {"serviceKey":"C_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861143/fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd.jpg"}
+[2025-10-07T18:19:05.620Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"D_0","fileSize":3561,"mimetype":"image/png"}
+[2025-10-07T18:19:05.623Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/laptop--d-0","serviceKey":"Laptop _D_0"}
+[2025-10-07T18:19:07.536Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861144/fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw.jpg"}
+[2025-10-07T18:19:07.541Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861144/fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw.jpg","serviceKey":"Laptop _D_0"}
+[2025-10-07T18:19:07.543Z] [INFO] Service image uploaded successfully | {"serviceKey":"D_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861144/fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw.jpg"}
+[2025-10-07T18:19:07.545Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861136/fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau.jpg","A_1":"https://res.cloudinary.com/fixfly/image/upload/v1759861138/fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k.jpg","B_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861139/fixifly/services/laptop--b-0/a4va538ydecip261sjio.jpg","B_1":"https://res.cloudinary.com/fixfly/image/upload/v1759861141/fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2.jpg","C_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861143/fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd.jpg","D_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861144/fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw.jpg"}}
+[2025-10-07T18:19:07.548Z] [INFO] Processing service A | {"index":0,"serviceName":"Windows Laptop service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861136/fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau.jpg"}
+[2025-10-07T18:19:07.550Z] [INFO] Processing service A | {"index":1,"serviceName":"MacBook Service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861138/fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k.jpg"}
+[2025-10-07T18:19:07.551Z] [INFO] Processing service B | {"index":0,"serviceName":"Windows laptop repair","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861139/fixifly/services/laptop--b-0/a4va538ydecip261sjio.jpg"}
+[2025-10-07T18:19:07.552Z] [INFO] Processing service B | {"index":1,"serviceName":"MacBook repair","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861141/fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2.jpg"}
+[2025-10-07T18:19:07.555Z] [INFO] Processing service C | {"index":0,"serviceName":"Data Recovery/ Backup","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861143/fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd.jpg"}
+[2025-10-07T18:19:07.557Z] [INFO] Processing service D | {"index":0,"serviceName":"OS Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861144/fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw.jpg"}
+[2025-10-07T18:19:07.673Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:19:07.677Z] [INFO] Product created: Laptop by admin: panchalajay717@gmail.com | {"productId":"68e5599b4152df81db3bbbc3","hasImage":false,"serviceType":"IT Needs","totalServices":6,"serviceImagesCount":6,"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861136/fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau.jpg","A_1":"https://res.cloudinary.com/fixfly/image/upload/v1759861138/fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k.jpg","B_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861139/fixifly/services/laptop--b-0/a4va538ydecip261sjio.jpg","B_1":"https://res.cloudinary.com/fixfly/image/upload/v1759861141/fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2.jpg","C_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861143/fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd.jpg","D_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861144/fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw.jpg"}}
+[2025-10-07T18:19:16.047Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:19:16.721Z] [INFO] Products retrieved: 1 of 1 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:19:53.285Z] [INFO] Featured products retrieved: 0 | {"productNames":[]}
+[2025-10-07T18:19:53.372Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:19:53.379Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:19:53.449Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:19:53.457Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:19:53.618Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:19:53.634Z] [INFO] Products retrieved: 1 of 1 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:19:53.702Z] [INFO] All active products retrieved: 1 | {"featuredCount":0,"totalCount":1}
+[2025-10-07T18:19:53.767Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:19:53.771Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:19:54.016Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:20:07.720Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:20:15.301Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e5599b4152df81db3bbbc3"}
+[2025-10-07T18:20:15.415Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":1,"productImageCount":1,"serviceImagesCount":0}
+[2025-10-07T18:20:15.496Z] [INFO] Uploading updated product image to Cloudinary | {"productId":"68e5599b4152df81db3bbbc3","productName":"Laptop","fileSize":9676}
+[2025-10-07T18:20:15.497Z] [INFO] Uploading product image to Cloudinary | {"folder":"fixifly/products/laptop","productName":"Laptop"}
+[2025-10-07T18:20:18.686Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/products/laptop/tujibzsc5jwbqr3jm1yf","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861215/fixifly/products/laptop/tujibzsc5jwbqr3jm1yf.png"}
+[2025-10-07T18:20:18.688Z] [INFO] Product image uploaded successfully | {"public_id":"fixifly/products/laptop/tujibzsc5jwbqr3jm1yf","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861215/fixifly/products/laptop/tujibzsc5jwbqr3jm1yf.png","productName":"Laptop"}
+[2025-10-07T18:20:18.689Z] [INFO] Product image updated successfully | {"productId":"68e5599b4152df81db3bbbc3","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861215/fixifly/products/laptop/tujibzsc5jwbqr3jm1yf.png"}
+[2025-10-07T18:20:18.690Z] [INFO] Processing updated service A | {"productId":"68e5599b4152df81db3bbbc3","index":0,"serviceName":"Windows Laptop service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861136/fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:18.690Z] [INFO] Processing updated service A | {"productId":"68e5599b4152df81db3bbbc3","index":1,"serviceName":"MacBook Service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861138/fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:18.691Z] [INFO] Processing updated service B | {"productId":"68e5599b4152df81db3bbbc3","index":0,"serviceName":"Windows laptop repair","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861139/fixifly/services/laptop--b-0/a4va538ydecip261sjio.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:18.692Z] [INFO] Processing updated service B | {"productId":"68e5599b4152df81db3bbbc3","index":1,"serviceName":"MacBook repair","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861141/fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:18.693Z] [INFO] Processing updated service C | {"productId":"68e5599b4152df81db3bbbc3","index":0,"serviceName":"Data Recovery/ Backup","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861143/fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:18.696Z] [INFO] Processing updated service D | {"productId":"68e5599b4152df81db3bbbc3","index":0,"serviceName":"OS Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861144/fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:19.031Z] [INFO] Product updated: Laptop by admin: panchalajay717@gmail.com | {"productId":"68e5599b4152df81db3bbbc3","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":0,"serviceImageUrls":{}}
+[2025-10-07T18:20:19.076Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:20:19.402Z] [INFO] Products retrieved: 1 of 1 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:20:24.420Z] [INFO] Featured products retrieved: 0 | {"productNames":[]}
+[2025-10-07T18:20:25.734Z] [INFO] All active products retrieved: 1 | {"featuredCount":0,"totalCount":1}
+[2025-10-07T18:20:26.366Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:20:26.483Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:20:27.306Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:20:43.577Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e5599b4152df81db3bbbc3"}
+[2025-10-07T18:20:43.687Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":0,"productImageCount":0,"serviceImagesCount":0}
+[2025-10-07T18:20:43.772Z] [INFO] Processing updated service A | {"productId":"68e5599b4152df81db3bbbc3","index":0,"serviceName":"Windows Laptop service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861136/fixifly/services/laptop--a-0/utgto38oemhtlmzfzeau.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:43.773Z] [INFO] Processing updated service A | {"productId":"68e5599b4152df81db3bbbc3","index":1,"serviceName":"MacBook Service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861138/fixifly/services/laptop--a-1/knq5t1s1op5mny38i15k.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:43.776Z] [INFO] Processing updated service B | {"productId":"68e5599b4152df81db3bbbc3","index":0,"serviceName":"Windows laptop repair","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861139/fixifly/services/laptop--b-0/a4va538ydecip261sjio.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:43.777Z] [INFO] Processing updated service B | {"productId":"68e5599b4152df81db3bbbc3","index":1,"serviceName":"MacBook repair","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861141/fixifly/services/laptop--b-1/xjbvdjlhyoclc765nco2.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:43.778Z] [INFO] Processing updated service C | {"productId":"68e5599b4152df81db3bbbc3","index":0,"serviceName":"Data Recovery/ Backup","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861143/fixifly/services/laptop--c-0/gkpipjja50rouo6yfthd.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:43.779Z] [INFO] Processing updated service D | {"productId":"68e5599b4152df81db3bbbc3","index":0,"serviceName":"OS Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861144/fixifly/services/laptop--d-0/ffgrqbccnqatlg3btvkw.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:20:44.117Z] [INFO] Product updated: Laptop by admin: panchalajay717@gmail.com | {"productId":"68e5599b4152df81db3bbbc3","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":0,"serviceImageUrls":{}}
+[2025-10-07T18:20:44.152Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:20:44.525Z] [INFO] Products retrieved: 1 of 1 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:20:51.416Z] [INFO] Featured products retrieved: 1 | {"productNames":["Laptop"]}
+[2025-10-07T18:20:51.614Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:20:52.114Z] [INFO] All active products retrieved: 1 | {"featuredCount":1,"totalCount":1}
+[2025-10-07T18:20:52.316Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:20:53.017Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:21:07.896Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:21:13.334Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-10-07T18:21:14.329Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:21:14.701Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:21:31.641Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities"}
+[2025-10-07T18:21:32.026Z] [INFO] New city created | {"cityId":"68e55a2b4152df81db3bbc54","name":"Mumbai","state":"Maharashtra","createdBy":"68e556544152df81db3bbb41"}
+[2025-10-07T18:21:32.036Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-10-07T18:21:39.896Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities"}
+[2025-10-07T18:21:40.515Z] [INFO] New city created | {"cityId":"68e55a344152df81db3bbc5e","name":"Pune","state":"Maharashtra","createdBy":"68e556544152df81db3bbb41"}
+[2025-10-07T18:21:40.525Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-10-07T18:21:48.906Z] [INFO] Featured products retrieved: 1 | {"productNames":["Laptop"]}
+[2025-10-07T18:21:49.081Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:21:49.180Z] [INFO] All active products retrieved: 1 | {"featuredCount":1,"totalCount":1}
+[2025-10-07T18:21:49.456Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:21:50.014Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:22:07.734Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:22:13.357Z] [INFO] Featured products retrieved: 1 | {"productNames":["Laptop"]}
+[2025-10-07T18:22:13.369Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:22:14.208Z] [INFO] All active products retrieved: 1 | {"featuredCount":1,"totalCount":1}
+[2025-10-07T18:22:18.207Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:22:19.223Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:22:20.766Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:22:21.142Z] [INFO] Products retrieved: 1 of 1 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:23:08.786Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:24:12.392Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:25:08.758Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:26:07.805Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:27:07.796Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:28:07.860Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:28:57.004Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-07T18:28:57.151Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":4}
+[2025-10-07T18:28:57.155Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Desktop\",\"productImage\":\"\",\"serviceType\":\"IT Needs\",\"isFeatured\":true,\"categories\":{\"A\":[{\"serviceName\":\"I MAC REPAIR\",\"description\":\"We perform the running repairs on all iMacs, whether it is parts-related problems like screen damage, or hardware failures, we can assist with the software glitches and performance issues as well. If given the right support, our skilled technicians will have your iMac running as it did on the first day and will get the job done no matter the problem.\",\"price\":999,\"discountPrice\":299,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[{\"serviceName\":\"WINDOW DESKTOP REPAIR\",\"description\":\"Whether your desktop needs a hardware replacement, is running slowly, or cannot start – our technicians have you covered. Never worry as we get your desktop running smooth in no time.\",\"price\":888,\"discountPrice\":88,\"isActive\":true,\"serviceImage\":\"\"}],\"C\":[{\"serviceName\":\"GAMING DESKTOP REPAIR\",\"description\":\"For gaming desktops, we provide expert services for repairs, upgrades, and maintenance. We have everything you need, be it a hardware adjustment, software tuning, or an update.\",\"price\":599,\"discountPrice\":299,\"isActive\":true,\"serviceImage\":\"\"}],\"D\":[{\"serviceName\":\"desktop OS Installation\",\"description\":\"It means we install or reinstall your desktop’s operating system, making sure everything runs smoothly with the latest updates and drivers configured.\",\"price\":799,\"discountPrice\":599,\"isActive\":true,\"serviceImage\":\"\"}]},\"categoryNames\":{\"A\":\"Computer Repair\",\"B\":\"Computer Service\",\"C\":\"Computer Data Recover\",\"D\":\"Computer Installation\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundary1OkgZALJdC1Zi9SJ","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Desktop\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"IT Needs\\\",\\\"isFeatured\\\":true,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"I MAC REPAIR\\\",\\\"description\\\":\\\"We perform the running repairs on all iMacs, whether it is parts-related problems like screen damage, or hardware failures, we can assist with the software glitches and performance issues as well. If given the right support, our skilled technicians will have your iMac running as it did on the first day and will get the job done no matter the problem.\\\",\\\"price\\\":999,\\\"discountPrice\\\":299,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[{\\\"serviceName\\\":\\\"WINDOW DESKTOP REPAIR\\\",\\\"description\\\":\\\"Whether your desktop needs a hardware replacement, is running slowly, or cannot start – our technicians have you covered. Never worry as we get your desktop running smooth in no time.\\\",\\\"price\\\":888,\\\"discountPrice\\\":88,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"C\\\":[{\\\"serviceName\\\":\\\"GAMING DESKTOP REPAIR\\\",\\\"description\\\":\\\"For gaming desktops, we provide expert services for repairs, upgrades, and maintenance. We have everything you need, be it a hardware adjustment, software tuning, or an update.\\\",\\\"price\\\":599,\\\"discountPrice\\\":299,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"D\\\":[{\\\"serviceName\\\":\\\"desktop OS Installation\\\",\\\"description\\\":\\\"It means we install or reinstall your desktop’s operating system, making sure everything runs smoothly with the latest updates and drivers configured.\\\",\\\"price\\\":799,\\\"discountPrice\\\":599,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Computer Repair\\\",\\\"B\\\":\\\"Computer Service\\\",\\\"C\\\":\\\"Computer Data Recover\\\",\\\"D\\\":\\\"Computer Installation\\\"}}\",\"serviceImageKeys\":[\"A_0\",\"B_0\",\"C_0\",\"D_0\"]}"}
+[2025-10-07T18:28:57.156Z] [INFO] Parsed product data from FormData | {"productName":"Desktop","serviceType":"IT Needs","categoriesCount":4}
+[2025-10-07T18:28:57.296Z] [INFO] Processing service images | {"filesCount":4,"keysCount":4,"keys":["A_0","B_0","C_0","D_0"]}
+[2025-10-07T18:28:57.298Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":7884,"mimetype":"image/jpeg"}
+[2025-10-07T18:28:57.301Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/desktop-a-0","serviceKey":"Desktop_A_0"}
+[2025-10-07T18:29:01.925Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg"}
+[2025-10-07T18:29:01.927Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg","serviceKey":"Desktop_A_0"}
+[2025-10-07T18:29:01.928Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg"}
+[2025-10-07T18:29:01.929Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"B_0","fileSize":4184,"mimetype":"image/jpeg"}
+[2025-10-07T18:29:01.930Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/desktop-b-0","serviceKey":"Desktop_B_0"}
+[2025-10-07T18:29:03.373Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/desktop-b-0/t9oeey9li41klys692ui","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg"}
+[2025-10-07T18:29:03.374Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/desktop-b-0/t9oeey9li41klys692ui","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg","serviceKey":"Desktop_B_0"}
+[2025-10-07T18:29:03.375Z] [INFO] Service image uploaded successfully | {"serviceKey":"B_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg"}
+[2025-10-07T18:29:03.376Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"C_0","fileSize":8222,"mimetype":"image/jpeg"}
+[2025-10-07T18:29:03.377Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/desktop-c-0","serviceKey":"Desktop_C_0"}
+[2025-10-07T18:29:04.973Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg"}
+[2025-10-07T18:29:04.974Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg","serviceKey":"Desktop_C_0"}
+[2025-10-07T18:29:04.975Z] [INFO] Service image uploaded successfully | {"serviceKey":"C_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg"}
+[2025-10-07T18:29:04.978Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"D_0","fileSize":11077,"mimetype":"image/jpeg"}
+[2025-10-07T18:29:04.980Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/desktop-d-0","serviceKey":"Desktop_D_0"}
+[2025-10-07T18:29:07.034Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/desktop-d-0/j0hknyi0l0greduodg23","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg"}
+[2025-10-07T18:29:07.035Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/desktop-d-0/j0hknyi0l0greduodg23","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg","serviceKey":"Desktop_D_0"}
+[2025-10-07T18:29:07.036Z] [INFO] Service image uploaded successfully | {"serviceKey":"D_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg"}
+[2025-10-07T18:29:07.036Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg","B_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg","C_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg","D_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg"}}
+[2025-10-07T18:29:07.037Z] [INFO] Processing service A | {"index":0,"serviceName":"I MAC REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg"}
+[2025-10-07T18:29:07.037Z] [INFO] Processing service B | {"index":0,"serviceName":"WINDOW DESKTOP REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg"}
+[2025-10-07T18:29:07.038Z] [INFO] Processing service C | {"index":0,"serviceName":"GAMING DESKTOP REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg"}
+[2025-10-07T18:29:07.038Z] [INFO] Processing service D | {"index":0,"serviceName":"desktop OS Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg"}
+[2025-10-07T18:29:07.388Z] [INFO] Product created: Desktop by admin: panchalajay717@gmail.com | {"productId":"68e55bf34152df81db3bbc90","hasImage":false,"serviceType":"IT Needs","totalServices":4,"serviceImagesCount":4,"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg","B_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg","C_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg","D_0":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg"}}
+[2025-10-07T18:29:07.806Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:29:17.225Z] [INFO] Featured products retrieved: 1 | {"productNames":["Laptop"]}
+[2025-10-07T18:29:17.388Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:29:17.932Z] [INFO] All active products retrieved: 2 | {"featuredCount":1,"totalCount":2}
+[2025-10-07T18:29:18.048Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:29:18.491Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:29:23.192Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:29:23.662Z] [INFO] Products retrieved: 2 of 2 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:29:41.617Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e55bf34152df81db3bbc90"}
+[2025-10-07T18:29:41.724Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":1,"productImageCount":1,"serviceImagesCount":0}
+[2025-10-07T18:29:41.941Z] [INFO] Uploading updated product image to Cloudinary | {"productId":"68e55bf34152df81db3bbc90","productName":"Desktop","fileSize":205764}
+[2025-10-07T18:29:41.942Z] [INFO] Uploading product image to Cloudinary | {"folder":"fixifly/products/desktop","productName":"Desktop"}
+[2025-10-07T18:30:08.486Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/products/desktop/r9mi21gt6brjulnezty0","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861806/fixifly/products/desktop/r9mi21gt6brjulnezty0.jpg"}
+[2025-10-07T18:30:08.495Z] [INFO] Product image uploaded successfully | {"public_id":"fixifly/products/desktop/r9mi21gt6brjulnezty0","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759861806/fixifly/products/desktop/r9mi21gt6brjulnezty0.jpg","productName":"Desktop"}
+[2025-10-07T18:30:08.499Z] [INFO] Product image updated successfully | {"productId":"68e55bf34152df81db3bbc90","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861806/fixifly/products/desktop/r9mi21gt6brjulnezty0.jpg"}
+[2025-10-07T18:30:08.503Z] [INFO] Processing updated service A | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"I MAC REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:30:08.505Z] [INFO] Processing updated service B | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"WINDOW DESKTOP REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:30:08.514Z] [INFO] Processing updated service C | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"GAMING DESKTOP REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:30:08.516Z] [INFO] Processing updated service D | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"desktop OS Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:31:03.158Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e55bf34152df81db3bbc90"}
+[2025-10-07T18:32:46.449Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:33:09.409Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:34:09.959Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:35:07.858Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:35:08.254Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:35:08.390Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:35:26.517Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:35:26.685Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:35:31.814Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:35:31.973Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:35:39.753Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:35:40.289Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:35:44.798Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:35:44.927Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:35:48.754Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e55bf34152df81db3bbc90"}
+[2025-10-07T18:35:48.835Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":1,"productImageCount":1,"serviceImagesCount":0}
+[2025-10-07T18:35:48.902Z] [INFO] Uploading updated product image to Cloudinary | {"productId":"68e55bf34152df81db3bbc90","productName":"Desktop","fileSize":205764}
+[2025-10-07T18:35:48.904Z] [INFO] Uploading product image to Cloudinary | {"folder":"fixifly/products/desktop","productName":"Desktop"}
+[2025-10-07T18:35:52.707Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/products/desktop/tedzymwnpknrioizbhfa","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862150/fixifly/products/desktop/tedzymwnpknrioizbhfa.jpg"}
+[2025-10-07T18:35:52.708Z] [INFO] Product image uploaded successfully | {"public_id":"fixifly/products/desktop/tedzymwnpknrioizbhfa","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862150/fixifly/products/desktop/tedzymwnpknrioizbhfa.jpg","productName":"Desktop"}
+[2025-10-07T18:35:52.709Z] [INFO] Product image updated successfully | {"productId":"68e55bf34152df81db3bbc90","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862150/fixifly/products/desktop/tedzymwnpknrioizbhfa.jpg"}
+[2025-10-07T18:35:52.711Z] [INFO] Processing updated service A | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"I MAC REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:35:52.712Z] [INFO] Processing updated service B | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"WINDOW DESKTOP REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:35:52.715Z] [INFO] Processing updated service C | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"GAMING DESKTOP REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:35:52.716Z] [INFO] Processing updated service D | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"desktop OS Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:35:53.464Z] [INFO] Product updated: Desktop by admin: panchalajay717@gmail.com | {"productId":"68e55bf34152df81db3bbc90","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":0,"serviceImageUrls":{}}
+[2025-10-07T18:35:53.501Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:35:53.769Z] [INFO] Products retrieved: 2 of 2 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:36:00.515Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:36:00.660Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:36:00.829Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:36:01.031Z] [INFO] Featured products retrieved: 1 | {"productNames":["Laptop"]}
+[2025-10-07T18:36:01.163Z] [INFO] All active products retrieved: 2 | {"featuredCount":1,"totalCount":2}
+[2025-10-07T18:36:07.815Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:36:16.551Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e55bf34152df81db3bbc90"}
+[2025-10-07T18:36:16.634Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":0,"productImageCount":0,"serviceImagesCount":0}
+[2025-10-07T18:36:16.696Z] [INFO] Processing updated service A | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"I MAC REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861739/fixifly/services/desktop-a-0/lmlabxmbow80b2ywuz9u.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:36:16.697Z] [INFO] Processing updated service B | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"WINDOW DESKTOP REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861741/fixifly/services/desktop-b-0/t9oeey9li41klys692ui.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:36:16.699Z] [INFO] Processing updated service C | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"GAMING DESKTOP REPAIR","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861743/fixifly/services/desktop-c-0/guq6udbxsesebcaoia7p.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:36:16.700Z] [INFO] Processing updated service D | {"productId":"68e55bf34152df81db3bbc90","index":0,"serviceName":"desktop OS Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759861745/fixifly/services/desktop-d-0/j0hknyi0l0greduodg23.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:36:16.845Z] [INFO] Product updated: Desktop by admin: panchalajay717@gmail.com | {"productId":"68e55bf34152df81db3bbc90","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":0,"serviceImageUrls":{}}
+[2025-10-07T18:36:16.872Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:36:17.117Z] [INFO] Products retrieved: 2 of 2 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:36:20.663Z] [INFO] Featured products retrieved: 2 | {"productNames":["Desktop","Laptop"]}
+[2025-10-07T18:36:20.864Z] [INFO] All active products retrieved: 2 | {"featuredCount":2,"totalCount":2}
+[2025-10-07T18:36:20.898Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:36:21.084Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:36:21.109Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:37:07.834Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:38:07.844Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:39:08.366Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:40:07.913Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:41:07.870Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:41:32.833Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-07T18:41:32.923Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":4}
+[2025-10-07T18:41:32.927Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Printer\",\"productImage\":\"\",\"serviceType\":\"IT Needs\",\"isFeatured\":true,\"categories\":{\"A\":[{\"serviceName\":\"Repair\",\"description\":\"If you are looking for an affordable printer repair service, we are your best, most reliable option for your printer repair service.\",\"price\":999,\"discountPrice\":299,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[{\"serviceName\":\"Service\",\"description\":\"No matter which models, Inkjet or laser printer you have, we can fix it. We repair all make and models.\",\"price\":288,\"discountPrice\":88,\"isActive\":true,\"serviceImage\":\"\"}],\"C\":[{\"serviceName\":\"Inkjet\",\"description\":\"nkjet & Laser Printer Repair, No Power, No Printing, Paper Stuck. If your Printer is not working for any reason.\",\"price\":799,\"discountPrice\":399,\"isActive\":true,\"serviceImage\":\"\"}],\"D\":[{\"serviceName\":\"Laser \",\"description\":\"We repair it. We are your best, most reliable option for Printer Repair and service at an affordable price.\",\"price\":599,\"discountPrice\":199,\"isActive\":true,\"serviceImage\":\"\"}]},\"categoryNames\":{\"A\":\"Printer Repair\",\"B\":\"Printer Service\",\"C\":\"Inkjet Printer Repair\",\"D\":\"Laser Printer Repair\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundarywchQAv57175gzgh8","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Printer\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"IT Needs\\\",\\\"isFeatured\\\":true,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Repair\\\",\\\"description\\\":\\\"If you are looking for an affordable printer repair service, we are your best, most reliable option for your printer repair service.\\\",\\\"price\\\":999,\\\"discountPrice\\\":299,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[{\\\"serviceName\\\":\\\"Service\\\",\\\"description\\\":\\\"No matter which models, Inkjet or laser printer you have, we can fix it. We repair all make and models.\\\",\\\"price\\\":288,\\\"discountPrice\\\":88,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"C\\\":[{\\\"serviceName\\\":\\\"Inkjet\\\",\\\"description\\\":\\\"nkjet & Laser Printer Repair, No Power, No Printing, Paper Stuck. If your Printer is not working for any reason.\\\",\\\"price\\\":799,\\\"discountPrice\\\":399,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"D\\\":[{\\\"serviceName\\\":\\\"Laser \\\",\\\"description\\\":\\\"We repair it. We are your best, most reliable option for Printer Repair and service at an affordable price.\\\",\\\"price\\\":599,\\\"discountPrice\\\":199,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Printer Repair\\\",\\\"B\\\":\\\"Printer Service\\\",\\\"C\\\":\\\"Inkjet Printer Repair\\\",\\\"D\\\":\\\"Laser Printer Repair\\\"}}\",\"serviceImageKeys\":[\"A_0\",\"B_0\",\"C_0\",\"D_0\"]}"}
+[2025-10-07T18:41:32.933Z] [INFO] Parsed product data from FormData | {"productName":"Printer","serviceType":"IT Needs","categoriesCount":4}
+[2025-10-07T18:41:33.000Z] [INFO] Processing service images | {"filesCount":4,"keysCount":4,"keys":["A_0","B_0","C_0","D_0"]}
+[2025-10-07T18:41:33.002Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":3058,"mimetype":"image/jpeg"}
+[2025-10-07T18:41:33.004Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/printer-a-0","serviceKey":"Printer_A_0"}
+[2025-10-07T18:41:35.815Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862493/fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv.jpg"}
+[2025-10-07T18:41:35.819Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862493/fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv.jpg","serviceKey":"Printer_A_0"}
+[2025-10-07T18:41:35.820Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862493/fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv.jpg"}
+[2025-10-07T18:41:35.828Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"B_0","fileSize":3489,"mimetype":"image/jpeg"}
+[2025-10-07T18:41:35.830Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/printer-b-0","serviceKey":"Printer_B_0"}
+[2025-10-07T18:41:37.499Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862495/fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5.jpg"}
+[2025-10-07T18:41:37.502Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862495/fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5.jpg","serviceKey":"Printer_B_0"}
+[2025-10-07T18:41:37.503Z] [INFO] Service image uploaded successfully | {"serviceKey":"B_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862495/fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5.jpg"}
+[2025-10-07T18:41:37.505Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"C_0","fileSize":3226,"mimetype":"image/jpeg"}
+[2025-10-07T18:41:37.506Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/printer-c-0","serviceKey":"Printer_C_0"}
+[2025-10-07T18:41:38.509Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862496/fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs.jpg"}
+[2025-10-07T18:41:38.512Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862496/fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs.jpg","serviceKey":"Printer_C_0"}
+[2025-10-07T18:41:38.513Z] [INFO] Service image uploaded successfully | {"serviceKey":"C_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862496/fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs.jpg"}
+[2025-10-07T18:41:38.514Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"D_0","fileSize":3828,"mimetype":"image/jpeg"}
+[2025-10-07T18:41:38.515Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/printer-d-0","serviceKey":"Printer_D_0"}
+[2025-10-07T18:41:40.063Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/printer-d-0/emztfyidetbvchc1l1lh","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862497/fixifly/services/printer-d-0/emztfyidetbvchc1l1lh.jpg"}
+[2025-10-07T18:41:40.065Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/printer-d-0/emztfyidetbvchc1l1lh","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862497/fixifly/services/printer-d-0/emztfyidetbvchc1l1lh.jpg","serviceKey":"Printer_D_0"}
+[2025-10-07T18:41:40.066Z] [INFO] Service image uploaded successfully | {"serviceKey":"D_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862497/fixifly/services/printer-d-0/emztfyidetbvchc1l1lh.jpg"}
+[2025-10-07T18:41:40.068Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862493/fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv.jpg","B_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862495/fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5.jpg","C_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862496/fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs.jpg","D_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862497/fixifly/services/printer-d-0/emztfyidetbvchc1l1lh.jpg"}}
+[2025-10-07T18:41:40.071Z] [INFO] Processing service A | {"index":0,"serviceName":"Repair","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862493/fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv.jpg"}
+[2025-10-07T18:41:40.074Z] [INFO] Processing service B | {"index":0,"serviceName":"Service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862495/fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5.jpg"}
+[2025-10-07T18:41:40.076Z] [INFO] Processing service C | {"index":0,"serviceName":"Inkjet","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862496/fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs.jpg"}
+[2025-10-07T18:41:40.080Z] [INFO] Processing service D | {"index":0,"serviceName":"Laser ","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862497/fixifly/services/printer-d-0/emztfyidetbvchc1l1lh.jpg"}
+[2025-10-07T18:41:40.206Z] [INFO] Product created: Printer by admin: panchalajay717@gmail.com | {"productId":"68e55ee44152df81db3bbd24","hasImage":false,"serviceType":"IT Needs","totalServices":4,"serviceImagesCount":4,"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862493/fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv.jpg","B_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862495/fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5.jpg","C_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862496/fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs.jpg","D_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862497/fixifly/services/printer-d-0/emztfyidetbvchc1l1lh.jpg"}}
+[2025-10-07T18:41:43.378Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:41:43.658Z] [INFO] Products retrieved: 3 of 3 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:42:00.856Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e55ee44152df81db3bbd24"}
+[2025-10-07T18:42:00.945Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":1,"productImageCount":1,"serviceImagesCount":0}
+[2025-10-07T18:42:01.033Z] [INFO] Uploading updated product image to Cloudinary | {"productId":"68e55ee44152df81db3bbd24","productName":"Printer","fileSize":577047}
+[2025-10-07T18:42:01.034Z] [INFO] Uploading product image to Cloudinary | {"folder":"fixifly/products/printer","productName":"Printer"}
+[2025-10-07T18:42:07.549Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/products/printer/qtgpb4rj0ybxl3jfhzh0","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862525/fixifly/products/printer/qtgpb4rj0ybxl3jfhzh0.jpg"}
+[2025-10-07T18:42:07.551Z] [INFO] Product image uploaded successfully | {"public_id":"fixifly/products/printer/qtgpb4rj0ybxl3jfhzh0","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862525/fixifly/products/printer/qtgpb4rj0ybxl3jfhzh0.jpg","productName":"Printer"}
+[2025-10-07T18:42:07.552Z] [INFO] Product image updated successfully | {"productId":"68e55ee44152df81db3bbd24","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862525/fixifly/products/printer/qtgpb4rj0ybxl3jfhzh0.jpg"}
+[2025-10-07T18:42:07.553Z] [INFO] Processing updated service A | {"productId":"68e55ee44152df81db3bbd24","index":0,"serviceName":"Repair","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862493/fixifly/services/printer-a-0/akzizwj9hxgwwipxyllv.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:42:07.555Z] [INFO] Processing updated service B | {"productId":"68e55ee44152df81db3bbd24","index":0,"serviceName":"Service","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862495/fixifly/services/printer-b-0/jma38cpi1uopsn2tt4b5.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:42:07.556Z] [INFO] Processing updated service C | {"productId":"68e55ee44152df81db3bbd24","index":0,"serviceName":"Inkjet","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862496/fixifly/services/printer-c-0/xu0khz3qjdw2ac4yixxs.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:42:07.559Z] [INFO] Processing updated service D | {"productId":"68e55ee44152df81db3bbd24","index":0,"serviceName":"Laser","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862497/fixifly/services/printer-d-0/emztfyidetbvchc1l1lh.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:42:07.717Z] [INFO] Product updated: Printer by admin: panchalajay717@gmail.com | {"productId":"68e55ee44152df81db3bbd24","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":0,"serviceImageUrls":{}}
+[2025-10-07T18:42:07.742Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:42:07.871Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:42:08.071Z] [INFO] Products retrieved: 3 of 3 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:42:26.488Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:42:26.549Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:42:26.686Z] [INFO] All active products retrieved: 3 | {"featuredCount":3,"totalCount":3}
+[2025-10-07T18:42:26.764Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:42:26.948Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:42:36.066Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:42:36.129Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:42:36.181Z] [INFO] All active products retrieved: 3 | {"featuredCount":3,"totalCount":3}
+[2025-10-07T18:42:44.990Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:42:45.043Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:42:45.078Z] [INFO] All active products retrieved: 3 | {"featuredCount":3,"totalCount":3}
+[2025-10-07T18:42:55.843Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:42:55.899Z] [INFO] Products by service type retrieved: 0 for Home Appliance | {"serviceType":"Home Appliance","productNames":[]}
+[2025-10-07T18:42:55.940Z] [INFO] All active products retrieved: 3 | {"featuredCount":3,"totalCount":3}
+[2025-10-07T18:43:07.882Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:44:07.874Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:45:07.900Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:46:07.915Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:47:07.913Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:48:07.902Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:49:07.932Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:49:31.774Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products"}
+[2025-10-07T18:49:31.877Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":2,"productImageCount":1,"serviceImagesCount":4}
+[2025-10-07T18:49:31.880Z] [INFO] Create product request received | {"hasFiles":true,"filesCount":2,"hasProductData":true,"bodyKeys":["productData","serviceImageKeys"],"bodyProductData":"{\"productName\":\"Plumber\",\"productImage\":\"\",\"serviceType\":\"Home Appliance\",\"isFeatured\":true,\"categories\":{\"A\":[{\"serviceName\":\"Toilet\",\"description\":\"I booked NoBroker for some plumbing issues at my place, and the whole experience was seamless. The plumber was polite, quick, and very professional. \",\"price\":999,\"discountPrice\":98,\"isActive\":true,\"serviceImage\":\"\"}],\"B\":[{\"serviceName\":\"Mounted\",\"description\":\"The pricing was affordable, and I didn’t feel overcharged, which is often the case with many other services. I will definitely use NoBroker for future plumbing needs.\",\"price\":698,\"discountPrice\":265,\"isActive\":true,\"serviceImage\":\"\"}],\"C\":[{\"serviceName\":\"Western\",\"description\":\"I was impressed by the quality of service I received from NoBroker’s plumbing team. The plumber knew exactly what was wrong with my bathroom plumbing, and he fixed it in no time. \",\"price\":599,\"discountPrice\":398,\"isActive\":true,\"serviceImage\":\"\"}],\"D\":[{\"serviceName\":\"Toilet  Installation\",\"description\":\"The convenience of booking online made the entire process hassle-free. I’ll definitely recommend it to others.\",\"price\":499,\"discountPrice\":299,\"isActive\":true,\"serviceImage\":\"\"}]},\"categoryNames\":{\"A\":\"Flush Tank Leakage Repair\",\"B\":\"Jet Spray Repair\",\"C\":\"Toilet Seat Cover Replacement\",\"D\":\"Flush Tank Replacement\"}}","contentType":"multipart/form-data; boundary=----WebKitFormBoundarydmxVJ3L1gy7NMehG","method":"POST","url":"/","bodyType":"object","bodyString":"{\"productData\":\"{\\\"productName\\\":\\\"Plumber\\\",\\\"productImage\\\":\\\"\\\",\\\"serviceType\\\":\\\"Home Appliance\\\",\\\"isFeatured\\\":true,\\\"categories\\\":{\\\"A\\\":[{\\\"serviceName\\\":\\\"Toilet\\\",\\\"description\\\":\\\"I booked NoBroker for some plumbing issues at my place, and the whole experience was seamless. The plumber was polite, quick, and very professional. \\\",\\\"price\\\":999,\\\"discountPrice\\\":98,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"B\\\":[{\\\"serviceName\\\":\\\"Mounted\\\",\\\"description\\\":\\\"The pricing was affordable, and I didn’t feel overcharged, which is often the case with many other services. I will definitely use NoBroker for future plumbing needs.\\\",\\\"price\\\":698,\\\"discountPrice\\\":265,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"C\\\":[{\\\"serviceName\\\":\\\"Western\\\",\\\"description\\\":\\\"I was impressed by the quality of service I received from NoBroker’s plumbing team. The plumber knew exactly what was wrong with my bathroom plumbing, and he fixed it in no time. \\\",\\\"price\\\":599,\\\"discountPrice\\\":398,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}],\\\"D\\\":[{\\\"serviceName\\\":\\\"Toilet  Installation\\\",\\\"description\\\":\\\"The convenience of booking online made the entire process hassle-free. I’ll definitely recommend it to others.\\\",\\\"price\\\":499,\\\"discountPrice\\\":299,\\\"isActive\\\":true,\\\"serviceImage\\\":\\\"\\\"}]},\\\"categoryNames\\\":{\\\"A\\\":\\\"Flush Tank Leakage Repair\\\",\\\"B\\\":\\\"Jet Spray Repair\\\",\\\"C\\\":\\\"Toilet Seat Cover Replacement\\\",\\\"D\\\":\\\"Flush Tank Replacement\\\"}}\",\"serviceImageKeys\":[\"A_0\",\"B_0\",\"C_0\",\"D_0\"]}"}
+[2025-10-07T18:49:31.887Z] [INFO] Parsed product data from FormData | {"productName":"Plumber","serviceType":"Home Appliance","categoriesCount":4}
+[2025-10-07T18:49:31.954Z] [INFO] Processing service images | {"filesCount":4,"keysCount":4,"keys":["A_0","B_0","C_0","D_0"]}
+[2025-10-07T18:49:31.956Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"A_0","fileSize":7376,"mimetype":"image/jpeg"}
+[2025-10-07T18:49:31.958Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-a-0","serviceKey":"Plumber_A_0"}
+[2025-10-07T18:49:36.708Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862973/fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc.jpg"}
+[2025-10-07T18:49:36.710Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862973/fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc.jpg","serviceKey":"Plumber_A_0"}
+[2025-10-07T18:49:36.711Z] [INFO] Service image uploaded successfully | {"serviceKey":"A_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862973/fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc.jpg"}
+[2025-10-07T18:49:36.712Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"B_0","fileSize":7456,"mimetype":"image/jpeg"}
+[2025-10-07T18:49:36.712Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-b-0","serviceKey":"Plumber_B_0"}
+[2025-10-07T18:49:37.999Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862975/fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3.jpg"}
+[2025-10-07T18:49:38.001Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862975/fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3.jpg","serviceKey":"Plumber_B_0"}
+[2025-10-07T18:49:38.002Z] [INFO] Service image uploaded successfully | {"serviceKey":"B_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862975/fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3.jpg"}
+[2025-10-07T18:49:38.003Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"C_0","fileSize":6784,"mimetype":"image/jpeg"}
+[2025-10-07T18:49:38.004Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-c-0","serviceKey":"Plumber_C_0"}
+[2025-10-07T18:49:39.048Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862977/fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu.jpg"}
+[2025-10-07T18:49:39.049Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862977/fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu.jpg","serviceKey":"Plumber_C_0"}
+[2025-10-07T18:49:39.051Z] [INFO] Service image uploaded successfully | {"serviceKey":"C_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862977/fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu.jpg"}
+[2025-10-07T18:49:39.052Z] [INFO] Uploading service image to Cloudinary | {"serviceKey":"D_0","fileSize":7014,"mimetype":"image/jpeg"}
+[2025-10-07T18:49:39.052Z] [INFO] Uploading service image to Cloudinary | {"folder":"fixifly/services/plumber-d-0","serviceKey":"Plumber_D_0"}
+[2025-10-07T18:49:40.082Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862978/fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z.jpg"}
+[2025-10-07T18:49:40.084Z] [INFO] Service image uploaded successfully | {"public_id":"fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759862978/fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z.jpg","serviceKey":"Plumber_D_0"}
+[2025-10-07T18:49:40.085Z] [INFO] Service image uploaded successfully | {"serviceKey":"D_0","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862978/fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z.jpg"}
+[2025-10-07T18:49:40.087Z] [INFO] Service image URLs mapping | {"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862973/fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc.jpg","B_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862975/fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3.jpg","C_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862977/fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu.jpg","D_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862978/fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z.jpg"}}
+[2025-10-07T18:49:40.091Z] [INFO] Processing service A | {"index":0,"serviceName":"Toilet","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862973/fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc.jpg"}
+[2025-10-07T18:49:40.092Z] [INFO] Processing service B | {"index":0,"serviceName":"Mounted","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862975/fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3.jpg"}
+[2025-10-07T18:49:40.093Z] [INFO] Processing service C | {"index":0,"serviceName":"Western","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862977/fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu.jpg"}
+[2025-10-07T18:49:40.094Z] [INFO] Processing service D | {"index":0,"serviceName":"Toilet  Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862978/fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z.jpg"}
+[2025-10-07T18:49:40.184Z] [INFO] Product created: Plumber by admin: panchalajay717@gmail.com | {"productId":"68e560c44152df81db3bbd81","hasImage":false,"serviceType":"Home Appliance","totalServices":4,"serviceImagesCount":4,"serviceImageUrls":{"A_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862973/fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc.jpg","B_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862975/fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3.jpg","C_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862977/fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu.jpg","D_0":"https://res.cloudinary.com/fixfly/image/upload/v1759862978/fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z.jpg"}}
+[2025-10-07T18:49:48.977Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:49:48.993Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T18:49:49.147Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T18:49:49.274Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:49:49.481Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:49:58.457Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:49:58.761Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:50:07.930Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:50:11.380Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products/68e560c44152df81db3bbd81"}
+[2025-10-07T18:50:11.496Z] [INFO] Upload middleware success | {"hasFiles":true,"filesCount":1,"productImageCount":1,"serviceImagesCount":0}
+[2025-10-07T18:50:11.565Z] [INFO] Uploading updated product image to Cloudinary | {"productId":"68e560c44152df81db3bbd81","productName":"Plumber","fileSize":1162828}
+[2025-10-07T18:50:11.567Z] [INFO] Uploading product image to Cloudinary | {"folder":"fixifly/products/plumber","productName":"Plumber"}
+[2025-10-07T18:50:15.765Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/products/plumber/lyktun5ipl4ma0jce9rn","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863013/fixifly/products/plumber/lyktun5ipl4ma0jce9rn.jpg"}
+[2025-10-07T18:50:15.767Z] [INFO] Product image uploaded successfully | {"public_id":"fixifly/products/plumber/lyktun5ipl4ma0jce9rn","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863013/fixifly/products/plumber/lyktun5ipl4ma0jce9rn.jpg","productName":"Plumber"}
+[2025-10-07T18:50:15.769Z] [INFO] Product image updated successfully | {"productId":"68e560c44152df81db3bbd81","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863013/fixifly/products/plumber/lyktun5ipl4ma0jce9rn.jpg"}
+[2025-10-07T18:50:15.771Z] [INFO] Processing updated service A | {"productId":"68e560c44152df81db3bbd81","index":0,"serviceName":"Toilet","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862973/fixifly/services/plumber-a-0/v6xuuxwgannnbcc5vmsc.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:50:15.780Z] [INFO] Processing updated service B | {"productId":"68e560c44152df81db3bbd81","index":0,"serviceName":"Mounted","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862975/fixifly/services/plumber-b-0/bvps4idetflkkx5vyjs3.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:50:15.789Z] [INFO] Processing updated service C | {"productId":"68e560c44152df81db3bbd81","index":0,"serviceName":"Western","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862977/fixifly/services/plumber-c-0/pwcrrunik8fp6zkttylu.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:50:15.791Z] [INFO] Processing updated service D | {"productId":"68e560c44152df81db3bbd81","index":0,"serviceName":"Toilet  Installation","serviceImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759862978/fixifly/services/plumber-d-0/krz1x10brkyxd5j15s8z.jpg","hasNewImage":false,"hasRequestImage":true,"hasExistingImage":true}
+[2025-10-07T18:50:15.936Z] [INFO] Product updated: Plumber by admin: panchalajay717@gmail.com | {"productId":"68e560c44152df81db3bbd81","changes":["productName","productImage","serviceType","isFeatured","categories","categoryNames"],"serviceImagesCount":0,"serviceImageUrls":{}}
+[2025-10-07T18:50:15.968Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/products?"}
+[2025-10-07T18:50:16.236Z] [INFO] Products retrieved: 4 of 4 | {"query":{},"pagination":{"page":1,"limit":20,"totalPages":1}}
+[2025-10-07T18:50:20.230Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:50:20.274Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T18:50:20.349Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T18:50:20.435Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:50:20.647Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:50:45.892Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:50:45.947Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T18:50:46.076Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T18:50:46.115Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:50:46.339Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:51:07.960Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:51:14.477Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:51:15.496Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:51:15.647Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:52:01.241Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards"}
+[2025-10-07T18:52:04.114Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/card-images/dsrqjwzatb9fpfgyodqf","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863121/fixifly/card-images/dsrqjwzatb9fpfgyodqf.jpg"}
+[2025-10-07T18:52:04.117Z] [INFO] Card image uploaded to Cloudinary | {"public_id":"fixifly/card-images/dsrqjwzatb9fpfgyodqf","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863121/fixifly/card-images/dsrqjwzatb9fpfgyodqf.jpg"}
+[2025-10-07T18:52:04.204Z] [INFO] New card created | {"cardId":"68e561544152df81db3bbddd","name":"Raj Geete","speciality":"Electronics Repair","createdBy":"68e556544152df81db3bbb41","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863121/fixifly/card-images/dsrqjwzatb9fpfgyodqf.jpg"}
+[2025-10-07T18:52:04.227Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:52:07.956Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:52:25.193Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards"}
+[2025-10-07T18:52:28.401Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/card-images/ouvrnwuf8cxnufc48cwd","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863146/fixifly/card-images/ouvrnwuf8cxnufc48cwd.jpg"}
+[2025-10-07T18:52:28.402Z] [INFO] Card image uploaded to Cloudinary | {"public_id":"fixifly/card-images/ouvrnwuf8cxnufc48cwd","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863146/fixifly/card-images/ouvrnwuf8cxnufc48cwd.jpg"}
+[2025-10-07T18:52:28.464Z] [INFO] New card created | {"cardId":"68e5616c4152df81db3bbde7","name":"Raihan Khan","speciality":"Plumbing Services","createdBy":"68e556544152df81db3bbb41","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863146/fixifly/card-images/ouvrnwuf8cxnufc48cwd.jpg"}
+[2025-10-07T18:52:28.472Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:52:53.216Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards"}
+[2025-10-07T18:52:55.124Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/card-images/ak48bifmw3rfsyre0syw","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863173/fixifly/card-images/ak48bifmw3rfsyre0syw.jpg"}
+[2025-10-07T18:52:55.127Z] [INFO] Card image uploaded to Cloudinary | {"public_id":"fixifly/card-images/ak48bifmw3rfsyre0syw","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863173/fixifly/card-images/ak48bifmw3rfsyre0syw.jpg"}
+[2025-10-07T18:52:55.189Z] [INFO] New card created | {"cardId":"68e561874152df81db3bbdf0","name":"Ankit Ahirwar","speciality":"AC Repair","createdBy":"68e556544152df81db3bbb41","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863173/fixifly/card-images/ak48bifmw3rfsyre0syw.jpg"}
+[2025-10-07T18:52:55.199Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:53:07.953Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:53:30.878Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards"}
+[2025-10-07T18:53:36.008Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/card-images/rbwhci0ezpcrqlrumj6e","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863213/fixifly/card-images/rbwhci0ezpcrqlrumj6e.jpg"}
+[2025-10-07T18:53:36.010Z] [INFO] Card image uploaded to Cloudinary | {"public_id":"fixifly/card-images/rbwhci0ezpcrqlrumj6e","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863213/fixifly/card-images/rbwhci0ezpcrqlrumj6e.jpg"}
+[2025-10-07T18:53:36.086Z] [INFO] New card created | {"cardId":"68e561b04152df81db3bbdfa","name":"Ajay Panchal","speciality":"IT Services","createdBy":"68e556544152df81db3bbb41","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863213/fixifly/card-images/rbwhci0ezpcrqlrumj6e.jpg"}
+[2025-10-07T18:53:36.095Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:53:55.624Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards"}
+[2025-10-07T18:53:59.528Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/card-images/tixgzj8m9veyeja2xoyb","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863236/fixifly/card-images/tixgzj8m9veyeja2xoyb.jpg"}
+[2025-10-07T18:53:59.530Z] [INFO] Card image uploaded to Cloudinary | {"public_id":"fixifly/card-images/tixgzj8m9veyeja2xoyb","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863236/fixifly/card-images/tixgzj8m9veyeja2xoyb.jpg"}
+[2025-10-07T18:53:59.601Z] [INFO] New card created | {"cardId":"68e561c74152df81db3bbe03","name":"Antim Bagde","speciality":"Electrical Work","createdBy":"68e556544152df81db3bbb41","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863236/fixifly/card-images/tixgzj8m9veyeja2xoyb.jpg"}
+[2025-10-07T18:53:59.611Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:54:05.837Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:54:05.846Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T18:54:06.023Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T18:54:06.079Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:54:06.256Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:54:07.962Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:54:16.476Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:54:16.535Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T18:54:16.608Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T18:54:16.674Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:54:16.856Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:54:29.205Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards/68e561b04152df81db3bbdfa/toggle-popular"}
+[2025-10-07T18:54:29.576Z] [INFO] Card popular status toggled | {"cardId":"68e561b04152df81db3bbdfa","name":"Ajay Panchal","isPopular":true,"toggledBy":"68e556544152df81db3bbb41"}
+[2025-10-07T18:54:29.587Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T18:54:34.385Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T18:54:34.426Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T18:54:34.594Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T18:54:34.654Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:54:34.827Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T18:55:02.911Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T18:55:03.921Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T18:55:04.068Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T18:55:07.999Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:56:03.953Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs"}
+[2025-10-07T18:56:04.217Z] [INFO] Blog created successfully | {"blogId":"68e562444152df81db3bbe48","title":"Computer vs Laptop","authorId":"68e556544152df81db3bbb41"}
+[2025-10-07T18:56:04.246Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68e562444152df81db3bbe48/image"}
+[2025-10-07T18:56:04.377Z] [INFO] Starting blog image upload | {"blogId":"68e562444152df81db3bbe48","fileName":"Untitlved.jpg","fileSize":9961}
+[2025-10-07T18:56:04.380Z] [INFO] Starting blog image upload | {"blogId":"68e562444152df81db3bbe48","fileName":"Untitlved.jpg","fileSize":9961,"mimeType":"image/jpeg"}
+[2025-10-07T18:56:06.803Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/blog-images/68e562444152df81db3bbe48/blog_68e562444152df81db3bbe48_1759863364381","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863364/fixifly/blog-images/68e562444152df81db3bbe48/blog_68e562444152df81db3bbe48_1759863364381.jpg"}
+[2025-10-07T18:56:06.805Z] [INFO] Blog image uploaded successfully | {"blogId":"68e562444152df81db3bbe48","publicId":"fixifly/blog-images/68e562444152df81db3bbe48/blog_68e562444152df81db3bbe48_1759863364381","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863364/fixifly/blog-images/68e562444152df81db3bbe48/blog_68e562444152df81db3bbe48_1759863364381.jpg"}
+[2025-10-07T18:56:06.886Z] [INFO] Blog image uploaded successfully | {"blogId":"68e562444152df81db3bbe48","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863364/fixifly/blog-images/68e562444152df81db3bbe48/blog_68e562444152df81db3bbe48_1759863364381.jpg"}
+[2025-10-07T18:56:06.897Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T18:56:07.985Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:57:07.215Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs"}
+[2025-10-07T18:57:07.497Z] [INFO] Blog created successfully | {"blogId":"68e562834152df81db3bbe58","title":"Technician of the month","authorId":"68e556544152df81db3bbb41"}
+[2025-10-07T18:57:07.521Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68e562834152df81db3bbe58/image"}
+[2025-10-07T18:57:07.649Z] [INFO] Starting blog image upload | {"blogId":"68e562834152df81db3bbe58","fileName":"Untjhjtled.jpg","fileSize":16442}
+[2025-10-07T18:57:07.650Z] [INFO] Starting blog image upload | {"blogId":"68e562834152df81db3bbe58","fileName":"Untjhjtled.jpg","fileSize":16442,"mimeType":"image/jpeg"}
+[2025-10-07T18:57:08.010Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:57:10.446Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/blog-images/68e562834152df81db3bbe58/blog_68e562834152df81db3bbe58_1759863427651","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759863427/fixifly/blog-images/68e562834152df81db3bbe58/blog_68e562834152df81db3bbe58_1759863427651.jpg"}
+[2025-10-07T18:57:10.448Z] [INFO] Blog image uploaded successfully | {"blogId":"68e562834152df81db3bbe58","publicId":"fixifly/blog-images/68e562834152df81db3bbe58/blog_68e562834152df81db3bbe58_1759863427651","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863427/fixifly/blog-images/68e562834152df81db3bbe58/blog_68e562834152df81db3bbe58_1759863427651.jpg"}
+[2025-10-07T18:57:10.549Z] [INFO] Blog image uploaded successfully | {"blogId":"68e562834152df81db3bbe58","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759863427/fixifly/blog-images/68e562834152df81db3bbe58/blog_68e562834152df81db3bbe58_1759863427651.jpg"}
+[2025-10-07T18:57:10.560Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T18:58:00.140Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs"}
+[2025-10-07T18:58:07.479Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs"}
+[2025-10-07T18:58:08.288Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:59:08.050Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T18:59:32.197Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T18:59:32.616Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T18:59:53.731Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T18:59:53.930Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T18:59:55.499Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T18:59:56.580Z] [INFO] SMTP connection verified successfully
+[2025-10-07T19:03:42.882Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T19:03:43.220Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T19:03:46.295Z] [INFO] SMTP connection verified successfully
+[2025-10-07T19:03:47.440Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T19:04:47.587Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:06:17.027Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T19:06:17.332Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T19:06:19.262Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T19:06:20.263Z] [INFO] SMTP connection verified successfully
+[2025-10-07T19:07:25.863Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T19:07:26.122Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T19:07:27.976Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T19:07:28.860Z] [INFO] SMTP connection verified successfully
+[2025-10-07T19:08:10.930Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T19:08:11.118Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T19:08:15.184Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T19:08:20.548Z] [INFO] SMTP connection verified successfully
+[2025-10-07T19:08:41.516Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs"}
+[2025-10-07T19:08:41.805Z] [INFO] Blog created successfully | {"blogId":"68e5653911304835a12f1e53","title":"Computer vs monitor","authorId":"68e556544152df81db3bbb41"}
+[2025-10-07T19:08:41.845Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68e5653911304835a12f1e53/image"}
+[2025-10-07T19:08:41.993Z] [INFO] Starting blog image upload | {"blogId":"68e5653911304835a12f1e53","fileName":"Untled.jpg","fileSize":5604}
+[2025-10-07T19:08:41.994Z] [INFO] Starting blog image upload | {"blogId":"68e5653911304835a12f1e53","fileName":"Untled.jpg","fileSize":5604,"mimeType":"image/jpeg"}
+[2025-10-07T19:08:46.645Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/blog-images/68e5653911304835a12f1e53/blog_68e5653911304835a12f1e53_1759864121995","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759864124/fixifly/blog-images/68e5653911304835a12f1e53/blog_68e5653911304835a12f1e53_1759864121995.jpg"}
+[2025-10-07T19:08:46.648Z] [INFO] Blog image uploaded successfully | {"blogId":"68e5653911304835a12f1e53","publicId":"fixifly/blog-images/68e5653911304835a12f1e53/blog_68e5653911304835a12f1e53_1759864121995","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759864124/fixifly/blog-images/68e5653911304835a12f1e53/blog_68e5653911304835a12f1e53_1759864121995.jpg"}
+[2025-10-07T19:08:47.060Z] [INFO] Blog image uploaded successfully | {"blogId":"68e5653911304835a12f1e53","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759864124/fixifly/blog-images/68e5653911304835a12f1e53/blog_68e5653911304835a12f1e53_1759864121995.jpg"}
+[2025-10-07T19:08:47.078Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:09:15.286Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:09:52.450Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs"}
+[2025-10-07T19:09:52.698Z] [INFO] Blog created successfully | {"blogId":"68e5658011304835a12f1e63","title":"Car maintenance tips for winter","authorId":"68e556544152df81db3bbb41"}
+[2025-10-07T19:09:52.719Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68e5658011304835a12f1e63/image"}
+[2025-10-07T19:09:52.866Z] [INFO] Starting blog image upload | {"blogId":"68e5658011304835a12f1e63","fileName":"iccmages.jpg","fileSize":7286}
+[2025-10-07T19:09:52.868Z] [INFO] Starting blog image upload | {"blogId":"68e5658011304835a12f1e63","fileName":"iccmages.jpg","fileSize":7286,"mimeType":"image/jpeg"}
+[2025-10-07T19:09:55.686Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/blog-images/68e5658011304835a12f1e63/blog_68e5658011304835a12f1e63_1759864192869","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759864193/fixifly/blog-images/68e5658011304835a12f1e63/blog_68e5658011304835a12f1e63_1759864192869.jpg"}
+[2025-10-07T19:09:55.688Z] [INFO] Blog image uploaded successfully | {"blogId":"68e5658011304835a12f1e63","publicId":"fixifly/blog-images/68e5658011304835a12f1e63/blog_68e5658011304835a12f1e63_1759864192869","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759864193/fixifly/blog-images/68e5658011304835a12f1e63/blog_68e5658011304835a12f1e63_1759864192869.jpg"}
+[2025-10-07T19:09:55.755Z] [INFO] Blog image uploaded successfully | {"blogId":"68e5658011304835a12f1e63","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759864193/fixifly/blog-images/68e5658011304835a12f1e63/blog_68e5658011304835a12f1e63_1759864192869.jpg"}
+[2025-10-07T19:09:55.793Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:10:14.871Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T19:10:15.041Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T19:10:19.276Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T19:10:23.343Z] [INFO] SMTP connection verified successfully
+[2025-10-07T19:10:32.732Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:10:32.748Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:10:33.080Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:10:33.177Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:10:33.466Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:10.563Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:11:10.576Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:11:10.793Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:11:10.846Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:11.137Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:19.349Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:11:21.408Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:11:21.900Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:22.117Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:22.422Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T19:11:22.571Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:11:24.570Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68e5658011304835a12f1e63/status"}
+[2025-10-07T19:11:24.822Z] [INFO] Blog status updated | {"blogId":"68e5658011304835a12f1e63","title":"Car maintenance tips for winter","newStatus":"published"}
+[2025-10-07T19:11:24.832Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:11:26.299Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68e5653911304835a12f1e53/status"}
+[2025-10-07T19:11:26.558Z] [INFO] Blog status updated | {"blogId":"68e5653911304835a12f1e53","title":"Computer vs monitor","newStatus":"published"}
+[2025-10-07T19:11:26.574Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:11:27.898Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68e562834152df81db3bbe58/status"}
+[2025-10-07T19:11:28.126Z] [INFO] Blog status updated | {"blogId":"68e562834152df81db3bbe58","title":"Technician of the month","newStatus":"published"}
+[2025-10-07T19:11:28.135Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:11:31.736Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs/68e562444152df81db3bbe48/status"}
+[2025-10-07T19:11:31.934Z] [INFO] Blog status updated | {"blogId":"68e562444152df81db3bbe48","title":"Computer vs Laptop","newStatus":"published"}
+[2025-10-07T19:11:31.942Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:11:36.815Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:37.022Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:38.025Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:11:38.069Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:11:38.694Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:11:52.179Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:11:52.542Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:52.736Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:11:53.185Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T19:11:53.322Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:12:19.379Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:13:05.490Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:13:05.511Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:13:05.641Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:13:10.411Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cards?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T19:13:11.371Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T19:13:11.535Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:13:14.524Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/cities?page=1&limit=20"}
+[2025-10-07T19:13:15.530Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T19:13:15.676Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:13:16.019Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/blogs?page=1&limit=10"}
+[2025-10-07T19:13:17.042Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T19:13:17.225Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:13:18.855Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/warranty-claims"}
+[2025-10-07T19:13:18.935Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/subscriptions"}
+[2025-10-07T19:13:18.980Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":0}
+[2025-10-07T19:13:19.020Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/plans"}
+[2025-10-07T19:13:19.083Z] [INFO] Warranty claims fetched successfully | {"adminId":"68e556544152df81db3bbb41","totalClaims":0,"page":1,"limit":20}
+[2025-10-07T19:13:19.138Z] [INFO] AMC subscriptions fetched successfully | {"adminId":"68e556544152df81db3bbb41","totalSubscriptions":0,"page":1,"limit":20}
+[2025-10-07T19:13:19.175Z] [INFO] AMC plans fetched successfully | {"adminId":"68e556544152df81db3bbb41","totalPlans":0,"page":1,"limit":20}
+[2025-10-07T19:13:19.189Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/amc/admin/seed-plans"}
+[2025-10-07T19:13:19.378Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:13:19.527Z] [INFO] AMC plans seeded successfully | {"adminId":"68e556544152df81db3bbb41","plansCreated":3}
+[2025-10-07T19:13:19.704Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-07T19:13:19.858Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T19:13:20.052Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:13:25.539Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":0}
+[2025-10-07T19:13:25.557Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-07T19:13:25.818Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":0}
+[2025-10-07T19:13:43.310Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:13:43.392Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:13:43.450Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:14:10.661Z] [INFO] Starting profile image upload | {"userId":"68e5560f4152df81db3bbb29","fileName":"WhatsApp Image 2025-06-26 at 4.06.37 PM.jpeg","fileSize":59110}
+[2025-10-07T19:14:10.664Z] [INFO] Starting profile image upload | {"userId":"68e5560f4152df81db3bbb29","fileName":"WhatsApp Image 2025-06-26 at 4.06.37 PM.jpeg","fileSize":59110,"mimeType":"image/jpeg"}
+[2025-10-07T19:14:13.530Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/profile-images/68e5560f4152df81db3bbb29/profile_68e5560f4152df81db3bbb29_1759864450665","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759864451/fixifly/profile-images/68e5560f4152df81db3bbb29/profile_68e5560f4152df81db3bbb29_1759864450665.jpg"}
+[2025-10-07T19:14:13.532Z] [INFO] Profile image uploaded successfully | {"userId":"68e5560f4152df81db3bbb29","publicId":"fixifly/profile-images/68e5560f4152df81db3bbb29/profile_68e5560f4152df81db3bbb29_1759864450665","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759864451/fixifly/profile-images/68e5560f4152df81db3bbb29/profile_68e5560f4152df81db3bbb29_1759864450665.jpg"}
+[2025-10-07T19:14:13.620Z] [INFO] Profile image uploaded successfully | {"userId":"68e5560f4152df81db3bbb29","newImageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759864451/fixifly/profile-images/68e5560f4152df81db3bbb29/profile_68e5560f4152df81db3bbb29_1759864450665.jpg"}
+[2025-10-07T19:14:13.823Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:14:19.399Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:14:35.606Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:14:51.850Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:14:51.913Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:14:52.008Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:15:19.422Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:15:51.004Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:15:51.107Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:15:51.157Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:16:19.416Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:17:19.661Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:18:19.419Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:19:19.444Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:20:15.010Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:20:15.052Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:20:15.165Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:20:19.447Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:20:23.949Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-07T19:20:23.953Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":0}
+[2025-10-07T19:20:24.099Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":0}
+[2025-10-07T19:20:24.431Z] [INFO] Customer bookings retrieved: 0 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":0,"page":1}
+[2025-10-07T19:20:25.150Z] [INFO] Featured products retrieved: 3 | {"productNames":["Printer","Desktop","Laptop"]}
+[2025-10-07T19:20:25.203Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-07T19:20:25.282Z] [INFO] All active products retrieved: 4 | {"featuredCount":3,"totalCount":4}
+[2025-10-07T19:20:29.245Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:20:29.791Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:21:19.648Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:22:20.034Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:23:00.521Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T19:23:00.950Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T19:23:11.951Z] [INFO] SMTP connection verified successfully
+[2025-10-07T19:23:12.902Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T19:23:33.790Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:23:34.005Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:24:04.834Z] [INFO] Vendor registered successfully | {"vendorId":"68e568d376425ed14ffd1b55","email":"panchalajay717@gmail.com","phone":"7610416911"}
+[2025-10-07T19:24:13.038Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:24:17.236Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:24:17.425Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:24:30.418Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T19:24:30.432Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-10-07T19:24:31.422Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T19:24:31.604Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:24:34.975Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-07T19:24:35.228Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-07T19:24:38.919Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-07T19:24:44.807Z] [INFO] SMTP connection verified successfully
+[2025-10-07T19:24:46.715Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T19:24:46.760Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-10-07T19:24:47.966Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:24:48.224Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T19:24:48.286Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-07T19:24:48.626Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:24:57.412Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/68e568d376425ed14ffd1b55/status"}
+[2025-10-07T19:24:57.687Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Welcome to Fixfly - Your Account is Approved!","from":"Fixfly <fixfly.in@gmail.com>"}
+[2025-10-07T19:25:02.059Z] [INFO] Email sent successfully | {"messageId":"<2d8426ee-d424-d9f9-10b9-af4eda15a1fe@gmail.com>","to":"panchalajay717@gmail.com","subject":"Welcome to Fixfly - Your Account is Approved!"}
+[2025-10-07T19:25:02.060Z] [INFO] Vendor approval email sent successfully | {"vendorId":"68e568d376425ed14ffd1b55","email":"panchalajay717@gmail.com"}
+[2025-10-07T19:25:02.062Z] [INFO] Vendor approve by admin | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","action":"approve"}
+[2025-10-07T19:25:02.102Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-07T19:25:39.074Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:25:52.668Z] [INFO] Vendor logged in successfully | {"vendorId":"68e568d376425ed14ffd1b55","email":"panchalajay717@gmail.com"}
+[2025-10-07T19:25:52.881Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:25:53.078Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:25:53.522Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:25:53.728Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:25:53.809Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:25:54.158Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:25:54.227Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:25:54.751Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:25:54.929Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:25:55.396Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:25:56.297Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/deposit/create-order"}
+[2025-10-07T19:25:57.844Z] [INFO] Vendor deposit order created successfully | {"vendorId":"157","amount":3999,"transactionId":"DEP_157_1759865156505","razorpayOrderId":"order_RQhKCIkvP5xRD6"}
+[2025-10-07T19:26:22.806Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:26:23.104Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:26:24.113Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:26:24.242Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/deposit/verify"}
+[2025-10-07T19:26:24.373Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:26:24.553Z] [INFO] Vendor deposit payment verification attempt | {"vendorId":"157","transactionId":"DEP_157_1759865156505","razorpayOrderId":"order_RQhKCIkvP5xRD6","razorpayPaymentId":"pay_RQhKPqOEMr4C4Q","expectedSignature":"121d9d6e4c...","receivedSignature":"121d9d6e4c..."}
+[2025-10-07T19:26:24.554Z] [INFO] Adding deposit to vendor wallet | {"vendorId":"157","amount":3999,"currentBalance":0}
+[2025-10-07T19:26:24.821Z] [INFO] Vendor wallet updated after deposit | {"vendorId":"157","newBalance":3999,"hasInitialDeposit":true}
+[2025-10-07T19:26:25.036Z] [INFO] Vendor deposit payment verified and processed successfully | {"vendorId":"157","transactionId":"DEP_157_1759865156505","amount":3999,"razorpayPaymentId":"pay_RQhKPqOEMr4C4Q"}
+[2025-10-07T19:26:25.096Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Deposit Confirmation - Fixfly","from":"Fixfly <fixfly.in@gmail.com>"}
+[2025-10-07T19:26:29.423Z] [INFO] Email sent successfully | {"messageId":"<dda30ca3-0054-a331-4d8e-02fd0f8eb09b@gmail.com>","to":"panchalajay717@gmail.com","subject":"Deposit Confirmation - Fixfly"}
+[2025-10-07T19:26:29.425Z] [INFO] Deposit confirmation email sent successfully | {"vendorId":"157","email":"panchalajay717@gmail.com"}
+[2025-10-07T19:26:30.548Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-07T19:26:30.866Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:26:31.116Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:26:31.891Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:26:32.056Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:26:32.141Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:26:32.441Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:26:33.359Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-07T19:26:33.652Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:26:33.983Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-07T19:26:34.707Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:26:34.929Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:26:35.027Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:26:35.274Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-07T19:26:35.300Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-07T19:26:35.306Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:26:35.327Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-07T19:26:35.353Z] [INFO] Getting bookings for vendor | {"vendorId":"157","page":1,"limit":10}
+[2025-10-07T19:26:35.357Z] [INFO] Booking query | {"query":{"vendor.vendorId":"157"}}
+[2025-10-07T19:26:35.523Z] [INFO] Vendor bookings retrieved: 0 for vendor 157 | {"vendorId":"157","totalBookings":0,"page":1}
+[2025-10-07T19:26:35.552Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-07T19:26:35.606Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-07T19:26:35.648Z] [INFO] Getting bookings for vendor | {"vendorId":"157","page":1,"limit":10}
+[2025-10-07T19:26:35.650Z] [INFO] Booking query | {"query":{"vendor.vendorId":"157"}}
+[2025-10-07T19:26:35.884Z] [INFO] Vendor bookings retrieved: 0 for vendor 157 | {"vendorId":"157","totalBookings":0,"page":1}
+[2025-10-07T19:26:36.239Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:26:36.432Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:26:39.029Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:26:42.454Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-07T19:26:43.472Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:26:43.641Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:26:57.224Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile/image"}
+[2025-10-07T19:26:57.460Z] [INFO] Vendor found for profile image upload | {"vendorId":"68e568d376425ed14ffd1b55","vendorIdString":"68e568d376425ed14ffd1b55","vendorIdType":"object"}
+[2025-10-07T19:26:57.463Z] [INFO] Starting image upload to Cloudinary | {"vendorId":"68e568d376425ed14ffd1b55","fileName":"WhatsApp Image 2025-01-13 at 10.04.22 PM.jpeg","fileSize":61040}
+[2025-10-07T19:26:57.469Z] [INFO] Starting profile image upload | {"userId":"68e568d376425ed14ffd1b55","fileName":"WhatsApp Image 2025-01-13 at 10.04.22 PM.jpeg","fileSize":61040,"mimeType":"image/jpeg"}
+[2025-10-07T19:27:01.264Z] [INFO] Image uploaded from buffer successfully | {"public_id":"fixifly/profile-images/68e568d376425ed14ffd1b55/profile_68e568d376425ed14ffd1b55_1759865217469","secure_url":"https://res.cloudinary.com/fixfly/image/upload/v1759865219/fixifly/profile-images/68e568d376425ed14ffd1b55/profile_68e568d376425ed14ffd1b55_1759865217469.jpg"}
+[2025-10-07T19:27:01.267Z] [INFO] Profile image uploaded successfully | {"userId":"68e568d376425ed14ffd1b55","publicId":"fixifly/profile-images/68e568d376425ed14ffd1b55/profile_68e568d376425ed14ffd1b55_1759865217469","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759865219/fixifly/profile-images/68e568d376425ed14ffd1b55/profile_68e568d376425ed14ffd1b55_1759865217469.jpg"}
+[2025-10-07T19:27:01.270Z] [INFO] Image upload result | {"uploadResult":{"success":true,"data":{"publicId":"fixifly/profile-images/68e568d376425ed14ffd1b55/profile_68e568d376425ed14ffd1b55_1759865217469","secureUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759865219/fixifly/profile-images/68e568d376425ed14ffd1b55/profile_68e568d376425ed14ffd1b55_1759865217469.jpg","imageUrl":"https://res.cloudinary.com/fixfly/image/upload/v1759865219/fixifly/profile-images/68e568d376425ed14ffd1b55/profile_68e568d376425ed14ffd1b55_1759865217469.jpg","width":500,"height":500,"bytes":20011,"format":"jpg"}}}
+[2025-10-07T19:27:01.374Z] [INFO] Vendor profile image uploaded successfully for vendor: 157
+[2025-10-07T19:27:02.458Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:27:02.638Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:27:37.813Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/service-locations"}
+[2025-10-07T19:27:38.107Z] [INFO] Service location added successfully | {"vendorId":"68e568d376425ed14ffd1b55","from":"Thane","to":"CST"}
+[2025-10-07T19:27:39.021Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:27:40.893Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-07T19:27:41.171Z] [INFO] Vendor profile updated successfully | {"vendorId":"68e568d376425ed14ffd1b55"}
+[2025-10-07T19:27:42.228Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-07T19:27:42.432Z] [INFO] FCM token updated for vendor | {"vendorId":"68e568d376425ed14ffd1b55","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-07T19:28:39.061Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:29:39.059Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:30:39.372Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:31:39.059Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:32:39.092Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:33:39.090Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:34:39.106Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:35:39.108Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-07T19:36:39.108Z] [INFO] Found 0 pending assignments to check for auto-rejection

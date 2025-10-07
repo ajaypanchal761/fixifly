@@ -163,7 +163,7 @@ const Header = () => {
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
-    { name: "Shop", href: "/shop", icon: Store },
+    { name: "Shop", href: "https://fixfly.in/buy-laptop/", icon: Store, external: true },
   ];
 
   return (
@@ -226,8 +226,11 @@ const Header = () => {
                 return (
                   <Button
                     key={item.name}
-                    component={Link}
-                    to={item.href}
+                    component={item.external ? 'a' : Link}
+                    href={item.external ? item.href : undefined}
+                    to={item.external ? undefined : item.href}
+                    target={item.external ? '_blank' : undefined}
+                    rel={item.external ? 'noopener noreferrer' : undefined}
                     startIcon={<IconComponent size={18} />}
                     sx={{
                       color: 'black',
