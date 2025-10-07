@@ -462,6 +462,11 @@ const VendorClosedTask = () => {
         isSupportTicket: task?.isSupportTicket
       });
       
+      // Calculate the correct billing amount to send to backend
+      // The vendor enters the GST-excluded amount in the input field
+      // Backend expects GST-excluded amount for calculation
+      const billingAmountForBackend = billingAmountValue;
+      
       const taskData = {
         resolutionNote: resolutionNote.trim(),
         spareParts: spareParts.filter(part => part.name.trim() !== ''), // Filter out empty parts
@@ -469,7 +474,7 @@ const VendorClosedTask = () => {
         includeGST: includeGST,
         gstAmount: includeGST ? calculateGSTAmount() : 0,
         totalAmount: calculateBillingTotal(), // Use total amount including GST
-        billingAmount: billingAmountValue,
+        billingAmount: billingAmountForBackend, // Send GST-excluded amount for vendor calculation
         travelingAmount: "100"
       };
       

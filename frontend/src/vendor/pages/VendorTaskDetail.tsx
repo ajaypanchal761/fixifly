@@ -100,6 +100,7 @@ const VendorTaskDetail = () => {
             taskType: bookingTask.services?.[0]?.serviceName || 'Service Request',
             bookingStatus: bookingTask.status,
             priority: bookingTask.priority || 'medium',
+            payment: bookingTask.payment,
             isSupportTicket: false
           };
         }
@@ -167,6 +168,8 @@ const VendorTaskDetail = () => {
       }
 
       if (foundTask) {
+        console.log('Task data with payment info:', foundTask);
+        console.log('Payment data:', foundTask.payment);
         setTask(foundTask);
       } else {
         setError('Task not found');
@@ -433,6 +436,28 @@ const VendorTaskDetail = () => {
                   <DollarSign className="w-4 h-4 text-gray-500" />
                   <span className="text-sm font-semibold text-gray-800">{task.isSupportTicket ? task.amount : '₹0'}</span>
                 </div>
+                
+                {/* Payment Status for Cash on Delivery */}
+                {!task.isSupportTicket && task.payment && task.payment.method === 'cash' && (
+                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-4 h-4 text-yellow-600" />
+                      <span className="text-sm font-medium text-yellow-800">Booking Amount Pending</span>
+                    </div>
+                    <p className="text-xs text-yellow-700 mt-1">Payment will be collected on service completion</p>
+                  </div>
+                )}
+                
+                {/* Payment Status for Online Payments */}
+                {!task.isSupportTicket && task.payment && task.payment.method !== 'cash' && task.payment.status === 'completed' && (
+                  <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-medium text-green-800">Payment Completed</span>
+                    </div>
+                    <p className="text-xs text-green-700 mt-1">Customer has already paid online</p>
+                  </div>
+                )}
               </div>
 
               {/* Assignment Info */}

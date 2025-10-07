@@ -4521,3 +4521,88 @@
 [2025-10-06T11:57:23.920Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
 [2025-10-06T11:57:24.081Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
 [2025-10-06T11:57:29.601Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:58:16.723Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:58:21.424Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T11:58:21.470Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T11:58:21.539Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T11:58:21.577Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T11:58:21.579Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T11:58:21.627Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:58:21.672Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T11:58:21.686Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T11:58:21.737Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T11:58:21.738Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T11:58:21.745Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T11:58:21.768Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-06T11:58:21.818Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T11:58:21.891Z] [INFO] FCM token updated for vendor | {"vendorId":"68e34a9903b689ac70713d56","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-06T11:58:22.146Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T11:58:29.468Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T11:59:29.467Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:00:29.474Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:01:29.491Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:02:29.494Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:03:29.497Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:04:29.512Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:05:29.522Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:06:29.533Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:07:29.533Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:08:29.546Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:09:21.401Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T12:09:21.437Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T12:09:21.489Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T12:09:21.493Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T12:09:21.583Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T12:09:21.608Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T12:09:21.773Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T12:09:21.806Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T12:09:21.807Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T12:09:21.872Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T12:09:21.927Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T12:09:21.986Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T12:09:22.005Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T12:09:23.171Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:09:23.243Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:09:23.511Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T12:09:24.093Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:09:26.358Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:09:29.565Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:10:25.260Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T12:10:25.277Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T12:10:25.296Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T12:10:25.303Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T12:10:25.304Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T12:10:25.363Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T12:10:25.382Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T12:10:25.408Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T12:10:26.020Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T12:10:26.054Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T12:10:26.055Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T12:10:26.121Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T12:10:26.185Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T12:10:26.703Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:10:26.747Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:10:26.993Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}
+[2025-10-06T12:10:27.022Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:10:27.116Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:10:29.572Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:11:29.568Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:37:22.421Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-06T12:37:38.723Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook Repair","Printers Repair","Laptop/Desktop"]}
+[2025-10-06T12:37:42.365Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:37:42.966Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:37:43.287Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T12:37:43.345Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T12:37:43.363Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-06T12:37:43.847Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T12:37:43.848Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T12:37:43.961Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T12:37:43.965Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-06T12:37:44.028Z] [INFO] Getting bookings for vendor | {"vendorId":"299","page":1,"limit":10}
+[2025-10-06T12:37:44.029Z] [INFO] Booking query | {"query":{"vendor.vendorId":"299"}}
+[2025-10-06T12:37:44.138Z] [INFO] Vendor bookings retrieved: 0 for vendor 299 | {"vendorId":"299","totalBookings":0,"page":1}
+[2025-10-06T12:37:44.238Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-06T12:37:44.707Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:37:44.973Z] [INFO] Products by service type retrieved: 1 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Plumber"]}
+[2025-10-06T12:37:45.430Z] [INFO] User updated FCM token | {"userId":"68e392327a6b1824460cf300","fcmTokenLength":142}
+[2025-10-06T12:37:45.661Z] [INFO] All active products retrieved: 5 | {"featuredCount":3,"totalCount":5}

@@ -126,8 +126,8 @@ const AdminServiceManagementDashboard = () => {
           return {
             ...booking,
             bookingReference: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
-            paymentMode: booking.payment?.method || 'card',
-            paymentStatus: booking.payment?.status || 'pending',
+            paymentMode: (booking as any).paymentMode || (booking.payment?.razorpayPaymentId ? 'card' : booking.payment?.method) || 'card',
+            paymentStatus: booking.status === 'completed' ? 'completed' : (booking.payment?.status || 'pending'),
             paymentAmount: serviceCharges
           };
         });
@@ -232,6 +232,7 @@ const AdminServiceManagementDashboard = () => {
 
     const modeConfig = {
       online: { color: 'bg-blue-100 text-blue-800', icon: CreditCard },
+      card: { color: 'bg-blue-100 text-blue-800', icon: CreditCard },
       cash: { color: 'bg-green-100 text-green-800', icon: Banknote }
     };
 

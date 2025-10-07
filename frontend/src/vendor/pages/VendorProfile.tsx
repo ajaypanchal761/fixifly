@@ -1110,68 +1110,6 @@ const VendorProfile = () => {
             </CardContent>
           </Card>
 
-          {/* Rating & Stats Card */}
-          <Card className="mb-4 shadow-lg border-0 bg-white">
-            <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b py-1">
-              <CardTitle className="flex items-center gap-1 text-sm">
-                <div className="w-5 h-5 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <Star className="w-3 h-3 text-yellow-600" />
-                </div>
-                Performance & Statistics
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-2">
-              <div className="grid grid-cols-2 gap-1 mb-2">
-                {/* Rating Card */}
-                <div className="text-center p-1 bg-gradient-to-br from-yellow-50 to-orange-50 rounded border border-yellow-200">
-                  <div className="flex justify-center mb-1">
-                    {renderStars(profileData.rating?.average || 0)}
-                  </div>
-                  <p className="text-base font-bold text-yellow-600 mb-1">{profileData.rating?.average || 0}</p>
-                  <p className="text-xs text-yellow-700 font-medium">
-                    {profileData.rating?.count || 0} reviews
-                  </p>
-                </div>
-                
-                {/* Vendor ID Card */}
-                <div className="text-center p-1 bg-gradient-to-br from-blue-50 to-indigo-50 rounded border border-blue-200">
-                  <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-1">
-                    <User className="w-3 h-3 text-blue-600" />
-                  </div>
-                  <p className="text-base font-bold text-blue-600 mb-1">V{profileData.vendorId}</p>
-                  <p className="text-xs text-blue-700 font-medium">Vendor ID</p>
-                </div>
-              </div>
-              
-              {/* Status Badges */}
-              <div className="flex flex-wrap items-center justify-center gap-1">
-                {(profileData.isEmailVerified || profileData.isPhoneVerified) && (
-                  <Badge className="bg-green-100 text-green-800 border-green-200 px-1 py-0.5 text-xs font-medium">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Verified
-                  </Badge>
-                )}
-                <Badge variant="outline" className="border-gray-200 text-gray-700 px-1 py-0.5 text-xs font-medium">
-                  <Calendar className="w-3 h-3 mr-1" />
-                  Joined {new Date((profileData as any).createdAt).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short'
-                  })}
-                </Badge>
-                <Badge 
-                  variant="outline" 
-                  className={`px-1 py-0.5 text-xs font-medium ${
-                    profileData.isActive 
-                      ? 'border-green-200 text-green-700 bg-green-50' 
-                      : 'border-red-200 text-red-700 bg-red-50'
-                  }`}
-                >
-                  {profileData.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
         </div>
       </main>
       <div className="md:hidden">

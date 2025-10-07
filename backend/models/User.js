@@ -156,6 +156,14 @@ const userSchema = new mongoose.Schema({
     lastSubscriptionUpdate: {
       type: Date,
       default: null
+    },
+    isFirstTimeUser: {
+      type: Boolean,
+      default: true
+    },
+    firstBookingDate: {
+      type: Date,
+      default: null
     }
   }
 }, {

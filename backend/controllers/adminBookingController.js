@@ -50,7 +50,7 @@ const getAllBookings = asyncHandler(async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit))
-      .lean();
+      .lean({ virtuals: true });
 
     // Manually populate vendor data
     for (const booking of bookings) {

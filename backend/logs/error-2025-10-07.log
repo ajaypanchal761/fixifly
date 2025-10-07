@@ -1,0 +1,14 @@
+[2025-10-07T05:06:40.299Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/dashboard"}
+[2025-10-07T05:06:41.305Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt malformed","tokenPrefix":"null...","endpoint":"/api/admin/update-fcm-token"}
+[2025-10-07T06:37:12.563Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T07:36:31.397Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T08:50:32.834Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/bookings?page=1&limit=1000"}
+[2025-10-07T08:50:50.419Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T08:56:23.479Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T09:00:05.537Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T10:49:24.487Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T10:54:54.711Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T10:59:35.089Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T11:18:58.301Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T11:23:22.320Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}
+[2025-10-07T11:30:38.670Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"693"}

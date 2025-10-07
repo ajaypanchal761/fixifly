@@ -15,7 +15,8 @@ const {
   rescheduleBookingByUser,
   rescheduleBooking,
   createPaymentOrder,
-  verifyPayment
+  verifyPayment,
+  checkFirstTimeUser
 } = require('../controllers/bookingController');
 const { protectVendor, optionalVendorAuth } = require('../middleware/vendorAuth');
 
@@ -30,6 +31,9 @@ router.route('/with-payment')
 
 router.route('/stats')
   .get(getBookingStats); // Get booking statistics
+
+router.route('/check-first-time')
+  .post(checkFirstTimeUser); // Check if user is first-time user
 
 // Test endpoint to check booking routes
 router.route('/test')

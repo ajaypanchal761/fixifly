@@ -87,7 +87,7 @@ const AppContent = () => {
   useUserPushNotifications();
 
   return (
-    <div className="min-h-screen bg-background overflow-y-auto">
+    <div className="min-h-screen bg-background">
       {!isAdminRoute && !isVendorRoute && !isAuthPage && <Header />}
       
       <Routes>

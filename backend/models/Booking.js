@@ -85,6 +85,27 @@ const bookingSchema = new mongoose.Schema({
       type: Number,
       required: true,
       min: [0, 'Total amount cannot be negative']
+    },
+    // First-time user discount fields
+    originalSubtotal: {
+      type: Number,
+      default: null
+    },
+    originalServiceFee: {
+      type: Number,
+      default: null
+    },
+    originalTotalAmount: {
+      type: Number,
+      default: null
+    },
+    isFirstTimeUser: {
+      type: Boolean,
+      default: false
+    },
+    discountApplied: {
+      type: String,
+      default: null
     }
   },
 

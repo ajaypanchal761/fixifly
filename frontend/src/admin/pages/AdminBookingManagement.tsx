@@ -351,6 +351,54 @@ const AdminBookingManagement = () => {
     return 'Unknown Vendor';
   };
 
+  // Helper function to get payment status
+  const getPaymentStatus = (booking: any) => {
+    if (booking.pricing?.isFirstTimeUser) return 'free';
+    
+    // Debug logging for specific booking
+    if (booking.bookingReference === 'FIX40FBE5E2' || booking.bookingReference === 'FIX40FBF106' || booking.pricing?.isFirstTimeUser) {
+      console.log(`Payment status debug for ${booking.bookingReference}:`, {
+        paymentStatus: (booking as any).paymentStatus,
+        paymentStatusFromPayment: booking.payment?.status,
+        paymentMethod: (booking as any).paymentMode || booking.payment?.method,
+        razorpayPaymentId: booking.payment?.razorpayPaymentId,
+        fullPayment: booking.payment,
+        isFirstTimeUser: booking.pricing?.isFirstTimeUser,
+        bookingStatus: booking.status
+      });
+    }
+    
+    // If booking status is completed, payment should also be completed
+    if (booking.status === 'completed') {
+      return 'completed';
+    }
+    
+    // Check payment.status first - this is the most reliable indicator for initial bookings
+    if (booking.payment?.status) {
+      return booking.payment.status;
+    }
+    
+    // Check explicit payment status (used for task completion payments)
+    if ((booking as any).paymentStatus) {
+      return (booking as any).paymentStatus;
+    }
+    
+    // For cash payments, always show pending unless explicitly marked as collected
+    const paymentMethod = (booking as any).paymentMode || booking.payment?.method;
+    if (paymentMethod === 'cash') {
+      return 'pending';
+    }
+    
+    // For online payments (card, upi, netbanking, wallet), check if payment is actually completed
+    if (paymentMethod === 'card' || paymentMethod === 'upi' || paymentMethod === 'netbanking' || paymentMethod === 'wallet' || paymentMethod === 'online') {
+      // If we have Razorpay payment ID, it means payment was completed
+      return booking.payment?.razorpayPaymentId ? 'completed' : 'pending';
+    }
+    
+    // Default fallback
+    return 'pending';
+  };
+
   const filteredBookings = bookings.filter(booking => {
     const customerName = booking.customer?.name || '';
     const serviceNames = booking.services?.map(service => service.serviceName).join(' ') || '';
@@ -388,7 +436,11 @@ const AdminBookingManagement = () => {
                          bookingId.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     const matchesService = serviceFilter === 'all' || serviceNames.includes(serviceFilter);
-    return matchesSearch && matchesStatus && matchesService;
+    
+    const matchesPaymentStatus = paymentStatusFilter === 'all' || 
+                                (paymentStatusFilter === 'free' ? booking.pricing?.isFirstTimeUser : 
+                                 getPaymentStatus(booking) === paymentStatusFilter);
+    return matchesSearch && matchesStatus && matchesService && matchesPaymentStatus;
   });
 
   const getStatusBadge = (status: string) => {
@@ -585,6 +637,11 @@ const AdminBookingManagement = () => {
       return <span className="text-gray-400">-</span>;
     }
 
+    // Debug logging for free bookings
+    if (paymentMode === 'cash' || paymentMode === 'online') {
+      console.log('Payment mode badge debug:', paymentMode);
+    }
+
     const modeConfig = {
       online: { color: 'bg-blue-100 text-blue-800', icon: '💳' },
       cash: { color: 'bg-green-100 text-green-800', icon: '💰' }
@@ -600,21 +657,31 @@ const AdminBookingManagement = () => {
     );
   };
 
-  const getPaymentStatusBadge = (paymentStatus: string, paymentMode: string) => {
+  const getPaymentStatusBadge = (paymentStatus: string, paymentMode: string, isFirstTimeUser?: boolean) => {
+    // Show FREE for first-time user bookings
+    if (isFirstTimeUser) {
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          FREE
+        </span>
+      );
+    }
+
     if (!paymentMode) {
       return <span className="text-gray-400">-</span>;
     }
 
-    if (paymentMode === 'online') {
+    if (paymentMode === 'online' || paymentMode === 'card' || paymentMode === 'upi' || paymentMode === 'netbanking' || paymentMode === 'wallet') {
       const statusConfig = {
         pending: { color: 'bg-yellow-100 text-yellow-800' },
-        payment_done: { color: 'bg-green-100 text-green-800' }
+        payment_done: { color: 'bg-green-100 text-green-800' },
+        completed: { color: 'bg-green-100 text-green-800' }
       };
       const config = statusConfig[paymentStatus as keyof typeof statusConfig] || statusConfig.pending;
       
       // Custom display text for better UX
       let displayText = paymentStatus.replace('_', ' ').toUpperCase();
-      if (paymentStatus === 'payment_done') {
+      if (paymentStatus === 'payment_done' || paymentStatus === 'completed') {
         displayText = 'COMPLETED';
       }
       
@@ -1062,10 +1129,13 @@ const AdminBookingManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Payments</SelectItem>
-                  <SelectItem value="completed">Paid</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="payment_done">Payment Done</SelectItem>
+                  <SelectItem value="collected">Collected (Cash)</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="failed">Failed</SelectItem>
                   <SelectItem value="refunded">Refunded</SelectItem>
+                  <SelectItem value="free">Free (First-time Users)</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={serviceFilter} onValueChange={setServiceFilter}>
@@ -1238,7 +1308,16 @@ const AdminBookingManagement = () => {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm font-medium">₹{booking.pricing?.totalAmount || 0}</span>
+                        {booking.pricing?.isFirstTimeUser ? (
+                          <div className="text-sm font-medium">
+                            <span className="text-green-600">FREE</span>
+                            {booking.pricing.originalTotalAmount && (
+                              <div className="text-xs text-gray-500 line-through">₹{booking.pricing.originalTotalAmount}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-sm font-medium">₹{booking.pricing?.totalAmount || 0}</span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(booking.status)}</TableCell>
@@ -1261,7 +1340,11 @@ const AdminBookingManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getAssignmentStatusBadge(booking.vendor ? 'assigned' : 'unassigned')}</TableCell>
-                    <TableCell>{getPaymentStatusBadge((booking as any).paymentStatus || booking.payment?.status || 'pending', (booking as any).paymentMode || booking.payment?.method || 'card')}</TableCell>
+                    <TableCell>{getPaymentStatusBadge(
+                      getPaymentStatus(booking), 
+                      (booking as any).paymentMode || booking.payment?.method || 'card', 
+                      booking.pricing?.isFirstTimeUser
+                    )}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -1358,7 +1441,16 @@ const AdminBookingManagement = () => {
                     </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600 font-medium">Amount:</span>
-                        <span className="font-semibold text-green-600">₹{selectedBooking.pricing?.totalAmount || 'N/A'}</span>
+                        {selectedBooking.pricing?.isFirstTimeUser ? (
+                          <div className="text-right">
+                            <span className="font-semibold text-green-600">FREE</span>
+                            {selectedBooking.pricing.originalTotalAmount && (
+                              <div className="text-xs text-gray-500 line-through">Original: ₹{selectedBooking.pricing.originalTotalAmount}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="font-semibold text-green-600">₹{selectedBooking.pricing?.totalAmount || 'N/A'}</span>
+                        )}
                     </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600 font-medium">Preferred Date:</span>
@@ -1773,7 +1865,16 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Amount</Label>
-                      <p className="text-xs font-medium">₹{selectedBooking.pricing.totalAmount}</p>
+                      {selectedBooking.pricing?.isFirstTimeUser ? (
+                        <div className="text-xs font-medium">
+                          <p className="text-green-600">FREE</p>
+                          {selectedBooking.pricing.originalTotalAmount && (
+                            <p className="text-gray-500 line-through">Original: ₹{selectedBooking.pricing.originalTotalAmount}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-xs font-medium">₹{selectedBooking.pricing.totalAmount}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1837,7 +1938,11 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
-                      <div className="mt-1">{getPaymentStatusBadge((selectedBooking as any).paymentStatus || selectedBooking.payment?.status || 'pending', (selectedBooking as any).paymentMode || selectedBooking.payment?.method || 'card')}</div>
+                      <div className="mt-1">{getPaymentStatusBadge(
+                        getPaymentStatus(selectedBooking), 
+                        (selectedBooking as any).paymentMode || selectedBooking.payment?.method || 'card', 
+                        selectedBooking.pricing?.isFirstTimeUser
+                      )}</div>
                     </div>
                   </div>
                 </div>
@@ -1887,11 +1992,26 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
-                      <div className="mt-1">{getPaymentStatusBadge((selectedBooking as any).paymentStatus || selectedBooking.payment?.status || 'pending', (selectedBooking as any).paymentMode || selectedBooking.payment?.method || 'card')}</div>
+                      <div className="mt-1">{getPaymentStatusBadge(
+                        getPaymentStatus(selectedBooking), 
+                        (selectedBooking as any).paymentMode || selectedBooking.payment?.method || 'card', 
+                        selectedBooking.pricing?.isFirstTimeUser
+                      )}</div>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Amount</Label>
-                      <p className="text-xs font-medium">₹{selectedBooking.pricing.totalAmount}</p>
+                      <div className="text-xs font-medium">
+                        {selectedBooking.pricing?.isFirstTimeUser ? (
+                          <div>
+                            <p className="text-green-600">₹{selectedBooking.pricing.totalAmount} (FREE)</p>
+                            {selectedBooking.pricing.originalTotalAmount && (
+                              <p className="text-gray-500 line-through">Original: ₹{selectedBooking.pricing.originalTotalAmount}</p>
+                            )}
+                          </div>
+                        ) : (
+                          <p>₹{selectedBooking.pricing.totalAmount}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

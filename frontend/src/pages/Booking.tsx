@@ -980,7 +980,7 @@ For support, contact us at info@fixfly.in
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-100">
+        <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-100 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -1139,7 +1139,7 @@ For support, contact us at info@fixfly.in
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b">
+        <div className="bg-white shadow-sm border-b sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -1264,9 +1264,9 @@ For support, contact us at info@fixfly.in
   }
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="bg-blue-50 min-h-screen">
       {/* Header with Categories */}
-      <div className="bg-white shadow-sm border-b pb-0 mb-4 mt-2">
+      <div className="bg-white shadow-sm border-b pb-0 mb-4 mt-2 sticky top-0 z-50">
         <div className="container px-2 py-24">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-0 pt-0">
             <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-0 h-auto rounded-lg">
@@ -1300,7 +1300,7 @@ For support, contact us at info@fixfly.in
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-0 max-w-7xl">
+      <div className="container mx-auto px-4 py-4 pb-16 max-w-7xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Ongoing Bookings */}
           <TabsContent value="ongoing" className="space-y-4 md:space-y-0">

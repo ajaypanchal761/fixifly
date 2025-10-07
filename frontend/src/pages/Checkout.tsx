@@ -28,6 +28,8 @@ const Checkout = () => {
   const { user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean | null>(null);
+  const [checkingFirstTime, setCheckingFirstTime] = useState(false);
   
   // Customer form data - initialize with user data if available
   const [customerData, setCustomerData] = useState({
@@ -86,6 +88,48 @@ const Checkout = () => {
     return value;
   };
 
+  // Function to check if user is first-time user
+  const checkFirstTimeUserStatus = async (email: string, phone: string) => {
+    console.log('Checking first-time user status:', { email, phone });
+    
+    if (!email && !phone) {
+      console.log('No email or phone provided, setting isFirstTimeUser to null');
+      setIsFirstTimeUser(null);
+      return;
+    }
+
+    try {
+      setCheckingFirstTime(true);
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings/check-first-time`;
+      console.log('API URL:', apiUrl);
+      console.log('Request body:', { email, phone });
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, phone }),
+      });
+
+      const data = await response.json();
+      console.log('API Response:', data);
+      
+      if (data.success) {
+        console.log('Setting isFirstTimeUser to:', data.data.isFirstTimeUser);
+        setIsFirstTimeUser(data.data.isFirstTimeUser);
+      } else {
+        console.error('Error checking first-time user:', data.message);
+        setIsFirstTimeUser(false); // Default to false if error
+      }
+    } catch (error) {
+      console.error('Error checking first-time user:', error);
+      setIsFirstTimeUser(false); // Default to false if error
+    } finally {
+      setCheckingFirstTime(false);
+    }
+  };
+
   // Update customer data when user changes
   useEffect(() => {
     if (user) {
@@ -118,6 +162,19 @@ const Checkout = () => {
     }
   }, [location.state, navigate]);
 
+  // Check first-time user status when email or phone changes
+  useEffect(() => {
+    console.log('Customer data changed:', customerData);
+    const timeoutId = setTimeout(() => {
+      if (customerData.email || customerData.phone) {
+        console.log('Triggering first-time user check with:', { email: customerData.email, phone: customerData.phone });
+        checkFirstTimeUserStatus(customerData.email, customerData.phone);
+      }
+    }, 500); // Debounce for 500ms
+
+    return () => clearTimeout(timeoutId);
+  }, [customerData.email, customerData.phone]);
+
   if (!checkoutData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -132,7 +189,12 @@ const Checkout = () => {
   const subtotal = checkoutData.totalPrice;
   const gstRate = 18; // 18% GST
   const gstAmount = Math.round((subtotal * gstRate) / 100);
-  const totalAmount = subtotal + gstAmount;
+  const originalTotalAmount = subtotal + gstAmount;
+  
+  // For first-time users, total amount is 0
+  const totalAmount = isFirstTimeUser ? 0 : originalTotalAmount;
+  const displaySubtotal = isFirstTimeUser ? 0 : subtotal;
+  const displayGstAmount = isFirstTimeUser ? 0 : gstAmount;
 
   const handleCashPayment = async (bookingData: BookingData) => {
     try {
@@ -155,6 +217,7 @@ const Checkout = () => {
       };
 
       console.log('Cash payment booking request data:', requestData);
+      console.log('Pricing data being sent:', requestData.pricing);
       console.log('Date validation:', {
         scheduledDate: customerData.scheduledDate,
         dateObject: new Date(customerData.scheduledDate),
@@ -256,14 +319,21 @@ const Checkout = () => {
           price: item.price
         })),
         pricing: {
-          subtotal: subtotal,
-          serviceFee: 100, // Default service fee
-          gstRate: gstRate,
-          gstAmount: gstAmount,
-          totalAmount: totalAmount
+          subtotal: displaySubtotal,
+          serviceFee: isFirstTimeUser ? 0 : 100, // Default service fee
+          gstAmount: displayGstAmount,
+          totalAmount: totalAmount,
+          // Include original pricing for first-time users
+          ...(isFirstTimeUser && {
+            originalSubtotal: subtotal,
+            originalServiceFee: 100,
+            originalTotalAmount: originalTotalAmount,
+            isFirstTimeUser: true,
+            discountApplied: 'First-time user - Service is free'
+          })
         },
         scheduling: {
-          preferredDate: customerData.scheduledDate,
+          preferredDate: new Date(customerData.scheduledDate),
           preferredTimeSlot: customerData.scheduledTime
         },
         notes: customerData.notes || "Booking created from checkout"
@@ -585,65 +655,131 @@ const Checkout = () => {
 
             {/* Price Breakdown */}
             <div className="space-y-2">
+              {isFirstTimeUser && (
+                <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <p className="text-sm font-medium text-green-800">
+                      🎉 First-time user! Your service is FREE!
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {isFirstTimeUser && (
+                <div className="space-y-1 text-sm text-gray-500 mb-2">
+                  <div className="flex justify-between">
+                    <span>Original Subtotal</span>
+                    <span>₹{subtotal}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Original GST ({gstRate}%)</span>
+                    <span>₹{gstAmount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Original Total</span>
+                    <span>₹{originalTotalAmount}</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-1">
+                    <div className="flex justify-between text-green-600 font-medium">
+                      <span>First-time User Discount</span>
+                      <span>-₹{originalTotalAmount}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>₹{subtotal}</span>
+                <span>₹{displaySubtotal}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>GST ({gstRate}%)</span>
-                <span>₹{gstAmount}</span>
+                <span>₹{displayGstAmount}</span>
               </div>
               <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between text-lg font-bold text-gray-900">
                   <span>Total Amount</span>
-                  <span>₹{totalAmount}</span>
+                  <span className={isFirstTimeUser ? "text-green-600" : ""}>₹{totalAmount}</span>
                 </div>
               </div>
             </div>
           </div>
           
-          {/* Cash on Delivery Button */}
-          <Button 
-            onClick={() => handlePayment('cash')}
-            disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold mb-3"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Creating Booking...
-              </>
-            ) : (
-              <>
-                <Banknote className="h-5 w-5 mr-2" />
-                Cash on Delivery - ₹{totalAmount}
-              </>
-            )}
-          </Button>
+          {/* Payment Buttons - Conditional rendering based on first-time user status */}
+          {checkingFirstTime ? (
+            <div className="w-full bg-gray-100 text-gray-600 py-4 text-lg font-semibold text-center rounded-lg">
+              <Loader2 className="h-5 w-5 mr-2 animate-spin inline" />
+              Checking eligibility...
+            </div>
+          ) : isFirstTimeUser ? (
+            /* First-time user - Free service button */
+            <Button 
+              onClick={() => handlePayment('cash')}
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Creating Free Booking...
+                </>
+              ) : (
+                <>
+                  <Check className="h-5 w-5 mr-2" />
+                  Book Free Service
+                </>
+              )}
+            </Button>
+          ) : (
+            /* Regular user - Payment options */
+            <>
+              {/* Cash on Delivery Button */}
+              <Button 
+                onClick={() => handlePayment('cash')}
+                disabled={loading}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold mb-3"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Creating Booking...
+                  </>
+                ) : (
+                  <>
+                    <Banknote className="h-5 w-5 mr-2" />
+                    Cash on Delivery - ₹{totalAmount}
+                  </>
+                )}
+              </Button>
 
-          {/* Pay with Razorpay Button */}
-          <Button 
-            onClick={() => handlePayment('razorpay')}
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Processing Payment...
-              </>
-            ) : (
-              <>
-                <CreditCard className="h-5 w-5 mr-2" />
-                Pay with Razorpay - ₹{totalAmount}
-              </>
-            )}
-          </Button>
+              {/* Pay with Razorpay Button */}
+              <Button 
+                onClick={() => handlePayment('razorpay')}
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Processing Payment...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="h-5 w-5 mr-2" />
+                    Pay with Razorpay - ₹{totalAmount}
+                  </>
+                )}
+              </Button>
+            </>
+          )}
 
           {/* Terms */}
           <p className="text-xs text-gray-500 text-center mt-4">
-            By clicking "Book Now", you agree to our Terms of Service and Privacy Policy.
-            Your payment will be processed securely.
+            {isFirstTimeUser 
+              ? "By clicking 'Book Free Service', you agree to our Terms of Service and Privacy Policy. This is a one-time free service offer."
+              : "By clicking 'Book Now', you agree to our Terms of Service and Privacy Policy. Your payment will be processed securely."
+            }
           </p>
         </div>
       </div>

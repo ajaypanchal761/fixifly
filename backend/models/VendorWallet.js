@@ -211,27 +211,24 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
   let calculatedAmount = 0;
   let gstAmount = 0;
 
-  // Calculate GST if included (billing amount is GST-exclusive, GST added on top)
+  // Calculate GST if included (billing amount is GST-excluded)
   let netBillingAmount = billingAmount;
   if (gstIncluded) {
-    gstAmount = billingAmount * 0.18; // 18% GST on base amount
-    netBillingAmount = billingAmount; // Base amount (GST-excluded)
+    // When GST is included, billing amount is GST-excluded
+    // GST amount = billing amount * 0.18
+    netBillingAmount = billingAmount; // GST-excluded amount (same as billing amount)
+    gstAmount = billingAmount * 0.18; // GST amount
   }
 
   // Calculate amount based on payment method
   if (paymentMethod === 'online') {
-    // Online payment: (Billing - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
+    // Online payment: (GST-excluded - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
     const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
     calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
   } else if (paymentMethod === 'cash') {
-    // Cash payment: (Billing - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
+    // Cash payment: (GST-excluded - Spare - Travel - Booking) * 50% + Spare + Travel + Booking
     const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
     calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
-  }
-
-  // Add GST amount to vendor earning if GST is included
-  if (gstIncluded) {
-    calculatedAmount += gstAmount;
   }
 
   // Special case for amounts <= 500
@@ -380,20 +377,17 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
   let gstAmount = 0;
   let netBillingAmount = billingAmount;
 
-  // Calculate GST if included (billing amount is GST-inclusive)
+  // Calculate GST if included (billing amount is GST-excluded)
   if (gstIncluded) {
-    gstAmount = billingAmount * 0.18 / 1.18; // GST amount from GST-inclusive amount
-    netBillingAmount = billingAmount / 1.18; // GST-excluded amount
+    // When GST is included, billing amount is GST-excluded
+    // GST amount = billing amount * 0.18
+    netBillingAmount = billingAmount; // GST-excluded amount (same as billing amount)
+    gstAmount = billingAmount * 0.18; // GST amount
   }
 
-  // Cash collection: (Billing - Spare - Travel - Booking) * 50%
+  // Cash collection: (GST-excluded - Spare - Travel - Booking) * 50%
   const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
   calculatedAmount = baseAmount * 0.5;
-
-  // Add GST amount to cash collection deduction if GST is included
-  if (gstIncluded) {
-    calculatedAmount += gstAmount;
-  }
 
   const transaction = {
     transactionId: `CASH_${this.vendorId}_${Date.now()}`,

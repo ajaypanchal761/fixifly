@@ -23,6 +23,12 @@ export interface Booking {
     subtotal: number;
     serviceFee: number;
     totalAmount: number;
+    // First-time user discount fields
+    originalSubtotal?: number;
+    originalServiceFee?: number;
+    originalTotalAmount?: number;
+    isFirstTimeUser?: boolean;
+    discountApplied?: string;
   };
   scheduling: {
     preferredDate: string;

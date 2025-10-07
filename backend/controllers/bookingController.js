@@ -1,10 +1,46 @@
 const { Booking } = require('../models/Booking');
 const Vendor = require('../models/Vendor');
 const VendorWallet = require('../models/VendorWallet');
+const User = require('../models/User');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
 const adminNotificationService = require('../services/adminNotificationService');
+
+// Helper function to check if user is booking for the first time
+const isFirstTimeUser = async (customerEmail, customerPhone) => {
+  try {
+    // Check if user exists in User model
+    const existingUser = await User.findOne({
+      $or: [
+        { email: customerEmail },
+        { phone: customerPhone }
+      ]
+    });
+
+    if (!existingUser) {
+      return true; // New user, first time booking
+    }
+
+    // If user exists, check their isFirstTimeUser flag first
+    if (existingUser.stats && existingUser.stats.isFirstTimeUser === true) {
+      return true; // User is marked as first-time user
+    }
+
+    // Check if user has any previous bookings
+    const previousBookings = await Booking.countDocuments({
+      $or: [
+        { 'customer.email': customerEmail },
+        { 'customer.phone': customerPhone }
+      ]
+    });
+
+    return previousBookings === 0;
+  } catch (error) {
+    logger.error('Error checking first-time user status:', error);
+    return false; // Default to not first-time user if error occurs
+  }
+};
 
 // @desc    Create a new booking
 // @route   POST /api/bookings
@@ -44,12 +80,37 @@ const createBooking = asyncHandler(async (req, res) => {
       });
     }
 
-    // Validate pricing
-    if (!pricing.subtotal || !pricing.totalAmount) {
+    // Validate pricing - allow 0 values for first-time users
+    if (pricing.subtotal === undefined || pricing.subtotal === null || 
+        pricing.totalAmount === undefined || pricing.totalAmount === null) {
       return res.status(400).json({
         success: false,
         message: 'Pricing information is incomplete'
       });
+    }
+
+    // Check if this is a first-time user
+    const isFirstTime = await isFirstTimeUser(customer.email, customer.phone);
+    console.log('First-time user check:', { 
+      email: customer.email, 
+      phone: customer.phone, 
+      isFirstTime 
+    });
+
+    // Apply first-time user discount (make service free)
+    let finalPricing = { ...pricing };
+    if (isFirstTime) {
+      finalPricing = {
+        subtotal: 0,
+        serviceFee: 0,
+        totalAmount: 0,
+        originalSubtotal: pricing.subtotal,
+        originalServiceFee: pricing.serviceFee || 100,
+        originalTotalAmount: pricing.totalAmount,
+        isFirstTimeUser: true,
+        discountApplied: 'First-time user - Service is free'
+      };
+      console.log('First-time user discount applied:', finalPricing);
     }
 
     // Create booking data
@@ -71,9 +132,14 @@ const createBooking = asyncHandler(async (req, res) => {
         price: service.price
       })),
       pricing: {
-        subtotal: pricing.subtotal,
-        serviceFee: pricing.serviceFee || 100,
-        totalAmount: pricing.totalAmount
+        subtotal: finalPricing.subtotal,
+        serviceFee: finalPricing.serviceFee || 100,
+        totalAmount: finalPricing.totalAmount,
+        originalSubtotal: finalPricing.originalSubtotal,
+        originalServiceFee: finalPricing.originalServiceFee,
+        originalTotalAmount: finalPricing.originalTotalAmount,
+        isFirstTimeUser: finalPricing.isFirstTimeUser,
+        discountApplied: finalPricing.discountApplied
       },
       scheduling: {
         preferredDate: new Date(scheduling.preferredDate),
@@ -103,8 +169,31 @@ const createBooking = asyncHandler(async (req, res) => {
       bookingId: booking._id,
       customerEmail: booking.customer.email,
       totalAmount: booking.pricing.totalAmount,
-      servicesCount: booking.services.length
+      servicesCount: booking.services.length,
+      isFirstTimeUser: booking.pricing.isFirstTimeUser
     });
+
+    // Update user's first-time status if this is their first booking
+    if (isFirstTime) {
+      try {
+        const user = await User.findOne({
+          $or: [
+            { email: customer.email },
+            { phone: customer.phone }
+          ]
+        });
+
+        if (user) {
+          user.stats.isFirstTimeUser = false;
+          user.stats.firstBookingDate = new Date();
+          await user.save();
+          console.log('Updated user first-time status:', user.email || user.phone);
+        }
+      } catch (error) {
+        console.error('Error updating user first-time status:', error);
+        // Don't fail the booking if user update fails
+      }
+    }
 
     // Send notification to admins about new booking
     try {
@@ -408,6 +497,7 @@ const getBookingsByVendor = asyncHandler(async (req, res) => {
     logger.info('Booking query', { query });
 
     const bookings = await Booking.find(query)
+      .select('customer services pricing scheduling status priority vendor notes assignmentNotes completionData payment paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit))
@@ -564,6 +654,30 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     //   });
     // }
 
+    // Check if this is a first-time user
+    const isFirstTime = await isFirstTimeUser(customer.email, customer.phone);
+    console.log('First-time user check (with payment):', { 
+      email: customer.email, 
+      phone: customer.phone, 
+      isFirstTime 
+    });
+
+    // Apply first-time user discount (make service free)
+    let finalPricing = { ...pricing };
+    if (isFirstTime) {
+      finalPricing = {
+        subtotal: 0,
+        serviceFee: 0,
+        totalAmount: 0,
+        originalSubtotal: pricing.subtotal,
+        originalServiceFee: pricing.serviceFee || 100,
+        originalTotalAmount: pricing.totalAmount,
+        isFirstTimeUser: true,
+        discountApplied: 'First-time user - Service is free'
+      };
+      console.log('First-time user discount applied (with payment):', finalPricing);
+    }
+
     // Get payment details from Razorpay
     // const razorpayPaymentDetails = await RazorpayService.getPaymentDetails(paymentData.razorpayPaymentId);
 
@@ -586,9 +700,14 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         price: service.price
       })),
       pricing: {
-        subtotal: pricing.subtotal,
-        serviceFee: pricing.serviceFee || 100,
-        totalAmount: pricing.totalAmount
+        subtotal: finalPricing.subtotal,
+        serviceFee: finalPricing.serviceFee || 100,
+        totalAmount: finalPricing.totalAmount,
+        originalSubtotal: finalPricing.originalSubtotal,
+        originalServiceFee: finalPricing.originalServiceFee,
+        originalTotalAmount: finalPricing.originalTotalAmount,
+        isFirstTimeUser: finalPricing.isFirstTimeUser,
+        discountApplied: finalPricing.discountApplied
       },
       scheduling: {
         preferredDate: new Date(scheduling.preferredDate),
@@ -632,8 +751,31 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       customerEmail: booking.customer.email,
       totalAmount: booking.pricing.totalAmount,
       servicesCount: booking.services.length,
-      paymentId: paymentData.razorpayPaymentId
+      paymentId: paymentData.razorpayPaymentId,
+      isFirstTimeUser: booking.pricing.isFirstTimeUser
     });
+
+    // Update user's first-time status if this is their first booking
+    if (isFirstTime) {
+      try {
+        const user = await User.findOne({
+          $or: [
+            { email: customer.email },
+            { phone: customer.phone }
+          ]
+        });
+
+        if (user) {
+          user.stats.isFirstTimeUser = false;
+          user.stats.firstBookingDate = new Date();
+          await user.save();
+          console.log('Updated user first-time status (with payment):', user.email || user.phone);
+        }
+      } catch (error) {
+        console.error('Error updating user first-time status (with payment):', error);
+        // Don't fail the booking if user update fails
+      }
+    }
 
     // Send notification to admins about new booking
     try {
@@ -1831,6 +1973,44 @@ const verifyPayment = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Check if user is first-time user
+// @route   POST /api/bookings/check-first-time
+// @access  Public
+const checkFirstTimeUser = asyncHandler(async (req, res) => {
+  try {
+    const { email, phone } = req.body;
+
+    if (!email && !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email or phone is required'
+      });
+    }
+
+    const isFirstTime = await isFirstTimeUser(email, phone);
+
+    res.json({
+      success: true,
+      data: {
+        email: email,
+        phone: phone,
+        isFirstTimeUser: isFirstTime,
+        message: isFirstTime 
+          ? 'This is a first-time user - service will be FREE!' 
+          : 'This is not a first-time user - regular pricing applies'
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error checking first-time user:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error checking first-time user status',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   createBooking,
   createBookingWithPayment,
@@ -1847,5 +2027,6 @@ module.exports = {
   rescheduleBookingByUser,
   rescheduleBooking,
   createPaymentOrder,
-  verifyPayment
+  verifyPayment,
+  checkFirstTimeUser
 };
