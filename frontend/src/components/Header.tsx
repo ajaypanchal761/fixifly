@@ -427,7 +427,7 @@ const Header = () => {
             zIndex: isMobile ? 10001 : 10000, // Higher z-index for mobile to appear above bottom nav
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden',
+            overflow: 'visible',
           },
         }}
         variant={isMobile ? "temporary" : "persistent"}
@@ -501,11 +501,11 @@ const Header = () => {
         
         <Divider />
         
-        {/* Menu Options - No Scroll */}
+        {/* Menu Options - Scrollable */}
         <MuiBox sx={{ 
           padding: isMobile ? 0.5 : 1,
           flex: 1,
-          overflowY: 'hidden',
+          overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
           minHeight: 0,

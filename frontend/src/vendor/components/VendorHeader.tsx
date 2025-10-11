@@ -348,7 +348,7 @@ const VendorHeader = () => {
             zIndex: 15000,
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden',
+            overflow: 'visible',
           },
         }}
         variant="temporary"
@@ -430,11 +430,11 @@ const VendorHeader = () => {
         
         <Divider />
         
-        {/* Menu Options - No Scroll */}
+        {/* Menu Options - Scrollable */}
         <MuiBox sx={{ 
           padding: 1,
           flex: 1,
-          overflowY: 'hidden',
+          overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
           minHeight: 0

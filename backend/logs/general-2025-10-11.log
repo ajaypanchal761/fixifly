@@ -3909,3 +3909,67 @@
 [2025-10-11T11:45:39.810Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-11T11:46:39.818Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-11T11:47:39.845Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T11:55:35.036Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-11T11:55:35.191Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-11T11:55:36.167Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-11T11:55:37.079Z] [INFO] SMTP connection verified successfully
+[2025-10-11T11:55:52.686Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-11T11:55:52.874Z] [INFO] Customer bookings retrieved: 2 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":2,"page":1}
+[2025-10-11T11:55:53.077Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-11T11:55:53.921Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-11T11:55:54.058Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":2150,"totalRevenue":2150,"pendingBookings":0,"activeAMCSubscriptions":3,"totalAMCAmount":109.74000000000001,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-11T11:55:54.100Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-11T11:55:54.550Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-11T11:55:54.915Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-11T11:56:36.205Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T11:57:36.209Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T11:58:36.213Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T11:59:36.257Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T12:00:36.260Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T12:01:13.308Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-11T12:01:13.510Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-11T12:01:13.594Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-11T12:01:13.836Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-11T12:01:13.842Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-11T12:01:13.923Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-11T12:01:13.941Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-11T12:01:14.057Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-11T12:01:14.104Z] [INFO] Vendor bookings retrieved: 2 for vendor 561 | {"vendorId":"561","totalBookings":2,"page":1}
+[2025-10-11T12:01:14.148Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-11T12:01:14.162Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-11T12:01:14.212Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-11T12:01:14.219Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-11T12:01:14.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:01:14.312Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-11T12:01:14.494Z] [INFO] Vendor bookings retrieved: 2 for vendor 561 | {"vendorId":"561","totalBookings":2,"page":1}
+[2025-10-11T12:01:36.262Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T12:01:36.983Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:01:37.071Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-11T12:01:40.205Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:01:40.308Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-11T12:01:46.427Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:01:46.542Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-11T12:02:34.514Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:02:34.609Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-11T12:02:36.268Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T12:02:47.783Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:02:47.881Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-11T12:02:50.879Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:02:51.011Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-11T12:02:58.708Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-11T12:02:58.743Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-11T12:02:58.847Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-11T12:02:58.876Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-11T12:02:58.879Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-11T12:02:58.939Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-11T12:02:59.041Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-11T12:02:59.065Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-11T12:02:59.074Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-11T12:02:59.181Z] [INFO] Vendor bookings retrieved: 2 for vendor 561 | {"vendorId":"561","totalBookings":2,"page":1}
+[2025-10-11T12:02:59.211Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-11T12:02:59.264Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-11T12:02:59.267Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-11T12:02:59.325Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:02:59.392Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-11T12:02:59.498Z] [INFO] Vendor bookings retrieved: 2 for vendor 561 | {"vendorId":"561","totalBookings":2,"page":1}
+[2025-10-11T12:03:36.268Z] [INFO] Found 0 pending assignments to check for auto-rejection
