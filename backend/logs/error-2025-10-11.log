@@ -1,8 +1,0 @@
-[2025-10-11T08:49:22.243Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/notifications/send"}
-[2025-10-11T08:49:27.664Z] [ERROR] Admin token verification error | {"error":"Access token verification failed: jwt expired","tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","endpoint":"/api/admin/logout"}
-[2025-10-11T08:49:51.056Z] [ERROR] Failed to upload from buffer | {"error":"Request Timeout","http_code":499,"name":"TimeoutError"}
-[2025-10-11T09:10:53.593Z] [ERROR] Failed to upload from buffer | {"error":"Auto gravity can only be used with crop, fill, thumb, lfill, afill, fill_pad, auto, auto_pad, auto_afill","http_code":400,"name":"Error"}
-[2025-10-11T10:37:45.379Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"561"}
-[2025-10-11T10:56:51.330Z] [ERROR] Error fetching dashboard stats | {"error":"PlanExecutor error during aggregation :: caused by :: $add only supports numeric or date types, not string","adminId":"68e556544152df81db3bbb41"}
-[2025-10-11T10:56:54.029Z] [ERROR] Error fetching dashboard stats | {"error":"PlanExecutor error during aggregation :: caused by :: $add only supports numeric or date types, not string","adminId":"68e556544152df81db3bbb41"}
-[2025-10-11T11:20:59.470Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"561"}
