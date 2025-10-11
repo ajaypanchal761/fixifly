@@ -68,6 +68,13 @@ const reviewSchema = new mongoose.Schema({
     required: false
   },
   
+  // Optional: Link to specific vendor
+  vendorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Vendor',
+    required: false
+  },
+  
   // Review status
   status: {
     type: String,
@@ -143,11 +150,14 @@ reviewSchema.index({ status: 1 });
 reviewSchema.index({ createdAt: -1 });
 reviewSchema.index({ isFeatured: 1 });
 reviewSchema.index({ cardId: 1 });
+reviewSchema.index({ vendorId: 1 });
 reviewSchema.index({ bookingId: 1 });
 
 // Compound indexes
 reviewSchema.index({ category: 1, status: 1, createdAt: -1 });
 reviewSchema.index({ status: 1, isFeatured: 1, createdAt: -1 });
+reviewSchema.index({ vendorId: 1, status: 1, createdAt: -1 });
+reviewSchema.index({ bookingId: 1, userId: 1 });
 
 // Virtual for user initials
 reviewSchema.virtual('userInitials').get(function() {
@@ -302,8 +312,33 @@ reviewSchema.statics.getRecentReviews = function(limit = 10) {
 reviewSchema.statics.getUserReviews = function(userId, limit = 10) {
   return this.find({ userId })
     .populate('cardId', 'name speciality')
+    .populate('vendorId', 'firstName lastName vendorId')
     .sort({ createdAt: -1 })
     .limit(limit);
+};
+
+reviewSchema.statics.getVendorReviews = function(vendorId, limit = 10) {
+  return this.find({ vendorId, status: 'approved' })
+    .populate('userId', 'name profileImage')
+    .populate('bookingId', 'bookingReference services')
+    .sort({ createdAt: -1 })
+    .limit(limit);
+};
+
+reviewSchema.statics.getVendorRatingStats = function(vendorId) {
+  return this.aggregate([
+    { $match: { vendorId: new mongoose.Types.ObjectId(vendorId), status: 'approved' } },
+    {
+      $group: {
+        _id: null,
+        totalReviews: { $sum: 1 },
+        averageRating: { $avg: '$rating' },
+        ratingDistribution: {
+          $push: '$rating'
+        }
+      }
+    }
+  ]);
 };
 
 reviewSchema.statics.getReviewStats = function() {

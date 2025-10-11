@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
+// Debug API URL
+console.log('🔗 ReviewService API_BASE_URL:', API_BASE_URL);
+
 // Types
 export interface Review {
   _id: string;
@@ -36,6 +39,7 @@ export interface CreateReviewData {
   rating: number;
   comment: string;
   cardId?: string;
+  vendorId?: string;
   bookingId?: string;
   isAnonymous?: boolean;
 }
@@ -108,10 +112,14 @@ export const reviewService = {
 
   // Create new review
   createReview: async (reviewData: CreateReviewData, token: string): Promise<{ success: boolean; data: Review; message: string }> => {
+    console.log('=== REVIEW SERVICE DEBUG ===');
     console.log('Creating review with data:', reviewData);
     console.log('API_BASE_URL:', API_BASE_URL);
     console.log('Full URL:', `${API_BASE_URL}/reviews`);
     console.log('Token present:', !!token);
+    console.log('Token value:', token);
+    console.log('Token type:', typeof token);
+    console.log('Authorization header:', `Bearer ${token}`);
     
     const response = await axios.post(`${API_BASE_URL}/reviews`, reviewData, {
       headers: {
@@ -151,6 +159,32 @@ export const reviewService = {
       }
     });
     return response.data;
+  },
+
+  // Get vendor reviews
+  getVendorReviews: async (vendorId: string, limit: number = 10): Promise<{ success: boolean; data: Review[]; count: number }> => {
+    console.log('🔍 Fetching vendor reviews for:', vendorId, 'URL:', `${API_BASE_URL}/reviews/vendor/${vendorId}?limit=${limit}`);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/reviews/vendor/${vendorId}?limit=${limit}`);
+      console.log('✅ Vendor reviews response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Error fetching vendor reviews:', error);
+      throw error;
+    }
+  },
+
+  // Get vendor rating statistics
+  getVendorRatingStats: async (vendorId: string): Promise<{ success: boolean; data: { totalReviews: number; averageRating: number; ratingDistribution: { [key: number]: number } } }> => {
+    console.log('📊 Fetching vendor rating stats for:', vendorId, 'URL:', `${API_BASE_URL}/reviews/vendor/${vendorId}/stats`);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/reviews/vendor/${vendorId}/stats`);
+      console.log('✅ Vendor rating stats response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Error fetching vendor rating stats:', error);
+      throw error;
+    }
   },
 
   // Get review statistics

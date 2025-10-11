@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useUserPushNotifications } from "./hooks/useUserPushNotifications";
+// Import mandatory deposit handler to fix the error
+import "./services/mandatoryDepositHandler";
 import Index from "./pages/Index";
 import Booking from "./pages/Booking";
 import AMC from "./pages/AMC";
@@ -17,6 +19,8 @@ import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import TipsTricks from "./pages/TipsTricks";
 import TermsConditions from "./pages/TermsConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CancellationRefundPolicy from "./pages/CancellationRefundPolicy";
 import About from "./pages/About";
 import Reschedule from "./pages/Reschedule";
 import LaptopService from "./pages/LaptopService";
@@ -55,6 +59,8 @@ import AdminSignup from "./admin/pages/AdminSignup";
 // Vendor imports
 import VendorLogin from "./vendor/pages/VendorLogin";
 import VendorSignup from "./vendor/pages/VendorSignup";
+import VendorVerification from "./vendor/pages/VendorVerification";
+import VendorVerified from "./vendor/pages/VendorVerified";
 import VendorDashboard from "./vendor/pages/VendorDashboard";
 import VendorProfile from "./vendor/pages/VendorProfile";
 import VendorEarnings from "./vendor/pages/VendorEarnings";
@@ -70,6 +76,7 @@ import VendorClosedTask from "./vendor/pages/VendorClosedTask";
 import VendorClosedTaskDetail from "./vendor/pages/VendorClosedTaskDetail";
 import VendorPrivacy from "./vendor/pages/VendorPrivacyPolicy";
 import VendorTermsConditions from "./vendor/pages/VendorTermsConditions";
+import VendorDepositPenalty from "./vendor/pages/VendorDepositPenalty";
 import VendorAbout from "./vendor/pages/VendorAbout";
 import VendorPenaltyCharges from "./vendor/pages/VendorPenaltyCharges";
 
@@ -105,6 +112,8 @@ const AppContent = () => {
         {/* ================== VENDOR AUTH ROUTES ================== */}
         <Route path="/vendor/login" element={<VendorLogin />} />
         <Route path="/vendor/signup" element={<VendorSignup />} />
+        <Route path="/vendor/verification" element={<VendorVerification />} />
+        <Route path="/vendor/verified" element={<VendorVerified />} />
 
         {/* ================== PROTECTED USER ROUTES ================== */}
         <Route path="/booking" element={<MobileAuthGuard><Booking /></MobileAuthGuard>} />
@@ -128,6 +137,8 @@ const AppContent = () => {
         <Route path="/tips-tricks" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
         <Route path="/tips" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
         <Route path="/terms-conditions" element={<MobileAuthGuard><TermsConditions /></MobileAuthGuard>} />
+        <Route path="/privacy-policy" element={<MobileAuthGuard><PrivacyPolicy /></MobileAuthGuard>} />
+        <Route path="/cancellation-refund-policy" element={<MobileAuthGuard><CancellationRefundPolicy /></MobileAuthGuard>} />
         <Route path="/about" element={<MobileAuthGuard><About /></MobileAuthGuard>} />
         <Route path="/rate-us" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
         <Route path="/rate" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
@@ -182,6 +193,7 @@ const AppContent = () => {
         <Route path="/vendor/shop" element={<VendorShop />} />
         <Route path="/vendor/privacy" element={<VendorPrivacy />} />
         <Route path="/vendor/terms" element={<VendorTermsConditions />} />
+        <Route path="/vendor/deposit-penalty" element={<VendorDepositPenalty />} />
         <Route path="/vendor/about" element={<VendorAbout />} />
         <Route path="/vendor/penalty" element={<VendorPenaltyCharges />} />
         

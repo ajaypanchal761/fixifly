@@ -16,7 +16,9 @@ const {
   updateServiceLocation,
   removeServiceLocation,
   generateOneSignalIdentityToken,
-  updateFCMToken
+  updateFCMToken,
+  createVerificationPayment,
+  verifyVerificationPayment
 } = require('../controllers/vendorController');
 const {
   getVendorNotifications,
@@ -45,7 +47,7 @@ router.get('/test', (req, res) => {
 // @route   POST /api/vendors/register
 // @desc    Register new vendor
 // @access  Public
-router.post('/register', registerVendor);
+router.post('/register', uploadMiddleware.vendorRegistrationFiles(), registerVendor);
 
 // @route   POST /api/vendors/login
 // @desc    Login vendor
@@ -204,5 +206,16 @@ router.get('/dashboard', protectVendor, getVendorDashboard);
 // @desc    Update FCM token for push notifications
 // @access  Private
 router.post('/update-fcm-token', protectVendor, updateFCMToken);
+
+// Verification Payment routes
+// @route   POST /api/vendors/verification-payment
+// @desc    Create verification payment order
+// @access  Private
+router.post('/verification-payment', protectVendor, createVerificationPayment);
+
+// @route   POST /api/vendors/verify-verification-payment
+// @desc    Verify verification payment
+// @access  Private
+router.post('/verify-verification-payment', protectVendor, verifyVerificationPayment);
 
 module.exports = router;

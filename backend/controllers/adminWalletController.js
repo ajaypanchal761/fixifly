@@ -472,14 +472,15 @@ const adjustVendorWallet = asyncHandler(async (req, res) => {
     if (adjustmentAmount !== 0) {
       await vendorWallet.addManualAdjustment({
         amount: Math.abs(adjustmentAmount),
-        type: adjustmentAmount > 0 ? 'credit' : 'debit',
+        type: 'manual_adjustment', // Use valid enum value
         description: description || `Admin balance adjustment: ${adjustmentAmount > 0 ? '+' : ''}₹${adjustmentAmount}`,
         processedBy: req.admin?.id || 'admin',
         metadata: {
           oldBalance,
           newBalance,
           adjustmentAmount,
-          adjustmentType: adjustmentType || 'manual'
+          adjustmentType: adjustmentType || 'manual',
+          isCredit: adjustmentAmount > 0 // Track if it's a credit or debit
         }
       });
     }

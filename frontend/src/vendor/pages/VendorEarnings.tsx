@@ -4,7 +4,7 @@ import VendorBenefitsModal from "../components/VendorBenefitsModal";
 import Footer from "../../components/Footer";
 import NotFound from "../../pages/NotFound";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { DollarSign, TrendingUp, TrendingDown, Filter, Download, Wallet, Plus, AlertTriangle, CheckCircle, Edit } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Filter, Download, Wallet, Plus, AlertTriangle, CheckCircle, Edit, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useVendor } from "@/contexts/VendorContext";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,7 @@ const VendorEarnings = () => {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [isProcessingWithdraw, setIsProcessingWithdraw] = useState(false);
+  const [pendingWithdrawalRequest, setPendingWithdrawalRequest] = useState(null);
 
   const [transactionHistory, setTransactionHistory] = useState([]);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
@@ -58,12 +59,14 @@ const VendorEarnings = () => {
       console.log('🔄 Component mounted, fetching wallet data for vendor:', vendor.vendorId);
       fetchWalletData();
       fetchTransactionHistory();
+      checkPendingWithdrawalRequest();
       
       // Set up periodic auto-refresh every 30 seconds to keep data updated
       const intervalId = setInterval(() => {
         console.log('🔄 Periodic auto-refresh of wallet data');
         fetchWalletData();
         fetchTransactionHistory();
+        checkPendingWithdrawalRequest();
       }, 30000); // 30 seconds
       
       // Cleanup interval on unmount
@@ -272,6 +275,37 @@ const VendorEarnings = () => {
     }
   };
 
+  // Check for pending withdrawal requests
+  const checkPendingWithdrawalRequest = async () => {
+    if (!vendor?.vendorId) return;
+    
+    try {
+      const token = localStorage.getItem('vendorToken');
+      if (!token) return;
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/vendors/withdrawal`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          const pendingRequest = data.data.find((request: any) => request.status === 'pending');
+          setPendingWithdrawalRequest(pendingRequest || null);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking pending withdrawal requests:', error);
+    }
+  };
+
   // Fetch transaction history from API
   const fetchTransactionHistory = async () => {
     if (!vendor?.vendorId) {
@@ -333,8 +367,18 @@ const VendorEarnings = () => {
         return;
       }
       
-      // Transform API data to match component interface
-      const transformedTransactions = data.data.transactions.map((transaction: any) => {
+      // Debug: Log all transactions received from API
+      console.log('All transactions from API:', data.data.transactions);
+      console.log('Withdrawal request transactions:', data.data.transactions.filter((t: any) => t.type === 'withdrawal_request'));
+      
+      // Transform API data to match component interface and sort by date (latest first)
+      const transformedTransactions = data.data.transactions
+        .sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || a.timestamp || 0);
+          const dateB = new Date(b.createdAt || b.timestamp || 0);
+          return dateB.getTime() - dateA.getTime();
+        })
+        .map((transaction: any) => {
         // Generate proper case ID based on transaction type
         let caseId = transaction.caseId || transaction.bookingId;
         
@@ -343,12 +387,30 @@ const VendorEarnings = () => {
           type: transaction.type,
           description: transaction.description,
           caseId: transaction.caseId,
-          bookingId: transaction.bookingId
+          bookingId: transaction.bookingId,
+          metadata: transaction.metadata,
+          status: transaction.status
         });
+        
+        // Special logging for withdrawal requests (both old and new formats)
+        if (transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved')))) {
+          console.log('Found withdrawal request transaction:', {
+            id: transaction._id || transaction.id,
+            type: transaction.type,
+            amount: transaction.amount,
+            metadata: transaction.metadata,
+            status: transaction.status,
+            description: transaction.description,
+            isPending: transaction.description.includes('Withdrawal request submitted'),
+            isApproved: transaction.description.includes('Withdrawal approved')
+          });
+        }
         
         if (!caseId) {
           if (transaction.type === 'deposit') {
             caseId = `TXN-${(transaction._id || transaction.id).toString().slice(-6)}`;
+          } else if (transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved')))) {
+            caseId = `WR-${(transaction._id || transaction.id).toString().slice(-6)}`;
           } else if (transaction.type === 'earning') {
             // For earnings, prioritize booking ID from transaction data
             if (transaction.bookingId) {
@@ -405,23 +467,55 @@ const VendorEarnings = () => {
           }
         }
         
+        // Calculate amount for withdrawal requests (both old and new formats)
+        let calculatedAmount = transaction.amount;
+        if (transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved')))) {
+          if (transaction.metadata && transaction.metadata.amountAbove5000) {
+            calculatedAmount = -transaction.metadata.amountAbove5000;
+          } else if (transaction.description) {
+            // Extract amount from description if metadata is not available
+            // Look for the pattern "Amount above ₹5,000: ₹100" and extract the second amount
+            const match = transaction.description.match(/Amount above ₹[\d,]+: ₹(\d+(?:,\d+)*)/);
+            calculatedAmount = match ? -parseInt(match[1].replace(/,/g, '')) : 0;
+          }
+          console.log('Withdrawal request amount calculation:', {
+            originalAmount: transaction.amount,
+            metadataAmount: transaction.metadata?.amountAbove5000,
+            extractedAmount: transaction.description ? (() => {
+              const match = transaction.description.match(/Amount above ₹[\d,]+: ₹(\d+(?:,\d+)*)/);
+              return match ? parseInt(match[1].replace(/,/g, '')) : 0;
+            })() : 0,
+            finalAmount: calculatedAmount,
+            isPending: transaction.description.includes('Withdrawal request submitted'),
+            isApproved: transaction.description.includes('Withdrawal approved')
+          });
+        }
+
         return {
           id: transaction._id || transaction.id,
           caseId: caseId,
           type: transaction.type === 'deposit' || transaction.type === 'earning' ? 'Payment Received' : 
-                transaction.type === 'withdrawal' ? 'Withdrawal Successful' :
+                transaction.type === 'withdrawal' ? 'Withdrawal' :
+                transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved'))) ? 'Withdrawal Request' :
                 transaction.type === 'penalty' ? (transaction.description && transaction.description.includes('Auto-rejection') ? 'Auto-Rejection Penalty' : 'Penalty on Cancellation') : 
                 transaction.type === 'task_acceptance_fee' ? 'Task Fee' :
                 transaction.type === 'cash_collection' ? 'Cash Collection' :
                 transaction.type === 'manual_adjustment' ? 'Admin Adjustment' : 'Earning Added',
           amount: transaction.type === 'withdrawal' || transaction.type === 'penalty' || transaction.type === 'task_acceptance_fee' || transaction.type === 'cash_collection' ? 
                   -Math.abs(transaction.amount) : 
+                  transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved'))) ? calculatedAmount :
                   transaction.type === 'manual_adjustment' ? transaction.amount : Math.abs(transaction.amount),
           date: transaction.createdAt ? new Date(transaction.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          status: transaction.status || 'completed',
+          status: transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved'))) ? 
+            (transaction.metadata && transaction.metadata.status ? transaction.metadata.status : 
+             transaction.description.includes('Withdrawal approved') ? 'approved' : 'pending') :
+            (transaction.status || 'completed'),
           description: transaction.description || 'Wallet transaction'
         };
       });
+      
+      // Debug: Log final transformed transactions
+      console.log('Final transformed transactions:', transformedTransactions);
       
       setTransactionHistory(transformedTransactions);
     } catch (error) {
@@ -548,6 +642,7 @@ const VendorEarnings = () => {
   }
   
   const availableBalance = Math.max(0, actualCurrentBalance - 3999); // Available for withdrawal
+  const withdrawableAmount = Math.max(0, availableBalance - 5000); // Amount above ₹5000 that can be withdrawn
   const totalWithdrawn = walletData.summary?.totalWithdrawals || 0;
   
   console.log('💰 Final Balance Calculation:');
@@ -691,6 +786,17 @@ const VendorEarnings = () => {
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
     
+    // Check if available balance is less than ₹5000
+    if (availableBalance < 5000) {
+      toast({
+        title: "Withdrawal Not Available",
+        description: `Withdrawal will be available after your balance reaches ₹5,000. Current available balance: ₹${availableBalance.toLocaleString()}`,
+        variant: "destructive"
+      });
+      setIsWithdrawModalOpen(false);
+      return;
+    }
+    
     // Validate amount
     if (amount <= 0) {
       toast({
@@ -701,10 +807,21 @@ const VendorEarnings = () => {
       return;
     }
 
-    if (amount > availableBalance) {
+    // Check if withdrawal amount is valid (should be the amount above ₹5000)
+    if (amount <= 0) {
       toast({
-        title: "Insufficient Balance",
-        description: `You can only withdraw up to ₹${availableBalance.toLocaleString()}.`,
+        title: "Invalid Withdrawal Amount",
+        description: "Please enter a valid withdrawal amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if withdrawal amount exceeds the amount available above ₹5000
+    if (amount > withdrawableAmount) {
+      toast({
+        title: "Insufficient Withdrawable Amount",
+        description: `You can only withdraw ₹${withdrawableAmount.toLocaleString()} (the amount above ₹5,000). Available balance: ₹${availableBalance.toLocaleString()}`,
         variant: "destructive"
       });
       return;
@@ -726,15 +843,15 @@ const VendorEarnings = () => {
       
       toast({
         title: "Thank You!",
-        description: `Your withdrawal request for ₹${amount.toLocaleString()} has been submitted successfully. It will be processed within 24-48 hours.`,
+        description: `Your withdrawal request for ₹${amount.toLocaleString()} (amount above ₹5,000) has been submitted successfully. Only ₹${amount.toLocaleString()} will be deducted from your wallet. It will be processed within 24-48 hours.`,
       });
 
       setIsWithdrawModalOpen(false);
       setWithdrawAmount('');
       setIsProcessingWithdraw(false);
       
-      // Refresh wallet data after withdrawal request
-      await fetchWalletData();
+      // Refresh wallet data and pending requests after withdrawal request
+      await Promise.all([fetchWalletData(), fetchTransactionHistory(), checkPendingWithdrawalRequest()]);
     } catch (error) {
       console.error('Error processing withdrawal:', error);
       toast({
@@ -784,13 +901,28 @@ const VendorEarnings = () => {
       return false;
     }
     
+    // Hide subscription transactions (₹3999)
+    if (transaction.amount === 3999 || transaction.amount === '3999') {
+      return false;
+    }
+    
+    // Hide subscription-related transactions
+    if (transaction.type && (
+      transaction.type.toLowerCase().includes('subscription') ||
+      transaction.type.toLowerCase().includes('initial deposit') ||
+      transaction.description?.toLowerCase().includes('subscription') ||
+      transaction.description?.toLowerCase().includes('initial deposit')
+    )) {
+      return false;
+    }
+    
     switch (activeFilter) {
       case 'All':
         return true;
       case 'Payment Received':
         return transaction.type === 'Payment Received';
       case 'Withdraw':
-        return transaction.type === 'Withdraw Transferred' || transaction.type === 'Withdrawal Successful';
+        return transaction.type === 'Withdraw Transferred' || transaction.type === 'Withdrawal Successful' || transaction.type === 'Withdrawal' || transaction.type === 'Withdrawal Request';
       case 'Penalty':
         return transaction.type === 'Penalty on Cancellation';
       case 'Admin Adjustment':
@@ -800,7 +932,11 @@ const VendorEarnings = () => {
     }
   });
 
-  const getTransactionIcon = (type: string) => {
+  // Debug: Log filtered transactions
+  console.log('Filtered transactions:', filteredTransactions);
+  console.log('Withdrawal request transactions in filtered list:', filteredTransactions.filter((t: any) => t.type === 'Withdrawal Request'));
+
+  const getTransactionIcon = (type: string, status?: string) => {
     switch (type) {
       case "Payment Received":
       case "Earning Added":
@@ -808,8 +944,11 @@ const VendorEarnings = () => {
         return <TrendingUp className="w-5 h-5 text-green-600" />;
       case "Withdraw Transferred":
       case "Withdrawal Successful":
+      case "Withdrawal":
       case "Penalty on Cancellation":
         return <TrendingDown className="w-5 h-5 text-red-600" />;
+      case "Withdrawal Request":
+        return status === 'approved' ? <TrendingDown className="w-5 h-5 text-green-600" /> : <Clock className="w-5 h-5 text-orange-600" />;
       case "Admin Adjustment":
         return <Edit className="w-5 h-5 text-purple-600" />;
       default:
@@ -825,9 +964,12 @@ const VendorEarnings = () => {
         return "text-green-600";
       case "Withdraw Transferred":
       case "Withdrawal Successful":
+      case "Withdrawal":
       case "Penalty on Cancellation":
       case "Auto-Rejection Penalty":
         return "text-red-600";
+      case "Withdrawal Request":
+        return "text-orange-600";
       case "Admin Adjustment":
         return "text-purple-600";
       default:
@@ -838,11 +980,8 @@ const VendorEarnings = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
-        <div className="container mx-auto px-4 py-4">
-        <h1 className="text-3xl font-bold mb-4 md:hidden text-center">Vendor <span className="text-3xl font-bold text-gradient mb-4 md:hidden text-center"> Earning</span></h1>
-        
-          
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
+        <div className="container mx-auto px-4 py-4">     
           {/* Mandatory Deposit Alert */}
           {!hasInitialDeposit && (
             <div className="mb-6 md:hidden">
@@ -871,33 +1010,7 @@ const VendorEarnings = () => {
             </div>
           )}
 
-          {/* Success Message for Deposit */}
-          {hasInitialDeposit && (
-            <div className="mb-6 md:hidden">
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
-                  <div className="space-y-3">
-                    <div>
-                      <strong>Deposit Complete:</strong> You have successfully made your initial deposit. 
-                      You can now access all vendor features.
-                    </div>
-                    <div className="flex justify-center">
-                      <VendorBenefitsModal hasInitialDeposit={hasInitialDeposit}>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="border-green-300 text-green-700 hover:bg-green-100"
-                        >
-                          🎁 View Your Benefits
-                        </Button>
-                      </VendorBenefitsModal>
-                    </div>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
+
           
           {/* Balance Overview */}
           <div className="grid grid-cols-1 gap-4 mb-8 md:hidden">
@@ -922,7 +1035,7 @@ const VendorEarnings = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-2">
                   <Dialog open={isDepositModalOpen} onOpenChange={setIsDepositModalOpen}>
                     <DialogTrigger asChild>
                       <Button 
@@ -1002,19 +1115,29 @@ const VendorEarnings = () => {
                             type="number"
                             value={withdrawAmount}
                             onChange={(e) => setWithdrawAmount(e.target.value)}
-                            placeholder="Enter amount"
-                            min={availableBalance <= 0 ? "0" : "1"}
-                            max={availableBalance}
+                            placeholder={availableBalance >= 5000 ? `Enter amount above ₹5,000 (max: ₹${withdrawableAmount.toLocaleString()})` : "Enter amount"}
+                            min={availableBalance < 5000 ? "0" : "1"}
+                            max={availableBalance >= 5000 ? withdrawableAmount : availableBalance}
                           />
                           <p className="text-sm text-muted-foreground mt-1">
                             Available balance: ₹{availableBalance.toLocaleString()}
+                            {availableBalance >= 5000 && (
+                              <span className="block text-orange-600 font-medium">
+                                Withdrawable amount: ₹{withdrawableAmount.toLocaleString()} (amount above ₹5,000)
+                              </span>
+                            )}
                           </p>
                         </div>
                         
                         <Alert>
                           <AlertTriangle className="h-4 w-4" />
                           <AlertDescription>
-                            Withdrawal requests are processed within 24-48 hours. Please ensure your bank details are up to date.
+                            <div className="space-y-2">
+                              <div>Withdrawal requests are processed within 24-48 hours. Please ensure your bank details are up to date.</div>
+                              <div className="font-medium text-orange-700">
+                                You can only withdraw amounts above ₹5,000. For example, if your balance is ₹5,100, you can withdraw ₹100.
+                              </div>
+                            </div>
                           </AlertDescription>
                         </Alert>
                         
@@ -1040,10 +1163,32 @@ const VendorEarnings = () => {
                   
                     <button 
                       className="btn-tech text-sm py-2 px-6"
-                      onClick={() => setIsWithdrawModalOpen(true)}
-                      disabled={!hasInitialDeposit || availableBalance <= 0}
+                      onClick={() => {
+                        if (pendingWithdrawalRequest) {
+                          toast({
+                            title: "Withdrawal Request Already Pending",
+                            description: `You already have a pending withdrawal request for ₹${pendingWithdrawalRequest.amount.toLocaleString()}. Please wait for it to be processed before making a new request.`,
+                            variant: "destructive"
+                          });
+                        } else if (availableBalance < 5000) {
+                          toast({
+                            title: "Withdrawal Not Available",
+                            description: `Withdrawal will be available after your balance reaches ₹5,000. Current available balance: ₹${availableBalance.toLocaleString()}`,
+                            variant: "destructive"
+                          });
+                        } else if (withdrawableAmount <= 0) {
+                          toast({
+                            title: "No Withdrawable Amount",
+                            description: `You need more than ₹5,000 to withdraw. Current available balance: ₹${availableBalance.toLocaleString()}. You can only withdraw amounts above ₹5,000.`,
+                            variant: "destructive"
+                          });
+                        } else {
+                          setIsWithdrawModalOpen(true);
+                        }
+                      }}
+                      disabled={!hasInitialDeposit || !!pendingWithdrawalRequest}
                     >
-                      Withdraw
+                      {pendingWithdrawalRequest ? 'Request Pending' : 'Withdraw'}
                     </button>
                 </div>
               </div>
@@ -1111,16 +1256,27 @@ const VendorEarnings = () => {
           <div className="service-card mb-8 md:hidden">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-foreground">Transaction History</h2>
-              <button 
-                className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                onClick={() => {
-                  // Export transaction history to Excel
-                  exportToExcel();
-                }}
-              >
-                <Download className="w-4 h-4" />
-                Export
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  onClick={() => {
+                    fetchTransactionHistory();
+                    checkPendingWithdrawalRequest();
+                  }}
+                >
+                  Refresh
+                </button>
+                <button 
+                  className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                  onClick={() => {
+                    // Export transaction history to Excel
+                    exportToExcel();
+                  }}
+                >
+                  <Download className="w-4 h-4" />
+                  Export
+                </button>
+              </div>
             </div>
             
             <div className="space-y-4">
@@ -1146,9 +1302,21 @@ const VendorEarnings = () => {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      {getTransactionIcon(transaction.type)}
+                      {getTransactionIcon(transaction.type, transaction.status)}
                       <div>
-                        <h3 className="font-semibold text-foreground">{transaction.type}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-foreground">{transaction.type}</h3>
+                          {transaction.type === 'Withdrawal Request' && (
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              transaction.status === 'pending' ? 'bg-orange-100 text-orange-800' :
+                              transaction.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              transaction.status === 'declined' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {transaction.status === 'approved' ? 'success' : transaction.status}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">Case ID: {transaction.caseId}</p>
                       </div>
                     </div>

@@ -1,1121 +1,1136 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useMediaQuery, useTheme } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useVendor } from '@/contexts/VendorContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   User, 
-  Phone, 
   Mail, 
+  Phone, 
   MapPin, 
+  Briefcase, 
+  Calendar, 
+  Shield, 
   Star, 
+  Edit,
   Camera, 
-  Edit3, 
-  Save, 
-  X,
-  Upload,
+  FileText,
   CheckCircle,
-  Calendar,
-  Building,
-  Briefcase,
-  MapPin as LocationIcon,
   Clock,
   XCircle,
-  AlertTriangle
+  Trash2,
+  Loader2
 } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
+import vendorApiService from '@/services/vendorApi';
 import VendorHeader from '../components/VendorHeader';
 import VendorBottomNav from '../components/VendorBottomNav';
+import VendorBenefitsModal from '../components/VendorBenefitsModal';
+import VendorRatingDisplay from '../../components/VendorRatingDisplay';
 import Footer from '../../components/Footer';
-import NotFound from '../../pages/NotFound';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { useVendor } from '@/contexts/VendorContext';
-import vendorApiService from '@/services/vendorApi';
-import type { Vendor, ServiceLocation } from '@/services/vendorApi';
 
 const VendorProfile = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
-  // Show 404 error on desktop - must be before any other hooks
-  if (!isMobile) {
-    return <NotFound />;
-  }
-
+  const { vendor, isAuthenticated, updateVendor } = useVendor();
   const { toast } = useToast();
-  const { vendor, updateVendor } = useVendor();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [loading, setLoading] = useState(false);
+  const [vendorData, setVendorData] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [profileData, setProfileData] = useState<Vendor | null>(null);
-  
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    specialty: '',
-    bio: '',
-    serviceCategories: [] as string[],
-    customServiceCategory: '',
-    address: {
-      street: '',
-      city: '',
-      state: '',
-      pincode: '',
-      landmark: ''
-    }
+  const [editData, setEditData] = useState<any>({});
+  const [saving, setSaving] = useState(false);
+  const [showAddRoute, setShowAddRoute] = useState(false);
+  const [editingRouteIndex, setEditingRouteIndex] = useState<number | null>(null);
+  const [newRoute, setNewRoute] = useState({
+    from: '',
+    to: ''
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Service locations state
-  const [serviceLocations, setServiceLocations] = useState<ServiceLocation[]>([]);
-  const [isAddingLocation, setIsAddingLocation] = useState(false);
-  const [newLocation, setNewLocation] = useState({ from: '', to: '' });
-  const [editingLocationId, setEditingLocationId] = useState<string | null>(null);
-  const [editingLocation, setEditingLocation] = useState({ from: '', to: '' });
-
-  const serviceCategories = [
-    'Electronics Repair',
-    'Home Appliances',
-    'Computer & Laptop',
-    'Mobile Phone',
-    'AC & Refrigeration',
-    'Plumbing',
-    'Electrical',
-    'Carpentry',
-    'Painting',
-    'Cleaning Services',
-    'Other'
-  ];
-
-  // Load vendor profile data
   useEffect(() => {
-    loadVendorProfile();
-  }, []);
+    if (isAuthenticated && vendor) {
+      console.log('Vendor data from context:', vendor);
+      setVendorData(vendor);
 
-  const loadVendorProfile = async () => {
+      // Fetch complete vendor profile data
+      const fetchVendorProfile = async () => {
     try {
-      setIsLoading(true);
+          setLoading(true);
       const response = await vendorApiService.getVendorProfile();
-      
       if (response.success && response.data) {
-        const vendorData = response.data.vendor;
-        setProfileData(vendorData);
-        setServiceLocations(vendorData.serviceLocations || []);
-        setFormData({
-          firstName: vendorData.firstName || '',
-          lastName: vendorData.lastName || '',
-          email: vendorData.email || '',
-          phone: vendorData.phone || '',
-          specialty: vendorData.specialty || '',
-          bio: vendorData.bio || '',
-          serviceCategories: vendorData.serviceCategories || [],
-          customServiceCategory: vendorData.customServiceCategory || '',
-          address: {
-            street: vendorData.address?.street || '',
-            city: vendorData.address?.city || '',
-            state: vendorData.address?.state || '',
-            pincode: vendorData.address?.pincode || '',
-            landmark: vendorData.address?.landmark || ''
+            console.log('Complete vendor profile data:', response.data);
+            setVendorData(response.data.vendor);
           }
-        });
-      }
-    } catch (error: any) {
-      console.error('Error loading vendor profile:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to load profile",
-        variant: "destructive"
-      });
+        } catch (error) {
+          console.error('Error fetching vendor profile:', error);
+          // Keep using context data as fallback
     } finally {
-      setIsLoading(false);
+          setLoading(false);
+        }
+      };
+      
+      fetchVendorProfile();
+    }
+  }, [isAuthenticated, vendor]);
+
+  const getStatusBadge = (isApproved: boolean, isActive: boolean, isBlocked: boolean) => {
+    if (isBlocked) {
+      return <Badge variant="destructive" className="flex items-center gap-1"><XCircle className="h-3 w-3" />Blocked</Badge>;
+    }
+    if (!isApproved) {
+      return <Badge variant="secondary" className="flex items-center gap-1"><Clock className="h-3 w-3" />Pending Approval</Badge>;
+    }
+    if (isActive) {
+      return <Badge variant="default" className="flex items-center gap-1 bg-green-600 text-xs px-2 py-1"><CheckCircle className="h-3 w-3" />Active</Badge>;
+    }
+    return <Badge variant="secondary" className="flex items-center gap-1"><Clock className="h-3 w-3" />Inactive</Badge>;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatPhone = (phone: string) => {
+    if (phone.startsWith('+91')) {
+      return `+91 ${phone.slice(3, 8)} ${phone.slice(8)}`;
+    } else if (phone.startsWith('91')) {
+      return `+91 ${phone.slice(2, 7)} ${phone.slice(7)}`;
+    } else {
+      return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <VendorHeader />
-        <main className="flex-1 pb-24 pt-20 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading profile...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  if (!profileData) {
-    return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <VendorHeader />
-        <main className="flex-1 pb-24 pt-20 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">Failed to load profile</p>
-            <Button onClick={loadVendorProfile} variant="outline">
-              Try Again
-            </Button>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   const handleEdit = () => {
+    console.log('Vendor data when editing:', vendorData);
+    setEditData({
+      firstName: vendorData.firstName || '',
+      lastName: vendorData.lastName || '',
+      fatherName: vendorData.fatherName || '',
+      phone: vendorData.phone || '',
+      alternatePhone: vendorData.alternatePhone || '',
+      homePhone: vendorData.homePhone || '',
+      currentAddress: vendorData.currentAddress || '',
+      serviceCategories: vendorData.serviceCategories || [],
+      experience: vendorData.experience || '',
+      specialty: vendorData.specialty || ''
+    });
     setIsEditing(true);
   };
 
   const handleCancel = () => {
-    setIsEditing(false);
-    // Reset form data to original values
-    if (profileData) {
-      setFormData({
-        firstName: profileData.firstName || '',
-        lastName: profileData.lastName || '',
-        email: profileData.email || '',
-        phone: profileData.phone || '',
-        specialty: profileData.specialty || '',
-        bio: profileData.bio || '',
-        serviceCategories: profileData.serviceCategories || [],
-        customServiceCategory: profileData.customServiceCategory || '',
-        address: {
-          street: profileData.address?.street || '',
-          city: profileData.address?.city || '',
-          state: profileData.address?.state || '',
-          pincode: profileData.address?.pincode || '',
-          landmark: profileData.address?.landmark || ''
-        }
-      });
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    
-    if (name.startsWith('address.')) {
-      const addressField = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        address: {
-          ...prev.address,
-          [addressField]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleCategoryChange = (category: string, checked: boolean) => {
-    setFormData(prev => {
-      let newCategories;
-      if (checked) {
-        newCategories = [...prev.serviceCategories, category];
-      } else {
-        newCategories = prev.serviceCategories.filter(c => c !== category);
-        // If "Other" is unchecked, clear the custom service category
-        if (category === 'Other') {
-          return {
-            ...prev,
-            serviceCategories: newCategories,
-            customServiceCategory: ''
-          };
-        }
-      }
-      return {
-        ...prev,
-        serviceCategories: newCategories
-      };
-    });
+        setIsEditing(false);
+    setEditData({});
   };
 
   const handleSave = async () => {
-    // Validate form data
-    if (!formData.firstName.trim() || !formData.lastName.trim()) {
-      toast({
-        title: "Error",
-        description: "First name and last name are required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      toast({
-        title: "Error",
-        description: "Email is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      setIsSaving(true);
+      setSaving(true);
       
-      const response = await vendorApiService.updateVendorProfile(formData);
+      // Clean phone numbers - remove all non-digit characters
+      const cleanedData = { ...editData };
       
-      if (response.success) {
-        setProfileData(response.data.vendor);
-        
-        // Update vendor context
-        updateVendor({
-          firstName: response.data.vendor.firstName,
-          lastName: response.data.vendor.lastName,
-          email: response.data.vendor.email,
-          specialty: response.data.vendor.specialty,
-          bio: response.data.vendor.bio,
-          serviceCategories: response.data.vendor.serviceCategories,
-          address: response.data.vendor.address,
-          serviceLocations: response.data.vendor.serviceLocations
+      // Remove bio field if it exists
+      delete cleanedData.bio;
+      
+      // Ensure required fields are not empty
+      if (!cleanedData.fatherName || cleanedData.fatherName.trim() === '') {
+      toast({
+          title: "Validation Error",
+          description: "Father's name is required.",
+        variant: "destructive",
+      });
+        setSaving(false);
+      return;
+    }
+
+      if (!cleanedData.alternatePhone || cleanedData.alternatePhone.trim() === '') {
+      toast({
+          title: "Validation Error",
+          description: "Alternate phone number is required.",
+        variant: "destructive",
+      });
+        setSaving(false);
+      return;
+    }
+
+      if (!cleanedData.currentAddress || cleanedData.currentAddress.trim() === '') {
+        toast({
+          title: "Validation Error",
+          description: "Current address is required.",
+          variant: "destructive",
         });
+        setSaving(false);
+        return;
+      }
+      
+      if (!cleanedData.homePhone || cleanedData.homePhone.trim() === '') {
+        toast({
+          title: "Validation Error",
+          description: "Home phone number is required.",
+          variant: "destructive",
+        });
+        setSaving(false);
+        return;
+      }
+      
+      if (!cleanedData.serviceCategories || cleanedData.serviceCategories.length === 0) {
+        toast({
+          title: "Validation Error",
+          description: "At least one service category is required.",
+          variant: "destructive",
+        });
+        setSaving(false);
+        return;
+      }
+
+      if (cleanedData.phone) {
+        cleanedData.phone = cleanedData.phone.replace(/\D/g, '');
+        if (cleanedData.phone.length !== 10) {
+        toast({
+            title: "Validation Error",
+            description: "Primary phone number must be exactly 10 digits.",
+            variant: "destructive",
+          });
+          setSaving(false);
+          return;
+        }
+      }
+      if (cleanedData.alternatePhone) {
+        cleanedData.alternatePhone = cleanedData.alternatePhone.replace(/\D/g, '');
+        if (cleanedData.alternatePhone.length !== 10) {
+      toast({
+            title: "Validation Error",
+            description: "Alternate phone number must be exactly 10 digits.",
+            variant: "destructive",
+          });
+          setSaving(false);
+      return;
+    }
+      }
+      if (cleanedData.homePhone) {
+        cleanedData.homePhone = cleanedData.homePhone.replace(/\D/g, '');
+        if (cleanedData.homePhone.length !== 10) {
+        toast({
+            title: "Validation Error",
+            description: "Home phone number must be exactly 10 digits.",
+            variant: "destructive",
+          });
+          setSaving(false);
+      return;
+    }
+      }
+      
+      console.log('Original edit data:', editData);
+      console.log('Sending cleaned data:', cleanedData);
+      
+      const response = await vendorApiService.updateVendorProfile(cleanedData);
+      if (response.success) {
+        setVendorData(response.data.vendor);
+        
+        // Update the vendor context so sidebar also gets updated
+        await updateVendor(response.data.vendor);
         
         setIsEditing(false);
+        setEditData({});
         toast({
-          title: "Success",
-          description: "Profile updated successfully!",
+          title: "Profile Updated",
+          description: "Your profile has been updated successfully.",
+        });
+      } else {
+        console.log('API response error:', response);
+        console.log('Specific validation errors:', response.error);
+        const errorMessage = response.error || response.message || "Failed to update profile. Please try again.";
+      toast({
+          title: "Update Failed",
+          description: errorMessage,
+          variant: "destructive",
         });
       }
     } catch (error: any) {
-      console.error('Error saving profile:', error);
+      console.error('Error updating profile:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+      console.error('Full error object:', error);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error response errors:', error.response?.data?.errors);
+      
+      // Try to extract error details from the error object
+      let errorMessage = "Failed to update profile. Please try again.";
+      if (error.response && error.response.data) {
+        console.log('Error response data:', error.response.data);
+        console.log('Errors array:', error.response.data.errors);
+        console.log('Errors array length:', error.response.data.errors?.length);
+        if (error.response.data.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
+          console.log('First error:', error.response.data.errors[0]);
+          errorMessage = error.response.data.errors.join(', ');
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      
       toast({
-        title: "Save Failed",
-        description: error.message || "Failed to save profile",
-        variant: "destructive"
+        title: "Update Failed",
+        description: errorMessage,
+        variant: "destructive",
       });
     } finally {
-      setIsSaving(false);
+      setSaving(false);
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (field: string, value: any) => {
+    setEditData(prev => ({
+          ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleAddRoute = () => {
+    setEditingRouteIndex(null);
+    setNewRoute({ from: '', to: '' });
+    setShowAddRoute(true);
+  };
+
+  const handleEditRoute = (index: number) => {
+    const route = vendorData.serviceLocations[index];
+    setEditingRouteIndex(index);
+    setNewRoute({
+      from: route.from || '',
+      to: route.to || ''
+    });
+    setShowAddRoute(true);
+  };
+
+  const handleDeleteRoute = async (index: number) => {
+    try {
+      const updatedServiceLocations = vendorData.serviceLocations.filter((_: any, i: number) => i !== index);
+      
+      const response = await vendorApiService.updateVendorProfile({
+        serviceLocations: updatedServiceLocations
+      });
+
+      if (response.success) {
+        setVendorData(response.data.vendor);
+        
+        // Update the vendor context so sidebar also gets updated
+        await updateVendor(response.data.vendor);
+        
+        toast({
+          title: "Route Deleted",
+          description: "Service route has been deleted successfully.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete service route. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting route:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete service route. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRouteInputChange = (field: string, value: string) => {
+    setNewRoute(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveRoute = async () => {
+    try {
+      // Validate required fields
+      if (!newRoute.from || !newRoute.to) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in both 'From' and 'To' locations.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Add or update route in vendor data
+      let updatedServiceLocations;
+      if (editingRouteIndex !== null) {
+        // Editing existing route
+        updatedServiceLocations = [...(vendorData.serviceLocations || [])];
+        updatedServiceLocations[editingRouteIndex] = {
+          name: `${newRoute.from} to ${newRoute.to}`,
+          from: newRoute.from,
+          to: newRoute.to
+        };
+      } else {
+        // Adding new route
+        updatedServiceLocations = [
+          ...(vendorData.serviceLocations || []),
+          {
+            name: `${newRoute.from} to ${newRoute.to}`,
+            from: newRoute.from,
+            to: newRoute.to
+          }
+        ];
+      }
+
+      // Update vendor profile with new route
+      const response = await vendorApiService.updateVendorProfile({
+        serviceLocations: updatedServiceLocations
+      });
+
+      if (response.success) {
+        setVendorData(response.data.vendor);
+        
+        // Update the vendor context so sidebar also gets updated
+        await updateVendor(response.data.vendor);
+        
+        setNewRoute({
+          from: '',
+          to: ''
+        });
+        setEditingRouteIndex(null);
+        setShowAddRoute(false);
+        toast({
+          title: editingRouteIndex !== null ? "Route Updated" : "Route Added",
+          description: editingRouteIndex !== null ? "Service route has been updated successfully." : "Service route has been added successfully.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to add service route. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error adding route:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add service route. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancelRoute = () => {
+    setNewRoute({
+      from: '',
+      to: ''
+    });
+    setEditingRouteIndex(null);
+    setShowAddRoute(false);
+  };
+
+  const handleImageUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
       toast({
-        title: "Invalid File",
-        description: "Please select a valid image file",
+        title: "Invalid file type",
+        description: "Please select a JPEG, PNG, or WebP image",
         variant: "destructive"
       });
       return;
     }
-    
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
       toast({
-        title: "File Too Large",
-        description: "Image size should be less than 5MB",
+        title: "File too large",
+        description: "Please select an image smaller than 5MB",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      setIsUploadingImage(true);
+      setUploadingImage(true);
+      
+      // Create FormData for the upload
       const formData = new FormData();
       formData.append('profileImage', file);
-      
+
+      // Upload the image using the vendor API service
       const response = await vendorApiService.uploadProfileImage(formData);
       
       if (response.success) {
-        setProfileData(prev => prev ? {
-          ...prev,
-          profileImage: response.data.profileImage
-        } : null);
+        // Add cache-busting parameter to the image URL
+        const imageUrlWithCacheBust = `${response.data.profileImage}?t=${Date.now()}`;
         
-        // Update vendor context
-        updateVendor({ profileImage: response.data.profileImage });
+        // Update the vendor data with the new image URL
+        setVendorData((prev: any) => ({
+          ...prev,
+          profileImage: imageUrlWithCacheBust
+        }));
+        
+        // Update the vendor context so sidebar also gets updated
+        console.log('Updating vendor context with new profile image:', imageUrlWithCacheBust);
+        
+        await updateVendor({
+          profileImage: imageUrlWithCacheBust
+        });
+        console.log('Vendor context updated successfully');
         
         toast({
-          title: "Success",
-          description: "Profile image updated successfully"
+          title: "Image Updated",
+          description: "Your profile image has been updated successfully.",
+        });
+      } else {
+        toast({
+          title: "Upload Failed",
+          description: response.message || "Failed to upload image. Please try again.",
+          variant: "destructive"
         });
       }
     } catch (error: any) {
-      console.error('Error uploading image:', error);
+      console.error('Error uploading profile image:', error);
       toast({
         title: "Upload Failed",
-        description: error.message || "Failed to upload image",
+        description: error.message || "Failed to upload image. Please try again.",
         variant: "destructive"
       });
     } finally {
-      setIsUploadingImage(false);
-    }
-  };
-
-  const handleDeleteImage = async () => {
-    try {
-      const response = await vendorApiService.deleteProfileImage();
-      
-      if (response.success) {
-        setProfileData(prev => prev ? {
-          ...prev,
-          profileImage: undefined
-        } : null);
-        
-        // Update vendor context
-        updateVendor({ profileImage: undefined });
-        
-        toast({
-          title: "Success",
-          description: "Profile image deleted successfully"
-        });
+      setUploadingImage(false);
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
-    } catch (error: any) {
-      console.error('Error deleting image:', error);
-      toast({
-        title: "Delete Failed",
-        description: error.message || "Failed to delete image",
-        variant: "destructive"
-      });
     }
   };
 
-  // Service location handlers
-  const handleAddLocation = async () => {
-    if (!newLocation.from.trim() || !newLocation.to.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter both from and to locations",
-        variant: "destructive"
-      });
-      return;
-    }
+  if (!isAuthenticated) {
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
+      <VendorHeader />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Please login to view your profile</h2>
+            <p className="text-gray-600">You need to be logged in to access your vendor profile.</p>
+          </div>
+                  </div>
+        <div className="md:hidden">
+          <Footer />
+          <VendorBottomNav />
+                  </div>
+                </div>
+    );
+  }
 
-    try {
-      const response = await vendorApiService.addServiceLocation(newLocation.from.trim(), newLocation.to.trim());
-      
-      if (response.success) {
-        setServiceLocations(response.data.serviceLocations);
-        setNewLocation({ from: '', to: '' });
-        setIsAddingLocation(false);
-        toast({
-          title: "Success",
-          description: "Service location added successfully"
-        });
-      }
-    } catch (error: any) {
-      console.error('Error adding service location:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to add service location",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleEditLocation = (location: ServiceLocation) => {
-    setEditingLocationId(location._id);
-    setEditingLocation({ from: location.from, to: location.to });
-  };
-
-  const handleUpdateLocation = async () => {
-    if (!editingLocation.from.trim() || !editingLocation.to.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter both from and to locations",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!editingLocationId) return;
-
-    try {
-      const response = await vendorApiService.updateServiceLocation(
-        editingLocationId,
-        editingLocation.from.trim(),
-        editingLocation.to.trim()
-      );
-      
-      if (response.success) {
-        setServiceLocations(response.data.serviceLocations);
-        setEditingLocationId(null);
-        setEditingLocation({ from: '', to: '' });
-        toast({
-          title: "Success",
-          description: "Service location updated successfully"
-        });
-      }
-    } catch (error: any) {
-      console.error('Error updating service location:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update service location",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleRemoveLocation = async (locationId: string) => {
-    try {
-      const response = await vendorApiService.removeServiceLocation(locationId);
-      
-      if (response.success) {
-        setServiceLocations(response.data.serviceLocations);
-        toast({
-          title: "Success",
-          description: "Service location removed successfully"
-        });
-      }
-    } catch (error: any) {
-      console.error('Error removing service location:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to remove service location",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <Star
-        key={index}
-        className={`w-4 h-4 ${
-          index < Math.floor(rating)
-            ? 'text-yellow-400 fill-current'
-            : index < rating
-            ? 'text-yellow-400 fill-current opacity-50'
-            : 'text-gray-300'
-        }`}
-      />
-    ));
-  };
+  if (loading || !vendorData) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <VendorHeader />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading vendor profile...</p>
+                  </div>
+                  </div>
+        <div className="md:hidden">
+          <Footer />
+          <VendorBottomNav />
+                </div>
+                  </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 pt-20 overflow-y-auto">
-        <div className="container mx-auto px-4 py-4">
-          {/* Profile Header */}
-          <div className="text-center mb-4">
-            <h1 className="text-2xl font-bold text-foreground mb-1">Vendor <span className="text-2xl font-bold text-gradient mb-1"> Profile</span></h1>         
-          </div>
-
-          {/* Approval Status */}
-          {profileData && !profileData.isApproved && (
-            <Card className="mb-4 border-yellow-200 bg-yellow-50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                    <Clock className="w-4 h-4 text-yellow-600" />
-                  </div>
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-semibold text-yellow-800">Account Pending Approval</h3>
-                    <p className="text-sm text-yellow-700">
-                      Your account is currently under review by our admin team. You will be notified once approved.
-                    </p>
+              <h1 className="text-3xl font-bold text-gray-900">Vendor Profile</h1>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {profileData && profileData.isApproved && !profileData.isActive && (
-            <Card className="mb-4 border-red-200 bg-red-50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <XCircle className="w-4 h-4 text-red-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-800">Account Deactivated</h3>
-                    <p className="text-sm text-red-700">
-                      Your account has been deactivated. Please contact support for assistance.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {profileData && profileData.isBlocked && (
-            <Card className="mb-4 border-red-200 bg-red-50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <AlertTriangle className="w-4 h-4 text-red-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-red-800">Account Blocked</h3>
-                    <p className="text-sm text-red-700">
-                      Your account has been blocked. Please contact support for assistance.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Profile Card */}
-          <Card className="mb-4 shadow-lg border-0 bg-white">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b py-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-blue-600" />
-                  </div>
-                  Personal Information
-                </CardTitle>
+            <div className="flex gap-2">
                 {!isEditing ? (
-                  <Button onClick={handleEdit} variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50 text-xs px-3 py-1">
-                    <Edit3 className="w-3 h-3 mr-1" />
-                    Edit
+                <Button onClick={handleEdit} className="flex items-center gap-2">
+                  <Edit className="h-4 w-4" />
+                  Edit Profile
                   </Button>
                 ) : (
-                  <div className="flex gap-1">
-                    <Button onClick={handleCancel} variant="outline" size="sm" className="border-gray-200 text-gray-600 hover:bg-gray-50 text-xs px-3 py-1">
-                      <X className="w-3 h-3 mr-1" />
-                      Cancel
-                    </Button>
+                <div className="flex gap-2">
                     <Button 
                       onClick={handleSave} 
-                      size="sm" 
-                      className="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1"
-                      disabled={isSaving}
+                    disabled={saving}
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
                     >
-                      {isSaving ? (
+                    {saving ? (
                         <>
-                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           Saving...
                         </>
                       ) : (
                         <>
-                          <Save className="w-3 h-3 mr-1" />
-                          Save
+                        <CheckCircle className="h-4 w-4" />
+                        Save Changes
                         </>
                       )}
+                    </Button>
+                  <Button 
+                    onClick={handleCancel} 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    Cancel
                     </Button>
                   </div>
                 )}
               </div>
-            </CardHeader>
-            <CardContent className="p-4">
-              {/* Profile Image Section */}
-              <div className="flex flex-col items-center space-y-3 mb-4">
-                <div className="relative group">
-                  <div className="w-24 h-24 rounded-full overflow-hidden border-3 border-blue-100 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center shadow-md">
-                    {profileData.profileImage ? (
-                      <img
-                        src={profileData.profileImage}
+          </div>
+          </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Overview */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader className="text-center">
+                <div className="relative inline-block">
+                  {vendorData.profileImage ? (
+                    <img
+                      src={vendorData.profileImage}
                         alt="Profile"
-                        className="w-full h-full object-cover"
+                      className="w-32 h-32 rounded-full object-cover mx-auto border-4 border-white shadow-lg"
                       />
                     ) : (
-                      <User className="w-12 h-12 text-blue-400" />
-                    )}
+                    <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center mx-auto border-4 border-white shadow-lg">
+                      <User className="h-16 w-16 text-gray-400" />
                   </div>
-                  {isEditing && (
-                    <div className="absolute -bottom-1 -right-1 flex gap-1">
+                  )}
                       <Button
                         size="sm"
+                    className="absolute bottom-0 right-0 rounded-full w-8 h-8 p-0"
                         variant="secondary"
-                        className="rounded-full w-8 h-8 p-0 bg-white shadow-md border border-blue-200 hover:bg-blue-50"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={handleImageUpload}
+                        disabled={uploadingImage}
                       >
-                        <Camera className="w-4 h-4 text-blue-600" />
+                    {uploadingImage ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Camera className="h-4 w-4" />
+                    )}
                       </Button>
-                      {profileData.profileImage && (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="rounded-full w-8 h-8 p-0 bg-white shadow-md border border-red-200 hover:bg-red-50"
-                          onClick={handleDeleteImage}
-                          disabled={isUploadingImage}
-                        >
-                          <X className="w-4 h-4 text-red-600" />
-                        </Button>
-                      )}
                     </div>
-                  )}
+                <CardTitle className="mt-4">{vendorData.fullName}</CardTitle>
+                <CardDescription>Vendor ID: {vendorData.vendorId}</CardDescription>
+                <div className="mt-2 flex justify-center">
+                  {getStatusBadge(vendorData.isApproved, vendorData.isActive, vendorData.isBlocked)}
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  disabled={isUploadingImage}
-                />
-                {isEditing && (
-                  <div className="text-center bg-blue-50 rounded-lg p-2 max-w-xs">
-                    <p className="text-xs text-blue-700 font-medium mb-1">
-                      Upload Photo
-                    </p>
-                    <p className="text-xs text-blue-600">
-                      Max 5MB • JPG, PNG, GIF
-                    </p>
+              </CardHeader>
+              {/* Hidden file input for image upload */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleFileInputChange}
+                className="hidden"
+              />
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm">
+                      Rating: {vendorData.rating?.average || 0}/5 ({vendorData.rating?.count || 0} reviews)
+                    </span>
                   </div>
-                )}
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm">
+                      Joined: {formatDate(vendorData.stats?.joinedDate || new Date().toISOString())}
+                    </span>
               </div>
-
-              {/* Profile Fields */}
-              <div className="grid gap-3">
-                {/* First Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="w-3 h-3 text-blue-600" />
                     </div>
-                    First Name
-                  </Label>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Personal Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Personal Information
+                </CardTitle>
+                <CardDescription>Your basic personal details and identification</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">First Name</label>
                   {isEditing ? (
                     <Input
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      placeholder="Enter your first name"
-                      className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        value={editData.firstName || ''}
+                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        className="mt-1"
                     />
                   ) : (
-                    <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
-                      <p className="text-foreground font-medium">{profileData.firstName}</p>
-                    </div>
+                      <p className="text-lg font-semibold">{vendorData.firstName}</p>
                   )}
                 </div>
-
-                {/* Last Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="w-3 h-3 text-blue-600" />
-                    </div>
-                    Last Name
-                  </Label>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Last Name</label>
                   {isEditing ? (
                     <Input
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      placeholder="Enter your last name"
-                      className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        value={editData.lastName || ''}
+                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        className="mt-1"
                     />
                   ) : (
-                    <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
-                      <p className="text-foreground font-medium">{profileData.lastName}</p>
+                      <p className="text-lg font-semibold">{vendorData.lastName}</p>
+                    )}
                     </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Father's Name</label>
+                    {isEditing ? (
+                      <Input
+                        value={editData.fatherName || ''}
+                        onChange={(e) => handleInputChange('fatherName', e.target.value)}
+                        className="mt-1"
+                        placeholder="Enter father's name"
+                      />
+                    ) : (
+                      <p className="text-lg font-semibold">{vendorData.fatherName || 'Not provided'}</p>
                   )}
                 </div>
-
-                {/* Phone */}
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                      <Phone className="w-3 h-3 text-green-600" />
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Email</label>
+                    <p className="text-lg font-semibold flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      {vendorData.email}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
                     </div>
-                    Phone Number
-                  </Label>
-                  <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
-                    <p className="text-foreground font-medium">{profileData.phone}</p>
                   </div>
-                  <p className="text-xs text-gray-500">Phone number cannot be changed</p>
-                </div>
+              </CardContent>
+            </Card>
 
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Mail className="w-3 h-3 text-purple-600" />
-                    </div>
-                    Email Address
-                  </Label>
+            {/* Contact Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Phone className="h-5 w-5" />
+                  Contact Information
+                </CardTitle>
+                <CardDescription>Your phone numbers and contact details</CardDescription>
+            </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Primary Phone</label>
                   {isEditing ? (
                     <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="Enter your email address"
-                      className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        value={editData.phone || ''}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        className="mt-1"
+                        placeholder="Enter primary phone number"
                     />
                   ) : (
-                    <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
-                      <p className="text-foreground font-medium">{profileData.email}</p>
-                    </div>
+                      <p className="text-lg font-semibold flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        {formatPhone(vendorData.phone)}
+                      </p>
                   )}
                 </div>
-
-                {/* Specialty */}
-                <div className="space-y-2">
-                  <Label htmlFor="specialty" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Briefcase className="w-3 h-3 text-orange-600" />
-                    </div>
-                    Specialty
-                  </Label>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Alternate Phone</label>
                   {isEditing ? (
                     <Input
-                      id="specialty"
-                      name="specialty"
-                      value={formData.specialty}
-                      onChange={handleInputChange}
-                      placeholder="Enter your specialty (e.g., AC Repair, Plumbing, etc.)"
-                      className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        value={editData.alternatePhone || ''}
+                        onChange={(e) => handleInputChange('alternatePhone', e.target.value)}
+                        className="mt-1"
+                        placeholder="Enter alternate phone number"
                     />
                   ) : (
-                    <div className="h-9 flex items-center px-3 bg-gray-50 rounded-lg border text-sm">
-                      <p className="text-foreground font-medium">{profileData.specialty || 'Not provided'}</p>
-                    </div>
+                      <p className="text-lg font-semibold flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        {vendorData.alternatePhone ? formatPhone(vendorData.alternatePhone) : 'Not provided'}
+                      </p>
                   )}
                 </div>
-
-                {/* Service Categories */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Briefcase className="w-3 h-3 text-purple-600" />
-                    </div>
-                    Service Categories
-                  </Label>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Home Phone</label>
                   {isEditing ? (
-                    <div className="space-y-3">
-                      <p className="text-sm text-gray-600">Select all the services you can provide (you can choose multiple)</p>
-                      <div className="grid grid-cols-1 gap-3 max-h-48 overflow-y-auto border rounded-md p-3">
-                        {serviceCategories.map((category) => (
-                          <div key={category} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={category}
-                              checked={formData.serviceCategories.includes(category)}
-                              onCheckedChange={(checked) => handleCategoryChange(category, checked as boolean)}
-                            />
-                            <Label 
-                              htmlFor={category} 
-                              className="text-sm font-normal cursor-pointer flex-1"
-                            >
-                              {category}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                      {formData.serviceCategories.includes('Other') && (
-                        <div className="space-y-2">
-                          <Label htmlFor="customServiceCategory" className="text-sm font-medium text-gray-700">
-                            Specify your service type:
-                          </Label>
                           <Input
-                            id="customServiceCategory"
-                            name="customServiceCategory"
-                            value={formData.customServiceCategory}
-                            onChange={handleInputChange}
-                            placeholder="Enter your custom service category"
-                            className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-                          />
-                        </div>
-                      )}
-                      {formData.serviceCategories.length > 0 && (
-                        <div className="text-sm text-blue-600">
-                          Selected: {formData.serviceCategories.map(cat => 
-                            cat === 'Other' && formData.customServiceCategory 
-                              ? `${cat} (${formData.customServiceCategory})` 
-                              : cat
-                          ).join(', ')}
-                        </div>
-                      )}
-                    </div>
+                        value={editData.homePhone || ''}
+                        onChange={(e) => handleInputChange('homePhone', e.target.value)}
+                        className="mt-1"
+                        placeholder="Enter home phone number"
+                    />
                   ) : (
-                    <div className="min-h-[40px] flex items-start px-3 py-2 bg-gray-50 rounded-lg border text-sm">
-                      {profileData.serviceCategories && profileData.serviceCategories.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {profileData.serviceCategories.map((category, index) => (
-                            <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                              {category === 'Other' && profileData.customServiceCategory 
-                                ? `${category} (${profileData.customServiceCategory})` 
-                                : category}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-foreground font-medium">No service categories selected</p>
+                      <p className="text-lg font-semibold flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        {vendorData.homePhone ? formatPhone(vendorData.homePhone) : 'Not provided'}
+                      </p>
                       )}
                     </div>
-                  )}
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* Bio */}
-                <div className="space-y-2">
-                  <Label htmlFor="bio" className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center">
-                      <User className="w-3 h-3 text-indigo-600" />
-                    </div>
-                    Bio
-                  </Label>
+            {/* Address Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Address Information
+                </CardTitle>
+                <CardDescription>Your current residential address</CardDescription>
+            </CardHeader>
+              <CardContent>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Current Address</label>
                   {isEditing ? (
                     <Textarea
-                      id="bio"
-                      name="bio"
-                      value={formData.bio}
-                      onChange={handleInputChange}
-                      placeholder="Tell us about yourself and your experience"
+                      value={editData.currentAddress || ''}
+                      onChange={(e) => handleInputChange('currentAddress', e.target.value)}
+                      className="mt-2"
+                      placeholder="Enter your current full address"
                       rows={3}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
                     />
                   ) : (
-                    <div className="min-h-[60px] flex items-start px-3 py-2 bg-gray-50 rounded-lg border text-sm">
-                      <p className="text-foreground font-medium">{profileData.bio || 'Not provided'}</p>
+                    <div className="mt-2 p-4 bg-gray-50 rounded-lg border">
+                      <p className="text-lg font-semibold">{vendorData.currentAddress || 'Not provided'}</p>
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* Address */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <LocationIcon className="w-3 h-3 text-orange-600" />
-                    </div>
-                    Address
-                  </Label>
+            {/* Service Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Service Information
+                </CardTitle>
+                <CardDescription>Your professional service categories and experience</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Service Categories</label>
                   {isEditing ? (
-                    <div className="space-y-2">
-                      <Input
-                        name="address.street"
-                        value={formData.address.street}
-                        onChange={handleInputChange}
-                        placeholder="Street address"
-                        className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-                      />
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input
-                          name="address.city"
-                          value={formData.address.city}
-                          onChange={handleInputChange}
-                          placeholder="City"
-                          className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                        <Input
-                          name="address.state"
-                          value={formData.address.state}
-                          onChange={handleInputChange}
-                          placeholder="State"
-                          className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input
-                          name="address.pincode"
-                          value={formData.address.pincode}
-                          onChange={handleInputChange}
-                          placeholder="Pincode"
-                          className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
-                        <Input
-                          name="address.landmark"
-                          value={formData.address.landmark}
-                          onChange={handleInputChange}
-                          placeholder="Landmark"
-                          className="h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        />
+                    <div className="mt-2 space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {[
+                          'Laptop',
+                          'Computers',
+                          'Tab/MacBook',
+                          'iMac/Printer/Server',
+                          'Networking',
+                          'Software Developer',
+                          'AC Repair',
+                          'Fridge, Washing Machine',
+                          'Home Appliance Repair',
+                          'Electrician',
+                          'Plumber',
+                          'Cleaning'
+                        ].map((category) => (
+                          <label key={category} className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={editData.serviceCategories?.includes(category) || false}
+                              onChange={(e) => {
+                                const currentCategories = editData.serviceCategories || [];
+                                if (e.target.checked) {
+                                  handleInputChange('serviceCategories', [...currentCategories, category]);
+                                } else {
+                                  handleInputChange('serviceCategories', currentCategories.filter(c => c !== category));
+                                }
+                              }}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{category}</span>
+                          </label>
+                        ))}
                       </div>
                     </div>
                   ) : (
-                    <div className="min-h-[60px] flex items-start px-3 py-2 bg-gray-50 rounded-lg border text-sm">
-                      <div className="text-foreground font-medium">
-                        {profileData.address ? (
-                          <div>
-                            <p>{profileData.address.street}</p>
-                            <p>{profileData.address.city}, {profileData.address.state} - {profileData.address.pincode}</p>
-                            {profileData.address.landmark && <p>Near {profileData.address.landmark}</p>}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {vendorData.serviceCategories?.map((category: string, index: number) => (
+                        <Badge key={index} variant="secondary" className="text-sm">{category}</Badge>
+                      ))}
                           </div>
-                        ) : (
-                          <p>No address provided</p>
-                        )}
-                      </div>
-                    </div>
                   )}
                 </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Experience Level</label>
+                  {isEditing ? (
+                    <select
+                      value={editData.experience || ''}
+                      onChange={(e) => handleInputChange('experience', e.target.value)}
+                      className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select experience level</option>
+                      <option value="Less than 1 year">Less than 1 year</option>
+                      <option value="1-2 years">1-2 years</option>
+                      <option value="3-5 years">3-5 years</option>
+                      <option value="5-10 years">5-10 years</option>
+                      <option value="More than 10 years">More than 10 years</option>
+                    </select>
+                  ) : (
+                    <p className="text-lg font-semibold mt-1">{vendorData.experience || 'Not specified'}</p>
+                        )}
+                      </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Specialty</label>
+                  {isEditing ? (
+                    <Input
+                      value={editData.specialty || ''}
+                      onChange={(e) => handleInputChange('specialty', e.target.value)}
+                      className="mt-1"
+                      placeholder="Enter your specialty"
+                    />
+                  ) : (
+                    <p className="text-lg font-semibold mt-1">{vendorData.specialty || 'Not specified'}</p>
+                  )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Service Locations Card */}
-          <Card className="mb-4 shadow-lg border-0 bg-white">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 border-b py-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <LocationIcon className="w-4 h-4 text-green-600" />
-                </div>
-                Service Locations
+            {/* Documents */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Documents
               </CardTitle>
+                <CardDescription>Your uploaded documents and verification status</CardDescription>
             </CardHeader>
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                {/* Add new location form */}
-                {isAddingLocation ? (
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Aadhaar Front */}
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-blue-800">Add Service Route</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input
-                          placeholder="From (e.g., Thane)"
-                          value={newLocation.from}
-                          onChange={(e) => setNewLocation(prev => ({ ...prev, from: e.target.value }))}
-                          className="h-9 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    <label className="text-sm font-medium text-gray-500">Aadhaar Front</label>
+                    {vendorData.documents?.aadhaarFront ? (
+                      <div className="border rounded-lg p-4 text-center">
+                        <img
+                          src={vendorData.documents.aadhaarFront}
+                          alt="Aadhaar Front"
+                          className="w-full h-32 object-cover rounded cursor-pointer"
+                          onClick={() => window.open(vendorData.documents.aadhaarFront, '_blank')}
                         />
-                        <Input
-                          placeholder="To (e.g., CST)"
-                          value={newLocation.to}
-                          onChange={(e) => setNewLocation(prev => ({ ...prev, to: e.target.value }))}
-                          className="h-9 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        <p className="text-sm text-green-600 mt-2 flex items-center justify-center gap-1">
+                          <CheckCircle className="h-4 w-4" />
+                          Uploaded
+                        </p>
+                  </div>
+                ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <FileText className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Aadhaar Back */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-500">Aadhaar Back</label>
+                    {vendorData.documents?.aadhaarBack ? (
+                      <div className="border rounded-lg p-4 text-center">
+                        <img
+                          src={vendorData.documents.aadhaarBack}
+                          alt="Aadhaar Back"
+                          className="w-full h-32 object-cover rounded cursor-pointer"
+                          onClick={() => window.open(vendorData.documents.aadhaarBack, '_blank')}
                         />
+                        <p className="text-sm text-green-600 mt-2 flex items-center justify-center gap-1">
+                          <CheckCircle className="h-4 w-4" />
+                          Uploaded
+                        </p>
+                          </div>
+                        ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <FileText className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">Not uploaded</p>
+                              </div>
+                              )}
+                            </div>
+              </div>
+            </CardContent>
+          </Card>
+
+            {/* Service Routes */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Service Routes
+                </CardTitle>
+                <CardDescription>Your service coverage areas and routes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {vendorData.serviceLocations && vendorData.serviceLocations.length > 0 ? (
+                  <div className="space-y-3">
+                    {vendorData.serviceLocations.map((location: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                        <div className="flex items-center gap-3">
+                          <MapPin className="h-4 w-4 text-blue-600" />
+                          <div>
+                            <p className="font-medium text-gray-900">{location.name || `Route ${index + 1}`}</p>
+                            {location.from && location.to ? (
+                              <p className="text-sm text-gray-600">
+                                {location.from} → {location.to}
+                              </p>
+                            ) : (
+                              <p className="text-sm text-gray-600">
+                                {location.city}, {location.state} - {location.pincode}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="text-xs">
+                            Route
+                          </Badge>
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditRoute(index)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteRoute(index)}
+                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleAddLocation}
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1"
-                        >
-                          <Save className="w-3 h-3 mr-1" />
-                          Add Route
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setIsAddingLocation(false);
-                            setNewLocation({ from: '', to: '' });
-                          }}
-                          variant="outline"
-                          size="sm"
-                          className="border-gray-200 text-gray-600 hover:bg-gray-50 text-xs px-3 py-1"
-                        >
-                          <X className="w-3 h-3 mr-1" />
-                          Cancel
-                        </Button>
-                      </div>
+                    ))}
+                    <div className="pt-4">
+                      <Button onClick={handleAddRoute} variant="outline" className="w-full border-dashed border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        Add Another Route
+                      </Button>
                     </div>
                   </div>
                 ) : (
-                  <Button
-                    onClick={() => setIsAddingLocation(true)}
-                    variant="outline"
-                    size="sm"
-                    className="border-green-200 text-green-600 hover:bg-green-50 text-xs px-3 py-1"
-                  >
-                    <LocationIcon className="w-3 h-3 mr-1" />
-                    Add Service Route
-                  </Button>
-                )}
-
-                {/* Service locations list */}
-                {serviceLocations.length > 0 ? (
-                  <div className="space-y-2">
-                    {serviceLocations.map((location) => (
-                      <div key={location._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-                        {editingLocationId === location._id ? (
-                          <div className="flex-1 space-y-2">
-                            <div className="grid grid-cols-2 gap-2">
-                              <Input
-                                value={editingLocation.from}
-                                onChange={(e) => setEditingLocation(prev => ({ ...prev, from: e.target.value }))}
-                                className="h-8 text-sm"
-                              />
-                              <Input
-                                value={editingLocation.to}
-                                onChange={(e) => setEditingLocation(prev => ({ ...prev, to: e.target.value }))}
-                                className="h-8 text-sm"
-                              />
-                            </div>
-                            <div className="flex gap-1">
-                              <Button
-                                onClick={handleUpdateLocation}
-                                size="sm"
-                                className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
-                              >
-                                <Save className="w-3 h-3 mr-1" />
-                                Save
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  setEditingLocationId(null);
-                                  setEditingLocation({ from: '', to: '' });
-                                }}
-                                variant="outline"
-                                size="sm"
-                                className="border-gray-200 text-gray-600 hover:bg-gray-50 text-xs px-2 py-1"
-                              >
-                                <X className="w-3 h-3 mr-1" />
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                                <LocationIcon className="w-3 h-3 text-green-600" />
-                              </div>
-                              <span className="text-sm font-medium text-gray-700">
-                                {location.from} → {location.to}
-                              </span>
-                              {location.isActive && (
-                                <Badge className="bg-green-100 text-green-800 border-green-200 px-1 py-0.5 text-xs">
-                                  Active
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex gap-1">
-                              <Button
-                                onClick={() => handleEditLocation(location)}
-                                variant="outline"
-                                size="sm"
-                                className="border-blue-200 text-blue-600 hover:bg-blue-50 text-xs px-2 py-1"
-                              >
-                                <Edit3 className="w-3 h-3" />
-                              </Button>
-                              <Button
-                                onClick={() => handleRemoveLocation(location._id)}
-                                variant="outline"
-                                size="sm"
-                                className="border-red-200 text-red-600 hover:bg-red-50 text-xs px-2 py-1"
-                              >
-                                <X className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4 text-gray-500">
-                    <LocationIcon className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                    <p className="text-sm">No service locations added yet</p>
-                    <p className="text-xs text-gray-400">Add your service routes to help customers find you</p>
+                  <div className="text-center py-8">
+                    <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Service Routes</h3>
+                    <p className="text-gray-600 mb-4">You haven't added any service routes yet.</p>
+                    <Button onClick={handleAddRoute} className="bg-blue-600 hover:bg-blue-700">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Add Service Route
+                    </Button>
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-
+              </CardContent>
+            </Card>
+          </div>
+        </div>
         </div>
       </main>
       <div className="md:hidden">
         <Footer />
         <VendorBottomNav />
+      </div>
+
+      {/* Add Service Route Modal */}
+      <Dialog open={showAddRoute} onOpenChange={setShowAddRoute}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingRouteIndex !== null ? 'Edit Service Route' : 'Add Service Route'}</DialogTitle>
+            <DialogDescription>
+              {editingRouteIndex !== null ? 'Update your service route details.' : 'Add a new service route to expand your coverage area.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700">From *</label>
+              <Input
+                value={newRoute.from}
+                onChange={(e) => handleRouteInputChange('from', e.target.value)}
+                placeholder="e.g., Connaught Place, Delhi"
+                className="mt-1"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium text-gray-700">To *</label>
+              <Input
+                value={newRoute.to}
+                onChange={(e) => handleRouteInputChange('to', e.target.value)}
+                placeholder="e.g., Karol Bagh, Delhi"
+                className="mt-1"
+              />
+            </div>
+            
+            <div className="flex gap-2 pt-4">
+              <Button onClick={handleSaveRoute} className="flex-1 bg-blue-600 hover:bg-blue-700">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                {editingRouteIndex !== null ? 'Update Route' : 'Add Route'}
+              </Button>
+              <Button onClick={handleCancelRoute} variant="outline" className="flex-1">
+                <XCircle className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Your Benefits Button */}
+      <div className="px-4 pb-6 -mt-24 md:hidden">
+        <VendorBenefitsModal hasInitialDeposit={vendorData?.wallet?.hasInitialDeposit || false}>
+          <Button 
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl shadow-lg"
+            size="lg"
+          >
+            🎁 View Your Benefits
+          </Button>
+        </VendorBenefitsModal>
+      </div>
+
+      {/* Customer Ratings - Below View Your Benefits Button */}
+      <div className="px-4 pb-24 md:hidden">
+        
+        {(vendorData?._id || vendorData?.id) && (
+          <VendorRatingDisplay 
+            vendorId={vendorData._id || vendorData.id} 
+            vendorName={`${vendorData.firstName} ${vendorData.lastName}`}
+          />
+        )}
+        
+        {/* Show message if no vendor data */}
+        {!vendorData?._id && !vendorData?.id && (
+          <div className="text-center py-4 text-gray-500">
+            <p>Loading vendor data...</p>
+          </div>
+        )}
       </div>
     </div>
   );

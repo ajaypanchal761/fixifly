@@ -68,11 +68,11 @@ const BlogDetailModal = ({ isOpen, onClose, blogPost }: BlogDetailModalProps) =>
 
         <div className="space-y-3 sm:space-y-4">
           {/* Blog Image */}
-          <div className="relative">
+          <div className="relative bg-gray-50 rounded-lg overflow-hidden">
             <img 
               src={blogPost.featuredImage || '/placeholder.svg'} 
               alt={blogPost.title}
-              className="w-full h-40 sm:h-48 md:h-56 object-cover rounded-lg"
+              className="w-full h-40 sm:h-48 md:h-56 object-cover"
             />
             <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary/90 text-white text-sm px-2 py-1 rounded-md">
               {blogPost.category}

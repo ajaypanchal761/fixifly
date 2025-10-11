@@ -36,7 +36,7 @@ export interface Booking {
     scheduledDate?: string;
     scheduledTime?: string;
   };
-  status: 'pending' | 'waiting_for_engineer' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'waiting_for_engineer' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'declined';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   payment: {
     status: 'pending' | 'completed' | 'failed' | 'refunded';
@@ -56,6 +56,11 @@ export interface Booking {
     vendorId: string;
     assignedAt: string;
   };
+  vendorResponse?: {
+    status: 'pending' | 'accepted' | 'declined';
+    respondedAt?: string;
+    responseNote?: string;
+  };
   notes?: string;
   assignmentNotes?: string;
   rescheduleData?: {
@@ -67,6 +72,17 @@ export interface Booking {
   createdAt: string;
   updatedAt: string;
   bookingReference: string;
+  review?: {
+    rating: number;
+    comment: string;
+    category: string;
+    isAnonymous: boolean;
+    createdAt: string;
+    user?: {
+      name: string;
+      email: string;
+    };
+  } | null;
 }
 
 export interface BookingStats {

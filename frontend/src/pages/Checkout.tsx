@@ -8,6 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import razorpayService, { BookingData } from "@/services/razorpayService";
+import { getAvailableTimeSlots, getTimeSlotDisplayText } from "@/utils/timeSlotUtils";
 
 interface CartItem {
   id: string;
@@ -25,11 +26,22 @@ const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshUserData } = useAuth();
   const [loading, setLoading] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean | null>(null);
+  // First-time user free service feature has been removed
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean>(false);
   const [checkingFirstTime, setCheckingFirstTime] = useState(false);
+  
+  // Time slots for scheduling
+  const timeSlots = [
+    "9:00 AM - 11:00 AM",
+    "11:00 AM - 1:00 PM", 
+    "1:00 PM - 3:00 PM",
+    "3:00 PM - 5:00 PM",
+    "5:00 PM - 7:00 PM",
+    "7:00 PM - 9:00 PM"
+  ];
   
   // Customer form data - initialize with user data if available
   const [customerData, setCustomerData] = useState({
@@ -47,9 +59,18 @@ const Checkout = () => {
     scheduledTime: ""
   });
 
+  // Refresh user data when component mounts to ensure we have latest address info
+  useEffect(() => {
+    if (isAuthenticated && refreshUserData) {
+      refreshUserData();
+    }
+  }, [isAuthenticated, refreshUserData]);
+
   // Update customer data when user changes
   useEffect(() => {
     if (user) {
+      console.log('User data in Checkout:', user);
+      console.log('User address data:', user.address);
       setCustomerData(prev => ({
         ...prev,
         name: user.name || prev.name,
@@ -64,6 +85,19 @@ const Checkout = () => {
       }));
     }
   }, [user]);
+
+  // Clear selected time slot if it becomes disabled when date changes
+  useEffect(() => {
+    if (customerData.scheduledDate && customerData.scheduledTime) {
+      const availableSlots = getAvailableTimeSlots(timeSlots, customerData.scheduledDate);
+      const currentSlot = availableSlots.find(slot => slot.value === customerData.scheduledTime);
+      
+      // If current time slot is disabled, clear it
+      if (currentSlot && currentSlot.disabled) {
+        setCustomerData(prev => ({ ...prev, scheduledTime: "" }));
+      }
+    }
+  }, [customerData.scheduledDate, customerData.scheduledTime, timeSlots]);
 
   // Helper function to format phone number
   const formatPhoneNumber = (value: string) => {
@@ -88,68 +122,6 @@ const Checkout = () => {
     return value;
   };
 
-  // Function to check if user is first-time user
-  const checkFirstTimeUserStatus = async (email: string, phone: string) => {
-    console.log('Checking first-time user status:', { email, phone });
-    
-    if (!email && !phone) {
-      console.log('No email or phone provided, setting isFirstTimeUser to null');
-      setIsFirstTimeUser(null);
-      return;
-    }
-
-    try {
-      setCheckingFirstTime(true);
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings/check-first-time`;
-      console.log('API URL:', apiUrl);
-      console.log('Request body:', { email, phone });
-      
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, phone }),
-      });
-
-      const data = await response.json();
-      console.log('API Response:', data);
-      
-      if (data.success) {
-        console.log('Setting isFirstTimeUser to:', data.data.isFirstTimeUser);
-        setIsFirstTimeUser(data.data.isFirstTimeUser);
-      } else {
-        console.error('Error checking first-time user:', data.message);
-        setIsFirstTimeUser(false); // Default to false if error
-      }
-    } catch (error) {
-      console.error('Error checking first-time user:', error);
-      setIsFirstTimeUser(false); // Default to false if error
-    } finally {
-      setCheckingFirstTime(false);
-    }
-  };
-
-  // Update customer data when user changes
-  useEffect(() => {
-    if (user) {
-      setCustomerData({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        address: {
-          street: user.address?.street || "",
-          city: user.address?.city || "",
-          state: user.address?.state || "",
-          pincode: user.address?.pincode || ""
-        },
-        notes: "",
-        scheduledDate: "",
-        scheduledTime: ""
-      });
-    }
-  }, [user]);
-
   useEffect(() => {
     if (location.state?.cartItems && location.state?.totalPrice) {
       setCheckoutData({
@@ -162,18 +134,7 @@ const Checkout = () => {
     }
   }, [location.state, navigate]);
 
-  // Check first-time user status when email or phone changes
-  useEffect(() => {
-    console.log('Customer data changed:', customerData);
-    const timeoutId = setTimeout(() => {
-      if (customerData.email || customerData.phone) {
-        console.log('Triggering first-time user check with:', { email: customerData.email, phone: customerData.phone });
-        checkFirstTimeUserStatus(customerData.email, customerData.phone);
-      }
-    }, 500); // Debounce for 500ms
-
-    return () => clearTimeout(timeoutId);
-  }, [customerData.email, customerData.phone]);
+  // First-time user check removed - all users pay regular pricing
 
   if (!checkoutData) {
     return (
@@ -191,10 +152,10 @@ const Checkout = () => {
   const gstAmount = Math.round((subtotal * gstRate) / 100);
   const originalTotalAmount = subtotal + gstAmount;
   
-  // For first-time users, total amount is 0
-  const totalAmount = isFirstTimeUser ? 0 : originalTotalAmount;
-  const displaySubtotal = isFirstTimeUser ? 0 : subtotal;
-  const displayGstAmount = isFirstTimeUser ? 0 : gstAmount;
+  // All users pay regular pricing - first-time user free service removed
+  const totalAmount = originalTotalAmount;
+  const displaySubtotal = subtotal;
+  const displayGstAmount = gstAmount;
 
   const handleCashPayment = async (bookingData: BookingData) => {
     try {
@@ -257,11 +218,12 @@ const Checkout = () => {
         variant: "default"
       });
 
-      // Navigate to success page or booking details
+      // Navigate to booking page with booking data (same as Razorpay)
       navigate('/booking', { 
         state: { 
+          booking: data.data.booking,
           bookingReference: data.data.booking.bookingReference,
-          message: "Booking created successfully with cash payment"
+          fromCheckout: true 
         }
       });
 
@@ -320,20 +282,12 @@ const Checkout = () => {
         })),
         pricing: {
           subtotal: displaySubtotal,
-          serviceFee: isFirstTimeUser ? 0 : 100, // Default service fee
+          serviceFee: 0, // Service fee removed
           gstAmount: displayGstAmount,
-          totalAmount: totalAmount,
-          // Include original pricing for first-time users
-          ...(isFirstTimeUser && {
-            originalSubtotal: subtotal,
-            originalServiceFee: 100,
-            originalTotalAmount: originalTotalAmount,
-            isFirstTimeUser: true,
-            discountApplied: 'First-time user - Service is free'
-          })
+          totalAmount: totalAmount
         },
         scheduling: {
-          preferredDate: new Date(customerData.scheduledDate),
+          preferredDate: customerData.scheduledDate,
           preferredTimeSlot: customerData.scheduledTime
         },
         notes: customerData.notes || "Booking created from checkout"
@@ -439,7 +393,7 @@ const Checkout = () => {
                   className="flex items-center space-x-2"
                 >
                   <LogIn className="h-4 w-4" />
-                  <span>Login to Auto-fill</span>
+                  <span>Login to Load Profile</span>
                 </Button>
               )}
             </div>
@@ -524,7 +478,9 @@ const Checkout = () => {
 
               {/* City */}
               <div className="space-y-2">
-                <Label htmlFor="city">City *</Label>
+                <Label htmlFor="city" className="flex items-center space-x-2">
+                  <span>City *</span>
+                </Label>
                 <Input
                   id="city"
                   type="text"
@@ -540,7 +496,9 @@ const Checkout = () => {
 
               {/* State */}
               <div className="space-y-2">
-                <Label htmlFor="state">State *</Label>
+                <Label htmlFor="state" className="flex items-center space-x-2">
+                  <span>State *</span>
+                </Label>
                 <Input
                   id="state"
                   type="text"
@@ -556,7 +514,9 @@ const Checkout = () => {
 
               {/* Pincode */}
               <div className="space-y-2">
-                <Label htmlFor="pincode">Pincode *</Label>
+                <Label htmlFor="pincode" className="flex items-center space-x-2">
+                  <span>Pincode *</span>
+                </Label>
                 <Input
                   id="pincode"
                   type="text"
@@ -620,10 +580,33 @@ const Checkout = () => {
                   required
                 >
                   <option value="">Select time slot</option>
-                  <option value="morning">Morning (9:00 AM - 12:00 PM)</option>
-                  <option value="afternoon">Afternoon (12:00 PM - 5:00 PM)</option>
-                  <option value="evening">Evening (5:00 PM - 8:00 PM)</option>
+                  {getAvailableTimeSlots(timeSlots, customerData.scheduledDate).map((slot) => (
+                    <option 
+                      key={slot.value} 
+                      value={slot.value}
+                      disabled={slot.disabled}
+                      className={slot.disabled ? "text-gray-400" : ""}
+                    >
+                      {getTimeSlotDisplayText(slot.label, slot.disabled)}
+                    </option>
+                  ))}
                 </select>
+              </div>
+            </div>
+            
+            {/* Service Delay Notice */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+              <div className="flex items-start space-x-2">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-amber-800">
+                    <strong>Service Notice:</strong> Due to high service demand, there might be a slight delay. We appreciate your cooperation.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -655,40 +638,6 @@ const Checkout = () => {
 
             {/* Price Breakdown */}
             <div className="space-y-2">
-              {isFirstTimeUser && (
-                <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <p className="text-sm font-medium text-green-800">
-                      🎉 First-time user! Your service is FREE!
-                    </p>
-                  </div>
-                </div>
-              )}
-              
-              {isFirstTimeUser && (
-                <div className="space-y-1 text-sm text-gray-500 mb-2">
-                  <div className="flex justify-between">
-                    <span>Original Subtotal</span>
-                    <span>₹{subtotal}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Original GST ({gstRate}%)</span>
-                    <span>₹{gstAmount}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Original Total</span>
-                    <span>₹{originalTotalAmount}</span>
-                  </div>
-                  <div className="border-t border-gray-200 pt-1">
-                    <div className="flex justify-between text-green-600 font-medium">
-                      <span>First-time User Discount</span>
-                      <span>-₹{originalTotalAmount}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
                 <span>₹{displaySubtotal}</span>
@@ -700,86 +649,54 @@ const Checkout = () => {
               <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between text-lg font-bold text-gray-900">
                   <span>Total Amount</span>
-                  <span className={isFirstTimeUser ? "text-green-600" : ""}>₹{totalAmount}</span>
+                  <span>₹{totalAmount}</span>
                 </div>
               </div>
             </div>
           </div>
           
-          {/* Payment Buttons - Conditional rendering based on first-time user status */}
-          {checkingFirstTime ? (
-            <div className="w-full bg-gray-100 text-gray-600 py-4 text-lg font-semibold text-center rounded-lg">
-              <Loader2 className="h-5 w-5 mr-2 animate-spin inline" />
-              Checking eligibility...
-            </div>
-          ) : isFirstTimeUser ? (
-            /* First-time user - Free service button */
-            <Button 
-              onClick={() => handlePayment('cash')}
-              disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Creating Free Booking...
-                </>
-              ) : (
-                <>
-                  <Check className="h-5 w-5 mr-2" />
-                  Book Free Service
-                </>
-              )}
-            </Button>
-          ) : (
-            /* Regular user - Payment options */
-            <>
-              {/* Cash on Delivery Button */}
-              <Button 
-                onClick={() => handlePayment('cash')}
-                disabled={loading}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold mb-3"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Creating Booking...
-                  </>
-                ) : (
-                  <>
-                    <Banknote className="h-5 w-5 mr-2" />
-                    Cash on Delivery - ₹{totalAmount}
-                  </>
-                )}
-              </Button>
+          {/* Payment Buttons */}
+          {/* Cash on Delivery Button */}
+          <Button 
+            onClick={() => handlePayment('cash')}
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold mb-3"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Creating Booking...
+              </>
+            ) : (
+              <>
+                <Banknote className="h-5 w-5 mr-2" />
+                Cash on Delivery - ₹{totalAmount}
+              </>
+            )}
+          </Button>
 
-              {/* Pay with Razorpay Button */}
-              <Button 
-                onClick={() => handlePayment('razorpay')}
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Processing Payment...
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="h-5 w-5 mr-2" />
-                    Pay with Razorpay - ₹{totalAmount}
-                  </>
-                )}
-              </Button>
-            </>
-          )}
+          {/* Pay with Razorpay Button */}
+          <Button 
+            onClick={() => handlePayment('razorpay')}
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Processing Payment...
+              </>
+            ) : (
+              <>
+                <CreditCard className="h-5 w-5 mr-2" />
+                Pay with Razorpay - ₹{totalAmount}
+              </>
+            )}
+          </Button>
 
           {/* Terms */}
           <p className="text-xs text-gray-500 text-center mt-4">
-            {isFirstTimeUser 
-              ? "By clicking 'Book Free Service', you agree to our Terms of Service and Privacy Policy. This is a one-time free service offer."
-              : "By clicking 'Book Now', you agree to our Terms of Service and Privacy Policy. Your payment will be processed securely."
-            }
+            By clicking 'Book Now', you agree to our Terms of Service and Privacy Policy. Your payment will be processed securely.
           </p>
         </div>
       </div>

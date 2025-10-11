@@ -655,6 +655,18 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
       status: ticket.status
     });
 
+    // Mark first task assignment for mandatory deposit requirement
+    try {
+      const Vendor = require('../models/Vendor');
+      const vendor = await Vendor.findById(vendorId);
+      if (vendor) {
+        await vendor.markFirstTaskAssignment();
+      }
+    } catch (error) {
+      console.error('Error marking first task assignment:', error);
+      // Don't fail the assignment if this fails
+    }
+
     // Create notification for vendor
     const { createSupportTicketAssignmentNotification } = require('./vendorNotificationController');
     
@@ -1738,6 +1750,29 @@ const acceptSupportTicket = asyncHandler(async (req, res) => {
     return res.status(403).json({
       success: false,
       message: 'You are not assigned to this ticket'
+    });
+  }
+
+  // Check mandatory deposit requirement
+  const Vendor = require('../models/Vendor');
+  const vendor = await Vendor.findById(vendorId);
+  if (!vendor) {
+    return res.status(404).json({
+      success: false,
+      message: 'Vendor not found'
+    });
+  }
+
+  if (!vendor.canAcceptNewTasks()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Mandatory deposit of ₹2000 required to accept tasks',
+      error: 'MANDATORY_DEPOSIT_REQUIRED',
+      details: {
+        requiredAmount: 2000,
+        hasFirstTaskAssigned: !!vendor.wallet.firstTaskAssignedAt,
+        hasMandatoryDeposit: vendor.wallet.hasMandatoryDeposit
+      }
     });
   }
 

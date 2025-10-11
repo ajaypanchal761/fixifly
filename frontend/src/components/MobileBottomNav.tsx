@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Calendar, Wrench, Phone, Store } from 'lucide-react';
+import { Home, Calendar, Wrench, Phone, ShoppingCart } from 'lucide-react';
 
 const MobileBottomNav = () => {
   const location = useLocation();
@@ -10,11 +10,11 @@ const MobileBottomNav = () => {
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
-    { name: "Shop", href: "https://fixfly.in/buy-laptop/", icon: Store, isExternal: true },
+    { name: "Buy", href: "https://fixfly.in/buy-laptop/", icon: ShoppingCart, isExternal: true },
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 md:hidden shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[60] md:hidden shadow-lg">
       <div className="flex justify-around items-center py-2">
         {navItems.map((item) => {
           const IconComponent = item.icon;

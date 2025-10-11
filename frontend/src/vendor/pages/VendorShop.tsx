@@ -21,7 +21,7 @@ const VendorShop = () => {
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
       <VendorHeader />
-      <main className="flex-1 flex items-center justify-center pb-24 pt-20 overflow-hidden">
+      <main className="flex-1 flex items-center justify-center pb-24 pt-16 overflow-hidden">
         <div className="w-full max-w-md mx-auto px-4">
           {/* Coming Soon Header */}
           <div className="text-center animate-slide-up">

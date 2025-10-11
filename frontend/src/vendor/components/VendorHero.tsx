@@ -5,6 +5,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
 import vendorApi from "@/services/vendorApi";
 import bannerApiService from "@/services/bannerApi";
+import { vendorDepositService } from '@/services/vendorDepositService';
+import { useToast } from '@/hooks/use-toast';
+import { useVendor } from '@/contexts/VendorContext';
 import VendorTaskCard from "./VendorTaskCard";
 import VendorNotificationStatus from "./VendorNotificationStatus";
 import VendorFCMTokenGenerator from "./VendorFCMTokenGenerator";
@@ -14,6 +17,8 @@ const VendorHero = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
+  const { vendor, updateVendor } = useVendor();
   const [currentStat, setCurrentStat] = useState(0);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [activeTaskTab, setActiveTaskTab] = useState('new');
@@ -28,6 +33,12 @@ const VendorHero = () => {
   const [banners, setBanners] = useState<string[]>(['/banner1.png', '/banner2.png', '/banner3.png']); // Fallback banners
   const [bannersLoading, setBannersLoading] = useState(true);
   const [vendorId, setVendorId] = useState<string>('');
+  const [vendorDepositStatus, setVendorDepositStatus] = useState<{
+    hasFirstTaskAssigned: boolean;
+    hasMandatoryDeposit: boolean;
+    canAcceptTasks: boolean;
+  } | null>(null);
+  const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [vendorStats, setVendorStats] = useState([
@@ -43,7 +54,7 @@ const VendorHero = () => {
   const fetchBanners = async () => {
     try {
       setBannersLoading(true);
-      const bannerUrls = await bannerApiService.getBannerImageUrls();
+      const bannerUrls = await bannerApiService.getBannerImageUrls('vendor');
       
       if (bannerUrls.length > 0) {
         setBanners(bannerUrls);
@@ -104,6 +115,100 @@ const VendorHero = () => {
     } catch (error) {
       console.error('Error fetching vendor stats:', error);
       // Keep default stats on error
+    }
+  };
+
+  // Fetch vendor deposit status
+  const fetchVendorDepositStatus = async () => {
+    try {
+      const token = localStorage.getItem('vendorToken');
+      
+      if (!token) {
+        console.warn('No vendor token found for deposit status');
+        return;
+      }
+
+      const response = await vendorApi.getVendorProfile();
+      
+      if (response.success && response.data) {
+        const vendor = response.data;
+        setVendorDepositStatus({
+          hasFirstTaskAssigned: !!vendor.wallet?.firstTaskAssignedAt,
+          hasMandatoryDeposit: !!vendor.wallet?.hasMandatoryDeposit,
+          canAcceptTasks: vendor.wallet?.canAcceptTasks || false
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching vendor deposit status:', error);
+    }
+  };
+
+  const handleMakeDeposit = async () => {
+    if (!vendor) {
+      toast({
+        title: "Error",
+        description: "Vendor information not available.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessingDeposit(true);
+    
+    try {
+      const depositAmount = 2000; // Mandatory deposit amount
+      
+      await vendorDepositService.processDepositPayment(
+        depositAmount,
+        vendor.fullName,
+        vendor.email,
+        vendor.phone,
+        (response) => {
+          // Payment successful
+          toast({
+            title: "Deposit Successful!",
+            description: `₹${depositAmount.toLocaleString()} has been added to your wallet. You can now accept tasks.`,
+          });
+
+          // Update vendor context with new wallet data
+          if (updateVendor) {
+            updateVendor({
+              wallet: {
+                ...vendor.wallet,
+                currentBalance: (vendor.wallet?.currentBalance || 0) + depositAmount,
+                hasMandatoryDeposit: true,
+                canAcceptTasks: true
+              }
+            });
+          }
+
+          // Refresh deposit status
+          fetchVendorDepositStatus();
+          
+          // Show success message
+          toast({
+            title: "Ready to Accept Tasks!",
+            description: "Your mandatory deposit has been completed. You can now accept tasks.",
+          });
+        },
+        (error) => {
+          console.error('Deposit payment failed:', error);
+          toast({
+            title: "Payment Failed",
+            description: "Failed to process the deposit payment. Please try again.",
+            variant: "destructive"
+          });
+        }
+      );
+    } catch (error) {
+      console.error('Error processing deposit:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while processing the deposit. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessingDeposit(false);
     }
   };
 
@@ -282,8 +387,8 @@ const VendorHero = () => {
           // Support tickets: Declined, Cancelled statuses
           return task.vendorStatus === 'Declined' || task.vendorStatus === 'Cancelled';
         } else {
-          // Bookings: cancelled status OR declined by vendor (auto-rejected)
-          return task.bookingStatus === 'cancelled' || task.vendorResponse?.status === 'declined';
+          // Bookings: cancelled status OR declined status OR declined by vendor (auto-rejected)
+          return task.bookingStatus === 'cancelled' || task.bookingStatus === 'declined' || task.vendorResponse?.status === 'declined';
         }
       });
       
@@ -309,6 +414,7 @@ const VendorHero = () => {
   useEffect(() => {
     fetchBanners();
     fetchVendorStats();
+    fetchVendorDepositStatus();
     fetchVendorBookings();
     
     // Get vendor ID for notifications
@@ -552,6 +658,30 @@ const VendorHero = () => {
                   <span>Cancelled ({taskData.cancelled.length})</span>
                 </button>
               </div>
+
+              {/* Mandatory Deposit Notification */}
+              {vendorDepositStatus && vendorDepositStatus.hasFirstTaskAssigned && !vendorDepositStatus.hasMandatoryDeposit && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start">
+                    <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="text-sm font-semibold text-red-800 mb-1">
+                        Mandatory Deposit Required
+                      </h4>
+                      <p className="text-sm text-red-700 mb-3">
+                        You need to make a mandatory deposit of ₹2000 to accept tasks. This deposit is required after your first task assignment.
+                      </p>
+                      <Button 
+                        onClick={handleMakeDeposit}
+                        className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2"
+                        disabled={isProcessingDeposit}
+                      >
+                        {isProcessingDeposit ? 'Processing...' : 'Make Deposit Now'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Task List */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

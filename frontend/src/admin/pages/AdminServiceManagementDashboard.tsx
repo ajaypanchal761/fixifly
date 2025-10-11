@@ -79,6 +79,7 @@ interface ServiceManagementBooking {
       name: string;
       amount: string;
       photo: string;
+      warranty: string;
     }>;
     resolutionNote: string;
     totalAmount: number;
@@ -557,8 +558,8 @@ const AdminServiceManagementDashboard = () => {
       {/* View Details Modal */}
       {isModalOpen && selectedBooking && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center pt-2 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
-            <div className="p-2">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto p-4">
+            <div className="p-1">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-base font-bold text-gray-900">Booking Details</h2>
                 <button
@@ -569,11 +570,11 @@ const AdminServiceManagementDashboard = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                 {/* Customer Information */}
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <h3 className="text-xs font-semibold text-gray-900">Customer Information</h3>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <div className="flex items-center">
                       <User className="w-3 h-3 text-gray-500 mr-1" />
                       <span className="text-xs text-gray-600">Name:</span>
@@ -604,9 +605,9 @@ const AdminServiceManagementDashboard = () => {
                 </div>
 
                 {/* Service Information */}
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <h3 className="text-xs font-semibold text-gray-900">Service Information</h3>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <div className="flex items-center">
                       <Wrench className="w-3 h-3 text-gray-500 mr-1" />
                       <span className="text-xs text-gray-600">Service:</span>
@@ -631,9 +632,9 @@ const AdminServiceManagementDashboard = () => {
                 </div>
 
                 {/* Vendor Information */}
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <h3 className="text-xs font-semibold text-gray-900">Vendor Information</h3>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <div className="flex items-center">
                       <User className="w-3 h-3 text-gray-500 mr-1" />
                       <span className="text-xs text-gray-600">Assigned Engineer:</span>
@@ -668,9 +669,9 @@ const AdminServiceManagementDashboard = () => {
                 </div>
 
                 {/* Payment Information */}
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <h3 className="text-xs font-semibold text-gray-900">Payment Information</h3>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <div className="flex items-center">
                       <span className="text-xs text-gray-600">Payment Mode:</span>
                       <span className="ml-1">{getPaymentModeBadge(selectedBooking.paymentMode || '')}</span>
@@ -699,12 +700,20 @@ const AdminServiceManagementDashboard = () => {
                 <div className="mt-4">
                   <h3 className="text-sm font-semibold text-gray-900 mb-2">Spare Parts Used</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {selectedBooking.completionData.spareParts.map((part, index) => (
+                    {selectedBooking.completionData.spareParts.map((part, index) => {
+                      console.log('Spare part in admin service management:', part);
+                      return (
                       <div key={index} className="border border-gray-200 rounded-lg p-3">
                         <div className="flex items-center justify-between mb-1">
                           <h4 className="text-xs font-medium text-gray-900">{part.name}</h4>
                           <span className="text-xs font-medium text-green-600">{part.amount}</span>
                         </div>
+                        {part.warranty && (
+                          <div className="flex items-center space-x-1 mt-1">
+                            <span className="text-xs text-gray-500">Warranty:</span>
+                            <span className="text-xs font-medium text-blue-600">{part.warranty}</span>
+                          </div>
+                        )}
                         {part.photo && (
                           <div className="mt-1">
                             <img
@@ -716,7 +725,8 @@ const AdminServiceManagementDashboard = () => {
                           </div>
                         )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="mt-3 p-2 bg-gray-50 rounded-lg">
                     <div className="flex justify-between items-center">

@@ -205,7 +205,7 @@ const VendorTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
@@ -225,7 +225,7 @@ const VendorTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Error Loading Task</h1>
@@ -266,7 +266,7 @@ const VendorTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
@@ -303,7 +303,7 @@ const VendorTaskDetail = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
         <div className="container mx-auto px-4 py-4">
           {/* Back Button */}
           <button
@@ -353,18 +353,39 @@ const VendorTaskDetail = () => {
                      <span className="text-sm font-medium text-gray-700">Name:</span>
                      <span className="text-sm text-gray-800">{task.customer}</span>
                    </div>
-                   <a 
-                     href={`tel:${task.phone}`}
-                     className="flex items-center space-x-3 bg-gray-50 hover:bg-gray-100 p-3 rounded-md transition-colors group"
-                   >
-                     <div className="flex items-center justify-center w-8 h-8 bg-gray-500 rounded-full group-hover:bg-gray-600 transition-colors">
-                       <Phone className="w-4 h-4 text-white" />
-                     </div>
-                     <div>
-                       <p className="text-sm font-medium text-gray-800">{task.phone}</p>
-                       <p className="text-xs text-gray-600">Tap to call customer</p>
-                     </div>
-                   </a>
+                   {(() => {
+                     const currentStatus = task.bookingStatus || task.vendorStatus;
+                     const isAccepted = currentStatus === 'Accepted' || currentStatus === 'in_progress' || currentStatus === 'completed';
+                     
+                     if (isAccepted) {
+                       return (
+                         <a 
+                           href={`tel:${task.phone}`}
+                           className="flex items-center space-x-3 bg-gray-50 hover:bg-gray-100 p-3 rounded-md transition-colors group"
+                         >
+                           <div className="flex items-center justify-center w-8 h-8 bg-gray-500 rounded-full group-hover:bg-gray-600 transition-colors">
+                             <Phone className="w-4 h-4 text-white" />
+                           </div>
+                           <div>
+                             <p className="text-sm font-medium text-gray-800">{task.phone}</p>
+                             <p className="text-xs text-gray-600">Tap to call customer</p>
+                           </div>
+                         </a>
+                       );
+                     } else {
+                       return (
+                         <div className="flex items-center space-x-3 bg-gray-50 p-3 rounded-md">
+                           <div className="flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full">
+                             <Phone className="w-4 h-4 text-gray-500" />
+                           </div>
+                           <div>
+                             <p className="text-sm font-medium text-gray-500">Phone number hidden</p>
+                             <p className="text-xs text-gray-400">Accept task to view contact details</p>
+                           </div>
+                         </div>
+                       );
+                     }
+                   })()}
                  </div>
                </div>
 
@@ -402,10 +423,17 @@ const VendorTaskDetail = () => {
                           </div>
                         );
                       } else {
+                        const currentStatus = task.bookingStatus || task.vendorStatus;
+                        const isAccepted = currentStatus === 'Accepted' || currentStatus === 'in_progress' || currentStatus === 'completed';
+                        
                         return (
                           <div>
                             <p>Address not available</p>
-                            <p className="text-xs mt-1">Phone: {task.phone}</p>
+                            {isAccepted ? (
+                              <p className="text-xs mt-1">Phone: {task.phone}</p>
+                            ) : (
+                              <p className="text-xs mt-1 text-gray-500">Phone: Hidden (Accept task to view)</p>
+                            )}
                           </div>
                         );
                       }

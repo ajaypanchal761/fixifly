@@ -4,7 +4,7 @@ export interface AdminNotification {
   _id: string;
   title: string;
   message: string;
-  targetAudience: 'all' | 'users' | 'vendors' | 'specific';
+  targetAudience: 'all' | 'vendors' | 'specific';
   targetUsers?: string[];
   targetVendors?: string[];
   scheduledAt?: string;
@@ -20,6 +20,12 @@ export interface AdminNotification {
     name: string;
     email: string;
   };
+  image?: {
+    public_id: string;
+    secure_url: string;
+    width: number;
+    height: number;
+  };
   data?: any;
   createdAt: string;
   updatedAt: string;
@@ -31,11 +37,17 @@ export interface AdminNotification {
 export interface SendNotificationRequest {
   title: string;
   message: string;
-  targetAudience: 'all' | 'users' | 'vendors' | 'specific';
+  targetAudience: 'all' | 'vendors' | 'specific';
   targetUsers?: string[];
   targetVendors?: string[];
   scheduledAt?: string;
   isScheduled?: boolean;
+  image?: {
+    public_id: string;
+    secure_url: string;
+    width: number;
+    height: number;
+  };
 }
 
 export interface SendNotificationResponse {

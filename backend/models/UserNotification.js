@@ -49,6 +49,26 @@ const userNotificationSchema = new mongoose.Schema({
     default: null
   },
   
+  // Image data
+  image: {
+    public_id: {
+      type: String,
+      default: null
+    },
+    secure_url: {
+      type: String,
+      default: null
+    },
+    width: {
+      type: Number,
+      default: null
+    },
+    height: {
+      type: Number,
+      default: null
+    }
+  },
+  
   // Additional data
   data: {
     type: mongoose.Schema.Types.Mixed,

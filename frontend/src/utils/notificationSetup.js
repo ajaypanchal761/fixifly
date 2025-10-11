@@ -196,15 +196,23 @@ export const setupNotifications = async (vendorId) => {
     // Step 5: Setup foreground message listener
     onMessage(messaging, (payload) => {
       console.log('📱 Foreground message received:', payload);
+      console.log('🖼️ Image in payload:', payload.notification?.image);
       
       // Show notification in foreground
       if (payload.notification) {
-        const notification = new Notification(payload.notification.title, {
+        const notificationOptions = {
           body: payload.notification.body,
           icon: '/favicon.ico',
           badge: '/favicon.ico',
           data: payload.data
-        });
+        };
+        
+        // Add image if available
+        if (payload.notification.image) {
+          notificationOptions.image = payload.notification.image;
+        }
+        
+        const notification = new Notification(payload.notification.title, notificationOptions);
         
         notification.onclick = () => {
           window.focus();
@@ -251,15 +259,23 @@ export const setupUserNotifications = async () => {
     // Step 5: Setup foreground message listener
     onMessage(messaging, (payload) => {
       console.log('📱 User foreground message received:', payload);
+      console.log('🖼️ Image in payload:', payload.notification?.image);
       
       // Show notification in foreground
       if (payload.notification) {
-        const notification = new Notification(payload.notification.title, {
+        const notificationOptions = {
           body: payload.notification.body,
           icon: '/favicon.ico',
           badge: '/favicon.ico',
           data: payload.data
-        });
+        };
+        
+        // Add image if available
+        if (payload.notification.image) {
+          notificationOptions.image = payload.notification.image;
+        }
+        
+        const notification = new Notification(payload.notification.title, notificationOptions);
         
         notification.onclick = () => {
           window.focus();
@@ -317,15 +333,23 @@ export const setupAdminNotifications = async () => {
     // Step 5: Setup foreground message listener
     onMessage(messaging, (payload) => {
       console.log('📱 Admin foreground message received:', payload);
+      console.log('🖼️ Image in payload:', payload.notification?.image);
       
       // Show notification in foreground
       if (payload.notification) {
-        const notification = new Notification(payload.notification.title, {
+        const notificationOptions = {
           body: payload.notification.body,
           icon: '/favicon.ico',
           badge: '/favicon.ico',
           data: payload.data
-        });
+        };
+        
+        // Add image if available
+        if (payload.notification.image) {
+          notificationOptions.image = payload.notification.image;
+        }
+        
+        const notification = new Notification(payload.notification.title, notificationOptions);
         
         notification.onclick = () => {
           window.focus();

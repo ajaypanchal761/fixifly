@@ -231,8 +231,19 @@ const Blog = () => {
           </div>
         )}
 
+        {/* Benefits Image Section - Mobile Only */}
+        <div className="mb-8 animate-fade-in-delay md:hidden" data-aos="fade-up" data-aos-delay="400">
+          <div className="flex justify-center">
+            <img 
+              src="/benefitspro.jpg" 
+              alt="Benefits of Pro Repair Service"
+              className="w-full max-w-4xl h-auto rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            />
+          </div>
+        </div>
+
         {/* Statistics */}
-        <div className="hidden md:block bg-gradient-card rounded-3xl p-6 sm:p-8 pb-6 sm:pb-8 animate-fade-in-delay" data-aos="fade-up" data-aos-delay="400">
+        <div className="hidden md:block bg-gradient-card rounded-3xl p-6 sm:p-8 pb-6 sm:pb-8 animate-fade-in-delay" data-aos="fade-up" data-aos-delay="500">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             <div>
               <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">10K+</div>

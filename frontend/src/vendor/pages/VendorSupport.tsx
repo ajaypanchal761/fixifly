@@ -9,7 +9,7 @@ const VendorSupport = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleCall = () => {
-    window.open('tel:+919876543210', '_self');
+    window.open('tel:02269647030', '_self');
   };
 
   const handleEmail = () => {
@@ -31,7 +31,7 @@ const VendorSupport = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
         <div className="container mx-auto px-4 py-8">
           {/* Page Header */}
           <div className="text-center mb-8">
@@ -58,7 +58,7 @@ const VendorSupport = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Call Support</h3>
                     <p className="text-sm text-gray-600">Speak directly with our team</p>
-                    <p className="text-sm font-medium text-gray-800">+91 98765 43210</p>
+                    <p className="text-sm font-medium text-gray-800">02269647030</p>
                   </div>
                 </div>
                 <button

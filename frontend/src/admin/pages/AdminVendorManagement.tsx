@@ -50,6 +50,10 @@ interface Vendor {
   lastName: string;
   email: string;
   phone: string;
+  alternatePhone?: string;
+  fatherName?: string;
+  homePhone?: string;
+  currentAddress?: string;
   location: string;
   address?: any;
   serviceLocations?: ServiceLocation[];
@@ -65,6 +69,11 @@ interface Vendor {
   customServiceCategory?: string;
   lastActive: string;
   profileImage?: string;
+  documents?: {
+    aadhaarFront?: string;
+    aadhaarBack?: string;
+    panCard?: string;
+  };
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   isProfileComplete: boolean;
@@ -404,7 +413,6 @@ const AdminVendorManagement = () => {
                 <SelectContent>
                   <SelectItem value="createdAt">Newest First</SelectItem>
                   <SelectItem value="name">Name A-Z</SelectItem>
-                  <SelectItem value="rating.average">Highest Rating</SelectItem>
                   <SelectItem value="stats.totalTasks">Most Bookings</SelectItem>
                 </SelectContent>
               </Select>
@@ -465,10 +473,10 @@ const AdminVendorManagement = () => {
                       <TableHead>Vendor</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead>Location</TableHead>
-                      <TableHead>Rating</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Verification</TableHead>
                       <TableHead>Bookings</TableHead>
+                      <TableHead>Rating</TableHead>
                       <TableHead>Last Active</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -507,13 +515,6 @@ const AdminVendorManagement = () => {
                             <span>{vendor.location}</span>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                            <span className="text-sm font-medium">{vendor.rating.toFixed(1)}</span>
-                            <span className="text-xs text-gray-500">({vendor.totalReviews})</span>
-                          </div>
-                        </TableCell>
                         <TableCell>{getStatusBadge(vendor.status)}</TableCell>
                         <TableCell>{getVerificationBadge(vendor.verificationStatus)}</TableCell>
                         <TableCell>
@@ -521,6 +522,13 @@ const AdminVendorManagement = () => {
                             <div>Total: <span className="font-medium">{vendor.totalBookings}</span></div>
                             <div>Completed: <span className="font-medium text-green-600">{vendor.completedBookings}</span></div>
                             <div>Pending: <span className="font-medium text-yellow-600">{vendor.pendingBookings}</span></div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                            <span className="text-xs font-medium">{vendor.rating.toFixed(1)}</span>
+                            <span className="text-xs text-gray-500">({vendor.totalReviews})</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -630,50 +638,83 @@ const AdminVendorManagement = () => {
 
         {/* Vendor Details Modal */}
         <Dialog open={isVendorDetailsOpen} onOpenChange={setIsVendorDetailsOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Vendor Details</DialogTitle>
+              <DialogTitle>Vendor Details - {selectedVendor?.name}</DialogTitle>
             </DialogHeader>
             {selectedVendor && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Name</label>
-                    <p className="text-sm">{selectedVendor.name}</p>
+              <div className="space-y-6">
+                {/* Profile Image */}
+                {selectedVendor.profileImage && (
+                  <div className="flex justify-center">
+                    <Avatar className="w-24 h-24">
+                      <AvatarImage src={selectedVendor.profileImage} alt={selectedVendor.name} />
+                      <AvatarFallback>{selectedVendor.firstName?.[0]}{selectedVendor.lastName?.[0]}</AvatarFallback>
+                    </Avatar>
                   </div>
+                )}
+
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-500">Vendor ID</label>
-                    <p className="text-sm">{selectedVendor.vendorId}</p>
+                    <p className="text-sm font-semibold">{selectedVendor.vendorId}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Full Name</label>
+                    <p className="text-sm">{selectedVendor.name}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-500">Email</label>
                     <p className="text-sm">{selectedVendor.email}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Phone</label>
+                    <label className="text-sm font-medium text-gray-500">Primary Phone</label>
                     <p className="text-sm">{selectedVendor.phone}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Location</label>
-                    <p className="text-sm">{selectedVendor.location}</p>
-                  </div>
+                  {selectedVendor.alternatePhone && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Alternate Phone</label>
+                      <p className="text-sm">{selectedVendor.alternatePhone}</p>
+                    </div>
+                  )}
+                  {selectedVendor.fatherName && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Father's Name</label>
+                      <p className="text-sm">{selectedVendor.fatherName}</p>
+                    </div>
+                  )}
+                  {selectedVendor.homePhone && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Home Phone</label>
+                      <p className="text-sm">{selectedVendor.homePhone}</p>
+                    </div>
+                  )}
                   <div>
                     <label className="text-sm font-medium text-gray-500">Experience</label>
                     <p className="text-sm">{selectedVendor.experience}</p>
                   </div>
+                </div>
+
+                {/* Current Address */}
+                {selectedVendor.currentAddress && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Services</label>
-                    <p className="text-sm">
-                      {selectedVendor.services.map(service => 
-                        service === 'Other' && selectedVendor.customServiceCategory 
-                          ? selectedVendor.customServiceCategory 
-                          : service
-                      ).join(', ')}
-                    </p>
+                    <label className="text-sm font-medium text-gray-500">Current Address</label>
+                    <p className="text-sm bg-gray-50 p-3 rounded-lg">{selectedVendor.currentAddress}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Rating</label>
-                    <p className="text-sm">{selectedVendor.rating.toFixed(1)} ({selectedVendor.totalReviews} reviews)</p>
+                )}
+
+                {/* Service Categories */}
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Service Categories</label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedVendor.services.map((service, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {service === 'Other' && selectedVendor.customServiceCategory 
+                          ? selectedVendor.customServiceCategory 
+                          : service}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
                 {selectedVendor.specialty && (
@@ -686,6 +727,51 @@ const AdminVendorManagement = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-500">Bio</label>
                     <p className="text-sm">{selectedVendor.bio}</p>
+                  </div>
+                )}
+
+                {/* Documents Section */}
+                {selectedVendor.documents && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 mb-3 block">Uploaded Documents</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {selectedVendor.documents.aadhaarFront && (
+                        <div className="border rounded-lg p-4">
+                          <label className="text-sm font-medium text-gray-600 mb-2 block">Aadhaar Front</label>
+                          <img 
+                            src={selectedVendor.documents.aadhaarFront} 
+                            alt="Aadhaar Front" 
+                            className="w-full h-48 object-cover rounded-lg border"
+                            onClick={() => window.open(selectedVendor.documents.aadhaarFront, '_blank')}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </div>
+                      )}
+                      {selectedVendor.documents.aadhaarBack && (
+                        <div className="border rounded-lg p-4">
+                          <label className="text-sm font-medium text-gray-600 mb-2 block">Aadhaar Back</label>
+                          <img 
+                            src={selectedVendor.documents.aadhaarBack} 
+                            alt="Aadhaar Back" 
+                            className="w-full h-48 object-cover rounded-lg border"
+                            onClick={() => window.open(selectedVendor.documents.aadhaarBack, '_blank')}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </div>
+                      )}
+                      {selectedVendor.documents.panCard && (
+                        <div className="border rounded-lg p-4">
+                          <label className="text-sm font-medium text-gray-600 mb-2 block">PAN Card</label>
+                          <img 
+                            src={selectedVendor.documents.panCard} 
+                            alt="PAN Card" 
+                            className="w-full h-48 object-cover rounded-lg border"
+                            onClick={() => window.open(selectedVendor.documents.panCard, '_blank')}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
                 {selectedVendor.serviceLocations && selectedVendor.serviceLocations.length > 0 && (
@@ -713,6 +799,103 @@ const AdminVendorManagement = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Account Status & Verification */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Account Status</label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge 
+                        className={`px-2 py-1 text-xs ${
+                          selectedVendor.status === 'active' 
+                            ? 'bg-green-100 text-green-800 border-green-200' 
+                            : selectedVendor.status === 'blocked'
+                            ? 'bg-red-100 text-red-800 border-red-200'
+                            : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                        }`}
+                      >
+                        {selectedVendor.status.charAt(0).toUpperCase() + selectedVendor.status.slice(1)}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Verification Status</label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge 
+                        className={`px-2 py-1 text-xs ${
+                          selectedVendor.verificationStatus === 'verified' 
+                            ? 'bg-green-100 text-green-800 border-green-200' 
+                            : selectedVendor.verificationStatus === 'rejected'
+                            ? 'bg-red-100 text-red-800 border-red-200'
+                            : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                        }`}
+                      >
+                        {selectedVendor.verificationStatus.charAt(0).toUpperCase() + selectedVendor.verificationStatus.slice(1)}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Service Routes</label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <MapPin className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm">
+                        {selectedVendor.serviceLocations && selectedVendor.serviceLocations.length > 0 
+                          ? `${selectedVendor.serviceLocations.length} routes configured`
+                          : 'No service routes configured'
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Service Routes Details */}
+                {selectedVendor.serviceLocations && selectedVendor.serviceLocations.length > 0 && (
+                  <div className="pt-4 border-t">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-blue-600" />
+                      Service Routes Details
+                    </h3>
+                    <div className="space-y-3">
+                      {selectedVendor.serviceLocations.map((route: any, index: number) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                          <div className="flex items-center gap-3">
+                            <MapPin className="h-4 w-4 text-blue-600" />
+                            <div>
+                              <p className="font-medium text-gray-900">{route.name || `Route ${index + 1}`}</p>
+                              {route.from && route.to ? (
+                                <p className="text-sm text-gray-600">
+                                  {route.from} → {route.to}
+                                </p>
+                              ) : (
+                                <p className="text-sm text-gray-600">
+                                  {route.city}, {route.state} - {route.pincode}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-xs">
+                              Route {index + 1}
+                            </Badge>
+                            {route.radius && (
+                              <Badge variant="outline" className="text-xs">
+                                {route.radius} km
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Account Dates */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Join Date</label>
+                    <p className="text-sm">{new Date(selectedVendor.joinDate).toLocaleDateString()}</p>
+                  </div>
+                </div>
               </div>
             )}
           </DialogContent>

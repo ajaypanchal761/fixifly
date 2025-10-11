@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import { useToast } from '@/hooks/use-toast';
 import adminNotificationApi, { AdminNotification, SendNotificationRequest } from '@/services/adminNotificationApi';
+import adminApiService from '@/services/adminApi';
 import { 
   Bell, 
   Send, 
@@ -20,7 +21,8 @@ import {
   Target,
   MessageSquare,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Image as ImageIcon
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +34,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import NotificationImageUpload from '@/components/NotificationImageUpload';
 
 interface NotificationStats {
   totalNotifications: number;
@@ -51,17 +54,26 @@ const AdminPushNotificationManagement = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null);
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [isLoadingVendors, setIsLoadingVendors] = useState(false);
+  const [selectedVendorId, setSelectedVendorId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   
   // Form states
   const [formData, setFormData] = useState({
     title: '',
     message: '',
-    targetAudience: 'all' as 'all' | 'users' | 'vendors' | 'specific',
+    targetAudience: 'all' as 'all' | 'vendors' | 'specific',
     targetUsers: [] as string[],
     targetVendors: [] as string[],
     scheduledAt: '',
-    isScheduled: false
+    isScheduled: false,
+    image: null as {
+      public_id: string;
+      secure_url: string;
+      width: number;
+      height: number;
+    } | null
   });
 
   // Data states
@@ -70,6 +82,45 @@ const AdminPushNotificationManagement = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalNotifications, setTotalNotifications] = useState(0);
 
+
+  // Fetch vendors
+  const fetchVendors = async () => {
+    try {
+      setIsLoadingVendors(true);
+      console.log('🔄 Fetching vendors...');
+      
+      const response = await adminApiService.getVendors({
+        page: 1,
+        limit: 100, // Get all vendors for dropdown
+        // Remove status filter to get all vendors
+      });
+      
+      console.log('📋 Vendor API response:', response);
+      
+      if (response.success) {
+        setVendors(response.data.vendors);
+        console.log('✅ Vendors fetched successfully:', response.data.vendors.length, 'vendors');
+        console.log('📊 First vendor sample:', response.data.vendors[0]);
+      } else {
+        console.error('❌ Failed to fetch vendors:', response);
+        toast({
+          title: "Error",
+          description: "Failed to fetch vendors",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error fetching vendors:', error);
+      console.error('Error details:', error);
+      toast({
+        title: "Error",
+        description: `Failed to fetch vendors: ${error.message || 'Unknown error'}`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingVendors(false);
+    }
+  };
 
   // Fetch notifications
   const fetchNotifications = async () => {
@@ -120,6 +171,30 @@ const AdminPushNotificationManagement = () => {
         return;
       }
 
+      if (formData.targetAudience === 'specific' && formData.targetVendors.length === 0) {
+        toast({
+          title: "Error",
+          description: "Please select a vendor when targeting specific vendor",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Ensure only single vendor selection
+      if (formData.targetAudience === 'specific' && formData.targetVendors.length > 1) {
+        toast({
+          title: "Error",
+          description: "Only ONE vendor can be selected. Please select only one specific vendor.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Additional validation for single vendor
+      if (formData.targetAudience === 'specific' && formData.targetVendors.length === 1) {
+        console.log('Single vendor selected for notification:', formData.targetVendors[0]);
+      }
+
       const notificationData: SendNotificationRequest = {
         title: formData.title,
         message: formData.message,
@@ -127,9 +202,18 @@ const AdminPushNotificationManagement = () => {
         targetUsers: formData.targetUsers.length > 0 ? formData.targetUsers : undefined,
         targetVendors: formData.targetVendors.length > 0 ? formData.targetVendors : undefined,
         scheduledAt: formData.isScheduled ? formData.scheduledAt : undefined,
-        isScheduled: formData.isScheduled
+        isScheduled: formData.isScheduled,
+        image: formData.image || undefined
       };
 
+      console.log('Sending notification data:', notificationData);
+      console.log('Target audience:', formData.targetAudience);
+      console.log('Target vendors:', formData.targetVendors);
+      console.log('Target vendors type:', typeof formData.targetVendors);
+      console.log('Target vendors length:', formData.targetVendors.length);
+      console.log('Target users:', formData.targetUsers);
+      console.log('🖼️ Image data being sent:', formData.image);
+      
       const response = await adminNotificationApi.sendNotification(notificationData);
       
       if (response.success) {
@@ -155,15 +239,21 @@ const AdminPushNotificationManagement = () => {
         targetUsers: [],
         targetVendors: [],
         scheduledAt: '',
-        isScheduled: false
+        isScheduled: false,
+        image: null
       });
+      setSelectedVendorId(''); // Reset vendor selection
       
       fetchNotifications();
     } catch (error) {
       console.error('Error sending notification:', error);
+      console.error('Error details:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response:', error.response);
+      
       toast({
         title: "Error",
-        description: "Failed to send notification",
+        description: error.message || "Failed to send notification",
         variant: "destructive"
       });
     } finally {
@@ -178,10 +268,38 @@ const AdminPushNotificationManagement = () => {
     setIsViewModalOpen(true);
   };
 
+  const handleCreateModalOpen = () => {
+    setIsCreateModalOpen(true);
+    // Reset vendor selection when opening modal
+    setSelectedVendorId('');
+    setFormData(prev => ({...prev, targetVendors: []}));
+  };
+
   // Load data on component mount
   useEffect(() => {
     fetchNotifications();
+    fetchVendors();
   }, [statusFilter, audienceFilter, searchTerm, currentPage]);
+
+  // Synchronize selectedVendorId with formData.targetVendors
+  useEffect(() => {
+    if (formData.targetVendors.length > 0 && !selectedVendorId) {
+      setSelectedVendorId(formData.targetVendors[0]);
+    } else if (formData.targetVendors.length === 0 && selectedVendorId) {
+      setSelectedVendorId('');
+    }
+  }, [formData.targetVendors, selectedVendorId]);
+
+  // Force single vendor selection - prevent multiple vendors
+  useEffect(() => {
+    if (formData.targetVendors.length > 1) {
+      console.log('Multiple vendors detected, forcing single selection');
+      // Keep only the first vendor
+      const singleVendor = formData.targetVendors[0];
+      setFormData({...formData, targetVendors: [singleVendor]});
+      setSelectedVendorId(singleVendor);
+    }
+  }, [formData.targetVendors]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -201,7 +319,11 @@ const AdminPushNotificationManagement = () => {
   const getAudienceBadge = (audience: string) => {
     switch (audience) {
       case 'all':
-        return <Badge className="bg-purple-100 text-purple-800">All Users</Badge>;
+        return <Badge className="bg-purple-100 text-purple-800">All Users (Regular Users Only)</Badge>;
+      case 'vendors':
+        return <Badge className="bg-green-100 text-green-800">All Vendors</Badge>;
+      case 'specific':
+        return <Badge className="bg-orange-100 text-orange-800">Specific Vendor</Badge>;
       default:
         return <Badge className="bg-gray-100 text-gray-800">{audience}</Badge>;
     }
@@ -222,7 +344,7 @@ const AdminPushNotificationManagement = () => {
               <p className="text-sm text-gray-600">Manage and send push notifications to users and vendors</p>
             </div>
             <Button 
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={handleCreateModalOpen}
               className="bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -307,11 +429,11 @@ const AdminPushNotificationManagement = () => {
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="sent">Sent</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem key="status-all" value="all">All Status</SelectItem>
+                  <SelectItem key="status-sent" value="sent">Sent</SelectItem>
+                  <SelectItem key="status-scheduled" value="scheduled">Scheduled</SelectItem>
+                  <SelectItem key="status-draft" value="draft">Draft</SelectItem>
+                  <SelectItem key="status-failed" value="failed">Failed</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={audienceFilter} onValueChange={setAudienceFilter}>
@@ -319,8 +441,9 @@ const AdminPushNotificationManagement = () => {
                   <SelectValue placeholder="Filter by audience" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Audience</SelectItem>
-                 
+                  <SelectItem key="audience-all" value="all">All Audience</SelectItem>
+                  <SelectItem key="audience-vendors" value="vendors">Vendors</SelectItem>
+                  <SelectItem key="audience-specific" value="specific">Specific Vendor</SelectItem>
                 </SelectContent>
               </Select>
               <Button 
@@ -374,7 +497,15 @@ const AdminPushNotificationManagement = () => {
                     <TableRow key={notification._id}>
                       <TableCell>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                            {notification.image && (
+                              <div className="flex items-center space-x-1">
+                                <ImageIcon className="w-3 h-3 text-blue-600" />
+                                <span className="text-xs text-blue-600">Image</span>
+                              </div>
+                            )}
+                          </div>
                           <p className="text-xs text-gray-500">
                             {new Date(notification.createdAt).toLocaleDateString()}
                           </p>
@@ -446,11 +577,11 @@ const AdminPushNotificationManagement = () => {
 
         {/* Create Notification Modal */}
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto mt-10">
             <DialogHeader>
               <DialogTitle>Create Push Notification</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <Label htmlFor="title">Title *</Label>
                 <Input
@@ -468,26 +599,95 @@ const AdminPushNotificationManagement = () => {
                   value={formData.message}
                   onChange={(e) => setFormData({...formData, message: e.target.value})}
                   placeholder="Enter notification message"
-                  rows={4}
+                  rows={3}
                 />
               </div>
               
+              <NotificationImageUpload
+                onImageSelect={(image) => setFormData({...formData, image})}
+                selectedImage={formData.image}
+                disabled={isLoading}
+              />
+              
               <div>
                 <Label htmlFor="targetAudience">Target Audience *</Label>
-                <Select 
-                  value={formData.targetAudience} 
-                  onValueChange={(value: 'all' | 'users' | 'vendors' | 'specific') => 
-                    setFormData({...formData, targetAudience: value})
-                  }
-                >
+              <Select 
+                value={formData.targetAudience} 
+                onValueChange={(value: 'all' | 'vendors' | 'specific') => {
+                  setFormData({...formData, targetAudience: value, targetVendors: []});
+                  setSelectedVendorId(''); // Reset vendor selection when audience changes
+                }}
+              >
                   <SelectTrigger>
                     <SelectValue placeholder="Select target audience" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Users</SelectItem>
+                    <SelectItem key="target-all" value="all">All Users (Regular Users Only)</SelectItem>
+                    <SelectItem key="target-vendors" value="vendors">All Vendors</SelectItem>
+                    <SelectItem key="target-specific" value="specific">Specific Vendor</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              
+              {/* Vendor Selection - Show when specific vendor is selected */}
+              {formData.targetAudience === 'specific' && (
+                <div>
+                  <Label htmlFor="vendorSelect">Select ONE Vendor Only *</Label>
+                  <p className="text-xs text-gray-500 mb-2">Choose exactly one vendor for this notification</p>
+                  {/* Debug info */}
+                  <div className="text-xs text-gray-500 mb-2">
+                    Debug: Vendors: {vendors.length}, Selected: {selectedVendorId || 'none'}, Array Length: {formData.targetVendors.length}, Loading: {isLoadingVendors ? 'yes' : 'no'}
+                  </div>
+                  
+                  {/* Warning if multiple vendors detected */}
+                  {formData.targetVendors.length > 1 && (
+                    <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                      <p className="text-xs text-red-800 font-medium">
+                        ⚠️ WARNING: Multiple vendors detected! Only ONE vendor should be selected.
+                      </p>
+                    </div>
+                  )}
+                  <div className="relative">
+                    {/* Custom Single Selection Dropdown */}
+                    <select
+                      value={selectedVendorId}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        console.log('Single vendor selected:', value);
+                        console.log('Selected value type:', typeof value);
+                        console.log('Selected value length:', value.length);
+                        
+                        // Force single selection - replace any existing selection
+                        if (value) {
+                          setSelectedVendorId(value);
+                          setFormData({...formData, targetVendors: [value]});
+                          console.log('Updated formData.targetVendors to single vendor:', [value]);
+                        } else {
+                          setSelectedVendorId('');
+                          setFormData({...formData, targetVendors: []});
+                          console.log('Cleared vendor selection');
+                        }
+                      }}
+                      disabled={isLoadingVendors}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">
+                        {isLoadingVendors ? "Loading vendors..." : "Select exactly ONE vendor"}
+                      </option>
+                      {vendors.map((vendor) => {
+                        console.log('Vendor data:', vendor.id, vendor._id, vendor.firstName, vendor.lastName, vendor.vendorId);
+                        // Use _id as the primary identifier, fallback to id if _id doesn't exist
+                        const vendorId = vendor._id || vendor.id;
+                        return (
+                          <option key={vendorId} value={vendorId}>
+                            {vendor.firstName} {vendor.lastName} ({vendor.vendorId || vendorId})
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+              )}
               
               {formData.isScheduled && (
                 <div>
@@ -502,7 +702,7 @@ const AdminPushNotificationManagement = () => {
                 </div>
               )}
               
-              <div className="flex gap-2 pt-4">
+              <div className="flex gap-2 pt-3">
                 <Button 
                   onClick={handleSendNotification}
                   className="flex-1"
@@ -548,6 +748,19 @@ const AdminPushNotificationManagement = () => {
                   <Label className="text-sm font-medium text-gray-600">Message</Label>
                   <p className="text-sm text-gray-900">{selectedNotification.message}</p>
                 </div>
+                
+                {selectedNotification.image && (
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Image</Label>
+                    <div className="mt-2">
+                      <img
+                        src={selectedNotification.image.secure_url}
+                        alt="Notification image"
+                        className="max-w-full h-48 object-cover rounded-lg border"
+                      />
+                    </div>
+                  </div>
+                )}
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>

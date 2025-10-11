@@ -77,6 +77,7 @@ interface VendorAuthResponse {
   message?: string;
 }
 
+// CACHE BUST - UPDATED AT: 2025-10-10 09:38:00
 class VendorApiService {
   private baseURL: string;
 
@@ -140,13 +141,42 @@ class VendorApiService {
         // Handle authentication errors
         if (response.status === 401) {
           console.error('Authentication failed:', data);
-          // Clear invalid token
-          localStorage.removeItem('vendorToken');
-          localStorage.removeItem('vendorData');
-          // Redirect to login page
-          window.location.href = '/vendor/login';
+          
+          // Check if vendor is blocked
+          if (data.message && data.message.includes('blocked by admin')) {
+            console.error('Vendor account is blocked by admin');
+            // Clear invalid token and data
+            localStorage.removeItem('vendorToken');
+            localStorage.removeItem('vendorData');
+            // Show blocked message and redirect to login
+            alert('You are blocked by admin. Please contact support for assistance.');
+            window.location.href = '/vendor/login';
+          } else {
+            // Clear invalid token
+            localStorage.removeItem('vendorToken');
+            localStorage.removeItem('vendorData');
+            // Redirect to login page
+            window.location.href = '/vendor/login';
+          }
         }
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        // Handle mandatory deposit error directly in request method
+        if (data.error === 'MANDATORY_DEPOSIT_REQUIRED') {
+          console.log('🚨🚨🚨 MANDATORY DEPOSIT ERROR DETECTED IN REQUEST METHOD 🚨🚨🚨');
+          alert('🚨 MANDATORY DEPOSIT REQUIRED 🚨\n\n₹2000 deposit needed to accept tasks.\n\nPlease make a deposit first in your earnings page.');
+          
+          // Return the error data instead of throwing
+          return {
+            success: false,
+            error: 'MANDATORY_DEPOSIT_REQUIRED',
+            message: 'Mandatory deposit of ₹2000 required to accept tasks',
+            isMandatoryDepositError: true
+          };
+        }
+        
+        // Create error with full response data for other errors
+        const error = new Error(data.message || `HTTP error! status: ${response.status}`);
+        (error as any).response = { data };
+        throw error;
       }
 
       return data;
@@ -164,7 +194,9 @@ class VendorApiService {
         console.error('Network error - backend might be down or CORS issue');
         console.error('Backend URL:', url);
         console.error('Check if backend is running on:', this.baseURL);
-        throw new Error('Network error: Please check your internet connection and try again.');
+        const networkError = new Error('Network error: Please check your internet connection and try again.');
+        (networkError as any).response = error.response;
+        throw networkError;
       }
       
       // Handle HTTP errors with more details
@@ -172,12 +204,18 @@ class VendorApiService {
         const { status, data } = error.response;
         if (status === 400 && data.errors) {
           // Validation errors
-          throw new Error(data.errors.join('. '));
+          const validationError = new Error(data.errors.join('. '));
+          (validationError as any).response = error.response;
+          throw validationError;
         } else if (data.message) {
           // Custom server messages
-          throw new Error(data.message);
+          const messageError = new Error(data.message);
+          (messageError as any).response = error.response;
+          throw messageError;
         } else {
-          throw new Error(`Server error (${status}). Please try again.`);
+          const serverError = new Error(`Server error (${status}). Please try again.`);
+          (serverError as any).response = error.response;
+          throw serverError;
         }
       }
       
@@ -222,6 +260,62 @@ class VendorApiService {
     return this.request('/vendors/register', {
       method: 'POST',
       body: JSON.stringify(vendorData),
+    });
+  }
+
+  // Vendor Registration with Files
+  async registerWithFiles(formData: FormData): Promise<ApiResponse<VendorAuthResponse>> {
+    const url = `${this.baseURL}/vendors/register`;
+    
+    console.log('Sending registration request to:', url);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      // Don't set Content-Type header, let browser set it with boundary for FormData
+    });
+
+    console.log('Registration response status:', response.status);
+    console.log('Registration response headers:', Object.fromEntries(response.headers.entries()));
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+        console.log('Registration error response:', errorData);
+        
+        // If there are validation errors, show them
+        if (errorData.errors && Array.isArray(errorData.errors)) {
+          throw new Error(`Validation failed: ${errorData.errors.join(', ')}`);
+        }
+      } catch (e) {
+        console.log('Failed to parse error response as JSON');
+        errorData = { message: `HTTP error! status: ${response.status}` };
+      }
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('Registration success response:', result);
+    return result;
+  }
+
+  // Create verification payment
+  async createVerificationPayment(): Promise<ApiResponse<any>> {
+    return this.request('/vendors/verification-payment', {
+      method: 'POST',
+    });
+  }
+
+  // Verify verification payment
+  async verifyVerificationPayment(paymentData: {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request('/vendors/verify-verification-payment', {
+      method: 'POST',
+      body: JSON.stringify(paymentData),
     });
   }
 
@@ -346,20 +440,45 @@ class VendorApiService {
     return response;
   }
 
-  // Accept Task
+  // Accept Task - FIXED VERSION
   async acceptTask(bookingId: string): Promise<ApiResponse<any>> {
     console.log('Accepting task:', { bookingId });
-    const response = await this.request(`/bookings/${bookingId}/accept`, {
-      method: 'PATCH',
-      body: JSON.stringify({ 
-        vendorResponse: {
-          status: 'accepted',
-          respondedAt: new Date().toISOString()
-        }
-      }),
-    });
-    console.log('Accept task response:', response);
-    return response;
+    
+    // DIRECT FIX - Handle mandatory deposit error before making request
+    try {
+      const response = await this.request(`/bookings/${bookingId}/accept`, {
+        method: 'PATCH',
+        body: JSON.stringify({ 
+          vendorResponse: {
+            status: 'accepted',
+            respondedAt: new Date().toISOString()
+          }
+        }),
+      });
+      console.log('Accept task response:', response);
+      return response;
+    } catch (error: any) {
+      console.log('ERROR CAUGHT IN acceptTask:', error);
+      
+      // DIRECT MANDATORY DEPOSIT HANDLING
+      if (error?.response?.data?.error === 'MANDATORY_DEPOSIT_REQUIRED' || 
+          error?.message?.includes('Mandatory deposit')) {
+        
+        console.log('🚨🚨🚨 MANDATORY DEPOSIT ERROR DETECTED 🚨🚨🚨');
+        alert('🚨 MANDATORY DEPOSIT REQUIRED 🚨\n\n₹2000 deposit needed to accept tasks.\n\nPlease make a deposit first in your earnings page.');
+        
+        // Return success response to prevent further error handling
+        return {
+          success: false,
+          error: 'MANDATORY_DEPOSIT_REQUIRED',
+          message: 'Mandatory deposit of ₹2000 required to accept tasks',
+          isMandatoryDepositError: true
+        };
+      }
+      
+      // For other errors, throw normally
+      throw error;
+    }
   }
 
   // Decline Task
@@ -483,11 +602,28 @@ class VendorApiService {
   // Accept support ticket
   async acceptSupportTicket(ticketId: string): Promise<ApiResponse<any>> {
     console.log('Accepting support ticket:', ticketId);
-    const response = await this.request(`/support-tickets/vendor/${ticketId}/accept`, {
-      method: 'PUT',
-    });
-    console.log('Accept support ticket response:', response);
-    return response;
+    try {
+      const response = await this.request(`/support-tickets/vendor/${ticketId}/accept`, {
+        method: 'PUT',
+      });
+      console.log('Accept support ticket response:', response);
+      return response;
+    } catch (error: any) {
+      // Check if it's a mandatory deposit error and handle it directly
+      if (error?.response?.data?.error === 'MANDATORY_DEPOSIT_REQUIRED') {
+        error.isMandatoryDepositError = true;
+        console.log('🚨 MANDATORY DEPOSIT ERROR DETECTED IN API (Support Ticket)');
+        alert('MANDATORY DEPOSIT REQUIRED: ₹2000 deposit needed to accept tasks. Please make a deposit first.');
+        // Don't throw the error, return a special response instead
+        return {
+          success: false,
+          error: 'MANDATORY_DEPOSIT_REQUIRED',
+          message: 'Mandatory deposit of ₹2000 required to accept tasks',
+          isMandatoryDepositError: true
+        };
+      }
+      throw error;
+    }
   }
 
   // Decline support ticket
@@ -602,6 +738,7 @@ class VendorApiService {
     });
 
     const data = await response.json();
+    console.log('Vendor API: Image upload response:', data);
     
     if (!response.ok) {
       // Handle authentication errors

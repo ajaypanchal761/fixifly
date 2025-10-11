@@ -23,6 +23,7 @@ interface SparePart {
   name: string;
   amount: string;
   photo: string | null;
+  warranty: string;
 }
 
 const VendorClosedTask = () => {
@@ -55,7 +56,7 @@ const VendorClosedTask = () => {
   const [showCashWarning, setShowCashWarning] = useState(false);
   const [isWalletCheckOpen, setIsWalletCheckOpen] = useState(false);
   const [spareParts, setSpareParts] = useState<SparePart[]>([
-    { id: 1, name: "", amount: "", photo: null }
+    { id: 1, name: "", amount: "", photo: null, warranty: "" }
   ]);
 
   // Fetch task details from API
@@ -260,7 +261,7 @@ const VendorClosedTask = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
@@ -280,7 +281,7 @@ const VendorClosedTask = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Error Loading Task</h1>
@@ -321,7 +322,7 @@ const VendorClosedTask = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
@@ -342,7 +343,7 @@ const VendorClosedTask = () => {
 
   const addSparePart = () => {
     const newId = Math.max(...spareParts.map(p => p.id)) + 1;
-    setSpareParts([...spareParts, { id: newId, name: "", amount: "", photo: null }]);
+    setSpareParts([...spareParts, { id: newId, name: "", amount: "", photo: null, warranty: "" }]);
   };
 
   const removeSparePart = (id: number) => {
@@ -565,9 +566,19 @@ const VendorClosedTask = () => {
           }));
           
           // Also trigger event for user bookings refresh - move to completed
+          console.log('=== VENDOR CASH PAYMENT COMPLETION ===');
+          console.log('Triggering bookingUpdated event with data:', {
+            taskId,
+            status: 'completed',
+            paymentMode: 'cash',
+            paymentStatus: 'collected'
+          });
+          
           window.dispatchEvent(new CustomEvent('bookingUpdated', { 
             detail: { taskId, status: 'completed', paymentMode: 'cash', paymentStatus: 'collected' } 
           }));
+          
+          console.log('bookingUpdated event dispatched successfully');
           
           navigate('/vendor');
         }
@@ -585,7 +596,7 @@ const VendorClosedTask = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0">
         <div className="container mx-auto px-4 py-4">
           {/* Back Button */}
           <button
@@ -671,6 +682,22 @@ const VendorClosedTask = () => {
                       placeholder="Amount (e.g., ₹1,500)"
                       className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+
+                    {/* Service Warranty */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-600">Service Warranty</label>
+                      <select
+                        value={part.warranty}
+                        onChange={(e) => updateSparePart(part.id, 'warranty', e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Select warranty period</option>
+                        <option value="30 days">30 days</option>
+                        <option value="90 days">90 days</option>
+                        <option value="180 days">180 days</option>
+                        <option value="1 year">1 year</option>
+                      </select>
+                    </div>
 
                     {/* Photo Upload */}
                     <div className="space-y-2">

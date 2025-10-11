@@ -137,7 +137,8 @@ const SupportTicketSchema = new mongoose.Schema({
       id: Number,
       name: String,
       amount: String,
-      photo: String
+      photo: String,
+      warranty: String
     }],
     paymentMethod: {
       type: String,

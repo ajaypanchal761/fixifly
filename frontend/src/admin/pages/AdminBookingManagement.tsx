@@ -455,6 +455,10 @@ const AdminBookingManagement = () => {
         return <Badge className="bg-purple-100 text-purple-800">Completed</Badge>;
       case 'cancelled':
         return <Badge className="bg-red-100 text-red-800">Cancelled</Badge>;
+      case 'declined':
+        return <Badge className="bg-orange-100 text-orange-800">Declined</Badge>;
+      case 'assigned':
+        return <Badge className="bg-blue-100 text-blue-800">Assigned</Badge>;
       default:
         return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
     }
@@ -998,22 +1002,6 @@ const AdminBookingManagement = () => {
     return availableVendors.length > 0 ? availableVendors[0] : null;
   };
 
-  const getAssignmentStatusBadge = (status: string) => {
-    switch (status) {
-      case 'assigned':
-        return <Badge className="bg-blue-100 text-blue-800">Assigned</Badge>;
-      case 'in_progress':
-        return <Badge className="bg-orange-100 text-orange-800">In Progress</Badge>;
-      case 'completed':
-        return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'cancelled':
-        return <Badge className="bg-red-100 text-red-800">Cancelled</Badge>;
-      default:
-        return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
-    }
-  };
 
   console.log('AdminBookingManagement rendering with:', {
     bookings: bookings.length,
@@ -1117,10 +1105,12 @@ const AdminBookingManagement = () => {
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="assigned">Assigned</SelectItem>
                   <SelectItem value="confirmed">Confirmed</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="declined">Declined</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
@@ -1196,10 +1186,11 @@ const AdminBookingManagement = () => {
                   <TableHead>Booking & Scheduled Date</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Vendor Response</TableHead>
                   <TableHead>Priority</TableHead>
                   <TableHead>Engineer</TableHead>
-                  <TableHead>Assignment Status</TableHead>
                   <TableHead>Payment</TableHead>
+                  <TableHead>Rating</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -1320,7 +1311,10 @@ const AdminBookingManagement = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                    <TableCell>{getStatusBadge(
+                      booking.vendorResponse?.status === 'declined' ? 'declined' : booking.status
+                    )}</TableCell>
+                    <TableCell>{getVendorStatusBadge(booking.vendorResponse)}</TableCell>
                     <TableCell>{getPriorityBadge(booking.priority || 'medium')}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -1339,12 +1333,28 @@ const AdminBookingManagement = () => {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>{getAssignmentStatusBadge(booking.vendor ? 'assigned' : 'unassigned')}</TableCell>
                     <TableCell>{getPaymentStatusBadge(
                       getPaymentStatus(booking), 
                       (booking as any).paymentMode || booking.payment?.method || 'card', 
                       booking.pricing?.isFirstTimeUser
                     )}</TableCell>
+                    <TableCell>
+                      {booking.review ? (
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                            <span className="text-xs font-medium">{booking.review.rating}/5</span>
+                          </div>
+                          {booking.review.comment && (
+                            <div className="max-w-32 truncate text-xs text-gray-500" title={booking.review.comment}>
+                              "{booking.review.comment}"
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">No rating</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -1375,7 +1385,7 @@ const AdminBookingManagement = () => {
                             <Star className="w-4 h-4 mr-2" />
                             Update Priority
                           </DropdownMenuItem>
-                          {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                          {!['cancelled', 'declined', 'completed'].includes(booking.status as any) && (
                             <DropdownMenuItem 
                               className="text-red-600"
                               onClick={() => handleCancelBooking(booking._id)}
@@ -1384,6 +1394,13 @@ const AdminBookingManagement = () => {
                               Cancel Booking
                             </DropdownMenuItem>
                           )}
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleDeleteBooking(booking._id)}
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Delete Booking
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -1545,7 +1562,7 @@ const AdminBookingManagement = () => {
                           <span className="font-medium">Vendor:</span> {getVendorName(selectedBooking.vendor?.vendorId)}
                         </p>
                         <div className="text-xs">
-                          <span className="font-medium">Status:</span> {getAssignmentStatusBadge(selectedBooking.status)}
+                          <span className="font-medium">Status:</span> {getStatusBadge(selectedBooking.status)}
                         </div>
                       </div>
                     </div>
@@ -1586,38 +1603,48 @@ const AdminBookingManagement = () => {
                       <SelectValue placeholder="Choose a vendor" />
                     </SelectTrigger>
                     <SelectContent>
-                          {getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').length > 0 ? (
-                            getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').map((vendor) => (
-                              <SelectItem key={vendor.id || vendor._id} value={vendor.vendorId}>
-                                <div className="flex items-center justify-between w-full py-1">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                      <User className="w-3 h-3 text-blue-600" />
-                                    </div>
-                            <div>
-                                      <div className="text-xs font-medium text-gray-900">
-                                        {vendor.firstName && vendor.lastName 
-                                          ? `${vendor.firstName} ${vendor.lastName}` 
-                                          : vendor.name || 'Vendor'}
-                            </div>
-                                      <div className="text-xs text-gray-500">{vendor.specialty || 'General Services'}</div>
-                                    </div>
+                      {getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').length > 0 ? (
+                        getAvailableVendors(selectedBooking.services?.[0]?.serviceName || '').map((vendor) => {
+                          console.log('Vendor data for rating display:', {
+                            name: vendor.name,
+                            rating: vendor.rating,
+                            totalReviews: vendor.totalReviews
+                          });
+                          return (
+                            <SelectItem key={vendor.id || vendor._id} value={vendor.vendorId}>
+                              <div className="flex items-center justify-between w-full py-1">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <User className="w-3 h-3 text-blue-600" />
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <Star className="w-3 h-3 text-yellow-500" />
-                                    <span className="text-xs font-medium">{vendor.rating || '4.5'}</span>
-                            </div>
-                          </div>
-                        </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="no-vendors" disabled>
-                              <div className="flex items-center gap-2 text-gray-500">
-                                <User className="w-3 h-3" />
-                                <span className="text-xs">No available vendors found</span>
+                                  <div>
+                                    <div className="text-xs font-medium text-gray-900">
+                                      {vendor.firstName && vendor.lastName 
+                                        ? `${vendor.firstName} ${vendor.lastName}` 
+                                        : vendor.name || 'Vendor'}
+                                    </div>
+                                    <div className="text-xs text-gray-500">{vendor.specialty || 'General Services'}</div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-3 h-3 text-yellow-500" />
+                                  <span className="text-xs font-medium">
+                                    {vendor.rating ? vendor.rating.toFixed(1) : '0.0'}
+                                    {vendor.totalReviews ? ` (${vendor.totalReviews})` : ''}
+                                  </span>
+                                </div>
                               </div>
                             </SelectItem>
-                          )}
+                          );
+                        })
+                      ) : (
+                        <SelectItem value="no-vendors" disabled>
+                          <div className="flex items-center gap-2 text-gray-500">
+                            <User className="w-3 h-3" />
+                            <span className="text-xs">No available vendors found</span>
+                          </div>
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                     </div>
@@ -1814,7 +1841,7 @@ const AdminBookingManagement = () => {
         <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
           <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto mt-16">
             <DialogHeader>
-              <DialogTitle className="text-lg">Booking Details - {selectedBooking?._id}</DialogTitle>
+              <DialogTitle className="text-lg">Booking Details</DialogTitle>
             </DialogHeader>
             {selectedBooking && (
               <div className="space-y-3">
@@ -1930,7 +1957,9 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Status</Label>
-                      <div className="mt-1">{getStatusBadge(selectedBooking.status)}</div>
+                      <div className="mt-1">{getStatusBadge(
+                        selectedBooking.vendorResponse?.status === 'declined' ? 'declined' : selectedBooking.status
+                      )}</div>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Priority</Label>
@@ -1967,11 +1996,13 @@ const AdminBookingManagement = () => {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Assignment Status</Label>
-                      <div className="mt-1">{getAssignmentStatusBadge(selectedBooking.status)}</div>
+                      <div className="mt-1">{getStatusBadge(
+                        selectedBooking.vendorResponse?.status === 'declined' ? 'declined' : selectedBooking.status
+                      )}</div>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Vendor Response</Label>
-                      <div className="mt-1">{getVendorStatusBadge(selectedBooking.vendor?.assignedAt ? 'assigned' : 'not_assigned')}</div>
+                      <div className="mt-1">{getVendorStatusBadge(selectedBooking.vendorResponse)}</div>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Assigned Date</Label>
@@ -1980,6 +2011,29 @@ const AdminBookingManagement = () => {
                         'Not assigned'}</p>
                     </div>
                   </div>
+                  
+                  {/* Vendor Decline Reason */}
+                  {(() => {
+                    console.log('Debug decline reason:', {
+                      status: selectedBooking.status,
+                      vendorResponse: selectedBooking.vendorResponse,
+                      hasResponseNote: !!selectedBooking.vendorResponse?.responseNote
+                    });
+                    // Show decline reason if vendor has declined (regardless of booking status)
+                    return selectedBooking.vendorResponse?.status === 'declined' && selectedBooking.vendorResponse?.responseNote;
+                  })() && (
+                    <div className="mt-3">
+                      <Label className="text-xs font-medium text-muted-foreground">Vendor Decline Reason</Label>
+                      <div className="mt-1 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <p className="text-xs text-red-800">{selectedBooking.vendorResponse.responseNote}</p>
+                        {selectedBooking.vendorResponse.respondedAt && (
+                          <p className="text-xs text-red-600 mt-1">
+                            Declined on: {new Date(selectedBooking.vendorResponse.respondedAt).toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Payment Information */}
@@ -2027,6 +2081,12 @@ const AdminBookingManagement = () => {
                             <h4 className="font-medium text-xs text-gray-900">{part.name}</h4>
                             <span className="text-xs font-medium text-green-600">{part.amount}</span>
                           </div>
+                          {part.warranty && (
+                            <div className="flex items-center space-x-1 mt-1">
+                              <span className="text-xs text-gray-500">Warranty:</span>
+                              <span className="text-xs font-medium text-blue-600">{part.warranty}</span>
+                            </div>
+                          )}
                           {part.photo && (
                             <div className="mt-1">
                               <img
@@ -2063,12 +2123,58 @@ const AdminBookingManagement = () => {
                   </div>
                 )}
 
-                {/* Notes */}
-                {selectedBooking.notes && (
-                <div>
-                  <Label className="text-xs font-medium text-muted-foreground">Notes</Label>
-                  <p className="text-xs mt-1 p-2 bg-gray-50 rounded-lg">{selectedBooking.notes}</p>
-                </div>
+                {/* Customer Review */}
+                {selectedBooking.review && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-1">Customer Review</h3>
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={`w-4 h-4 ${
+                                i < selectedBooking.review.rating 
+                                  ? 'text-yellow-400 fill-current' 
+                                  : 'text-gray-300'
+                              }`} 
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {selectedBooking.review.rating}/5
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          ({selectedBooking.review.category})
+                        </span>
+                      </div>
+                      {selectedBooking.review.comment && (
+                        <div className="mb-2">
+                          <p className="text-sm text-gray-800 italic">
+                            "{selectedBooking.review.comment}"
+                          </p>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>
+                          {selectedBooking.review.isAnonymous ? 'Anonymous' : 
+                           selectedBooking.review.user?.name || 'Customer'}
+                        </span>
+                        <span>
+                          {new Date(selectedBooking.review.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!selectedBooking.review && selectedBooking.status === 'completed' && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-1">Customer Review</h3>
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      <p className="text-sm text-gray-500 italic">No review submitted yet</p>
+                    </div>
+                  </div>
                 )}
 
                 <div className="flex gap-2 pt-3">
@@ -2344,6 +2450,9 @@ const AdminBookingManagement = () => {
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-900">{part.name}</h4>
                           <p className="text-sm text-gray-600">Price: ₹{part.price}</p>
+                          {part.warranty && (
+                            <p className="text-xs text-blue-600 font-medium">Warranty: {part.warranty}</p>
+                          )}
                         </div>
                       </div>
                     ))}

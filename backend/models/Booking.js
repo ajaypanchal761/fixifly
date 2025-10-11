@@ -112,7 +112,7 @@ const bookingSchema = new mongoose.Schema({
   // Booking Status
   status: {
     type: String,
-    enum: ['pending', 'waiting_for_engineer', 'confirmed', 'in_progress', 'completed', 'cancelled'],
+    enum: ['pending', 'waiting_for_engineer', 'confirmed', 'in_progress', 'completed', 'cancelled', 'declined'],
     default: 'pending'
   },
 
@@ -175,7 +175,18 @@ const bookingSchema = new mongoose.Schema({
     },
     preferredTimeSlot: {
       type: String,
-      enum: ['morning', 'afternoon', 'evening'],
+      enum: [
+        '9:00 AM - 11:00 AM',
+        '11:00 AM - 1:00 PM', 
+        '1:00 PM - 3:00 PM',
+        '3:00 PM - 5:00 PM',
+        '5:00 PM - 7:00 PM',
+        '7:00 PM - 9:00 PM',
+        // Keep old format for backward compatibility
+        'morning', 
+        'afternoon', 
+        'evening'
+      ],
       required: [true, 'Preferred time slot is required']
     },
     scheduledDate: {
@@ -262,7 +273,8 @@ const bookingSchema = new mongoose.Schema({
       id: Number,
       name: String,
       amount: String,
-      photo: String
+      photo: String,
+      warranty: String
     }],
     travelingAmount: {
       type: String,
@@ -349,6 +361,21 @@ const bookingSchema = new mongoose.Schema({
       vendorName: {
         type: String
       }
+    }
+  },
+
+  // Internal flags for system tracking (not visible to users)
+  internalFlags: {
+    vendorDeclined: {
+      type: Boolean,
+      default: false
+    },
+    declinedAt: {
+      type: Date
+    },
+    declinedBy: {
+      type: String,
+      ref: 'Vendor'
     }
   },
 

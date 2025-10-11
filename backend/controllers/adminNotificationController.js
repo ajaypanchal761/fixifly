@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const UserNotification = require('../models/UserNotification');
 const AdminNotification = require('../models/AdminNotification');
+const Vendor = require('../models/Vendor');
+const VendorNotification = require('../models/VendorNotification');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const { sendMulticastPushNotification } = require('../services/firebasePushService');
@@ -17,7 +19,8 @@ const sendNotification = asyncHandler(async (req, res) => {
       targetUsers,
       targetVendors,
       scheduledAt,
-      isScheduled
+      isScheduled,
+      image
     } = req.body;
 
     // Validate required fields
@@ -39,11 +42,13 @@ const sendNotification = asyncHandler(async (req, res) => {
       isScheduled: isScheduled || false,
       status: 'draft',
       sentBy: req.admin._id,
+      image: image || null,
       data: {
         type: 'admin_notification',
         title,
         message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        ...(image && { image })
       }
     };
 
@@ -72,44 +77,50 @@ const sendNotification = asyncHandler(async (req, res) => {
       });
     }
 
-    // Get target users based on audience
+    // Get target users and vendors based on audience
     let targetUserIds = [];
+    let targetVendorIds = [];
     
     if (targetAudience === 'all') {
-      // Get all users with FCM tokens
+      // Get all users (only regular users, not vendors)
       const users = await User.find({
-        fcmToken: { $exists: true, $ne: null },
-        'preferences.notifications.push': true,
         isActive: true,
         isBlocked: false
       }).select('_id fcmToken');
       targetUserIds = users.map(user => user._id);
-    } else if (targetAudience === 'users') {
-      // Get all users with FCM tokens
-      const users = await User.find({
-        role: 'user',
-        fcmToken: { $exists: true, $ne: null },
-        'preferences.notifications.push': true,
+      logger.info('Found users for "all" audience', { count: users.length });
+      // Note: targetVendorIds remains empty for 'all' - only users get notifications
+    } else if (targetAudience === 'vendors') {
+      // Get all vendors
+      const vendors = await Vendor.find({
         isActive: true,
         isBlocked: false
       }).select('_id fcmToken');
-      targetUserIds = users.map(user => user._id);
-    } else if (targetAudience === 'specific' && targetUsers && targetUsers.length > 0) {
-      // Get specific users
-      const users = await User.find({
-        _id: { $in: targetUsers },
-        fcmToken: { $exists: true, $ne: null },
-        'preferences.notifications.push': true,
+      targetVendorIds = vendors.map(vendor => vendor._id);
+      logger.info('Found vendors for "vendors" audience', { count: vendors.length });
+    } else if (targetAudience === 'specific' && targetVendors && targetVendors.length > 0) {
+      // Get specific vendors
+      const vendors = await Vendor.find({
+        _id: { $in: targetVendors },
         isActive: true,
         isBlocked: false
       }).select('_id fcmToken');
-      targetUserIds = users.map(user => user._id);
+      targetVendorIds = vendors.map(vendor => vendor._id);
+      logger.info('Found specific vendors', { count: vendors.length, targetVendors });
     }
 
-    if (targetUserIds.length === 0) {
+    logger.info('Target audience analysis', {
+      targetAudience,
+      targetUserIds: targetUserIds.length,
+      targetVendorIds: targetVendorIds.length,
+      targetUsers: targetUsers,
+      targetVendors: targetVendors
+    });
+
+    if (targetUserIds.length === 0 && targetVendorIds.length === 0) {
         return res.status(400).json({
           success: false,
-        message: 'No target users found with FCM tokens'
+        message: 'No target users or vendors found'
       });
     }
 
@@ -119,14 +130,19 @@ const sendNotification = asyncHandler(async (req, res) => {
       fcmToken: { $exists: true, $ne: null }
     }).select('_id fcmToken');
 
-    const fcmTokens = users.map(user => user.fcmToken).filter(token => token);
+    const vendors = await Vendor.find({
+      _id: { $in: targetVendorIds },
+      fcmToken: { $exists: true, $ne: null }
+    }).select('_id fcmToken');
 
-    if (fcmTokens.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'No valid FCM tokens found'
-      });
-    }
+    const userFcmTokens = users.map(user => user.fcmToken).filter(token => token);
+    const vendorFcmTokens = vendors.map(vendor => vendor.fcmToken).filter(token => token);
+    const fcmTokens = [...userFcmTokens, ...vendorFcmTokens];
+
+    // If no FCM tokens, we'll still create notifications in database but skip push notification
+    let pushResult = { successCount: 0, failureCount: 0 };
+    
+    if (fcmTokens.length > 0) {
 
     // Prepare push notification payload
     const pushNotification = {
@@ -134,37 +150,53 @@ const sendNotification = asyncHandler(async (req, res) => {
       body: message,
       icon: '/favicon.ico',
       badge: '/favicon.ico',
+      ...(image && { image: image.secure_url }),
       data: {
         type: 'admin_notification',
         title,
         message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        ...(image && { image: image.secure_url })
       }
     };
+
+    // Debug logging for image
+    if (image) {
+      console.log('🖼️ Image data in notification:', {
+        hasImage: !!image,
+        secure_url: image.secure_url,
+        public_id: image.public_id,
+        width: image.width,
+        height: image.height
+      });
+    } else {
+      console.log('❌ No image data in notification');
+    }
 
     const pushData = {
       type: 'admin_notification',
       title,
       message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      ...(image && { image: image.secure_url })
     };
 
-    // Send push notification
-    let pushResult = { successCount: 0, failureCount: 0 };
-    try {
-      pushResult = await sendMulticastPushNotification(fcmTokens, pushNotification, pushData);
-      logger.info('Push notification sent', {
-        totalTokens: fcmTokens.length,
-        successCount: pushResult.successCount,
-        failureCount: pushResult.failureCount
-      });
-    } catch (error) {
-      logger.error('Error sending push notification:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to send push notification',
-        error: error.message
-      });
+      // Send push notification
+      try {
+        pushResult = await sendMulticastPushNotification(fcmTokens, pushNotification, pushData);
+        logger.info('Push notification sent', {
+          totalTokens: fcmTokens.length,
+          successCount: pushResult.successCount,
+          failureCount: pushResult.failureCount
+        });
+      } catch (error) {
+        logger.error('Error sending push notification:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to send push notification',
+          error: error.message
+        });
+      }
     }
 
     // Create user notifications in database
@@ -174,18 +206,43 @@ const sendNotification = asyncHandler(async (req, res) => {
       message,
       type: 'system',
       priority: 'medium',
+      image: image || null,
       data: {
         type: 'admin_notification',
         title,
         message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        ...(image && { image })
       },
       sentBy: req.admin._id,
       pushSent: true,
       pushSentAt: new Date()
     }));
 
-    await UserNotification.insertMany(userNotifications);
+    // Create vendor notifications in database
+    const vendorNotifications = targetVendorIds.map(vendorId => ({
+      vendorId: vendorId,
+      title,
+      message,
+      type: 'system_notification',
+      priority: 'medium',
+      image: image || null,
+      data: {
+        type: 'admin_notification',
+        title,
+        message,
+        timestamp: new Date().toISOString(),
+        ...(image && { image })
+      }
+    }));
+
+    // Insert notifications
+    if (userNotifications.length > 0) {
+      await UserNotification.insertMany(userNotifications);
+    }
+    if (vendorNotifications.length > 0) {
+      await VendorNotification.insertMany(vendorNotifications);
+    }
 
     // Update admin notification record with results
     adminNotificationData.status = 'sent';
@@ -203,18 +260,26 @@ const sendNotification = asyncHandler(async (req, res) => {
       title,
       targetAudience,
       totalUsers: targetUserIds.length,
+      totalVendors: targetVendorIds.length,
       sentCount: pushResult.successCount,
       failedCount: pushResult.failureCount
     });
 
+    const responseMessage = fcmTokens.length > 0 
+      ? 'Notification sent successfully'
+      : 'Notification saved successfully (no push notifications sent - no FCM tokens found)';
+
     res.json({
       success: true,
-      message: 'Notification sent successfully',
+      message: responseMessage,
       data: {
         notification: adminNotification,
         sentCount: pushResult.successCount,
         deliveredCount: pushResult.successCount,
-        failedCount: pushResult.failureCount
+        failedCount: pushResult.failureCount,
+        totalUsers: targetUserIds.length,
+        totalVendors: targetVendorIds.length,
+        pushNotificationsSent: fcmTokens.length > 0
       }
     });
 

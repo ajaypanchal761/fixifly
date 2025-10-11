@@ -57,7 +57,7 @@ interface UploadOptions {
 }
 
 /**
- * Upload image file to Cloudinary
+ * Upload image file to Cloudinary (for regular users)
  * @param file - File object to upload
  * @param options - Upload options
  * @returns Promise with upload result
@@ -116,6 +116,110 @@ export const uploadImageToCloudinary = async (
     console.error('Image upload error:', error);
     console.error('[imageUpload] Request details:', {
       url: `${API_BASE_URL}/upload/image`,
+      method: 'POST'
+    });
+    
+    // Handle axios errors
+    if (error.response) {
+      const errorMessage = error.response.data?.message || 'Upload failed';
+      throw new Error(errorMessage);
+    } else if (error.request) {
+      throw new Error('Network error - please check your connection');
+    } else {
+      throw new Error(error.message || 'Upload failed');
+    }
+  }
+};
+
+/**
+ * Upload image file to Cloudinary (for admin users)
+ * @param file - File object to upload
+ * @param options - Upload options
+ * @returns Promise with upload result
+ */
+export const uploadImageToCloudinaryAdmin = async (
+  file: File,
+  options: UploadOptions = {}
+): Promise<UploadResponse> => {
+  try {
+    // Validate file
+    const validationResult = validateImageFile(file);
+    if (!validationResult.valid) {
+      throw new Error(validationResult.error);
+    }
+
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // Set default options for admin uploads
+    const defaultOptions = {
+      folder: 'fixifly/notification-images',
+      transformation: [
+        { width: 800, height: 600, crop: 'fit' },
+        { quality: 'auto' }
+      ],
+      quality: 'auto',
+      fetch_format: 'auto',
+      ...options
+    };
+
+    // Add options to form data
+    Object.entries(defaultOptions).forEach(([key, value]) => {
+      if (value !== undefined) {
+        if (key === 'transformation' && Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+
+    // Create axios instance for admin uploads
+    const adminUploadApi = axios.create({
+      baseURL: `${API_BASE_URL}/admin/upload`,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    // Add request interceptor to include admin auth token
+    adminUploadApi.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('adminToken');
+        console.log('🔑 Admin token check:', {
+          hasToken: !!token,
+          tokenLength: token ? token.length : 0,
+          tokenPreview: token ? `${token.substring(0, 20)}...` : 'none'
+        });
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        } else {
+          console.error('❌ No admin token found in localStorage');
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Upload to admin backend endpoint
+    const response = await adminUploadApi.post('/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Upload failed');
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Admin image upload error:', error);
+    console.error('[imageUpload] Admin request details:', {
+      url: `${API_BASE_URL}/admin/upload/image`,
       method: 'POST'
     });
     

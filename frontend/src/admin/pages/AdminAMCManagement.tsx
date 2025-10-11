@@ -1439,6 +1439,7 @@ const AdminAMCManagement = () => {
                         <TableHead>Plan</TableHead>
                         <TableHead>Amount</TableHead>
                         <TableHead>Brand(s)</TableHead>
+                        <TableHead>Device Serial Number</TableHead>
                         <TableHead>Quantity</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Start Date</TableHead>
@@ -1456,7 +1457,7 @@ const AdminAMCManagement = () => {
                     <TableBody>
                       {filteredSubscriptions.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={16} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={17} className="text-center py-8 text-muted-foreground">
                             <div className="flex flex-col items-center gap-2">
                               <Users className="h-12 w-12 opacity-50" />
                               <p>No subscriptions found</p>
@@ -1525,6 +1526,22 @@ const AdminAMCManagement = () => {
                                     ))
                                   : [];
                                 return brands.length > 0 ? brands.join(', ') : '—';
+                              } catch {
+                                return '—';
+                              }
+                            })()}
+                          </TableCell>
+                          
+                          {/* Device Serial Number */}
+                          <TableCell>
+                            {(() => {
+                              try {
+                                const serialNumbers = Array.isArray(subscription.devices)
+                                  ? subscription.devices
+                                      .map((d: any) => (d?.serialNumber || d?.deviceSerialNumber || '').toString().trim())
+                                      .filter((s: string) => !!s)
+                                  : [];
+                                return serialNumbers.length > 0 ? serialNumbers.join(', ') : '—';
                               } catch {
                                 return '—';
                               }

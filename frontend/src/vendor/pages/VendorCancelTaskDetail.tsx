@@ -114,7 +114,7 @@ const VendorCancelTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
@@ -133,7 +133,7 @@ const VendorCancelTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
@@ -268,7 +268,7 @@ const VendorCancelTaskDetail = () => {
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-hidden">
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-hidden">
         <div className="container mx-auto px-4 py-4 h-full overflow-y-auto">
           {/* Task Details Card */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">

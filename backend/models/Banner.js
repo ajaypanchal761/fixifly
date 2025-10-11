@@ -24,6 +24,12 @@ const bannerSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  targetAudience: {
+    type: String,
+    enum: ['user', 'vendor'],
+    default: 'user',
+    required: true
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',

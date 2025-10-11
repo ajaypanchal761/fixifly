@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Briefcase, ArrowLeft, Clock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Clock, ChevronLeft, ChevronRight, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import vendorApiService from '@/services/vendorApi';
-import VendorBenefitsModal from '../components/VendorBenefitsModal';
 
 const VendorSignup = () => {
   const navigate = useNavigate();
@@ -21,31 +19,62 @@ const VendorSignup = () => {
     lastName: '',
     email: '',
     phone: '',
+    alternatePhone: '',
+    fatherName: '',
+    homePhone: '',
+    currentAddress: '',
     password: '',
     confirmPassword: '',
     serviceCategories: [] as string[],
-    customServiceCategory: '',
-    experience: '',
-    address: ''
+    experience: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [uploadedFiles, setUploadedFiles] = useState({
+    aadhaarFront: null as File | null,
+    aadhaarBack: null as File | null,
+    profilePhoto: null as File | null
+  });
+
+  // Carousel data
+  const carouselSlides = [
+    {
+      image: '/loginFixflylogo.png',
+      alt: 'Fixfly Worker on Paper Airplane',
+      title: 'Welcome To Fixfly',
+      subtitle: 'India\'s Most Trusted Service Provider Brand'
+    },
+    {
+      image: '/loginlogo2.png',
+      alt: 'Financial Growth and Success',
+      title: 'Double your earnings –',
+      subtitle: 'grow with us!'
+    },
+    {
+      image: '/loginlogo3.png',
+      alt: 'Daily Earning Success',
+      title: 'Daily Earning, Daily Payment',
+      subtitle: '-- 50% Partnership!'
+    }
+  ];
 
   const serviceCategories = [
-    'Electronics Repair',
-    'Home Appliances',
-    'Computer & Laptop',
-    'Mobile Phone',
-    'AC & Refrigeration',
-    'Plumbing',
-    'Electrical',
-    'Carpentry',
-    'Painting',
-    'Cleaning Services',
-    'Other'
+    'Laptop',
+    'Computers',
+    'Tab/MacBook',
+    'iMac/Printer/Server',
+    'Networking',
+    'Software Developer',
+    'AC Repair',
+    'Fridge, Washing Machine',
+    'Home Appliance Repair',
+    'Electrician',
+    'Plumber',
+    'Cleaning'
   ];
 
   const experienceLevels = [
@@ -55,6 +84,37 @@ const VendorSignup = () => {
     '5-10 years',
     'More than 10 years'
   ];
+
+  // Auto-slide functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [carouselSlides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
+  };
+
+  const handleFileUpload = (field: keyof typeof uploadedFiles, file: File) => {
+    setUploadedFiles(prev => ({
+      ...prev,
+      [field]: file
+    }));
+  };
+
+  const removeFile = (field: keyof typeof uploadedFiles) => {
+    setUploadedFiles(prev => ({
+      ...prev,
+      [field]: null
+    }));
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -98,7 +158,8 @@ const VendorSignup = () => {
   };
 
   const validateStep1 = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || 
+        !formData.alternatePhone || !formData.fatherName || !formData.homePhone || !formData.currentAddress) {
       setError('Please fill in all required fields');
       return false;
     }
@@ -106,8 +167,8 @@ const VendorSignup = () => {
       setError('Please enter a valid email address');
       return false;
     }
-    if (formData.phone.length < 10) {
-      setError('Please enter a valid phone number');
+    if (formData.phone.length < 10 || formData.alternatePhone.length < 10 || formData.homePhone.length < 10) {
+      setError('Please enter valid phone numbers (minimum 10 digits)');
       return false;
     }
     return true;
@@ -131,7 +192,11 @@ const VendorSignup = () => {
 
   const validateStep3 = () => {
     if (formData.serviceCategories.length === 0 || !formData.experience) {
-      setError('Please fill in all required fields');
+      setError('Please select service categories and experience level');
+      return false;
+    }
+    if (!uploadedFiles.aadhaarFront || !uploadedFiles.aadhaarBack || !uploadedFiles.profilePhoto) {
+      setError('Please upload all required documents (Aadhaar front, Aadhaar back, and profile photo)');
       return false;
     }
     return true;
@@ -163,29 +228,36 @@ const VendorSignup = () => {
     }
 
     try {
-      // Prepare registration data
-      const registrationData = {
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        email: formData.email.trim().toLowerCase(),
-        phone: formData.phone.trim(),
-        password: formData.password,
-        serviceCategories: formData.serviceCategories,
-        customServiceCategory: formData.customServiceCategory?.trim(),
-        experience: formData.experience,
-        address: formData.address ? {
-          street: formData.address.trim(),
-          city: '',
-          state: '',
-          pincode: '',
-          landmark: ''
-        } : undefined
-      };
+      // Prepare FormData for file uploads
+      const formDataToSend = new FormData();
+      
+      // Add text fields
+      formDataToSend.append('firstName', formData.firstName.trim());
+      formDataToSend.append('lastName', formData.lastName.trim());
+      formDataToSend.append('email', formData.email.trim().toLowerCase());
+      formDataToSend.append('phone', formData.phone.trim());
+      formDataToSend.append('alternatePhone', formData.alternatePhone.trim());
+      formDataToSend.append('fatherName', formData.fatherName.trim());
+      formDataToSend.append('homePhone', formData.homePhone.trim());
+      formDataToSend.append('currentAddress', formData.currentAddress.trim());
+      formDataToSend.append('password', formData.password);
+      formDataToSend.append('experience', formData.experience);
+      
+      // Add service categories as JSON string
+      formDataToSend.append('serviceCategories', JSON.stringify(formData.serviceCategories));
+      
+      // Add files
+      if (uploadedFiles.aadhaarFront) {
+        formDataToSend.append('aadhaarFront', uploadedFiles.aadhaarFront);
+      }
+      if (uploadedFiles.aadhaarBack) {
+        formDataToSend.append('aadhaarBack', uploadedFiles.aadhaarBack);
+      }
+      if (uploadedFiles.profilePhoto) {
+        formDataToSend.append('profilePhoto', uploadedFiles.profilePhoto);
+      }
 
-      console.log('Attempting vendor registration with data:', {
-        ...registrationData,
-        password: '[HIDDEN]' // Don't log the actual password
-      });
+      console.log('Attempting vendor registration with FormData');
 
       // Test backend connectivity first
       try {
@@ -198,17 +270,26 @@ const VendorSignup = () => {
         return;
       }
 
-      // Call backend API to register
-      const response = await vendorApiService.register(registrationData);
+      // Call backend API to register with FormData
+      console.log('FormData contents:');
+      for (let [key, value] of formDataToSend.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}: File - ${value.name} (${value.size} bytes)`);
+        } else {
+          console.log(`${key}: ${value}`);
+        }
+      }
+
+      const response = await vendorApiService.registerWithFiles(formDataToSend);
 
       if (response.success) {
         toast({
           title: "Registration Successful",
-          description: "Your vendor account has been created. Please wait for admin approval before you can login.",
+          description: "Your vendor account has been created. You can now login or get verified!",
         });
 
-        // Redirect to vendor login page
-        navigate('/vendor/login');
+        // Redirect to verification page
+        navigate('/vendor/verification');
       } else {
         setError(response.message || 'Registration failed. Please try again.');
       }
@@ -248,7 +329,7 @@ const VendorSignup = () => {
               placeholder="Enter first name"
               value={formData.firstName}
               onChange={handleInputChange}
-              className="pl-10"
+              className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
               required
             />
           </div>
@@ -263,7 +344,7 @@ const VendorSignup = () => {
               placeholder="Enter last name"
               value={formData.lastName}
               onChange={handleInputChange}
-              className="pl-10"
+              className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
               required
             />
           </div>
@@ -281,7 +362,7 @@ const VendorSignup = () => {
             placeholder="Enter your email"
             value={formData.email}
             onChange={handleInputChange}
-            className="pl-10"
+            className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
             required
           />
         </div>
@@ -298,7 +379,73 @@ const VendorSignup = () => {
             placeholder="Enter your phone number"
             value={formData.phone}
             onChange={handleInputChange}
-            className="pl-10"
+            className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="alternatePhone">Alternate Phone Number *</Label>
+        <div className="relative">
+          <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            id="alternatePhone"
+            name="alternatePhone"
+            type="tel"
+            placeholder="Enter alternate phone number"
+            value={formData.alternatePhone}
+            onChange={handleInputChange}
+            className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="fatherName">Father's Name *</Label>
+        <div className="relative">
+          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            id="fatherName"
+            name="fatherName"
+            placeholder="Enter father's name"
+            value={formData.fatherName}
+            onChange={handleInputChange}
+            className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="homePhone">Home Phone Number *</Label>
+        <div className="relative">
+          <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            id="homePhone"
+            name="homePhone"
+            type="tel"
+            placeholder="Enter home phone number"
+            value={formData.homePhone}
+            onChange={handleInputChange}
+            className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="currentAddress">Current Full Address *</Label>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Textarea
+            id="currentAddress"
+            name="currentAddress"
+            placeholder="Enter your complete current address"
+            value={formData.currentAddress}
+            onChange={handleInputChange}
+            className="pl-10 h-20 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0 resize-none"
             required
           />
         </div>
@@ -319,20 +466,20 @@ const VendorSignup = () => {
             placeholder="Create a password"
             value={formData.password}
             onChange={handleInputChange}
-            className="pl-10 pr-10"
+            className="pl-10 pr-12 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
             required
           />
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4 text-gray-400" />
+              <EyeOff className="h-4 w-4 text-gray-600" />
             ) : (
-              <Eye className="h-4 w-4 text-gray-400" />
+              <Eye className="h-4 w-4 text-gray-600" />
             )}
           </Button>
         </div>
@@ -349,20 +496,20 @@ const VendorSignup = () => {
             placeholder="Confirm your password"
             value={formData.confirmPassword}
             onChange={handleInputChange}
-            className="pl-10 pr-10"
+            className="pl-10 pr-12 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
             required
           />
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >
             {showConfirmPassword ? (
-              <EyeOff className="h-4 w-4 text-gray-400" />
+              <EyeOff className="h-4 w-4 text-gray-600" />
             ) : (
-              <Eye className="h-4 w-4 text-gray-400" />
+              <Eye className="h-4 w-4 text-gray-600" />
             )}
           </Button>
         </div>
@@ -371,57 +518,41 @@ const VendorSignup = () => {
   );
 
   const renderStep3 = () => (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Service Categories */}
       <div className="space-y-3">
         <Label>Service Categories *</Label>
         <p className="text-sm text-gray-600">Select all the services you can provide (you can choose multiple)</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto border rounded-md p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto border-2 border-yellow-400 rounded-xl p-4 bg-gradient-to-r from-blue-50 to-blue-100">
           {serviceCategories.map((category) => (
             <div key={category} className="flex items-center space-x-2">
               <Checkbox
                 id={category}
                 checked={formData.serviceCategories.includes(category)}
                 onCheckedChange={(checked) => handleCategoryChange(category, checked as boolean)}
+                className="border-yellow-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
               />
               <Label 
                 htmlFor={category} 
-                className="text-sm font-normal cursor-pointer flex-1"
+                className="text-sm font-normal cursor-pointer flex-1 text-gray-700"
               >
                 {category}
               </Label>
             </div>
           ))}
         </div>
-        {formData.serviceCategories.includes('Other') && (
-          <div className="space-y-2">
-            <Label htmlFor="customServiceCategory" className="text-sm font-medium text-gray-700">
-              Specify your service type:
-            </Label>
-            <Input
-              id="customServiceCategory"
-              name="customServiceCategory"
-              value={formData.customServiceCategory}
-              onChange={handleInputChange}
-              placeholder="Enter your custom service category"
-              className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-            />
-          </div>
-        )}
         {formData.serviceCategories.length > 0 && (
-          <div className="text-sm text-blue-600">
-            Selected: {formData.serviceCategories.map(cat => 
-              cat === 'Other' && formData.customServiceCategory 
-                ? `${cat} (${formData.customServiceCategory})` 
-                : cat
-            ).join(', ')}
+          <div className="text-sm text-blue-600 font-medium">
+            Selected: {formData.serviceCategories.join(', ')}
           </div>
         )}
       </div>
 
+      {/* Experience Level */}
       <div className="space-y-2">
         <Label htmlFor="experience">Experience Level *</Label>
         <Select value={formData.experience} onValueChange={(value) => handleSelectChange('experience', value)}>
-          <SelectTrigger>
+          <SelectTrigger className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl focus:border-yellow-500">
             <SelectValue placeholder="Select your experience level" />
           </SelectTrigger>
           <SelectContent>
@@ -434,56 +565,239 @@ const VendorSignup = () => {
         </Select>
       </div>
 
+      {/* File Uploads */}
+      <div className="space-y-4">
+        <Label className="text-lg font-semibold">Required Documents *</Label>
+        
+        {/* Aadhaar Front */}
+        <div className="space-y-2">
+          <Label>Aadhaar Front Photo *</Label>
+          <div className="border-2 border-dashed border-yellow-400 rounded-xl p-4 bg-gradient-to-r from-blue-50 to-blue-100">
+            {uploadedFiles.aadhaarFront ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Upload className="h-4 w-4 text-green-600" />
+                  <span className="text-sm text-green-600">{uploadedFiles.aadhaarFront.name}</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFile('aadhaarFront')}
+                  className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarFront', e.target.files[0])}
+                  className="hidden"
+                  id="aadhaarFront"
+                />
+                <label htmlFor="aadhaarFront" className="cursor-pointer text-sm text-gray-600">
+                  Click to upload Aadhaar front photo
+                </label>
+              </div>
+            )}
+          </div>
+        </div>
 
+        {/* Aadhaar Back */}
+        <div className="space-y-2">
+          <Label>Aadhaar Back Photo *</Label>
+          <div className="border-2 border-dashed border-yellow-400 rounded-xl p-4 bg-gradient-to-r from-blue-50 to-blue-100">
+            {uploadedFiles.aadhaarBack ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Upload className="h-4 w-4 text-green-600" />
+                  <span className="text-sm text-green-600">{uploadedFiles.aadhaarBack.name}</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFile('aadhaarBack')}
+                  className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarBack', e.target.files[0])}
+                  className="hidden"
+                  id="aadhaarBack"
+                />
+                <label htmlFor="aadhaarBack" className="cursor-pointer text-sm text-gray-600">
+                  Click to upload Aadhaar back photo
+                </label>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Profile Photo */}
       <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
-        <Textarea
-          id="address"
-          name="address"
-          placeholder="Enter your full address (optional)"
-          value={formData.address}
-          onChange={handleInputChange}
-          rows={3}
-        />
+          <Label>Profile Photo *</Label>
+          <div className="border-2 border-dashed border-yellow-400 rounded-xl p-4 bg-gradient-to-r from-blue-50 to-blue-100">
+            {uploadedFiles.profilePhoto ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Upload className="h-4 w-4 text-green-600" />
+                  <span className="text-sm text-green-600">{uploadedFiles.profilePhoto.name}</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFile('profilePhoto')}
+                  className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload('profilePhoto', e.target.files[0])}
+                  className="hidden"
+                  id="profilePhoto"
+                />
+                <label htmlFor="profilePhoto" className="cursor-pointer text-sm text-gray-600">
+                  Click to upload profile photo
+                </label>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-
     </div>
   );
 
   return (
-    <div className="h-screen flex items-center justify-center p-4 pt-16 overflow-hidden">
-      <div className="w-full max-w-2xl">
-        {/* Logo */}
-        <div className="text-center mb-4 -mt-16">
-          <img 
-            src="/logofixifly.png" 
-            alt="Fixfly Logo" 
-            className="h-32 mx-auto"
-          />
-          <h1 className="text-2xl font-bold text-gray-900 -mt-6">Vendor Registration</h1>
-          <p className="text-gray-600 -mt-2">Join Fixfly as a service provider</p>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header Section */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+        {/* Carousel Section */}
+        <div className="text-center mb-8">
+          {/* Welcome Title - Fixed above all slides */}
+          <h1 className="text-2xl font-bold text-blue-600 mb-6">Welcome To Fixfly</h1>
+          
+          {/* Carousel Container */}
+          <div className="relative mb-6">
+            <div className="overflow-hidden">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {carouselSlides.map((slide, index) => (
+                  <div key={index} className="w-full flex-shrink-0">
+                    <div className="flex flex-col items-center">
+                      {/* Image */}
+                      <div className="mb-4">
+                        <img 
+                          src={slide.image} 
+                          alt={slide.alt} 
+                          className="w-48 h-auto mx-auto"
+                        />
+                      </div>
+                      
+                      {/* Subtitle only - title is now fixed above */}
+                      <div className="text-center">
+                        <div className="text-center">
+                          {slide.subtitle.includes('India') ? (
+                            <>
+                              <p className="text-lg font-bold text-blue-600">India's Most Trusted Service</p>
+                              <p className="text-lg font-bold text-red-500">Provider Brand</p>
+                            </>
+                          ) : slide.subtitle.includes('grow') ? (
+                            <>
+                              <p className="text-lg font-bold text-blue-600">Double your earnings –</p>
+                              <p className="text-lg font-bold text-red-500">grow with us!</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-lg font-bold text-blue-600">Daily Earning, Daily Payment</p>
+                              <p className="text-lg font-bold text-red-500">-- 50% Partnership!</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
         </div>
 
-        <Card className="shadow-lg max-h-[calc(100vh-200px)] overflow-y-auto">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Create Your Account</CardTitle>
-            <CardDescription className="text-center">
-              Step {currentStep} of 3: {currentStep === 1 ? 'Personal Information' : currentStep === 2 ? 'Security' : 'Service Details'}
-            </CardDescription>
+            {/* Navigation Arrows */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 bg-white/80 hover:bg-white rounded-full shadow-md"
+              onClick={prevSlide}
+            >
+              <ChevronLeft className="h-4 w-4 text-gray-600" />
+            </Button>
             
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 bg-white/80 hover:bg-white rounded-full shadow-md"
+              onClick={nextSlide}
+            >
+              <ChevronRight className="h-4 w-4 text-gray-600" />
+            </Button>
+          </div>
+          
+          {/* Page Indicators */}
+          <div className="flex justify-center mt-4 space-x-2">
+            {carouselSlides.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                  index === currentSlide ? 'bg-orange-500' : 'bg-gray-400'
+                }`}
+                onClick={() => setCurrentSlide(index)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Registration Form */}
+        <div className="w-full max-w-2xl">
             {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+          <div className="mb-6">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Step {currentStep} of 3</span>
+              <span>{currentStep === 1 ? 'Personal Information' : currentStep === 2 ? 'Security' : 'Service Details'}</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${(currentStep / 3) * 100}%` }}
               ></div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={currentStep === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}>
+          </div>
+
+          <form onSubmit={currentStep === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }} className="space-y-6">
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+              <Alert variant="destructive" className="border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800">{error}</AlertDescription>
                 </Alert>
               )}
 
@@ -491,24 +805,30 @@ const VendorSignup = () => {
               {currentStep === 2 && renderStep2()}
               {currentStep === 3 && renderStep3()}
 
-              <div className="flex justify-between mt-6">
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-8">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handlePrevious}
                   disabled={currentStep === 1}
+                className="h-12 px-6 border-2 border-yellow-400 text-gray-700 hover:bg-yellow-50"
                 >
                   Previous
                 </Button>
                 
                 {currentStep < 3 ? (
-                  <Button type="submit">
+                <Button 
+                  type="submit"
+                  className="h-12 px-6 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg"
+                >
                     Next
                   </Button>
                 ) : (
                   <Button
                     type="submit"
                     disabled={isLoading}
+                  className="h-12 px-6 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg"
                   >
                     {isLoading ? 'Creating Account...' : 'Create Account'}
                   </Button>
@@ -516,12 +836,13 @@ const VendorSignup = () => {
               </div>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+          {/* Sign In Link */}
+          <div className="text-center mt-6">
+            <p className="text-gray-700">
                 Already have an account?{' '}
                 <Link
                   to="/vendor/login"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                className="text-blue-600 font-medium hover:underline"
                 >
                   Sign in here
                 </Link>
@@ -529,7 +850,7 @@ const VendorSignup = () => {
             </div>
 
             {/* Approval Process Information */}
-            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
               <div className="flex items-center gap-2 text-blue-800 mb-2">
                 <Clock className="h-4 w-4" />
                 <p className="text-sm font-medium">Account Approval Required</p>
@@ -540,8 +861,19 @@ const VendorSignup = () => {
                 This process typically takes 1-2 business days.
               </p>
             </div>
-          </CardContent>
-        </Card>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="bg-gradient-to-b from-blue-400 to-blue-600 py-4">
+        <div className="text-center">
+          <Link
+            to="/vendor/terms"
+            className="text-red-500 font-medium hover:underline"
+          >
+            Terms & Conditions
+          </Link>
+        </div>
       </div>
     </div>
   );

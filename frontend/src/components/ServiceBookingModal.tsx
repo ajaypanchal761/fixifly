@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Clock, User, Phone, MessageCircle } from "lucide-react";
 import { Card as CardType } from "@/services/cardApi";
+import { getAvailableTimeSlots, getTimeSlotDisplayText } from "@/utils/timeSlotUtils";
 
 interface ServiceBookingModalProps {
   isOpen: boolean;
@@ -64,7 +65,8 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
     "11:00 AM - 1:00 PM", 
     "1:00 PM - 3:00 PM",
     "3:00 PM - 5:00 PM",
-    "5:00 PM - 7:00 PM"
+    "5:00 PM - 7:00 PM",
+    "7:00 PM - 9:00 PM"
   ];
 
   const urgencyOptions = [
@@ -74,7 +76,22 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
   ];
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const newFormData = { ...prev, [field]: value };
+      
+      // If date is changed, check if current time slot is still valid
+      if (field === 'preferredDate' && prev.preferredTime) {
+        const availableSlots = getAvailableTimeSlots(timeSlots, value);
+        const currentSlot = availableSlots.find(slot => slot.value === prev.preferredTime);
+        
+        // If current time slot is disabled, clear it
+        if (currentSlot && currentSlot.disabled) {
+          newFormData.preferredTime = "";
+        }
+      }
+      
+      return newFormData;
+    });
     
     // Clear error when user starts typing
     if (errors[field]) {
@@ -409,8 +426,15 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                     <SelectValue placeholder="Select time slot" />
                   </SelectTrigger>
                   <SelectContent>
-                    {timeSlots.map((slot) => (
-                      <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                    {getAvailableTimeSlots(timeSlots, formData.preferredDate).map((slot) => (
+                      <SelectItem 
+                        key={slot.value} 
+                        value={slot.value}
+                        disabled={slot.disabled}
+                        className={slot.disabled ? "text-gray-400 cursor-not-allowed" : ""}
+                      >
+                        {getTimeSlotDisplayText(slot.label, slot.disabled)}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -434,6 +458,22 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                     {option.label}
                   </button>
                 ))}
+              </div>
+            </div>
+            
+            {/* Service Delay Notice */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+              <div className="flex items-start space-x-2">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-amber-800">
+                    <strong>Service Notice:</strong> Due to high service demand, there might be a slight delay. We appreciate your cooperation.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

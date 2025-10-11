@@ -29,8 +29,10 @@ interface DashboardData {
     monthlyRevenue: number;
     pendingVendors: number;
     activeVendors: number;
+    blockedVendors: number;
     pendingBookings: number;
     activeAMCSubscriptions: number;
+    totalAMCAmount: number;
   };
   recentActivity: {
     recentUsers: number;
@@ -60,7 +62,33 @@ const AdminDashboard = () => {
       const response = await adminApiService.getDashboardStats(month, year);
       
       if (response.success && response.data) {
-        setDashboardData(response.data);
+        // Validate and sanitize the data
+        const validatedData = {
+          ...response.data,
+          overview: {
+            totalUsers: Math.max(0, response.data.overview.totalUsers || 0),
+            totalVendors: Math.max(0, response.data.overview.totalVendors || 0),
+            totalServices: Math.max(0, response.data.overview.totalServices || 0),
+            totalBookings: Math.max(0, response.data.overview.totalBookings || 0),
+            totalRevenue: Math.max(0, response.data.overview.totalRevenue || 0),
+            monthlyRevenue: Math.max(0, response.data.overview.monthlyRevenue || 0),
+            pendingVendors: Math.max(0, response.data.overview.pendingVendors || 0),
+            activeVendors: Math.max(0, response.data.overview.activeVendors || 0),
+            blockedVendors: Math.max(0, response.data.overview.blockedVendors || 0),
+            pendingBookings: Math.max(0, response.data.overview.pendingBookings || 0),
+            activeAMCSubscriptions: Math.max(0, response.data.overview.activeAMCSubscriptions || 0),
+            totalAMCAmount: Math.max(0, response.data.overview.totalAMCAmount || 0)
+          },
+          recentActivity: {
+            recentUsers: Math.max(0, response.data.recentActivity.recentUsers || 0),
+            recentVendors: Math.max(0, response.data.recentActivity.recentVendors || 0),
+            recentBookings: Math.max(0, response.data.recentActivity.recentBookings || 0)
+          }
+        };
+        
+        setDashboardData(validatedData);
+      } else {
+        throw new Error('Invalid response format from server');
       }
     } catch (error: any) {
       console.error('Error fetching dashboard data:', error);
@@ -218,18 +246,27 @@ const AdminDashboard = () => {
       textColor: "text-pink-600"
     },
     {
+      title: "Blocked Vendors",
+      value: dashboardData.overview.blockedVendors.toLocaleString(),
+      change: "Blocked by admin",
+      icon: AlertCircle,
+      color: "bg-red-500",
+      bgColor: "bg-red-50",
+      textColor: "text-red-600"
+    },
+    {
       title: "Pending Bookings",
       value: dashboardData.overview.pendingBookings.toLocaleString(),
       change: "Awaiting confirmation",
-      icon: AlertCircle,
+      icon: Clock,
       color: "bg-yellow-500",
       bgColor: "bg-yellow-50",
       textColor: "text-yellow-600"
     },
     {
       title: "AMC Subscriptions",
-      value: dashboardData.overview.activeAMCSubscriptions.toLocaleString(),
-      change: "Active subscriptions",
+      value: `₹${dashboardData.overview.totalAMCAmount.toLocaleString()}`,
+      change: `${dashboardData.overview.activeAMCSubscriptions} active subscriptions`,
       icon: TrendingUp,
       color: "bg-teal-500",
       bgColor: "bg-teal-50",

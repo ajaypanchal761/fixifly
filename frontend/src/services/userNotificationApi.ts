@@ -14,6 +14,12 @@ export interface UserNotification {
   bookingId?: string;
   serviceType?: string;
   timeAgo: string;
+  image?: {
+    public_id: string;
+    secure_url: string;
+    width: number;
+    height: number;
+  };
 }
 
 export interface NotificationStats {

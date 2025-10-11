@@ -629,61 +629,196 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       totalBookings,
       pendingVendors,
       activeVendors,
+      blockedVendors,
       totalBlogs,
       totalCards,
-      activeAMCSubscriptions
+      activeAMCSubscriptionsResult
     ] = await Promise.all([
-      User.countDocuments(),
+      User.countDocuments({ isActive: true }),
       Vendor.countDocuments(),
       Card.countDocuments({ status: 'active' }),
       Booking.countDocuments(),
-      Vendor.countDocuments({ isApproved: false }),
-      Vendor.countDocuments({ isApproved: true, isActive: true }),
+      // Pending vendors: not approved but active (waiting for approval)
+      Vendor.countDocuments({ 
+        isApproved: false, 
+        isActive: true, 
+        isBlocked: false 
+      }),
+      // Active vendors: approved, active, and not blocked
+      Vendor.countDocuments({ 
+        isApproved: true, 
+        isActive: true, 
+        isBlocked: false 
+      }),
+      // Blocked vendors
+      Vendor.countDocuments({ isBlocked: true }),
       Blog.countDocuments(),
       Card.countDocuments(),
-      AMCSubscription.countDocuments({ status: 'active' })
+      // Get AMC subscription count and total amount
+      AMCSubscription.aggregate([
+        {
+          $match: { status: 'active' }
+        },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+            totalAmount: { $sum: '$amount' }
+          }
+        }
+      ])
     ]);
 
-    // Get revenue calculations from actual bookings
+    // Extract AMC subscription data
+    const activeAMCSubscriptions = activeAMCSubscriptionsResult.length > 0 ? activeAMCSubscriptionsResult[0].count : 0;
+    const totalAMCAmount = activeAMCSubscriptionsResult.length > 0 ? activeAMCSubscriptionsResult[0].totalAmount : 0;
+
+    // Get revenue calculations from actual bookings including admin commission
     const [monthlyRevenueResult, totalRevenueResult, pendingBookingsResult] = await Promise.all([
-      // Monthly revenue from completed bookings
+      // Monthly revenue from completed bookings (booking amount + admin commission)
       Booking.aggregate([
         {
           $match: {
             status: 'completed',
             'payment.status': 'completed',
-            createdAt: { $gte: startDate, $lte: endDate }
+            createdAt: { $gte: startDate, $lte: endDate },
+            'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 }
+          }
+        },
+        {
+          $addFields: {
+            // Calculate admin commission from completion data
+            adminCommission: {
+              $cond: {
+                if: { $and: [
+                  { $ne: ['$completionData', null] },
+                  { $ne: ['$completionData.billingAmount', null] }
+                ]},
+                then: {
+                  $let: {
+                    vars: {
+                      billingAmount: { $toDouble: '$completionData.billingAmount' },
+                      spareAmount: {
+                        $sum: {
+                          $map: {
+                            input: { $ifNull: ['$completionData.spareParts', []] },
+                            as: 'part',
+                            in: { $toDouble: { $replaceAll: { input: '$$part.amount', find: '₹', replacement: '' } } }
+                          }
+                        }
+                      },
+                      travellingAmount: { $toDouble: { $ifNull: ['$completionData.travelingAmount', 0] } },
+                      bookingAmount: { $toDouble: { $ifNull: ['$pricing.totalAmount', 0] } }
+                    },
+                    in: {
+                      $cond: {
+                        if: { $lte: ['$$billingAmount', 500] },
+                        then: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] }, // For amounts <= 500, admin gets half of booking amount
+                        else: {
+                          $add: [
+                            { $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$bookingAmount'] }] }, 0.5] },
+                            { $multiply: ['$$bookingAmount', 0.5] } // Admin gets half of booking amount
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                else: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] } // Admin gets half of booking amount
+              }
+            }
           }
         },
         {
           $group: {
             _id: null,
-            total: { $sum: '$pricing.totalAmount' }
+            total: { $sum: '$adminCommission' }
           }
         }
       ]),
-      // Total revenue from all completed bookings
+      // Total revenue from all completed bookings (booking amount + admin commission)
       Booking.aggregate([
         {
           $match: {
             status: 'completed',
-            'payment.status': 'completed'
+            'payment.status': 'completed',
+            'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 }
+          }
+        },
+        {
+          $addFields: {
+            // Calculate admin commission from completion data
+            adminCommission: {
+              $cond: {
+                if: { $and: [
+                  { $ne: ['$completionData', null] },
+                  { $ne: ['$completionData.billingAmount', null] }
+                ]},
+                then: {
+                  $let: {
+                    vars: {
+                      billingAmount: { $toDouble: '$completionData.billingAmount' },
+                      spareAmount: {
+                        $sum: {
+                          $map: {
+                            input: { $ifNull: ['$completionData.spareParts', []] },
+                            as: 'part',
+                            in: { $toDouble: { $replaceAll: { input: '$$part.amount', find: '₹', replacement: '' } } }
+                          }
+                        }
+                      },
+                      travellingAmount: { $toDouble: { $ifNull: ['$completionData.travelingAmount', 0] } },
+                      bookingAmount: { $toDouble: { $ifNull: ['$pricing.totalAmount', 0] } }
+                    },
+                    in: {
+                      $cond: {
+                        if: { $lte: ['$$billingAmount', 500] },
+                        then: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] }, // For amounts <= 500, admin gets half of booking amount
+                        else: {
+                          $add: [
+                            { $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$bookingAmount'] }] }, 0.5] },
+                            { $multiply: ['$$bookingAmount', 0.5] } // Admin gets half of booking amount
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                else: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] } // Admin gets half of booking amount
+              }
+            }
           }
         },
         {
           $group: {
             _id: null,
-            total: { $sum: '$pricing.totalAmount' }
+            total: { $sum: '$adminCommission' }
           }
         }
       ]),
-      // Pending bookings count
-      Booking.countDocuments({ status: 'pending' })
+      // Pending bookings count (bookings that are pending confirmation)
+      Booking.countDocuments({ 
+        status: { $in: ['pending', 'confirmed', 'in_progress'] },
+        'payment.status': { $ne: 'completed' }
+      })
     ]);
 
-    const monthlyRevenue = monthlyRevenueResult.length > 0 ? monthlyRevenueResult[0].total : 0;
-    const totalRevenue = totalRevenueResult.length > 0 ? totalRevenueResult[0].total : 0;
-    const pendingBookings = pendingBookingsResult;
+    const monthlyRevenue = monthlyRevenueResult.length > 0 ? (monthlyRevenueResult[0].total || 0) : 0;
+    const totalRevenue = totalRevenueResult.length > 0 ? (totalRevenueResult[0].total || 0) : 0;
+    const pendingBookings = pendingBookingsResult || 0;
+
+    // Log revenue calculation for debugging
+    logger.info('Admin dashboard revenue calculation', {
+      monthlyRevenue,
+      totalRevenue,
+      pendingBookings,
+      activeAMCSubscriptions,
+      totalAMCAmount,
+      month: month || new Date().getMonth() + 1,
+      year: year || new Date().getFullYear(),
+      startDate,
+      endDate
+    });
 
     // Get recent activity (last 7 days)
     const sevenDaysAgo = new Date();
@@ -710,8 +845,10 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         monthlyRevenue,
         pendingVendors,
         activeVendors,
+        blockedVendors,
         pendingBookings,
-        activeAMCSubscriptions
+        activeAMCSubscriptions,
+        totalAMCAmount
       },
       recentActivity: {
         recentUsers,

@@ -8,6 +8,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import bookingApi, { type Booking} from "@/services/bookingApi";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import RatingPopup from "@/components/RatingPopup";
 import jsPDF from 'jspdf';
 import { 
   Clock, 
@@ -45,6 +47,56 @@ const Booking = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Rating popup state
+  const [showRatingPopup, setShowRatingPopup] = useState(false);
+  const [ratingBooking, setRatingBooking] = useState<Booking | null>(null);
+  const [checkedReviews, setCheckedReviews] = useState<Set<string>>(new Set());
+  const [submittedReviews, setSubmittedReviews] = useState<Set<string>>(new Set());
+
+  // Debug popup state changes
+  useEffect(() => {
+    console.log('Rating popup state changed:', { showRatingPopup, ratingBooking: ratingBooking?._id });
+  }, [showRatingPopup, ratingBooking]);
+
+
+  // Function to check if review already exists for a booking
+  const checkExistingReview = async (bookingId: string): Promise<boolean> => {
+    try {
+      // First check if we've already submitted a review for this booking in this session
+      if (submittedReviews.has(bookingId)) {
+        console.log('Review already submitted for booking in this session:', bookingId);
+        return true;
+      }
+
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.log('No token found for checking existing review');
+        return false;
+      }
+
+      console.log('Checking existing review for booking:', bookingId);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/reviews/booking/${bookingId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Review check response status:', response.status);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Review check response data:', data);
+        return data.data && data.data.length > 0;
+      } else {
+        console.log('Review check failed with status:', response.status);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking existing review:', error);
+      return false;
+    }
+  };
 
   // If coming from service page with cart items, show checkout view
   const isCheckoutView = cartItems && cartItems.length > 0;
@@ -91,14 +143,14 @@ ${newBooking.services.map(service => `${service.serviceName} - ₹${service.pric
 PRICING SUMMARY
 ===============
 Subtotal: ₹${newBooking.pricing.subtotal}
-Service Fee: ₹${newBooking.pricing.serviceFee}
+GST (18%): ₹${newBooking.pricing.gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}
 Total Amount: ₹${newBooking.pricing.totalAmount}
 
 PAYMENT STATUS
 ==============
-Status: Completed
-Method: Card
-Transaction ID: ${newBooking.payment?.transactionId || 'N/A'}
+Status: ${newBooking.payment?.status === 'pending' ? 'Incomplete' : (newBooking.payment?.status || 'Completed')}
+${newBooking.payment?.method !== 'cash' ? `Method: ${newBooking.payment?.method || 'Card'}` : ''}
+${newBooking.payment?.method !== 'cash' && newBooking.payment?.transactionId ? `Transaction ID: ${newBooking.payment.transactionId}` : ''}
 
 Thank you for choosing Fixfly!
 For support, contact us at info@fixfly.in
@@ -151,8 +203,8 @@ For support, contact us at info@fixfly.in
             <span>₹${newBooking.pricing.subtotal}</span>
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-            <span>Service Fee:</span>
-            <span>₹${newBooking.pricing.serviceFee}</span>
+            <span>GST (18%):</span>
+            <span>₹${newBooking.pricing.gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}</span>
           </div>
           <hr style="border: 1px solid #e5e7eb; margin: 10px 0;">
           <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #2563eb;">
@@ -163,9 +215,9 @@ For support, contact us at info@fixfly.in
 
         <div style="margin-bottom: 30px;">
           <h3 style="color: #374151; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">PAYMENT STATUS</h3>
-          <p><strong>Status:</strong> Completed</p>
-          <p><strong>Method:</strong> Card</p>
-          <p><strong>Transaction ID:</strong> ${newBooking.payment?.transactionId || 'N/A'}</p>
+          <p><strong>Status:</strong> ${newBooking.payment?.status === 'pending' ? 'Incomplete' : (newBooking.payment?.status || 'Completed')}</p>
+          ${newBooking.payment?.method !== 'cash' ? `<p><strong>Method:</strong> ${newBooking.payment?.method || 'Card'}</p>` : ''}
+          ${newBooking.payment?.method !== 'cash' && newBooking.payment?.transactionId ? `<p><strong>Transaction ID:</strong> ${newBooking.payment.transactionId}</p>` : ''}
         </div>
 
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
@@ -255,6 +307,57 @@ For support, contact us at info@fixfly.in
     }
   }, [isAuthenticated, user?.email]);
 
+  // Listen for booking updates (including cash payment completions)
+  useEffect(() => {
+    const handleBookingUpdate = async (event: CustomEvent) => {
+      console.log('=== BOOKING UPDATE EVENT RECEIVED ===');
+      console.log('Event detail:', event.detail);
+      
+      const { taskId, status, paymentMode, paymentStatus } = event.detail;
+      
+      console.log('Parsed event data:', { taskId, status, paymentMode, paymentStatus });
+      
+      // If task is completed with cash payment, show rating popup
+      if (status === 'completed' && paymentMode === 'cash' && paymentStatus === 'collected') {
+        console.log('=== CASH PAYMENT COMPLETION DETECTED ===');
+        console.log('Looking for booking with ID:', taskId);
+        console.log('Current bookings:', bookings.length);
+        
+        // Find the booking and check for existing review
+        const completedBooking = bookings.find(booking => booking._id === taskId);
+        if (completedBooking) {
+          console.log('Found completed booking:', completedBooking._id);
+          console.log('Checking for existing review...');
+          
+          const hasExistingReview = await checkExistingReview(completedBooking._id);
+          console.log('Has existing review:', hasExistingReview);
+          
+          if (!hasExistingReview) {
+            console.log('No existing review found, showing rating popup');
+            setRatingBooking(completedBooking);
+            setShowRatingPopup(true);
+          } else {
+            console.log('Review already exists for booking:', completedBooking._id);
+          }
+        } else {
+          console.log('Booking not found in current bookings list');
+        }
+      } else {
+        console.log('Event does not match cash payment completion criteria');
+      }
+      
+      // Refresh bookings to get updated data
+      console.log('Refreshing bookings...');
+      fetchBookings();
+    };
+
+    window.addEventListener('bookingUpdated', handleBookingUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('bookingUpdated', handleBookingUpdate as EventListener);
+    };
+  }, [bookings]);
+
   // Listen for booking updates
   useEffect(() => {
     const handleBookingUpdate = (event: any) => {
@@ -311,7 +414,12 @@ For support, contact us at info@fixfly.in
     cancelled: processedBookings.cancelled.length
   });
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string, booking?: any) => {
+    // Check if vendor has declined
+    if (booking && booking.vendorResponse && booking.vendorResponse.status === 'declined') {
+      return <XCircle className="h-4 w-4 text-red-500" />;
+    }
+    
     switch (status) {
       case "pending":
       case "waiting_for_engineer":
@@ -321,6 +429,7 @@ For support, contact us at info@fixfly.in
       case "completed":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case "cancelled":
+      case "declined":
         return <XCircle className="h-4 w-4 text-red-500" />;
       default:
         return <Clock className="h-4 w-4 text-gray-500" />;
@@ -328,6 +437,11 @@ For support, contact us at info@fixfly.in
   };
 
   const getStatusText = (status: string, booking?: any) => {
+    // Check if vendor has declined
+    if (booking && booking.vendorResponse && booking.vendorResponse.status === 'declined') {
+      return "Declined by Vendor";
+    }
+    
     // If vendor is assigned, show "assigned" regardless of status
     if (booking && booking.vendor && booking.vendor.vendorId && typeof booking.vendor.vendorId === 'object') {
       return "Assigned";
@@ -346,6 +460,8 @@ For support, contact us at info@fixfly.in
         return "Completed";
       case "cancelled":
         return "Cancelled";
+      case "declined":
+        return "Declined by Vendor";
       default:
         return status;
     }
@@ -363,7 +479,12 @@ For support, contact us at info@fixfly.in
     return `₹${amount}`;
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string, booking?: any) => {
+    // Check if vendor has declined
+    if (booking && booking.vendorResponse && booking.vendorResponse.status === 'declined') {
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+    }
+    
     switch (status) {
       case "pending":
       case "waiting_for_engineer":
@@ -373,6 +494,7 @@ For support, contact us at info@fixfly.in
       case "completed":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
       case "cancelled":
+      case "declined":
         return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
@@ -509,6 +631,21 @@ For support, contact us at info@fixfly.in
                   detail: { taskId: booking._id, status: 'completed', paymentStatus: 'payment_done' } 
                 }));
                 
+                // Check if review already exists before showing popup
+                console.log('Payment successful, checking for existing review for booking:', booking._id);
+                const hasExistingReview = await checkExistingReview(booking._id);
+                console.log('Has existing review:', hasExistingReview);
+                
+                if (!hasExistingReview) {
+                  console.log('No existing review found, showing rating popup');
+                  console.log('Setting rating booking:', booking);
+                  setRatingBooking(booking);
+                  setShowRatingPopup(true);
+                  console.log('Rating popup state set to true');
+                } else {
+                  console.log('Review already exists for booking:', booking._id);
+                }
+                
                 // Refresh bookings
                 fetchBookings();
               } else {
@@ -635,6 +772,25 @@ For support, contact us at info@fixfly.in
           </div>
           ` : ''}
 
+          ${(booking as any).completionData?.spareParts && (booking as any).completionData.spareParts.length > 0 ? `
+          <div class="section">
+            <h3>SPARE PARTS USED</h3>
+            ${(booking as any).completionData.spareParts.map((part: any, index: number) => `
+              <div style="margin-bottom: 10px; padding: 10px; background-color: #f9fafb; border-radius: 5px;">
+                <p><strong>${index + 1}. ${part.name}</strong></p>
+                <p>Amount: ₹${part.amount}</p>
+                ${part.warranty ? `<p style="color: #2563eb;"><strong>Warranty: ${part.warranty}</strong></p>` : ''}
+              </div>
+            `).join('')}
+            <div class="row">
+              <span><strong>Total Spare Parts:</strong></span>
+              <span><strong>₹${(booking as any).completionData.spareParts.reduce((sum: number, part: any) => 
+                sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
+              ).toLocaleString()}</strong></span>
+            </div>
+          </div>
+          ` : ''}
+
           <div class="section">
             <h3>PAYMENT DETAILS</h3>
             <div class="row">
@@ -658,8 +814,8 @@ For support, contact us at info@fixfly.in
               <span>TOTAL AMOUNT:</span>
               <span>₹${totalAmount}</span>
             </div>
-            <p><strong>Payment Status:</strong> ${booking.payment?.status || 'Completed'}</p>
-            ${booking.payment?.transactionId ? `<p><strong>Transaction ID:</strong> ${booking.payment.transactionId}</p>` : ''}
+            <p><strong>Payment Status:</strong> ${booking.payment?.status === 'pending' ? 'Incomplete' : (booking.payment?.status || 'Completed')}</p>
+            ${booking.payment?.method !== 'cash' && booking.payment?.transactionId ? `<p><strong>Transaction ID:</strong> ${booking.payment.transactionId}</p>` : ''}
           </div>
 
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
@@ -826,11 +982,11 @@ For support, contact us at info@fixfly.in
     yPosition += 5;
 
     yPosition = addText(`Initial Payment: ₹${booking.pricing.totalAmount}`, 20, yPosition);
-    yPosition = addText(`Payment Status: ${booking.payment?.status || 'N/A'}`, 20, yPosition);
+    yPosition = addText(`Payment Status: ${booking.payment?.status === 'pending' ? 'Incomplete' : (booking.payment?.status || 'N/A')}`, 20, yPosition);
     if (booking.payment?.paidAt) {
       yPosition = addText(`Payment Date: ${new Date(booking.payment.paidAt).toLocaleDateString('en-IN')}`, 20, yPosition);
     }
-    if (booking.payment?.transactionId) {
+    if (booking.payment?.method !== 'cash' && booking.payment?.transactionId) {
       yPosition = addText(`Transaction ID: ${booking.payment.transactionId}`, 20, yPosition);
     }
     yPosition += 10;
@@ -849,7 +1005,11 @@ For support, contact us at info@fixfly.in
         console.log(`Spare part ${index + 1}:`, part);
         const partName = part.name || 'Unnamed Part';
         const partAmount = part.amount || '0';
+        const partWarranty = part.warranty || '';
         yPosition = addText(`${index + 1}. ${partName} - ₹${partAmount}`, 20, yPosition);
+        if (partWarranty) {
+          yPosition = addText(`   Warranty: ${partWarranty}`, 25, yPosition);
+        }
       });
       
       yPosition = addText(`Total Spare Parts Amount: ₹${(booking as any).completionData.totalAmount}`, 20, yPosition);
@@ -931,6 +1091,12 @@ For support, contact us at info@fixfly.in
 
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+  
+  // View Details Modal State
+  const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [bookingDetails, setBookingDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const handleCancelBooking = async (booking: Booking) => {
     setBookingToCancel(booking);
@@ -973,6 +1139,35 @@ For support, contact us at info@fixfly.in
   const handleReschedule = (booking: Booking) => {
     // Navigate to reschedule page or open reschedule modal
     navigate(`/reschedule/${booking._id}`, { state: { booking } });
+  };
+
+  // Handle View Details
+  const handleViewDetails = async (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsViewDetailsOpen(true);
+    setLoadingDetails(true);
+    
+    try {
+      const response = await bookingApi.getBookingById(booking._id);
+      if (response.success && response.data?.booking) {
+        setBookingDetails(response.data.booking);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load booking details",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching booking details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load booking details",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingDetails(false);
+    }
   };
 
   // Checkout View
@@ -1157,7 +1352,7 @@ For support, contact us at info@fixfly.in
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-2 max-w-2xl mt-8">
+        <div className="container mx-auto px-4 py-2 max-w-2xl mt-8 pb-20">
           {/* Success Message */}
           <div className="text-center mb-3">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -1218,8 +1413,8 @@ For support, contact us at info@fixfly.in
                   <span>₹{newBooking.pricing.subtotal}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 text-xs">
-                  <span>Service Fee</span>
-                  <span>₹{newBooking.pricing.serviceFee}</span>
+                  <span>GST (18%)</span>
+                  <span>₹{newBooking.pricing.gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-0.5">
                   <div className="flex justify-between text-sm font-bold text-gray-900">
@@ -1259,6 +1454,9 @@ For support, contact us at info@fixfly.in
             </Button>
           </div>
         </div>
+        
+        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav />
       </div>
     );
   }
@@ -1609,6 +1807,16 @@ For support, contact us at info@fixfly.in
                         </>
                       )}
                     </div>
+                    
+                    {/* View Details Button */}
+                    <div className="mb-1">
+                      <Button 
+                        className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
+                        onClick={() => handleViewDetails(booking)}
+                      >
+                        View Details
+                      </Button>
+                    </div>
                     </CardContent>
                   </Card>
                 );
@@ -1699,12 +1907,18 @@ For support, contact us at info@fixfly.in
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="mb-1">
+                    <div className="space-y-1 mb-1">
                       <Button 
                         className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
                         onClick={() => generateReceiptPDF(booking)}
                       >
                         Download Receipt
+                      </Button>
+                      <Button 
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5"
+                        onClick={() => handleViewDetails(booking)}
+                      >
+                        View Details
                       </Button>
                     </div>
 
@@ -1795,15 +2009,21 @@ For support, contact us at info@fixfly.in
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-1 mb-1">
-                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5">
+                    <div className="space-y-1 mb-1">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5">
                         Book Similar Service
+                      </Button>
+                      <Button 
+                        className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
+                        onClick={() => handleViewDetails(booking)}
+                      >
+                        View Details
                       </Button>
                     </div>
 
                       {/* Status Tag */}
                       <div className="text-center">
-                        <Badge className={`${getStatusColor(booking.status)} px-3 py-1 rounded-full text-xs`}>
+                        <Badge className={`${getStatusColor(booking.status, booking)} px-3 py-1 rounded-full text-xs`}>
                           {getStatusText(booking.status, booking)}
                         </Badge>
                       </div>
@@ -1892,6 +2112,258 @@ For support, contact us at info@fixfly.in
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* View Details Modal */}
+      <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
+        <DialogContent className="w-[95vw] max-w-md md:max-w-2xl mx-auto rounded-xl max-h-[85vh] md:max-h-[80vh] overflow-y-auto p-4 mt-8 md:mt-0">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="text-center text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">
+              Booking Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {loadingDetails ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading booking details...</p>
+            </div>
+          ) : bookingDetails ? (
+            <div className="space-y-3 md:space-y-4">
+              {/* Booking Reference */}
+              <div className="bg-blue-50 rounded-lg p-2.5 md:p-3">
+                <h3 className="font-bold text-sm md:text-base text-blue-900 mb-1">Booking Reference</h3>
+                <p className="text-blue-800 font-mono text-sm md:text-base">
+                  {bookingDetails.bookingReference || `FIX${bookingDetails._id.toString().substring(bookingDetails._id.toString().length - 8).toUpperCase()}`}
+                </p>
+              </div>
+
+              {/* Customer Information */}
+              <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                  <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
+                  Customer Information
+                </h3>
+                <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Name</p>
+                    <p className="font-medium text-xs md:text-sm">{bookingDetails.customer.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Email</p>
+                    <p className="font-medium text-xs md:text-sm break-all">{bookingDetails.customer.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Phone</p>
+                    <p className="font-medium text-xs md:text-sm">{bookingDetails.customer.phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Address</p>
+                    <p className="font-medium text-xs md:text-sm leading-tight">
+                      {bookingDetails.customer.address.street}, {bookingDetails.customer.address.city}, {bookingDetails.customer.address.state} - {bookingDetails.customer.address.pincode}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Service Details */}
+              <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                  <Wrench className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
+                  Service Details
+                </h3>
+                <div className="space-y-1 md:space-y-2">
+                  {bookingDetails.services.map((service: any, index: number) => (
+                    <div key={index} className="flex justify-between items-center py-1 md:py-2 border-b border-gray-100 last:border-b-0">
+                      <span className="font-medium text-xs md:text-sm flex-1 pr-2">{service.serviceName}</span>
+                      <span className="text-blue-600 font-bold text-xs md:text-sm">₹{service.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Scheduling Information */}
+              <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                  <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
+                  Scheduling Information
+                </h3>
+                <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Preferred Date</p>
+                    <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.scheduling.preferredDate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Preferred Time</p>
+                    <p className="font-medium text-xs md:text-sm">{bookingDetails.scheduling.preferredTimeSlot}</p>
+                  </div>
+                  {bookingDetails.scheduling.scheduledDate && (
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Scheduled Date</p>
+                      <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.scheduling.scheduledDate)}</p>
+                    </div>
+                  )}
+                  {bookingDetails.scheduling.scheduledTime && (
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Scheduled Time</p>
+                      <p className="font-medium text-xs md:text-sm">{bookingDetails.scheduling.scheduledTime}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Engineer Information */}
+              {bookingDetails.vendor && bookingDetails.vendor.vendorId && typeof bookingDetails.vendor.vendorId === 'object' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 md:p-3">
+                  <h3 className="font-bold text-sm md:text-base text-green-900 mb-1.5 md:mb-2 flex items-center">
+                    <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
+                    Assigned Engineer
+                  </h3>
+                  <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                    <div>
+                      <p className="text-xs md:text-sm text-green-600 md:text-green-700">Name</p>
+                      <p className="font-medium text-xs md:text-sm text-green-900">
+                        {bookingDetails.vendor.vendorId.firstName} {bookingDetails.vendor.vendorId.lastName}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm text-green-600 md:text-green-700">Phone</p>
+                      <p className="font-medium text-xs md:text-sm text-green-900">{bookingDetails.vendor.vendorId.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm text-green-600 md:text-green-700">Email</p>
+                      <p className="font-medium text-xs md:text-sm text-green-900 break-all">{bookingDetails.vendor.vendorId.email}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
+              {/* Completion Data (if available) */}
+              {bookingDetails.completionData && (
+                <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                  <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                    <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
+                    Service Completion Details
+                  </h3>
+                  
+                  {bookingDetails.completionData.resolutionNote && (
+                    <div className="mb-2 md:mb-3">
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Resolution Note</p>
+                      <p className="font-medium text-xs md:text-sm bg-gray-50 p-1.5 md:p-2 rounded leading-tight">{bookingDetails.completionData.resolutionNote}</p>
+                    </div>
+                  )}
+
+                  {bookingDetails.completionData.billingAmount && (
+                    <div className="mb-2 md:mb-3">
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Service Charges</p>
+                      <p className="font-bold text-sm md:text-base text-green-600">₹{bookingDetails.completionData.billingAmount}</p>
+                    </div>
+                  )}
+
+                  {bookingDetails.completionData.spareParts && bookingDetails.completionData.spareParts.length > 0 && (
+                    <div className="mb-2 md:mb-3">
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Spare Parts Used</p>
+                      <div className="space-y-1 md:space-y-2">
+                        {bookingDetails.completionData.spareParts.map((part: any, index: number) => (
+                          <div key={index} className="bg-gray-50 p-1 md:p-1.5 rounded space-y-1">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-xs md:text-sm flex-1 pr-2">{part.name}</span>
+                              <span className="text-blue-600 font-bold text-xs md:text-sm">₹{part.amount}</span>
+                            </div>
+                            {part.warranty && (
+                              <div className="flex items-center space-x-1 ml-2">
+                                <span className="text-xs text-gray-500">Warranty:</span>
+                                <span className="text-xs font-medium text-blue-600">{part.warranty}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Status Information */}
+              <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                  <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
+                  Status Information
+                </h3>
+                <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Current Status</p>
+                    <Badge className={`${getStatusColor(bookingDetails.status, bookingDetails)} px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs md:text-sm`}>
+                      {getStatusText(bookingDetails.status, bookingDetails)}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Created Date</p>
+                    <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.createdAt)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Last Updated</p>
+                    <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.updatedAt)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              {bookingDetails.notes && (
+                <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                  <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2">Additional Notes</h3>
+                  <p className="text-gray-700 text-xs md:text-sm bg-gray-50 p-1.5 md:p-2 rounded leading-tight">{bookingDetails.notes}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Failed to load booking details</p>
+            </div>
+          )}
+          
+          <div className="flex justify-end mt-3 md:mt-4">
+            <Button 
+              onClick={() => setIsViewDetailsOpen(false)}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm"
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+
+      {/* Rating Popup */}
+      <RatingPopup
+        key={ratingBooking?._id || 'rating-popup'}
+        isOpen={showRatingPopup && !!ratingBooking}
+        onClose={() => {
+          console.log('Rating popup closed');
+          setShowRatingPopup(false);
+          setRatingBooking(null);
+        }}
+        bookingId={ratingBooking?._id || ''}
+        vendorId={ratingBooking && typeof ratingBooking.vendor?.vendorId === 'object' 
+          ? ratingBooking.vendor.vendorId._id 
+          : ratingBooking?.vendor?.vendorId || ''}
+        vendorName={ratingBooking && typeof ratingBooking.vendor?.vendorId === 'object' 
+          ? `${ratingBooking.vendor.vendorId.firstName} ${ratingBooking.vendor.vendorId.lastName}` 
+          : 'Service Provider'}
+        serviceName={ratingBooking?.services?.map(s => s.serviceName).join(', ') || 'Service'}
+        onRatingSubmitted={() => {
+          console.log('Rating submitted successfully');
+          // Add to submitted reviews to prevent showing popup again
+          if (ratingBooking) {
+            setSubmittedReviews(prev => new Set([...prev, ratingBooking._id]));
+          }
+          // Refresh bookings to show updated status
+          fetchBookings();
+        }}
+      />
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 };

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
-import { ArrowLeft, Bell, CheckCircle, AlertTriangle, Info, Clock, User, MapPin } from 'lucide-react';
+import { ArrowLeft, Bell, CheckCircle, AlertTriangle, Info, Clock, User, MapPin, Loader2, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import VendorBottomNav from '../components/VendorBottomNav';
 import Footer from '../../components/Footer';
@@ -8,57 +8,16 @@ import NotFound from '../../pages/NotFound';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import vendorNotificationApi, { VendorNotification } from '@/services/vendorNotificationApi';
 
 // Desktop Vendor Notifications Component
 const DesktopVendorNotifications = () => {
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'task_assigned',
-      title: 'New Task Assigned',
-      message: 'AC Repair task assigned in Sector 15, Gurgaon',
-      time: '2 minutes ago',
-      isRead: false,
-      priority: 'high'
-    },
-    {
-      id: 2,
-      type: 'payment_received',
-      title: 'Payment Received',
-      message: 'Payment of ₹2,500 received for Case ID: CASE-2024-001',
-      time: '1 hour ago',
-      isRead: false,
-      priority: 'medium'
-    },
-    {
-      id: 3,
-      type: 'task_reminder',
-      title: 'Task Reminder',
-      message: 'Washing Machine service scheduled for 2:00 PM today',
-      time: '3 hours ago',
-      isRead: true,
-      priority: 'medium'
-    },
-    {
-      id: 4,
-      type: 'system_update',
-      title: 'System Update',
-      message: 'New features added to vendor dashboard. Check it out!',
-      time: '1 day ago',
-      isRead: true,
-      priority: 'low'
-    },
-    {
-      id: 5,
-      type: 'task_cancelled',
-      title: 'Task Cancelled',
-      message: 'Refrigerator repair task cancelled by customer',
-      time: '2 days ago',
-      isRead: true,
-      priority: 'low'
-    }
-  ]);
+  const { toast } = useToast();
+  const [notifications, setNotifications] = useState<VendorNotification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -90,23 +49,102 @@ const DesktopVendorNotifications = () => {
     }
   };
 
-  const markAsRead = (id: number) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      setIsLoading(true);
+      const response = await vendorNotificationApi.getNotifications({
+        page: 1,
+        limit: 50
+      });
+      
+      if (response.success) {
+        setNotifications(response.data.notifications);
+        setUnreadCount(response.data.pagination.unreadCount);
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to fetch notifications",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch notifications",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, isRead: true }))
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      const response = await vendorNotificationApi.markAsRead(id);
+      
+      if (response.success) {
+        setNotifications(prev => 
+          prev.map(notification => 
+            notification._id === id 
+              ? { ...notification, isRead: true, readAt: new Date().toISOString() }
+              : notification
+          )
+        );
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to mark notification as read",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark notification as read",
+        variant: "destructive"
+      });
+    }
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const markAllAsRead = async () => {
+    try {
+      const response = await vendorNotificationApi.markAllAsRead();
+      
+      if (response.success) {
+        setNotifications(prev => 
+          prev.map(notification => ({ ...notification, isRead: true, readAt: new Date().toISOString() }))
+        );
+        setUnreadCount(0);
+        toast({
+          title: "Success",
+          description: "All notifications marked as read",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to mark all notifications as read",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark all notifications as read",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Load notifications on component mount
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -158,47 +196,69 @@ const DesktopVendorNotifications = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {notifications.map((notification) => (
-              <Card 
-                key={notification.id} 
-                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  !notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
-                }`}
-                onClick={() => markAsRead(notification.id)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className={`text-base font-medium ${
-                          !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                        }`}>
-                          {notification.title}
-                        </h3>
-                        <div className="flex items-center space-x-2">
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs ${getPriorityColor(notification.priority)}`}
-                          >
-                            {notification.priority}
-                          </Badge>
-                          {!notification.isRead && (
-                            <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                          )}
+            {isLoading ? (
+              <div className="text-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-500">Loading notifications...</p>
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <Card 
+                  key={notification._id} 
+                  className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                    !notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
+                  }`}
+                  onClick={() => markAsRead(notification._id)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        {getNotificationIcon(notification.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <h3 className={`text-base font-medium ${
+                              !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                            }`}>
+                              {notification.title}
+                            </h3>
+                            {notification.image && (
+                              <div className="flex items-center space-x-1">
+                                <ImageIcon className="w-4 h-4 text-blue-600" />
+                                <span className="text-sm text-blue-600">Image</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {!notification.isRead && (
+                              <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">{notification.message}</p>
+                        
+                        {/* Display notification image if available */}
+                        {notification.image && (
+                          <div className="mb-3">
+                            <img
+                              src={notification.image.secure_url}
+                              alt="Notification"
+                              className="w-full max-w-md h-48 object-cover rounded-lg border"
+                            />
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-500">
+                            {new Date(notification.createdAt).toLocaleString()}
+                          </span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">{notification.message}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">{notification.time}</span>
-                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </div>
@@ -216,53 +276,10 @@ const VendorNotifications = () => {
   }
 
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'task_assigned',
-      title: 'New Task Assigned',
-      message: 'AC Repair task assigned in Sector 15, Gurgaon',
-      time: '2 minutes ago',
-      isRead: false,
-      priority: 'high'
-    },
-    {
-      id: 2,
-      type: 'payment_received',
-      title: 'Payment Received',
-      message: 'Payment of ₹2,500 received for Case ID: CASE-2024-001',
-      time: '1 hour ago',
-      isRead: false,
-      priority: 'medium'
-    },
-    {
-      id: 3,
-      type: 'task_reminder',
-      title: 'Task Reminder',
-      message: 'Washing Machine service scheduled for 2:00 PM today',
-      time: '3 hours ago',
-      isRead: true,
-      priority: 'medium'
-    },
-    {
-      id: 4,
-      type: 'system_update',
-      title: 'System Update',
-      message: 'New features added to vendor dashboard. Check it out!',
-      time: '1 day ago',
-      isRead: true,
-      priority: 'low'
-    },
-    {
-      id: 5,
-      type: 'task_cancelled',
-      title: 'Task Cancelled',
-      message: 'Refrigerator repair task cancelled by customer',
-      time: '2 days ago',
-      isRead: true,
-      priority: 'low'
-    }
-  ]);
+  const { toast } = useToast();
+  const [notifications, setNotifications] = useState<VendorNotification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -311,23 +328,102 @@ const VendorNotifications = () => {
     }
   };
 
-  const markAsRead = (id: number) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      setIsLoading(true);
+      const response = await vendorNotificationApi.getNotifications({
+        page: 1,
+        limit: 50
+      });
+      
+      if (response.success) {
+        setNotifications(response.data.notifications);
+        setUnreadCount(response.data.pagination.unreadCount);
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to fetch notifications",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch notifications",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, isRead: true }))
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      const response = await vendorNotificationApi.markAsRead(id);
+      
+      if (response.success) {
+        setNotifications(prev => 
+          prev.map(notification => 
+            notification._id === id 
+              ? { ...notification, isRead: true, readAt: new Date().toISOString() }
+              : notification
+          )
+        );
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to mark notification as read",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark notification as read",
+        variant: "destructive"
+      });
+    }
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const markAllAsRead = async () => {
+    try {
+      const response = await vendorNotificationApi.markAllAsRead();
+      
+      if (response.success) {
+        setNotifications(prev => 
+          prev.map(notification => ({ ...notification, isRead: true, readAt: new Date().toISOString() }))
+        );
+        setUnreadCount(0);
+        toast({
+          title: "Success",
+          description: "All notifications marked as read",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to mark all notifications as read",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark all notifications as read",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Load notifications on component mount
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -363,44 +459,69 @@ const VendorNotifications = () => {
         <div className="container mx-auto px-4 py-4">
           {/* Notifications List */}
           <div className="space-y-3">
-            {notifications.map((notification) => (
-              <Card 
-                key={notification.id} 
-                className={`shadow-sm border-0 cursor-pointer transition-all ${
-                  notification.isRead 
-                    ? 'bg-white' 
-                    : 'bg-blue-50 border-l-4 border-l-blue-500'
-                }`}
-                onClick={() => markAsRead(notification.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getNotificationColor(notification.type)}`}>
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-1">
-                        <h3 className={`font-semibold text-sm ${notification.isRead ? 'text-gray-700' : 'text-gray-900'}`}>
-                          {notification.title}
-                        </h3>
-                        <div className="flex items-center gap-2 ml-2">
-                          <Badge className={getPriorityColor(notification.priority)}>
-                            {notification.priority}
-                          </Badge>
-                          {!notification.isRead && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          )}
-                        </div>
+            {isLoading ? (
+              <div className="text-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-500">Loading notifications...</p>
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <Card 
+                  key={notification._id} 
+                  className={`shadow-sm border-0 cursor-pointer transition-all ${
+                    notification.isRead 
+                      ? 'bg-white' 
+                      : 'bg-blue-50 border-l-4 border-l-blue-500'
+                  }`}
+                  onClick={() => markAsRead(notification._id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getNotificationColor(notification.type)}`}>
+                        {getNotificationIcon(notification.type)}
                       </div>
-                      <p className={`text-sm mb-2 ${notification.isRead ? 'text-gray-600' : 'text-gray-700'}`}>
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-gray-500">{notification.time}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between mb-1">
+                          <div className="flex items-center space-x-2">
+                            <h3 className={`font-semibold text-sm ${notification.isRead ? 'text-gray-700' : 'text-gray-900'}`}>
+                              {notification.title}
+                            </h3>
+                            {notification.image && (
+                              <div className="flex items-center space-x-1">
+                                <ImageIcon className="w-3 h-3 text-blue-600" />
+                                <span className="text-xs text-blue-600">Image</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 ml-2">
+                            {!notification.isRead && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            )}
+                          </div>
+                        </div>
+                        <p className={`text-sm mb-2 ${notification.isRead ? 'text-gray-600' : 'text-gray-700'}`}>
+                          {notification.message}
+                        </p>
+                        
+                        {/* Display notification image if available */}
+                        {notification.image && (
+                          <div className="mb-2">
+                            <img
+                              src={notification.image.secure_url}
+                              alt="Notification"
+                              className="w-full h-32 object-cover rounded-lg border"
+                            />
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500">
+                          {new Date(notification.createdAt).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
 
           {/* Empty State */}

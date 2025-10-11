@@ -4,16 +4,67 @@ const { asyncHandler } = require('./asyncHandler');
 
 // Protect routes - verify JWT token
 const protect = asyncHandler(async (req, res, next) => {
-  let token;
+  try {
+    let token;
 
-  // Check for token in headers
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    // Debug logging
+    console.log('=== AUTH MIDDLEWARE START ===');
+    console.log('Request URL:', req.url);
+    console.log('Request Method:', req.method);
+    console.log('Headers received:', {
+      authorization: req.headers.authorization,
+      authorizationType: typeof req.headers.authorization,
+      authorizationLength: req.headers.authorization ? req.headers.authorization.length : 'undefined',
+      contentType: req.headers['content-type'],
+      userAgent: req.headers['user-agent']
+    });
+
+    // SAFE authorization header check - multiple layers of protection
+    const authHeader = req.headers.authorization;
+    
+    // Check if authHeader exists and is a string
+    if (!authHeader) {
+      console.log('Auth middleware: No authorization header provided');
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized, no token provided'
+      });
+    }
+
+    if (typeof authHeader !== 'string') {
+      console.log('Auth middleware: Authorization header is not a string:', typeof authHeader);
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized, invalid token format'
+      });
+    }
+
+    // Check if it starts with 'Bearer' - SAFE method
+    if (!authHeader.startsWith('Bearer')) {
+      console.log('Auth middleware: Authorization header does not start with Bearer');
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized, token must start with Bearer'
+      });
+    }
+
     try {
       // Get token from header
-      token = req.headers.authorization.split(' ')[1];
+      token = authHeader.split(' ')[1];
+
+      if (!token) {
+        console.log('Auth middleware: No token found after Bearer');
+        return res.status(401).json({
+          success: false,
+          message: 'Not authorized, no token found'
+        });
+      }
+
+      console.log('Auth middleware: Token extracted successfully, length:', token.length);
 
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      console.log('Auth middleware: Token verified successfully, userId:', decoded.userId);
 
       // Get user from token
       const user = await User.findById(decoded.userId).select('-otp');
@@ -28,31 +79,18 @@ const protect = asyncHandler(async (req, res, next) => {
         });
       }
 
-      // Check if user is active
-      if (!user.isActive) {
-        console.log('Auth middleware: User account is deactivated');
-        return res.status(401).json({
-          success: false,
-          message: 'Not authorized, account is deactivated'
-        });
-      }
+      console.log('Auth middleware: User found:', user.email);
 
-      // Check if user is blocked
-      if (user.isBlocked) {
-        console.log('Auth middleware: User account is blocked');
-        return res.status(401).json({
-          success: false,
-          message: 'Not authorized, account is blocked'
-        });
-      }
-
+      // Add user info to request
       req.user = {
         userId: user._id,
         role: user.role,
         user: user
       };
 
+      console.log('Auth middleware: User added to request, proceeding to next middleware');
       next();
+
     } catch (error) {
       console.error('Auth middleware: Token verification error:', error.message);
       return res.status(401).json({
@@ -60,13 +98,14 @@ const protect = asyncHandler(async (req, res, next) => {
         message: 'Not authorized, token failed'
       });
     }
-  }
 
-  if (!token) {
-    console.log('Auth middleware: No token provided');
-    return res.status(401).json({
+  } catch (error) {
+    console.error('Auth middleware: Unexpected error:', error);
+    console.error('Error stack:', error.stack);
+    return res.status(500).json({
       success: false,
-      message: 'Not authorized, no token'
+      message: 'Authentication error',
+      error: error.message
     });
   }
 });
@@ -84,7 +123,7 @@ const authorize = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `User role ${req.user.role} is not authorized to access this route`
+        message: `Not authorized to access this resource. Required roles: ${roles.join(', ')}`
       });
     }
 
@@ -94,56 +133,38 @@ const authorize = (...roles) => {
 
 // Optional authentication - doesn't fail if no token
 const optionalAuth = asyncHandler(async (req, res, next) => {
-  let token;
+  try {
+    let token;
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    try {
-      token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-      const user = await User.findById(decoded.userId).select('-otp');
+    const authHeader = req.headers.authorization;
+    
+    if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer')) {
+      try {
+        token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        const user = await User.findById(decoded.userId).select('-otp');
 
-      if (user && user.isActive && !user.isBlocked) {
-        req.user = {
-          userId: user._id,
-          role: user.role,
-          user: user
-        };
+        if (user) {
+          req.user = {
+            userId: user._id,
+            role: user.role,
+            user: user
+          };
+        }
+      } catch (error) {
+        console.log('Optional auth: Token verification failed, continuing without auth');
       }
-    } catch (error) {
-      // Ignore token errors for optional auth
-      console.log('Optional auth token error:', error.message);
     }
-  }
 
-  next();
+    next();
+  } catch (error) {
+    console.error('Optional auth: Error:', error);
+    next(); // Continue without authentication
+  }
 });
-
-// Check if user is phone verified
-const requirePhoneVerification = (req, res, next) => {
-  if (!req.user || !req.user.user.isPhoneVerified) {
-    return res.status(403).json({
-      success: false,
-      message: 'Phone number verification required'
-    });
-  }
-  next();
-};
-
-// Check if user is email verified
-const requireEmailVerification = (req, res, next) => {
-  if (!req.user || !req.user.user.isEmailVerified) {
-    return res.status(403).json({
-      success: false,
-      message: 'Email verification required'
-    });
-  }
-  next();
-};
 
 module.exports = {
   protect,
   authorize,
-  optionalAuth,
-  requirePhoneVerification,
-  requireEmailVerification
+  optionalAuth
 };

@@ -74,7 +74,8 @@ const sendPushNotification = async (fcmToken, notification, data = {}) => {
       token: fcmToken,
       notification: {
         title: notification.title,
-        body: notification.body
+        body: notification.body,
+        ...(notification.image && { image: notification.image })
       },
       data: {
         ...data,
@@ -85,7 +86,8 @@ const sendPushNotification = async (fcmToken, notification, data = {}) => {
           icon: 'ic_notification',
           color: '#FF6B35',
           sound: 'default',
-          priority: 'high'
+          priority: 'high',
+          ...(notification.image && { image: notification.image })
         }
       },
       apns: {
@@ -105,6 +107,7 @@ const sendPushNotification = async (fcmToken, notification, data = {}) => {
           icon: '/favicon.ico',
           badge: '/favicon.ico',
           requireInteraction: true,
+          ...(notification.image && { image: notification.image }),
           actions: [
             {
               action: 'view',
@@ -153,6 +156,7 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
     console.log('🔥 FirebasePushService: Starting multicast notification...');
     console.log(`📊 FCM Tokens count: ${fcmTokens ? fcmTokens.length : 0}`);
     console.log(`📋 Notification: ${notification.title} - ${notification.body}`);
+    console.log(`🖼️ Image in notification:`, notification.image ? notification.image : 'No image');
     
     // Initialize Firebase if not already done
     if (!initializeFirebase()) {
@@ -171,7 +175,8 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
       tokens: fcmTokens,
       notification: {
         title: notification.title,
-        body: notification.body
+        body: notification.body,
+        ...(notification.image && { image: notification.image })
       },
       data: {
         ...data,
@@ -182,7 +187,8 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
           icon: 'ic_notification',
           color: '#FF6B35',
           sound: 'default',
-          priority: 'high'
+          priority: 'high',
+          ...(notification.image && { image: notification.image })
         }
       },
       apns: {
@@ -202,6 +208,7 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
           icon: '/favicon.ico',
           badge: '/favicon.ico',
           requireInteraction: true,
+          ...(notification.image && { image: notification.image }),
           actions: [
             {
               action: 'view',
@@ -217,6 +224,7 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
     };
 
     console.log('📤 Sending multicast message to Firebase...');
+    console.log('📋 Complete message payload:', JSON.stringify(message, null, 2));
     const response = await admin.messaging().sendEachForMulticast(message);
     
     console.log('📊 Firebase multicast response:', {

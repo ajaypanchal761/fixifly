@@ -24,9 +24,15 @@ const uploadImage = asyncHandler(async (req, res) => {
     });
 
     // Upload to Cloudinary with custom options
+    // Check if this is a notification image upload
+    const isNotificationImage = req.body.type === 'notification';
+    
     const uploadOptions = {
-      folder: 'fixifly/amc-device-photos',
-      transformation: [
+      folder: isNotificationImage ? 'fixifly/notification-images' : 'fixifly/amc-device-photos',
+      transformation: isNotificationImage ? [
+        { width: 800, height: 600, crop: 'fit' },
+        { quality: 'auto' }
+      ] : [
         { width: 500, height: 500, crop: 'fill', gravity: 'auto' },
         { quality: 'auto' }
       ],

@@ -52,7 +52,7 @@ const getAllBookings = asyncHandler(async (req, res) => {
       .limit(parseInt(limit))
       .lean({ virtuals: true });
 
-    // Manually populate vendor data
+    // Manually populate vendor data and review data
     for (const booking of bookings) {
       if (booking.vendor && booking.vendor.vendorId) {
         const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
@@ -60,6 +60,22 @@ const getAllBookings = asyncHandler(async (req, res) => {
         if (vendor) {
           booking.vendor.vendorId = vendor;
         }
+      }
+      
+      // Get review data for this booking
+      const Review = require('../models/Review');
+      const review = await Review.findOne({ bookingId: booking._id })
+        .select('rating comment createdAt')
+        .lean();
+      
+      if (review) {
+        booking.review = {
+          rating: review.rating,
+          comment: review.comment,
+          createdAt: review.createdAt
+        };
+      } else {
+        booking.review = null;
       }
     }
 
@@ -158,6 +174,27 @@ const getBookingById = asyncHandler(async (req, res) => {
         .select('firstName lastName email phone address');
       if (vendor) {
         booking.vendor.vendorId = vendor;
+      }
+    }
+
+    // Get review data for this booking
+    if (booking) {
+      const Review = require('../models/Review');
+      const review = await Review.findOne({ bookingId: booking._id })
+        .populate('userId', 'name email')
+        .lean();
+      
+      if (review) {
+        booking.review = {
+          rating: review.rating,
+          comment: review.comment,
+          category: review.category,
+          isAnonymous: review.isAnonymous,
+          createdAt: review.createdAt,
+          user: review.userId
+        };
+      } else {
+        booking.review = null;
       }
     }
 
@@ -380,12 +417,15 @@ const assignVendor = asyncHandler(async (req, res) => {
       { new: true, runValidators: true }
     ).lean();
 
-    // Manually populate vendor data
+    // Manually populate vendor data and mark first task assignment
     if (booking && booking.vendor && booking.vendor.vendorId) {
       const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
         .select('firstName lastName email phone address');
       if (vendor) {
         booking.vendor.vendorId = vendor;
+        
+        // Mark first task assignment for mandatory deposit requirement
+        await vendor.markFirstTaskAssignment();
       }
     }
 

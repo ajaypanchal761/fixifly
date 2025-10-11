@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +32,7 @@ interface Banner {
   };
   isActive: boolean;
   order: number;
+  targetAudience: 'user' | 'vendor';
   createdBy?: {
     firstName: string;
     lastName: string;
@@ -58,10 +60,22 @@ const AdminBannerManagement = () => {
   const [formData, setFormData] = useState({
     title: '',
     order: 0,
+    targetAudience: 'user' as 'user' | 'vendor',
     image: null as File | null
   });
 
+  const [audienceFilter, setAudienceFilter] = useState<'all' | 'user' | 'vendor'>('all');
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Filter banners based on target audience
+  const filteredBanners = banners.filter(banner => {
+    if (audienceFilter === 'all') return true;
+    return banner.targetAudience === audienceFilter;
+  });
+
+  const userBanners = banners.filter(banner => banner.targetAudience === 'user');
+  const vendorBanners = banners.filter(banner => banner.targetAudience === 'vendor');
 
   // Fetch banners
   const fetchBanners = async () => {
@@ -113,6 +127,7 @@ const AdminBannerManagement = () => {
     setFormData({
       title: '',
       order: 0,
+      targetAudience: 'user',
       image: null
     });
     setPreviewUrl(null);
@@ -174,6 +189,7 @@ const AdminBannerManagement = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
       formDataToSend.append('order', formData.order.toString());
+      formDataToSend.append('targetAudience', formData.targetAudience);
       formDataToSend.append('image', formData.image);
 
       console.log('FormData contents:', {
@@ -253,6 +269,7 @@ const AdminBannerManagement = () => {
     setFormData({
       title: banner.title,
       order: banner.order,
+      targetAudience: banner.targetAudience,
       image: null
     });
     setPreviewUrl(banner.image.url);
@@ -279,6 +296,7 @@ const AdminBannerManagement = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
       formDataToSend.append('order', formData.order.toString());
+      formDataToSend.append('targetAudience', formData.targetAudience);
       if (formData.image) {
         formDataToSend.append('image', formData.image);
       }
@@ -447,8 +465,20 @@ const AdminBannerManagement = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">Banner Management</h1>
-              <p className="text-sm text-muted-foreground mt-1">Manage hero section banners</p>
+              <p className="text-sm text-muted-foreground mt-1">Manage hero section banners for users and vendors</p>
             </div>
+            
+            <div className="flex items-center gap-3">
+              <Select value={audienceFilter} onValueChange={(value: 'all' | 'user' | 'vendor') => setAudienceFilter(value)}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Filter by audience" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Banners</SelectItem>
+                  <SelectItem value="user">User Banners</SelectItem>
+                  <SelectItem value="vendor">Vendor Banners</SelectItem>
+                </SelectContent>
+              </Select>
             
             <Dialog open={isAddBannerOpen} onOpenChange={setIsAddBannerOpen}>
               <DialogTrigger asChild>
@@ -486,6 +516,19 @@ const AdminBannerManagement = () => {
                 </div>
 
                 <div>
+                  <Label htmlFor="targetAudience" className="text-sm">Target Audience</Label>
+                  <Select value={formData.targetAudience} onValueChange={(value: 'user' | 'vendor') => setFormData(prev => ({ ...prev, targetAudience: value }))}>
+                    <SelectTrigger className="text-sm">
+                      <SelectValue placeholder="Select target audience" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User Banners</SelectItem>
+                      <SelectItem value="vendor">Vendor Banners</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
                   <Label htmlFor="image" className="text-sm">Banner Image</Label>
                   <Input
                     id="image"
@@ -517,13 +560,55 @@ const AdminBannerManagement = () => {
                 </div>
               </div>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+            </div>
           </div>
+        </div>
+
+        {/* Banner Summary */}
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Banners</p>
+                  <p className="text-2xl font-bold text-gray-900">{banners.length}</p>
+                </div>
+                <Image className="w-8 h-8 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">User Banners</p>
+                  <p className="text-2xl font-bold text-blue-600">{userBanners.length}</p>
+                </div>
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 text-sm font-bold">U</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Vendor Banners</p>
+                  <p className="text-2xl font-bold text-purple-600">{vendorBanners.length}</p>
+                </div>
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 text-sm font-bold">V</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Banners Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {banners.map((banner) => (
+          {filteredBanners.map((banner) => (
             <Card key={banner._id} className="overflow-hidden">
               <div className="relative bg-gray-100">
                 <img
@@ -531,13 +616,22 @@ const AdminBannerManagement = () => {
                   alt={banner.title}
                   className="w-full h-40 object-contain"
                 />
-                <Badge 
-                  className={`absolute top-1 right-1 text-xs ${
-                    banner.isActive ? 'bg-green-500' : 'bg-gray-500'
-                  }`}
-                >
-                  {banner.isActive ? 'Active' : 'Inactive'}
-                </Badge>
+                <div className="absolute top-1 right-1 flex flex-col gap-1">
+                  <Badge 
+                    className={`text-xs ${
+                      banner.isActive ? 'bg-green-500' : 'bg-gray-500'
+                    }`}
+                  >
+                    {banner.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                  <Badge 
+                    className={`text-xs ${
+                      banner.targetAudience === 'user' ? 'bg-blue-500' : 'bg-purple-500'
+                    }`}
+                  >
+                    {banner.targetAudience === 'user' ? 'User' : 'Vendor'}
+                  </Badge>
+                </div>
               </div>
               
               <CardHeader className="p-2">
@@ -582,7 +676,7 @@ const AdminBannerManagement = () => {
           ))}
         </div>
 
-        {banners.length === 0 && (
+        {filteredBanners.length === 0 && (
           <div className="text-center py-8">
             <Image className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <h3 className="text-sm font-semibold mb-1">No banners found</h3>
@@ -619,6 +713,19 @@ const AdminBannerManagement = () => {
                   placeholder="0"
                   className="text-sm"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="edit-targetAudience" className="text-sm">Target Audience</Label>
+                <Select value={formData.targetAudience} onValueChange={(value: 'user' | 'vendor') => setFormData(prev => ({ ...prev, targetAudience: value }))}>
+                  <SelectTrigger className="text-sm">
+                    <SelectValue placeholder="Select target audience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User Banners</SelectItem>
+                    <SelectItem value="vendor">Vendor Banners</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>

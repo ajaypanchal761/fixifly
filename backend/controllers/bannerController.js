@@ -31,9 +31,16 @@ const getAllBanners = asyncHandler(async (req, res) => {
 // @access  Public
 const getActiveBanners = asyncHandler(async (req, res) => {
   try {
-    const banners = await Banner.find({ isActive: true })
+    const { targetAudience } = req.query;
+    
+    let query = { isActive: true };
+    if (targetAudience && ['user', 'vendor'].includes(targetAudience)) {
+      query.targetAudience = targetAudience;
+    }
+    
+    const banners = await Banner.find(query)
       .sort({ order: 1, createdAt: -1 })
-      .select('title image order');
+      .select('title image order targetAudience');
 
     res.json({
       success: true,
@@ -54,11 +61,12 @@ const getActiveBanners = asyncHandler(async (req, res) => {
 // @access  Private (Admin)
 const createBanner = asyncHandler(async (req, res) => {
   try {
-    const { title, order } = req.body;
+    const { title, order, targetAudience } = req.body;
     
     logger.info('Creating banner', { 
       title, 
       order, 
+      targetAudience,
       hasFile: !!req.file,
       fileInfo: req.file ? {
         fieldname: req.file.fieldname,
@@ -90,6 +98,7 @@ const createBanner = asyncHandler(async (req, res) => {
         url: result.secure_url
       },
       order: order || 0,
+      targetAudience: targetAudience || 'user',
       createdBy: req.admin?.id || null
     });
 
@@ -145,7 +154,7 @@ const createBanner = asyncHandler(async (req, res) => {
 const updateBanner = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, isActive, order } = req.body;
+    const { title, isActive, order, targetAudience } = req.body;
 
     const banner = await Banner.findById(id);
     if (!banner) {
@@ -159,6 +168,7 @@ const updateBanner = asyncHandler(async (req, res) => {
     if (title) banner.title = title;
     if (typeof isActive === 'boolean') banner.isActive = isActive;
     if (order !== undefined) banner.order = order;
+    if (targetAudience) banner.targetAudience = targetAudience;
 
     // Handle new image upload
     if (req.file) {

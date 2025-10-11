@@ -150,10 +150,10 @@ const ServicePage = () => {
                   <Star className="h-5 w-5 text-yellow-400 fill-current" />
                   <span className="font-semibold">4.84 RATING</span>
                 </div>
-                <div className="font-semibold text-gray-600">10K+ BOOKING</div>
+                <div className="font-semibold text-gray-600">10K++ BOOKING</div>
                 <div className="flex items-center space-x-1">
                   <Shield className="h-5 w-5 text-green-500" />
-                  <span className="font-semibold text-gray-600">90 DAYS WARRANTY</span>
+                  <span className="font-semibold text-gray-600">Upto 1 year WARRANTY</span>
                 </div>
               </div>
             </div>

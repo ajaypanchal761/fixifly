@@ -146,7 +146,7 @@ const AMCPlanDetails = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Plan Not Found</h2>
+          <h2 className="text-base font-semibold text-gray-800 mb-2">Plan Not Found</h2>
           <p className="text-gray-600 mb-4">{error || 'The requested AMC plan could not be found.'}</p>
           <Button onClick={() => navigate('/amc')} variant="outline">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -160,7 +160,7 @@ const AMCPlanDetails = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b pt-20">
+      <div className="bg-white border-b pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -174,7 +174,7 @@ const AMCPlanDetails = () => {
                 Back to Plans
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{plan.name}</h1>
+                <h1 className="text-lg font-bold text-gray-900">{plan.name}</h1>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -212,61 +212,6 @@ const AMCPlanDetails = () => {
               </Card>
             )}
 
-            {/* Plan Overview */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Shield className="h-5 w-5 mr-2 text-blue-600" />
-                  Plan Overview
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">Plan Details</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Duration:</span>
-                        <span className="font-medium">{plan.period === 'yearly' ? '1 Year' : '1 Month'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Validity:</span>
-                        <span className="font-medium">{plan.validityPeriod} days</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Status:</span>
-                        <Badge variant={plan.status === 'active' ? 'default' : 'secondary'}>
-                          {plan.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">Benefits Summary</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center">
-                        <Check className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-600">
-                          {plan.benefits?.callSupport === 'unlimited' ? 'Unlimited' : 'Limited'} Call Support
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <Check className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-600">
-                          {plan.benefits?.remoteSupport === 'unlimited' ? 'Unlimited' : 'Limited'} Remote Support
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <Check className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-600">
-                          {plan.benefits?.homeVisits?.count || 0} Home Visits
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Features */}
             {plan.features && plan.features.length > 0 && (
@@ -285,7 +230,7 @@ const AMCPlanDetails = () => {
                         <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                           <IconComponent className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                           <div>
-                            <h4 className="font-medium text-gray-900">{feature.title}</h4>
+                            <h4 className="text-sm font-medium text-gray-900">{feature.title}</h4>
                             <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
                           </div>
                         </div>
@@ -312,7 +257,7 @@ const AMCPlanDetails = () => {
                       <div key={index} className="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg">
                         <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
                         <div>
-                          <h4 className="font-medium text-gray-900">{limitation.title}</h4>
+                          <h4 className="text-sm font-medium text-gray-900">{limitation.title}</h4>
                           <p className="text-sm text-gray-600 mt-1">{limitation.description}</p>
                         </div>
                       </div>
@@ -327,14 +272,7 @@ const AMCPlanDetails = () => {
           <div className="space-y-6">
             {/* Pricing Card */}
             <Card className="sticky top-8">
-              <CardHeader className="text-center">
-                <CardTitle className="text-3xl font-bold text-gray-900">
-                  ₹{plan.price}
-                </CardTitle>
-                <CardDescription className="text-lg">
-                  per {plan.period === 'yearly' ? 'year' : 'month'}
-                </CardDescription>
-              </CardHeader>
+              
               <CardContent className="space-y-4">
                 <div className="text-center">
                   
@@ -342,18 +280,18 @@ const AMCPlanDetails = () => {
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center justify-center mb-2">
                         <Check className="h-5 w-5 text-green-600 mr-2" />
-                        <span className="font-medium text-green-800">Active Subscription</span>
+                        <span className="text-sm font-medium text-green-800">Active Subscription</span>
                       </div>
                       <p className="text-sm text-green-700">You already have an active subscription for this plan.</p>
                     </div>
                   ) : (
                     <Button 
                       onClick={handleSubscribe}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-sm font-semibold"
                       size="lg"
                     >
                       <CreditCard className="h-5 w-5 mr-2" />
-                      Subscribe Now
+                      Subscribe Now - ₹{plan.price} per {plan.period === 'yearly' ? 'year' : 'month'}
                     </Button>
                   )}
                 </div>

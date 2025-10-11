@@ -22,6 +22,7 @@ const messaging = firebase.messaging();
 // Handle background messages
 messaging.onBackgroundMessage(function(payload) {
   console.log('Received background message ', payload);
+  console.log('🖼️ Image in background payload:', payload.notification?.image);
   
   const notificationTitle = payload.notification?.title || 'Fixifly Notification';
   const notificationOptions = {
@@ -40,6 +41,11 @@ messaging.onBackgroundMessage(function(payload) {
       }
     ]
   };
+
+  // Add image if available
+  if (payload.notification?.image) {
+    notificationOptions.image = payload.notification.image;
+  }
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });

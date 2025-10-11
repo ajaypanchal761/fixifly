@@ -23,6 +23,7 @@ interface AuthContextType {
   login: (userData: User, token: string) => void;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  refreshUserData: () => Promise<void>;
   checkTokenValidity: () => boolean;
   isLoading: boolean;
 }
@@ -109,8 +110,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
+      console.log('AuthContext: Updating user data:', updatedUser);
+      console.log('AuthContext: Address data:', updatedUser.address);
       setUser(updatedUser);
       localStorage.setItem('userData', JSON.stringify(updatedUser));
+    }
+  };
+
+  const refreshUserData = async () => {
+    if (!token) return;
+    
+    try {
+      // Import apiService dynamically to avoid circular dependency
+      const { default: apiService } = await import('@/services/api');
+      const response = await apiService.getUserProfile();
+      
+      if (response.success && response.data?.user) {
+        const freshUserData = response.data.user;
+        console.log('AuthContext: Refreshing user data from backend:', freshUserData);
+        console.log('AuthContext: Fresh address data:', freshUserData.address);
+        setUser(freshUserData);
+        localStorage.setItem('userData', JSON.stringify(freshUserData));
+      }
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
     }
   };
 
@@ -151,6 +174,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     updateUser,
+    refreshUserData,
     checkTokenValidity,
     isLoading,
   };

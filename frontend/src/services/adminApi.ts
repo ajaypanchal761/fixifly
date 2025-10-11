@@ -1338,6 +1338,7 @@ class AdminApiService {
         monthlyRevenue: number;
         pendingVendors: number;
         activeVendors: number;
+        blockedVendors: number;
         pendingBookings: number;
         activeAMCSubscriptions: number;
       };

@@ -170,12 +170,16 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
   const updateVendor = async (updatedData: Partial<Vendor>) => {
     if (vendor) {
+      console.log('VendorContext: Updating vendor data with:', updatedData);
       const updatedVendor = { ...vendor, ...updatedData };
+      console.log('VendorContext: Updated vendor object:', updatedVendor);
       localStorage.setItem('vendorData', JSON.stringify(updatedVendor));
       setVendor(updatedVendor);
 
       // Vendor data updated - notifications via email/SMS only
-      console.log('Vendor data updated');
+      console.log('VendorContext: Vendor data updated successfully');
+    } else {
+      console.log('VendorContext: No vendor found to update');
     }
   };
 

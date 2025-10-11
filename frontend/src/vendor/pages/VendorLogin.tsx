@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, AlertTriangle, Clock } from 'lucide-react';
+import { Eye, EyeOff, AlertTriangle, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useVendor } from '@/contexts/VendorContext';
 import vendorApiService from '@/services/vendorApi';
@@ -21,6 +19,46 @@ const VendorLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Carousel data
+  const carouselSlides = [
+    {
+      image: '/loginFixflylogo.png',
+      alt: 'Fixfly Worker on Paper Airplane',
+      title: 'Welcome To Fixfly',
+      subtitle: 'India\'s Most Trusted Service Provider Brand'
+    },
+    {
+      image: '/loginlogo2.png', // Financial growth illustration
+      alt: 'Financial Growth and Success',
+      title: 'Double your earnings –',
+      subtitle: 'grow with us!'
+    },
+    {
+      image: '/loginlogo3.png', // Businessman success illustration
+      alt: 'Daily Earning Success',
+      title: 'Daily Earning, Daily Payment',
+      subtitle: '-- 50% Partnership!'
+    }
+  ];
+
+  // Auto-slide functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+    }, 4000); // Change slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [carouselSlides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
+  };
 
   // Redirect if already authenticated
   React.useEffect(() => {
@@ -64,11 +102,7 @@ const VendorLogin = () => {
       if (response.success && response.data) {
         const vendor = response.data.vendor;
         
-        // Check if vendor is approved and active
-        if (!vendor.isApproved) {
-          setError('Your account is pending admin approval. Please wait for admin approval before logging in.');
-          return;
-        }
+        // Admin approval is no longer required for login
         
         if (!vendor.isActive) {
           setError('Your account is currently inactive. Please contact support for assistance.');
@@ -76,7 +110,7 @@ const VendorLogin = () => {
         }
         
         if (vendor.isBlocked) {
-          setError('Your account has been blocked. Please contact support for assistance.');
+          setError('You are blocked by admin. Please contact support for assistance.');
           return;
         }
 
@@ -102,154 +136,188 @@ const VendorLogin = () => {
   };
 
   return (
-    <div className="h-screen  flex items-center justify-center p-0 pt-10 overflow-hidden">
-      <div className="w-full max-w-2xl">
-        {/* Logo */}
-        <div className="text-center mb-4 -mt-16">
-          <img 
-            src="/logofixifly.png" 
-            alt="Fixfly Logo" 
-            className="h-32 mx-auto"
-          />
-          <h1 className="text-2xl font-bold text-gray-900 -mt-6">Vendor Login</h1>
-          <p className="text-gray-600 -mt-2">Sign in to your vendor account</p>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header Section */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+        {/* Carousel Section */}
+        <div className="text-center mb-8">
+          {/* Welcome Title - Fixed above all slides */}
+          <h1 className="text-2xl font-bold text-blue-600 mb-6">Welcome To Fixfly</h1>
+          
+          {/* Carousel Container */}
+          <div className="relative mb-6">
+            <div className="overflow-hidden">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {carouselSlides.map((slide, index) => (
+                  <div key={index} className="w-full flex-shrink-0">
+                    <div className="flex flex-col items-center">
+                      {/* Image */}
+                      <div className="mb-4">
+                        <img 
+                          src={slide.image} 
+                          alt={slide.alt} 
+                          className="w-48 h-auto mx-auto"
+                        />
+                      </div>
+                      
+                      {/* Subtitle only - title is now fixed above */}
+                      <div className="text-center">
+                        <div className="text-center">
+                          {slide.subtitle.includes('India') ? (
+                            <>
+                              <p className="text-lg font-bold text-blue-600">India's Most Trusted Service</p>
+                              <p className="text-lg font-bold text-red-500">Provider Brand</p>
+                            </>
+                          ) : slide.subtitle.includes('grow') ? (
+                            <>
+                              <p className="text-lg font-bold text-blue-600">Double your earnings –</p>
+                              <p className="text-lg font-bold text-red-500">grow with us!</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-lg font-bold text-blue-600">Daily Earning, Daily Payment</p>
+                              <p className="text-lg font-bold text-red-500">-- 50% Partnership!</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Navigation Arrows */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 bg-white/80 hover:bg-white rounded-full shadow-md"
+              onClick={prevSlide}
+            >
+              <ChevronLeft className="h-4 w-4 text-gray-600" />
+            </Button>
+            
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 bg-white/80 hover:bg-white rounded-full shadow-md"
+              onClick={nextSlide}
+            >
+              <ChevronRight className="h-4 w-4 text-gray-600" />
+            </Button>
+          </div>
+          
+          {/* Page Indicators */}
+          <div className="flex justify-center mt-4 space-x-2">
+            {carouselSlides.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                  index === currentSlide ? 'bg-orange-500' : 'bg-gray-400'
+                }`}
+                onClick={() => setCurrentSlide(index)}
+              />
+            ))}
+          </div>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
-            <CardDescription className="text-center">
-              Enter your credentials to access your vendor dashboard
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <Alert variant={error.includes('approval') ? 'default' : 'destructive'} className={error.includes('approval') ? 'border-orange-200 bg-orange-50' : ''}>
-                  {error.includes('approval') ? (
-                    <Clock className="h-4 w-4 text-orange-600" />
-                  ) : error.includes('blocked') || error.includes('inactive') ? (
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
-                  ) : null}
-                  <AlertDescription className={error.includes('approval') ? 'text-orange-800' : ''}>
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
+        {/* Login Form */}
+        <div className="w-full max-w-sm">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <Alert variant={error.includes('approval') ? 'default' : 'destructive'} className={error.includes('approval') ? 'border-orange-200 bg-orange-50' : ''}>
+                {error.includes('approval') ? (
+                  <Clock className="h-4 w-4 text-orange-600" />
+                ) : error.includes('blocked') || error.includes('inactive') ? (
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                ) : null}
+                <AlertDescription className={error.includes('approval') ? 'text-orange-800' : ''}>
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
+            {/* Email Input */}
+            <div className="relative">
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+                required
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor="remember" className="text-sm text-gray-600">
-                    Remember me
-                  </Label>
-                </div>
-                <Link
-                  to="/vendor/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-
+            {/* Password Input */}
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0 pr-12"
+                required
+              />
               <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                onClick={() => setShowPassword(!showPassword)}
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-600" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-600" />
+                )}
               </Button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <Link
-                  to="/vendor/signup"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  Sign up here
-                </Link>
-              </p>
             </div>
 
-            {/* Additional info for pending approval */}
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center gap-2 text-blue-800">
-                <Clock className="h-4 w-4" />
-                <p className="text-sm font-medium">Account Approval Process</p>
-              </div>
-              <p className="text-xs text-blue-700 mt-1">
-                New vendor accounts require admin approval before login access. 
-                You'll receive an email notification once your account is approved.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Sign In Button */}
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </form>
 
-        {/* Additional Info */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            By signing in, you agree to our{' '}
-            <Link to="/vendor/terms" className="text-blue-600 hover:underline">
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link to="/vendor/privacy" className="text-blue-600 hover:underline">
-              Privacy Policy
-            </Link>
-          </p>
+          {/* Sign Up Link */}
+          <div className="text-center mt-6">
+            <p className="text-gray-700">
+              No Account?{' '}
+              <Link
+                to="/vendor/signup"
+                className="text-blue-600 font-medium hover:underline"
+              >
+                Onboard Here
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="bg-gradient-to-b from-blue-400 to-blue-600 py-4">
+        <div className="text-center">
+          <Link
+            to="/vendor/terms"
+            className="text-red-500 font-medium hover:underline"
+          >
+            Terms & Conditions
+          </Link>
         </div>
       </div>
     </div>

@@ -398,20 +398,16 @@ const AMC = () => {
 
   return (
     <div className="min-h-screen pt-16 bg-secondary/30">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-20">
         {/* Page Header */}
         <div className="text-center mb-8 md:mb-16 animate-slide-up">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             <span className="text-gradient">AMC</span> Management
           </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8 hidden md:block">
-            Manage your Annual Maintenance Contracts and explore new plans. 
-            Keep your devices running smoothly with comprehensive coverage.
-          </p>
         </div>
 
         {/* Tabs Navigation */}
-        <Tabs defaultValue="plans" className="w-full">
+        <Tabs defaultValue="plans" className="w-full min-h-screen">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="plans" className="text-base font-semibold">
               AMC Plans
@@ -557,9 +553,6 @@ const AMC = () => {
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">
                 My <span className="text-gradient">AMC Subscriptions</span>
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto sm:mx-0">
-                Manage your active AMC plans, view service history, and track your device coverage.
-              </p>
                 </div>
               </div>
             </div>
@@ -580,15 +573,15 @@ const AMC = () => {
                 </Button>
               </div>
             ) : myAMCPlans.length > 0 ? (
-            <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+            <div className="space-y-2 px-1 sm:px-0">
               {myAMCPlans.map((plan, index) => (
-                <Card key={plan.id} className="w-full max-w-4xl mx-auto shadow-sm">
+                <Card key={plan.id} className="w-full max-w-2xl mx-auto shadow-sm">
                   {/* Subscription Header */}
-                  <CardHeader className="pb-4 px-4 sm:px-6">
-                    <div className="flex flex-col gap-3">
+                  <CardHeader className="pb-1 px-2 sm:px-3">
+                    <div className="flex flex-col gap-1">
                       <div className="flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-                          <CardTitle className="text-lg sm:text-xl">{plan.planName}</CardTitle>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 mb-1">
+                          <CardTitle className="text-sm sm:text-base">{plan.planName}</CardTitle>
                           <div className="flex gap-2">
                             <Badge 
                               className={`w-fit ${
@@ -601,10 +594,10 @@ const AMC = () => {
                             </Badge>
                           </div>
                         </div>
-                        <CardDescription className="text-sm mb-3">
+                        <CardDescription className="text-xs mb-1">
                           Active since {new Date(plan.startDate).toLocaleDateString()}
                         </CardDescription>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                           <div className="flex items-center space-x-1">
                             <Timer className="h-4 w-4 text-orange-500" />
                             <span className="text-sm font-medium text-orange-600">
@@ -622,13 +615,13 @@ const AMC = () => {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="pt-0">
+                  <CardContent className="pt-0 px-2 sm:px-3">
                     {/* Action Buttons */}
-                    <div className="mb-6 px-4 sm:px-6">
-                      <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="mb-3">
+                      <div className="flex flex-col sm:flex-row gap-1">
                         <Button 
                           onClick={() => handleDownloadInvoice(plan)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white flex-1 h-10"
+                          className="bg-blue-600 hover:bg-blue-700 text-white flex-1 h-7"
                           size="sm"
                         >
                           <Download className="h-4 w-4 mr-2" />
@@ -638,7 +631,7 @@ const AMC = () => {
                           variant="outline" 
                           size="sm"
                           onClick={() => handleViewDetails(plan)}
-                          className="flex-1 h-10"
+                          className="flex-1 h-7"
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           View Details
@@ -647,34 +640,34 @@ const AMC = () => {
                     </div>
 
                     {/* Subscription Details Section */}
-                    <div className="mb-6 px-4 sm:px-6">
-                      <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
+                    <div className="mb-3">
+                      <h3 className="text-xs font-semibold mb-2 flex items-center gap-1">
                         <CreditCard className="h-4 w-4" />
                         Subscription Details
                       </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <Label className="text-sm font-medium text-muted-foreground">Subscription ID</Label>
-                          <p className="text-sm font-medium font-mono mt-1">{plan.subscriptionId}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                        <div className="bg-gray-50 p-1.5 rounded-lg">
+                          <Label className="text-xs font-medium text-muted-foreground">Subscription ID</Label>
+                          <p className="text-xs font-medium font-mono mt-0.5">{plan.subscriptionId}</p>
                         </div>
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <Label className="text-sm font-medium text-muted-foreground">Next Billing</Label>
-                          <p className="text-sm mt-1">{new Date(plan.nextBilling).toLocaleDateString()}</p>
+                        <div className="bg-gray-50 p-1.5 rounded-lg">
+                          <Label className="text-xs font-medium text-muted-foreground">Next Billing</Label>
+                          <p className="text-xs mt-0.5">{new Date(plan.nextBilling).toLocaleDateString()}</p>
                         </div>
                         <div className="bg-gray-50 p-3 rounded-lg sm:col-span-2 lg:col-span-1">
-                          <Label className="text-sm font-medium text-muted-foreground">Expires</Label>
-                          <p className="text-sm mt-1">{new Date(plan.endDate).toLocaleDateString()}</p>
+                          <Label className="text-xs font-medium text-muted-foreground">Expires</Label>
+                          <p className="text-xs mt-0.5">{new Date(plan.endDate).toLocaleDateString()}</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Usage Statistics Section */}
-                    <div className="mb-6">
-                      <h3 className="text-base font-semibold mb-3 flex items-center gap-2">
+                    <div className="mb-3">
+                      <h3 className="text-xs font-semibold mb-1 flex items-center gap-1">
                         <BarChart3 className="h-4 w-4" />
                         Usage Statistics
                       </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {/* Remote Support */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
@@ -755,6 +748,8 @@ const AMC = () => {
               </div>
             )}
 
+            {/* Add extra spacing at the bottom for better scrolling */}
+            <div className="h-8"></div>
           </TabsContent>
         </Tabs>
 

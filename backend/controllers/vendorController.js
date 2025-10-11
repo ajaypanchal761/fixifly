@@ -26,14 +26,38 @@ const registerVendor = asyncHandler(async (req, res) => {
     lastName,
     email,
     phone,
+    alternatePhone,
+    fatherName,
+    homePhone,
+    currentAddress,
     password,
     serviceCategories,
-    customServiceCategory,
-    experience,
-    address,
-    specialty,
-    bio
+    experience
   } = req.body;
+
+  // Parse serviceCategories if it's a JSON string
+  let parsedServiceCategories = serviceCategories;
+  if (typeof serviceCategories === 'string') {
+    try {
+      parsedServiceCategories = JSON.parse(serviceCategories);
+    } catch (error) {
+      logger.error('Failed to parse serviceCategories', { serviceCategories, error: error.message });
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid service categories format'
+      });
+    }
+  }
+
+  logger.info('Vendor registration request received', {
+    email: req.body.email,
+    phone: req.body.phone,
+    serviceCategories: parsedServiceCategories,
+    hasFiles: !!(req.files),
+    filesCount: req.files ? Object.keys(req.files).length : 0,
+    allBodyFields: Object.keys(req.body),
+    bodyData: req.body
+  });
 
   try {
     // Check if vendor already exists
@@ -50,25 +74,112 @@ const registerVendor = asyncHandler(async (req, res) => {
       });
     }
 
+    // Handle file uploads
+    let aadhaarFrontUrl = null;
+    let aadhaarBackUrl = null;
+    let profileImageUrl = null;
+
+    try {
+      logger.info('Processing file uploads for vendor registration', {
+        hasFiles: !!(req.files),
+        filesKeys: req.files ? Object.keys(req.files) : [],
+        email: req.body.email
+      });
+
+      // Upload Aadhaar Front
+      if (req.files && req.files.aadhaarFront && req.files.aadhaarFront[0]) {
+        logger.info('Uploading Aadhaar front image');
+        const aadhaarFrontResult = await imageUploadService.uploadImage(
+          req.files.aadhaarFront[0],
+          'vendor-documents'
+        );
+        aadhaarFrontUrl = aadhaarFrontResult.secure_url;
+        logger.info('Aadhaar front uploaded successfully', { url: aadhaarFrontUrl });
+      }
+
+      // Upload Aadhaar Back
+      if (req.files && req.files.aadhaarBack && req.files.aadhaarBack[0]) {
+        logger.info('Uploading Aadhaar back image');
+        const aadhaarBackResult = await imageUploadService.uploadImage(
+          req.files.aadhaarBack[0],
+          'vendor-documents'
+        );
+        aadhaarBackUrl = aadhaarBackResult.secure_url;
+        logger.info('Aadhaar back uploaded successfully', { url: aadhaarBackUrl });
+      }
+
+      // Upload Profile Image
+      if (req.files && req.files.profilePhoto && req.files.profilePhoto[0]) {
+        logger.info('Uploading profile image');
+        const profileImageResult = await imageUploadService.uploadImage(
+          req.files.profilePhoto[0],
+          'vendor-profiles'
+        );
+        profileImageUrl = profileImageResult.secure_url;
+        logger.info('Profile image uploaded successfully', { url: profileImageUrl });
+      }
+
+      logger.info('All file uploads completed', {
+        aadhaarFrontUrl: !!aadhaarFrontUrl,
+        aadhaarBackUrl: !!aadhaarBackUrl,
+        profileImageUrl: !!profileImageUrl
+      });
+
+    } catch (uploadError) {
+      logger.error('File upload failed during vendor registration', {
+        error: uploadError.message,
+        stack: uploadError.stack,
+        email: req.body.email
+      });
+      return res.status(400).json({
+        success: false,
+        message: 'File upload failed. Please try again.'
+      });
+    }
+
     // Generate unique vendor ID
+    logger.info('Generating vendor ID...');
     const vendorId = await Vendor.generateVendorId();
+    logger.info('Generated vendor ID:', vendorId);
 
     // Create vendor
+    logger.info('Creating vendor with data:', {
+      vendorId,
+      firstName,
+      lastName,
+      email,
+      phone,
+      alternatePhone,
+      fatherName,
+      homePhone,
+      currentAddress,
+      serviceCategories: parsedServiceCategories,
+      experience,
+      profileImage: profileImageUrl,
+      aadhaarFront: aadhaarFrontUrl,
+      aadhaarBack: aadhaarBackUrl
+    });
+
     const vendor = await Vendor.create({
       vendorId,
       firstName,
       lastName,
       email,
       phone,
+      alternatePhone,
+      fatherName,
+      homePhone,
+      currentAddress,
       password,
-      serviceCategories,
-      customServiceCategory,
+      serviceCategories: parsedServiceCategories,
       experience,
-      address,
-      specialty,
-      bio,
-      isApproved: false,  // Require admin approval
-      isActive: false,    // Set as inactive until approved
+      profileImage: profileImageUrl,
+      documents: {
+        aadhaarFront: aadhaarFrontUrl,
+        aadhaarBack: aadhaarBackUrl
+      },
+      isApproved: false,  // Admin approval for verification features
+      isActive: true,     // Allow immediate login
       isBlocked: false
     });
 
@@ -88,10 +199,14 @@ const registerVendor = asyncHandler(async (req, res) => {
       fullName: vendor.fullName,
       email: vendor.email,
       phone: vendor.formattedPhone,
+      alternatePhone: vendor.alternatePhone,
+      fatherName: vendor.fatherName,
+      homePhone: vendor.homePhone,
+      currentAddress: vendor.currentAddress,
       serviceCategories: vendor.serviceCategories,
-      customServiceCategory: vendor.customServiceCategory,
       experience: vendor.experience,
-      address: vendor.address,
+      profileImage: vendor.profileImage,
+      documents: vendor.documents,
       isProfileComplete: vendor.isProfileComplete,
       isApproved: vendor.isApproved,
       rating: vendor.rating,
@@ -106,7 +221,7 @@ const registerVendor = asyncHandler(async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Vendor registered successfully. Your account is pending admin approval. You will be notified once approved.',
+      message: 'Vendor registered successfully. You can now login and access your account.',
       data: {
         vendor: vendorData,
         token
@@ -116,12 +231,14 @@ const registerVendor = asyncHandler(async (req, res) => {
   } catch (error) {
     logger.error('Vendor registration failed', {
       error: error.message,
+      stack: error.stack,
       email: req.body.email,
       phone: req.body.phone
     });
 
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map(err => err.message);
+      logger.error('Validation errors:', { errors });
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
@@ -129,9 +246,161 @@ const registerVendor = asyncHandler(async (req, res) => {
       });
     }
 
+    if (error.code === 11000) {
+      // Duplicate key error
+      const field = Object.keys(error.keyPattern)[0];
+      logger.error('Duplicate key error:', { field, value: error.keyValue[field] });
+      return res.status(400).json({
+        success: false,
+        message: `${field} already exists. Please use a different ${field}.`
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Registration failed. Please try again.'
+    });
+  }
+});
+
+// @desc    Create verification payment order
+// @route   POST /api/vendors/verification-payment
+// @access  Private (Vendor)
+const createVerificationPayment = asyncHandler(async (req, res) => {
+  try {
+    const vendorId = req.vendor.id;
+    const vendor = await Vendor.findById(vendorId);
+
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    // Check if already paid
+    if (vendor.verificationPayment.status === 'completed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification payment already completed'
+      });
+    }
+
+    const amount = 3999 * 100; // Convert to paise
+    const currency = 'INR';
+
+    // Create Razorpay order
+    const orderOptions = {
+      amount: amount,
+      currency: currency,
+      receipt: `verification_${vendor.vendorId}_${Date.now()}`,
+      notes: {
+        vendorId: vendor.vendorId,
+        type: 'verification_payment'
+      }
+    };
+
+    const order = await RazorpayService.createOrder(orderOptions);
+
+    // Update vendor with order ID
+    vendor.verificationPayment.razorpayOrderId = order.id;
+    vendor.verificationPayment.status = 'pending';
+    vendor.verificationStatus = 'payment_pending';
+    await vendor.save();
+
+    logger.info('Verification payment order created', {
+      vendorId: vendor.vendorId,
+      orderId: order.id,
+      amount: amount
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Payment order created successfully',
+      data: {
+        orderId: order.id,
+        amount: amount,
+        currency: currency
+      }
+    });
+
+  } catch (error) {
+    logger.error('Verification payment creation failed', {
+      error: error.message,
+      vendorId: req.vendor?.id
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create payment order'
+    });
+  }
+});
+
+// @desc    Verify verification payment
+// @route   POST /api/vendors/verify-verification-payment
+// @access  Private (Vendor)
+const verifyVerificationPayment = asyncHandler(async (req, res) => {
+  try {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    const vendorId = req.vendor.id;
+
+    const vendor = await Vendor.findById(vendorId);
+
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    // Verify payment signature
+    const isSignatureValid = RazorpayService.verifyPaymentSignature(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    );
+
+    if (!isSignatureValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment signature'
+      });
+    }
+
+    // Update vendor verification status
+    vendor.verificationPayment.razorpayPaymentId = razorpay_payment_id;
+    vendor.verificationPayment.razorpaySignature = razorpay_signature;
+    vendor.verificationPayment.status = 'completed';
+    vendor.verificationPayment.paidAt = new Date();
+    vendor.verificationStatus = 'under_review';
+    vendor.verificationSubmittedAt = new Date();
+    await vendor.save();
+
+    logger.info('Verification payment verified successfully', {
+      vendorId: vendor.vendorId,
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Payment verified successfully. Your verification is under review.',
+      data: {
+        verificationStatus: vendor.verificationStatus,
+        paidAt: vendor.verificationPayment.paidAt
+      }
+    });
+
+  } catch (error) {
+    logger.error('Verification payment verification failed', {
+      error: error.message,
+      vendorId: req.vendor?.id
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Payment verification failed'
     });
   }
 });
@@ -143,23 +412,28 @@ const loginVendor = asyncHandler(async (req, res) => {
   const { email, password, deviceToken } = req.body;
 
   try {
+    logger.info('Vendor login attempt', { email, hasPassword: !!password, hasDeviceToken: !!deviceToken });
+    
     // Check if vendor exists and include password
     const vendor = await Vendor.findOne({ email }).select('+password');
 
     if (!vendor) {
+      logger.info('Vendor not found for login', { email });
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
       });
     }
 
-    // Check if vendor is approved
-    if (!vendor.isApproved) {
-      return res.status(401).json({
-        success: false,
-        message: 'Your account is pending admin approval. Please wait for approval before logging in.'
-      });
-    }
+    logger.info('Vendor found for login', { 
+      email: vendor.email, 
+      isActive: vendor.isActive, 
+      isApproved: vendor.isApproved, 
+      isBlocked: vendor.isBlocked 
+    });
+
+    // Allow vendors to login without admin approval
+    // Admin approval is only required for certain features, not for basic login
 
     // Check if vendor is active
     if (!vendor.isActive) {
@@ -173,14 +447,16 @@ const loginVendor = asyncHandler(async (req, res) => {
     if (vendor.isBlocked) {
       return res.status(401).json({
         success: false,
-        message: 'Account is blocked. Please contact support.'
+        message: 'You are blocked by admin. Please contact support for assistance.'
       });
     }
 
     // Check password
     const isPasswordValid = await vendor.comparePassword(password);
+    logger.info('Password validation result', { email, isPasswordValid });
 
     if (!isPasswordValid) {
+      logger.info('Invalid password for vendor login', { email });
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
@@ -319,6 +595,10 @@ const getVendorProfile = asyncHandler(async (req, res) => {
       fullName: vendor.fullName,
       email: vendor.email,
       phone: vendor.formattedPhone,
+      alternatePhone: vendor.alternatePhone,
+      fatherName: vendor.fatherName,
+      homePhone: vendor.homePhone,
+      currentAddress: vendor.currentAddress,
       serviceCategories: vendor.serviceCategories,
       customServiceCategory: vendor.customServiceCategory,
       experience: vendor.experience,
@@ -387,12 +667,23 @@ const updateVendorProfile = asyncHandler(async (req, res) => {
 
     // Update allowed fields
     const allowedUpdates = [
-      'firstName', 'lastName', 'serviceCategories', 'customServiceCategory', 'experience', 
-      'address', 'specialty', 'bio', 'preferences', 'serviceLocations'
+      'firstName', 'lastName', 'phone', 'alternatePhone', 'fatherName', 'homePhone', 'currentAddress',
+      'serviceCategories', 'customServiceCategory', 'experience', 'address', 'specialty', 
+      'bio', 'preferences', 'serviceLocations'
     ];
 
     allowedUpdates.forEach(field => {
       if (updateData[field] !== undefined) {
+        // Special handling for phone number to avoid uniqueness conflicts
+        if (field === 'phone') {
+          // Clean both phone numbers for comparison
+          const currentPhone = vendor.phone.replace(/\D/g, '');
+          const newPhone = updateData[field].replace(/\D/g, '');
+          if (currentPhone === newPhone) {
+            // Skip update if phone number is the same
+            return;
+          }
+        }
         vendor[field] = updateData[field];
       }
     });
@@ -409,6 +700,10 @@ const updateVendorProfile = asyncHandler(async (req, res) => {
       fullName: vendor.fullName,
       email: vendor.email,
       phone: vendor.formattedPhone,
+      alternatePhone: vendor.alternatePhone,
+      fatherName: vendor.fatherName,
+      homePhone: vendor.homePhone,
+      currentAddress: vendor.currentAddress,
       serviceCategories: vendor.serviceCategories,
       customServiceCategory: vendor.customServiceCategory,
       experience: vendor.experience,
@@ -958,6 +1253,15 @@ const verifyDepositPayment = asyncHandler(async (req, res) => {
       transactionId: transactionId
     });
 
+    // Check if this deposit fulfills the mandatory deposit requirement
+    if (pendingTransaction.amount >= 2000 && vendor.wallet.firstTaskAssignedAt && !vendor.wallet.hasMandatoryDeposit) {
+      await vendor.markMandatoryDepositCompleted(pendingTransaction.amount);
+      logger.info('Mandatory deposit requirement fulfilled', {
+        vendorId: vendor.vendorId,
+        amount: pendingTransaction.amount
+      });
+    }
+
     logger.info('Vendor deposit payment verified and processed successfully', {
       vendorId: vendor.vendorId,
       transactionId,
@@ -1358,5 +1662,7 @@ module.exports = {
   updateServiceLocation,
   removeServiceLocation,
   generateOneSignalIdentityToken,
-  updateFCMToken
+  updateFCMToken,
+  createVerificationPayment,
+  verifyVerificationPayment
 };

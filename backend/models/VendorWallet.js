@@ -9,13 +9,13 @@ const walletTransactionSchema = new mongoose.Schema({
   caseId: {
     type: String,
     required: function() {
-      // caseId is required for all transaction types except deposit and manual_adjustment
-      return this.type !== 'deposit' && this.type !== 'manual_adjustment';
+      // caseId is required for all transaction types except deposit, manual_adjustment, and withdrawal_request
+      return this.type !== 'deposit' && this.type !== 'manual_adjustment' && this.type !== 'withdrawal_request';
     }
   },
   type: {
     type: String,
-    enum: ['earning', 'penalty', 'deposit', 'withdrawal', 'task_acceptance_fee', 'cash_collection', 'refund', 'manual_adjustment'],
+    enum: ['earning', 'penalty', 'deposit', 'withdrawal', 'withdrawal_request', 'task_acceptance_fee', 'cash_collection', 'refund', 'manual_adjustment'],
     required: true
   },
   amount: {
@@ -28,7 +28,7 @@ const walletTransactionSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'failed', 'refunded'],
+    enum: ['pending', 'completed', 'failed', 'refunded', 'approved', 'declined'],
     default: 'completed'
   },
   paymentMethod: {
@@ -39,8 +39,8 @@ const walletTransactionSchema = new mongoose.Schema({
   billingAmount: {
     type: Number,
     required: function() {
-      // billingAmount is required for all transaction types except manual_adjustment
-      return this.type !== 'manual_adjustment';
+      // billingAmount is required for all transaction types except manual_adjustment and withdrawal_request
+      return this.type !== 'manual_adjustment' && this.type !== 'withdrawal_request';
     }
   },
   spareAmount: {
@@ -66,8 +66,8 @@ const walletTransactionSchema = new mongoose.Schema({
   calculatedAmount: {
     type: Number,
     required: function() {
-      // calculatedAmount is required for all transaction types except manual_adjustment
-      return this.type !== 'manual_adjustment';
+      // calculatedAmount is required for all transaction types except manual_adjustment and withdrawal_request
+      return this.type !== 'manual_adjustment' && this.type !== 'withdrawal_request';
     }
   },
   metadata: {
@@ -576,10 +576,13 @@ vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
     metadata = {}
   } = adjustmentData;
 
+  // Determine if this is a credit or debit based on metadata or amount
+  const isCredit = metadata.isCredit !== undefined ? metadata.isCredit : amount > 0;
+  
   const transaction = {
     transactionId: `ADJ_${this.vendorId}_${Date.now()}`,
-    type: type === 'withdrawal' ? 'withdrawal' : 'manual_adjustment',
-    amount: type === 'credit' ? amount : -amount,
+    type: type, // Use the type as provided (including 'withdrawal_request')
+    amount: isCredit ? amount : -amount,
     description,
     paymentMethod: 'system',
     status: 'completed',
@@ -588,7 +591,13 @@ vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
       ...metadata,
       adminId: processedBy
     },
-    verificationStatus: 'approved'
+    verificationStatus: 'approved',
+    // Add required fields for withdrawal_request type
+    ...(type === 'withdrawal_request' && {
+      caseId: `WR-${Date.now()}`,
+      billingAmount: 0,
+      calculatedAmount: isCredit ? amount : -amount
+    })
   };
 
   this.transactions.push(transaction);

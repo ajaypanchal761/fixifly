@@ -180,7 +180,15 @@ const AdminVendorWalletManagement = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to approve withdrawal request');
+        // Try to get error details from response
+        let errorMessage = 'Failed to approve withdrawal request';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (parseError) {
+          console.error('Could not parse error response:', parseError);
+        }
+        throw new Error(`${errorMessage} (Status: ${response.status})`);
       }
 
       // Refresh withdrawal requests and vendor wallets
@@ -189,7 +197,7 @@ const AdminVendorWalletManagement = () => {
       alert('Withdrawal request approved successfully!');
     } catch (error) {
       console.error('Error approving withdrawal request:', error);
-      alert('Failed to approve withdrawal request. Please try again.');
+      alert(`Failed to approve withdrawal request: ${error.message}`);
     }
   };
 
@@ -355,7 +363,7 @@ const AdminVendorWalletManagement = () => {
 
 
   // Calculate total stats
-  const totalBalance = vendorWallets.reduce((sum, wallet) => sum + wallet.currentBalance, 0);
+  const totalBalance = vendorWallets.reduce((sum, wallet) => sum + wallet.availableBalance, 0);
   const totalDeposits = vendorWallets.reduce((sum, wallet) => sum + wallet.totalDeposits, 0);
   const totalEarnings = vendorWallets.reduce((sum, wallet) => sum + wallet.totalEarnings, 0);
   const totalWithdrawals = vendorWallets.reduce((sum, wallet) => sum + wallet.totalWithdrawals, 0);
@@ -522,8 +530,6 @@ const AdminVendorWalletManagement = () => {
                         <TableHead>Current Balance</TableHead>
                         <TableHead>Total Deposits</TableHead>
                         <TableHead>Total Withdrawals</TableHead>
-                        <TableHead>Security Deposit</TableHead>
-                        <TableHead>Available Balance</TableHead>
                         <TableHead>Total Earnings</TableHead>
                         <TableHead>Online Collected</TableHead>
                         <TableHead>Cash Collected</TableHead>
@@ -546,7 +552,7 @@ const AdminVendorWalletManagement = () => {
                           <TableCell>
                             <div className="flex items-center space-x-1">
                               <DollarSign className="h-3 w-3 text-green-500" />
-                              <span className="text-sm font-medium">₹{wallet.currentBalance.toLocaleString()}</span>
+                              <span className="text-sm font-medium">₹{wallet.availableBalance.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -559,18 +565,6 @@ const AdminVendorWalletManagement = () => {
                             <div className="flex items-center space-x-1">
                               <TrendingDown className="h-3 w-3 text-red-500" />
                               <span className="text-sm font-medium">₹{wallet.totalWithdrawals.toLocaleString()}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <Banknote className="h-3 w-3 text-purple-500" />
-                              <span className="text-sm font-medium">₹{wallet.securityDeposit.toLocaleString()}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <Wallet className="h-3 w-3 text-green-600" />
-                              <span className="text-sm font-medium">₹{wallet.availableBalance.toLocaleString()}</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -744,7 +738,7 @@ const AdminVendorWalletManagement = () => {
                       ))}
                       {withdrawalRequests.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                             No withdrawal requests found
                           </TableCell>
                         </TableRow>
@@ -887,7 +881,7 @@ const AdminVendorWalletManagement = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-xs font-medium text-muted-foreground">Current Balance</p>
-                            <p className="text-lg font-bold text-green-600">₹{selectedWallet.currentBalance.toLocaleString()}</p>
+                            <p className="text-lg font-bold text-green-600">₹{selectedWallet.availableBalance.toLocaleString()}</p>
                           </div>
                           <Wallet className="h-6 w-6 text-green-500" />
                         </div>
@@ -901,28 +895,6 @@ const AdminVendorWalletManagement = () => {
                             <p className="text-lg font-bold text-blue-600">₹{selectedWallet.totalDeposits.toLocaleString()}</p>
                           </div>
                           <CreditCard className="h-6 w-6 text-blue-500" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-xs font-medium text-muted-foreground">Security Deposit</p>
-                            <p className="text-lg font-bold text-purple-600">₹{selectedWallet.securityDeposit.toLocaleString()}</p>
-                          </div>
-                          <Banknote className="h-6 w-6 text-purple-500" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-xs font-medium text-muted-foreground">Available Balance</p>
-                            <p className="text-lg font-bold text-green-600">₹{selectedWallet.availableBalance.toLocaleString()}</p>
-                          </div>
-                          <Wallet className="h-6 w-6 text-green-600" />
                         </div>
                       </CardContent>
                     </Card>
@@ -990,16 +962,8 @@ const AdminVendorWalletManagement = () => {
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button 
-                    onClick={() => handleViewTransactions(selectedWallet.vendorId)} 
-                    className="flex-1"
-                  >
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    View All Transactions
-                  </Button>
-                  <Button variant="outline" onClick={() => setIsViewWalletOpen(false)}>
-                    Close
-                  </Button>
+                  
+                 
                 </div>
               </div>
             )}

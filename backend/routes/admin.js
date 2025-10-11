@@ -43,6 +43,9 @@ const {
   logAdminActivity
 } = require('../middleware/adminAuth');
 
+// Import upload controller
+const { uploadImage } = require('../controllers/uploadController');
+
 // @desc    Admin authentication routes
 // @route   POST /api/admin/register
 // @access  Public (should be restricted in production)
@@ -176,7 +179,8 @@ const {
   updateVendorStatus,
   updateVendor,
   deleteVendor,
-  sendEmailToVendor
+  sendEmailToVendor,
+  updateVendorRatings
 } = require('../controllers/adminVendorController');
 
 // @route   GET /api/admin/vendors
@@ -206,6 +210,10 @@ router.delete('/vendors/:id', protectAdmin, requirePermission('vendorManagement'
 // @route   POST /api/admin/vendors/:id/send-email
 // @access  Private (Admin with vendorManagement permission)
 router.post('/vendors/:id/send-email', protectAdmin, requirePermission('vendorManagement'), sendEmailToVendor);
+
+// @route   POST /api/admin/vendors/update-ratings
+// @access  Private (Admin with vendorManagement permission)
+router.post('/vendors/update-ratings', protectAdmin, requirePermission('vendorManagement'), updateVendorRatings);
 
 // Note: Booking management routes are handled by adminBookingRoutes in server.js
 
@@ -265,5 +273,15 @@ router.get('/settings', protectAdmin, requirePermission('systemSettings'), (req,
     message: 'System settings endpoint - to be implemented'
   });
 });
+
+// @desc    Admin image upload route
+// @route   POST /api/admin/upload/image
+// @access  Private (Admin)
+router.post('/upload/image', 
+  protectAdmin,
+  uploadMiddleware.getProfileImageUpload().single('file'),
+  uploadMiddleware.handleUploadError,
+  uploadImage
+);
 
 module.exports = router;

@@ -532,83 +532,45 @@ const AdminPaymentManagement = () => {
 
         {/* Payment Details Modal */}
         <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
-          <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto pt-8">
-            <DialogHeader>
-              <DialogTitle className="text-lg">Complete Payment Details</DialogTitle>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader className="pb-2">
+              <DialogTitle className="text-base">Payment Details</DialogTitle>
             </DialogHeader>
             {selectedPayment && (
-              <div className="space-y-3">
-                {/* Booking Information */}
-                <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-2">
+                {/* Booking & Payment Info */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Booking ID</Label>
-                    <p className="text-xs font-medium">
-                      {selectedPayment.bookingReference || `FIX${selectedPayment.bookingId.substring(selectedPayment.bookingId.length - 8).toUpperCase()}`}
-                    </p>
+                    <Label className="text-xs text-gray-500">Booking ID</Label>
+                    <p className="font-medium">{selectedPayment.bookingReference || `FIX${selectedPayment.bookingId.substring(selectedPayment.bookingId.length - 8).toUpperCase()}`}</p>
                   </div>
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Status</Label>
-                    <div className="mt-1">{getStatusBadge(selectedPayment.status)}</div>
+                    <Label className="text-xs text-gray-500">Payment ID</Label>
+                    <p className="font-mono text-xs">{selectedPayment.payment?.razorpayPaymentId || selectedPayment.payment?.transactionId || 'N/A'}</p>
                   </div>
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Priority</Label>
-                    <div className="mt-1">
-                      <Badge className="bg-orange-100 text-orange-800 text-xs">{selectedPayment.priority || 'medium'}</Badge>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Information */}
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Payment ID</Label>
-                    <p className="text-xs font-mono">{selectedPayment.payment?.razorpayPaymentId || selectedPayment.payment?.transactionId || 'N/A'}</p>
+                    <Label className="text-xs text-gray-500">Status</Label>
+                    <div className="mt-0.5">{getStatusBadge(selectedPayment.status)}</div>
                   </div>
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Order ID</Label>
-                    <p className="text-xs font-mono">{selectedPayment.payment?.razorpayOrderId || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Payment Date</Label>
-                    <p className="text-xs">
-                      {new Date(selectedPayment.payment?.paidAt || selectedPayment.createdAt).toLocaleString()}
-                    </p>
+                    <Label className="text-xs text-gray-500">Payment Mode</Label>
+                    <div className="mt-0.5">{getPaymentModeBadge(selectedPayment.paymentMode || '')}</div>
                   </div>
                 </div>
 
-                {/* Amount Breakdown */}
-                <div className="grid grid-cols-4 gap-2">
+                {/* Amount Summary */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">
-                      Initial Payment 
-                      <span className="ml-1 text-xs bg-green-100 text-green-800 px-1 py-0.5 rounded">Completed</span>
-                    </Label>
-                    <p className="text-xs font-medium text-blue-600">
-                      ₹{selectedPayment.pricing?.totalAmount || 0}
-                    </p>
+                    <Label className="text-xs text-gray-500">Initial Payment</Label>
+                    <p className="font-medium text-blue-600">₹{selectedPayment.pricing?.totalAmount || 0}</p>
                   </div>
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">
-                      Service Charges Amount
-                      {(() => {
-                        const serviceCharges = parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0;
-                        return serviceCharges > 0 && (
-                        <span className="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded">
-                          {(selectedPayment.paymentStatus === 'payment_done' || selectedPayment.paymentStatus === 'collected') ? 'Paid' : 'Pending'}
-                        </span>
-                        );
-                      })()}
-                    </Label>
-                    <p className="text-xs font-medium text-green-600">
-                      ₹{parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0}
-                    </p>
+                    <Label className="text-xs text-gray-500">Service Charges</Label>
+                    <p className="font-medium text-green-600">₹{parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0}</p>
                   </div>
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">
-                      Spare Parts Amount
-                      <span className="ml-1 text-xs bg-orange-100 text-orange-800 px-1 py-0.5 rounded">Admin Only</span>
-                    </Label>
-                    <p className="text-xs font-medium text-orange-600">
+                    <Label className="text-xs text-gray-500">Spare Parts</Label>
+                    <p className="font-medium text-orange-600">
                       ₹{selectedPayment.completionData?.spareParts ? 
                         selectedPayment.completionData.spareParts.reduce((sum: number, part: any) => 
                           sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
@@ -616,51 +578,39 @@ const AdminPaymentManagement = () => {
                     </p>
                   </div>
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Total Amount</Label>
-                    <p className="text-xs font-medium text-purple-600">
+                    <Label className="text-xs text-gray-500">Total Amount</Label>
+                    <p className="font-medium text-purple-600">
                       ₹{(selectedPayment.pricing?.totalAmount || 0) + (parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0)}
                     </p>
                   </div>
                 </div>
 
-                {/* Payment Mode & Status */}
-                <div className="grid grid-cols-2 gap-2">
+                {/* Customer & Service Info */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Payment Mode</Label>
-                    <div className="mt-1">{getPaymentModeBadge(selectedPayment.paymentMode || '')}</div>
+                    <Label className="text-xs text-gray-500">Customer</Label>
+                    <div className="mt-0.5 p-1.5 bg-gray-50 rounded text-xs">
+                      <p><strong>{selectedPayment.customer?.name || 'N/A'}</strong></p>
+                      <p className="text-gray-600">{selectedPayment.customer?.email || 'N/A'}</p>
+                      <p className="text-gray-600">{selectedPayment.customer?.phone || 'N/A'}</p>
+                    </div>
                   </div>
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
-                    <div className="mt-1">{getPaymentStatusBadge(selectedPayment.paymentStatus || '', selectedPayment.paymentMode || '')}</div>
+                    <Label className="text-xs text-gray-500">Services</Label>
+                    <div className="mt-0.5 p-1.5 bg-gray-50 rounded text-xs">
+                      <p>{selectedPayment.services?.map(s => s.serviceName).join(', ') || 'N/A'}</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Customer Information */}
-                <div>
-                  <Label className="text-xs font-medium text-muted-foreground">Customer Information</Label>
-                  <div className="mt-1 p-2 bg-gray-50 rounded-lg">
-                    <p className="text-xs"><strong>Name:</strong> {selectedPayment.customer?.name || 'N/A'}</p>
-                    <p className="text-xs"><strong>Email:</strong> {selectedPayment.customer?.email || 'N/A'}</p>
-                    <p className="text-xs"><strong>Phone:</strong> {selectedPayment.customer?.phone || 'N/A'}</p>
-                  </div>
-                </div>
-
-                {/* Service Information */}
-                <div>
-                  <Label className="text-xs font-medium text-muted-foreground">Service Information</Label>
-                  <div className="mt-1 p-2 bg-gray-50 rounded-lg">
-                    <p className="text-xs"><strong>Services:</strong> {selectedPayment.services?.map(s => s.serviceName).join(', ') || 'N/A'}</p>
-                  </div>
-                </div>
-
-                {/* Spare Parts Information */}
+                {/* Spare Parts */}
                 {selectedPayment.completionData?.spareParts && selectedPayment.completionData.spareParts.length > 0 && (
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Spare Parts Used</Label>
-                    <div className="mt-1 space-y-1">
+                    <Label className="text-xs text-gray-500">Spare Parts Used</Label>
+                    <div className="mt-0.5 space-y-1">
                       {selectedPayment.completionData.spareParts.map((part, index) => (
-                        <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                          <div className="w-10 h-6 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                        <div key={index} className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded text-xs">
+                          <div className="w-8 h-5 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
                             {part.photo ? (
                               <img 
                                 src={part.photo} 
@@ -668,12 +618,12 @@ const AdminPaymentManagement = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-3 h-3 bg-gray-400 rounded"></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded"></div>
                             )}
                           </div>
                           <div className="flex-1">
-                            <p className="text-xs font-medium">{part.name}</p>
-                            <p className="text-xs text-gray-600">₹{part.amount}</p>
+                            <p className="font-medium">{part.name}</p>
+                            <p className="text-gray-600">₹{part.amount}</p>
                           </div>
                         </div>
                       ))}
@@ -684,9 +634,9 @@ const AdminPaymentManagement = () => {
                 {/* Resolution Note */}
                 {selectedPayment.completionData?.resolutionNote && (
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Resolution Note</Label>
-                    <div className="mt-1 p-2 bg-gray-50 rounded-lg">
-                      <p className="text-xs">{selectedPayment.completionData.resolutionNote}</p>
+                    <Label className="text-xs text-gray-500">Resolution Note</Label>
+                    <div className="mt-0.5 p-1.5 bg-gray-50 rounded text-xs">
+                      <p>{selectedPayment.completionData.resolutionNote}</p>
                     </div>
                   </div>
                 )}

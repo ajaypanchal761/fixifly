@@ -379,7 +379,7 @@ const AdminSupportManagement = () => {
     }
 
     // Validate vendor ID
-    const vendorId = selectedVendor._id || selectedVendor.id;
+    const vendorId = selectedVendor.id || selectedVendor._id;
     if (!vendorId) {
       toast({
         title: "Invalid Vendor",
@@ -1366,8 +1366,8 @@ const AdminSupportManagement = () => {
                     ) : (
                       <div className="space-y-2">
                         <Label htmlFor="vendorSelect">Select Vendor</Label>
-                        <Select value={selectedVendor?._id || selectedVendor?.id || ''} onValueChange={(value) => {
-                          const vendor = vendors.find(v => v._id === value);
+                        <Select value={selectedVendor?.id || selectedVendor?._id || ''} onValueChange={(value) => {
+                          const vendor = vendors.find(v => v.id === value);
                           if (vendor) {
                             setSelectedVendor(vendor);
                           }
@@ -1377,12 +1377,12 @@ const AdminSupportManagement = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {vendors.map((vendor) => (
-                              <SelectItem key={vendor._id} value={vendor._id}>
+                              <SelectItem key={vendor.id} value={vendor.id}>
                                 <div className="flex items-center gap-2">
                                   <div>
                                     <p className="font-medium">{safeRender(vendor.firstName)} {safeRender(vendor.lastName)}</p>
                                     <p className="text-xs text-muted-foreground">
-                                      {Array.isArray(vendor.serviceCategories) ? vendor.serviceCategories.join(', ') : 'No categories'} | Rating: {vendor.rating?.average || 'N/A'} | Tasks: {vendor.stats?.completedTasks || 0}
+                                      {Array.isArray(vendor.services) ? vendor.services.join(', ') : 'No categories'} | Rating: {vendor.rating || 'N/A'} | Tasks: {vendor.completedBookings || 0}
                                     </p>
                                   </div>
                                 </div>
@@ -1426,18 +1426,18 @@ const AdminSupportManagement = () => {
                           <Label className="text-xs font-medium text-muted-foreground">Rating</Label>
                           <div className="flex items-center gap-2">
                             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm">{selectedVendor.rating?.average || 'N/A'}</span>
-                            <span className="text-xs text-muted-foreground">({selectedVendor.rating?.count || 0} reviews)</span>
+                            <span className="text-sm">{selectedVendor.rating || 'N/A'}</span>
+                            <span className="text-xs text-muted-foreground">({selectedVendor.totalReviews || 0} reviews)</span>
                           </div>
                         </div>
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">Tasks Completed</Label>
-                          <p className="text-sm">{safeRender(selectedVendor.stats?.completedTasks, '0')}</p>
+                          <p className="text-sm">{safeRender(selectedVendor.completedBookings, '0')}</p>
                         </div>
                         <div className="col-span-2">
                           <Label className="text-xs font-medium text-muted-foreground">Service Categories</Label>
                           <div className="flex flex-wrap gap-1 mt-1">
-                            {selectedVendor.serviceCategories?.map((category, index) => (
+                            {selectedVendor.services?.map((category, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
                                 {category}
                               </Badge>

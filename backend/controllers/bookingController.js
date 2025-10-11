@@ -7,39 +7,10 @@ const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
 const adminNotificationService = require('../services/adminNotificationService');
 
-// Helper function to check if user is booking for the first time
+// Helper function to check if user is booking for the first time - DISABLED
+// First-time user free service feature has been removed
 const isFirstTimeUser = async (customerEmail, customerPhone) => {
-  try {
-    // Check if user exists in User model
-    const existingUser = await User.findOne({
-      $or: [
-        { email: customerEmail },
-        { phone: customerPhone }
-      ]
-    });
-
-    if (!existingUser) {
-      return true; // New user, first time booking
-    }
-
-    // If user exists, check their isFirstTimeUser flag first
-    if (existingUser.stats && existingUser.stats.isFirstTimeUser === true) {
-      return true; // User is marked as first-time user
-    }
-
-    // Check if user has any previous bookings
-    const previousBookings = await Booking.countDocuments({
-      $or: [
-        { 'customer.email': customerEmail },
-        { 'customer.phone': customerPhone }
-      ]
-    });
-
-    return previousBookings === 0;
-  } catch (error) {
-    logger.error('Error checking first-time user status:', error);
-    return false; // Default to not first-time user if error occurs
-  }
+  return false; // Always return false - no free service for first-time users
 };
 
 // @desc    Create a new booking
@@ -89,29 +60,9 @@ const createBooking = asyncHandler(async (req, res) => {
       });
     }
 
-    // Check if this is a first-time user
-    const isFirstTime = await isFirstTimeUser(customer.email, customer.phone);
-    console.log('First-time user check:', { 
-      email: customer.email, 
-      phone: customer.phone, 
-      isFirstTime 
-    });
-
-    // Apply first-time user discount (make service free)
+    // First-time user free service feature has been removed
+    // All users now pay regular pricing
     let finalPricing = { ...pricing };
-    if (isFirstTime) {
-      finalPricing = {
-        subtotal: 0,
-        serviceFee: 0,
-        totalAmount: 0,
-        originalSubtotal: pricing.subtotal,
-        originalServiceFee: pricing.serviceFee || 100,
-        originalTotalAmount: pricing.totalAmount,
-        isFirstTimeUser: true,
-        discountApplied: 'First-time user - Service is free'
-      };
-      console.log('First-time user discount applied:', finalPricing);
-    }
 
     // Create booking data
     const bookingData = {
@@ -135,11 +86,6 @@ const createBooking = asyncHandler(async (req, res) => {
         subtotal: finalPricing.subtotal,
         serviceFee: finalPricing.serviceFee || 100,
         totalAmount: finalPricing.totalAmount,
-        originalSubtotal: finalPricing.originalSubtotal,
-        originalServiceFee: finalPricing.originalServiceFee,
-        originalTotalAmount: finalPricing.originalTotalAmount,
-        isFirstTimeUser: finalPricing.isFirstTimeUser,
-        discountApplied: finalPricing.discountApplied
       },
       scheduling: {
         preferredDate: new Date(scheduling.preferredDate),
@@ -148,7 +94,7 @@ const createBooking = asyncHandler(async (req, res) => {
       notes: notes || '',
       status: 'waiting_for_engineer',
       payment: {
-        status: req.body.payment?.status || 'completed',
+        status: req.body.payment?.status || (req.body.payment?.method === 'cash' ? 'pending' : 'completed'),
         method: req.body.payment?.method || 'card',
         transactionId: req.body.payment?.transactionId || `TXN${Date.now()}`,
         paidAt: req.body.payment?.method === 'cash' ? null : new Date()
@@ -170,30 +116,9 @@ const createBooking = asyncHandler(async (req, res) => {
       customerEmail: booking.customer.email,
       totalAmount: booking.pricing.totalAmount,
       servicesCount: booking.services.length,
-      isFirstTimeUser: booking.pricing.isFirstTimeUser
     });
 
-    // Update user's first-time status if this is their first booking
-    if (isFirstTime) {
-      try {
-        const user = await User.findOne({
-          $or: [
-            { email: customer.email },
-            { phone: customer.phone }
-          ]
-        });
-
-        if (user) {
-          user.stats.isFirstTimeUser = false;
-          user.stats.firstBookingDate = new Date();
-          await user.save();
-          console.log('Updated user first-time status:', user.email || user.phone);
-        }
-      } catch (error) {
-        console.error('Error updating user first-time status:', error);
-        // Don't fail the booking if user update fails
-      }
-    }
+    // First-time user status update removed - feature disabled
 
     // Send notification to admins about new booking
     try {
@@ -289,6 +214,9 @@ const getBookingById = asyncHandler(async (req, res) => {
       });
     }
 
+    // Allow users to access all their bookings, including those declined by vendors
+    // The internalFlags.vendorDeclined is only for internal tracking
+
     // Check if vendor is trying to access this booking
     if (req.vendor) {
       // If vendor is authenticated, check if they are assigned to this booking
@@ -346,7 +274,11 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const bookings = await Booking.find({ 'customer.email': email })
+    // Get all bookings for the customer
+    // Users should see all their bookings, including those declined by vendors
+    const bookings = await Booking.find({ 
+      'customer.email': email
+    })
       .select('customer services pricing scheduling status priority vendor notes assignmentNotes completionData paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -364,7 +296,9 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
       }
     }
 
-    const totalBookings = await Booking.countDocuments({ 'customer.email': email });
+    const totalBookings = await Booking.countDocuments({ 
+      'customer.email': email
+    });
     const totalPages = Math.ceil(totalBookings / parseInt(limit));
 
     logger.info(`Customer bookings retrieved: ${bookings.length} for ${email}`, {
@@ -654,29 +588,9 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     //   });
     // }
 
-    // Check if this is a first-time user
-    const isFirstTime = await isFirstTimeUser(customer.email, customer.phone);
-    console.log('First-time user check (with payment):', { 
-      email: customer.email, 
-      phone: customer.phone, 
-      isFirstTime 
-    });
-
-    // Apply first-time user discount (make service free)
+    // First-time user free service feature has been removed
+    // All users now pay regular pricing
     let finalPricing = { ...pricing };
-    if (isFirstTime) {
-      finalPricing = {
-        subtotal: 0,
-        serviceFee: 0,
-        totalAmount: 0,
-        originalSubtotal: pricing.subtotal,
-        originalServiceFee: pricing.serviceFee || 100,
-        originalTotalAmount: pricing.totalAmount,
-        isFirstTimeUser: true,
-        discountApplied: 'First-time user - Service is free'
-      };
-      console.log('First-time user discount applied (with payment):', finalPricing);
-    }
 
     // Get payment details from Razorpay
     // const razorpayPaymentDetails = await RazorpayService.getPaymentDetails(paymentData.razorpayPaymentId);
@@ -703,11 +617,6 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         subtotal: finalPricing.subtotal,
         serviceFee: finalPricing.serviceFee || 100,
         totalAmount: finalPricing.totalAmount,
-        originalSubtotal: finalPricing.originalSubtotal,
-        originalServiceFee: finalPricing.originalServiceFee,
-        originalTotalAmount: finalPricing.originalTotalAmount,
-        isFirstTimeUser: finalPricing.isFirstTimeUser,
-        discountApplied: finalPricing.discountApplied
       },
       scheduling: {
         preferredDate: new Date(scheduling.preferredDate),
@@ -752,30 +661,9 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       totalAmount: booking.pricing.totalAmount,
       servicesCount: booking.services.length,
       paymentId: paymentData.razorpayPaymentId,
-      isFirstTimeUser: booking.pricing.isFirstTimeUser
     });
 
-    // Update user's first-time status if this is their first booking
-    if (isFirstTime) {
-      try {
-        const user = await User.findOne({
-          $or: [
-            { email: customer.email },
-            { phone: customer.phone }
-          ]
-        });
-
-        if (user) {
-          user.stats.isFirstTimeUser = false;
-          user.stats.firstBookingDate = new Date();
-          await user.save();
-          console.log('Updated user first-time status (with payment):', user.email || user.phone);
-        }
-      } catch (error) {
-        console.error('Error updating user first-time status (with payment):', error);
-        // Don't fail the booking if user update fails
-      }
-    }
+    // First-time user status update removed - feature disabled
 
     // Send notification to admins about new booking
     try {
@@ -842,6 +730,7 @@ const acceptTask = asyncHandler(async (req, res) => {
   try {
     const { vendorResponse } = req.body;
     const bookingId = req.params.id;
+    const vendorId = req.vendor._id;
 
     // Verify vendor is assigned to this booking
     const booking = await Booking.findById(bookingId);
@@ -857,6 +746,28 @@ const acceptTask = asyncHandler(async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'No vendor assigned to this booking'
+      });
+    }
+
+    // Check mandatory deposit requirement
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    if (!vendor.canAcceptNewTasks()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Mandatory deposit of ₹2000 required to accept tasks',
+        error: 'MANDATORY_DEPOSIT_REQUIRED',
+        details: {
+          requiredAmount: 2000,
+          hasFirstTaskAssigned: !!vendor.wallet.firstTaskAssignedAt,
+          hasMandatoryDeposit: vendor.wallet.hasMandatoryDeposit
+        }
       });
     }
 
@@ -982,13 +893,19 @@ const declineTask = asyncHandler(async (req, res) => {
     }
 
     // Update booking with vendor response
+    // Keep booking status as 'pending' so user doesn't see it as declined
+    // Only update vendor response for internal tracking
     const updateData = {
       'vendorResponse.status': 'declined',
       'vendorResponse.respondedAt': new Date(),
       'vendorResponse.responseNote': vendorResponse.responseNote,
-      status: 'cancelled', // Change status to cancelled when declined
+      status: 'pending', // Keep as pending so user doesn't see decline
       'vendor.autoRejectAt': null, // Clear auto-reject timer
-      'tracking.updatedAt': new Date()
+      'tracking.updatedAt': new Date(),
+      // Add internal flag to track that this was declined
+      'internalFlags.vendorDeclined': true,
+      'internalFlags.declinedAt': new Date(),
+      'internalFlags.declinedBy': vendorId
     };
 
     const updatedBooking = await Booking.findByIdAndUpdate(
@@ -1224,6 +1141,18 @@ const completeTask = asyncHandler(async (req, res) => {
       paymentMethod: completionData.paymentMethod,
       totalAmount
     });
+
+    // For cash payments, trigger rating popup for user
+    if (completionData.paymentMethod === 'cash') {
+      console.log('=== CASH PAYMENT - TRIGGERING RATING POPUP ===');
+      console.log('Booking ID:', bookingId);
+      console.log('Vendor ID:', booking.vendor.vendorId);
+      console.log('Customer:', booking.customer?.name);
+      
+      // Trigger event for frontend to show rating popup
+      // This will be handled by the frontend listening for booking updates
+      console.log('Cash payment completed - rating popup should be triggered for user');
+    }
 
     res.status(200).json({
       success: true,
@@ -1973,7 +1902,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Check if user is first-time user
+// @desc    Check if user is first-time user - DISABLED
 // @route   POST /api/bookings/check-first-time
 // @access  Public
 const checkFirstTimeUser = asyncHandler(async (req, res) => {
@@ -1987,7 +1916,9 @@ const checkFirstTimeUser = asyncHandler(async (req, res) => {
       });
     }
 
-    const isFirstTime = await isFirstTimeUser(email, phone);
+    // First-time user free service feature has been removed
+    // Always return false - no free service for anyone
+    const isFirstTime = false;
 
     res.json({
       success: true,
@@ -1995,9 +1926,7 @@ const checkFirstTimeUser = asyncHandler(async (req, res) => {
         email: email,
         phone: phone,
         isFirstTimeUser: isFirstTime,
-        message: isFirstTime 
-          ? 'This is a first-time user - service will be FREE!' 
-          : 'This is not a first-time user - regular pricing applies'
+        message: 'Regular pricing applies for all users'
       }
     });
 

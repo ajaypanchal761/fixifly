@@ -242,6 +242,81 @@ class UploadMiddleware {
   }
 
   /**
+   * Middleware for vendor registration file uploads
+   */
+  vendorRegistrationFiles() {
+    const upload = multer({
+      storage: this.memoryStorage, // Use memory storage for Cloudinary
+      fileFilter: this.fileFilter,
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB per file
+        files: 3 // Maximum 3 files
+      }
+    }).fields([
+      { name: 'aadhaarFront', maxCount: 1 },
+      { name: 'aadhaarBack', maxCount: 1 },
+      { name: 'profilePhoto', maxCount: 1 }
+    ]);
+
+    return (req, res, next) => {
+      upload(req, res, (err) => {
+        if (err) {
+          logger.error('Vendor registration upload middleware error:', {
+            error: err.message,
+            code: err.code,
+            field: err.field
+          });
+          return this.handleUploadError(err, req, res, next);
+        }
+        
+        logger.info('Vendor registration upload middleware success', {
+          hasFiles: !!(req.files),
+          filesCount: req.files ? Object.keys(req.files).length : 0,
+          aadhaarFrontCount: req.files?.aadhaarFront?.length || 0,
+          aadhaarBackCount: req.files?.aadhaarBack?.length || 0,
+          profilePhotoCount: req.files?.profilePhoto?.length || 0
+        });
+        
+        next();
+      });
+    };
+  }
+
+  /**
+   * Generic fields method for multiple file uploads
+   */
+  fields(fieldConfig) {
+    const upload = multer({
+      storage: this.memoryStorage, // Use memory storage for Cloudinary
+      fileFilter: this.fileFilter,
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB per file
+        files: fieldConfig.length // Maximum files based on field config
+      }
+    }).fields(fieldConfig);
+
+    return (req, res, next) => {
+      upload(req, res, (err) => {
+        if (err) {
+          logger.error('Upload middleware error:', {
+            error: err.message,
+            code: err.code,
+            field: err.field
+          });
+          return this.handleUploadError(err, req, res, next);
+        }
+        
+        logger.info('Upload middleware success', {
+          hasFiles: !!(req.files),
+          filesCount: req.files ? Object.keys(req.files).length : 0
+        });
+        
+        next();
+      });
+    };
+  }
+
+  /**
    * Error handler for multer errors
    * @param {Error} error - Multer error
    * @param {Object} req - Request object

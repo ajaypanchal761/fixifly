@@ -8,7 +8,7 @@ const protectVendor = asyncHandler(async (req, res, next) => {
   let token;
 
   // Check for token in headers
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  if (req.headers.authorization && typeof req.headers.authorization === 'string' && req.headers.authorization.startsWith('Bearer')) {
     try {
       // Get token from header
       token = req.headers.authorization.split(' ')[1];
@@ -34,14 +34,7 @@ const protectVendor = asyncHandler(async (req, res, next) => {
         });
       }
 
-      // Check if vendor is approved
-      if (!vendor.isApproved) {
-        logger.warn('Unapproved vendor tried to access protected route', { vendorId: vendor._id });
-        return res.status(401).json({
-          success: false,
-          message: 'Not authorized, account is pending admin approval'
-        });
-      }
+      // Admin approval is no longer required for basic access
 
       // Check if vendor is active
       if (!vendor.isActive) {
@@ -57,7 +50,7 @@ const protectVendor = asyncHandler(async (req, res, next) => {
         logger.warn('Blocked vendor tried to access protected route', { vendorId: vendor._id });
         return res.status(401).json({
           success: false,
-          message: 'Not authorized, account is blocked'
+          message: 'You are blocked by admin. Please contact support for assistance.'
         });
       }
 
@@ -134,7 +127,7 @@ const authorizeVendor = (...roles) => {
 const optionalVendorAuth = asyncHandler(async (req, res, next) => {
   let token;
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  if (req.headers.authorization && typeof req.headers.authorization === 'string' && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);

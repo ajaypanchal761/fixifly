@@ -86,14 +86,18 @@ const getVendors = asyncHandler(async (req, res) => {
     lastName: vendor.lastName,
     email: vendor.email,
     phone: vendor.formattedPhone,
+    alternatePhone: vendor.alternatePhone,
+    fatherName: vendor.fatherName,
+    homePhone: vendor.homePhone,
+    currentAddress: vendor.currentAddress,
     location: vendor.address ? `${vendor.address.city}, ${vendor.address.state}` : 'Not specified',
     address: vendor.address,
     serviceLocations: vendor.serviceLocations,
     joinDate: vendor.createdAt,
     status: vendor.isBlocked ? 'blocked' : (vendor.isActive ? 'active' : 'inactive'),
     verificationStatus: vendor.isApproved ? 'verified' : 'pending',
-    rating: vendor.rating.average,
-    totalReviews: vendor.rating.count,
+    rating: vendor.rating.average || 0,
+    totalReviews: vendor.rating.totalReviews || 0,
     totalBookings: vendor.stats.totalTasks,
     completedBookings: vendor.stats.completedTasks,
     pendingBookings: vendor.stats.totalTasks - vendor.stats.completedTasks,
@@ -101,6 +105,7 @@ const getVendors = asyncHandler(async (req, res) => {
     customServiceCategory: vendor.customServiceCategory,
     lastActive: vendor.stats.lastLoginAt,
     profileImage: vendor.profileImage,
+    documents: vendor.documents,
     isEmailVerified: vendor.isEmailVerified,
     isPhoneVerified: vendor.isPhoneVerified,
     isProfileComplete: vendor.isProfileComplete,
@@ -207,13 +212,18 @@ const getVendor = asyncHandler(async (req, res) => {
     lastName: vendor.lastName,
     email: vendor.email,
     phone: vendor.formattedPhone,
+    alternatePhone: vendor.alternatePhone,
+    fatherName: vendor.fatherName,
+    homePhone: vendor.homePhone,
+    currentAddress: vendor.currentAddress,
     location: vendor.address ? `${vendor.address.city}, ${vendor.address.state}` : 'Not specified',
     address: vendor.address,
+    serviceLocations: vendor.serviceLocations,
     joinDate: vendor.createdAt,
     status: vendor.isBlocked ? 'blocked' : (vendor.isActive ? 'active' : 'inactive'),
     verificationStatus: vendor.isApproved ? 'verified' : 'pending',
-    rating: vendor.rating.average,
-    totalReviews: vendor.rating.count,
+    rating: vendor.rating.average || 0,
+    totalReviews: vendor.rating.totalReviews || 0,
     totalBookings: vendor.stats.totalTasks,
     completedBookings: vendor.stats.completedTasks,
     pendingBookings: vendor.stats.totalTasks - vendor.stats.completedTasks,
@@ -221,13 +231,13 @@ const getVendor = asyncHandler(async (req, res) => {
     customServiceCategory: vendor.customServiceCategory,
     lastActive: vendor.stats.lastLoginAt,
     profileImage: vendor.profileImage,
+    documents: vendor.documents,
     isEmailVerified: vendor.isEmailVerified,
     isPhoneVerified: vendor.isPhoneVerified,
     isProfileComplete: vendor.isProfileComplete,
     experience: vendor.experience,
     specialty: vendor.specialty,
     bio: vendor.bio,
-    documents: vendor.documents,
     preferences: vendor.preferences,
     createdAt: vendor.createdAt,
     updatedAt: vendor.updatedAt
@@ -270,6 +280,14 @@ const updateVendorStatus = asyncHandler(async (req, res) => {
     case 'deactivate':
       vendor.isActive = false;
       break;
+    case 'block':
+      vendor.isBlocked = true;
+      vendor.isActive = false;
+      break;
+    case 'unblock':
+      vendor.isBlocked = false;
+      vendor.isActive = true;
+      break;
     default:
       return res.status(400).json({
         success: false,
@@ -294,6 +312,40 @@ const updateVendorStatus = asyncHandler(async (req, res) => {
     } catch (emailError) {
       logger.error('Failed to send vendor approval email:', emailError);
       // Don't fail the approval if email fails
+    }
+  }
+
+  // Send push notification for vendor blocking
+  if (action === 'block') {
+    try {
+      const { sendMulticastPushNotification } = require('../services/firebasePushService');
+      
+      if (vendor.fcmToken) {
+        const notificationData = {
+          title: 'Account Blocked',
+          body: 'Your account has been blocked by admin. Please contact support for assistance.',
+          data: {
+            type: 'account_blocked',
+            vendorId: vendor.vendorId,
+            timestamp: new Date().toISOString()
+          }
+        };
+
+        await sendMulticastPushNotification([vendor.fcmToken], notificationData);
+        logger.info('Vendor block notification sent successfully', {
+          vendorId: vendor._id,
+          email: vendor.email,
+          fcmToken: vendor.fcmToken ? 'present' : 'missing'
+        });
+      } else {
+        logger.warn('No FCM token found for blocked vendor', {
+          vendorId: vendor._id,
+          email: vendor.email
+        });
+      }
+    } catch (notificationError) {
+      logger.error('Failed to send vendor block notification:', notificationError);
+      // Don't fail the blocking if notification fails
     }
   }
 
@@ -407,6 +459,38 @@ const sendEmailToVendor = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Update vendor ratings (Admin)
+// @route   POST /api/admin/vendors/update-ratings
+// @access  Private (Admin)
+const updateVendorRatings = asyncHandler(async (req, res) => {
+  try {
+    const vendors = await Vendor.find({});
+    let updatedCount = 0;
+    
+    for (const vendor of vendors) {
+      try {
+        await vendor.updateRating();
+        updatedCount++;
+      } catch (error) {
+        console.error(`Error updating rating for vendor ${vendor.vendorId}:`, error.message);
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: `Successfully updated ratings for ${updatedCount} vendors`,
+      data: { updatedCount, totalVendors: vendors.length }
+    });
+  } catch (error) {
+    console.error('Error updating vendor ratings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update vendor ratings',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   getVendors,
   getVendorStats,
@@ -414,5 +498,6 @@ module.exports = {
   updateVendorStatus,
   updateVendor,
   deleteVendor,
-  sendEmailToVendor
+  sendEmailToVendor,
+  updateVendorRatings
 };

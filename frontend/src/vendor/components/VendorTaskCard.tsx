@@ -20,6 +20,8 @@ import { Label } from '@/components/ui/label';
 import vendorApi from '@/services/vendorApi';
 import { useToast } from '@/hooks/use-toast';
 import WalletBalanceCheck from './WalletBalanceCheck';
+import { vendorDepositService } from '@/services/vendorDepositService';
+import { useVendor } from '@/contexts/VendorContext';
 
 interface VendorTaskCardProps {
   task: {
@@ -66,6 +68,7 @@ interface VendorTaskCardProps {
 const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { vendor, updateVendor } = useVendor();
 
   // Safe render helper to prevent object rendering
   const safeRender = (value: any, fallback: string = 'N/A'): string => {
@@ -102,6 +105,8 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isDepositRequiredModalOpen, setIsDepositRequiredModalOpen] = useState(false);
+  const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isWalletCheckOpen, setIsWalletCheckOpen] = useState(false);
@@ -236,21 +241,110 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
           }));
         }
       } else {
-        toast({
-          title: "Error",
-          description: response.message || "Failed to accept task",
-          variant: "destructive"
-        });
+        // Check if it's a mandatory deposit requirement error
+        if (response.error === 'MANDATORY_DEPOSIT_REQUIRED') {
+          setIsDepositRequiredModalOpen(true);
+        } else {
+          toast({
+            title: "Error",
+            description: response.message || "Failed to accept task",
+            variant: "destructive"
+          });
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error accepting task:', error);
+      
+      // SIMPLE TEST - Show alert to verify catch block is working
+      alert('CATCH BLOCK EXECUTED - Error: ' + error?.message);
+      
+      // Check for mandatory deposit error using the custom property from vendorApi
+      if (error?.isMandatoryDepositError || error?.message?.includes('Mandatory deposit')) {
+        console.log('🚨 MANDATORY DEPOSIT ERROR DETECTED - SHOWING MODAL');
+        alert('MANDATORY DEPOSIT ERROR DETECTED - SHOWING MODAL');
+        setIsDepositRequiredModalOpen(true);
+        console.log('Modal state set to true:', isDepositRequiredModalOpen);
+        alert('Modal state set to true - check if modal appears');
+        return; // Exit early to prevent showing toast
+      }
+      
+      // Show generic error toast for other errors
       toast({
         title: "Error",
-        description: "Failed to accept task. Please try again.",
+        description: error?.response?.data?.message || error?.message || "Failed to accept task. Please try again.",
         variant: "destructive"
       });
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleMakeDeposit = async () => {
+    if (!vendor) {
+      toast({
+        title: "Error",
+        description: "Vendor information not available.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessingDeposit(true);
+    
+    try {
+      const depositAmount = 2000; // Mandatory deposit amount
+      
+      await vendorDepositService.processDepositPayment(
+        depositAmount,
+        vendor.fullName,
+        vendor.email,
+        vendor.phone,
+        (response) => {
+          // Payment successful
+          toast({
+            title: "Deposit Successful!",
+            description: `₹${depositAmount.toLocaleString()} has been added to your wallet. You can now accept tasks.`,
+          });
+
+          // Update vendor context with new wallet data
+          if (updateVendor) {
+            updateVendor({
+              wallet: {
+                ...vendor.wallet,
+                currentBalance: (vendor.wallet?.currentBalance || 0) + depositAmount,
+                hasMandatoryDeposit: true,
+                canAcceptTasks: true
+              }
+            });
+          }
+
+          // Close the modal
+          setIsDepositRequiredModalOpen(false);
+          
+          // Show success message
+          toast({
+            title: "Ready to Accept Tasks!",
+            description: "Your mandatory deposit has been completed. You can now accept tasks.",
+          });
+        },
+        (error) => {
+          console.error('Deposit payment failed:', error);
+          toast({
+            title: "Payment Failed",
+            description: "Failed to process the deposit payment. Please try again.",
+            variant: "destructive"
+          });
+        }
+      );
+    } catch (error) {
+      console.error('Error processing deposit:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while processing the deposit. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessingDeposit(false);
     }
   };
 
@@ -296,7 +390,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         });
         
         // Immediately update local status for instant UI update
-        setLocalTaskStatus(task.isSupportTicket ? 'Declined' : 'cancelled');
+        setLocalTaskStatus(task.isSupportTicket ? 'Declined' : 'declined');
         
         onStatusUpdate(task.id, 'declined');
         setIsDeclineModalOpen(false);
@@ -334,7 +428,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         });
         
         // Update local status to reflect the declined state
-        setLocalTaskStatus(task.isSupportTicket ? 'Declined' : 'cancelled');
+        setLocalTaskStatus(task.isSupportTicket ? 'Declined' : 'declined');
         onStatusUpdate(task.id, 'declined');
         setIsDeclineModalOpen(false);
         setDeclineReason('');
@@ -377,11 +471,11 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   const isTaskDeclined = isVendorDeclined || 
     (task.isSupportTicket 
       ? (currentStatus === 'Declined' || currentStatus === 'Cancelled')
-      : (currentStatus === 'cancelled'));
+      : (currentStatus === 'declined'));
     
   const isTaskCancelled = task.isSupportTicket 
     ? (currentStatus === 'Cancelled')
-    : (currentStatus === 'cancelled');
+    : (currentStatus === 'declined');
     
   const isTaskPending = task.isSupportTicket 
     ? (currentStatus === 'Pending')
@@ -684,15 +778,24 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Phone:</span>
-                  <p className="text-gray-600">{safeRender(task.phone)}</p>
+                  {(() => {
+                    const currentStatus = task.bookingStatus || task.vendorStatus;
+                    const isAccepted = currentStatus === 'Accepted' || currentStatus === 'in_progress' || currentStatus === 'completed';
+                    
+                    if (isAccepted) {
+                      return <p className="text-gray-600">{safeRender(task.phone)}</p>;
+                    } else {
+                      return <p className="text-gray-500">Hidden (Accept task to view)</p>;
+                    }
+                  })()}
                 </div>
                 <div className="md:col-span-2">
                   <span className="font-medium text-gray-700">Complete Address:</span>
                   <div className="mt-1 space-y-1">
                     {(() => {
                       // Try to get address from multiple possible sources
-                      const address = task.userId?.address || task.address || task.userAddress;
-                      const street = address?.street || task.street || task.address;
+                      const address = task.userId?.address || (typeof task.address === 'object' ? task.address : null);
+                      const street = address?.street || task.street || (typeof task.address === 'string' ? task.address : null);
                       const city = address?.city || task.city;
                       const state = address?.state || task.state;
                       const pincode = address?.pincode || task.pincode;
@@ -813,6 +916,55 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
           console.log('Deposit successful, wallet balance should be refreshed');
         }}
       />
+
+      {/* Mandatory Deposit Required Modal */}
+      <Dialog open={isDepositRequiredModalOpen} onOpenChange={setIsDepositRequiredModalOpen}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-20">
+          <DialogHeader>
+            <DialogTitle className="text-center text-red-600">Mandatory Deposit Required</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                ₹2000 Deposit Required
+              </h3>
+              <p className="text-gray-600 text-sm mb-4">
+                You need to make a mandatory deposit of ₹2000 to accept tasks. This deposit is required after your first task assignment.
+              </p>
+            </div>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-start">
+                <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" />
+                <div className="text-sm text-yellow-800">
+                  <p className="font-medium mb-1">Important:</p>
+                  <p>You cannot accept any tasks until this deposit is completed. Please make the deposit to continue accepting tasks.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col space-y-2">
+              <Button 
+                onClick={handleMakeDeposit}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                disabled={isProcessingDeposit}
+              >
+                {isProcessingDeposit ? 'Processing...' : 'Make Deposit Now'}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsDepositRequiredModalOpen(false)}
+                className="w-full"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

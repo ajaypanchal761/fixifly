@@ -65,6 +65,24 @@ const adminNotificationSchema = new mongoose.Schema({
     ref: 'Admin',
     required: true
   },
+  image: {
+    public_id: {
+      type: String,
+      default: null
+    },
+    secure_url: {
+      type: String,
+      default: null
+    },
+    width: {
+      type: Number,
+      default: null
+    },
+    height: {
+      type: Number,
+      default: null
+    }
+  },
   data: {
     type: mongoose.Schema.Types.Mixed,
     default: {}

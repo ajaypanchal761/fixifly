@@ -7,6 +7,7 @@ interface Banner {
   };
   isActive: boolean;
   order: number;
+  targetAudience: 'user' | 'vendor';
   createdAt: string;
   updatedAt: string;
 }
@@ -27,8 +28,11 @@ class BannerApiService {
   /**
    * Fetch all active banners for public use
    */
-  async getActiveBanners(): Promise<BannerResponse> {
-    const url = `${this.baseUrl}/banners`;
+  async getActiveBanners(targetAudience?: 'user' | 'vendor'): Promise<BannerResponse> {
+    let url = `${this.baseUrl}/banners`;
+    if (targetAudience) {
+      url += `?targetAudience=${targetAudience}`;
+    }
     
     console.log('Banner API making request to:', url);
     console.log('Base URL:', this.baseUrl);
@@ -65,9 +69,9 @@ class BannerApiService {
   /**
    * Get banner image URLs for easy use in components
    */
-  async getBannerImageUrls(): Promise<string[]> {
+  async getBannerImageUrls(targetAudience?: 'user' | 'vendor'): Promise<string[]> {
     try {
-      const response = await this.getActiveBanners();
+      const response = await this.getActiveBanners(targetAudience);
       if (response.success && response.data) {
         // Sort by order and return only image URLs
         return response.data

@@ -241,7 +241,7 @@ const VendorClosedTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -259,7 +259,7 @@ const VendorClosedTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Error</h1>
@@ -282,7 +282,7 @@ const VendorClosedTaskDetail = () => {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0 overflow-y-auto">
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
@@ -315,7 +315,7 @@ const VendorClosedTaskDetail = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0">
         <div className="container mx-auto px-4 py-4 max-w-2xl">
           {/* Back Button */}
           <button
@@ -414,12 +414,20 @@ const VendorClosedTaskDetail = () => {
                 <div className="space-y-1">
                   {task.spareParts && task.spareParts.length > 0 ? (
                     task.spareParts.map((part, index) => (
-                      <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
-                      <div className="flex items-center space-x-2">
-                          <Camera className="w-3 h-3 text-gray-500" />
-                        <span className="text-sm text-gray-800">{part.name}</span>
-                      </div>
-                      <span className="text-sm font-medium text-green-600">{part.amount}</span>
+                      <div key={index} className="bg-gray-50 p-2 rounded-md space-y-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Camera className="w-3 h-3 text-gray-500" />
+                            <span className="text-sm text-gray-800">{part.name}</span>
+                          </div>
+                          <span className="text-sm font-medium text-green-600">{part.amount}</span>
+                        </div>
+                        {part.warranty && (
+                          <div className="flex items-center space-x-2 ml-5">
+                            <span className="text-xs text-gray-500">Warranty:</span>
+                            <span className="text-xs font-medium text-blue-600">{part.warranty}</span>
+                          </div>
+                        )}
                       </div>
                     ))
                   ) : (

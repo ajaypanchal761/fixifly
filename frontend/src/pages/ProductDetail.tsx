@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, MessageCircle, Star, Shield, Clock, Check, Home, ShoppingCart, Loader2 } from "lucide-react";
+import { ArrowLeft, Phone, MessageCircle, Star, Shield, Clock, Check, Home, ShoppingCart, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import publicProductApi, { PublicProduct } from '@/services/publicProductApi';
+import reviewService, { Review } from '@/services/reviewService';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 interface Service {
   serviceName: string;
@@ -37,6 +39,102 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("");
   const [cartItems, setCartItems] = useState<{id: string, title: string, price: number, image: string}[]>([]);
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewStats, setReviewStats] = useState<{totalReviews: number; averageRating: number}>({totalReviews: 0, averageRating: 0});
+
+  // Fetch reviews from backend
+  const fetchReviews = async () => {
+    try {
+      setReviewsLoading(true);
+      console.log('Fetching reviews...');
+      
+      // Get featured reviews (limit to 4 for mobile display)
+      const featuredResponse = await reviewService.getFeaturedReviews(4);
+      console.log('Featured reviews response:', featuredResponse);
+      
+      if (featuredResponse.success && featuredResponse.data.length > 0) {
+        setReviews(featuredResponse.data);
+        console.log('Reviews set:', featuredResponse.data);
+      } else {
+        console.log('Featured reviews failed or empty, trying regular reviews...');
+        // Fallback to regular reviews if featured reviews are empty
+        const regularResponse = await reviewService.getReviews({ limit: 4, sort: 'newest' });
+        console.log('Regular reviews response:', regularResponse);
+        
+        if (regularResponse.success && regularResponse.data.length > 0) {
+          setReviews(regularResponse.data);
+          console.log('Regular reviews set:', regularResponse.data);
+        } else {
+          console.log('No reviews available, using mock data for testing');
+          // Mock data for testing UI
+          setReviews([
+            {
+              _id: 'mock1',
+              userId: { _id: 'user1', name: 'Ajay Panchal', profileImage: '' },
+              category: 'Laptop Repair',
+              rating: 5,
+              comment: 'Excellent service! My laptop was repaired quickly and professionally.',
+              likes: 12,
+              likedBy: [],
+              isAnonymous: false,
+              isVerified: true,
+              isFeatured: true,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              userDisplayName: 'Ajay Panchal',
+              userInitials: 'AP',
+              formattedDate: '1 hour ago',
+              ratingText: 'Excellent'
+            },
+            {
+              _id: 'mock2',
+              userId: { _id: 'user2', name: 'Priya Sharma', profileImage: '' },
+              category: 'Mobile Repair',
+              rating: 4,
+              comment: 'Good service, phone working perfectly now.',
+              likes: 8,
+              likedBy: [],
+              isAnonymous: false,
+              isVerified: true,
+              isFeatured: true,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              userDisplayName: 'Priya Sharma',
+              userInitials: 'PS',
+              formattedDate: '2 hours ago',
+              ratingText: 'Good'
+            }
+          ]);
+          setReviewStats({
+            totalReviews: 11,
+            averageRating: 3.3
+          });
+        }
+      }
+      
+      // Get review statistics
+      const statsResponse = await reviewService.getReviewStats();
+      console.log('Review stats response:', statsResponse);
+      
+      if (statsResponse.success) {
+        setReviewStats({
+          totalReviews: statsResponse.data.overview.totalReviews,
+          averageRating: statsResponse.data.overview.averageRating
+        });
+        console.log('Review stats set:', statsResponse.data.overview);
+      } else {
+        console.log('Review stats failed:', statsResponse);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      // Fallback to empty reviews if API fails
+      setReviews([]);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
 
   // Get product from location state or fetch from API
   useEffect(() => {
@@ -70,6 +168,11 @@ const ProductDetail = () => {
 
     fetchProduct();
   }, [productId, location.state]);
+
+  // Fetch reviews when component mounts
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   if (loading) {
     return (
@@ -131,6 +234,10 @@ const ProductDetail = () => {
   };
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+
+  const toggleFAQ = (index: number) => {
+    setOpenFAQ(openFAQ === index ? null : index);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -205,7 +312,7 @@ const ProductDetail = () => {
                      </div>
                      <div className="flex items-center space-x-2">
                        <Check className="h-5 w-5" />
-                       <span className="text-sm lg:text-base">90 Days Warranty</span>
+                       <span className="text-sm lg:text-base">Upto 1 year Warranty</span>
                      </div>
                    </div>
                  </div>
@@ -253,7 +360,7 @@ const ProductDetail = () => {
                 <div className="font-semibold text-gray-600">10K+ BOOKING</div>
                 <div className="flex items-center space-x-1">
                   <Shield className="h-5 w-5 text-green-500" />
-                  <span className="font-semibold text-gray-600">90 DAYS WARRANTY</span>
+                  <span className="font-semibold text-gray-600">Upto 1 year WARRANTY</span>
                 </div>
               </div>
             </div>
@@ -279,7 +386,7 @@ const ProductDetail = () => {
           </div>
 
           {/* Services List */}
-          <div className="space-y-4 pb-20 md:pb-6">
+          <div className="space-y-4 pb-32 md:pb-6">
             {filteredServices.map((service) => (
               <div key={service._id} className="bg-white rounded-xl p-6 shadow-sm border hover:shadow-md transition-shadow">
                 <div className="flex items-start space-x-4">
@@ -326,9 +433,171 @@ const ProductDetail = () => {
           </div>
         </div>
 
+        {/* Back Image Section - Mobile Only */}
+        <div className="mb-48 -mt-24 md:hidden">
+          <div className="flex justify-center">
+            <img 
+              src="/backimage.jpg" 
+              alt="Background Image"
+              className="w-full max-w-4xl h-auto rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            />
+          </div>
+        </div>
+
+        {/* FAQ Section - Mobile Only */}
+        <div className="mb-12 -mt-40 md:hidden">
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h3>
+            
+            <div className="space-y-2">
+              {[
+                {
+                  question: "How long does the repair take?",
+                  answer: "Most repairs are completed within 2-4 hours depending on the complexity of the issue."
+                },
+                {
+                  question: "Do you provide warranty?",
+                  answer: "Yes, we provide up to 1 year warranty on all repairs and genuine parts used."
+                },
+                {
+                  question: "Is my data safe?",
+                  answer: "Absolutely! We ensure 100% data safety. No data is accessed, copied, or shared during the repair process."
+                },
+                {
+                  question: "Do you use genuine parts?",
+                  answer: "Yes, we only use genuine and OEM parts for all repairs to ensure quality and compatibility."
+                },
+                {
+                  question: "What if the repair doesn't work?",
+                  answer: "If the repair doesn't resolve the issue, we will re-diagnose and fix it at no additional cost under warranty."
+                }
+              ].map((faq, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() => toggleFAQ(index)}
+                    className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <h4 className="font-semibold text-gray-900 pr-2">{faq.question}</h4>
+                    {openFAQ === index ? (
+                      <ChevronUp className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    )}
+                  </button>
+                  {openFAQ === index && (
+                    <div className="px-4 pb-3">
+                      <p className="text-gray-600 text-sm leading-relaxed">{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Customer Reviews Section - Mobile Only */}
+        <div className="mb-8 md:hidden">
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center mb-6">
+              <MessageCircle className="h-6 w-6 text-blue-600 mr-2" />
+              <h3 className="text-xl font-bold text-gray-900">Customer Reviews</h3>
+            </div>
+            
+            {reviewsLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                <span className="text-gray-600">Loading reviews...</span>
+              </div>
+            ) : (
+              <>
+                {/* Overall Rating */}
+                <div className="text-center mb-6 pb-6 border-b border-gray-200">
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="flex items-center">
+                      {[1,2,3,4,5].map((star) => (
+                        <Star 
+                          key={star} 
+                          className={`h-6 w-6 ${
+                            star <= Math.round(reviewStats.averageRating) 
+                              ? 'text-yellow-400 fill-current' 
+                              : 'text-gray-300'
+                          }`} 
+                        />
+                      ))}
+                    </div>
+                    <span className="ml-2 text-2xl font-bold text-gray-900">
+                      {reviewStats.averageRating.toFixed(1)}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    Based on {reviewStats.totalReviews.toLocaleString()} reviews
+                  </p>
+                </div>
+
+                {/* Individual Reviews */}
+                {reviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {reviews.map((review, index) => {
+                      const borderColors = ['border-blue-500', 'border-green-500', 'border-purple-500', 'border-orange-500'];
+                      const borderColor = borderColors[index % borderColors.length];
+                      
+                      return (
+                        <div key={review._id} className={`border-l-4 ${borderColor} pl-4`}>
+                          <div className="flex items-center mb-2">
+                            <div className="flex items-center">
+                              {[1,2,3,4,5].map((star) => (
+                                <Star 
+                                  key={star} 
+                                  className={`h-4 w-4 ${
+                                    star <= review.rating 
+                                      ? 'text-yellow-400 fill-current' 
+                                      : 'text-gray-300'
+                                  }`} 
+                                />
+                              ))}
+                            </div>
+                            <span className="ml-2 text-sm font-medium text-gray-900">
+                              {review.rating}.0
+                            </span>
+                            {review.isVerified && (
+                              <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                Verified
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mb-1">
+                            "{review.comment}"
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-500">
+                              - {review.isAnonymous ? 'Anonymous' : review.userDisplayName}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {review.formattedDate}
+                            </p>
+                          </div>
+                          {review.category && (
+                            <p className="text-xs text-blue-600 mt-1">
+                              {review.category}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No reviews available yet.</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Checkout Section */}
         {cartItems.length > 0 && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:bottom-0 bottom-16">
+          <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 md:bottom-0 md:z-50">
             <div className="container mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -355,6 +624,9 @@ const ProductDetail = () => {
           </div>
         )}
       </div>
+      
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 };

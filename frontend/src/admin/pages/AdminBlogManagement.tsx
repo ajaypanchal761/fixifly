@@ -670,7 +670,7 @@ const AdminBlogManagement = () => {
                           <img
                                   src={blog.featuredImage}
                             alt={blog.title}
-                                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                  className="w-full h-full object-contain bg-gray-100 transition-transform group-hover:scale-105"
                                   onError={(e) => {
                                     e.currentTarget.src = '/placeholder.svg';
                                   }}

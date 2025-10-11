@@ -52,7 +52,12 @@ const getVendorWallet = asyncHandler(async (req, res) => {
       totalTasksCancelled: wallet.totalTasksCancelled
     };
     
-    const allTransactions = wallet.transactions || [];
+    const allTransactions = (wallet.transactions || []).sort((a, b) => {
+      // Sort by createdAt in descending order (latest first)
+      const dateA = new Date(a.createdAt || a.timestamp || 0);
+      const dateB = new Date(b.createdAt || b.timestamp || 0);
+      return dateB - dateA;
+    });
 
     res.json({
       success: true,

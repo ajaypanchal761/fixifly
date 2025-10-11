@@ -33,7 +33,57 @@ const vendorSchema = new mongoose.Schema({
     required: [true, 'Phone number is required'],
     unique: true,
     trim: true,
-    match: [/^(\+91|91)?[6-9]\d{9}$/, 'Please enter a valid 10-digit Indian phone number']
+    validate: {
+      validator: function(v) {
+        // Remove all non-digit characters and check if it's a valid 10-digit number
+        const digits = v.replace(/\D/g, '');
+        return digits.length === 10;
+      },
+      message: 'Please enter a valid 10-digit phone number'
+    }
+  },
+
+  alternatePhone: {
+    type: String,
+    required: [true, 'Alternate phone number is required'],
+    trim: true,
+    validate: {
+      validator: function(v) {
+        // Remove all non-digit characters and check if it's a valid 10-digit number
+        const digits = v.replace(/\D/g, '');
+        return digits.length === 10;
+      },
+      message: 'Please enter a valid 10-digit phone number'
+    }
+  },
+
+  fatherName: {
+    type: String,
+    required: [true, 'Father\'s name is required'],
+    trim: true,
+    minlength: [2, 'Father\'s name must be at least 2 characters long'],
+    maxlength: [50, 'Father\'s name cannot exceed 50 characters']
+  },
+
+  homePhone: {
+    type: String,
+    required: [true, 'Home phone number is required'],
+    trim: true,
+    validate: {
+      validator: function(v) {
+        // Remove all non-digit characters and check if it's a valid 10-digit number
+        const digits = v.replace(/\D/g, '');
+        return digits.length === 10;
+      },
+      message: 'Please enter a valid 10-digit phone number'
+    }
+  },
+
+  currentAddress: {
+    type: String,
+    required: [true, 'Current address is required'],
+    trim: true,
+    maxlength: [500, 'Current address cannot exceed 500 characters']
   },
   
   // Unique Vendor ID
@@ -62,17 +112,18 @@ const vendorSchema = new mongoose.Schema({
   serviceCategories: [{
     type: String,
     enum: [
-      'Electronics Repair',
-      'Home Appliances',
-      'Computer & Laptop',
-      'Mobile Phone',
-      'AC & Refrigeration',
-      'Plumbing',
-      'Electrical',
-      'Carpentry',
-      'Painting',
-      'Cleaning Services',
-      'Other'
+      'Laptop',
+      'Computers',
+      'Tab/MacBook',
+      'iMac/Printer/Server',
+      'Networking',
+      'Software Developer',
+      'AC Repair',
+      'Fridge, Washing Machine',
+      'Home Appliance Repair',
+      'Electrician',
+      'Plumber',
+      'Cleaning'
     ]
   }],
   
@@ -192,6 +243,56 @@ const vendorSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+
+  // Partner Verification Status
+  isVerifiedPartner: {
+    type: Boolean,
+    default: false
+  },
+
+  verificationStatus: {
+    type: String,
+    enum: ['pending', 'payment_pending', 'payment_completed', 'under_review', 'verified', 'rejected'],
+    default: 'pending'
+  },
+
+  verificationPayment: {
+    amount: {
+      type: Number,
+      default: 3999
+    },
+    razorpayOrderId: {
+      type: String,
+      default: null
+    },
+    razorpayPaymentId: {
+      type: String,
+      default: null
+    },
+    razorpaySignature: {
+      type: String,
+      default: null
+    },
+    paidAt: {
+      type: Date,
+      default: null
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'completed', 'failed'],
+      default: 'pending'
+    }
+  },
+
+  verificationSubmittedAt: {
+    type: Date,
+    default: null
+  },
+
+  verificationApprovedAt: {
+    type: Date,
+    default: null
+  },
   
   // Account Status
   isActive: {
@@ -301,12 +402,34 @@ const vendorSchema = new mongoose.Schema({
     lastTransactionAt: {
       type: Date,
       default: null
+    },
+    // New fields for mandatory deposit requirement
+    hasMandatoryDeposit: {
+      type: Boolean,
+      default: false
+    },
+    mandatoryDepositAmount: {
+      type: Number,
+      default: 2000,
+      min: 2000
+    },
+    firstTaskAssignedAt: {
+      type: Date,
+      default: null
+    },
+    canAcceptTasks: {
+      type: Boolean,
+      default: false
     }
   },
 
   // Documents
   documents: {
-    aadharCard: {
+    aadhaarFront: {
+      type: String,
+      default: null
+    },
+    aadhaarBack: {
       type: String,
       default: null
     },
@@ -355,6 +478,32 @@ const vendorSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     }
+  },
+
+  // Rating Information
+  rating: {
+    average: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5
+    },
+    totalReviews: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    ratingDistribution: {
+      type: Map,
+      of: Number,
+      default: () => new Map([
+        ['1', 0],
+        ['2', 0],
+        ['3', 0],
+        ['4', 0],
+        ['5', 0]
+      ])
+    }
   }
 }, {
   timestamps: true
@@ -367,6 +516,10 @@ vendorSchema.virtual('fullName').get(function() {
 
 // Virtual for formatted phone
 vendorSchema.virtual('formattedPhone').get(function() {
+  if (!this.phone || typeof this.phone !== 'string') {
+    return this.phone || '';
+  }
+  
   if (this.phone.startsWith('+91')) {
     return `+91 ${this.phone.slice(3, 8)} ${this.phone.slice(8)}`;
   } else if (this.phone.startsWith('91')) {
@@ -683,6 +836,79 @@ vendorSchema.statics.findByLocationAndService = function(city, pincode, serviceC
   }
   
   return this.find(query).select('-password');
+};
+
+// Instance method to check if vendor can accept tasks (mandatory deposit requirement)
+vendorSchema.methods.canAcceptNewTasks = function() {
+  // If vendor has never been assigned a task, they can accept
+  if (!this.wallet.firstTaskAssignedAt) {
+    return true;
+  }
+  
+  // If vendor has been assigned a task but hasn't made mandatory deposit, they cannot accept
+  if (this.wallet.firstTaskAssignedAt && !this.wallet.hasMandatoryDeposit) {
+    return false;
+  }
+  
+  // If vendor has made mandatory deposit, they can accept
+  return this.wallet.hasMandatoryDeposit;
+};
+
+// Instance method to mark first task assignment
+vendorSchema.methods.markFirstTaskAssignment = function() {
+  if (!this.wallet.firstTaskAssignedAt) {
+    this.wallet.firstTaskAssignedAt = new Date();
+    this.wallet.canAcceptTasks = false; // Cannot accept until mandatory deposit is made
+    return this.save();
+  }
+  return Promise.resolve(this);
+};
+
+// Instance method to mark mandatory deposit as completed
+vendorSchema.methods.markMandatoryDepositCompleted = function(amount) {
+  this.wallet.hasMandatoryDeposit = true;
+  this.wallet.mandatoryDepositAmount = amount;
+  this.wallet.canAcceptTasks = true;
+  return this.save();
+};
+
+// Instance method to update vendor rating
+vendorSchema.methods.updateRating = async function() {
+  const Review = require('./Review');
+  
+  // Get all reviews for this vendor
+  const reviews = await Review.find({ 
+    vendorId: this._id, 
+    status: 'approved' 
+  });
+  
+  if (reviews.length === 0) {
+    // No reviews, reset rating
+    this.rating.average = 0;
+    this.rating.totalReviews = 0;
+    this.rating.ratingDistribution = new Map([
+      ['1', 0], ['2', 0], ['3', 0], ['4', 0], ['5', 0]
+    ]);
+  } else {
+    // Calculate average rating
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    this.rating.average = Math.round((totalRating / reviews.length) * 10) / 10; // Round to 1 decimal
+    this.rating.totalReviews = reviews.length;
+    
+    // Calculate rating distribution
+    const distribution = new Map([
+      ['1', 0], ['2', 0], ['3', 0], ['4', 0], ['5', 0]
+    ]);
+    
+    reviews.forEach(review => {
+      const rating = review.rating.toString();
+      distribution.set(rating, (distribution.get(rating) || 0) + 1);
+    });
+    
+    this.rating.ratingDistribution = distribution;
+  }
+  
+  return this.save();
 };
 
 // Transform JSON output

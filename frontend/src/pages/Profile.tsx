@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import apiService from '@/services/api';
-import UserNotificationEnable from '@/components/UserNotificationEnable';
+// import UserNotificationEnable from '@/components/UserNotificationEnable';
 
 interface UserProfile {
   id: string;
@@ -205,9 +205,12 @@ const Profile = () => {
         setUserProfile(response.data.user);
         
         // Update AuthContext with updated user data
+        console.log('Updating AuthContext with user data:', response.data.user);
+        console.log('Address data being updated:', response.data.user.address);
         updateUser({
           name: response.data.user.name,
-          email: response.data.user.email
+          email: response.data.user.email,
+          address: response.data.user.address
         });
         
         setIsEditing(false);
@@ -250,7 +253,7 @@ const Profile = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 pb-8 flex items-center justify-center overflow-y-auto">
+      <div className="min-h-screen bg-gray-50 pt-16 pb-8 flex items-center justify-center overflow-y-auto">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
@@ -261,7 +264,7 @@ const Profile = () => {
 
   if (!userProfile) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 pb-8 flex items-center justify-center overflow-y-auto">
+      <div className="min-h-screen bg-gray-50 pt-16 pb-8 flex items-center justify-center overflow-y-auto">
         <div className="text-center">
           <p className="text-gray-600 mb-4">Failed to load profile</p>
           <Button onClick={loadUserProfile} variant="contained">
@@ -273,7 +276,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-20 pb-20 sm:pb-8 overflow-y-auto">
+    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-16 pb-20 sm:pb-8 overflow-y-auto">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 min-h-full">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
@@ -572,8 +575,8 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Notification Settings */}
-            <div className="border-t pt-4 sm:pt-6">
+            {/* Notification Settings - Hidden */}
+            {/* <div className="border-t pt-4 sm:pt-6">
               <h4 className="text-md font-medium text-gray-900 mb-4">Notification Settings</h4>
               <UserNotificationEnable 
                 onTokenGenerated={(token) => {
@@ -585,7 +588,7 @@ const Profile = () => {
                   });
                 }}
               />
-            </div>
+            </div> */}
 
             {/* Save Button */}
             {isEditing && (

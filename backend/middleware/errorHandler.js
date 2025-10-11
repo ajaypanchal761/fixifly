@@ -66,14 +66,17 @@ const errorHandler = (err, req, res, next) => {
 
   res.status(statusCode).json({
     success: false,
-    error: {
-      message,
-      statusCode,
-      timestamp: new Date().toISOString(),
-      path: req.url,
-      method: req.method,
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    }
+    message: message,
+    error: message,
+    ...(process.env.NODE_ENV === 'development' && { 
+      stack: err.stack,
+      details: {
+        statusCode,
+        timestamp: new Date().toISOString(),
+        path: req.url,
+        method: req.method
+      }
+    })
   });
 };
 

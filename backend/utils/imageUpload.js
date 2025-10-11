@@ -96,7 +96,7 @@ class ImageUploadService {
         folder: `fixifly/blog-images/${blogId}`,
         public_id: `blog_${blogId}_${Date.now()}`,
         transformation: [
-          { width: 1200, height: 630, crop: 'fill', gravity: 'auto' },
+          { width: 1200, height: 630, crop: 'limit' },
           { quality: 'auto' }
         ]
       });
@@ -403,6 +403,65 @@ class ImageUploadService {
     } catch (error) {
       logger.error('Batch upload failed', {
         userId: userId,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Generic image upload method
+   * @param {Object} file - Multer file object
+   * @param {string} folder - Folder name for organization
+   * @param {string} userId - Optional user ID for folder organization
+   * @returns {Promise<Object>} Upload result
+   */
+  async uploadImage(file, folder, userId = null) {
+    try {
+      if (!file) {
+        throw new Error('No file provided for upload');
+      }
+
+      // Validate file
+      const validation = this.cloudinary.validateImageFile(file);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+
+      logger.info('Starting image upload', {
+        fileName: file.originalname,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        folder: folder,
+        userId: userId
+      });
+
+      // Create folder path
+      const folderPath = userId ? `fixifly/${folder}/${userId}` : `fixifly/${folder}`;
+      const publicId = userId ? `${folder}_${userId}_${Date.now()}` : `${folder}_${Date.now()}`;
+
+      // Upload to Cloudinary
+      const uploadResult = await this.cloudinary.uploadFromBuffer(file.buffer, {
+        folder: folderPath,
+        public_id: publicId,
+        transformation: [
+          { width: 800, height: 600, crop: 'limit' },
+          { quality: 'auto' }
+        ]
+      });
+
+      logger.info('Image uploaded successfully', {
+        fileName: file.originalname,
+        publicId: uploadResult.public_id,
+        secureUrl: uploadResult.secure_url,
+        folder: folder
+      });
+
+      return uploadResult;
+    } catch (error) {
+      logger.error('Image upload failed', {
+        fileName: file?.originalname,
+        folder: folder,
         error: error.message
       });
       throw error;

@@ -12,7 +12,7 @@ const About = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 pb-20 sm:pb-8 overflow-y-auto">
+    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-16 pb-20 sm:pb-8 overflow-y-auto">
       <div className="container mx-auto px-4 lg:px-8 py-8 min-h-full">
         {/* Back Button */}
         <div className="mb-6">

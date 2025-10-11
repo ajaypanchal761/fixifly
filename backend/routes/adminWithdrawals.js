@@ -2,7 +2,8 @@ const express = require('express');
 const {
   getAllWithdrawalRequests,
   approveWithdrawalRequest,
-  declineWithdrawalRequest
+  declineWithdrawalRequest,
+  cleanupDuplicateWithdrawalTransactions
 } = require('../controllers/withdrawalController');
 const { protectAdmin, requirePermission } = require('../middleware/adminAuth');
 
@@ -22,5 +23,10 @@ router.put('/:requestId/approve', protectAdmin, requirePermission('vendorManagem
 // @desc    Decline withdrawal request
 // @access  Private (Admin with vendorManagement permission)
 router.put('/:requestId/decline', protectAdmin, requirePermission('vendorManagement'), declineWithdrawalRequest);
+
+// @route   POST /api/admin/withdrawals/cleanup-duplicates
+// @desc    Clean up duplicate withdrawal request transactions
+// @access  Private (Admin with vendorManagement permission)
+router.post('/cleanup-duplicates', protectAdmin, requirePermission('vendorManagement'), cleanupDuplicateWithdrawalTransactions);
 
 module.exports = router;

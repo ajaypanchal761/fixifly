@@ -7,6 +7,9 @@ import { reviewService, Review } from '@/services/reviewService';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import CitySelectionModal from './CitySelectionModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import cityApiService from '@/services/cityApi';
 
 // Reviews Carousel Component
 const ReviewsCarousel = () => {
@@ -151,6 +154,8 @@ const ReviewsCarousel = () => {
 
 const Hero = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [currentBanner, setCurrentBanner] = useState(0);
   const [products, setProducts] = useState<PublicProduct[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
@@ -166,7 +171,7 @@ const Hero = () => {
   const fetchBanners = async () => {
     try {
       setBannersLoading(true);
-      const bannerUrls = await bannerApiService.getBannerImageUrls();
+      const bannerUrls = await bannerApiService.getBannerImageUrls('user');
       
       if (bannerUrls.length > 0) {
         setBanners(bannerUrls);
@@ -266,7 +271,39 @@ const Hero = () => {
   };
 
   // Handle product card click
-  const handleProductClick = (product: PublicProduct) => {
+  const handleProductClick = async (product: PublicProduct) => {
+    // Check if user is authenticated and has a city in their profile
+    if (isAuthenticated && user?.address?.city) {
+      try {
+        // Fetch available cities for this service
+        const citiesResponse = await cityApiService.getActiveCities({ limit: 100 });
+        
+        if (citiesResponse.success && citiesResponse.data.cities) {
+          const availableCities = citiesResponse.data.cities;
+          const userCity = user.address.city.toLowerCase().trim();
+          
+          // Check if user's city is available for this service
+          const isUserCityAvailable = availableCities.some(city => 
+            city.isActive && city.name.toLowerCase().trim() === userCity
+          );
+          
+          if (!isUserCityAvailable) {
+            // Show error popup
+            toast({
+              title: "Service Not Available",
+              description: `Service is not available in your profile City (${user.address.city})`,
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error checking city availability:', error);
+        // If there's an error, proceed with normal flow
+      }
+    }
+    
+    // If user is not authenticated, doesn't have a city, or city is available, proceed normally
     setSelectedProduct(product);
     setIsCitySelectionModalOpen(true);
   };
@@ -312,7 +349,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:pt-14 lg:pt-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-          <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 mt-6 lg:mt-0" data-aos="fade-left" data-aos-delay="200">
+        <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 mt-6 lg:mt-0 lg:z-50" data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
@@ -466,7 +503,7 @@ const Hero = () => {
 
             {/* Additional Products (Toggle) - Non-featured products */}
             {showMoreProducts && allProducts.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="500">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:flex lg:flex-row lg:overflow-x-auto mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="500">
                 {allProducts
                   .filter(product => {
                     // Show products that are not in the featured products list
@@ -479,7 +516,7 @@ const Hero = () => {
                     return (
                       <div 
                         key={product._id}
-                        className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer" 
+                        className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer lg:flex-shrink-0 lg:min-w-[120px]" 
                         style={{backgroundColor: '#ffffff'}}
                         onClick={() => handleProductClick(product)}
                       >

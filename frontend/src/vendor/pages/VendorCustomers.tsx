@@ -20,7 +20,7 @@ const VendorCustomers = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-20 md:pt-0">
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8 md:hidden">Customers</h1>
           
