@@ -520,42 +520,8 @@ const VendorHeader = () => {
 
           {/* Download App and Rate Us Buttons */}
           <Divider sx={{ margin: '0px 0' }} />
+         
           
-          {/* Download Fixfly Partner App Button */}
-          <Button
-            onClick={() => {
-              handleDrawerClose();
-              // TODO: Add download functionality later
-            }}
-            startIcon={<Store size={22} />}
-            fullWidth
-            sx={{
-              justifyContent: 'flex-start',
-              padding: '10px 15px',
-              margin: '6px 0',
-              textTransform: 'none',
-              color: '#ffffff',
-              fontSize: '14px',
-              fontWeight: 600,
-              minHeight: '48px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-              border: 'none',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
-                transform: 'translateY(-1px)',
-                transition: 'all 0.2s ease-in-out'
-              },
-              '&:active': {
-                transform: 'translateY(0px)',
-                boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
-              }
-            }}
-          >
-            📱 Download Fixfly Partner App
-          </Button>
         </MuiBox>
       </Drawer>
 

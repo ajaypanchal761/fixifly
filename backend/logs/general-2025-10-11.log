@@ -3973,3 +3973,8 @@
 [2025-10-11T12:02:59.392Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
 [2025-10-11T12:02:59.498Z] [INFO] Vendor bookings retrieved: 2 for vendor 561 | {"vendorId":"561","totalBookings":2,"page":1}
 [2025-10-11T12:03:36.268Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T12:04:36.267Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T12:05:36.288Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T12:06:36.285Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-11T12:07:24.000Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-11T12:07:24.096Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
