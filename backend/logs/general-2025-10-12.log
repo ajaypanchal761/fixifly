@@ -1,0 +1,929 @@
+[2025-10-12T21:06:51.706Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:06:51.855Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:06:53.325Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:06:54.223Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:07:53.416Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:08:20.270Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:08:20.641Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:08:22.467Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:08:23.399Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:09:22.565Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:10:22.531Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:11:22.550Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:12:22.562Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:13:22.601Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:14:22.610Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:15:22.628Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:15:56.685Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-12T21:15:56.768Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-12T21:15:57.132Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-12T21:15:58.098Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-12T21:15:58.167Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-12T21:15:59.752Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-12T21:16:05.402Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:16:05.425Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:16:05.598Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:16:05.823Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:16:20.795Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Support Ticket Submitted - TK000002","from":"Fixfly <fixfly.in@gmail.com>"}
+[2025-10-12T21:16:22.640Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:16:25.498Z] [INFO] Email sent successfully | {"messageId":"<8ce424be-eaba-dde4-878c-46b2dd9e7215@gmail.com>","to":"panchalajay717@gmail.com","subject":"Support Ticket Submitted - TK000002"}
+[2025-10-12T21:16:25.499Z] [INFO] Ticket submission confirmation email sent: TK000002 | {"ticketId":"TK000002","userEmail":"panchalajay717@gmail.com","userId":"68e5560f4152df81db3bbb29","messageId":"<8ce424be-eaba-dde4-878c-46b2dd9e7215@gmail.com>"}
+[2025-10-12T21:16:25.501Z] [INFO] New support ticket created: TK000002 by user: 68e5560f4152df81db3bbb29
+[2025-10-12T21:16:36.604Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:16:36.629Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:16:36.645Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:16:36.746Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:16:36.751Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:16:36.949Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:16:36.955Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:16:37.340Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:16:37.380Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:16:37.452Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:16:37.462Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:16:37.465Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:16:37.613Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:16:37.801Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:16:38.241Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:16:38.329Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:16:55.939Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-12T21:16:56.350Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":2785.5,"totalRevenue":2785.5,"pendingBookings":0,"activeAMCSubscriptions":5,"totalAMCAmount":2703.38,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-12T21:16:56.415Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:16:56.419Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-12T21:16:56.598Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:16:56.976Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:16:57.136Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:16:59.339Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:16:59.344Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:16:59.651Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:17:00.350Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:17:00.494Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:17:04.887Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100&status=active"}
+[2025-10-12T21:17:13.170Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000002/assign-vendor"}
+[2025-10-12T21:17:13.663Z] [INFO] Email/SMS notifications disabled - using push notifications only | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000002"}
+[2025-10-12T21:17:13.664Z] [INFO] Attempting to send push notification for support ticket assignment | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000002","vendorObjectId":"68e8a60c9eed34d5607475b8"}
+[2025-10-12T21:17:13.713Z] [INFO] Admin assigned vendor to support ticket: TK000002 | {"ticketId":"TK000002","vendorId":"68e8a60c9eed34d5607475b8","adminId":"68e556544152df81db3bbb41"}
+[2025-10-12T21:17:13.722Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:17:13.767Z] [INFO] Vendor details for push notification | {"vendorId":"68e8a60c9eed34d5607475b8","vendorFound":true,"hasFcmToken":true,"fcmTokenLength":142,"pushNotificationsEnabled":true,"vendorName":"Ajay Panchal"}
+[2025-10-12T21:17:13.779Z] [INFO] Sending push notification with data | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000002","notificationTitle":"🛠️ New Support Ticket Assigned","notificationBody":"You have been assigned a new support ticket: vfvaaaaaaaaa","fcmTokenPreview":"fvbAprXa_HfcDtjW8Fuy..."}
+[2025-10-12T21:17:13.870Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-12T21:17:14.988Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/c42c8f54-4a41-4c24-b1c6-68e46cfb103c","fcmToken":"fvbAprXa_HfcDtjW8Fuy..."}
+[2025-10-12T21:17:15.050Z] [INFO] Complete notification result for support ticket assignment | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000002","pushNotification":true,"realtimeNotification":false,"fcmToken":"present"}
+[2025-10-12T21:17:15.051Z] [INFO] Support ticket assignment notification created | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000002","notificationId":"68ec1ad96fddab44ca1968df"}
+[2025-10-12T21:17:22.670Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:17:29.424Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:17:32.455Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:17:32.468Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:17:32.815Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:17:33.080Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:17:33.343Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:17:33.403Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:17:33.560Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:17:33.892Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:17:34.045Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:17:34.113Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:17:34.121Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:17:34.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:17:34.223Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:17:34.224Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:17:34.390Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:17:34.432Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:17:34.469Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:17:34.560Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:17:34.794Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:17:34.806Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:17:34.886Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:17:34.887Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:17:35.063Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:17:35.219Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:17:35.280Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:17:59.427Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:18:22.688Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:18:29.396Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:18:59.401Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:19:22.666Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:19:29.440Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:19:34.323Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/TK000001/accept"}
+[2025-10-12T21:19:35.838Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:19:35.858Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:19:35.933Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:19:35.938Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:19:36.537Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:19:38.086Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:19:38.168Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:19:38.190Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:19:38.208Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:19:38.841Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:19:38.987Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:19:39.133Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:19:42.401Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:19:42.416Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:19:42.507Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:19:42.519Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:19:43.167Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:19:43.354Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:19:43.622Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:19:55.367Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/TK000001"}
+[2025-10-12T21:19:55.767Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Support Ticket Rescheduled - TK000001","from":"Fixfly <fixfly.in@gmail.com>"}
+[2025-10-12T21:19:59.405Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:19:59.766Z] [INFO] Email sent successfully | {"messageId":"<3f07442b-1d6c-4a25-ae27-fb5936d10620@gmail.com>","to":"panchalajay717@gmail.com","subject":"Support Ticket Rescheduled - TK000001"}
+[2025-10-12T21:19:59.769Z] [INFO] Admin notification sent for rescheduled ticket: TK000001 | {"ticketId":"TK000001","adminEmail":"panchalajay717@gmail.com","vendorId":"68e8a60c9eed34d5607475b8","messageId":"<3f07442b-1d6c-4a25-ae27-fb5936d10620@gmail.com>"}
+[2025-10-12T21:19:59.782Z] [INFO] Support ticket rescheduled: TK000001 | {"ticketId":"TK000001","vendorId":"68e8a60c9eed34d5607475b8","originalDate":"2025-10-24T00:00:00.000Z","originalTime":"06:29","newDate":"2025-10-16","newTime":"10:00","reason":"this is by user request"}
+[2025-10-12T21:20:01.551Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:20:01.566Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:20:01.572Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:20:01.650Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:20:01.652Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:20:01.953Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:20:01.971Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:20:02.287Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:20:02.336Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:20:02.466Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:20:02.488Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:20:02.536Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:20:02.548Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:20:03.017Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:20:15.600Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:20:15.619Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:20:15.683Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:20:15.685Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:20:16.203Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:20:16.497Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:20:16.651Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:20:22.659Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:20:29.407Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:20:59.411Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:21:22.668Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:22:22.716Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:22:22.916Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:22:48.400Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:22:48.906Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:22:51.596Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:22:52.542Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:22:59.690Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:23:00.408Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:23:02.790Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:23:03.727Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:23:14.190Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:23:14.423Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:23:21.022Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:23:21.199Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:23:23.050Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:23:24.482Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:23:29.037Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:23:29.399Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:23:31.288Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:23:33.690Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:23:35.756Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:23:35.797Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:23:35.872Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:23:35.898Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:23:35.903Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:23:36.033Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:23:36.850Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:24:31.389Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:24:33.608Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:24:35.076Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-12T21:24:35.427Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":2785.5,"totalRevenue":2785.5,"monthlyBookingRevenue":2785.5,"totalBookingRevenue":2785.5,"monthlySupportTicketRevenue":0,"totalSupportTicketRevenue":0,"pendingBookings":0,"activeAMCSubscriptions":5,"totalAMCAmount":2703.38,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-12T21:24:35.511Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-12T21:24:36.084Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:24:36.281Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:24:40.552Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/TK000001/complete"}
+[2025-10-12T21:24:42.675Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:24:42.744Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:24:42.768Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:24:42.862Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:24:42.875Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:24:43.157Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:24:43.236Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:24:43.507Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:24:43.542Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:24:43.620Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:24:43.650Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:24:43.655Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:24:43.772Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:24:44.102Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:24:51.409Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-12T21:24:51.551Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:24:51.892Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:25:13.092Z] [INFO] Support ticket payment verification attempt | {"ticketId":"TK000001","razorpayOrderId":"order_RSi1U24BlBZAOI","razorpayPaymentId":"pay_RSi1Zne54ezi4d","expectedSignature":"f8eecdd588...","receivedSignature":"f8eecdd588..."}
+[2025-10-12T21:25:13.170Z] [INFO] Support ticket payment verified and status updated to Resolved | {"ticketId":"TK000001","status":"Resolved","paymentStatus":"collected","resolvedAt":"2025-10-12T21:25:13.093Z"}
+[2025-10-12T21:25:13.475Z] [INFO] Support ticket vendor earning added to wallet after payment verification | {"ticketId":"TK000001","vendorId":"68e8a60c9eed34d5607475b8","earningAmount":1150,"billingAmount":2000,"spareAmount":200}
+[2025-10-12T21:25:13.572Z] [INFO] Support ticket payment verified successfully | {"ticketId":"TK000001","razorpayOrderId":"order_RSi1U24BlBZAOI","razorpayPaymentId":"pay_RSi1Zne54ezi4d"}
+[2025-10-12T21:25:19.362Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:25:19.572Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:25:21.225Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:25:21.256Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:25:21.286Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-10-12T21:25:21.304Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-12T21:25:21.325Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:25:21.337Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:25:22.409Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:25:22.601Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:25:22.812Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:25:22.915Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:25:23.031Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":3085.5,"totalRevenue":3085.5,"monthlyBookingRevenue":2785.5,"totalBookingRevenue":2785.5,"monthlySupportTicketRevenue":300,"totalSupportTicketRevenue":300,"pendingBookings":0,"activeAMCSubscriptions":5,"totalAMCAmount":2703.38,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-12T21:25:23.208Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-12T21:25:23.395Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:26:04.752Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:26:04.795Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:26:05.139Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:26:05.421Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:26:05.660Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:26:05.788Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:26:05.910Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:26:06.186Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:26:06.325Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:26:06.455Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:26:06.582Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:26:15.637Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:26:15.647Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:26:16.015Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:26:16.657Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:26:16.891Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:26:19.707Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/banners"}
+[2025-10-12T21:26:21.196Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:26:21.345Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:26:21.355Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:26:21.832Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:26:21.854Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:26:22.139Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:26:22.845Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:26:23.001Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:26:24.422Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000002"}
+[2025-10-12T21:26:32.146Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000001"}
+[2025-10-12T21:26:35.410Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:26:35.426Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:26:35.702Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:26:37.414Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:26:37.592Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:26:51.832Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:27:05.413Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:27:05.423Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:27:05.797Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:27:08.508Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:27:08.635Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:27:21.345Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:27:31.787Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:27:33.107Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-12T21:27:33.400Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":2785.5,"totalRevenue":2785.5,"monthlyBookingRevenue":2785.5,"totalBookingRevenue":2785.5,"monthlySupportTicketRevenue":0,"totalSupportTicketRevenue":0,"pendingBookings":0,"activeAMCSubscriptions":5,"totalAMCAmount":2703.38,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-12T21:27:33.473Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-12T21:27:34.109Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:27:34.304Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:27:35.410Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:27:35.418Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:27:35.669Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:27:37.426Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:27:37.595Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:27:45.576Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:27:45.587Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:27:45.593Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:27:45.640Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:27:45.642Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:27:45.840Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:27:45.869Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:27:46.063Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:27:46.068Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:27:46.161Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:27:46.179Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:27:46.247Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:27:46.248Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:27:46.358Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:27:46.459Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:27:46.654Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:27:46.691Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:27:46.809Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:27:46.997Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:27:47.060Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:27:47.189Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:27:47.371Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:27:47.547Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:27:48.041Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:27:48.188Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:27:49.868Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-12T21:27:49.934Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-12T21:27:50.522Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-12T21:28:16.406Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:28:16.416Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:28:16.799Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:28:18.412Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:28:18.548Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:28:21.323Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:28:35.901Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:28:35.981Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:28:35.987Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:28:36.204Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:28:36.216Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:28:36.647Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:28:36.863Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:28:36.887Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:28:37.077Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:28:37.377Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:28:37.401Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:28:37.478Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:28:37.478Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:28:38.179Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:28:43.614Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Support Ticket Submitted - TK000001","from":"Fixfly <fixfly.in@gmail.com>"}
+[2025-10-12T21:28:47.752Z] [INFO] Email sent successfully | {"messageId":"<372c653f-60a0-e6a4-122a-f9d7ed4ecac0@gmail.com>","to":"panchalajay717@gmail.com","subject":"Support Ticket Submitted - TK000001"}
+[2025-10-12T21:28:47.754Z] [INFO] Ticket submission confirmation email sent: TK000001 | {"ticketId":"TK000001","userEmail":"panchalajay717@gmail.com","userId":"68e5560f4152df81db3bbb29","messageId":"<372c653f-60a0-e6a4-122a-f9d7ed4ecac0@gmail.com>"}
+[2025-10-12T21:28:47.754Z] [INFO] New support ticket created: TK000001 by user: 68e5560f4152df81db3bbb29
+[2025-10-12T21:28:53.630Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:28:53.690Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:28:54.630Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:28:57.057Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:28:57.087Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:28:58.830Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100&status=active"}
+[2025-10-12T21:29:07.091Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000001/assign-vendor"}
+[2025-10-12T21:29:07.612Z] [INFO] Email/SMS notifications disabled - using push notifications only | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000001"}
+[2025-10-12T21:29:07.615Z] [INFO] Attempting to send push notification for support ticket assignment | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000001","vendorObjectId":"68e8a60c9eed34d5607475b8"}
+[2025-10-12T21:29:07.658Z] [INFO] Admin assigned vendor to support ticket: TK000001 | {"ticketId":"TK000001","vendorId":"68e8a60c9eed34d5607475b8","adminId":"68e556544152df81db3bbb41"}
+[2025-10-12T21:29:07.667Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:29:07.677Z] [INFO] Vendor details for push notification | {"vendorId":"68e8a60c9eed34d5607475b8","vendorFound":true,"hasFcmToken":true,"fcmTokenLength":142,"pushNotificationsEnabled":true,"vendorName":"Ajay Panchal"}
+[2025-10-12T21:29:07.681Z] [INFO] Sending push notification with data | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000001","notificationTitle":"🛠️ New Support Ticket Assigned","notificationBody":"You have been assigned a new support ticket: home visit","fcmTokenPreview":"fvbAprXa_HfcDtjW8Fuy..."}
+[2025-10-12T21:29:07.781Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-12T21:29:08.603Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/83efe50c-8a05-48ae-80e9-74057c9a6f36","fcmToken":"fvbAprXa_HfcDtjW8Fuy..."}
+[2025-10-12T21:29:08.775Z] [INFO] Complete notification result for support ticket assignment | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000001","pushNotification":true,"realtimeNotification":false,"fcmToken":"present"}
+[2025-10-12T21:29:08.782Z] [INFO] Support ticket assignment notification created | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000001","notificationId":"68ec1da357a53011fd141272"}
+[2025-10-12T21:29:14.505Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:29:14.549Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:29:14.859Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:29:14.988Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:29:14.995Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:29:15.009Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:29:15.061Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:29:15.062Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:29:15.130Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:29:15.288Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:29:15.307Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:29:15.374Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:29:15.481Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:29:15.657Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:29:15.680Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:29:15.702Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:29:15.772Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:29:15.775Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:29:15.875Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:29:15.951Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:29:16.037Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:29:16.120Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:29:16.316Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:29:16.393Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:29:16.525Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:29:21.317Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:30:17.725Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:30:18.006Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:30:19.720Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:30:20.954Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:31:08.802Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:31:08.970Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:31:10.100Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:31:11.386Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:31:25.511Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:31:25.806Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:31:27.350Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:31:28.753Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:31:36.728Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:31:36.841Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:31:37.905Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:31:39.166Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:31:57.905Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/TK000001/accept"}
+[2025-10-12T21:31:59.358Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:31:59.390Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:31:59.437Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:31:59.438Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:31:59.992Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:32:01.592Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:32:01.618Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:32:01.677Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:32:01.681Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:32:02.183Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:32:02.630Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:32:02.795Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:32:03.856Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:32:03.865Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:32:03.926Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:32:03.933Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:32:04.805Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:32:04.890Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:32:04.966Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:32:16.321Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/TK000001/complete"}
+[2025-10-12T21:32:18.369Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:32:18.383Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:32:18.388Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:32:18.490Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:32:18.491Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:32:18.635Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:32:18.701Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:32:19.038Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:32:19.066Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:32:19.134Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:32:19.135Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:32:19.358Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:32:19.450Z] [INFO] Vendor bookings retrieved: 3 for vendor 561 | {"vendorId":"561","totalBookings":3,"page":1}
+[2025-10-12T21:32:19.485Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:32:20.133Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:32:22.840Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-12T21:32:23.118Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":2785.5,"totalRevenue":2785.5,"monthlyBookingRevenue":2785.5,"totalBookingRevenue":2785.5,"monthlySupportTicketRevenue":0,"totalSupportTicketRevenue":0,"pendingBookings":0,"activeAMCSubscriptions":5,"totalAMCAmount":2703.38,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-12T21:32:23.171Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-12T21:32:23.839Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:32:24.031Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:32:37.840Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-12T21:32:37.896Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:32:38.005Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:32:38.161Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:32:57.496Z] [INFO] Support ticket payment verification attempt | {"ticketId":"TK000001","razorpayOrderId":"order_RSi9fopiWyAjob","razorpayPaymentId":"pay_RSi9ku2ACcptvj","expectedSignature":"ef1b8dc303...","receivedSignature":"ef1b8dc303..."}
+[2025-10-12T21:32:57.567Z] [INFO] Support ticket payment verified and status updated to Resolved | {"ticketId":"TK000001","status":"Resolved","paymentStatus":"collected","resolvedAt":"2025-10-12T21:32:57.496Z"}
+[2025-10-12T21:32:57.774Z] [INFO] Earning already exists for ticket, skipping duplicate credit | {"ticketId":"TK000001","existingAmount":1150}
+[2025-10-12T21:33:10.411Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-12T21:33:10.496Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:33:10.720Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:33:17.061Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:33:17.066Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users/stats"}
+[2025-10-12T21:33:17.188Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:33:17.575Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-12T21:33:17.929Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":3635.5,"totalRevenue":3635.5,"monthlyBookingRevenue":2785.5,"totalBookingRevenue":2785.5,"monthlySupportTicketRevenue":850,"totalSupportTicketRevenue":850,"pendingBookings":0,"activeAMCSubscriptions":5,"totalAMCAmount":2703.38,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-12T21:33:17.998Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-12T21:33:18.078Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:33:18.233Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:33:18.593Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:33:18.743Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:33:38.020Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:34:38.039Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:35:38.063Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:36:38.105Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:37:38.068Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:38:38.081Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:39:38.092Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:40:38.086Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:41:38.089Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:42:38.411Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:43:38.128Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:44:38.150Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:45:20.064Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-12T21:45:20.140Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-12T21:45:20.340Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-12T21:45:26.381Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:26.546Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:26.755Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:27.010Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:27.199Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:27.439Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:27.576Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:27.859Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:27.984Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:28.234Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:28.373Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:28.560Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:28.784Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:29.015Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:29.236Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:29.419Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:29.639Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:29.838Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:30.065Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:30.213Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:30.435Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:30.619Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:30.797Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:30.980Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:31.254Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:31.423Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:31.595Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:31.865Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:32.058Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:32.264Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:32.524Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:32.774Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:32.937Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:33.170Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:33.328Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:33.516Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:33.769Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:34.371Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:34.794Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:35.526Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:35.717Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:35.998Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:36.486Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:36.690Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:36.970Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:37.142Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:37.342Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:37.559Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:37.751Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:38.037Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:38.133Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:45:38.261Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:38.434Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:38.638Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:38.811Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:38.997Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:39.233Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:39.397Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:39.633Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:40.050Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:40.347Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:40.533Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:40.930Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:41.233Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:41.567Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:41.830Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:42.028Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:42.266Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:42.435Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:42.661Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:42.866Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:43.177Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:43.377Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:43.579Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:43.887Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:44.084Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:44.349Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:44.546Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:44.747Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:44.928Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:45.168Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:45.396Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:45.557Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:45.732Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:45.978Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:46.141Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:46.329Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:46.511Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:46.784Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:46.997Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:47.169Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:47.331Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:47.500Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:47.661Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:47.854Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:48.048Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:48.319Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:48.499Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:48.696Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:48.886Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:49.042Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:49.242Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:49.423Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:49.637Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:49.840Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:50.016Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:50.218Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:50.436Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:50.619Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:50.880Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:51.092Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:51.260Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:51.465Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:51.702Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:51.856Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:52.017Z] [INFO] Booking created with payment: FIXE9E74E6A | {"bookingId":"68ec218f78a49cf6e9e74e6a","customerEmail":"panchalajay717@gmail.com","totalAmount":471,"servicesCount":1,"paymentId":"pay_RSiNOxiK8TQAEs"}
+[2025-10-12T21:45:52.024Z] [INFO] Sending new booking notification to admins | {"bookingId":"68ec218f78a49cf6e9e74e6a","bookingReference":"FIXE9E74E6A","customerName":"Ajay Panchal","totalAmount":471}
+[2025-10-12T21:45:52.073Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:52.159Z] [INFO] Sending notification to 1 admins | {"notificationTitle":"🆕 New Booking Received","adminCount":1}
+[2025-10-12T21:45:52.282Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-12T21:45:52.405Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:52.580Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:52.807Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:52.903Z] [INFO] Multicast push notification sent: | {"successCount":1,"failureCount":0,"totalTokens":1}
+[2025-10-12T21:45:52.919Z] [INFO] Admin notification sent for new booking with payment | {"bookingId":"68ec218f78a49cf6e9e74e6a","successCount":1,"failureCount":0}
+[2025-10-12T21:45:53.060Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:53.257Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-12T21:45:53.583Z] [INFO] Customer bookings retrieved: 4 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":4,"page":1}
+[2025-10-12T21:45:58.325Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:45:58.332Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-10-12T21:45:59.330Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:45:59.599Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:00.443Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:46:00.455Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-12T21:46:00.462Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-12T21:46:00.724Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":4,"totalRevenue":1884}
+[2025-10-12T21:46:01.299Z] [INFO] Admin retrieved bookings: 4 | {"totalBookings":4,"page":1,"filters":{}}
+[2025-10-12T21:46:01.438Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:46:01.580Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:07.592Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/68ec218f78a49cf6e9e74e6a/assign-vendor"}
+[2025-10-12T21:46:07.915Z] [INFO] Simple notification service initialized
+[2025-10-12T21:46:07.925Z] [INFO] Sending simple notification to vendor | {"vendorId":"561","title":"📅 New Service Booking Assigned","type":"booking_assignment"}
+[2025-10-12T21:46:08.425Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/a23499ba-f991-440f-918b-c257ff0df500","fcmToken":"fvbAprXa_HfcDtjW8Fuy..."}
+[2025-10-12T21:46:08.429Z] [INFO] Push notification sent successfully | {"vendorId":"561","fcmToken":"fvbAprXa_HfcDtjW8Fuy..."}
+[2025-10-12T21:46:08.430Z] [INFO] Simple notification sent successfully | {"vendorId":"561","title":"📅 New Service Booking Assigned","realtimeNotification":false,"pushNotification":true}
+[2025-10-12T21:46:08.432Z] [INFO] Vendor notification sent successfully for booking assignment | {"vendorId":"561","bookingId":"68ec218f78a49cf6e9e74e6a"}
+[2025-10-12T21:46:08.434Z] [INFO] Admin assigned vendor to booking: undefined | {"bookingId":"68ec218f78a49cf6e9e74e6a","vendorId":"561","adminId":"68e556544152df81db3bbb41"}
+[2025-10-12T21:46:08.448Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:46:09.409Z] [INFO] Admin retrieved bookings: 4 | {"totalBookings":4,"page":1,"filters":{}}
+[2025-10-12T21:46:11.749Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:46:11.764Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:46:12.159Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:46:12.165Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:46:12.199Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:46:12.207Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:46:12.227Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:46:12.228Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:46:12.411Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:46:12.512Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:46:12.520Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:46:12.679Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:46:12.751Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:46:12.848Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:46:12.860Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:12.867Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:46:12.946Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:46:12.947Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:46:13.114Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:46:13.216Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:46:13.237Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:13.348Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:13.497Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:46:13.789Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:46:13.940Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:14.979Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/68ec218f78a49cf6e9e74e6a/accept"}
+[2025-10-12T21:46:15.276Z] [INFO] Vendor accepted task for booking 68ec218f78a49cf6e9e74e6a
+[2025-10-12T21:46:16.306Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:46:16.316Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:46:16.411Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:46:16.413Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:46:16.988Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:46:17.823Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:46:17.845Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:46:17.913Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:46:17.914Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:46:18.515Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:46:18.842Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:46:18.977Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:20.270Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:46:20.277Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:46:20.372Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:46:20.372Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:46:21.096Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:46:21.258Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:46:21.919Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:27.427Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-12T21:46:27.706Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":3635.5,"totalRevenue":3635.5,"monthlyBookingRevenue":2785.5,"totalBookingRevenue":2785.5,"monthlySupportTicketRevenue":850,"totalSupportTicketRevenue":850,"pendingBookings":0,"activeAMCSubscriptions":5,"totalAMCAmount":2703.38,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-12T21:46:27.770Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-12T21:46:28.449Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:46:28.626Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:38.129Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:46:42.286Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/68ec218f78a49cf6e9e74e6a/complete"}
+[2025-10-12T21:46:42.606Z] [INFO] Task completed successfully | {"bookingId":"68ec218f78a49cf6e9e74e6a","vendorId":"561","paymentMethod":"online","totalAmount":""}
+[2025-10-12T21:46:44.179Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:46:44.195Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:46:44.207Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:46:44.261Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:46:44.263Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:46:44.618Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:46:44.654Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:46:45.145Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:46:45.159Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:46:45.174Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:46:45.234Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:46:45.236Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:46:45.461Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:46:45.911Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:46:47.011Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-12T21:46:47.029Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-12T21:46:47.190Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-12T21:46:47.894Z] [INFO] Customer bookings retrieved: 4 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":4,"page":1}
+[2025-10-12T21:46:48.868Z] [INFO] Creating payment order request: | {"bookingId":"68ec218f78a49cf6e9e74e6a","amount":2000,"currency":"INR"}
+[2025-10-12T21:46:48.935Z] [INFO] Booking found: | {"bookingId":"68ec218f78a49cf6e9e74e6a","paymentMode":"online","paymentStatus":"pending","status":"in_progress"}
+[2025-10-12T21:46:48.937Z] [INFO] Creating Razorpay order with amount: | {"amount":2000,"amountType":"number","currency":"INR","bookingId":"68ec218f78a49cf6e9e74e6a"}
+[2025-10-12T21:46:49.258Z] [INFO] Payment order created successfully | {"bookingId":"68ec218f78a49cf6e9e74e6a","amount":2000,"currency":"INR","orderId":"order_RSiOcQSMpnh1SV"}
+[2025-10-12T21:47:05.589Z] [INFO] Payment verification attempt | {"bookingId":"68ec218f78a49cf6e9e74e6a","razorpayOrderId":"order_RSiOcQSMpnh1SV","razorpayPaymentId":"pay_RSiOgjp3kRnd7V","expectedSignature":"010fafb1a3...","receivedSignature":"010fafb1a3..."}
+[2025-10-12T21:47:05.844Z] [INFO] Vendor earning added to wallet | {"vendorId":"561","caseId":"CASE_68ec218f78a49cf6e9e74e6a","earningAmount":1385.5,"billingAmount":2000,"spareAmount":200,"travellingAmount":100}
+[2025-10-12T21:47:05.849Z] [INFO] Payment verified and booking updated | {"bookingId":"68ec218f78a49cf6e9e74e6a","razorpayPaymentId":"pay_RSiOgjp3kRnd7V","razorpayOrderId":"order_RSiOcQSMpnh1SV","status":"completed","paymentStatus":"payment_done"}
+[2025-10-12T21:47:06.572Z] [INFO] Customer bookings retrieved: 4 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":4,"page":1}
+[2025-10-12T21:47:07.309Z] [INFO] Customer bookings retrieved: 4 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":4,"page":1}
+[2025-10-12T21:47:07.945Z] [INFO] Customer bookings retrieved: 4 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":4,"page":1}
+[2025-10-12T21:47:13.769Z] [INFO] Customer bookings retrieved: 4 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":4,"page":1}
+[2025-10-12T21:47:16.241Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:47:16.248Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-12T21:47:16.256Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-12T21:47:16.474Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":4,"totalRevenue":1884}
+[2025-10-12T21:47:17.233Z] [INFO] Admin retrieved bookings: 4 | {"totalBookings":4,"page":1,"filters":{}}
+[2025-10-12T21:47:17.308Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:47:17.466Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:47:23.297Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-12T21:47:23.334Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:47:23.576Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:47:38.134Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:48:38.150Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:49:24.670Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:49:28.774Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:49:35.675Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:49:38.151Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:49:44.685Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:49:47.670Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:49:50.755Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:50:06.129Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:50:06.632Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:50:09.896Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:50:10.615Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:50:15.350Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:50:15.829Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:50:20.911Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:50:21.181Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:50:23.044Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:50:24.280Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:50:30.498Z] [INFO] Support ticket payment verification attempt | {"ticketId":"TK000001","razorpayOrderId":"order_RSi9fopiWyAjob","razorpayPaymentId":"pay_RSi9ku2ACcptvj","expectedSignature":"ef1b8dc303...","receivedSignature":"ef1b8dc303..."}
+[2025-10-12T21:50:30.583Z] [INFO] Support ticket payment verified and status updated to Resolved | {"ticketId":"TK000001","status":"Resolved","paymentStatus":"collected","resolvedAt":"2025-10-12T21:50:30.503Z"}
+[2025-10-12T21:50:30.860Z] [INFO] Earning already exists for ticket, skipping duplicate credit | {"ticketId":"TK000001","existingAmount":1150}
+[2025-10-12T21:50:42.258Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:50:42.790Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:50:44.680Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:50:46.678Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:51:24.240Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:51:24.372Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:51:25.890Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:51:26.860Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:51:33.805Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:51:33.976Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:51:35.540Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:51:36.495Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:51:37.187Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:51:43.465Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:51:43.497Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:51:43.805Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:51:44.508Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:51:44.697Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:51:45.762Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-12T21:51:45.770Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-12T21:51:45.780Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-12T21:51:46.354Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":4,"totalRevenue":1884}
+[2025-10-12T21:51:46.760Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:51:46.999Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:51:47.656Z] [INFO] Admin retrieved bookings: 4 | {"totalBookings":4,"page":1,"filters":{}}
+[2025-10-12T21:51:54.105Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?"}
+[2025-10-12T21:51:55.025Z] [INFO] Admin retrieved bookings: 4 | {"totalBookings":4,"page":1,"filters":{}}
+[2025-10-12T21:51:55.130Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:51:55.306Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:52:02.198Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:52:02.266Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:52:02.546Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:52:02.904Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:52:03.182Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:52:03.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:52:03.336Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:52:03.529Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:52:03.581Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:52:03.587Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:52:03.596Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:52:03.649Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:52:03.651Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:52:03.751Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:52:03.864Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:52:03.915Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:52:04.252Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:52:04.278Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:52:04.298Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:52:04.359Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:52:04.360Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:52:04.426Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:52:04.482Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:52:04.603Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:52:04.896Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:52:27.090Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Support Ticket Submitted - TK000002","from":"Fixfly <fixfly.in@gmail.com>"}
+[2025-10-12T21:52:30.986Z] [INFO] Email sent successfully | {"messageId":"<babeae0d-28d5-1276-eec6-6ffc33d20866@gmail.com>","to":"panchalajay717@gmail.com","subject":"Support Ticket Submitted - TK000002"}
+[2025-10-12T21:52:30.987Z] [INFO] Ticket submission confirmation email sent: TK000002 | {"ticketId":"TK000002","userEmail":"panchalajay717@gmail.com","userId":"68e5560f4152df81db3bbb29","messageId":"<babeae0d-28d5-1276-eec6-6ffc33d20866@gmail.com>"}
+[2025-10-12T21:52:30.988Z] [INFO] New support ticket created: TK000002 by user: 68e5560f4152df81db3bbb29
+[2025-10-12T21:52:35.618Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:52:39.365Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:52:39.389Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:52:39.666Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:52:40.134Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-12T21:52:40.299Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:53:09.407Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:53:35.673Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:53:36.269Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:53:36.275Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:53:36.633Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:53:38.391Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:53:38.398Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:53:38.737Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:54:03.559Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:54:03.873Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:54:06.258Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:54:07.617Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:54:11.981Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:54:12.133Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:54:13.783Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:54:14.012Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:54:15.824Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:54:19.166Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:54:19.483Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:54:21.167Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:54:22.381Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:54:25.151Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:54:25.549Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:54:27.309Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:54:29.628Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:54:38.751Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:54:40.110Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-12T21:54:40.291Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:54:40.663Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:54:42.299Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:54:43.532Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:54:43.568Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:54:43.983Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:54:49.236Z] [INFO] Sending email | {"to":"panchalajay717@gmail.com","subject":"Support Ticket Submitted - TK000003","from":"Fixfly <fixfly.in@gmail.com>"}
+[2025-10-12T21:54:53.495Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:54:53.517Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:54:53.969Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:54:53.998Z] [INFO] Email sent successfully | {"messageId":"<9ace95e6-875e-56ad-d3fc-677067f43956@gmail.com>","to":"panchalajay717@gmail.com","subject":"Support Ticket Submitted - TK000003"}
+[2025-10-12T21:54:54.014Z] [INFO] Ticket submission confirmation email sent: TK000003 | {"ticketId":"TK000003","userEmail":"panchalajay717@gmail.com","userId":"68e5560f4152df81db3bbb29","messageId":"<9ace95e6-875e-56ad-d3fc-677067f43956@gmail.com>"}
+[2025-10-12T21:54:54.047Z] [INFO] New support ticket created: TK000003 by user: 68e5560f4152df81db3bbb29
+[2025-10-12T21:55:03.464Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100&status=active"}
+[2025-10-12T21:55:05.802Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-12T21:55:06.075Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-12T21:55:07.529Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-12T21:55:07.592Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100&status=active"}
+[2025-10-12T21:55:07.673Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:55:07.696Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:55:08.744Z] [INFO] SMTP connection verified successfully
+[2025-10-12T21:55:09.443Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:55:09.740Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/stats"}
+[2025-10-12T21:55:09.919Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:55:10.314Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:55:15.753Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/TK000003/assign-vendor"}
+[2025-10-12T21:55:16.371Z] [INFO] Email/SMS notifications disabled - using push notifications only | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000003"}
+[2025-10-12T21:55:16.373Z] [INFO] Attempting to send push notification for support ticket assignment | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000003","vendorObjectId":"68e8a60c9eed34d5607475b8"}
+[2025-10-12T21:55:16.428Z] [INFO] Vendor details for push notification | {"vendorId":"68e8a60c9eed34d5607475b8","vendorFound":true,"hasFcmToken":true,"fcmTokenLength":142,"pushNotificationsEnabled":true,"vendorName":"Ajay Panchal"}
+[2025-10-12T21:55:16.429Z] [INFO] Sending push notification with data | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000003","notificationTitle":"🛠️ New Support Ticket Assigned","notificationBody":"You have been assigned a new support ticket: dvdfvdf","fcmTokenPreview":"fvbAprXa_HfcDtjW8Fuy..."}
+[2025-10-12T21:55:16.549Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-12T21:55:16.590Z] [INFO] Admin assigned vendor to support ticket: TK000003 | {"ticketId":"TK000003","vendorId":"68e8a60c9eed34d5607475b8","adminId":"68e556544152df81db3bbb41"}
+[2025-10-12T21:55:16.604Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:55:17.260Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/d4e3b8af-3717-4652-a74b-5010a3fc1a06","fcmToken":"fvbAprXa_HfcDtjW8Fuy..."}
+[2025-10-12T21:55:17.329Z] [INFO] Complete notification result for support ticket assignment | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000003","pushNotification":true,"realtimeNotification":false,"fcmToken":"present"}
+[2025-10-12T21:55:17.331Z] [INFO] Support ticket assignment notification created | {"vendorId":"68e8a60c9eed34d5607475b8","ticketId":"TK000003","notificationId":"68ec23c4eeab05f90c5a6ee1"}
+[2025-10-12T21:55:21.043Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:55:21.061Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-12T21:55:21.373Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:55:21.626Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:55:21.856Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:55:21.873Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:55:21.885Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:55:21.962Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:55:21.969Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:55:22.057Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendor/wallet"}
+[2025-10-12T21:55:22.074Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:55:22.215Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:55:22.229Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:55:22.241Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:55:22.426Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:55:22.554Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:55:22.620Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:55:22.633Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:55:22.709Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:55:22.710Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:55:22.807Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:55:22.940Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:55:23.041Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:55:23.163Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:55:23.173Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:55:25.811Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/TK000003/accept"}
+[2025-10-12T21:55:27.175Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:55:27.184Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:55:27.270Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:55:27.274Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:55:27.858Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:55:29.038Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:55:29.056Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:55:29.109Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:55:29.110Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:55:29.716Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:55:30.025Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:55:30.168Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:55:31.836Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:55:31.845Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:55:31.907Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:55:31.908Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:55:32.477Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:55:32.849Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:55:33.008Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:55:35.400Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:55:41.804Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/TK000003/complete"}
+[2025-10-12T21:55:44.036Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:55:44.068Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:55:44.088Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:55:44.140Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:55:44.148Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:55:44.467Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-12T21:55:44.523Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-12T21:55:44.775Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:55:44.789Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-12T21:55:44.852Z] [INFO] Getting bookings for vendor | {"vendorId":"561","page":1,"limit":10}
+[2025-10-12T21:55:44.853Z] [INFO] Booking query | {"query":{"vendor.vendorId":"561"}}
+[2025-10-12T21:55:45.279Z] [INFO] Vendor bookings retrieved: 4 for vendor 561 | {"vendorId":"561","totalBookings":4,"page":1}
+[2025-10-12T21:55:45.415Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-12T21:55:45.547Z] [INFO] FCM token updated for vendor | {"vendorId":"68e8a60c9eed34d5607475b8","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-12T21:55:46.048Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-12T21:55:46.120Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:55:46.349Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:55:46.615Z] [INFO] User AMC subscriptions fetched | {"userId":"68e5560f4152df81db3bbb29","subscriptionsCount":2}
+[2025-10-12T21:56:04.917Z] [INFO] Support ticket payment verification attempt | {"ticketId":"TK000003","razorpayOrderId":"order_RSiY7A5Rr66DSB","razorpayPaymentId":"pay_RSiYBeKMCLyjh9","expectedSignature":"150863bdc4...","receivedSignature":"150863bdc4..."}
+[2025-10-12T21:56:05.017Z] [INFO] Support ticket payment verified and status updated to Resolved | {"ticketId":"TK000003","status":"Resolved","paymentStatus":"collected","resolvedAt":"2025-10-12T21:56:04.918Z"}
+[2025-10-12T21:56:05.351Z] [INFO] Support ticket vendor earning added to wallet after payment verification | {"ticketId":"TK000003","vendorId":"68e8a60c9eed34d5607475b8","earningAmount":1150,"billingAmount":2000,"spareAmount":200}
+[2025-10-12T21:56:05.403Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/support-tickets/admin/all?page=1&limit=100&status=all&priority=all"}
+[2025-10-12T21:56:05.427Z] [INFO] Support ticket payment verified successfully | {"ticketId":"TK000003","razorpayOrderId":"order_RSiY7A5Rr66DSB","razorpayPaymentId":"pay_RSiYBeKMCLyjh9"}
+[2025-10-12T21:56:07.593Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-12T21:56:11.953Z] [INFO] Customer bookings retrieved: 4 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":4,"page":1}
+[2025-10-12T21:56:12.294Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-12T21:56:12.300Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-12T21:56:12.437Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}

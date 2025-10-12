@@ -31,6 +31,7 @@ import {
   Download
 } from "lucide-react";
 import { supportTicketAPI } from "@/services/supportApiService";
+import { getUserAMCSubscriptions } from "@/services/amcApiService";
 import { useAuth } from "@/contexts/AuthContext";
 import jsPDF from 'jspdf';
 
@@ -41,6 +42,9 @@ const Support = () => {
   const [supportType, setSupportType] = useState("");
   const [caseId, setCaseId] = useState("");
   const [showCaseIdField, setShowCaseIdField] = useState(false);
+  const [showSubscriptionField, setShowSubscriptionField] = useState(false);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState("");
+  const [userAMCSubscriptions, setUserAMCSubscriptions] = useState([]);
   const [showThankYou, setShowThankYou] = useState(false);
   const [ticketForm, setTicketForm] = useState({
     subject: "",
@@ -60,8 +64,22 @@ const Support = () => {
   useEffect(() => {
     if (user) {
       fetchUserTickets();
+      fetchUserAMCSubscriptions();
     }
   }, [user]);
+
+  // Fetch user AMC subscriptions
+  const fetchUserAMCSubscriptions = async () => {
+    try {
+      const response = await getUserAMCSubscriptions('active');
+      if (response.success) {
+        setUserAMCSubscriptions(response.data.subscriptions || []);
+      }
+    } catch (error) {
+      console.error('Error fetching AMC subscriptions:', error);
+      setUserAMCSubscriptions([]);
+    }
+  };
 
   // Listen for support ticket updates
   useEffect(() => {
@@ -600,7 +618,9 @@ const Support = () => {
   const handleSupportTypeChange = (value: string) => {
     setSupportType(value);
     setShowCaseIdField(value === "service" || value === "product");
+    setShowSubscriptionField(value === "amc");
     setCaseId("");
+    setSelectedSubscriptionId("");
   };
 
   // Handle form submission
@@ -638,11 +658,22 @@ const Support = () => {
       return;
     }
 
+    if (supportType === "amc" && !selectedSubscriptionId) {
+      toast({
+        title: "AMC Subscription Required",
+        description: "Please select your AMC subscription",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const ticketData = {
         supportType,
         caseId: caseId || null,
+        subscriptionId: selectedSubscriptionId || null,
         subject: ticketForm.subject,
         description: ticketForm.description
       };
@@ -659,7 +690,9 @@ const Support = () => {
         // Reset form
         setSupportType("");
         setCaseId("");
+        setSelectedSubscriptionId("");
         setShowCaseIdField(false);
+        setShowSubscriptionField(false);
         setTicketForm({
           subject: "",
           category: "",
@@ -889,6 +922,43 @@ const Support = () => {
                         />
                         <p className="text-xs text-muted-foreground">
                           Please enter the Case ID from your previous service or product purchase.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Subscription ID Field - Only for AMC Claims */}
+                    {showSubscriptionField && (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">AMC Subscription *</label>
+                        <Select 
+                          value={selectedSubscriptionId} 
+                          onValueChange={setSelectedSubscriptionId}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select your AMC subscription" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {userAMCSubscriptions.length === 0 ? (
+                              <SelectItem value="" disabled>
+                                No active AMC subscriptions found
+                              </SelectItem>
+                            ) : (
+                              userAMCSubscriptions.map((subscription) => (
+                                <SelectItem key={subscription._id} value={subscription.subscriptionId}>
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">{subscription.planName}</span>
+                                    <span className="text-xs text-muted-foreground">
+                                      ID: {subscription.subscriptionId} | 
+                                      {subscription.endDate ? ` Expires: ${new Date(subscription.endDate).toLocaleDateString()}` : ' Active'}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Select the AMC subscription you want to claim warranty for.
                         </p>
                       </div>
                     )}

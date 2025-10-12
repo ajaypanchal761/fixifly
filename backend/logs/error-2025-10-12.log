@@ -1,0 +1,4 @@
+[2025-10-12T21:17:15.048Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"68e8a60c9eed34d5607475b8"}
+[2025-10-12T21:29:08.750Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"68e8a60c9eed34d5607475b8"}
+[2025-10-12T21:46:08.059Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"561"}
+[2025-10-12T21:55:17.328Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"68e8a60c9eed34d5607475b8"}

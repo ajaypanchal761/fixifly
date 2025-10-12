@@ -5,6 +5,7 @@ const Blog = require('../models/Blog');
 const Card = require('../models/Card');
 const { Booking } = require('../models/Booking');
 const AMCSubscription = require('../models/AMCSubscription');
+const SupportTicket = require('../models/SupportTicket');
 const jwt = require('jsonwebtoken');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
@@ -627,6 +628,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       totalVendors,
       totalServices,
       totalBookings,
+      totalSupportTickets,
       pendingVendors,
       activeVendors,
       blockedVendors,
@@ -638,6 +640,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       Vendor.countDocuments(),
       Card.countDocuments({ status: 'active' }),
       Booking.countDocuments(),
+      SupportTicket.countDocuments(),
       // Pending vendors: not approved but active (waiting for approval)
       Vendor.countDocuments({ 
         isApproved: false, 
@@ -673,8 +676,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const activeAMCSubscriptions = activeAMCSubscriptionsResult.length > 0 ? activeAMCSubscriptionsResult[0].count : 0;
     const totalAMCAmount = activeAMCSubscriptionsResult.length > 0 ? activeAMCSubscriptionsResult[0].totalAmount : 0;
 
-    // Get revenue calculations from actual bookings including admin commission
-    const [monthlyRevenueResult, totalRevenueResult, pendingBookingsResult] = await Promise.all([
+    // Get revenue calculations from actual bookings and support tickets including admin commission
+    const [monthlyRevenueResult, totalRevenueResult, pendingBookingsResult, monthlySupportTicketRevenueResult, totalSupportTicketRevenueResult] = await Promise.all([
       // Monthly revenue from completed bookings (booking amount + admin commission)
       Booking.aggregate([
         {
@@ -800,17 +803,142 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       Booking.countDocuments({ 
         status: { $in: ['pending', 'confirmed', 'in_progress'] },
         'payment.status': { $ne: 'completed' }
-      })
+      }),
+      // Monthly revenue from completed support tickets (admin commission)
+      SupportTicket.aggregate([
+        {
+          $match: {
+            status: 'Resolved',
+            paymentStatus: 'collected',
+            createdAt: { $gte: startDate, $lte: endDate },
+            billingAmount: { $exists: true, $ne: null, $gt: 0 }
+          }
+        },
+        {
+          $addFields: {
+            // Calculate admin commission from support ticket completion data (same logic as bookings)
+            adminCommission: {
+              $cond: {
+                if: { $and: [
+                  { $ne: ['$completionData', null] },
+                  { $ne: ['$completionData.billingAmount', null] }
+                ]},
+                then: {
+                  $let: {
+                    vars: {
+                      billingAmount: { $toDouble: '$completionData.billingAmount' },
+                      spareAmount: {
+                        $sum: {
+                          $map: {
+                            input: { $ifNull: ['$completionData.spareParts', []] },
+                            as: 'part',
+                            in: { $toDouble: { $replaceAll: { input: '$$part.amount', find: '₹', replacement: '' } } }
+                          }
+                        }
+                      },
+                      travellingAmount: { $toDouble: { $ifNull: ['$completionData.travelingAmount', 0] } },
+                      supportTicketBaseAmount: 0 // Support tickets don't have base amount like bookings
+                    },
+                    in: {
+                      $cond: {
+                        if: { $lte: ['$$billingAmount', 500] },
+                        then: 0, // For amounts <= 500, admin gets nothing (no base amount for support tickets)
+                        else: {
+                          $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$supportTicketBaseAmount'] }] }, 0.5]
+                        }
+                      }
+                    }
+                  }
+                },
+                else: 0 // No completion data means no admin commission
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$adminCommission' }
+          }
+        }
+      ]),
+      // Total revenue from all completed support tickets (admin commission)
+      SupportTicket.aggregate([
+        {
+          $match: {
+            status: 'Resolved',
+            paymentStatus: 'collected',
+            billingAmount: { $exists: true, $ne: null, $gt: 0 }
+          }
+        },
+        {
+          $addFields: {
+            // Calculate admin commission from support ticket completion data (same logic as bookings)
+            adminCommission: {
+              $cond: {
+                if: { $and: [
+                  { $ne: ['$completionData', null] },
+                  { $ne: ['$completionData.billingAmount', null] }
+                ]},
+                then: {
+                  $let: {
+                    vars: {
+                      billingAmount: { $toDouble: '$completionData.billingAmount' },
+                      spareAmount: {
+                        $sum: {
+                          $map: {
+                            input: { $ifNull: ['$completionData.spareParts', []] },
+                            as: 'part',
+                            in: { $toDouble: { $replaceAll: { input: '$$part.amount', find: '₹', replacement: '' } } }
+                          }
+                        }
+                      },
+                      travellingAmount: { $toDouble: { $ifNull: ['$completionData.travelingAmount', 0] } },
+                      supportTicketBaseAmount: 0 // Support tickets don't have base amount like bookings
+                    },
+                    in: {
+                      $cond: {
+                        if: { $lte: ['$$billingAmount', 500] },
+                        then: 0, // For amounts <= 500, admin gets nothing (no base amount for support tickets)
+                        else: {
+                          $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$supportTicketBaseAmount'] }] }, 0.5]
+                        }
+                      }
+                    }
+                  }
+                },
+                else: 0 // No completion data means no admin commission
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$adminCommission' }
+          }
+        }
+      ])
     ]);
 
-    const monthlyRevenue = monthlyRevenueResult.length > 0 ? (monthlyRevenueResult[0].total || 0) : 0;
-    const totalRevenue = totalRevenueResult.length > 0 ? (totalRevenueResult[0].total || 0) : 0;
+    const monthlyBookingRevenue = monthlyRevenueResult.length > 0 ? (monthlyRevenueResult[0].total || 0) : 0;
+    const totalBookingRevenue = totalRevenueResult.length > 0 ? (totalRevenueResult[0].total || 0) : 0;
+    const monthlySupportTicketRevenue = monthlySupportTicketRevenueResult.length > 0 ? (monthlySupportTicketRevenueResult[0].total || 0) : 0;
+    const totalSupportTicketRevenue = totalSupportTicketRevenueResult.length > 0 ? (totalSupportTicketRevenueResult[0].total || 0) : 0;
+    
+    // Combine booking and support ticket revenue
+    const monthlyRevenue = monthlyBookingRevenue + monthlySupportTicketRevenue;
+    const totalRevenue = totalBookingRevenue + totalSupportTicketRevenue;
     const pendingBookings = pendingBookingsResult || 0;
 
     // Log revenue calculation for debugging
     logger.info('Admin dashboard revenue calculation', {
       monthlyRevenue,
       totalRevenue,
+      monthlyBookingRevenue,
+      totalBookingRevenue,
+      monthlySupportTicketRevenue,
+      totalSupportTicketRevenue,
       pendingBookings,
       activeAMCSubscriptions,
       totalAMCAmount,
@@ -841,6 +969,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         totalVendors,
         totalServices,
         totalBookings,
+        totalSupportTickets,
         totalRevenue,
         monthlyRevenue,
         pendingVendors,

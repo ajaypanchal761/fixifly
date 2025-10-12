@@ -12,6 +12,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
   const {
     supportType,
     caseId,
+    subscriptionId,
     subject,
     description
   } = req.body;
@@ -31,6 +32,14 @@ const createSupportTicket = asyncHandler(async (req, res) => {
     return res.status(400).json({
       success: false,
       message: 'Case ID is required for service and product warranty claims'
+    });
+  }
+
+  // Validate subscription ID for AMC claims
+  if (supportType === 'amc' && !subscriptionId) {
+    return res.status(400).json({
+      success: false,
+      message: 'Subscription ID is required for AMC claims'
     });
   }
 
@@ -68,6 +77,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
     supportType,
     type: ticketType,
     caseId: caseId || null,
+    subscriptionId: subscriptionId || null,
     subject,
     description,
     metadata: {
@@ -247,7 +257,7 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
   const userId = req.user.userId || req.user._id;
 
   const tickets = await SupportTicket.find({ userId })
-    .select('ticketId subject type status priority createdAt lastResponseAt responseCount caseId paymentMode paymentStatus billingAmount vendorStatus completionData description')
+    .select('ticketId subject type status priority createdAt lastResponseAt responseCount caseId subscriptionId paymentMode paymentStatus billingAmount vendorStatus completionData description')
     .sort({ createdAt: -1 });
 
   const formattedTickets = tickets.map(ticket => ({
@@ -260,6 +270,7 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
     lastUpdate: ticket.lastUpdate,
     responses: ticket.responseCount,
     caseId: ticket.caseId,
+    subscriptionId: ticket.subscriptionId,
     description: ticket.description,
     paymentMode: ticket.paymentMode,
     paymentStatus: ticket.paymentStatus,
@@ -417,7 +428,8 @@ const getAllSupportTickets = asyncHandler(async (req, res) => {
       { subject: { $regex: search, $options: 'i' } },
       { userName: { $regex: search, $options: 'i' } },
       { userEmail: { $regex: search, $options: 'i' } },
-      { caseId: { $regex: search, $options: 'i' } }
+      { caseId: { $regex: search, $options: 'i' } },
+      { subscriptionId: { $regex: search, $options: 'i' } }
     ];
   }
 
@@ -453,6 +465,7 @@ const getAllSupportTickets = asyncHandler(async (req, res) => {
     lastUpdate: ticket.lastUpdate,
     responses: ticket.responseCount,
     caseId: ticket.caseId,
+    subscriptionId: ticket.subscriptionId,
     assignedTo: ticket.assignedTo ? {
       id: ticket.assignedTo._id,
       name: `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}`,
@@ -1567,7 +1580,8 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
       { subject: { $regex: search, $options: 'i' } },
       { userName: { $regex: search, $options: 'i' } },
       { userEmail: { $regex: search, $options: 'i' } },
-      { caseId: { $regex: search, $options: 'i' } }
+      { caseId: { $regex: search, $options: 'i' } },
+      { subscriptionId: { $regex: search, $options: 'i' } }
     ];
   }
 
