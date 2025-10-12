@@ -655,7 +655,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* Decline Task Modal */}
       <Dialog open={isDeclineModalOpen} onOpenChange={setIsDeclineModalOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-20">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-8">
           <DialogHeader>
             <DialogTitle>Decline Task</DialogTitle>
           </DialogHeader>

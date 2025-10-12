@@ -32,57 +32,17 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
   const { toast } = useToast();
 
 
-  // Debug initial state
-  console.log('RatingPopup component initialized with rating:', rating, 'hoveredRating:', hoveredRating);
-  console.log('RatingPopup props:', { isOpen, bookingId, vendorId, vendorName, serviceName });
 
-  // Debug component lifecycle and state changes
-  useEffect(() => {
-    console.log('RatingPopup mounted/updated - isOpen:', isOpen, 'rating:', rating);
-  }, [isOpen, rating]);
-
+  // Reset state only when popup opens or bookingId changes
   useEffect(() => {
     if (isOpen) {
-      console.log('RatingPopup opened - resetting state');
       // Reset all state to initial values
       setRating(0);
       setHoveredRating(0);
       setComment('');
       setIsSubmitting(false);
-    } else {
-      console.log('RatingPopup closed');
     }
-  }, [isOpen]);
-
-  // Reset state when bookingId changes (new booking)
-  useEffect(() => {
-    console.log('RatingPopup bookingId changed - resetting state for booking:', bookingId);
-    setRating(0);
-    setHoveredRating(0);
-    setComment('');
-    setIsSubmitting(false);
-  }, [bookingId]);
-
-  // Force reset on component mount
-  useEffect(() => {
-    console.log('RatingPopup component mounted - forcing reset');
-    setRating(0);
-    setHoveredRating(0);
-    setComment('');
-    setIsSubmitting(false);
-  }, []);
-
-  // Additional safety check - force reset if rating is not 0
-  useEffect(() => {
-    if (rating !== 0) {
-      console.log('RatingPopup: Rating is not 0, forcing to 0. Current rating:', rating);
-      setRating(0);
-    }
-    if (hoveredRating !== 0) {
-      console.log('RatingPopup: HoveredRating is not 0, forcing to 0. Current hoveredRating:', hoveredRating);
-      setHoveredRating(0);
-    }
-  }, [rating, hoveredRating]);
+  }, [isOpen, bookingId]);
 
 
   const ratingTexts = {
@@ -94,28 +54,14 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
   };
 
   const handleRatingClick = (value: number, event?: React.MouseEvent) => {
-    console.log('=== STAR CLICK EVENT ===');
-    console.log('Star clicked:', value);
-    console.log('Current rating before update:', rating);
-    console.log('Event target:', event?.target);
-    
     // Prevent default and stop propagation
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
     
-    // Force update the rating - use functional update to ensure we get the latest state
-    setRating(prevRating => {
-      console.log('Setting rating from', prevRating, 'to', value);
-      return value;
-    });
+    setRating(value);
     setHoveredRating(0); // Clear hover state after click
-    
-    // Verify the update
-    setTimeout(() => {
-      console.log('Rating after update (delayed check):', value);
-    }, 100);
   };
 
   const handleRatingHover = (value: number) => {
@@ -158,17 +104,17 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
       setIsSubmitting(true);
       
       const token = localStorage.getItem('accessToken');
+      
       if (!token) {
         toast({
           title: "Authentication Required",
           description: "Please login to submit a rating.",
           variant: "destructive"
         });
+        setIsSubmitting(false);
         return;
       }
 
-      console.log('Token found:', token ? 'Yes' : 'No');
-      console.log('Token length:', token ? token.length : 0);
 
       // Map service name to valid category
       const getCategoryFromService = (serviceName: string): string => {
@@ -198,11 +144,6 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
         bookingId: bookingId,
         vendorId: vendorId
       };
-
-      console.log('Submitting review with data:', reviewData);
-      console.log('Token being sent:', token);
-      console.log('Token type:', typeof token);
-      console.log('Token length:', token ? token.length : 'undefined');
 
       await reviewService.createReview(reviewData, token);
       
@@ -267,19 +208,14 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
 
   const displayRating = hoveredRating || rating;
   
-  // Debug current state
-  console.log('RatingPopup render - rating:', rating, 'hoveredRating:', hoveredRating, 'displayRating:', displayRating);
-  console.log('RatingPopup render - isOpen:', isOpen, 'rating === 0:', rating === 0, 'hoveredRating === 0:', hoveredRating === 0);
-  
-  // Force displayRating to be 0 if both rating and hoveredRating are 0
-  const finalDisplayRating = (rating === 0 && hoveredRating === 0) ? 0 : displayRating;
-  console.log('RatingPopup render - finalDisplayRating:', finalDisplayRating);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md" style={{ zIndex: 9999 }}>
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Rate Your Experience</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            Rate Your
+          </DialogTitle>
           <DialogDescription className="mt-2">
             How was your service with <span className="font-medium">{vendorName}</span>?
           </DialogDescription>
@@ -297,28 +233,23 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
           {/* Star Rating */}
           <div className="space-y-3">
             <div className="text-center">
-              <div className="flex justify-center space-x-1 mb-2">
+              <div className="flex justify-center space-x-2 mb-3">
                 {[1, 2, 3, 4, 5].map((value) => {
-                  const isFilled = finalDisplayRating > 0 && value <= finalDisplayRating;
-                  console.log(`Star ${value}: isFilled=${isFilled}, finalDisplayRating=${finalDisplayRating}, value=${value}, rating=${rating}, hoveredRating=${hoveredRating}`);
+                  const isFilled = displayRating > 0 && value <= displayRating;
                   
                   return (
                     <button
                       key={value}
                       type="button"
                       onClick={(e) => {
-                        console.log('Button clicked for star:', value);
-                        handleRatingClick(value, e);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setRating(value);
+                        setHoveredRating(0);
                       }}
-                      onMouseEnter={() => {
-                        console.log('Mouse enter star:', value);
-                        handleRatingHover(value);
-                      }}
-                      onMouseLeave={() => {
-                        console.log('Mouse leave star:', value);
-                        handleRatingLeave();
-                      }}
-                      className="focus:outline-none transition-all duration-200 hover:scale-110 p-2 cursor-pointer hover:bg-yellow-50 rounded-full active:scale-95"
+                      onMouseEnter={() => setHoveredRating(value)}
+                      onMouseLeave={() => setHoveredRating(0)}
+                      className="focus:outline-none transition-all duration-200 hover:scale-110 p-1 cursor-pointer hover:bg-yellow-50 rounded-full active:scale-95"
                       style={{ 
                         pointerEvents: 'auto',
                         touchAction: 'manipulation'
@@ -326,21 +257,22 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
                       aria-label={`Rate ${value} star${value > 1 ? 's' : ''}`}
                     >
                       <Star
-                        className={`h-8 w-8 transition-colors duration-200 ${
-                          isFilled
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300 hover:text-yellow-200'
+                        className={`h-8 w-8 transition-all duration-200 ${
+                          isFilled 
+                            ? 'text-yellow-500 fill-yellow-500' 
+                            : 'text-gray-300 hover:text-yellow-300'
                         }`}
                         fill={isFilled ? 'currentColor' : 'none'}
+                        strokeWidth={isFilled ? 0 : 1.5}
                       />
                     </button>
                   );
                 })}
               </div>
-              {finalDisplayRating > 0 ? (
+              {displayRating > 0 ? (
                 <div className="text-sm font-medium text-gray-700">
-                  <p>{ratingTexts[finalDisplayRating as keyof typeof ratingTexts]}</p>
-                  <p className="text-xs text-gray-500">Rating: {finalDisplayRating}/5</p>
+                  <p className="text-lg font-semibold text-yellow-600">{ratingTexts[displayRating as keyof typeof ratingTexts]}</p>
+                  <p className="text-xs text-gray-500">Rating: {displayRating}/5</p>
                 </div>
               ) : (
                 <div className="text-sm font-medium text-gray-500">
@@ -361,6 +293,8 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
               onChange={(e) => setComment(e.target.value)}
               className="min-h-[100px] resize-none"
               maxLength={500}
+              autoFocus={false}
+              onFocus={(e) => e.target.setSelectionRange(e.target.value.length, e.target.value.length)}
             />
             <div className="text-xs text-gray-500 text-right">
               {comment.length}/500 characters

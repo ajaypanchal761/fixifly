@@ -42,6 +42,10 @@ const SupportTicketSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  subscriptionId: {
+    type: String,
+    default: null
+  },
   subject: {
     type: String,
     required: true,
@@ -223,6 +227,10 @@ const SupportTicketSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'collected', 'failed'],
     default: 'collected'
+  },
+  billingAmount: {
+    type: Number,
+    default: 0
   },
   
   // Reschedule data (matching booking task format)

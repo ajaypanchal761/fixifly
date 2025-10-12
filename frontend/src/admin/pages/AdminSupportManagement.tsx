@@ -156,7 +156,8 @@ const AdminSupportManagement = () => {
                          ticket.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ticket.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (ticket.caseId && ticket.caseId.toLowerCase().includes(searchTerm.toLowerCase()));
+                         (ticket.caseId && ticket.caseId.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (ticket.subscriptionId && ticket.subscriptionId.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || ticket.status.toLowerCase() === statusFilter.toLowerCase();
     const matchesPriority = priorityFilter === 'all' || ticket.priority.toLowerCase() === priorityFilter.toLowerCase();
     return matchesSearch && matchesStatus && matchesPriority;
@@ -547,7 +548,7 @@ const AdminSupportManagement = () => {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
-                        placeholder="Search tickets, customers, Case ID..."
+                        placeholder="Search tickets, customers, Case ID, Subscription ID..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 text-sm"
@@ -624,6 +625,11 @@ const AdminSupportManagement = () => {
                             <p className="text-xs text-gray-500">
                               {ticket.caseId || <span className="text-muted-foreground">-</span>}
                             </p>
+                            {ticket.subscriptionId && (
+                              <p className="text-xs text-blue-600 font-medium">
+                                AMC: {ticket.subscriptionId}
+                              </p>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -865,6 +871,12 @@ const AdminSupportManagement = () => {
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Case ID</Label>
                           <p className="text-xs font-medium">{safeRender(selectedTicket.caseId)}</p>
+                      </div>
+                    )}
+                    {selectedTicket.subscriptionId && (
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">AMC Subscription ID</Label>
+                          <p className="text-xs font-medium text-blue-600">{safeRender(selectedTicket.subscriptionId)}</p>
                       </div>
                     )}
                   </div>
