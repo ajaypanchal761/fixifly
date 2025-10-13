@@ -28,7 +28,7 @@ interface AMCSubscriptionDetailsModalProps {
   onClose: () => void;
   subscription: any;
 }
-
+// w
 const AMCSubscriptionDetailsModal = ({ isOpen, onClose, subscription }: AMCSubscriptionDetailsModalProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
 
