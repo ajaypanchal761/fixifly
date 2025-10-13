@@ -46,7 +46,7 @@ interface WalletResponse {
 }
 
 class VendorDepositService {
-  private baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  private baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = localStorage.getItem('vendorToken');
@@ -72,7 +72,7 @@ class VendorDepositService {
    * Create a deposit order
    */
   async createDepositOrder(amount: number): Promise<DepositOrderResponse> {
-    return this.makeRequest<DepositOrderResponse>('/vendors/deposit/create-order', {
+    return this.makeRequest<DepositOrderResponse>('/api/vendors/deposit/create-order', {
       method: 'POST',
       body: JSON.stringify({ amount }),
     });
@@ -87,7 +87,7 @@ class VendorDepositService {
     razorpaySignature: string,
     transactionId: string
   ): Promise<DepositVerificationResponse> {
-    return this.makeRequest<DepositVerificationResponse>('/vendors/deposit/verify', {
+    return this.makeRequest<DepositVerificationResponse>('/api/vendors/deposit/verify', {
       method: 'POST',
       body: JSON.stringify({
         razorpayOrderId,
@@ -102,7 +102,7 @@ class VendorDepositService {
    * Get vendor wallet information
    */
   async getWallet(): Promise<WalletResponse> {
-    return this.makeRequest<WalletResponse>('/vendors/wallet');
+    return this.makeRequest<WalletResponse>('/api/vendors/wallet');
   }
 
   /**

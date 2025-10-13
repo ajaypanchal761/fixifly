@@ -69,7 +69,7 @@ export const saveTokenToBackend = async (fcmToken, vendorId) => {
     console.log('💾 Saving FCM token to backend...');
     
     const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    const response = await fetch(`${API_BASE_URL}/api/vendors/update-fcm-token`, {
+    const response = await fetch(`${API_BASE_URL}/vendors/update-fcm-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ export const saveAdminTokenToBackend = async (fcmToken) => {
     console.log('💾 Saving admin FCM token to backend...');
     
     const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    const response = await fetch(`${API_BASE_URL}/api/admin/update-fcm-token`, {
+    const response = await fetch(`${API_BASE_URL}/admin/update-fcm-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -67,7 +67,7 @@ const VendorFCMTokenGenerator: React.FC<VendorFCMTokenGeneratorProps> = ({
   const saveTokenToBackend = async (fcmToken: string) => {
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${API_BASE_URL}/api/vendors/update-fcm-token`, {
+      const response = await fetch(`${API_BASE_URL}/vendors/update-fcm-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
