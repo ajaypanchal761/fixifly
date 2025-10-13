@@ -302,22 +302,10 @@ const VendorLogin = () => {
                 to="/vendor/signup"
                 className="text-blue-600 font-medium hover:underline"
               >
-                Onboard Here
+                Signup Here
               </Link>
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="bg-gradient-to-b from-blue-400 to-blue-600 py-4">
-        <div className="text-center">
-          <Link
-            to="/vendor/terms"
-            className="text-red-500 font-medium hover:underline"
-          >
-            Terms & Conditions
-          </Link>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 import NotFound from "../../pages/NotFound";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { DollarSign, TrendingUp, TrendingDown, Filter, Download, Wallet, Plus, AlertTriangle, CheckCircle, Edit, Clock } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useVendor } from "@/contexts/VendorContext";
 import { useToast } from "@/hooks/use-toast";
 import { vendorDepositService } from "@/services/vendorDepositService";
@@ -53,46 +53,6 @@ const VendorEarnings = () => {
 
   // Note: Sample transaction logic removed - now calculating balance from actual transaction history
 
-  // Fetch wallet data on component mount
-  useEffect(() => {
-    if (vendor?.vendorId) {
-      console.log('🔄 Component mounted, fetching wallet data for vendor:', vendor.vendorId);
-      fetchWalletData();
-      fetchTransactionHistory();
-      checkPendingWithdrawalRequest();
-      
-      // Set up periodic auto-refresh every 30 seconds to keep data updated
-      const intervalId = setInterval(() => {
-        console.log('🔄 Periodic auto-refresh of wallet data');
-        fetchWalletData();
-        fetchTransactionHistory();
-        checkPendingWithdrawalRequest();
-      }, 30000); // 30 seconds
-      
-      // Cleanup interval on unmount
-      return () => clearInterval(intervalId);
-    }
-  }, [vendor?.vendorId]);
-
-  // Also fetch wallet data when vendor context changes
-  useEffect(() => {
-    if (vendor?.wallet && !isUpdatingFromAPI) {
-      console.log('🔄 Vendor wallet context updated:', vendor.wallet);
-      // Update local wallet data from vendor context
-      setWalletData({
-        currentBalance: vendor.wallet.currentBalance || 0,
-        hasInitialDeposit: vendor.wallet.hasInitialDeposit || false,
-        initialDepositAmount: vendor.wallet.initialDepositAmount || 0,
-        totalDeposits: vendor.wallet.totalDeposits || 0,
-        totalWithdrawals: vendor.wallet.totalWithdrawals || 0,
-        summary: {
-          totalEarnings: 0,
-          totalWithdrawals: vendor.wallet.totalWithdrawals || 0
-        }
-      });
-      setLoadingWallet(false);
-    }
-  }, [vendor?.wallet, isUpdatingFromAPI]);
 
   // Function to refresh vendor profile data from API
   const refreshVendorProfile = async () => {
@@ -110,7 +70,7 @@ const VendorEarnings = () => {
   };
 
   // Fetch wallet data from API
-  const fetchWalletData = async () => {
+  const fetchWalletData = useCallback(async () => {
     console.log('=== FETCH WALLET DATA CALLED ===');
     console.log('Vendor ID:', vendor?.vendorId);
     console.log('Vendor exists:', !!vendor);
@@ -273,10 +233,10 @@ const VendorEarnings = () => {
       setLoadingWallet(false);
       setIsUpdatingFromAPI(false);
     }
-  };
+  }, [vendor?.vendorId]);
 
   // Check for pending withdrawal requests
-  const checkPendingWithdrawalRequest = async () => {
+  const checkPendingWithdrawalRequest = useCallback(async () => {
     if (!vendor?.vendorId) return;
     
     try {
@@ -304,10 +264,10 @@ const VendorEarnings = () => {
     } catch (error) {
       console.error('Error checking pending withdrawal requests:', error);
     }
-  };
+  }, [vendor?.vendorId]);
 
   // Fetch transaction history from API
-  const fetchTransactionHistory = async () => {
+  const fetchTransactionHistory = useCallback(async () => {
     if (!vendor?.vendorId) {
       setLoadingTransactions(false);
       return;
@@ -541,48 +501,48 @@ const VendorEarnings = () => {
     } finally {
       setLoadingTransactions(false);
     }
-  };
+  }, [vendor?.vendorId]);
 
-  // Load wallet data and transaction history on component mount
+  // Fetch wallet data on component mount
   useEffect(() => {
-    console.log('=== VENDOR EARNINGS useEffect CALLED ===');
-    console.log('Vendor context:', vendor);
-    console.log('Vendor ID:', vendor?.vendorId);
-    console.log('Vendor Email:', vendor?.email);
-    console.log('useEffect dependency vendor?.vendorId:', vendor?.vendorId);
-    
-    // Show alert for debugging
     if (vendor?.vendorId) {
-      console.log('Vendor ID detected:', vendor.vendorId);
-      console.log('This vendor should show ₹3,999 balance (fallback)');
-    }
-    
-    // Test API connectivity first
-    const testAPI = async () => {
-      try {
-        console.log('Testing API connectivity...');
-        const response = await fetch('/health');
-        const data = await response.text();
-        console.log('Health check response:', data);
-      } catch (error) {
-        console.log('Health check failed:', error);
-      }
-    };
-    
-    testAPI();
-    
-    if (vendor?.vendorId) {
-      console.log('✅ Vendor ID found, calling fetchWalletData for vendor:', vendor.vendorId);
-      console.log('Vendor object:', vendor);
+      console.log('🔄 Component mounted, fetching wallet data for vendor:', vendor.vendorId);
       fetchWalletData();
       fetchTransactionHistory();
-    } else {
-      console.warn('❌ No vendor ID found, setting loading to false');
-      console.log('Vendor object:', vendor);
-      setLoadingWallet(false);
-      setLoadingTransactions(false);
+      checkPendingWithdrawalRequest();
+      
+      // Set up periodic auto-refresh every 30 seconds to keep data updated
+      const intervalId = setInterval(() => {
+        console.log('🔄 Periodic auto-refresh of wallet data');
+        fetchWalletData();
+        fetchTransactionHistory();
+        checkPendingWithdrawalRequest();
+      }, 30000); // 30 seconds
+      
+      // Cleanup interval on unmount
+      return () => clearInterval(intervalId);
     }
-  }, [vendor?.vendorId]);
+  }, [vendor?.vendorId, fetchWalletData, fetchTransactionHistory, checkPendingWithdrawalRequest]);
+
+  // Also fetch wallet data when vendor context changes
+  useEffect(() => {
+    if (vendor?.wallet && !isUpdatingFromAPI) {
+      console.log('🔄 Vendor wallet context updated:', vendor.wallet);
+      // Update local wallet data from vendor context
+      setWalletData({
+        currentBalance: vendor.wallet.currentBalance || 0,
+        hasInitialDeposit: vendor.wallet.hasInitialDeposit || false,
+        initialDepositAmount: vendor.wallet.initialDepositAmount || 0,
+        totalDeposits: vendor.wallet.totalDeposits || 0,
+        totalWithdrawals: vendor.wallet.totalWithdrawals || 0,
+        summary: {
+          totalEarnings: 0,
+          totalWithdrawals: vendor.wallet.totalWithdrawals || 0
+        }
+      });
+      setLoadingWallet(false);
+    }
+  }, [vendor?.wallet, isUpdatingFromAPI]);
 
   // Defensive check for vendor context - MOVED AFTER ALL HOOKS
   if (!vendor) {

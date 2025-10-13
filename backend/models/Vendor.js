@@ -35,11 +35,18 @@ const vendorSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function(v) {
-        // Remove all non-digit characters and check if it's a valid 10-digit number
-        const digits = v.replace(/\D/g, '');
+        // Remove all non-digit characters
+        let digits = v.replace(/\D/g, '');
+        
+        // Remove leading 0 if present (common mistake)
+        if (digits.length === 11 && digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        
+        // Check if it's a valid 10-digit number
         return digits.length === 10;
       },
-      message: 'Please enter a valid 10-digit phone number'
+      message: 'Please enter a valid 10-digit phone number (without country code or leading 0)'
     }
   },
 
@@ -49,11 +56,18 @@ const vendorSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function(v) {
-        // Remove all non-digit characters and check if it's a valid 10-digit number
-        const digits = v.replace(/\D/g, '');
+        // Remove all non-digit characters
+        let digits = v.replace(/\D/g, '');
+        
+        // Remove leading 0 if present (common mistake)
+        if (digits.length === 11 && digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        
+        // Check if it's a valid 10-digit number
         return digits.length === 10;
       },
-      message: 'Please enter a valid 10-digit phone number'
+      message: 'Please enter a valid 10-digit phone number (without country code or leading 0)'
     }
   },
 
@@ -71,11 +85,18 @@ const vendorSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function(v) {
-        // Remove all non-digit characters and check if it's a valid 10-digit number
-        const digits = v.replace(/\D/g, '');
+        // Remove all non-digit characters
+        let digits = v.replace(/\D/g, '');
+        
+        // Remove leading 0 if present (common mistake)
+        if (digits.length === 11 && digits.startsWith('0')) {
+          digits = digits.substring(1);
+        }
+        
+        // Check if it's a valid 10-digit number
         return digits.length === 10;
       },
-      message: 'Please enter a valid 10-digit phone number'
+      message: 'Please enter a valid 10-digit phone number (without country code or leading 0)'
     }
   },
 
@@ -112,15 +133,14 @@ const vendorSchema = new mongoose.Schema({
   serviceCategories: [{
     type: String,
     enum: [
-      'Laptop',
-      'Computers',
-      'Tab/MacBook',
-      'iMac/Printer/Server',
-      'Networking',
-      'Software Developer',
+      'Laptop, Computers, Tab',
+      'Macbook, iMac, Surface',
+      'Printer Repair',
+      'CCTV',
+      'Server & Networking',
+      'Software App Developer',
       'AC Repair',
-      'Fridge, Washing Machine',
-      'Home Appliance Repair',
+      'Fridge, Washing Machine, Home Appliance Repair',
       'Electrician',
       'Plumber',
       'Cleaning'

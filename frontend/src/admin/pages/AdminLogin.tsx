@@ -192,16 +192,6 @@ const AdminLogin = () => {
                 {isLoading ? 'Signing In...' : 'Sign In'}
               </Button>
             </form>
-
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Don't have an admin account?{' '}
-                <Link to="/admin/signup" className="text-primary hover:text-primary/80 font-medium">
-                  Create one here
-                </Link>
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>

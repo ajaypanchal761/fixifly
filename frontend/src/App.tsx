@@ -1,9 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useUserPushNotifications } from "./hooks/useUserPushNotifications";
 // Import mandatory deposit handler to fix the error
 import "./services/mandatoryDepositHandler";
@@ -219,21 +218,20 @@ const App = () => {
   useEffect(() => {
     // App initialized - push notifications enabled
     console.log('✅ App initialized - push notifications enabled');
+    console.log('🔍 Checking for TooltipProvider issues...');
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <VendorProvider>
-              <AppContent />
-            </VendorProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <VendorProvider>
+            <Toaster />
+            <Sonner />
+            <AppContent />
+          </VendorProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };

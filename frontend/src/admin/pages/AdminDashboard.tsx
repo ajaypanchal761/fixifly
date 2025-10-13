@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import { 
   Users, 
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   // Fetch dashboard data
-  const fetchDashboardData = async (month?: number, year?: number) => {
+  const fetchDashboardData = useCallback(async (month?: number, year?: number) => {
     try {
       setRefreshing(true);
       const response = await adminApiService.getDashboardStats(month, year);
@@ -101,12 +101,12 @@ const AdminDashboard = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [toast]);
 
   // Load data on component mount
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
 
   // Handle month/year change
   const handleDateChange = (month: number, year: number) => {

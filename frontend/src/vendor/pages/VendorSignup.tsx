@@ -63,15 +63,14 @@ const VendorSignup = () => {
   ];
 
   const serviceCategories = [
-    'Laptop',
-    'Computers',
-    'Tab/MacBook',
-    'iMac/Printer/Server',
-    'Networking',
-    'Software Developer',
+    'Laptop, Computers, Tab',
+    'Macbook, iMac, Surface',
+    'Printer Repair',
+    'CCTV',
+    'Server & Networking',
+    'Software App Developer',
     'AC Repair',
-    'Fridge, Washing Machine',
-    'Home Appliance Repair',
+    'Fridge, Washing Machine, Home Appliance Repair',
     'Electrician',
     'Plumber',
     'Cleaning'
@@ -167,8 +166,21 @@ const VendorSignup = () => {
       setError('Please enter a valid email address');
       return false;
     }
-    if (formData.phone.length < 10 || formData.alternatePhone.length < 10 || formData.homePhone.length < 10) {
-      setError('Please enter valid phone numbers (minimum 10 digits)');
+    // Normalize phone numbers for validation
+    const normalizePhone = (phone) => {
+      const digits = phone.replace(/\D/g, '');
+      if (digits.length === 11 && digits.startsWith('0')) {
+        return digits.substring(1);
+      }
+      return digits;
+    };
+
+    const normalizedPhone = normalizePhone(formData.phone);
+    const normalizedAlternatePhone = normalizePhone(formData.alternatePhone);
+    const normalizedHomePhone = normalizePhone(formData.homePhone);
+
+    if (normalizedPhone.length !== 10 || normalizedAlternatePhone.length !== 10 || normalizedHomePhone.length !== 10) {
+      setError('Please enter valid 10-digit phone numbers (without country code or leading 0)');
       return false;
     }
     return true;
@@ -231,14 +243,23 @@ const VendorSignup = () => {
       // Prepare FormData for file uploads
       const formDataToSend = new FormData();
       
+      // Normalize phone numbers before sending
+      const normalizePhone = (phone) => {
+        const digits = phone.replace(/\D/g, '');
+        if (digits.length === 11 && digits.startsWith('0')) {
+          return digits.substring(1);
+        }
+        return digits;
+      };
+
       // Add text fields
       formDataToSend.append('firstName', formData.firstName.trim());
       formDataToSend.append('lastName', formData.lastName.trim());
       formDataToSend.append('email', formData.email.trim().toLowerCase());
-      formDataToSend.append('phone', formData.phone.trim());
-      formDataToSend.append('alternatePhone', formData.alternatePhone.trim());
+      formDataToSend.append('phone', normalizePhone(formData.phone.trim()));
+      formDataToSend.append('alternatePhone', normalizePhone(formData.alternatePhone.trim()));
       formDataToSend.append('fatherName', formData.fatherName.trim());
-      formDataToSend.append('homePhone', formData.homePhone.trim());
+      formDataToSend.append('homePhone', normalizePhone(formData.homePhone.trim()));
       formDataToSend.append('currentAddress', formData.currentAddress.trim());
       formDataToSend.append('password', formData.password);
       formDataToSend.append('experience', formData.experience);
@@ -376,13 +397,14 @@ const VendorSignup = () => {
             id="phone"
             name="phone"
             type="tel"
-            placeholder="Enter your phone number"
+            placeholder="Enter your 10-digit phone number"
             value={formData.phone}
             onChange={handleInputChange}
             className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
             required
           />
         </div>
+        <p className="text-xs text-gray-500">Enter 10-digit mobile number (e.g., 9876543210)</p>
       </div>
 
       <div className="space-y-2">
@@ -393,13 +415,14 @@ const VendorSignup = () => {
             id="alternatePhone"
             name="alternatePhone"
             type="tel"
-            placeholder="Enter alternate phone number"
+            placeholder="Enter alternate 10-digit phone number"
             value={formData.alternatePhone}
             onChange={handleInputChange}
             className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
             required
           />
         </div>
+        <p className="text-xs text-gray-500">Enter 10-digit mobile number (e.g., 9876543210)</p>
       </div>
 
       <div className="space-y-2">
@@ -426,13 +449,14 @@ const VendorSignup = () => {
             id="homePhone"
             name="homePhone"
             type="tel"
-            placeholder="Enter home phone number"
+            placeholder="Enter home 10-digit phone number"
             value={formData.homePhone}
             onChange={handleInputChange}
             className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
             required
           />
         </div>
+        <p className="text-xs text-gray-500">Enter 10-digit mobile/landline number (e.g., 9876543210)</p>
       </div>
 
       <div className="space-y-2">
@@ -861,18 +885,6 @@ const VendorSignup = () => {
                 This process typically takes 1-2 business days.
               </p>
             </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="bg-gradient-to-b from-blue-400 to-blue-600 py-4">
-        <div className="text-center">
-          <Link
-            to="/vendor/terms"
-            className="text-red-500 font-medium hover:underline"
-          >
-            Terms & Conditions
-          </Link>
         </div>
       </div>
     </div>

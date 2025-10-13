@@ -838,15 +838,14 @@ const VendorProfile = () => {
                     <div className="mt-2 space-y-2">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {[
-                          'Laptop',
-                          'Computers',
-                          'Tab/MacBook',
-                          'iMac/Printer/Server',
-                          'Networking',
-                          'Software Developer',
+                          'Laptop, Computers, Tab',
+                          'Macbook, iMac, Surface',
+                          'Printer Repair',
+                          'CCTV',
+                          'Server & Networking',
+                          'Software App Developer',
                           'AC Repair',
-                          'Fridge, Washing Machine',
-                          'Home Appliance Repair',
+                          'Fridge, Washing Machine, Home Appliance Repair',
                           'Electrician',
                           'Plumber',
                           'Cleaning'

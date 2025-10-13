@@ -35,6 +35,20 @@ const registerVendor = asyncHandler(async (req, res) => {
     experience
   } = req.body;
 
+  // Normalize phone numbers by removing leading 0 if present
+  const normalizePhone = (phoneNumber) => {
+    if (!phoneNumber) return phoneNumber;
+    const digits = phoneNumber.replace(/\D/g, '');
+    if (digits.length === 11 && digits.startsWith('0')) {
+      return digits.substring(1);
+    }
+    return digits;
+  };
+
+  const normalizedPhone = normalizePhone(phone);
+  const normalizedAlternatePhone = normalizePhone(alternatePhone);
+  const normalizedHomePhone = normalizePhone(homePhone);
+
   // Parse serviceCategories if it's a JSON string
   let parsedServiceCategories = serviceCategories;
   if (typeof serviceCategories === 'string') {
@@ -62,7 +76,7 @@ const registerVendor = asyncHandler(async (req, res) => {
   try {
     // Check if vendor already exists
     const existingVendor = await Vendor.findOne({
-      $or: [{ email }, { phone }]
+      $or: [{ email }, { phone: normalizedPhone }]
     });
 
     if (existingVendor) {
@@ -165,10 +179,10 @@ const registerVendor = asyncHandler(async (req, res) => {
       firstName,
       lastName,
       email,
-      phone,
-      alternatePhone,
+      phone: normalizedPhone,
+      alternatePhone: normalizedAlternatePhone,
       fatherName,
-      homePhone,
+      homePhone: normalizedHomePhone,
       currentAddress,
       password,
       serviceCategories: parsedServiceCategories,
