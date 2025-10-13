@@ -16,10 +16,28 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+let analytics = null;
+let messaging = null;
 
-// Initialize Firebase Cloud Messaging and get a reference to the service
-const messaging = getMessaging(app);
+// Initialize analytics safely
+try {
+  analytics = getAnalytics(app);
+} catch (error) {
+  console.log('Analytics not available:', error.message);
+}
+
+// Initialize Firebase Cloud Messaging safely
+try {
+  // Check if service worker is supported
+  if ('serviceWorker' in navigator) {
+    messaging = getMessaging(app);
+    console.log('✅ Firebase messaging initialized');
+  } else {
+    console.log('⚠️ Service worker not supported, Firebase messaging disabled');
+  }
+} catch (error) {
+  console.log('⚠️ Firebase messaging not available:', error.message);
+}
 
 // VAPID key for push notifications
 const VAPID_KEY = "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU";
@@ -27,6 +45,11 @@ const VAPID_KEY = "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i
 // Request permission and get FCM token
 export const requestPermission = async () => {
   try {
+    if (!messaging) {
+      console.log('⚠️ Firebase messaging not available');
+      return null;
+    }
+
     console.log('🔔 Requesting notification permission...');
     const permission = await Notification.requestPermission();
     console.log('📱 Permission result:', permission);
@@ -60,6 +83,12 @@ export const requestPermission = async () => {
 // Listen for foreground messages
 export const onMessageListener = () => {
   return new Promise((resolve) => {
+    if (!messaging) {
+      console.log('⚠️ Firebase messaging not available');
+      resolve(null);
+      return;
+    }
+
     onMessage(messaging, (payload) => {
       console.log('Message received in foreground:', payload);
       resolve(payload);
@@ -67,7 +96,7 @@ export const onMessageListener = () => {
   });
 };
 
-// Export messaging instance for other uses
+// Export messaging instance for other uses (null if not available)
 export { messaging };
 
 export default app;
