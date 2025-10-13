@@ -107,16 +107,16 @@ const VendorEarnings = () => {
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       
       console.log('=== WALLET API CALL ===');
-      console.log('API URL:', `${apiUrl}/api/vendor/wallet`);
+      console.log('API URL:', `${apiUrl}/vendors/wallet`);
       console.log('Token present:', token ? 'Yes' : 'No');
       console.log('Making API call...');
       
       let response;
       try {
-        response = await fetch(`${apiUrl}/api/vendor/wallet`, {
+        response = await fetch(`${apiUrl}/vendors/wallet`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -243,8 +243,8 @@ const VendorEarnings = () => {
       const token = localStorage.getItem('vendorToken');
       if (!token) return;
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiUrl}/api/vendors/withdrawal`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${apiUrl}/vendors/withdrawal`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -283,10 +283,10 @@ const VendorEarnings = () => {
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       let response;
       try {
-        response = await fetch(`${apiUrl}/api/vendor/wallet`, {
+        response = await fetch(`${apiUrl}/vendors/wallet`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
