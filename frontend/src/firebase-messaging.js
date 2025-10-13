@@ -1,7 +1,7 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+// Import the functions you need from the SDKs you need - COMMENTED OUT FOR WEBVIEW TESTING
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
+// import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -14,30 +14,37 @@ const firebaseConfig = {
   measurementId: "G-CRR1JHT0BZ"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase - COMMENTED OUT FOR WEBVIEW TESTING
+// const app = initializeApp(firebaseConfig);
+// let analytics = null;
+// let messaging = null;
+
+// Mock Firebase for WebView testing
+const app = null;
 let analytics = null;
 let messaging = null;
 
-// Initialize analytics safely
-try {
-  analytics = getAnalytics(app);
-} catch (error) {
-  console.log('Analytics not available:', error.message);
-}
+console.log('🔥 Firebase messaging disabled for WebView testing');
 
-// Initialize Firebase Cloud Messaging safely
-try {
-  // Check if service worker is supported
-  if ('serviceWorker' in navigator) {
-    messaging = getMessaging(app);
-    console.log('✅ Firebase messaging initialized');
-  } else {
-    console.log('⚠️ Service worker not supported, Firebase messaging disabled');
-  }
-} catch (error) {
-  console.log('⚠️ Firebase messaging not available:', error.message);
-}
+// Initialize analytics safely - COMMENTED OUT FOR WEBVIEW TESTING
+// try {
+//   analytics = getAnalytics(app);
+// } catch (error) {
+//   console.log('Analytics not available:', error.message);
+// }
+
+// Initialize Firebase Cloud Messaging safely - COMMENTED OUT FOR WEBVIEW TESTING
+// try {
+//   // Check if service worker is supported
+//   if ('serviceWorker' in navigator) {
+//     messaging = getMessaging(app);
+//     console.log('✅ Firebase messaging initialized');
+//   } else {
+//     console.log('⚠️ Service worker not supported, Firebase messaging disabled');
+//   }
+// } catch (error) {
+//   console.log('⚠️ Firebase messaging not available:', error.message);
+// }
 
 // VAPID key for push notifications
 const VAPID_KEY = "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU";

@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, Suspense } from "react";
-import { useUserPushNotifications } from "./hooks/useUserPushNotifications";
+// import { useUserPushNotifications } from "./hooks/useUserPushNotifications"; // COMMENTED OUT FOR WEBVIEW TESTING
 // Import mandatory deposit handler to fix the error
 import "./services/mandatoryDepositHandler";
 import Index from "./pages/Index";
@@ -90,7 +90,7 @@ const AppContent = () => {
   const isAuthPage = isLoginPage || isSignupPage;
   
   // Initialize user push notifications
-  useUserPushNotifications();
+  // useUserPushNotifications(); // COMMENTED OUT FOR WEBVIEW TESTING
 
   return (
     <div className="min-h-screen bg-background">
@@ -220,14 +220,14 @@ const App = () => {
     console.log('✅ App initialized - push notifications enabled');
     console.log('🔍 Checking for TooltipProvider issues...');
     
-    // Register service worker for PWA functionality
-    if ('serviceWorker' in navigator) {
-      import('./serviceWorkerRegistration').then(({ register }) => {
-        register();
-      }).catch((error) => {
-        console.error('❌ Service Worker registration failed:', error);
-      });
-    }
+    // Register service worker for PWA functionality - COMMENTED OUT FOR WEBVIEW TESTING
+    // if ('serviceWorker' in navigator) {
+    //   import('./serviceWorkerRegistration').then(({ register }) => {
+    //     register();
+    //   }).catch((error) => {
+    //     console.error('❌ Service Worker registration failed:', error);
+    //   });
+    // }
     
     // Force PWA installation prompt
     window.addEventListener('beforeinstallprompt', (e) => {
