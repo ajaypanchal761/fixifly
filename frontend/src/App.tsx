@@ -224,8 +224,18 @@ const App = () => {
     if ('serviceWorker' in navigator) {
       import('./serviceWorkerRegistration').then(({ register }) => {
         register();
+      }).catch((error) => {
+        console.error('❌ Service Worker registration failed:', error);
       });
     }
+    
+    // Force PWA installation prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('📱 PWA install prompt available');
+      e.preventDefault();
+      // Store the event for later use
+      (window as any).deferredPrompt = e;
+    });
     
     // Debug mobile webview detection
     const isMobileWebView = /wv|WebView/.test(navigator.userAgent);

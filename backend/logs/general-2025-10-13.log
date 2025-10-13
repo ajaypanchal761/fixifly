@@ -1216,3 +1216,15 @@
 [2025-10-13T06:55:39.091Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-13T06:55:48.794Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/logout"}
 [2025-10-13T06:55:48.946Z] [INFO] Admin logged out | {"adminId":"ADMIN001","ip":"::1"}
+[2025-10-13T10:13:54.468Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-13T10:13:54.623Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-13T10:13:55.621Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-13T10:13:56.776Z] [INFO] SMTP connection verified successfully
+[2025-10-13T10:14:35.760Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-13T10:14:36.258Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-13T10:14:36.745Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-13T10:14:55.669Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-13T10:15:55.664Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-13T10:16:55.672Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-13T10:17:55.682Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-13T10:18:55.689Z] [INFO] Found 0 pending assignments to check for auto-rejection

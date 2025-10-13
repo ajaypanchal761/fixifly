@@ -1,10 +1,10 @@
 // Main Service Worker for PWA functionality
-const CACHE_NAME = 'fixfly-v1';
+const CACHE_NAME = 'fixfly-v2';
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json'
+  '/manifest.json',
+  '/image.png',
+  '/offline.html'
 ];
 
 // Install event - cache resources
@@ -51,16 +51,40 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip external requests
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
         // Return cached version or fetch from network
-        return response || fetch(event.request);
+        if (response) {
+          return response;
+        }
+        
+        return fetch(event.request).then((fetchResponse) => {
+          // Don't cache if not a valid response
+          if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type !== 'basic') {
+            return fetchResponse;
+          }
+
+          // Clone the response
+          const responseToCache = fetchResponse.clone();
+
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+
+          return fetchResponse;
+        });
       })
       .catch((error) => {
         console.error('❌ Fetch failed:', error);
         // Return offline page if available
-        return caches.match('/');
+        return caches.match('/offline.html');
       })
   );
 });
