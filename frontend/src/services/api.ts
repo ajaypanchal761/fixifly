@@ -1,6 +1,11 @@
 // API service for Fixfly backend communication
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Debug API URL in production
+console.log('🔗 API_BASE_URL:', API_BASE_URL);
+console.log('🔗 Environment:', import.meta.env.MODE);
+console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
+
 interface ApiResponse<T = any> {
   success: boolean;
   message: string;
@@ -45,6 +50,8 @@ class ApiService {
     
     const defaultHeaders = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Cache-Control': 'no-cache',
     };
 
     // Add authorization header if token exists
@@ -61,6 +68,8 @@ class ApiService {
         ...defaultHeaders,
         ...options.headers,
       },
+      mode: 'cors',
+      credentials: 'omit', // Changed from 'include' to 'omit' for mobile webview compatibility
     };
 
     try {
@@ -90,8 +99,14 @@ class ApiService {
       });
       
       // Handle network errors
-      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch')) {
-        throw new Error('Network error: Please check your internet connection and try again.');
+      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+        console.error('🌐 Network Error Details:', {
+          url: url,
+          baseURL: this.baseURL,
+          environment: import.meta.env.MODE,
+          userAgent: navigator.userAgent
+        });
+        throw new Error('Network error: Unable to connect to server. Please check your internet connection and try again.');
       }
       
       // Handle HTTP errors

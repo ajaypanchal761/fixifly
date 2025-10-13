@@ -219,6 +219,20 @@ const App = () => {
     // App initialized - push notifications enabled
     console.log('✅ App initialized - push notifications enabled');
     console.log('🔍 Checking for TooltipProvider issues...');
+    
+    // Register service worker for PWA functionality
+    if ('serviceWorker' in navigator) {
+      import('./serviceWorkerRegistration').then(({ register }) => {
+        register();
+      });
+    }
+    
+    // Debug mobile webview detection
+    const isMobileWebView = /wv|WebView/.test(navigator.userAgent);
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+    console.log('📱 Mobile WebView detected:', isMobileWebView);
+    console.log('📱 PWA mode detected:', isPWA);
+    console.log('🌐 User Agent:', navigator.userAgent);
   }, []);
 
   return (
