@@ -321,18 +321,22 @@ const VendorEarnings = () => {
       const data = await response.json();
       
       // Check if data structure is correct
-      if (!data.success || !data.data || !Array.isArray(data.data.transactions)) {
+      if (!data.success || !data.data || !Array.isArray(data.data.recentTransactions)) {
         console.warn('Invalid API response structure:', data);
         setTransactionHistory([]);
         return;
       }
       
       // Debug: Log all transactions received from API
-      console.log('All transactions from API:', data.data.transactions);
-      console.log('Withdrawal request transactions:', data.data.transactions.filter((t: any) => t.type === 'withdrawal_request'));
+      console.log('=== TRANSACTION HISTORY DEBUG ===');
+      console.log('Full API response:', data);
+      console.log('All transactions from API:', data.data.recentTransactions);
+      console.log('Number of transactions:', data.data.recentTransactions.length);
+      console.log('Withdrawal request transactions:', data.data.recentTransactions.filter((t: any) => t.type === 'withdrawal_request'));
+      console.log('=== END TRANSACTION HISTORY DEBUG ===');
       
       // Transform API data to match component interface and sort by date (latest first)
-      const transformedTransactions = data.data.transactions
+      const transformedTransactions = data.data.recentTransactions
         .sort((a: any, b: any) => {
           const dateA = new Date(a.createdAt || a.timestamp || 0);
           const dateB = new Date(b.createdAt || b.timestamp || 0);
@@ -476,6 +480,7 @@ const VendorEarnings = () => {
       
       // Debug: Log final transformed transactions
       console.log('Final transformed transactions:', transformedTransactions);
+      console.log('Number of transformed transactions:', transformedTransactions.length);
       
       setTransactionHistory(transformedTransactions);
     } catch (error) {
