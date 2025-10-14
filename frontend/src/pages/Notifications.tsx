@@ -39,6 +39,16 @@ const Notifications = () => {
         return <Wrench className="w-5 h-5 text-orange-600" />;
       case 'promotion':
         return <Bell className="w-5 h-5 text-pink-600" />;
+      case 'admin_notification':
+        return <User className="w-5 h-5 text-indigo-600" />;
+      case 'general':
+        return <Bell className="w-5 h-5 text-gray-600" />;
+      case 'booking_update':
+        return <Calendar className="w-5 h-5 text-blue-600" />;
+      case 'payment_confirmation':
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'booking_confirmation':
+        return <Calendar className="w-5 h-5 text-green-600" />;
       case 'alert':
         return <AlertTriangle className="w-5 h-5 text-red-600" />;
       default:
@@ -232,7 +242,7 @@ const Notifications = () => {
                             }`}>
                               {notification.title}
                             </h3>
-                            {notification.image && (
+                            {notification.image && notification.image.secure_url && (
                               <div className="flex items-center space-x-1">
                                 <ImageIcon className="w-3 h-3 text-blue-600" />
                                 <span className="text-xs text-blue-600">Image</span>
@@ -246,7 +256,7 @@ const Notifications = () => {
                         <p className="text-sm text-gray-600 mb-2">{notification.message}</p>
                         
                         {/* Display notification image if available */}
-                        {notification.image && (
+                        {notification.image && notification.image.secure_url && (
                           <div className="mb-2">
                             <img
                               src={notification.image.secure_url}
@@ -365,7 +375,7 @@ const Notifications = () => {
                               }`}>
                                 {notification.title}
                               </h3>
-                              {notification.image && (
+                              {notification.image && notification.image.secure_url && (
                                 <div className="flex items-center space-x-1">
                                   <ImageIcon className="w-4 h-4 text-blue-600" />
                                   <span className="text-sm text-blue-600">Image</span>
@@ -379,7 +389,7 @@ const Notifications = () => {
                           <p className="text-sm text-gray-600 mb-3">{notification.message}</p>
                           
                           {/* Display notification image if available */}
-                          {notification.image && (
+                          {notification.image && notification.image.secure_url && (
                             <div className="mb-3">
                               <img
                                 src={notification.image.secure_url}

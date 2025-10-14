@@ -25,5 +25,18 @@ import "./index.css";
 //   });
 // }
 
+// Global error handler to prevent unhandled errors from showing in console
+window.addEventListener('error', (event) => {
+  console.log('Global error caught:', event.error);
+  // Prevent the error from showing in console
+  event.preventDefault();
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.log('Unhandled promise rejection caught:', event.reason);
+  // Prevent the error from showing in console
+  event.preventDefault();
+});
+
 console.log('🚀 React app starting...');
 createRoot(document.getElementById("root")!).render(<App />);

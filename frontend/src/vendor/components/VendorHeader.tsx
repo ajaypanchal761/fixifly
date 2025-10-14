@@ -113,13 +113,17 @@ const VendorHeader = () => {
                 console.log('✅ Notification permission granted automatically');
                 
                 // Import and setup notifications
-                const { setupNotifications } = await import('../../utils/notificationSetup');
-                const notificationResult = await setupNotifications(vendor.vendorId);
-                
-                if (notificationResult.success) {
-                  console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
-                } else {
-                  console.log('⚠️ Background notification setup failed:', notificationResult.error);
+                try {
+                  const { setupNotifications } = await import('../../utils/notificationSetup');
+                  const notificationResult = await setupNotifications(vendor.vendorId);
+                  
+                  if (notificationResult.success) {
+                    console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
+                  } else {
+                    console.log('⚠️ Background notification setup failed:', notificationResult.error);
+                  }
+                } catch (error) {
+                  console.log('⚠️ Error importing or calling setupNotifications:', error);
                 }
               } else {
                 console.log('❌ Notification permission denied automatically');
@@ -134,6 +138,8 @@ const VendorHeader = () => {
                 
                 if (notificationResult.success) {
                   console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
+                } else {
+                  console.log('⚠️ Background notification setup failed:', notificationResult.error);
                 }
               } catch (error) {
                 console.log('⚠️ Error setting up background notifications:', error);

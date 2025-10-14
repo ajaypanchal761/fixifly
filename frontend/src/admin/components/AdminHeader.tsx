@@ -113,17 +113,21 @@ const AdminHeader = () => {
               console.log('✅ Admin notification permission granted automatically');
               
               // Setup notifications and get FCM token
-              const notificationResult = await setupAdminNotifications();
-              
-              if (notificationResult.success) {
-                console.log('✅ Admin notification setup successful');
+              try {
+                const notificationResult = await setupAdminNotifications();
                 
-                // Test notification to verify it works
-                setTimeout(() => {
-                  testNotification();
-                }, 1000);
-              } else {
-                console.log('⚠️ Admin notification setup failed:', notificationResult.error);
+                if (notificationResult.success) {
+                  console.log('✅ Admin notification setup successful');
+                  
+                  // Test notification to verify it works
+                  setTimeout(() => {
+                    testNotification();
+                  }, 1000);
+                } else {
+                  console.log('⚠️ Admin notification setup failed:', notificationResult.error);
+                }
+              } catch (error) {
+                console.log('⚠️ Error calling setupAdminNotifications:', error);
               }
             } else {
               console.log('❌ Admin notification permission denied automatically');
@@ -137,6 +141,8 @@ const AdminHeader = () => {
               
               if (notificationResult.success) {
                 console.log('✅ Admin notification setup successful');
+              } else {
+                console.log('⚠️ Admin notification setup failed:', notificationResult.error);
               }
             } catch (error) {
               console.log('⚠️ Error setting up admin notifications:', error);

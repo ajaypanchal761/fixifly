@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Authentication Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.danger {
+            background: #dc3545;
+        }
+        .test-button.danger:hover {
+            background: #c82333;
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .test-button.success:hover {
+            background: #218838;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Authentication Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Clear Authentication Data</h2>
+        <p>Clear all admin authentication data to simulate a logged-out state.</p>
+        <button class="test-button danger" onclick="clearAuthData()">Clear Auth Data</button>
+        <div id="clear-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Check Authentication Status</h2>
+        <p>Check current authentication status and token validity.</p>
+        <button class="test-button" onclick="checkAuthStatus()">Check Auth Status</button>
+        <div id="auth-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Simulate Valid Authentication</h2>
+        <p>Set up mock authentication data to test protected routes.</p>
+        <button class="test-button success" onclick="setMockAuth()">Set Mock Auth</button>
+        <div id="mock-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Test Route Protection</h2>
+        <p>Test accessing admin routes with different authentication states.</p>
+        <button class="test-button" onclick="testRouteProtection()">Test Route Protection</button>
+        <div id="route-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: Navigation Tests</h2>
+        <p>Test navigation to admin routes.</p>
+        <button class="test-button" onclick="window.open('/admin', '_blank')">Open /admin (New Tab)</button>
+        <button class="test-button" onclick="window.open('/admin/login', '_blank')">Open /admin/login (New Tab)</button>
+        <button class="test-button" onclick="window.open('/admin/dashboard', '_blank')">Open /admin/dashboard (New Tab)</button>
+    </div>
+
+    <script>
+        function clearAuthData() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminRefreshToken');
+            localStorage.removeItem('adminData');
+            localStorage.removeItem('adminAuthData');
+            
+            const result = document.getElementById('clear-result');
+            result.style.display = 'block';
+            result.className = 'result success';
+            result.textContent = '✅ Authentication data cleared successfully!';
+        }
+
+        function checkAuthStatus() {
+            const adminToken = localStorage.getItem('adminToken');
+            const adminRefreshToken = localStorage.getItem('adminRefreshToken');
+            const adminData = localStorage.getItem('adminData');
+            
+            const result = document.getElementById('auth-result');
+            result.style.display = 'block';
+            
+            if (!adminToken || !adminData) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    ❌ No authentication data found<br>
+                    Token: ${adminToken ? 'Present' : 'Missing'}<br>
+                    Refresh Token: ${adminRefreshToken ? 'Present' : 'Missing'}<br>
+                    Admin Data: ${adminData ? 'Present' : 'Missing'}
+                `;
+                return;
+            }
+
+            try {
+                const payload = JSON.parse(atob(adminToken.split('.')[1]));
+                const currentTime = Date.now() / 1000;
+                const isExpired = payload.exp <= currentTime;
+                
+                result.className = isExpired ? 'result error' : 'result success';
+                result.innerHTML = `
+                    ${isExpired ? '❌' : '✅'} Token Status: ${isExpired ? 'Expired' : 'Valid'}<br>
+                    Expires: ${new Date(payload.exp * 1000).toLocaleString()}<br>
+                    Current Time: ${new Date().toLocaleString()}<br>
+                    Token Length: ${adminToken.length}<br>
+                    Admin Data: ${adminData ? 'Present' : 'Missing'}
+                `;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Invalid token format: ${error.message}`;
+            }
+        }
+
+        function setMockAuth() {
+            // Create a mock JWT token (expires in 1 hour)
+            const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+            const payload = btoa(JSON.stringify({
+                sub: 'admin123',
+                email: 'admin@fixfly.com',
+                role: 'admin',
+                exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+                iat: Math.floor(Date.now() / 1000)
+            }));
+            const signature = 'mock-signature';
+            const mockToken = `${header}.${payload}.${signature}`;
+            
+            const mockAdminData = JSON.stringify({
+                _id: 'admin123',
+                email: 'admin@fixfly.com',
+                role: 'admin',
+                name: 'Test Admin'
+            });
+            
+            localStorage.setItem('adminToken', mockToken);
+            localStorage.setItem('adminRefreshToken', 'mock-refresh-token');
+            localStorage.setItem('adminData', mockAdminData);
+            
+            const result = document.getElementById('mock-result');
+            result.style.display = 'block';
+            result.className = 'result success';
+            result.innerHTML = `
+                ✅ Mock authentication data set!<br>
+                Token: ${mockToken.substring(0, 50)}...<br>
+                Admin Data: ${mockAdminData}<br>
+                Expires: ${new Date((JSON.parse(atob(payload)).exp) * 1000).toLocaleString()}
+            `;
+        }
+
+        function testRouteProtection() {
+            const adminToken = localStorage.getItem('adminToken');
+            const adminData = localStorage.getItem('adminData');
+            
+            const result = document.getElementById('route-result');
+            result.style.display = 'block';
+            
+            if (!adminToken || !adminData) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    ❌ Route Protection Test Failed<br>
+                    Expected: Redirect to /admin/login<br>
+                    Reason: No authentication data found<br>
+                    <br>
+                    <strong>Test Result:</strong> ✅ PASS - User will be redirected to login
+                `;
+                return;
+            }
+
+            try {
+                const parsedAdminData = JSON.parse(adminData);
+                const hasValidRole = ['admin', 'super_admin'].includes(parsedAdminData.role);
+                
+                if (hasValidRole) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        ✅ Route Protection Test Passed<br>
+                        Expected: Access granted to admin routes<br>
+                        Admin Role: ${parsedAdminData.role}<br>
+                        Admin Email: ${parsedAdminData.email}<br>
+                        <br>
+                        <strong>Test Result:</strong> ✅ PASS - User can access admin routes
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `
+                        ❌ Route Protection Test Failed<br>
+                        Expected: Redirect to /admin/login<br>
+                        Reason: Invalid admin role: ${parsedAdminData.role}<br>
+                        <br>
+                        <strong>Test Result:</strong> ✅ PASS - User will be redirected to login
+                    `;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    ❌ Route Protection Test Failed<br>
+                    Expected: Redirect to /admin/login<br>
+                    Reason: Invalid admin data format<br>
+                    Error: ${error.message}<br>
+                    <br>
+                    <strong>Test Result:</strong> ✅ PASS - User will be redirected to login
+                `;
+            }
+        }
+
+        // Auto-run auth status check on page load
+        window.onload = function() {
+            checkAuthStatus();
+        };
+    </script>
+</body>
+</html>

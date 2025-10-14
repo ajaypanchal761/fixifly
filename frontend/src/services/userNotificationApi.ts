@@ -4,7 +4,7 @@ export interface UserNotification {
   _id: string;
   title: string;
   message: string;
-  type: 'booking' | 'payment' | 'reminder' | 'system' | 'service' | 'promotion';
+  type: 'booking' | 'payment' | 'reminder' | 'system' | 'service' | 'promotion' | 'admin_notification' | 'general' | 'booking_update' | 'payment_confirmation' | 'booking_confirmation';
   priority: 'high' | 'medium' | 'low';
   isRead: boolean;
   readAt?: string;

@@ -6,6 +6,7 @@ const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
 const adminNotificationService = require('../services/adminNotificationService');
+const userNotificationService = require('../services/userNotificationService');
 
 // Helper function to check if user is booking for the first time - DISABLED
 // First-time user free service feature has been removed
@@ -144,6 +145,61 @@ const createBooking = asyncHandler(async (req, res) => {
     } catch (error) {
       console.error('❌ Failed to send admin notification for new booking:', error);
       logger.error('Failed to send admin notification for new booking:', error);
+      // Don't fail the booking creation if notification fails
+    }
+
+    // Send notification to user about booking confirmation
+    try {
+      // Find user by email or phone
+      const user = await User.findOne({
+        $or: [
+          { email: booking.customer.email },
+          { phone: booking.customer.phone }
+        ]
+      });
+
+      if (user) {
+        const notificationSent = await userNotificationService.sendToUser(
+          user._id,
+          {
+            title: '🎉 Booking Confirmed!',
+            body: `Your booking is booked! Booking #${booking.bookingReference} has been confirmed. We'll assign an engineer soon.`
+          },
+          {
+            type: 'booking_confirmation',
+            bookingId: booking._id.toString(),
+            bookingReference: booking.bookingReference,
+            priority: 'high'
+          }
+        );
+        
+        if (notificationSent) {
+          console.log('✅ User notification sent for booking confirmation');
+          logger.info('Push notification sent to user for booking confirmation', {
+            bookingId: booking._id,
+            userId: user._id,
+            userEmail: user.email,
+            bookingReference: booking.bookingReference
+          });
+        } else {
+          console.log('❌ Failed to send user notification for booking confirmation');
+          logger.warn('Failed to send push notification to user for booking confirmation', {
+            bookingId: booking._id,
+            userId: user._id,
+            userEmail: user.email
+          });
+        }
+      } else {
+        console.log('⚠️ User not found for booking confirmation notification');
+        logger.warn('User not found for booking confirmation notification', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone
+        });
+      }
+    } catch (error) {
+      console.error('❌ Failed to send user notification for booking confirmation:', error);
+      logger.error('Failed to send user notification for booking confirmation:', error);
       // Don't fail the booking creation if notification fails
     }
 
@@ -664,6 +720,61 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     });
 
     // First-time user status update removed - feature disabled
+
+    // Send notification to user about booking confirmation
+    try {
+      // Find user by email or phone
+      const user = await User.findOne({
+        $or: [
+          { email: booking.customer.email },
+          { phone: booking.customer.phone }
+        ]
+      });
+
+      if (user) {
+        const notificationSent = await userNotificationService.sendToUser(
+          user._id,
+          {
+            title: '🎉 Booking Confirmed!',
+            body: `Your booking is booked! Booking #${booking.bookingReference} has been confirmed with payment. We'll assign an engineer soon.`
+          },
+          {
+            type: 'booking_confirmation',
+            bookingId: booking._id.toString(),
+            bookingReference: booking.bookingReference,
+            priority: 'high'
+          }
+        );
+        
+        if (notificationSent) {
+          console.log('✅ User notification sent for booking confirmation with payment');
+          logger.info('Push notification sent to user for booking confirmation with payment', {
+            bookingId: booking._id,
+            userId: user._id,
+            userEmail: user.email,
+            bookingReference: booking.bookingReference
+          });
+        } else {
+          console.log('❌ Failed to send user notification for booking confirmation with payment');
+          logger.warn('Failed to send push notification to user for booking confirmation with payment', {
+            bookingId: booking._id,
+            userId: user._id,
+            userEmail: user.email
+          });
+        }
+      } else {
+        console.log('⚠️ User not found for booking confirmation notification with payment');
+        logger.warn('User not found for booking confirmation notification with payment', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone
+        });
+      }
+    } catch (error) {
+      console.error('❌ Failed to send user notification for booking confirmation with payment:', error);
+      logger.error('Failed to send user notification for booking confirmation with payment:', error);
+      // Don't fail the booking creation if notification fails
+    }
 
     // Send notification to admins about new booking
     try {

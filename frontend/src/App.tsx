@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, Suspense } from "react";
 // import { useUserPushNotifications } from "./hooks/useUserPushNotifications"; // COMMENTED OUT FOR WEBVIEW TESTING
-// Import mandatory deposit handler to fix the error
-import "./services/mandatoryDepositHandler";
+// Mandatory deposit handler is now available as a utility function
+// import "./services/mandatoryDepositHandler";
 import Index from "./pages/Index";
 import Booking from "./pages/Booking";
 import AMC from "./pages/AMC";
@@ -54,6 +54,7 @@ import AdminCardManagement from "./admin/pages/AdminCardManagement";
 import AdminCityManagement from "./admin/pages/AdminCityManagement";
 import AdminProfile from "./admin/pages/AdminProfile";
 import AdminSignup from "./admin/pages/AdminSignup";
+import AdminProtectedRoute from "./admin/components/AdminProtectedRoute";
 
 // Vendor imports
 import VendorLogin from "./vendor/pages/VendorLogin";
@@ -144,43 +145,43 @@ const AppContent = () => {
         <Route path="/shop" element={<MobileAuthGuard><Shop /></MobileAuthGuard>} />
 
         {/* ================== ADMIN PROTECTED ROUTES ================== */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/profile" element={<AdminProfile />} />
+        <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+        <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+        <Route path="/admin/profile" element={<AdminProtectedRoute><AdminProfile /></AdminProtectedRoute>} />
         
         {/* User Management */}
-        <Route path="/admin/users" element={<AdminUserManagement />} />
+        <Route path="/admin/users" element={<AdminProtectedRoute><AdminUserManagement /></AdminProtectedRoute>} />
         
         {/* Vendor Management */}
-        <Route path="/admin/vendors" element={<AdminVendorManagement />} />
-        <Route path="/admin/vendor-wallet" element={<AdminVendorWalletManagement />} />
+        <Route path="/admin/vendors" element={<AdminProtectedRoute><AdminVendorManagement /></AdminProtectedRoute>} />
+        <Route path="/admin/vendor-wallet" element={<AdminProtectedRoute><AdminVendorWalletManagement /></AdminProtectedRoute>} />
         
         {/* Service Management */}
-        <Route path="/admin/service-management" element={<AdminServiceManagementDashboard />} />
-        <Route path="/admin/products" element={<AdminServiceManagement />} />
-        <Route path="/admin/bookings" element={<AdminBookingManagement />} />
+        <Route path="/admin/service-management" element={<AdminProtectedRoute><AdminServiceManagementDashboard /></AdminProtectedRoute>} />
+        <Route path="/admin/products" element={<AdminProtectedRoute><AdminServiceManagement /></AdminProtectedRoute>} />
+        <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookingManagement /></AdminProtectedRoute>} />
         
         {/* Financial Management */}
-        <Route path="/admin/payment-management" element={<AdminPaymentManagement />} />
-        <Route path="/admin/wallets" element={<AdminVendorWalletManagement />} />
+        <Route path="/admin/payment-management" element={<AdminProtectedRoute><AdminPaymentManagement /></AdminProtectedRoute>} />
+        <Route path="/admin/wallets" element={<AdminProtectedRoute><AdminVendorWalletManagement /></AdminProtectedRoute>} />
         
         {/* Content Management */}
-        <Route path="/admin/blogs" element={<AdminBlogManagement />} />
-        <Route path="/admin/banners" element={<AdminBannerManagement />} />
-        <Route path="/admin/cards" element={<AdminCardManagement />} />
+        <Route path="/admin/blogs" element={<AdminProtectedRoute><AdminBlogManagement /></AdminProtectedRoute>} />
+        <Route path="/admin/banners" element={<AdminProtectedRoute><AdminBannerManagement /></AdminProtectedRoute>} />
+        <Route path="/admin/cards" element={<AdminProtectedRoute><AdminCardManagement /></AdminProtectedRoute>} />
         
         {/* Location & Products */}
-        <Route path="/admin/cities" element={<AdminCityManagement />} />
+        <Route path="/admin/cities" element={<AdminProtectedRoute><AdminCityManagement /></AdminProtectedRoute>} />
         
         {/* AMC Management */}
-        <Route path="/admin/amc" element={<AdminAMCManagement />} />
+        <Route path="/admin/amc" element={<AdminProtectedRoute><AdminAMCManagement /></AdminProtectedRoute>} />
         
         {/* Support Management */}
-        <Route path="/admin/support" element={<AdminSupportManagement />} />
+        <Route path="/admin/support" element={<AdminProtectedRoute><AdminSupportManagement /></AdminProtectedRoute>} />
         
         {/* Communication */}
-        <Route path="/admin/push-notifications" element={<AdminPushNotificationManagement />} />
-        <Route path="/admin/notifications" element={<AdminPushNotificationManagement />} />
+        <Route path="/admin/push-notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
+        <Route path="/admin/notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
 
         {/* ================== VENDOR PROTECTED ROUTES ================== */}
         <Route path="/vendor" element={<VendorDashboard />} />

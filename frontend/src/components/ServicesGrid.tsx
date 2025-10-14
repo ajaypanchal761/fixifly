@@ -76,7 +76,9 @@ const ServicesGrid = () => {
 
   const handleBookService = (service: Card) => {
     // Only increment click count - no modal opening
-    cardApiService.incrementCardClicks(service._id).catch(console.error);
+    cardApiService.incrementCardClicks(service._id).catch((error) => {
+      console.log('Failed to increment card clicks:', error);
+    });
   };
 
   const handleCloseBookingModal = () => {

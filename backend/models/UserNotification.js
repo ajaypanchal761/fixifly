@@ -26,7 +26,7 @@ const userNotificationSchema = new mongoose.Schema({
   // Notification type
   type: {
     type: String,
-    enum: ['booking', 'payment', 'reminder', 'system', 'service', 'promotion'],
+    enum: ['booking', 'payment', 'reminder', 'system', 'service', 'promotion', 'admin_notification', 'general', 'booking_update', 'payment_confirmation', 'booking_confirmation'],
     default: 'system'
   },
   

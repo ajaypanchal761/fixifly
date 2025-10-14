@@ -6,6 +6,7 @@ const VendorNotification = require('../models/VendorNotification');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const { sendMulticastPushNotification } = require('../services/firebasePushService');
+const userNotificationService = require('../services/userNotificationService');
 
 // @desc    Send push notification to users
 // @route   POST /api/admin/notifications/send
@@ -83,12 +84,29 @@ const sendNotification = asyncHandler(async (req, res) => {
     
     if (targetAudience === 'all') {
       // Get all users (only regular users, not vendors)
+      console.log('🔍 Searching for users with targetAudience: all');
       const users = await User.find({
         isActive: true,
         isBlocked: false
-      }).select('_id fcmToken');
+      }).select('_id fcmToken name email phone');
+      
+      console.log(`📊 Found ${users.length} total users in database`);
+      
+      // Filter users with FCM tokens
+      const usersWithFcmTokens = users.filter(user => user.fcmToken && user.fcmToken.trim() !== '');
+      console.log(`📱 Found ${usersWithFcmTokens.length} users with FCM tokens`);
+      
+      // Log some user details for debugging
+      usersWithFcmTokens.slice(0, 3).forEach((user, index) => {
+        console.log(`   User ${index + 1}: ${user.name} (${user.email}) - FCM Token: ${user.fcmToken ? 'Present' : 'Missing'}`);
+      });
+      
       targetUserIds = users.map(user => user._id);
-      logger.info('Found users for "all" audience', { count: users.length });
+      logger.info('Found users for "all" audience', { 
+        totalUsers: users.length,
+        usersWithFcmTokens: usersWithFcmTokens.length,
+        targetUserIds: targetUserIds.length
+      });
       // Note: targetVendorIds remains empty for 'all' - only users get notifications
     } else if (targetAudience === 'vendors') {
       // Get all vendors
@@ -124,132 +142,131 @@ const sendNotification = asyncHandler(async (req, res) => {
       });
     }
 
-    // Get FCM tokens for push notification
-    const users = await User.find({
-      _id: { $in: targetUserIds },
-      fcmToken: { $exists: true, $ne: null }
-    }).select('_id fcmToken');
+    // Send notifications using the improved user notification service
+    let userPushResult = { successCount: 0, failureCount: 0 };
+    let vendorPushResult = { successCount: 0, failureCount: 0 };
 
-    const vendors = await Vendor.find({
-      _id: { $in: targetVendorIds },
-      fcmToken: { $exists: true, $ne: null }
-    }).select('_id fcmToken');
-
-    const userFcmTokens = users.map(user => user.fcmToken).filter(token => token);
-    const vendorFcmTokens = vendors.map(vendor => vendor.fcmToken).filter(token => token);
-    const fcmTokens = [...userFcmTokens, ...vendorFcmTokens];
-
-    // If no FCM tokens, we'll still create notifications in database but skip push notification
-    let pushResult = { successCount: 0, failureCount: 0 };
-    
-    if (fcmTokens.length > 0) {
-
-    // Prepare push notification payload
-    const pushNotification = {
-      title,
-      body: message,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
-      ...(image && { image: image.secure_url }),
-      data: {
-        type: 'admin_notification',
-        title,
-        message,
-        timestamp: new Date().toISOString(),
-        ...(image && { image: image.secure_url })
-      }
-    };
-
-    // Debug logging for image
-    if (image) {
-      console.log('🖼️ Image data in notification:', {
-        hasImage: !!image,
-        secure_url: image.secure_url,
-        public_id: image.public_id,
-        width: image.width,
-        height: image.height
-      });
-    } else {
-      console.log('❌ No image data in notification');
-    }
-
-    const pushData = {
-      type: 'admin_notification',
-      title,
-      message,
-      timestamp: new Date().toISOString(),
-      ...(image && { image: image.secure_url })
-    };
-
-      // Send push notification
+    // Send notifications to users using the user notification service
+    if (targetUserIds.length > 0) {
       try {
-        pushResult = await sendMulticastPushNotification(fcmTokens, pushNotification, pushData);
-        logger.info('Push notification sent', {
-          totalTokens: fcmTokens.length,
-          successCount: pushResult.successCount,
-          failureCount: pushResult.failureCount
+        console.log('🔔 Sending notifications to users via userNotificationService...');
+        console.log(`📤 Target user IDs: ${targetUserIds.length} users`);
+        console.log(`📝 Notification title: "${title}"`);
+        console.log(`📝 Notification message: "${message}"`);
+        
+        userPushResult = await userNotificationService.sendToMultipleUsers(
+          targetUserIds,
+          {
+            title,
+            body: message,
+            ...(image && { image: image.secure_url })
+          },
+          {
+            type: 'admin_notification',
+            priority: 'medium',
+            timestamp: new Date().toISOString(),
+            ...(image && { image: image.secure_url })
+          }
+        );
+        
+        console.log('✅ User notifications sent:', {
+          successCount: userPushResult.successCount,
+          failureCount: userPushResult.failureCount,
+          totalTargetUsers: targetUserIds.length
         });
+        
+        if (userPushResult.successCount === 0 && userPushResult.failureCount === 0) {
+          console.log('⚠️ No notifications were sent - this might indicate an issue with FCM tokens or user notification service');
+        }
+        
       } catch (error) {
-        logger.error('Error sending push notification:', error);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to send push notification',
-          error: error.message
-        });
+        console.error('❌ Error sending user notifications:', error);
+        logger.error('Error sending user notifications via userNotificationService:', error);
+      }
+    } else {
+      console.log('⚠️ No target user IDs found - skipping user notifications');
+    }
+
+    // Send notifications to vendors using the existing method
+    if (targetVendorIds.length > 0) {
+      try {
+        const vendors = await Vendor.find({
+          _id: { $in: targetVendorIds },
+          fcmToken: { $exists: true, $ne: null }
+        }).select('_id fcmToken');
+
+        const vendorFcmTokens = vendors.map(vendor => vendor.fcmToken).filter(token => token);
+
+        if (vendorFcmTokens.length > 0) {
+          const pushNotification = {
+            title,
+            body: message,
+            icon: '/favicon.ico',
+            badge: '/favicon.ico',
+            ...(image && { image: image.secure_url }),
+            data: {
+              type: 'admin_notification',
+              title,
+              message,
+              timestamp: new Date().toISOString(),
+              ...(image && { image: image.secure_url })
+            }
+          };
+
+          const pushData = {
+            type: 'admin_notification',
+            title,
+            message,
+            timestamp: new Date().toISOString(),
+            ...(image && { image: image.secure_url })
+          };
+
+          vendorPushResult = await sendMulticastPushNotification(vendorFcmTokens, pushNotification, pushData);
+          console.log('✅ Vendor notifications sent:', {
+            successCount: vendorPushResult.successCount,
+            failureCount: vendorPushResult.failureCount
+          });
+        }
+      } catch (error) {
+        console.error('❌ Error sending vendor notifications:', error);
+        logger.error('Error sending vendor notifications:', error);
       }
     }
 
-    // Create user notifications in database
-    const userNotifications = targetUserIds.map(userId => ({
-      user: userId,
-      title,
-      message,
-      type: 'system',
-      priority: 'medium',
-      image: image || null,
-      data: {
-        type: 'admin_notification',
+    // Combine results
+    const totalPushResult = {
+      successCount: userPushResult.successCount + vendorPushResult.successCount,
+      failureCount: userPushResult.failureCount + vendorPushResult.failureCount
+    };
+
+    // Note: User notifications are already created by userNotificationService.sendToMultipleUsers()
+    // We only need to create vendor notifications in database since vendor service doesn't handle it
+    if (targetVendorIds.length > 0) {
+      const vendorNotifications = targetVendorIds.map(vendorId => ({
+        vendorId: vendorId,
         title,
         message,
-        timestamp: new Date().toISOString(),
-        ...(image && { image })
-      },
-      sentBy: req.admin._id,
-      pushSent: true,
-      pushSentAt: new Date()
-    }));
+        type: 'system_notification',
+        priority: 'medium',
+        image: image || null,
+        data: {
+          type: 'admin_notification',
+          title,
+          message,
+          timestamp: new Date().toISOString(),
+          ...(image && { image })
+        }
+      }));
 
-    // Create vendor notifications in database
-    const vendorNotifications = targetVendorIds.map(vendorId => ({
-      vendorId: vendorId,
-      title,
-      message,
-      type: 'system_notification',
-      priority: 'medium',
-      image: image || null,
-      data: {
-        type: 'admin_notification',
-        title,
-        message,
-        timestamp: new Date().toISOString(),
-        ...(image && { image })
-      }
-    }));
-
-    // Insert notifications
-    if (userNotifications.length > 0) {
-      await UserNotification.insertMany(userNotifications);
-    }
-    if (vendorNotifications.length > 0) {
       await VendorNotification.insertMany(vendorNotifications);
     }
 
     // Update admin notification record with results
     adminNotificationData.status = 'sent';
     adminNotificationData.sentAt = new Date();
-    adminNotificationData.sentCount = pushResult.successCount;
-    adminNotificationData.deliveredCount = pushResult.successCount;
-    adminNotificationData.failedCount = pushResult.failureCount;
+    adminNotificationData.sentCount = totalPushResult.successCount;
+    adminNotificationData.deliveredCount = totalPushResult.successCount;
+    adminNotificationData.failedCount = totalPushResult.failureCount;
     adminNotificationData.readCount = 0; // Initially no reads
 
     const adminNotification = await AdminNotification.create(adminNotificationData);
@@ -261,11 +278,13 @@ const sendNotification = asyncHandler(async (req, res) => {
       targetAudience,
       totalUsers: targetUserIds.length,
       totalVendors: targetVendorIds.length,
-      sentCount: pushResult.successCount,
-      failedCount: pushResult.failureCount
+      userNotificationsSent: userPushResult.successCount,
+      vendorNotificationsSent: vendorPushResult.successCount,
+      totalSentCount: totalPushResult.successCount,
+      totalFailedCount: totalPushResult.failureCount
     });
 
-    const responseMessage = fcmTokens.length > 0 
+    const responseMessage = totalPushResult.successCount > 0 
       ? 'Notification sent successfully'
       : 'Notification saved successfully (no push notifications sent - no FCM tokens found)';
 
@@ -274,12 +293,14 @@ const sendNotification = asyncHandler(async (req, res) => {
       message: responseMessage,
       data: {
         notification: adminNotification,
-        sentCount: pushResult.successCount,
-        deliveredCount: pushResult.successCount,
-        failedCount: pushResult.failureCount,
+        sentCount: totalPushResult.successCount,
+        deliveredCount: totalPushResult.successCount,
+        failedCount: totalPushResult.failureCount,
         totalUsers: targetUserIds.length,
         totalVendors: targetVendorIds.length,
-        pushNotificationsSent: fcmTokens.length > 0
+        userNotificationsSent: userPushResult.successCount,
+        vendorNotificationsSent: vendorPushResult.successCount,
+        pushNotificationsSent: totalPushResult.successCount > 0
       }
     });
 

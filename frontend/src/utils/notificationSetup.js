@@ -1,5 +1,6 @@
 // Comprehensive notification setup utility
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getApp } from 'firebase/app';
 
 const VAPID_KEY = "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU";
 
@@ -9,7 +10,16 @@ export const registerServiceWorker = async () => {
     console.log('🔧 Registering service worker...');
     
     if ('serviceWorker' in navigator) {
-      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      // Check if service worker is already registered
+      const existingRegistration = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+      if (existingRegistration) {
+        console.log('✅ Service worker already registered:', existingRegistration);
+        return existingRegistration;
+      }
+      
+      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+        scope: '/'
+      });
       console.log('✅ Service worker registered successfully:', registration);
       return registration;
     } else {
@@ -18,6 +28,7 @@ export const registerServiceWorker = async () => {
     }
   } catch (error) {
     console.error('❌ Service worker registration failed:', error);
+    // Return null instead of throwing to prevent app crashes
     return null;
   }
 };
@@ -175,11 +186,13 @@ export const setupNotifications = async (vendorId) => {
     // Step 1: Register service worker
     const registration = await registerServiceWorker();
     if (!registration) {
-      throw new Error('Service worker registration failed');
+      console.log('⚠️ Service worker registration failed, continuing without notifications');
+      return { success: false, error: 'Service worker registration failed' };
     }
     
     // Step 2: Get messaging instance
-    const messaging = getMessaging();
+    const app = getApp();
+    const messaging = getMessaging(app);
     
     // Step 3: Request permission and get token
     const fcmToken = await requestNotificationPermission(messaging);
@@ -238,11 +251,13 @@ export const setupUserNotifications = async () => {
     // Step 1: Register service worker
     const registration = await registerServiceWorker();
     if (!registration) {
-      throw new Error('Service worker registration failed');
+      console.log('⚠️ Service worker registration failed, continuing without notifications');
+      return { success: false, error: 'Service worker registration failed' };
     }
     
     // Step 2: Get messaging instance
-    const messaging = getMessaging();
+    const app = getApp();
+    const messaging = getMessaging(app);
     
     // Step 3: Request permission and get token
     const fcmToken = await requestNotificationPermission(messaging);
@@ -312,11 +327,13 @@ export const setupAdminNotifications = async () => {
     // Step 1: Register service worker
     const registration = await registerServiceWorker();
     if (!registration) {
-      throw new Error('Service worker registration failed');
+      console.log('⚠️ Service worker registration failed, continuing without notifications');
+      return { success: false, error: 'Service worker registration failed' };
     }
     
     // Step 2: Get messaging instance
-    const messaging = getMessaging();
+    const app = getApp();
+    const messaging = getMessaging(app);
     
     // Step 3: Request permission and get token
     const fcmToken = await requestNotificationPermission(messaging);

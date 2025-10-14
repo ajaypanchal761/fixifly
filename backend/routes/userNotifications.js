@@ -44,7 +44,7 @@ router.put('/read-all', markAllAsRead);
 // @access  Private
 router.delete('/:id', deleteNotification);
 
-// @route   PUT /api/user/fcm-token
+// @route   PUT /api/user/notifications/fcm-token
 // @desc    Update user FCM token
 // @access  Private
 router.put('/fcm-token', updateFcmToken);

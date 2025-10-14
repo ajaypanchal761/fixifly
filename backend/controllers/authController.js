@@ -206,7 +206,7 @@ const sendOTP = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/verify-otp
 // @access  Public
 const verifyOTP = asyncHandler(async (req, res) => {
-  const { phone, otp, name, email } = req.body;
+  const { phone, otp, name, email, fcmToken } = req.body;
 
   // Validate required fields
   if (!phone || !otp) {
@@ -282,6 +282,21 @@ const verifyOTP = asyncHandler(async (req, res) => {
         success: false,
         message: 'Name and email are required for account creation'
       });
+    }
+
+    // Save FCM token if provided
+    if (fcmToken) {
+      try {
+        console.log('🔔 Saving FCM token for user:', user._id);
+        user.fcmToken = fcmToken;
+        user.preferences = user.preferences || {};
+        user.preferences.notifications = user.preferences.notifications || {};
+        user.preferences.notifications.pushNotifications = true;
+        console.log('✅ FCM token saved successfully for user:', user._id);
+      } catch (error) {
+        console.error('❌ Error saving FCM token:', error);
+        // Don't fail login if FCM token saving fails
+      }
     }
 
     // Update last login
@@ -485,7 +500,7 @@ const register = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const login = asyncHandler(async (req, res) => {
-  const { phone, otp } = req.body;
+  const { phone, otp, fcmToken } = req.body;
 
   // Validate required fields
   if (!phone || !otp) {
@@ -531,6 +546,21 @@ const login = asyncHandler(async (req, res) => {
         success: false,
         message: 'Invalid or expired OTP. Please try again.'
       });
+    }
+
+    // Save FCM token if provided
+    if (fcmToken) {
+      try {
+        console.log('🔔 Saving FCM token for user login:', user._id);
+        user.fcmToken = fcmToken;
+        user.preferences = user.preferences || {};
+        user.preferences.notifications = user.preferences.notifications || {};
+        user.preferences.notifications.pushNotifications = true;
+        console.log('✅ FCM token saved successfully for user login:', user._id);
+      } catch (error) {
+        console.error('❌ Error saving FCM token during login:', error);
+        // Don't fail login if FCM token saving fails
+      }
     }
 
     // Clear OTP and update login info

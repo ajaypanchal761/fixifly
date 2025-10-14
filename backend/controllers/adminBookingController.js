@@ -1,8 +1,10 @@
 const { Booking } = require('../models/Booking');
 const Vendor = require('../models/Vendor');
+const User = require('../models/User');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
+const userNotificationService = require('../services/userNotificationService');
 
 // @desc    Get all bookings for admin
 // @route   GET /api/admin/bookings
@@ -286,6 +288,50 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
       // Don't fail the status update if WhatsApp fails
     }
 
+    // Send push notification to user about status update
+    try {
+      // Find user by email or phone
+      const user = await User.findOne({
+        $or: [
+          { email: booking.customer.email },
+          { phone: booking.customer.phone }
+        ]
+      });
+
+      if (user) {
+        const notificationSent = await userNotificationService.sendBookingStatusUpdate(
+          user._id,
+          booking,
+          status
+        );
+        
+        if (notificationSent) {
+          logger.info('Push notification sent to user for booking status update', {
+            bookingId: booking._id,
+            userId: user._id,
+            userEmail: user.email,
+            newStatus: status
+          });
+        } else {
+          logger.warn('Failed to send push notification to user for booking status update', {
+            bookingId: booking._id,
+            userId: user._id,
+            userEmail: user.email,
+            newStatus: status
+          });
+        }
+      } else {
+        logger.warn('User not found for booking status notification', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone
+        });
+      }
+    } catch (error) {
+      logger.error('Failed to send push notification to user for booking status update:', error);
+      // Don't fail the status update if notification fails
+    }
+
     res.json({
       success: true,
       message: 'Booking status updated successfully',
@@ -415,7 +461,7 @@ const assignVendor = asyncHandler(async (req, res) => {
       req.params.id,
       updateData,
       { new: true, runValidators: true }
-    ).lean();
+    ).select('customer vendor status').lean();
 
     // Manually populate vendor data and mark first task assignment
     if (booking && booking.vendor && booking.vendor.vendorId) {
@@ -454,6 +500,59 @@ const assignVendor = asyncHandler(async (req, res) => {
       }
     } catch (notificationError) {
       logger.error('Error creating vendor notification for booking assignment:', notificationError);
+      // Don't fail the assignment if notification fails
+    }
+
+    // Send notification to user about vendor assignment
+    try {
+      // Find user by email or phone
+      const user = await User.findOne({
+        $or: [
+          { email: booking.customer.email },
+          { phone: booking.customer.phone }
+        ]
+      });
+
+      if (user) {
+        // Generate booking reference from booking ID
+        const bookingReference = `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
+        
+        const userNotificationSent = await userNotificationService.sendToUser(
+          user._id,
+          {
+            title: '👨‍🔧 Engineer Assigned!',
+            body: `Great news! An engineer has been assigned to your booking #${bookingReference}. They will contact you soon to schedule the service.`
+          },
+          {
+            type: 'booking_update',
+            bookingId: booking._id.toString(),
+            bookingReference: bookingReference,
+            priority: 'high'
+          }
+        );
+        
+        if (userNotificationSent) {
+          logger.info('User notification sent successfully for vendor assignment', {
+            userId: user._id,
+            bookingId: booking._id,
+            vendorId
+          });
+        } else {
+          logger.warn('Failed to send user notification for vendor assignment', {
+            userId: user._id,
+            bookingId: booking._id,
+            vendorId
+          });
+        }
+      } else {
+        logger.warn('User not found for vendor assignment notification', {
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone,
+          bookingId: booking._id
+        });
+      }
+    } catch (userNotificationError) {
+      logger.error('Error creating user notification for vendor assignment:', userNotificationError);
       // Don't fail the assignment if notification fails
     }
 

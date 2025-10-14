@@ -22,11 +22,10 @@ export const handleMandatoryDepositError = (error: any) => {
   return null; // Not a mandatory deposit error
 };
 
-// Override the fetch function temporarily to catch mandatory deposit errors
-const originalFetch = window.fetch;
-window.fetch = async (...args) => {
+// Create a wrapper function for fetch that handles mandatory deposit errors
+export const fetchWithMandatoryDepositHandling = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   try {
-    const response = await originalFetch(...args);
+    const response = await fetch(input, init);
     
     // Check if it's a mandatory deposit error response
     if (response.status === 400) {
@@ -56,6 +55,7 @@ window.fetch = async (...args) => {
     
     return response;
   } catch (error) {
-    return originalFetch(...args);
+    // Re-throw network errors
+    throw error;
   }
 };
