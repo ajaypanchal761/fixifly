@@ -32,6 +32,31 @@ const sendNotification = asyncHandler(async (req, res) => {
       });
     }
 
+    // Safety check: Prevent test notifications from being sent to real users
+    const isTestNotification = title.toLowerCase().includes('test') || 
+                              message.toLowerCase().includes('test') ||
+                              title.toLowerCase().includes('🧪') ||
+                              message.toLowerCase().includes('this is a test') ||
+                              title.toLowerCase().includes('admin test') ||
+                              message.toLowerCase().includes('admin test');
+    
+    // Additional safety: Check if we're connected to production database
+    const isProductionDatabase = process.env.MONGODB_URI && 
+                                process.env.MONGODB_URI.includes('cluster0.2ne8beo.mongodb.net');
+    
+    if (isTestNotification && (targetAudience === 'all' || isProductionDatabase)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Test notifications cannot be sent to all users or in production environment. Please use a specific target audience for testing.',
+        error: 'TEST_NOTIFICATION_BLOCKED',
+        details: {
+          isTestNotification: true,
+          targetAudience,
+          isProductionDatabase
+        }
+      });
+    }
+
     // Create admin notification record
     const adminNotificationData = {
       title,

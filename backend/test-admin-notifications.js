@@ -8,7 +8,16 @@ const { logger } = require('./utils/logger');
 // Test script for admin notification management
 async function testAdminNotifications() {
   try {
+    // Safety check: Prevent running in production
+    if (process.env.NODE_ENV === 'production') {
+      console.log('❌ This test script cannot be run in production environment');
+      console.log('   Test notifications should not be sent to real users in production');
+      return;
+    }
+    
     console.log('🧪 Starting Admin Notification Management Test...');
+    console.log('⚠️  WARNING: This will send test notifications to real users!');
+    console.log('   Make sure you are in development environment only.');
     
     // Connect to database
     const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://fixfly:fixfly786@cluster0.2ne8beo.mongodb.net/FixFly';

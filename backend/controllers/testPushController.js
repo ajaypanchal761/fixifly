@@ -16,6 +16,15 @@ const testPushNotification = asyncHandler(async (req, res) => {
     });
   }
 
+  // Safety check: Prevent test notifications in production
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      success: false,
+      message: 'Test notifications are not allowed in production environment',
+      error: 'PRODUCTION_TEST_BLOCKED'
+    });
+  }
+
   try {
     // Find vendor by ID or vendorId
     let vendor;

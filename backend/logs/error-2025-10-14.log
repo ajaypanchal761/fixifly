@@ -35,3 +35,4 @@
 [2025-10-14T19:03:32.940Z] [ERROR] Failed to send push notification: | {"error":"data must only contain string values","fcmToken":"fBe-q26if9eCXuv4FMry..."}
 [2025-10-14T19:03:32.941Z] [ERROR] Push notification failed for user | {"userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","notificationId":"68ee9e8431ba16c929be3223"}
 [2025-10-14T19:15:06.414Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"440"}
+[2025-10-14T19:33:36.678Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"440"}

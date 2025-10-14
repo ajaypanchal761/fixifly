@@ -176,10 +176,10 @@ const Header = () => {
           backgroundColor: 'white',
           color: 'black',
           boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-          height: '60px',
+          height: '80px',
         }}
       >
-         <Toolbar sx={{ minHeight: '60px !important', justifyContent: 'center', position: 'relative' }}>
+         <Toolbar sx={{ minHeight: '100px !important', justifyContent: 'center', position: 'relative' }}>
            {/* Left side - Menu Icon and Logo */}
            <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', left: 0 }}>
              <IconButton

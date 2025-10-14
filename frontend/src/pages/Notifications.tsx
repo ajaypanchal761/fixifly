@@ -157,12 +157,12 @@ const Notifications = () => {
   // Remove this line since we're now using the unreadCount state from API
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-y-auto">
       {isMobile ? (
         // Mobile Layout
         <>
           {/* Mobile Header */}
-          <div className="bg-white shadow-sm border-b">
+          <div className="bg-white shadow-sm border-b sticky top-0 z-10">
             <div className="px-4 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -207,7 +207,7 @@ const Notifications = () => {
           </div>
 
           {/* Mobile Notifications List */}
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-3 pb-20">
             {loading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -284,9 +284,6 @@ const Notifications = () => {
 
           {/* Mobile Bottom Navigation */}
           <MobileBottomNav />
-          
-          {/* Footer */}
-          <Footer />
         </>
       ) : (
         // Desktop Layout
@@ -339,7 +336,7 @@ const Notifications = () => {
           </div>
 
           {/* Desktop Notifications List */}
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -415,6 +412,9 @@ const Notifications = () => {
               </div>
             )}
           </div>
+          
+          {/* Footer */}
+          <Footer />
         </>
       )}
     </div>

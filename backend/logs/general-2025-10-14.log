@@ -1328,3 +1328,155 @@
 [2025-10-14T19:15:58.793Z] [INFO] User retrieved notifications: 3 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":3,"unreadCount":3,"page":1,"filters":{}}
 [2025-10-14T19:16:34.906Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-14T19:17:34.556Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:18:34.541Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:24:48.825Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:24:49.033Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:24:50.493Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:24:51.601Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:25:10.031Z] [INFO] User retrieved notifications: 3 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":3,"unreadCount":3,"page":1,"filters":{}}
+[2025-10-14T19:25:17.694Z] [INFO] User retrieved notifications: 3 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":3,"unreadCount":3,"page":1,"filters":{}}
+[2025-10-14T19:25:18.016Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/notifications?page=1&limit=10"}
+[2025-10-14T19:25:18.024Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-14T19:25:18.404Z] [INFO] Admin retrieved notifications | {"adminId":"68e556544152df81db3bbb41","totalNotifications":8,"page":1}
+[2025-10-14T19:25:18.716Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/notifications/stats"}
+[2025-10-14T19:25:19.002Z] [INFO] Admin retrieved notification stats | {"adminId":"68e556544152df81db3bbb41","stats":{"totalNotifications":8,"sentNotifications":8,"scheduledNotifications":0,"draftNotifications":0,"failedNotifications":0,"totalRecipients":3,"averageDeliveryRate":100,"averageReadRate":0}}
+[2025-10-14T19:25:19.596Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-14T19:25:19.729Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-14T19:25:21.116Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-14T19:25:21.238Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-14T19:25:21.869Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-14T19:25:50.711Z] [INFO] Found 1 pending assignments to check for auto-rejection
+[2025-10-14T19:25:50.716Z] [INFO] Auto-rejecting booking 68eea0962067a639a9651c3a for vendor 440
+[2025-10-14T19:25:50.848Z] [INFO] Auto-rejection penalty applied to vendor 440 | {"vendorId":"440","bookingId":"68eea0962067a639a9651c3a","penaltyAmount":100}
+[2025-10-14T19:25:51.091Z] [INFO] Booking 68eea0962067a639a9651c3a auto-rejected and set to waiting_for_engineer | {"bookingId":"68eea0962067a639a9651c3a","vendorId":"440","newStatus":"waiting_for_engineer","penaltyApplied":true}
+[2025-10-14T19:25:51.788Z] [INFO] Booking created with payment: FIX68C000C0 | {"bookingId":"68eea3bf77a3afa768c000c0","customerEmail":"panchalajay717@gmail.com","totalAmount":353,"servicesCount":1,"paymentId":"pay_RTT3jx3GlmEzlY"}
+[2025-10-14T19:25:52.431Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-14T19:25:53.175Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/7bd897d2-f794-421d-9fa1-8c98120f3aa6","fcmToken":"fBe-q26if9eCXuv4FMry..."}
+[2025-10-14T19:25:53.177Z] [INFO] Push notification sent successfully to user | {"userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","notificationId":"68eea3c077a3afa768c000c7","title":"🎉 Booking Confirmed!"}
+[2025-10-14T19:25:53.179Z] [INFO] Push notification sent to user for booking confirmation with payment | {"bookingId":"68eea3bf77a3afa768c000c0","userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","bookingReference":"FIX68C000C0"}
+[2025-10-14T19:25:53.181Z] [INFO] Sending new booking notification to admins | {"bookingId":"68eea3bf77a3afa768c000c0","bookingReference":"FIX68C000C0","customerName":"Ajay Panchal","totalAmount":353}
+[2025-10-14T19:25:53.289Z] [INFO] Sending notification to 2 admins | {"notificationTitle":"🆕 New Booking Received","adminCount":2}
+[2025-10-14T19:25:53.617Z] [INFO] Multicast push notification sent: | {"successCount":2,"failureCount":0,"totalTokens":2}
+[2025-10-14T19:25:53.625Z] [INFO] Admin notification sent for new booking with payment | {"bookingId":"68eea3bf77a3afa768c000c0","successCount":2,"failureCount":0}
+[2025-10-14T19:25:54.790Z] [INFO] Customer bookings retrieved: 10 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":10,"page":1}
+[2025-10-14T19:26:50.552Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:27:50.563Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:28:50.588Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:29:50.628Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:30:50.570Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:31:50.566Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:32:50.596Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:33:22.577Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-14T19:33:22.767Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-14T19:33:22.854Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-14T19:33:23.907Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/update-fcm-token"}
+[2025-10-14T19:33:24.161Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":14,"totalRevenue":5768}
+[2025-10-14T19:33:24.626Z] [INFO] FCM token updated for admin | {"adminId":"68e556544152df81db3bbb41","adminEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-14T19:33:25.546Z] [INFO] Admin retrieved bookings: 10 | {"totalBookings":14,"page":1,"filters":{}}
+[2025-10-14T19:33:33.506Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/68eea4da75504a97be216a08/assign-vendor"}
+[2025-10-14T19:33:34.275Z] [INFO] Simple notification service initialized
+[2025-10-14T19:33:34.391Z] [INFO] Sending simple notification to vendor | {"vendorId":"440","title":"📅 New Service Booking Assigned","type":"booking_assignment"}
+[2025-10-14T19:33:37.376Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/e22924f1-207e-462e-8a22-998c56272616","fcmToken":"fBe-q26if9eCXuv4FMry..."}
+[2025-10-14T19:33:37.443Z] [INFO] Push notification sent successfully | {"vendorId":"440","fcmToken":"fBe-q26if9eCXuv4FMry..."}
+[2025-10-14T19:33:37.493Z] [INFO] Simple notification sent successfully | {"vendorId":"440","title":"📅 New Service Booking Assigned","realtimeNotification":false,"pushNotification":true}
+[2025-10-14T19:33:37.606Z] [INFO] Vendor notification sent successfully for booking assignment | {"vendorId":"440","bookingId":"68eea4da75504a97be216a08"}
+[2025-10-14T19:33:38.310Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/9344b1f2-2977-483e-982c-51822a5119a0","fcmToken":"fBe-q26if9eCXuv4FMry..."}
+[2025-10-14T19:33:38.411Z] [INFO] Push notification sent successfully to user | {"userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","notificationId":"68eea59177a3afa768c001de","title":"👨‍🔧 Engineer Assigned!"}
+[2025-10-14T19:33:38.489Z] [INFO] User notification sent successfully for vendor assignment | {"userId":"68e5560f4152df81db3bbb29","bookingId":"68eea4da75504a97be216a08","vendorId":"440"}
+[2025-10-14T19:33:38.643Z] [INFO] Admin assigned vendor to booking: undefined | {"bookingId":"68eea4da75504a97be216a08","vendorId":"440","adminId":"68e556544152df81db3bbb41"}
+[2025-10-14T19:33:39.486Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-14T19:33:42.291Z] [INFO] Admin retrieved bookings: 10 | {"totalBookings":14,"page":1,"filters":{}}
+[2025-10-14T19:33:50.637Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:34:17.467Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-14T19:34:17.935Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-14T19:34:21.103Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-14T19:34:22.106Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:34:50.783Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:35:55.113Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:35:59.644Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:36:00.340Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:36:04.570Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:36:05.655Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:36:37.637Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:36:38.517Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:37:05.083Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:37:07.578Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:37:21.161Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:37:22.581Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:37:35.694Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:37:36.896Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:37:40.423Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:37:42.443Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:37:49.779Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:37:50.396Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:37:54.059Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:37:55.657Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:38:22.288Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:38:24.220Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:38:38.764Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:38:41.421Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:38:42.350Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:39:38.812Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:40:38.821Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:41:05.634Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:41:10.759Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:41:23.661Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:41:38.761Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:42:26.807Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:42:38.776Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:43:38.795Z] [INFO] Found 1 pending assignments to check for auto-rejection
+[2025-10-14T19:43:38.797Z] [INFO] Auto-rejecting booking 68eea4da75504a97be216a08 for vendor 440
+[2025-10-14T19:43:39.014Z] [INFO] Auto-rejection penalty applied to vendor 440 | {"vendorId":"440","bookingId":"68eea4da75504a97be216a08","penaltyAmount":100}
+[2025-10-14T19:43:39.081Z] [INFO] Booking 68eea4da75504a97be216a08 auto-rejected and set to waiting_for_engineer | {"bookingId":"68eea4da75504a97be216a08","vendorId":"440","newStatus":"waiting_for_engineer","penaltyApplied":true}
+[2025-10-14T19:44:38.820Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:45:38.828Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:46:38.832Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:47:09.619Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:47:09.833Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:47:11.270Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:47:12.523Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:47:55.273Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:47:55.717Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:47:57.626Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:47:59.007Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:48:12.312Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-14T19:48:12.431Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-14T19:48:13.937Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-14T19:48:15.839Z] [INFO] SMTP connection verified successfully
+[2025-10-14T19:48:39.396Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:48:52.654Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/notifications?page=1&limit=50"}
+[2025-10-14T19:48:54.152Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-14T19:48:54.166Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-14T19:48:54.173Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-14T19:48:54.212Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-14T19:48:54.218Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-14T19:48:54.355Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-14T19:48:54.361Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-14T19:48:54.373Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-14T19:48:54.393Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-14T19:48:54.431Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-14T19:48:54.432Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-14T19:48:54.522Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-14T19:48:55.133Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/update-fcm-token"}
+[2025-10-14T19:48:55.287Z] [INFO] FCM token updated for vendor | {"vendorId":"68eca22322e5bedeab6c67d5","vendorEmail":"panchalajay717@gmail.com","hasToken":true}
+[2025-10-14T19:48:56.765Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:48:59.397Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-14T19:48:59.433Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-14T19:48:59.649Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-14T19:49:00.782Z] [INFO] User retrieved notifications: 6 | {"userId":"68e5560f4152df81db3bbb29","totalNotifications":6,"unreadCount":6,"page":1,"filters":{}}
+[2025-10-14T19:49:02.503Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-14T19:49:02.523Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-14T19:49:02.606Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-14T19:49:14.000Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:50:14.005Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:51:14.026Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:52:14.027Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:52:58.993Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-14T19:52:59.003Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-14T19:52:59.385Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-14T19:53:14.063Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:54:14.073Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:55:14.089Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:56:14.076Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:57:14.096Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-14T19:58:14.076Z] [INFO] Found 0 pending assignments to check for auto-rejection

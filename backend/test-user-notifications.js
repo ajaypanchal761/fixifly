@@ -6,7 +6,16 @@ const { logger } = require('./utils/logger');
 // Test script for user notifications
 async function testUserNotifications() {
   try {
+    // Safety check: Prevent running in production
+    if (process.env.NODE_ENV === 'production') {
+      console.log('❌ This test script cannot be run in production environment');
+      console.log('   Test notifications should not be sent to real users in production');
+      return;
+    }
+    
     console.log('🧪 Starting User Notification Test...');
+    console.log('⚠️  WARNING: This will send test notifications to real users!');
+    console.log('   Make sure you are in development environment only.');
     
     // Connect to database
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fixfly');
