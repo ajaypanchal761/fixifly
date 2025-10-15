@@ -461,7 +461,7 @@ const assignVendor = asyncHandler(async (req, res) => {
       req.params.id,
       updateData,
       { new: true, runValidators: true }
-    ).select('customer vendor status').lean();
+    );
 
     // Manually populate vendor data and mark first task assignment
     if (booking && booking.vendor && booking.vendor.vendorId) {
@@ -514,19 +514,16 @@ const assignVendor = asyncHandler(async (req, res) => {
       });
 
       if (user) {
-        // Generate booking reference from booking ID
-        const bookingReference = `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
-        
         const userNotificationSent = await userNotificationService.sendToUser(
           user._id,
           {
             title: '👨‍🔧 Engineer Assigned!',
-            body: `Great news! An engineer has been assigned to your booking #${bookingReference}. They will contact you soon to schedule the service.`
+            body: `Great news! An engineer has been assigned to your booking #${booking.bookingReference}. They will contact you soon to schedule the service.`
           },
           {
             type: 'booking_update',
             bookingId: booking._id.toString(),
-            bookingReference: bookingReference,
+            bookingReference: booking.bookingReference,
             priority: 'high'
           }
         );

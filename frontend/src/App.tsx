@@ -3,9 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, Suspense } from "react";
-// import { useUserPushNotifications } from "./hooks/useUserPushNotifications"; // COMMENTED OUT FOR WEBVIEW TESTING
-// Mandatory deposit handler is now available as a utility function
-// import "./services/mandatoryDepositHandler";
+import { useUserPushNotifications } from "./hooks/useUserPushNotifications";
+// Import mandatory deposit handler to fix the error
+import "./services/mandatoryDepositHandler";
 import Index from "./pages/Index";
 import Booking from "./pages/Booking";
 import AMC from "./pages/AMC";
@@ -91,7 +91,7 @@ const AppContent = () => {
   const isAuthPage = isLoginPage || isSignupPage;
   
   // Initialize user push notifications
-  // useUserPushNotifications(); // COMMENTED OUT FOR WEBVIEW TESTING
+  useUserPushNotifications();
 
   return (
     <div className="min-h-screen bg-background">

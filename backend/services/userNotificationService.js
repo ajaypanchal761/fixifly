@@ -21,30 +21,6 @@ class UserNotificationService {
    */
   async sendToUser(userId, notification, data = {}) {
     try {
-      // Safety check: Prevent test notifications from being sent to real users
-      const isTestNotification = notification.title?.toLowerCase().includes('test') || 
-                                notification.body?.toLowerCase().includes('test') ||
-                                notification.message?.toLowerCase().includes('test') ||
-                                notification.title?.toLowerCase().includes('🧪') ||
-                                notification.body?.toLowerCase().includes('this is a test') ||
-                                notification.message?.toLowerCase().includes('this is a test') ||
-                                notification.title?.toLowerCase().includes('admin test');
-      
-      // Additional safety: Check if we're connected to production database
-      const isProductionDatabase = process.env.MONGODB_URI && 
-                                  process.env.MONGODB_URI.includes('cluster0.2ne8beo.mongodb.net');
-      
-      if (isTestNotification && (process.env.NODE_ENV === 'production' || isProductionDatabase)) {
-        console.log('❌ Test notifications are blocked in production environment');
-        logger.warn('Test notification blocked in production', {
-          title: notification.title,
-          body: notification.body || notification.message,
-          userId,
-          isProductionDatabase
-        });
-        return false;
-      }
-      
       console.log('🔔 UserNotificationService: Starting sendToUser...');
       
       // Get user with FCM token
@@ -89,18 +65,15 @@ class UserNotificationService {
       await userNotification.save();
       console.log('✅ User notification saved to database');
 
-      // Send push notification - convert all data values to strings
-      const pushData = {};
-      Object.keys(data).forEach(key => {
-        pushData[key] = String(data[key]);
-      });
-      pushData.notificationId = userNotification._id.toString();
-      pushData.userId = userId.toString();
-      
+      // Send push notification
       const pushResult = await firebasePushService.sendPushNotification(
         user.fcmToken,
         notification,
-        pushData
+        {
+          ...data,
+          notificationId: userNotification._id.toString(),
+          userId: userId.toString()
+        }
       );
 
       if (pushResult) {
@@ -141,30 +114,6 @@ class UserNotificationService {
    */
   async sendToMultipleUsers(userIds, notification, data = {}) {
     try {
-      // Safety check: Prevent test notifications from being sent to real users
-      const isTestNotification = notification.title?.toLowerCase().includes('test') || 
-                                notification.body?.toLowerCase().includes('test') ||
-                                notification.message?.toLowerCase().includes('test') ||
-                                notification.title?.toLowerCase().includes('🧪') ||
-                                notification.body?.toLowerCase().includes('this is a test') ||
-                                notification.message?.toLowerCase().includes('this is a test') ||
-                                notification.title?.toLowerCase().includes('admin test');
-      
-      // Additional safety: Check if we're connected to production database
-      const isProductionDatabase = process.env.MONGODB_URI && 
-                                  process.env.MONGODB_URI.includes('cluster0.2ne8beo.mongodb.net');
-      
-      if (isTestNotification && (process.env.NODE_ENV === 'production' || isProductionDatabase)) {
-        console.log('❌ Test notifications are blocked in production environment');
-        logger.warn('Test notification blocked in production', {
-          title: notification.title,
-          body: notification.body || notification.message,
-          userIds: userIds.length,
-          isProductionDatabase
-        });
-        return { successCount: 0, failureCount: 0, responses: [] };
-      }
-      
       console.log('🔔 UserNotificationService: Starting sendToMultipleUsers...');
       console.log(`📊 Sending to ${userIds.length} users`);
       

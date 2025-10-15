@@ -1,0 +1,2 @@
+[2025-10-15T08:48:09.369Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"440"}
+[2025-10-15T09:25:23.394Z] [ERROR] Failed to send realtime notification: | {"error":"Can't determine Firebase Database URL.","vendorId":"440"}
