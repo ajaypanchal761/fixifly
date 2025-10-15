@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, Suspense } from "react";
 import { useUserPushNotifications } from "./hooks/useUserPushNotifications";
+import { isWebView } from "./firebase-messaging";
 // Import mandatory deposit handler to fix the error
 import "./services/mandatoryDepositHandler";
 import Index from "./pages/Index";
@@ -90,8 +91,10 @@ const AppContent = () => {
   const isSignupPage = location.pathname === '/signup';
   const isAuthPage = isLoginPage || isSignupPage;
   
-  // Initialize user push notifications
-  useUserPushNotifications();
+  // Initialize user push notifications (only if not in webview)
+  if (!isWebView()) {
+    useUserPushNotifications();
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -217,18 +220,29 @@ const AppContent = () => {
 
 const App = () => {
   useEffect(() => {
-    // App initialized - push notifications enabled
-    console.log('✅ App initialized - push notifications enabled');
+    // App initialized
+    console.log('✅ App initialized');
+    
+    // Check if running in webview
+    const inWebView = isWebView();
+    console.log('📱 Running in webview:', inWebView);
+    
+    if (inWebView) {
+      console.log('📱 Webview detected - PWA and notification features disabled for compatibility');
+      console.log('🌐 User Agent:', navigator.userAgent);
+      return;
+    }
+    
     console.log('🔍 Checking for TooltipProvider issues...');
     
-    // Register service worker for PWA functionality - COMMENTED OUT FOR WEBVIEW TESTING
-    // if ('serviceWorker' in navigator) {
-    //   import('./serviceWorkerRegistration').then(({ register }) => {
-    //     register();
-    //   }).catch((error) => {
-    //     console.error('❌ Service Worker registration failed:', error);
-    //   });
-    // }
+    // Register service worker for PWA functionality (only in regular browsers)
+    if ('serviceWorker' in navigator) {
+      import('./serviceWorkerRegistration').then(({ register }) => {
+        register();
+      }).catch((error) => {
+        console.error('❌ Service Worker registration failed:', error);
+      });
+    }
     
     // Force PWA installation prompt
     window.addEventListener('beforeinstallprompt', (e) => {

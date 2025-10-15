@@ -14,32 +14,58 @@ const firebaseConfig = {
   measurementId: "G-CRR1JHT0BZ"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Detect if running in webview
+const isWebView = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+  return /wv|webview/.test(userAgent) || 
+         /android.*wv/.test(userAgent) ||
+         /iphone.*wv/.test(userAgent) ||
+         /ipad.*wv/.test(userAgent);
+};
+
+// Detect if running in mobile app webview
+const isMobileWebView = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+  return /wv|webview/.test(userAgent) && 
+         (/android|iphone|ipad/.test(userAgent));
+};
+
+// Initialize Firebase only if not in webview
+let app = null;
 let analytics = null;
 let messaging = null;
 
-console.log('🔥 Firebase initialized successfully');
+if (!isWebView()) {
+  try {
+    app = initializeApp(firebaseConfig);
+    console.log('🔥 Firebase initialized successfully');
+    
+    // Initialize analytics safely
+    try {
+      analytics = getAnalytics(app);
+    } catch (error) {
+      console.log('Analytics not available:', error.message);
+    }
 
-// Initialize analytics safely
-try {
-  analytics = getAnalytics(app);
-} catch (error) {
-  console.log('Analytics not available:', error.message);
-}
-
-// Initialize Firebase Cloud Messaging safely
-try {
-  // Check if service worker is supported
-  if ('serviceWorker' in navigator) {
-    messaging = getMessaging(app);
-    console.log('✅ Firebase messaging initialized');
-  } else {
-    console.log('⚠️ Service worker not supported, Firebase messaging disabled');
+    // Initialize Firebase Cloud Messaging safely
+    try {
+      // Check if service worker is supported
+      if ('serviceWorker' in navigator) {
+        messaging = getMessaging(app);
+        console.log('✅ Firebase messaging initialized');
+      } else {
+        console.log('⚠️ Service worker not supported, Firebase messaging disabled');
+      }
+    } catch (error) {
+      console.log('⚠️ Firebase messaging not available:', error.message);
+      messaging = null; // Ensure messaging is null on error
+    }
+  } catch (error) {
+    console.log('⚠️ Firebase initialization failed:', error.message);
+    app = null;
   }
-} catch (error) {
-  console.log('⚠️ Firebase messaging not available:', error.message);
-  messaging = null; // Ensure messaging is null on error
+} else {
+  console.log('📱 Running in webview - Firebase features disabled for compatibility');
 }
 
 // VAPID key for push notifications
@@ -48,6 +74,12 @@ const VAPID_KEY = "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i
 // Request permission and get FCM token
 export const requestPermission = async () => {
   try {
+    // Check if running in webview
+    if (isWebView()) {
+      console.log('📱 Running in webview - notifications disabled');
+      return null;
+    }
+
     if (!messaging) {
       console.log('⚠️ Firebase messaging not available');
       return null;
@@ -86,6 +118,13 @@ export const requestPermission = async () => {
 // Listen for foreground messages
 export const onMessageListener = () => {
   return new Promise((resolve) => {
+    // Check if running in webview
+    if (isWebView()) {
+      console.log('📱 Running in webview - message listener disabled');
+      resolve(null);
+      return;
+    }
+
     if (!messaging) {
       console.log('⚠️ Firebase messaging not available');
       resolve(null);
@@ -101,5 +140,8 @@ export const onMessageListener = () => {
 
 // Export messaging instance for other uses (null if not available)
 export { messaging };
+
+// Export webview detection functions
+export { isWebView, isMobileWebView };
 
 export default app;
