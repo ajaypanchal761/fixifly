@@ -18312,3 +18312,26 @@
 [2025-10-16T08:32:21.449Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
 [2025-10-16T08:32:21.564Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
 [2025-10-16T08:32:23.663Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:35:43.852Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:35:44.101Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:35:46.064Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:36:19.033Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:36:19.470Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:36:22.231Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:36:25.742Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:36:25.968Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:36:28.329Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:36:33.260Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:36:33.368Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:36:35.358Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:36:53.169Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:36:53.353Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:36:55.181Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:37:26.457Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:37:26.660Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:37:27.783Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:37:28.831Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:37:41.761Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:37:41.926Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:37:42.779Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:37:43.898Z] [INFO] SMTP connection verified successfully
