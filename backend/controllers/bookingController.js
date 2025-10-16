@@ -119,6 +119,41 @@ const createBooking = asyncHandler(async (req, res) => {
       servicesCount: booking.services.length,
     });
 
+    // Send FCM notification to all active vendors about new booking
+    try {
+      const firebasePushService = require('../services/firebasePushService');
+      
+      const notification = {
+        title: '🔧 New Service Booking Available',
+        body: `New booking from ${booking.customer.name} - ${booking.services.map(s => s.serviceName).join(', ')}`
+      };
+
+      const data = {
+        type: 'new_booking',
+        bookingId: booking._id.toString(),
+        bookingReference: booking.bookingReference,
+        customerName: booking.customer.name,
+        services: booking.services.map(s => s.serviceName).join(', '),
+        totalAmount: booking.pricing.totalAmount,
+        priority: 'medium'
+      };
+
+      // Send to all active vendors
+      const result = await firebasePushService.sendToAllVendors(notification, data);
+      
+      logger.info('FCM notification sent for new booking', {
+        bookingId: booking._id,
+        successCount: result.successCount,
+        failureCount: result.failureCount
+      });
+    } catch (notificationError) {
+      logger.error('Failed to send FCM notification for new booking', {
+        bookingId: booking._id,
+        error: notificationError.message
+      });
+      // Don't fail booking creation if notification fails
+    }
+
     // First-time user status update removed - feature disabled
 
     // Send notification to admins about new booking
@@ -718,6 +753,41 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       servicesCount: booking.services.length,
       paymentId: paymentData.razorpayPaymentId,
     });
+
+    // Send FCM notification to all active vendors about new booking
+    try {
+      const firebasePushService = require('../services/firebasePushService');
+      
+      const notification = {
+        title: '🔧 New Service Booking Available',
+        body: `New booking from ${booking.customer.name} - ${booking.services.map(s => s.serviceName).join(', ')}`
+      };
+
+      const data = {
+        type: 'new_booking',
+        bookingId: booking._id.toString(),
+        bookingReference: booking.bookingReference,
+        customerName: booking.customer.name,
+        services: booking.services.map(s => s.serviceName).join(', '),
+        totalAmount: booking.pricing.totalAmount,
+        priority: 'medium'
+      };
+
+      // Send to all active vendors
+      const result = await firebasePushService.sendToAllVendors(notification, data);
+      
+      logger.info('FCM notification sent for new booking with payment', {
+        bookingId: booking._id,
+        successCount: result.successCount,
+        failureCount: result.failureCount
+      });
+    } catch (notificationError) {
+      logger.error('Failed to send FCM notification for new booking with payment', {
+        bookingId: booking._id,
+        error: notificationError.message
+      });
+      // Don't fail booking creation if notification fails
+    }
 
     // First-time user status update removed - feature disabled
 

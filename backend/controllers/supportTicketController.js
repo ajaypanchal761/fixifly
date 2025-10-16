@@ -231,6 +231,40 @@ const createSupportTicket = asyncHandler(async (req, res) => {
 
   logger.info(`New support ticket created: ${supportTicket.ticketId} by user: ${userId}`);
 
+  // Send FCM notification to all active vendors about new support ticket
+  try {
+    const firebasePushService = require('../services/firebasePushService');
+    
+    const notification = {
+      title: '🎯 New Support Ticket Available',
+      body: `${supportTicket.type}: ${supportTicket.subject}`
+    };
+
+    const data = {
+      type: 'new_support_ticket',
+      ticketId: supportTicket.ticketId,
+      subject: supportTicket.subject,
+      supportType: supportTicket.supportType,
+      priority: supportTicket.priority,
+      customerName: supportTicket.userName,
+      caseId: supportTicket.caseId || null
+    };
+
+    // Send to all active vendors
+    const result = await firebasePushService.sendToAllVendors(notification, data);
+    
+    logger.info('FCM notification sent for new support ticket', {
+      ticketId: supportTicket.ticketId,
+      successCount: result.successCount,
+      failureCount: result.failureCount
+    });
+  } catch (notificationError) {
+    logger.error('Failed to send FCM notification for new support ticket', {
+      ticketId: supportTicket.ticketId,
+      error: notificationError.message
+    });
+    // Don't fail ticket creation if notification fails
+  }
 
   res.status(201).json({
     success: true,
@@ -697,6 +731,63 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
     } catch (notificationError) {
       console.error('Error creating vendor notification:', notificationError);
       // Don't fail the assignment if notification fails
+    }
+
+    // Send FCM notification to assigned vendor
+    try {
+      const firebasePushService = require('../services/firebasePushService');
+      const Vendor = require('../models/Vendor');
+      
+      const vendor = await Vendor.findById(vendorId).select('fcmToken firstName lastName');
+      
+      if (vendor && vendor.fcmToken) {
+        const notification = {
+          title: '🎯 New Support Ticket Assigned to You',
+          body: `${ticket.type}: ${ticket.subject}`
+        };
+
+        const data = {
+          type: 'support_ticket_assigned',
+          ticketId: ticket.ticketId,
+          subject: ticket.subject,
+          supportType: ticket.supportType,
+          priority: ticket.priority,
+          customerName: ticket.userName,
+          customerEmail: ticket.userEmail,
+          customerPhone: ticket.userPhone,
+          caseId: ticket.caseId || null,
+          scheduledDate: ticket.scheduledDate,
+          scheduledTime: ticket.scheduledTime
+        };
+
+        const pushResult = await firebasePushService.sendPushNotification(vendor.fcmToken, notification, data);
+        
+        if (pushResult) {
+          logger.info('FCM notification sent to assigned vendor for support ticket', {
+            vendorId,
+            ticketId: ticket.ticketId,
+            vendorName: `${vendor.firstName} ${vendor.lastName}`
+          });
+        } else {
+          logger.warn('Failed to send FCM notification to assigned vendor for support ticket', {
+            vendorId,
+            ticketId: ticket.ticketId
+          });
+        }
+      } else {
+        logger.warn('Vendor has no FCM token for support ticket assignment notification', {
+          vendorId,
+          ticketId: ticket.ticketId,
+          hasFcmToken: !!vendor?.fcmToken
+        });
+      }
+    } catch (fcmError) {
+      logger.error('Error sending FCM notification to assigned vendor for support ticket:', {
+        vendorId,
+        ticketId: ticket.ticketId,
+        error: fcmError.message
+      });
+      // Don't fail the assignment if FCM notification fails
     }
 
 
@@ -1250,6 +1341,63 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
         error: emailError.message
       });
       // Don't fail the ticket update if email fails
+    }
+
+    // Send FCM notification to assigned vendor
+    try {
+      const firebasePushService = require('../services/firebasePushService');
+      const Vendor = require('../models/Vendor');
+      
+      const vendor = await Vendor.findById(assignedTo).select('fcmToken firstName lastName');
+      
+      if (vendor && vendor.fcmToken) {
+        const notification = {
+          title: '🎯 New Support Ticket Assigned to You',
+          body: `${ticket.type}: ${ticket.subject}`
+        };
+
+        const data = {
+          type: 'support_ticket_assigned',
+          ticketId: ticket.ticketId,
+          subject: ticket.subject,
+          supportType: ticket.supportType,
+          priority: ticket.priority,
+          customerName: ticket.userName,
+          customerEmail: ticket.userEmail,
+          customerPhone: ticket.userPhone,
+          caseId: ticket.caseId || null,
+          scheduledDate: ticket.scheduledDate,
+          scheduledTime: ticket.scheduledTime
+        };
+
+        const pushResult = await firebasePushService.sendPushNotification(vendor.fcmToken, notification, data);
+        
+        if (pushResult) {
+          logger.info('FCM notification sent to assigned vendor for support ticket update', {
+            vendorId: assignedTo,
+            ticketId: ticket.ticketId,
+            vendorName: `${vendor.firstName} ${vendor.lastName}`
+          });
+        } else {
+          logger.warn('Failed to send FCM notification to assigned vendor for support ticket update', {
+            vendorId: assignedTo,
+            ticketId: ticket.ticketId
+          });
+        }
+      } else {
+        logger.warn('Vendor has no FCM token for support ticket assignment notification (update)', {
+          vendorId: assignedTo,
+          ticketId: ticket.ticketId,
+          hasFcmToken: !!vendor?.fcmToken
+        });
+      }
+    } catch (fcmError) {
+      logger.error('Error sending FCM notification to assigned vendor for support ticket update:', {
+        vendorId: assignedTo,
+        ticketId: ticket.ticketId,
+        error: fcmError.message
+      });
+      // Don't fail the ticket update if FCM notification fails
     }
   }
 

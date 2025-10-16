@@ -42,7 +42,7 @@ class ApiService {
     this.baseURL = API_BASE_URL;
   }
 
-  private async request<T>(
+  async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {

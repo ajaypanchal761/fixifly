@@ -1,0 +1,224 @@
+[2025-10-16T05:31:33.481Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T05:31:33.639Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T05:31:34.649Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T05:31:36.173Z] [INFO] SMTP connection verified successfully
+[2025-10-16T05:31:58.770Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-16T05:31:58.847Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-16T05:31:59.172Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-16T05:32:10.970Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-10-16T05:32:11.012Z] [INFO] Existing user found | {"userId":"68e5560f4152df81db3bbb29","phone":"7610416911"}
+[2025-10-16T05:32:11.015Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-10-16T05:32:11.070Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"68e5560f4152df81db3bbb29"}
+[2025-10-16T05:32:11.070Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-10-16T05:32:16.258Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1760592736257","provider":"SMSIndia Hub"}
+[2025-10-16T05:32:29.985Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-16T05:32:30.008Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-16T05:32:30.097Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-16T05:32:30.200Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:30.345Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:34.702Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T05:32:36.321Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:36.412Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:36.554Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:36.662Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:36.774Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:36.863Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:36.966Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.081Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.173Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.284Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.375Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.465Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.550Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.648Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.751Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.849Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:37.962Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.054Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.151Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.278Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.374Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.466Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.558Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.670Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.757Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.846Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:38.932Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:39.041Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:39.157Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:39.277Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:39.372Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:39.463Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:39.660Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:39.799Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:39.926Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:40.075Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:40.195Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:40.539Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:41.311Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:41.416Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:41.506Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:41.616Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:41.704Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:41.824Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:41.913Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.056Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.192Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.289Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.374Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.464Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.545Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.633Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.714Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.809Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:42.910Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.007Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.110Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.212Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.313Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.395Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.489Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.578Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.676Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.777Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.874Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:43.965Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.061Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.166Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.257Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.358Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.488Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.594Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.679Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.766Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.858Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:44.964Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:45.059Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:45.284Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:45.438Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:45.532Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:45.623Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:45.740Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:45.869Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:45.964Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.070Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.164Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.254Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.350Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.450Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.547Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.640Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.725Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.830Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:46.915Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.019Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.158Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.269Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.360Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.447Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.550Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.658Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.747Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.857Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:47.955Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.055Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.169Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.225Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.326Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.441Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.544Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.686Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.819Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:48.942Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.040Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.155Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.247Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.326Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.409Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.497Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.591Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.686Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.777Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.865Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:49.988Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.105Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.187Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.270Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.363Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.465Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.559Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.644Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.733Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.828Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:50.930Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.062Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.191Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.288Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.380Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.532Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.619Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.721Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.807Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.896Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:51.993Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.088Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.179Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.281Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.371Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.449Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.562Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.676Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.768Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.870Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:52.954Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.076Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.191Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.291Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.375Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.474Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.559Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.645Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.745Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.840Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:53.954Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.055Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.157Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.257Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.355Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.447Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.538Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.642Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.738Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.841Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:54.929Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:55.020Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:55.164Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:55.256Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:55.342Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:55.423Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:55.507Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:55.598Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:55.789Z] [INFO] Booking created: FIX4324A97F | {"bookingId":"68f08387687f75894324a97f","customerEmail":"panchalajay717@gmail.com","totalAmount":471,"servicesCount":1}
+[2025-10-16T05:32:55.918Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-16T05:32:55.957Z] [INFO] Multicast push notification sent: | {"successCount":0,"failureCount":5,"totalTokens":5}
+[2025-10-16T05:32:55.958Z] [INFO] FCM notification sent for new booking | {"bookingId":"68f08387687f75894324a97f","successCount":0,"failureCount":5}
+[2025-10-16T05:32:55.961Z] [INFO] Sending new booking notification to admins | {"bookingId":"68f08387687f75894324a97f","bookingReference":"FIX4324A97F","customerName":"Ajay Panchal","totalAmount":471}
+[2025-10-16T05:32:55.969Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.014Z] [INFO] Sending notification to 2 admins | {"notificationTitle":"🆕 New Booking Received","adminCount":2}
+[2025-10-16T05:32:56.082Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.207Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.313Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.410Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.498Z] [INFO] Multicast push notification sent: | {"successCount":2,"failureCount":0,"totalTokens":2}
+[2025-10-16T05:32:56.501Z] [INFO] Admin notification sent for new booking | {"bookingId":"68f08387687f75894324a97f","successCount":2,"failureCount":0}
+[2025-10-16T05:32:56.512Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.607Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.696Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.790Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.873Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/aca10dd3-65bc-4b1b-9ff2-ac08fa934898","fcmToken":"cbgFCPLAqq-BeXy_rNN5..."}
+[2025-10-16T05:32:56.875Z] [INFO] Push notification sent successfully to user | {"userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","notificationId":"68f08388687f75894324a99f","title":"🎉 Booking Confirmed!"}
+[2025-10-16T05:32:56.877Z] [INFO] Push notification sent to user for booking confirmation | {"bookingId":"68f08387687f75894324a97f","userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","bookingReference":"FIX4324A97F"}
+[2025-10-16T05:32:56.885Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:56.994Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T05:32:57.057Z] [INFO] Customer bookings retrieved: 10 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":28,"page":1}
+[2025-10-16T05:32:57.109Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}

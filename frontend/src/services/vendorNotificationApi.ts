@@ -211,6 +211,7 @@ class VendorNotificationApi {
 
       return {
         success: true,
+        message: 'Unread count retrieved successfully',
         data: {
           unreadCount: data.data?.pagination?.unreadCount || 0
         }
