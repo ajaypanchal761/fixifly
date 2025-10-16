@@ -344,6 +344,100 @@ const getNotificationStats = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Send notification to user
+// @route   POST /api/send-notification
+// @access  Private (Admin/System)
+const sendNotification = asyncHandler(async (req, res) => {
+  try {
+    const { userId, title, body, data } = req.body;
+
+    if (!userId || !title || !body) {
+      return res.status(400).json({
+        success: false,
+        message: 'userId, title, and body are required'
+      });
+    }
+
+    // Get user's FCM token from database
+    const user = await User.findById(userId).select('fcmToken name email');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (!user.fcmToken) {
+      return res.status(404).json({
+        success: false,
+        message: 'User FCM token not found'
+      });
+    }
+
+    // Import Firebase push service
+    const firebasePushService = require('../services/firebasePushService');
+
+    // Send notification
+    const notification = {
+      title: title,
+      body: body
+    };
+
+    const pushResult = await firebasePushService.sendPushNotification(
+      user.fcmToken,
+      notification,
+      data || {}
+    );
+
+    if (pushResult) {
+      // Create notification record in database
+      const userNotification = new UserNotification({
+        user: userId,
+        title: title,
+        message: body,
+        type: data?.type || 'general',
+        priority: data?.priority || 'medium',
+        data: data || {},
+        isRead: false,
+        pushSent: true,
+        pushSentAt: new Date()
+      });
+
+      await userNotification.save();
+
+      logger.info(`Notification sent successfully to user: ${userId}`, {
+        userId,
+        title,
+        messageId: pushResult
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Notification sent successfully',
+        messageId: pushResult,
+        data: {
+          userId,
+          title,
+          body,
+          fcmTokenPresent: true
+        }
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to send notification'
+      });
+    }
+  } catch (error) {
+    logger.error('Error sending notification:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send notification',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   getUserNotifications,
   getNotificationById,
@@ -351,5 +445,6 @@ module.exports = {
   markAllAsRead,
   deleteNotification,
   updateFcmToken,
-  getNotificationStats
+  getNotificationStats,
+  sendNotification
 };

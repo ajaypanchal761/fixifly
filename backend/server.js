@@ -49,6 +49,7 @@ const cityRoutes = require('./routes/cities');
 const reviewRoutes = require('./routes/reviews');
 const adminNotificationRoutes = require('./routes/adminNotifications');
 const userNotificationRoutes = require('./routes/userNotifications');
+const notificationRoutes = require('./routes/notifications');
 
 // Initialize Express app
 const app = express();
@@ -245,6 +246,7 @@ app.use('/api/vendors/withdrawal', withdrawalRoutes);
 app.use('/api/admin/withdrawals', adminWithdrawalRoutes);
 app.use('/api/admin/notifications', adminNotificationRoutes);
 app.use('/api/user/notifications', userNotificationRoutes);
+app.use('/api', notificationRoutes);
 app.use('/api', cityRoutes);
 app.use('/api/reviews', reviewRoutes);
 
