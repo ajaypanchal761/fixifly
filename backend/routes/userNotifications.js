@@ -11,6 +11,18 @@ const {
 } = require('../controllers/userNotificationController');
 const { protect } = require('../middleware/auth');
 
+// Debug endpoint to test routing (no auth required)
+router.all('/debug-fcm', (req, res) => {
+  console.log(`Debug User FCM endpoint called: ${req.method} ${req.originalUrl}`);
+  res.json({
+    success: true,
+    message: 'Debug endpoint reached',
+    method: req.method,
+    url: req.originalUrl,
+    headers: req.headers
+  });
+});
+
 // All routes are protected
 router.use(protect);
 

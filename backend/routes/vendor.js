@@ -201,6 +201,18 @@ router.put('/support-tickets/:id/complete', protectVendor, async (req, res) => {
 // @access  Private
 router.get('/dashboard', protectVendor, getVendorDashboard);
 
+// Debug endpoint to test routing
+router.all('/debug-fcm', (req, res) => {
+  console.log(`Debug FCM endpoint called: ${req.method} ${req.originalUrl}`);
+  res.json({
+    success: true,
+    message: 'Debug endpoint reached',
+    method: req.method,
+    url: req.originalUrl,
+    headers: req.headers
+  });
+});
+
 // FCM Token routes - Accept both POST and PUT methods
 // @route   POST /api/vendors/update-fcm-token
 // @desc    Update FCM token for push notifications

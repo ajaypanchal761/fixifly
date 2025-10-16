@@ -18142,3 +18142,147 @@
 [2025-10-16T08:00:57.831Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
 [2025-10-16T08:00:58.721Z] [INFO] Auto-reject service started - checking every minute for pending assignments
 [2025-10-16T08:00:59.740Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:01:37.055Z] [INFO] Featured products retrieved: 3 | {"productNames":["MacBook | Imac","Laptop | Desktop","Printer Repair"]}
+[2025-10-16T08:01:37.072Z] [INFO] Products by service type retrieved: 4 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Test","qqqqqqqqqq","fiidge","Plumber"]}
+[2025-10-16T08:01:37.251Z] [INFO] All active products retrieved: 10 | {"featuredCount":3,"totalCount":10}
+[2025-10-16T08:01:42.520Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:42.618Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:42.622Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:42.663Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:42.774Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:42.877Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:42.999Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.104Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.199Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.280Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.363Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.447Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.540Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.630Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.725Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.826Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:43.925Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.020Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.118Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.212Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.302Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.396Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.497Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.591Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.685Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.772Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.850Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:44.929Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.026Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.115Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.206Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.307Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.398Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.484Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.581Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.689Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.781Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.855Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:45.960Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.038Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.125Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.216Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.298Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.399Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.513Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.600Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.686Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.763Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.864Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:46.962Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.047Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.133Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.239Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.314Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.403Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.502Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.589Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.672Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.758Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.845Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:47.932Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:48.017Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:48.115Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:48.221Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:48.326Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:48.368Z] [INFO] Booking created: FIX4C677B72 | {"bookingId":"68f0a66c93b53e934c677b72","customerEmail":"panchalajay717@gmail.com","totalAmount":471,"servicesCount":1}
+[2025-10-16T08:01:48.500Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-10-16T08:01:48.526Z] [INFO] Multicast push notification sent: | {"successCount":0,"failureCount":5,"totalTokens":5}
+[2025-10-16T08:01:48.529Z] [INFO] FCM notification sent for new booking | {"bookingId":"68f0a66c93b53e934c677b72","successCount":0,"failureCount":5}
+[2025-10-16T08:01:48.532Z] [INFO] Sending new booking notification to admins | {"bookingId":"68f0a66c93b53e934c677b72","bookingReference":"FIX4C677B72","customerName":"Ajay Panchal","totalAmount":471}
+[2025-10-16T08:01:48.537Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:48.567Z] [INFO] Sending notification to 2 admins | {"notificationTitle":"🆕 New Booking Received","adminCount":2}
+[2025-10-16T08:01:48.648Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:48.843Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:48.963Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.047Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.135Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.224Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.303Z] [INFO] Multicast push notification sent: | {"successCount":2,"failureCount":0,"totalTokens":2}
+[2025-10-16T08:01:49.306Z] [INFO] Admin notification sent for new booking | {"bookingId":"68f0a66c93b53e934c677b72","successCount":2,"failureCount":0}
+[2025-10-16T08:01:49.356Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.486Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.573Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.663Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.793Z] [INFO] Push notification sent successfully: | {"messageId":"projects/fixfly-d8e35/messages/d2c05653-542a-4b50-8944-179435fbff37","fcmToken":"cbgFCPLAqq-BeXy_rNN5..."}
+[2025-10-16T08:01:49.799Z] [INFO] Push notification sent successfully to user | {"userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","notificationId":"68f0a66d93b53e934c677b98","title":"🎉 Booking Confirmed!"}
+[2025-10-16T08:01:49.802Z] [INFO] Push notification sent to user for booking confirmation | {"bookingId":"68f0a66c93b53e934c677b72","userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","bookingReference":"FIX4C677B72"}
+[2025-10-16T08:01:49.848Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:49.971Z] [INFO] Customer bookings retrieved: 10 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":34,"page":1}
+[2025-10-16T08:01:49.991Z] [INFO] User updated FCM token | {"userId":"68e5560f4152df81db3bbb29","fcmTokenLength":142}
+[2025-10-16T08:01:58.764Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:02:58.766Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:03:58.781Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:04:58.784Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:05:58.797Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:06:58.810Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:07:58.815Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:08:58.827Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:09:58.827Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:10:58.835Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:11:58.840Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:12:58.858Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:13:58.853Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:14:58.865Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:15:58.869Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T08:16:41.345Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:16:41.620Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:16:43.051Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:16:44.090Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:17:16.587Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:17:16.673Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:17:18.768Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:17:19.882Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:17:31.301Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:17:31.661Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:17:33.781Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:17:34.949Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:17:46.884Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:17:47.298Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:17:49.161Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:17:49.890Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:17:55.633Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:17:56.284Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:17:58.713Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:17:59.615Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:18:56.464Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:18:56.559Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:18:57.572Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:18:58.478Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:19:32.063Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:19:32.442Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:19:33.524Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:19:34.579Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:19:40.277Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:19:40.371Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:19:41.192Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:19:42.073Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:19:46.520Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:19:47.019Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:19:48.507Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:19:49.598Z] [INFO] SMTP connection verified successfully

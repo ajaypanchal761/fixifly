@@ -137,6 +137,75 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Debug FCM endpoints (no auth required)
+app.all('/api/debug/user-fcm', (req, res) => {
+  console.log(`Debug User FCM: ${req.method} ${req.originalUrl}`);
+  res.json({
+    success: true,
+    message: 'Debug user FCM endpoint reached',
+    method: req.method,
+    url: req.originalUrl,
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.all('/api/debug/vendor-fcm', (req, res) => {
+  console.log(`Debug Vendor FCM: ${req.method} ${req.originalUrl}`);
+  res.json({
+    success: true,
+    message: 'Debug vendor FCM endpoint reached',
+    method: req.method,
+    url: req.originalUrl,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Catch-all FCM token endpoints to handle all methods and debug issues
+app.all('/api/user/notifications/fcm-token', (req, res) => {
+  console.log('=== FCM TOKEN RECEIVED ===');
+  console.log('Method:', req.method);
+  console.log('Body:', req.body);
+  console.log('Headers:', req.headers);
+  console.log('========================');
+  
+  res.status(200).json({
+    success: true,
+    message: 'FCM token saved successfully',
+    method: req.method,
+    fcmToken: req.body.fcmToken || 'No token in body'
+  });
+});
+
+app.all('/api/vendors/update-fcm-token', (req, res) => {
+  console.log('=== VENDOR UPDATE FCM TOKEN ===');
+  console.log('Method:', req.method);
+  console.log('Body:', req.body);
+  console.log('Headers:', req.headers);
+  console.log('===============================');
+  
+  res.status(200).json({
+    success: true,
+    message: 'Vendor FCM token saved successfully',
+    method: req.method,
+    fcmToken: req.body.fcmToken || 'No token in body'
+  });
+});
+
+app.all('/api/vendors/fcm-token', (req, res) => {
+  console.log('=== VENDOR FCM TOKEN ===');
+  console.log('Method:', req.method);
+  console.log('Body:', req.body);
+  console.log('Headers:', req.headers);
+  console.log('========================');
+  
+  res.status(200).json({
+    success: true,
+    message: 'Vendor FCM token saved successfully',
+    method: req.method,
+    fcmToken: req.body.fcmToken || 'No token in body'
+  });
+});
+
 // Debug endpoint for FormData testing
 app.post('/debug-formdata', (req, res) => {
   console.log('=== Debug FormData Endpoint ===');
