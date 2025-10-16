@@ -1640,6 +1640,7 @@ const updateFCMToken = asyncHandler(async (req, res) => {
     res.json({
       success: true,
       message: 'FCM token updated successfully',
+      method: req.method,
       data: {
         fcmToken: vendor.fcmToken,
         pushNotificationsEnabled: vendor.notificationSettings.pushNotifications

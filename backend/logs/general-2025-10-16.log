@@ -18098,3 +18098,47 @@
 [2025-10-16T07:37:05.047Z] [INFO] Push notification sent successfully to user | {"userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","notificationId":"68f0a0a02e5931abe1bbef54","title":"🎉 Booking Confirmed!"}
 [2025-10-16T07:37:05.049Z] [INFO] Push notification sent to user for booking confirmation | {"bookingId":"68f0a09f2e5931abe1bbef2d","userId":"68e5560f4152df81db3bbb29","userEmail":"panchalajay717@gmail.com","bookingReference":"FIXE1BBEF2D"}
 [2025-10-16T07:37:05.227Z] [INFO] Customer bookings retrieved: 10 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":31,"page":1}
+[2025-10-16T07:37:36.514Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:38:36.529Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:39:36.531Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:40:36.538Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:41:36.548Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:42:36.567Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:43:36.581Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:44:36.581Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:45:36.579Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:46:36.586Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:47:36.583Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:48:36.604Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:53:06.864Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:53:13.822Z] [INFO] Customer bookings retrieved: 10 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":32,"page":1}
+[2025-10-16T07:54:06.040Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:55:06.044Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:56:06.051Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:57:06.060Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:58:06.075Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-16T07:59:02.356Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T07:59:02.763Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T07:59:04.812Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T07:59:05.774Z] [INFO] SMTP connection verified successfully
+[2025-10-16T07:59:12.677Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T07:59:13.672Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T07:59:21.526Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T07:59:21.828Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T07:59:23.307Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T07:59:25.773Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T07:59:26.244Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T07:59:27.958Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T07:59:29.056Z] [INFO] SMTP connection verified successfully
+[2025-10-16T07:59:57.539Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T07:59:57.737Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T07:59:58.605Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T07:59:59.652Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:00:44.145Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:00:44.442Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:00:45.885Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:00:46.749Z] [INFO] SMTP connection verified successfully
+[2025-10-16T08:00:57.709Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-16T08:00:57.831Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-16T08:00:58.721Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-16T08:00:59.740Z] [INFO] SMTP connection verified successfully

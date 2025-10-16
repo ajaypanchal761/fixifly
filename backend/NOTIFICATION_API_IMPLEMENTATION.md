@@ -8,7 +8,9 @@ This document describes the implementation of the FCM token storage and notifica
 
 ### 1. FCM Token Storage Endpoint
 
-**Endpoint:** `POST /api/user/notifications/fcm-token`
+**Endpoints:** 
+- `POST /api/user/notifications/fcm-token` (Primary)
+- `PUT /api/user/notifications/fcm-token` (Alternative)
 
 **Request Body:**
 ```json
@@ -22,6 +24,7 @@ This document describes the implementation of the FCM token storage and notifica
 {
   "success": true,
   "message": "FCM token updated successfully",
+  "method": "POST",
   "data": {
     "fcmTokenUpdated": true
   }
@@ -38,7 +41,9 @@ This document describes the implementation of the FCM token storage and notifica
 
 ### 2. Send Notification Endpoint
 
-**Endpoint:** `POST /api/send-notification`
+**Endpoints:**
+- `POST /api/send-notification` (Primary)
+- `PUT /api/send-notification` (Alternative)
 
 **Request Body:**
 ```json
@@ -74,6 +79,34 @@ This document describes the implementation of the FCM token storage and notifica
 {
   "success": false,
   "message": "User FCM token not found"
+}
+```
+
+### 3. Vendor FCM Token Endpoints
+
+**Endpoints:**
+- `POST /api/vendors/update-fcm-token` (Primary)
+- `PUT /api/vendors/update-fcm-token` (Alternative)
+- `POST /api/vendors/fcm-token` (Alternative endpoint)
+- `PUT /api/vendors/fcm-token` (Alternative endpoint and method)
+
+**Request Body:**
+```json
+{
+  "fcmToken": "your_fcm_token_here"
+}
+```
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "message": "FCM token updated successfully",
+  "method": "POST",
+  "data": {
+    "fcmToken": "your_fcm_token_here",
+    "pushNotificationsEnabled": true
+  }
 }
 ```
 
@@ -114,7 +147,44 @@ Both endpoints require authentication via JWT token:
 Authorization: Bearer <jwt_token>
 ```
 
+## 🚨 405 Method Not Allowed Fix
+
+### Problem
+Your Flutter app was getting 405 Method Not Allowed errors because:
+- Backend expected POST but app sent PUT
+- Backend expected PUT but app sent POST
+- Endpoint existed but didn't accept the HTTP method
+
+### Solution
+All FCM token endpoints now accept **both POST and PUT methods**:
+
+- ✅ `POST /api/user/notifications/fcm-token` - Works
+- ✅ `PUT /api/user/notifications/fcm-token` - Works
+- ✅ `POST /api/vendors/update-fcm-token` - Works
+- ✅ `PUT /api/vendors/update-fcm-token` - Works
+- ✅ `POST /api/vendors/fcm-token` - Works
+- ✅ `PUT /api/vendors/fcm-token` - Works
+
+### Response Format
+All endpoints now include the HTTP method in the response:
+```json
+{
+  "success": true,
+  "message": "FCM token updated successfully",
+  "method": "POST",  // Shows which method was used
+  "data": { ... }
+}
+```
+
 ## 🧪 Testing
+
+### Automated Testing
+Run the comprehensive test script:
+```bash
+node test-fcm-endpoints.js
+```
+
+This will test all endpoints with both POST and PUT methods.
 
 ### Manual Testing with cURL
 

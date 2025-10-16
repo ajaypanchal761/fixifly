@@ -269,6 +269,7 @@ const updateFcmToken = asyncHandler(async (req, res) => {
     res.json({
       success: true,
       message: 'FCM token updated successfully',
+      method: req.method,
       data: {
         fcmTokenUpdated: true
       }

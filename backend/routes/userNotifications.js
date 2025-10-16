@@ -49,4 +49,9 @@ router.delete('/:id', deleteNotification);
 // @access  Private
 router.post('/fcm-token', updateFcmToken);
 
+// @route   PUT /api/user/notifications/fcm-token
+// @desc    Update user FCM token (alternative method)
+// @access  Private
+router.put('/fcm-token', updateFcmToken);
+
 module.exports = router;
