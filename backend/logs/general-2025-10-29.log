@@ -12059,3 +12059,13 @@
 [2025-10-29T12:44:04.859Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-29T12:45:04.877Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-29T12:46:04.887Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:47:04.907Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:48:04.894Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:49:04.909Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:50:04.915Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:51:04.952Z] [INFO] Found 1 pending assignments to check for auto-rejection
+[2025-10-29T12:51:04.959Z] [INFO] Auto-rejecting booking 6901f195c1c292bfc04c7934 for vendor 440
+[2025-10-29T12:51:05.074Z] [INFO] Auto-rejection penalty applied to vendor 440 | {"vendorId":"440","bookingId":"6901f195c1c292bfc04c7934","penaltyAmount":100}
+[2025-10-29T12:51:05.115Z] [INFO] Booking 6901f195c1c292bfc04c7934 auto-rejected and set to waiting_for_engineer | {"bookingId":"6901f195c1c292bfc04c7934","vendorId":"440","newStatus":"waiting_for_engineer","penaltyApplied":true}
+[2025-10-29T12:52:04.932Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:53:04.919Z] [INFO] Found 0 pending assignments to check for auto-rejection

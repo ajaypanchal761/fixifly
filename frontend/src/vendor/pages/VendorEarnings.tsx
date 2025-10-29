@@ -575,6 +575,7 @@ const VendorEarnings = () => {
 
   // Defensive check for vendor context - MOVED AFTER ALL HOOKS
   if (!vendor) {
+    console.log('⚠️ VendorEarnings: No vendor found, showing loading');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -586,9 +587,14 @@ const VendorEarnings = () => {
   }
 
   // Show 404 error on desktop - MOVED AFTER ALL HOOKS
+  console.log('🔍 VendorEarnings: isMobile check:', isMobile);
+  console.log('🔍 VendorEarnings: User agent:', navigator.userAgent);
   if (!isMobile) {
+    console.log('⚠️ VendorEarnings: Desktop detected, showing NotFound');
     return <NotFound />;
   }
+
+  console.log('✅ VendorEarnings: Mobile detected, rendering component');
 
   // Calculate wallet values from state
   const totalEarnings = walletData.summary?.totalEarnings || 0;
