@@ -301,6 +301,5 @@ module.exports = {
   markAsRead,
   markAllAsRead,
   deleteNotification,
-  updateFcmToken,
   getNotificationStats
 };

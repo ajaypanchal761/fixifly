@@ -11790,3 +11790,23 @@
 [2025-10-29T11:30:54.602Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
 [2025-10-29T11:32:04.209Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
 [2025-10-29T11:32:04.665Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T11:34:05.871Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T11:34:06.083Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T11:34:33.763Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T11:34:34.120Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T11:34:36.538Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T11:34:36.726Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T11:34:37.770Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-29T11:34:38.791Z] [INFO] SMTP connection verified successfully
+[2025-10-29T11:35:13.340Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T11:35:13.405Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T11:35:13.597Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T11:35:20.863Z] [INFO] Customer bookings retrieved: 10 for panchalajay717@gmail.com | {"email":"panchalajay717@gmail.com","totalBookings":42,"page":1}
+[2025-10-29T11:35:21.769Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-10-29T11:35:21.852Z] [INFO] User AMC subscriptions fetched | {"userId":"6901e4b4c025afdd528a9452","subscriptionsCount":1}
+[2025-10-29T11:35:22.018Z] [INFO] User AMC subscriptions fetched | {"userId":"6901e4b4c025afdd528a9452","subscriptionsCount":1}
+[2025-10-29T11:35:22.624Z] [INFO] User AMC subscriptions fetched | {"userId":"6901e4b4c025afdd528a9452","subscriptionsCount":1}
+[2025-10-29T11:35:27.990Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T11:35:28.019Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T11:35:28.083Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T11:35:37.814Z] [INFO] Found 0 pending assignments to check for auto-rejection
