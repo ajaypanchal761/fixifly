@@ -1627,30 +1627,36 @@ class AdminApiService {
     }
   }
 
-  // Update FCM token for push notifications
+  // Update FCM token for push notifications - DISABLED
   async updateFCMToken(fcmToken: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/admin/update-fcm-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAccessToken()}`
-        },
-        body: JSON.stringify({
-          fcmToken
-        })
-      });
+    // PUSH NOTIFICATIONS DISABLED
+    console.log('⚠️ Push notifications are disabled - FCM token update disabled');
+    return {
+      success: false,
+      message: 'Push notifications are disabled'
+    };
+    // try {
+    //   const response = await fetch(`${API_BASE_URL}/admin/update-fcm-token`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${this.getAccessToken()}`
+    //     },
+    //     body: JSON.stringify({
+    //       fcmToken
+    //     })
+    //   });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || `HTTP error! status: ${response.status}`);
-      }
+    //   if (!response.ok) {
+    //     const error = await response.json();
+    //     throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    //   }
 
-      return await response.json();
-    } catch (error) {
-      console.error('Update FCM token request failed:', error);
-      throw error;
-    }
+    //   return await response.json();
+    // } catch (error) {
+    //   console.error('Update FCM token request failed:', error);
+    //   throw error;
+    // }
   }
 
 }

@@ -90,80 +90,84 @@ export const usePushNotifications = () => {
     }
   }, [isSupported, permission]);
 
-  // Save FCM token to backend
+  // Save FCM token to backend - DISABLED
   const saveTokenToBackend = useCallback(async (vendorId, fcmToken) => {
-    try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await fetch(`${API_BASE_URL}/vendors/update-fcm-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('vendorToken')}`
-        },
-        body: JSON.stringify({
-          fcmToken,
-          vendorId
-        })
-      });
+    // PUSH NOTIFICATIONS DISABLED
+    console.log('⚠️ Push notifications are disabled - FCM token save disabled');
+    return false;
+    // try {
+    //   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    //   const response = await fetch(`${API_BASE_URL}/vendors/update-fcm-token`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${localStorage.getItem('vendorToken')}`
+    //     },
+    //     body: JSON.stringify({
+    //       fcmToken,
+    //       vendorId
+    //     })
+    //   });
 
-      if (response.ok) {
-        console.log('✅ FCM token saved to backend successfully');
-        return true;
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('❌ Failed to save FCM token to backend:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        });
-        return false;
-      }
-    } catch (error) {
-      console.error('❌ Error saving FCM token to backend:', error);
-      return false;
-    }
+    //   if (response.ok) {
+    //     console.log('✅ FCM token saved to backend successfully');
+    //     return true;
+    //   } else {
+    //     const errorData = await response.json().catch(() => ({}));
+    //     console.error('❌ Failed to save FCM token to backend:', {
+    //       status: response.status,
+    //       statusText: response.statusText,
+    //       error: errorData
+    //     });
+    //     return false;
+    //   }
+    // } catch (error) {
+    //   console.error('❌ Error saving FCM token to backend:', error);
+    //   return false;
+    // }
   }, []);
 
-  // Automatically save token to backend when token is generated
+  // Automatically save token to backend when token is generated - DISABLED
   useEffect(() => {
-    const autoSaveToken = async () => {
-      if (token && window.location.pathname.includes('/vendor')) {
-        // Try to get vendor ID from various sources
-        let vendorId = null;
-        
-        // Try to get from localStorage or sessionStorage
-        vendorId = localStorage.getItem('vendorId') || sessionStorage.getItem('vendorId');
-        
-        // If not found, try to get from current user context
-        if (!vendorId) {
-          try {
-            const response = await fetch('/api/vendor/profile', {
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('vendorToken')}`
-              }
-            });
-            if (response.ok) {
-              const data = await response.json();
-              vendorId = data.vendor?._id || data._id;
-            }
-          } catch (error) {
-            console.log('Could not fetch vendor profile for token saving');
-          }
-        }
-        
-        if (vendorId) {
-          console.log('🔄 Auto-saving FCM token to backend...');
-          const saved = await saveTokenToBackend(vendorId, token);
-          if (saved) {
-            console.log('✅ FCM token auto-saved to backend');
-          }
-        } else {
-          console.log('⚠️ Could not find vendor ID for auto-saving FCM token');
-        }
-      }
-    };
+    // PUSH NOTIFICATIONS DISABLED
+    // const autoSaveToken = async () => {
+    //   if (token && window.location.pathname.includes('/vendor')) {
+    //     // Try to get vendor ID from various sources
+    //     let vendorId = null;
+    //     
+    //     // Try to get from localStorage or sessionStorage
+    //     vendorId = localStorage.getItem('vendorId') || sessionStorage.getItem('vendorId');
+    //     
+    //     // If not found, try to get from current user context
+    //     if (!vendorId) {
+    //       try {
+    //         const response = await fetch('/api/vendor/profile', {
+    //           headers: {
+    //             'Authorization': `Bearer ${localStorage.getItem('vendorToken')}`
+    //           }
+    //         });
+    //         if (response.ok) {
+    //           const data = await response.json();
+    //           vendorId = data.vendor?._id || data._id;
+    //         }
+    //       } catch (error) {
+    //         console.log('Could not fetch vendor profile for token saving');
+    //       }
+    //     }
+    //     
+    //     if (vendorId) {
+    //       console.log('🔄 Auto-saving FCM token to backend...');
+    //       const saved = await saveTokenToBackend(vendorId, token);
+    //       if (saved) {
+    //         console.log('✅ FCM token auto-saved to backend');
+    //       }
+    //     } else {
+    //       console.log('⚠️ Could not find vendor ID for auto-saving FCM token');
+    //     }
+    //   }
+    // };
 
-    autoSaveToken();
+    // autoSaveToken();
   }, [token, saveTokenToBackend]);
 
   return {

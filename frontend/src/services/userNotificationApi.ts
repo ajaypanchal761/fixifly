@@ -96,12 +96,19 @@ class UserNotificationApi {
     return await apiService.request(`/user/notifications/${id}`, { method: 'DELETE' });
   }
 
-  // Update FCM token
+  // Update FCM token - DISABLED
   async updateFcmToken(fcmToken: string): Promise<{ success: boolean; message: string; data: { fcmTokenUpdated: boolean } }> {
-    return await apiService.request('/user/notifications/fcm-token', {
-      method: 'PUT',
-      body: JSON.stringify({ fcmToken })
-    });
+    // PUSH NOTIFICATIONS DISABLED
+    console.log('⚠️ Push notifications are disabled - FCM token update disabled');
+    return {
+      success: false,
+      message: 'Push notifications are disabled',
+      data: { fcmTokenUpdated: false }
+    };
+    // return await apiService.request('/user/notifications/fcm-token', {
+    //   method: 'PUT',
+    //   body: JSON.stringify({ fcmToken })
+    // });
   }
 
   // Get notification statistics

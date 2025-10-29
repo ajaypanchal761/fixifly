@@ -11810,3 +11810,13 @@
 [2025-10-29T11:35:28.019Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
 [2025-10-29T11:35:28.083Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
 [2025-10-29T11:35:37.814Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:36:37.814Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:37:37.837Z] [INFO] Found 1 pending assignments to check for auto-rejection
+[2025-10-29T11:37:37.840Z] [INFO] Auto-rejecting booking 6901f9546deb3ef738ce5154 for vendor 440
+[2025-10-29T11:37:37.970Z] [INFO] Auto-rejection penalty applied to vendor 440 | {"vendorId":"440","bookingId":"6901f9546deb3ef738ce5154","penaltyAmount":100}
+[2025-10-29T11:37:38.024Z] [INFO] Booking 6901f9546deb3ef738ce5154 auto-rejected and set to waiting_for_engineer | {"bookingId":"6901f9546deb3ef738ce5154","vendorId":"440","newStatus":"waiting_for_engineer","penaltyApplied":true}
+[2025-10-29T11:38:37.909Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:39:37.938Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:40:37.900Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:41:37.908Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:42:37.912Z] [INFO] Found 0 pending assignments to check for auto-rejection

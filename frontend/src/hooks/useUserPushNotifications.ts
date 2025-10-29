@@ -39,26 +39,29 @@ export const useUserPushNotifications = () => {
     }
   }, [isSupported]);
 
-  // Save FCM token to backend
+  // Save FCM token to backend - DISABLED
   const saveTokenToBackend = useCallback(async (fcmToken: string) => {
-    if (!isAuthenticated) {
-      console.log('User not authenticated, cannot save FCM token');
-      return false;
-    }
+    // PUSH NOTIFICATIONS DISABLED
+    console.log('⚠️ Push notifications are disabled - FCM token save disabled');
+    return false;
+    // if (!isAuthenticated) {
+    //   console.log('User not authenticated, cannot save FCM token');
+    //   return false;
+    // }
 
-    try {
-      const response = await userNotificationApi.updateFcmToken(fcmToken);
-      if (response.success) {
-        console.log('✅ FCM token saved to backend successfully');
-        return true;
-      } else {
-        console.error('❌ Failed to save FCM token to backend:', response);
-        return false;
-      }
-    } catch (error) {
-      console.error('❌ Error saving FCM token to backend:', error);
-      return false;
-    }
+    // try {
+    //   const response = await userNotificationApi.updateFcmToken(fcmToken);
+    //   if (response.success) {
+    //     console.log('✅ FCM token saved to backend successfully');
+    //     return true;
+    //   } else {
+    //     console.error('❌ Failed to save FCM token to backend:', response);
+    //     return false;
+    //   }
+    // } catch (error) {
+    //   console.error('❌ Error saving FCM token to backend:', error);
+    //   return false;
+    // }
   }, [isAuthenticated]);
 
   // Automatically request permission and get token when user is authenticated - DISABLED
@@ -91,21 +94,22 @@ export const useUserPushNotifications = () => {
     // autoRequestPermission();
   }, [isSupported, isAuthenticated, user, token]);
 
-  // Automatically save token to backend when token is generated and user is authenticated
+  // Automatically save token to backend when token is generated and user is authenticated - DISABLED
   useEffect(() => {
-    const autoSaveToken = async () => {
-      if (token && isAuthenticated && user) {
-        console.log('🔄 Auto-saving FCM token to backend for user...');
-        const saved = await saveTokenToBackend(token);
-        if (saved) {
-          console.log('✅ FCM token auto-saved to backend for user');
-        } else {
-          console.log('⚠️ Failed to save FCM token to backend for user');
-        }
-      }
-    };
+    // PUSH NOTIFICATIONS DISABLED
+    // const autoSaveToken = async () => {
+    //   if (token && isAuthenticated && user) {
+    //     console.log('🔄 Auto-saving FCM token to backend for user...');
+    //     const saved = await saveTokenToBackend(token);
+    //     if (saved) {
+    //       console.log('✅ FCM token auto-saved to backend for user');
+    //     } else {
+    //       console.log('⚠️ Failed to save FCM token to backend for user');
+    //     }
+    //   }
+    // };
 
-    autoSaveToken();
+    // autoSaveToken();
   }, [token, isAuthenticated, user, saveTokenToBackend]);
 
   // Listen for foreground messages
