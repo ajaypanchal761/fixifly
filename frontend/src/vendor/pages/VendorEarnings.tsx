@@ -137,9 +137,27 @@ const VendorEarnings = () => {
       console.log('Raw response length:', responseText.length);
       console.log('Raw response preview:', responseText.substring(0, 200));
       
-      // Parse the response
-      const data = JSON.parse(responseText);
-      console.log('Parsed response data:', data);
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Server returned non-JSON response, server might not be running');
+        setLoadingWallet(false);
+        setIsUpdatingFromAPI(false);
+        return;
+      }
+      
+      // Parse the response safely
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log('Parsed response data:', data);
+      } catch (parseError) {
+        console.error('Error parsing JSON response:', parseError);
+        console.warn('Invalid JSON response, using default wallet data');
+        setLoadingWallet(false);
+        setIsUpdatingFromAPI(false);
+        return;
+      }
 
       if (!response.ok) {
         console.log('=== API RESPONSE ERROR ===');
@@ -153,13 +171,7 @@ const VendorEarnings = () => {
         throw new Error(`HTTP ${response.status}: Failed to fetch wallet data`);
       }
 
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.warn('Server returned non-JSON response, server might not be running');
-        return;
-      }
-
+      // Response already checked above - data is parsed
       console.log('=== WALLET API RESPONSE ===');
       console.log('Response data:', data);
       
@@ -310,15 +322,27 @@ const VendorEarnings = () => {
         throw new Error(`HTTP ${response.status}: Failed to fetch transaction history`);
       }
 
-      // Check if response is JSON
+      // Check if response is JSON before parsing
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         console.warn('Server returned non-JSON response, server might not be running');
         setTransactionHistory([]);
+        setLoadingTransactions(false);
         return;
       }
 
-      const data = await response.json();
+      // Parse response safely
+      let data;
+      try {
+        const responseText = await response.text();
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Error parsing JSON response:', parseError);
+        console.warn('Invalid JSON response, using empty transaction history');
+        setTransactionHistory([]);
+        setLoadingTransactions(false);
+        return;
+      }
       
       // Check if data structure is correct
       if (!data.success || !data.data || !Array.isArray(data.data.recentTransactions)) {

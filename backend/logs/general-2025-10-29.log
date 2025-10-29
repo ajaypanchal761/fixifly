@@ -11997,3 +11997,65 @@
 [2025-10-29T12:36:48.246Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
 [2025-10-29T12:36:48.429Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
 [2025-10-29T12:37:04.833Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:37:48.210Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:37:48.216Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T12:37:48.403Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:38:04.831Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:38:48.232Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:38:48.247Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T12:38:48.449Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:39:04.831Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:39:48.247Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:39:48.276Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T12:39:48.447Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:40:04.832Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:40:15.397Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:40:15.408Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T12:40:15.606Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:40:34.622Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-10-29T12:40:34.731Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-10-29T12:40:34.947Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":6185.5,"totalRevenue":6185.5,"monthlyBookingRevenue":4485.5,"totalBookingRevenue":4485.5,"monthlySupportTicketRevenue":1700,"totalSupportTicketRevenue":1700,"pendingBookings":0,"activeAMCSubscriptions":6,"totalAMCAmount":2938.2000000000003,"month":10,"year":2025,"startDate":"2025-09-30T18:30:00.000Z","endDate":"2025-10-31T18:29:59.000Z"}
+[2025-10-29T12:40:34.986Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":10,"year":2025}
+[2025-10-29T12:40:36.171Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=20&sortBy=createdAt&sortOrder=desc"}
+[2025-10-29T12:40:36.188Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors/stats"}
+[2025-10-29T12:40:36.873Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-29T12:40:36.882Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/stats?period=30d"}
+[2025-10-29T12:40:36.888Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/vendors?page=1&limit=100"}
+[2025-10-29T12:40:37.041Z] [INFO] Admin retrieved booking statistics for period: 30d | {"totalBookings":49,"totalRevenue":20365}
+[2025-10-29T12:40:37.413Z] [INFO] Admin retrieved bookings: 10 | {"totalBookings":49,"page":1,"filters":{}}
+[2025-10-29T12:40:45.632Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings/6901f195c1c292bfc04c7934/assign-vendor"}
+[2025-10-29T12:40:45.884Z] [INFO] Simple notification service initialized
+[2025-10-29T12:40:45.886Z] [INFO] Sending simple notification to vendor | {"vendorId":"440","title":"📅 New Service Booking Assigned","type":"booking_assignment"}
+[2025-10-29T12:40:45.928Z] [WARN] Firebase removed - realtime notification disabled
+[2025-10-29T12:40:45.930Z] [WARN] Push notification skipped - vendor has test FCM token or no token | {"vendorId":"440","hasToken":false,"tokenType":"NONE"}
+[2025-10-29T12:40:45.934Z] [WARN] Failed to send vendor notification for booking assignment | {"vendorId":"440","bookingId":"6901f195c1c292bfc04c7934"}
+[2025-10-29T12:40:46.015Z] [WARN] User has no FCM token | {"userId":"6901e4b4c025afdd528a9452","userEmail":"panchalajay717@gmail.com"}
+[2025-10-29T12:40:46.017Z] [WARN] Failed to send user notification for vendor assignment | {"userId":"6901e4b4c025afdd528a9452","bookingId":"6901f195c1c292bfc04c7934","vendorId":"440"}
+[2025-10-29T12:40:46.019Z] [INFO] Admin assigned vendor to booking: FIXC04C7934 | {"bookingId":"6901f195c1c292bfc04c7934","vendorId":"440","adminId":"68e556544152df81db3bbb41"}
+[2025-10-29T12:40:46.034Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
+[2025-10-29T12:40:46.563Z] [INFO] Admin retrieved bookings: 10 | {"totalBookings":49,"page":1,"filters":{}}
+[2025-10-29T12:40:52.892Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T12:40:52.917Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T12:40:52.932Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T12:40:52.968Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T12:40:52.970Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T12:40:53.031Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T12:40:53.044Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T12:40:53.065Z] [INFO] Vendor bookings retrieved: 1 for vendor 440 | {"vendorId":"440","totalBookings":1,"page":1}
+[2025-10-29T12:40:53.089Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T12:40:53.128Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T12:40:53.129Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T12:40:53.219Z] [INFO] Vendor bookings retrieved: 1 for vendor 440 | {"vendorId":"440","totalBookings":1,"page":1}
+[2025-10-29T12:41:04.904Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:42:04.851Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:42:05.816Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:42:05.835Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T12:42:06.012Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:42:35.804Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:42:35.834Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T12:42:36.007Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T12:42:52.699Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T12:43:04.859Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:44:04.859Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:45:04.877Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:46:04.887Z] [INFO] Found 0 pending assignments to check for auto-rejection
