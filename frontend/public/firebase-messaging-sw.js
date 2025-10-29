@@ -16,58 +16,61 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+// PUSH NOTIFICATIONS DISABLED - Service worker disabled
+console.log('⚠️ Push notifications are disabled - service worker inactive');
+
 // Initialize Firebase Cloud Messaging and get a reference to the service
-const messaging = firebase.messaging();
+// const messaging = firebase.messaging();
 
-// Handle background messages
-messaging.onBackgroundMessage(function(payload) {
-  console.log('Received background message ', payload);
-  console.log('🖼️ Image in background payload:', payload.notification?.image);
-  
-  const notificationTitle = payload.notification?.title || 'Fixifly Notification';
-  const notificationOptions = {
-    body: payload.notification?.body || 'You have a new notification',
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
-    data: payload.data || {},
-    actions: [
-      {
-        action: 'view',
-        title: 'View Details'
-      },
-      {
-        action: 'dismiss',
-        title: 'Dismiss'
-      }
-    ]
-  };
+// Handle background messages - DISABLED
+// messaging.onBackgroundMessage(function(payload) {
+//   console.log('Received background message ', payload);
+//   console.log('🖼️ Image in background payload:', payload.notification?.image);
+//   
+//   const notificationTitle = payload.notification?.title || 'Fixifly Notification';
+//   const notificationOptions = {
+//     body: payload.notification?.body || 'You have a new notification',
+//     icon: '/favicon.ico',
+//     badge: '/favicon.ico',
+//     data: payload.data || {},
+//     actions: [
+//       {
+//         action: 'view',
+//         title: 'View Details'
+//       },
+//       {
+//         action: 'dismiss',
+//         title: 'Dismiss'
+//       }
+//     ]
+//   };
 
-  // Add image if available
-  if (payload.notification?.image) {
-    notificationOptions.image = payload.notification.image;
-  }
+//   // Add image if available
+//   if (payload.notification?.image) {
+//     notificationOptions.image = payload.notification.image;
+//   }
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
-});
+//   self.registration.showNotification(notificationTitle, notificationOptions);
+// });
 
-// Handle notification clicks
-self.addEventListener('notificationclick', function(event) {
-  console.log('Notification click received.');
-  
-  event.notification.close();
-  
-  if (event.action === 'view') {
-    // Open the app or navigate to specific page
-    event.waitUntil(
-      clients.openWindow('/vendor/dashboard')
-    );
-  } else if (event.action === 'dismiss') {
-    // Just close the notification
-    return;
-  } else {
-    // Default action - open the app
-    event.waitUntil(
-      clients.openWindow('/vendor/dashboard')
-    );
-  }
-});
+// Handle notification clicks - DISABLED
+// self.addEventListener('notificationclick', function(event) {
+//   console.log('Notification click received.');
+//   
+//   event.notification.close();
+//   
+//   if (event.action === 'view') {
+//     // Open the app or navigate to specific page
+//     event.waitUntil(
+//       clients.openWindow('/vendor/dashboard')
+//     );
+//   } else if (event.action === 'dismiss') {
+//     // Just close the notification
+//     return;
+//   } else {
+//     // Default action - open the app
+//     event.waitUntil(
+//       clients.openWindow('/vendor/dashboard')
+//     );
+//   }
+// });

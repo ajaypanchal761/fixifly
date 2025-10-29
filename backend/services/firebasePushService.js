@@ -52,246 +52,43 @@ const initializeFirebase = () => {
 
 /**
  * Send push notification to a specific vendor
+ * PUSH NOTIFICATIONS DISABLED - Returns false without sending
  * @param {string} fcmToken - FCM token of the vendor
  * @param {Object} notification - Notification payload
  * @param {Object} data - Additional data payload
  * @returns {Promise<boolean>} - Success status
  */
 const sendPushNotification = async (fcmToken, notification, data = {}) => {
-  try {
-    // Initialize Firebase if not already done
-    if (!initializeFirebase()) {
-      logger.error('Failed to initialize Firebase Admin SDK');
-      return false;
-    }
-
-    if (!fcmToken) {
-      logger.warn('No FCM token provided for push notification');
-      return false;
-    }
-
-    const message = {
-      token: fcmToken,
-      notification: {
-        title: notification.title,
-        body: notification.body,
-        ...(notification.image && { image: notification.image })
-      },
-      data: {
-        ...data,
-        click_action: 'FLUTTER_NOTIFICATION_CLICK'
-      },
-      android: {
-        notification: {
-          icon: 'ic_notification',
-          color: '#FF6B35',
-          sound: 'default',
-          priority: 'high',
-          ...(notification.image && { image: notification.image })
-        }
-      },
-      apns: {
-        payload: {
-          aps: {
-            sound: 'default',
-            badge: 1,
-            alert: {
-              title: notification.title,
-              body: notification.body
-            }
-          }
-        }
-      },
-      webpush: {
-        notification: {
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
-          requireInteraction: true,
-          ...(notification.image && { image: notification.image }),
-          actions: [
-            {
-              action: 'view',
-              title: 'View Details'
-            },
-            {
-              action: 'dismiss',
-              title: 'Dismiss'
-            }
-          ]
-        }
-      }
-    };
-
-    const response = await admin.messaging().send(message);
-    logger.info('Push notification sent successfully:', {
-      messageId: response,
-      fcmToken: fcmToken.substring(0, 20) + '...'
-    });
-
-    return true;
-  } catch (error) {
-    logger.error('Failed to send push notification:', {
-      error: error.message,
-      fcmToken: fcmToken ? fcmToken.substring(0, 20) + '...' : 'null'
-    });
-
-    // Handle specific Firebase errors
-    if (error.code === 'messaging/registration-token-not-registered') {
-      logger.warn('FCM token is no longer valid, should be removed from database');
-    }
-
-    return false;
-  }
+  // PUSH NOTIFICATIONS DISABLED
+  logger.warn('Push notifications are disabled - skipping notification send');
+  return false;
 };
 
 /**
  * Send push notification to multiple vendors
+ * PUSH NOTIFICATIONS DISABLED - Returns empty results without sending
  * @param {Array<string>} fcmTokens - Array of FCM tokens
  * @param {Object} notification - Notification payload
  * @param {Object} data - Additional data payload
  * @returns {Promise<Object>} - Results with success and failure counts
  */
 const sendMulticastPushNotification = async (fcmTokens, notification, data = {}) => {
-  try {
-    console.log('🔥 FirebasePushService: Starting multicast notification...');
-    console.log(`📊 FCM Tokens count: ${fcmTokens ? fcmTokens.length : 0}`);
-    console.log(`📋 Notification: ${notification.title} - ${notification.body}`);
-    console.log(`🖼️ Image in notification:`, notification.image ? notification.image : 'No image');
-    
-    // Initialize Firebase if not already done
-    if (!initializeFirebase()) {
-      console.error('❌ Failed to initialize Firebase Admin SDK');
-      logger.error('Failed to initialize Firebase Admin SDK');
-      return { successCount: 0, failureCount: 0, responses: [] };
-    }
-
-    if (!fcmTokens || fcmTokens.length === 0) {
-      console.log('❌ No FCM tokens provided for multicast push notification');
-      logger.warn('No FCM tokens provided for multicast push notification');
-      return { successCount: 0, failureCount: 0, responses: [] };
-    }
-
-    const message = {
-      tokens: fcmTokens,
-      notification: {
-        title: notification.title,
-        body: notification.body,
-        ...(notification.image && { image: notification.image })
-      },
-      data: {
-        ...data,
-        click_action: 'FLUTTER_NOTIFICATION_CLICK'
-      },
-      android: {
-        notification: {
-          icon: 'ic_notification',
-          color: '#FF6B35',
-          sound: 'default',
-          priority: 'high',
-          ...(notification.image && { image: notification.image })
-        }
-      },
-      apns: {
-        payload: {
-          aps: {
-            sound: 'default',
-            badge: 1,
-            alert: {
-              title: notification.title,
-              body: notification.body
-            }
-          }
-        }
-      },
-      webpush: {
-        notification: {
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
-          requireInteraction: true,
-          ...(notification.image && { image: notification.image }),
-          actions: [
-            {
-              action: 'view',
-              title: 'View Details'
-            },
-            {
-              action: 'dismiss',
-              title: 'Dismiss'
-            }
-          ]
-        }
-      }
-    };
-
-    console.log('📤 Sending multicast message to Firebase...');
-    console.log('📋 Complete message payload:', JSON.stringify(message, null, 2));
-    const response = await admin.messaging().sendEachForMulticast(message);
-    
-    console.log('📊 Firebase multicast response:', {
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-      totalTokens: fcmTokens.length,
-      responses: response.responses ? response.responses.length : 0
-    });
-
-    if (response.responses && response.responses.length > 0) {
-      response.responses.forEach((resp, index) => {
-        console.log(`   Response ${index + 1}: ${resp.success ? 'Success' : 'Failed'}`);
-        if (resp.error) {
-          console.log(`     Error: ${resp.error.code} - ${resp.error.message}`);
-        }
-        if (resp.messageId) {
-          console.log(`     Message ID: ${resp.messageId}`);
-        }
-      });
-    }
-    
-    logger.info('Multicast push notification sent:', {
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-      totalTokens: fcmTokens.length
-    });
-
-    return {
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-      responses: response.responses
-    };
-  } catch (error) {
-    logger.error('Failed to send multicast push notification:', error);
-    return { successCount: 0, failureCount: fcmTokens.length, responses: [] };
-  }
+  // PUSH NOTIFICATIONS DISABLED
+  logger.warn('Push notifications are disabled - skipping multicast notification send');
+  return { successCount: 0, failureCount: fcmTokens ? fcmTokens.length : 0, responses: [] };
 };
 
 /**
  * Send push notification to all active vendors
+ * PUSH NOTIFICATIONS DISABLED - Returns empty results without sending
  * @param {Object} notification - Notification payload
  * @param {Object} data - Additional data payload
  * @returns {Promise<Object>} - Results with success and failure counts
  */
 const sendToAllVendors = async (notification, data = {}) => {
-  try {
-    const Vendor = require('../models/Vendor');
-    
-    // Get all active vendors with FCM tokens
-    const vendors = await Vendor.find({
-      isActive: true,
-      fcmToken: { $exists: true, $ne: null },
-      'notificationSettings.pushNotifications': true
-    }).select('fcmToken');
-
-    const fcmTokens = vendors.map(vendor => vendor.fcmToken).filter(token => token);
-
-    if (fcmTokens.length === 0) {
-      logger.warn('No active vendors with FCM tokens found');
-      return { successCount: 0, failureCount: 0, responses: [] };
-    }
-
-    return await sendMulticastPushNotification(fcmTokens, notification, data);
-  } catch (error) {
-    logger.error('Failed to send push notification to all vendors:', error);
-    return { successCount: 0, failureCount: 0, responses: [] };
-  }
+  // PUSH NOTIFICATIONS DISABLED
+  logger.warn('Push notifications are disabled - skipping send to all vendors');
+  return { successCount: 0, failureCount: 0, responses: [] };
 };
 
 module.exports = {

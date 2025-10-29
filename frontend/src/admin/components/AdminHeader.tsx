@@ -36,7 +36,8 @@ import {
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment, Select, MenuItem, Menu, ListItemIcon, ListItemText } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import adminApiService from '@/services/adminApi';
-import { setupAdminNotifications, testNotification } from '../../utils/notificationSetup';
+// Push notifications disabled
+// import { setupAdminNotifications, testNotification } from '../../utils/notificationSetup';
 
 const drawerWidth = 280;
 
@@ -97,70 +98,70 @@ const AdminHeader = () => {
   const [userMenuAnchor, setUserMenuAnchor] = React.useState<null | HTMLElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Auto-enable admin notifications
-  React.useEffect(() => {
-    const autoEnableAdminNotifications = async () => {
-      try {
-        // Check if notifications are supported
-        if ('Notification' in window && 'serviceWorker' in navigator) {
-          const permission = Notification.permission;
-          
-          if (permission === 'default') {
-            console.log('🔔 Auto-requesting notification permission for admin');
-            const result = await Notification.requestPermission();
-            
-            if (result === 'granted') {
-              console.log('✅ Admin notification permission granted automatically');
-              
-              // Setup notifications and get FCM token
-              try {
-                const notificationResult = await setupAdminNotifications();
-                
-                if (notificationResult.success) {
-                  console.log('✅ Admin notification setup successful');
-                  
-                  // Test notification to verify it works
-                  setTimeout(() => {
-                    testNotification();
-                  }, 1000);
-                } else {
-                  console.log('⚠️ Admin notification setup failed:', notificationResult.error);
-                }
-              } catch (error) {
-                console.log('⚠️ Error calling setupAdminNotifications:', error);
-              }
-            } else {
-              console.log('❌ Admin notification permission denied automatically');
-            }
-          } else if (permission === 'granted') {
-            console.log('✅ Admin notifications already enabled');
-            
-            // Still setup the notification system to ensure FCM token is generated
-            try {
-              const notificationResult = await setupAdminNotifications();
-              
-              if (notificationResult.success) {
-                console.log('✅ Admin notification setup successful');
-              } else {
-                console.log('⚠️ Admin notification setup failed:', notificationResult.error);
-              }
-            } catch (error) {
-              console.log('⚠️ Error setting up admin notifications:', error);
-            }
-          } else {
-            console.log('❌ Admin notifications blocked');
-          }
-        } else {
-          console.log('❌ Push notifications not supported in this browser');
-        }
-      } catch (error) {
-        console.error('❌ Error in auto-enable admin notifications:', error);
-      }
-    };
-    
-    // Run auto-enable after a short delay to ensure page is loaded
-    setTimeout(autoEnableAdminNotifications, 1000);
-  }, []);
+  // Auto-enable admin notifications - DISABLED
+  // React.useEffect(() => {
+  //   const autoEnableAdminNotifications = async () => {
+  //     try {
+  //       // Check if notifications are supported
+  //       if ('Notification' in window && 'serviceWorker' in navigator) {
+  //         const permission = Notification.permission;
+  //         
+  //         if (permission === 'default') {
+  //           console.log('🔔 Auto-requesting notification permission for admin');
+  //           const result = await Notification.requestPermission();
+  //           
+  //           if (result === 'granted') {
+  //             console.log('✅ Admin notification permission granted automatically');
+  //             
+  //             // Setup notifications and get FCM token
+  //             try {
+  //               const notificationResult = await setupAdminNotifications();
+  //               
+  //               if (notificationResult.success) {
+  //                 console.log('✅ Admin notification setup successful');
+  //                 
+  //                 // Test notification to verify it works
+  //                 setTimeout(() => {
+  //                   testNotification();
+  //                 }, 1000);
+  //               } else {
+  //                 console.log('⚠️ Admin notification setup failed:', notificationResult.error);
+  //               }
+  //             } catch (error) {
+  //               console.log('⚠️ Error calling setupAdminNotifications:', error);
+  //             }
+  //           } else {
+  //             console.log('❌ Admin notification permission denied automatically');
+  //           }
+  //         } else if (permission === 'granted') {
+  //           console.log('✅ Admin notifications already enabled');
+  //           
+  //           // Still setup the notification system to ensure FCM token is generated
+  //           try {
+  //             const notificationResult = await setupAdminNotifications();
+  //             
+  //             if (notificationResult.success) {
+  //               console.log('✅ Admin notification setup successful');
+  //             } else {
+  //               console.log('⚠️ Admin notification setup failed:', notificationResult.error);
+  //             }
+  //           } catch (error) {
+  //             console.log('⚠️ Error setting up admin notifications:', error);
+  //           }
+  //         } else {
+  //           console.log('❌ Admin notifications blocked');
+  //         }
+  //       } else {
+  //         console.log('❌ Push notifications not supported in this browser');
+  //       }
+  //     } catch (error) {
+  //       console.error('❌ Error in auto-enable admin notifications:', error);
+  //     }
+  //   };
+  //   
+  //   // Run auto-enable after a short delay to ensure page is loaded
+  //   setTimeout(autoEnableAdminNotifications, 1000);
+  // }, []);
 
   const handleDrawerOpen = () => {
     setOpen(true);

@@ -31,50 +31,54 @@ const UserNotificationEnable: React.FC<UserNotificationEnableProps> = ({ onToken
   }, [isSupported]);
 
   const handleEnableNotifications = async () => {
-    if (!isSupported) {
-      setError('Push notifications are not supported in this browser');
-      setStatus('error');
-      return;
-    }
+    // PUSH NOTIFICATIONS DISABLED
+    toast.error('Push notifications are currently disabled');
+    return;
+    
+    // if (!isSupported) {
+    //   setError('Push notifications are not supported in this browser');
+    //   setStatus('error');
+    //   return;
+    // }
 
-    setIsLoading(true);
-    setError(null);
-    setStatus('idle');
+    // setIsLoading(true);
+    // setError(null);
+    // setStatus('idle');
 
-    try {
-      console.log('🔔 Setting up complete notification system for user...');
-      
-      // Use comprehensive notification setup
-      const result = await setupUserNotifications();
-      
-      if (result.success) {
-        setToken(result.fcmToken);
-        setStatus('success');
-        console.log('✅ Complete notification system setup successful!');
-        
-        if (onTokenGenerated) {
-          onTokenGenerated(result.fcmToken);
-        }
-        
-        // Test notification to verify it works
-        setTimeout(() => {
-          testNotification();
-        }, 1000);
-        
-        toast.success('Notifications enabled successfully!');
-      } else {
-        setError(result.error || 'Failed to setup notifications');
-        setStatus('error');
-        toast.error('Failed to enable notifications');
-      }
-    } catch (err) {
-      console.error('❌ Error enabling notifications:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-      setStatus('error');
-      toast.error('Failed to enable notifications');
-    } finally {
-      setIsLoading(false);
-    }
+    // try {
+    //   console.log('🔔 Setting up complete notification system for user...');
+    //   
+    //   // Use comprehensive notification setup
+    //   const result = await setupUserNotifications();
+    //   
+    //   if (result.success) {
+    //     setToken(result.fcmToken);
+    //     setStatus('success');
+    //     console.log('✅ Complete notification system setup successful!');
+    //     
+    //     if (onTokenGenerated) {
+    //       onTokenGenerated(result.fcmToken);
+    //     }
+    //     
+    //     // Test notification to verify it works
+    //     setTimeout(() => {
+    //       testNotification();
+    //     }, 1000);
+    //     
+    //     toast.success('Notifications enabled successfully!');
+    //   } else {
+    //     setError(result.error || 'Failed to setup notifications');
+    //     setStatus('error');
+    //     toast.error('Failed to enable notifications');
+    //   }
+    // } catch (err) {
+    //   console.error('❌ Error enabling notifications:', err);
+    //   setError(err instanceof Error ? err.message : 'Unknown error');
+    //   setStatus('error');
+    //   toast.error('Failed to enable notifications');
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   if (!isSupported) {

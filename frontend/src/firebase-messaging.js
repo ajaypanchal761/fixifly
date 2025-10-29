@@ -28,15 +28,11 @@ try {
   console.log('Analytics not available:', error.message);
 }
 
-// Initialize Firebase Cloud Messaging safely
+// Initialize Firebase Cloud Messaging safely - PUSH NOTIFICATIONS DISABLED
 try {
-  // Check if service worker is supported
-  if ('serviceWorker' in navigator) {
-    messaging = getMessaging(app);
-    console.log('✅ Firebase messaging initialized');
-  } else {
-    console.log('⚠️ Service worker not supported, Firebase messaging disabled');
-  }
+  // Push notifications disabled - messaging remains null
+  messaging = null;
+  console.log('⚠️ Push notifications are disabled');
 } catch (error) {
   console.log('⚠️ Firebase messaging not available:', error.message);
   messaging = null; // Ensure messaging is null on error
@@ -45,57 +41,18 @@ try {
 // VAPID key for push notifications
 const VAPID_KEY = "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU";
 
-// Request permission and get FCM token
+// Request permission and get FCM token - PUSH NOTIFICATIONS DISABLED
 export const requestPermission = async () => {
-  try {
-    if (!messaging) {
-      console.log('⚠️ Firebase messaging not available');
-      return null;
-    }
-
-    console.log('🔔 Requesting notification permission...');
-    const permission = await Notification.requestPermission();
-    console.log('📱 Permission result:', permission);
-    
-    if (permission === 'granted') {
-      console.log('✅ Notification permission granted.');
-      
-      // Get FCM token
-      console.log('🔑 Getting FCM token...');
-      const token = await getToken(messaging, {
-        vapidKey: VAPID_KEY
-      });
-      
-      if (token) {
-        console.log('✅ FCM Token generated:', token.substring(0, 20) + '...');
-        return token;
-      } else {
-        console.log('❌ No registration token available.');
-        return null;
-      }
-    } else {
-      console.log('❌ Notification permission denied.');
-      return null;
-    }
-  } catch (error) {
-    console.error('❌ Error getting permission or token:', error);
-    return null;
-  }
+  // PUSH NOTIFICATIONS DISABLED
+  console.log('⚠️ Push notifications are disabled');
+  return null;
 };
 
-// Listen for foreground messages
+// Listen for foreground messages - PUSH NOTIFICATIONS DISABLED
 export const onMessageListener = () => {
   return new Promise((resolve) => {
-    if (!messaging) {
-      console.log('⚠️ Firebase messaging not available');
-      resolve(null);
-      return;
-    }
-
-    onMessage(messaging, (payload) => {
-      console.log('Message received in foreground:', payload);
-      resolve(payload);
-    });
+    console.log('⚠️ Push notifications are disabled');
+    resolve(null);
   });
 };
 

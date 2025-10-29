@@ -89,74 +89,74 @@ const VendorHeader = () => {
                            (vendor?.wallet?.currentBalance >= 4000) ||
                            (vendor?.wallet?.totalDeposits > 0);
 
-  // Get vendor ID for notifications and auto-enable notifications
+      // Get vendor ID for notifications - Push notifications disabled
   React.useEffect(() => {
     if (vendor && vendor.vendorId) {
       setVendorId(vendor.vendorId);
-      console.log('🔔 Vendor ID set for notifications:', vendor.vendorId);
+      console.log('🔔 Vendor ID set:', vendor.vendorId);
       
       // Set unread notifications count - in real implementation, fetch from API
       setUnreadCount(0); // No unread notifications initially
       
-      // Auto-enable notifications in background
-      const autoEnableNotifications = async () => {
-        try {
-          // Check if notifications are supported
-          if ('Notification' in window && 'serviceWorker' in navigator) {
-            const permission = Notification.permission;
-            
-            if (permission === 'default') {
-              console.log('🔔 Auto-requesting notification permission for vendor:', vendor.vendorId);
-              const result = await Notification.requestPermission();
-              
-              if (result === 'granted') {
-                console.log('✅ Notification permission granted automatically');
-                
-                // Import and setup notifications
-                try {
-                  const { setupNotifications } = await import('../../utils/notificationSetup');
-                  const notificationResult = await setupNotifications(vendor.vendorId);
-                  
-                  if (notificationResult.success) {
-                    console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
-                  } else {
-                    console.log('⚠️ Background notification setup failed:', notificationResult.error);
-                  }
-                } catch (error) {
-                  console.log('⚠️ Error importing or calling setupNotifications:', error);
-                }
-              } else {
-                console.log('❌ Notification permission denied automatically');
-              }
-            } else if (permission === 'granted') {
-              console.log('✅ Notifications already enabled for vendor:', vendor.vendorId);
-              
-              // Still setup the notification system to ensure FCM token is generated
-              try {
-                const { setupNotifications } = await import('../../utils/notificationSetup');
-                const notificationResult = await setupNotifications(vendor.vendorId);
-                
-                if (notificationResult.success) {
-                  console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
-                } else {
-                  console.log('⚠️ Background notification setup failed:', notificationResult.error);
-                }
-              } catch (error) {
-                console.log('⚠️ Error setting up background notifications:', error);
-              }
-            } else {
-              console.log('❌ Notifications blocked for vendor:', vendor.vendorId);
-            }
-          } else {
-            console.log('❌ Push notifications not supported in this browser');
-          }
-        } catch (error) {
-          console.error('❌ Error in auto-enable notifications:', error);
-        }
-      };
-      
-      // Run auto-enable after a short delay to ensure page is loaded
-      setTimeout(autoEnableNotifications, 1000);
+      // Auto-enable notifications in background - DISABLED
+      // const autoEnableNotifications = async () => {
+      //   try {
+      //     // Check if notifications are supported
+      //     if ('Notification' in window && 'serviceWorker' in navigator) {
+      //       const permission = Notification.permission;
+      //       
+      //       if (permission === 'default') {
+      //         console.log('🔔 Auto-requesting notification permission for vendor:', vendor.vendorId);
+      //         const result = await Notification.requestPermission();
+      //         
+      //         if (result === 'granted') {
+      //           console.log('✅ Notification permission granted automatically');
+      //           
+      //           // Import and setup notifications
+      //           try {
+      //             const { setupNotifications } = await import('../../utils/notificationSetup');
+      //             const notificationResult = await setupNotifications(vendor.vendorId);
+      //             
+      //             if (notificationResult.success) {
+      //               console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
+      //             } else {
+      //               console.log('⚠️ Background notification setup failed:', notificationResult.error);
+      //             }
+      //           } catch (error) {
+      //             console.log('⚠️ Error importing or calling setupNotifications:', error);
+      //           }
+      //         } else {
+      //           console.log('❌ Notification permission denied automatically');
+      //         }
+      //       } else if (permission === 'granted') {
+      //         console.log('✅ Notifications already enabled for vendor:', vendor.vendorId);
+      //         
+      //         // Still setup the notification system to ensure FCM token is generated
+      //         try {
+      //           const { setupNotifications } = await import('../../utils/notificationSetup');
+      //           const notificationResult = await setupNotifications(vendor.vendorId);
+      //           
+      //           if (notificationResult.success) {
+      //             console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
+      //           } else {
+      //             console.log('⚠️ Background notification setup failed:', notificationResult.error);
+      //           }
+      //         } catch (error) {
+      //           console.log('⚠️ Error setting up background notifications:', error);
+      //         }
+      //       } else {
+      //         console.log('❌ Notifications blocked for vendor:', vendor.vendorId);
+      //       }
+      //     } else {
+      //       console.log('❌ Push notifications not supported in this browser');
+      //     }
+      //   } catch (error) {
+      //     console.error('❌ Error in auto-enable notifications:', error);
+      //   }
+      // };
+      // 
+      // // Run auto-enable after a short delay to ensure page is loaded
+      // setTimeout(autoEnableNotifications, 1000);
     }
   }, [vendor]);
 

@@ -61,32 +61,34 @@ export const useUserPushNotifications = () => {
     }
   }, [isAuthenticated]);
 
-  // Automatically request permission and get token when user is authenticated
+  // Automatically request permission and get token when user is authenticated - DISABLED
   useEffect(() => {
-    const autoRequestPermission = async () => {
-      if (isSupported && isAuthenticated && !token) {
-        console.log('🔔 Auto-requesting notification permission for user...');
-        console.log('Current permission status:', permission);
-        console.log('User authenticated:', isAuthenticated);
-        console.log('User data:', user);
-        
-        try {
-          // Use comprehensive setup for automatic token generation
-          const result = await setupUserNotifications();
-          if (result.success) {
-            setToken(result.fcmToken);
-            setPermission(Notification.permission);
-            console.log('✅ FCM token generated automatically for user:', result.fcmToken.substring(0, 20) + '...');
-          } else {
-            console.log('❌ FCM token generation failed:', result.error);
-          }
-        } catch (error) {
-          console.error('Error auto-requesting permission:', error);
-        }
-      }
-    };
+    // PUSH NOTIFICATIONS DISABLED
+    console.log('⚠️ Push notifications are disabled');
+    // const autoRequestPermission = async () => {
+    //   if (isSupported && isAuthenticated && !token) {
+    //     console.log('🔔 Auto-requesting notification permission for user...');
+    //     console.log('Current permission status:', permission);
+    //     console.log('User authenticated:', isAuthenticated);
+    //     console.log('User data:', user);
+    //     
+    //     try {
+    //       // Use comprehensive setup for automatic token generation
+    //       const result = await setupUserNotifications();
+    //       if (result.success) {
+    //         setToken(result.fcmToken);
+    //         setPermission(Notification.permission);
+    //         console.log('✅ FCM token generated automatically for user:', result.fcmToken.substring(0, 20) + '...');
+    //       } else {
+    //         console.log('❌ FCM token generation failed:', result.error);
+    //       }
+    //     } catch (error) {
+    //       console.error('Error auto-requesting permission:', error);
+    //     }
+    //   }
+    // };
 
-    autoRequestPermission();
+    // autoRequestPermission();
   }, [isSupported, isAuthenticated, user, token]);
 
   // Automatically save token to backend when token is generated and user is authenticated
