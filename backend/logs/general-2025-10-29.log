@@ -12139,3 +12139,14 @@
 [2025-10-29T16:52:51.106Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
 [2025-10-29T16:52:51.242Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
 [2025-10-29T16:53:32.857Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T16:54:32.908Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T16:55:32.881Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T16:56:32.894Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T16:57:32.890Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T16:58:32.889Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T16:59:32.894Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:00:32.896Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:01:32.978Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:02:33.024Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:03:32.930Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:04:32.964Z] [INFO] Found 0 pending assignments to check for auto-rejection

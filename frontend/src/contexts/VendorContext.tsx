@@ -141,6 +141,8 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (vendorData: Vendor, token: string) => {
+    console.log('🔄 VendorContext: Login function called');
+    
     // Ensure vendor has wallet data, set defaults if missing
     const vendorWithWallet = {
       ...vendorData,
@@ -153,12 +155,19 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       }
     };
     
+    console.log('🔄 VendorContext: Setting vendor token and data...');
     localStorage.setItem('vendorToken', token);
     localStorage.setItem('vendorData', JSON.stringify(vendorWithWallet));
+    
+    console.log('🔄 VendorContext: Updating vendor state...');
     setVendor(vendorWithWallet);
+    console.log('✅ VendorContext: Vendor state updated, vendorId:', vendorWithWallet.vendorId);
 
     // Vendor notifications will be handled via email/SMS only
-    console.log('Vendor logged in - notifications via email/SMS only');
+    console.log('✅ VendorContext: Login completed - notifications via email/SMS only');
+    
+    // Return a promise that resolves immediately (for await support)
+    return Promise.resolve();
   };
 
   const logout = async () => {

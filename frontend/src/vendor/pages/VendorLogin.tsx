@@ -114,8 +114,13 @@ const VendorLogin = () => {
           return;
         }
 
-        // Use vendor context to login
-        login(vendor as any, response.data.token);
+        // Use vendor context to login - wait for it to complete
+        console.log('🔄 VendorLogin: Calling login function...');
+        await login(vendor as any, response.data.token);
+        console.log('✅ VendorLogin: Login function completed');
+
+        // Wait a bit for state to update
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         toast({
           title: "Login Successful!",
@@ -124,7 +129,7 @@ const VendorLogin = () => {
 
         // Redirect to vendor earnings page for mandatory deposit
         console.log('🚀 VendorLogin: Navigating to /vendor/earnings');
-        navigate('/vendor/earnings');
+        navigate('/vendor/earnings', { replace: true });
         console.log('✅ VendorLogin: Navigate called');
       } else {
         setError(response.message || 'Login failed. Please try again.');
