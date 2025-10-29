@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVendor } from '@/contexts/VendorContext';
 
@@ -10,9 +10,23 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading, vendor } = useVendor();
 
-  // Also check localStorage directly as a fallback
-  const tokenInStorage = localStorage.getItem('vendorToken');
-  const vendorDataInStorage = localStorage.getItem('vendorData');
+  // APK-safe localStorage check
+  const [tokenInStorage, setTokenInStorage] = useState<string | null>(null);
+  const [vendorDataInStorage, setVendorDataInStorage] = useState<string | null>(null);
+  
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('vendorToken');
+      const vendorData = localStorage.getItem('vendorData');
+      setTokenInStorage(token);
+      setVendorDataInStorage(vendorData);
+    } catch (error) {
+      console.error('localStorage access failed:', error);
+      setTokenInStorage(null);
+      setVendorDataInStorage(null);
+    }
+  }, []);
+  
   const hasTokenInStorage = !!tokenInStorage && !!vendorDataInStorage;
 
   console.log('🔒 VendorProtectedRoute: Checking authentication...', {
@@ -25,26 +39,32 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
   });
 
   useEffect(() => {
-    console.log('🔒 VendorProtectedRoute useEffect: isLoading:', isLoading, 'isAuthenticated:', isAuthenticated, 'hasTokenInStorage:', hasTokenInStorage);
+    console.log('🔒 VendorProtectedRoute useEffect:', {
+      isLoading,
+      isAuthenticated,
+      hasTokenInStorage,
+      path: window.location?.pathname || 'unknown'
+    });
     
-    // Wait a bit longer if we have token in storage but context is still loading
+    // Wait for context to load if we have token
     if (hasTokenInStorage && isLoading) {
-      console.log('⏳ VendorProtectedRoute: Token found in storage, waiting for context to load...');
+      console.log('⏳ VendorProtectedRoute: Token found, waiting for context...');
       return;
     }
     
+    // Only redirect if truly not authenticated (no token in storage and context says not authenticated)
     if (!isLoading && !isAuthenticated && !hasTokenInStorage) {
-      console.log('⚠️ VendorProtectedRoute: Not authenticated (no token), redirecting to login');
-      // Only redirect if not already on login page to prevent loops
-      if (window.location.pathname !== '/vendor/login') {
+      console.log('⚠️ VendorProtectedRoute: No token found, redirecting to login');
+      const currentPath = window.location?.pathname || '';
+      if (currentPath !== '/vendor/login' && !currentPath.includes('/vendor/signup')) {
         navigate('/vendor/login', { replace: true });
       }
     }
   }, [isAuthenticated, isLoading, navigate, hasTokenInStorage]);
 
-  // Show loading while checking authentication or if we have token but context is loading
-  if (isLoading || (hasTokenInStorage && !vendor)) {
-    console.log('🔄 VendorProtectedRoute: Still loading vendor data...', {
+  // Show loading if context is still loading
+  if (isLoading) {
+    console.log('🔄 VendorProtectedRoute: Loading state', {
       isLoading,
       hasTokenInStorage,
       hasVendor: !!vendor
@@ -59,10 +79,23 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
     );
   }
 
-  // Allow access if we have token in storage even if context hasn't updated yet
+  // If we have token but vendor not loaded yet (race condition), wait a bit
+  if (hasTokenInStorage && !vendor) {
+    console.log('⏳ VendorProtectedRoute: Token found but vendor not loaded yet, waiting...');
+    // Return loading UI - this will re-render when vendor loads
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Initializing vendor dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Allow access if authenticated OR if we have token in storage (fallback for timing issues)
   const shouldAllowAccess = isAuthenticated || hasTokenInStorage;
 
-  // Return error if not authenticated (but only after loading is complete and no token in storage)
   if (!shouldAllowAccess) {
     console.log('❌ VendorProtectedRoute: Not authenticated, showing error');
     return (
@@ -85,6 +118,7 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
     hasTokenInStorage,
     vendorId: vendor?.vendorId
   });
+  
   return <>{children}</>;
 };
 

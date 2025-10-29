@@ -40,7 +40,24 @@ const VendorHero = () => {
     canAcceptTasks: boolean;
   } | null>(null);
   const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // APK-safe mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    // Check if running in APK/webview
+    const isAPK = /wv|WebView/.test(navigator.userAgent) || 
+                  window.matchMedia('(display-mode: standalone)').matches ||
+                  window.navigator.standalone === true;
+    
+    // Force mobile mode in APK
+    if (isAPK) {
+      setIsMobile(true);
+    } else {
+      // Use Material-UI detection for browser
+      const muiIsMobile = useMediaQuery(theme.breakpoints.down('md'));
+      setIsMobile(muiIsMobile);
+    }
+  }, [theme.breakpoints]);
 
   const [vendorStats, setVendorStats] = useState([
     { icon: Users, value: "0", label: "Active Customers", color: "bg-blue-500" },
@@ -454,7 +471,8 @@ const VendorHero = () => {
     }
     console.log('🔄 VendorHero: Fetching vendor bookings for:', vendor.vendorId);
     fetchVendorBookings();
-  }, [vendor?.vendorId, fetchVendorBookings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vendor?.vendorId]); // Only depend on vendorId, not fetchVendorBookings to prevent infinite loops
 
   // Handle task status update
   const handleTaskStatusUpdate = (taskId: string, newStatus: string) => {
@@ -529,8 +547,11 @@ const VendorHero = () => {
       });
     };
 
-    window.addEventListener('taskCompleted', handleTaskCompleted);
-    return () => window.removeEventListener('taskCompleted', handleTaskCompleted);
+    // APK-safe event listener
+    if (typeof window !== 'undefined') {
+      window.addEventListener('taskCompleted', handleTaskCompleted);
+      return () => window.removeEventListener('taskCompleted', handleTaskCompleted);
+    }
   }, []);
 
   // Listen for rescheduled tasks
@@ -563,8 +584,11 @@ const VendorHero = () => {
       });
     };
 
-    window.addEventListener('taskRescheduled', handleTaskRescheduled);
-    return () => window.removeEventListener('taskRescheduled', handleTaskRescheduled);
+    // APK-safe event listener
+    if (typeof window !== 'undefined') {
+      window.addEventListener('taskRescheduled', handleTaskRescheduled);
+      return () => window.removeEventListener('taskRescheduled', handleTaskRescheduled);
+    }
   }, []);
 
   // Only show hero section on mobile devices
@@ -595,7 +619,20 @@ const VendorHero = () => {
     }
   }, [vendorIdMemo]);
 
+  // Additional safety check - ensure vendor has required properties
+  if (!vendor.vendorId) {
+    console.warn('⚠️ VendorHero: Vendor missing vendorId');
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Loading vendor information...</p>
+        </div>
+      </div>
+    );
+  }
+
   try {
+    console.log('✅ VendorHero: Rendering component for vendor:', vendor.vendorId);
     return (
     <section className="relative flex items-start justify-center overflow-hidden min-h-[20vh] sm:min-h-[25vh] mb-4">
       {/* Background Gradient */}
@@ -812,7 +849,13 @@ const VendorHero = () => {
                     console.log('✅ FCM Token generated for vendor:', vendorId);
                     // Refresh the page to update notification status
                     setTimeout(() => {
-                      window.location.reload();
+                      try {
+                        window.location?.reload();
+                      } catch (error) {
+                        console.error('Reload failed:', error);
+                        // Fallback: navigate to dashboard
+                        navigate('/vendor/dashboard');
+                      }
                     }, 2000);
                   }}
                 />
@@ -830,7 +873,15 @@ const VendorHero = () => {
         <div className="text-center">
           <p className="text-red-600 mb-4">Error loading dashboard. Please try refreshing.</p>
           <button 
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              try {
+                window.location?.reload();
+              } catch (error) {
+                console.error('Reload failed:', error);
+                // Fallback: navigate to dashboard
+                navigate('/vendor/dashboard');
+              }
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
             Refresh Page

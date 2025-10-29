@@ -4,19 +4,37 @@ import VendorBottomNav from "../components/VendorBottomNav";
 import Footer from "../../components/Footer";
 import NotFound from "../../pages/NotFound";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useVendor } from "@/contexts/VendorContext";
 
 const VendorDashboard = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const { vendor, isLoading } = useVendor();
 
+  // APK-safe mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    // Check if running in APK/webview
+    const isAPK = /wv|WebView/.test(navigator.userAgent) || 
+                  window.matchMedia('(display-mode: standalone)').matches ||
+                  window.navigator.standalone === true;
+    
+    // Force mobile mode in APK
+    if (isAPK) {
+      setIsMobile(true);
+    } else {
+      // Use Material-UI detection for browser
+      const muiIsMobile = useMediaQuery(theme.breakpoints.down('md'));
+      setIsMobile(muiIsMobile);
+    }
+  }, [theme.breakpoints]);
+
   console.log('🔍 VendorDashboard: Component rendered');
   console.log('🔍 VendorDashboard: isMobile:', isMobile);
-  console.log('🔍 VendorDashboard: Current path:', window.location.pathname);
+  console.log('🔍 VendorDashboard: Current path:', window.location?.pathname || 'unknown');
   console.log('🔍 VendorDashboard: Vendor:', vendor?.vendorId);
   console.log('🔍 VendorDashboard: isLoading:', isLoading);
 
@@ -24,24 +42,34 @@ const VendorDashboard = () => {
   useEffect(() => {
     console.log('🔄 VendorDashboard useEffect: isLoading:', isLoading, 'vendor:', vendor?.vendorId);
     
-    if (!isLoading && vendor) {
-      const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
-                               (vendor.wallet?.currentBalance >= 3999) ||
-                               (vendor.wallet?.totalDeposits > 0);
-      
-      console.log('🔄 VendorDashboard: hasInitialDeposit:', hasInitialDeposit);
-      console.log('🔄 VendorDashboard: wallet data:', vendor.wallet);
-      
-      if (!hasInitialDeposit) {
-        console.log('🔄 VendorDashboard: Redirecting to earnings - no initial deposit');
-        navigate('/vendor/earnings', { replace: true });
-      } else {
-        console.log('✅ VendorDashboard: Vendor has initial deposit, staying on dashboard');
-      }
-    } else if (!isLoading && !vendor) {
-      console.log('⚠️ VendorDashboard: No vendor data found');
+    // Wait for loading to complete and vendor to be available
+    if (isLoading) {
+      return;
     }
-  }, [vendor, isLoading, navigate]);
+    
+    if (!vendor) {
+      console.log('⚠️ VendorDashboard: No vendor data found');
+      return;
+    }
+    
+    // Check if vendor has initial deposit
+    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
+                             (vendor.wallet?.currentBalance >= 3999) ||
+                             (vendor.wallet?.totalDeposits > 0);
+    
+    console.log('🔄 VendorDashboard: hasInitialDeposit:', hasInitialDeposit);
+    console.log('🔄 VendorDashboard: wallet data:', vendor.wallet);
+    
+    // Only redirect if currently on /vendor or /vendor/dashboard
+    const currentPath = window.location?.pathname || '';
+    if (!hasInitialDeposit && (currentPath === '/vendor' || currentPath === '/vendor/dashboard')) {
+      console.log('🔄 VendorDashboard: Redirecting to earnings - no initial deposit');
+      navigate('/vendor/earnings', { replace: true });
+    } else {
+      console.log('✅ VendorDashboard: Vendor has initial deposit, staying on dashboard');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vendor?.vendorId, isLoading]); // Only depend on vendorId and isLoading
 
   // Show loading while vendor data is being fetched
   if (isLoading) {
@@ -76,12 +104,14 @@ const VendorDashboard = () => {
 
   console.log('✅ VendorDashboard: Rendering dashboard for vendor:', vendor.vendorId);
 
-  return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
-        <VendorHero />
-        <div className="container mx-auto px-4 py-8">
+  // Error boundary wrapper for VendorHero
+  try {
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <VendorHeader />
+        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
+          <VendorHero />
+          <div className="container mx-auto px-4 py-8">
           {!isMobile && (
             <div className="text-center py-12">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
@@ -98,14 +128,38 @@ const VendorDashboard = () => {
               </div>
             </div>
           )}
+          </div>
+        </main>
+        <div className="md:hidden">
+          <Footer />
+          <VendorBottomNav />
         </div>
-      </main>
-      <div className="md:hidden">
-        <Footer />
-        <VendorBottomNav />
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error('❌ VendorDashboard: Error rendering dashboard:', error);
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading dashboard. Please try refreshing.</p>
+          <button 
+            onClick={() => {
+              try {
+                window.location?.reload();
+              } catch (error) {
+                console.error('Reload failed:', error);
+                // Fallback: navigate to login
+                navigate('/vendor/login');
+              }
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default VendorDashboard;

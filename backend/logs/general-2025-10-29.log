@@ -12261,3 +12261,115 @@
 [2025-10-29T17:17:10.723Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
 [2025-10-29T17:17:10.878Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
 [2025-10-29T17:17:10.896Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:17:33.019Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:18:33.055Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:19:33.055Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:20:33.050Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:21:33.051Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:22:33.076Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:23:33.075Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:24:33.121Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:25:33.115Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:26:11.342Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:26:11.371Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:26:11.393Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:26:11.419Z] [WARN] Vendor not found for token | {"vendorId":"68eca22322e5bedeab6c67d5"}
+[2025-10-29T17:26:11.427Z] [WARN] Vendor not found for token | {"vendorId":"68eca22322e5bedeab6c67d5"}
+[2025-10-29T17:26:11.438Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:26:11.473Z] [WARN] Vendor not found for token | {"vendorId":"68eca22322e5bedeab6c67d5"}
+[2025-10-29T17:26:11.510Z] [WARN] Vendor not found for token | {"vendorId":"68eca22322e5bedeab6c67d5"}
+[2025-10-29T17:26:33.088Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:27:33.093Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:28:33.113Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:29:33.119Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:30:33.119Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:31:33.132Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:32:33.148Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:33:33.394Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:34:33.207Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:35:33.255Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:36:33.210Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:37:06.966Z] [INFO] Vendor login attempt | {"email":"panchalajay717@gmail.com","hasPassword":true,"hasDeviceToken":false}
+[2025-10-29T17:37:07.073Z] [INFO] Vendor found for login | {"email":"panchalajay717@gmail.com","isActive":true,"isApproved":false,"isBlocked":false}
+[2025-10-29T17:37:07.542Z] [INFO] Password validation result | {"email":"panchalajay717@gmail.com","isPasswordValid":true}
+[2025-10-29T17:37:07.755Z] [INFO] Vendor logged in successfully | {"vendorId":"69024d18ee4a935e635b5b5b","email":"panchalajay717@gmail.com"}
+[2025-10-29T17:37:08.583Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:37:08.667Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:37:08.674Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:37:08.694Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:37:08.777Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:37:08.876Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-10-29T17:37:08.887Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-10-29T17:37:09.091Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-10-29T17:37:09.132Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:37:09.366Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:37:33.217Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:37:38.493Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:37:38.506Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:37:38.874Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:38:08.217Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:38:08.280Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:38:08.736Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:38:33.214Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:38:38.232Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:38:38.245Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:38:38.696Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:39:08.240Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:39:08.256Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:39:08.658Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:39:33.212Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:39:38.239Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:39:38.298Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:39:38.683Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:40:08.397Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:40:08.409Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:40:08.768Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:40:33.229Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:41:14.228Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:41:14.239Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:41:14.659Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:41:33.231Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:42:07.430Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:42:07.467Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:42:07.819Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:42:33.277Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:42:38.206Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:42:38.213Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:42:38.532Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:43:08.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:43:08.229Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:43:08.587Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:43:33.259Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:43:38.219Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:43:38.224Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:43:38.628Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:44:08.220Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:44:08.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:44:08.579Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:44:33.246Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:44:38.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:44:38.230Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:44:38.605Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:45:08.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:45:08.229Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:45:08.530Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:45:33.242Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:46:14.233Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:46:14.244Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:46:14.603Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:46:33.278Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:46:45.884Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T17:46:46.076Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T17:46:47.777Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-29T17:46:48.856Z] [INFO] SMTP connection verified successfully
+[2025-10-29T17:47:14.251Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:47:14.275Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:47:14.936Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:47:47.868Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:48:14.206Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:48:14.230Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:48:14.560Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:48:47.859Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:49:14.211Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T17:49:14.218Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T17:49:14.541Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
