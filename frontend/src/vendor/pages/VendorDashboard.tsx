@@ -114,7 +114,7 @@ const VendorDashboard = () => {
                 Welcome to Vendor Dashboard
               </h2>
               <p className="text-gray-600 mb-6">
-                Push notifications are now enabled for vendors! You'll receive instant notifications when new tasks are assigned.
+                Welcome to your vendor dashboard! Manage your tasks and earnings from here.
               </p>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
                 <h3 className="text-lg font-semibold text-blue-800 mb-2">📱 Mobile Optimized</h3>

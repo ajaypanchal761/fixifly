@@ -9,10 +9,10 @@ import { vendorDepositService } from '@/services/vendorDepositService';
 import { useToast } from '@/hooks/use-toast';
 import { useVendor } from '@/contexts/VendorContext';
 import VendorTaskCard from "./VendorTaskCard";
-import VendorNotificationStatus from "./VendorNotificationStatus";
-// Firebase removed - VendorFCMTokenGenerator disabled
+// Firebase removed - All notification components disabled
+// import VendorNotificationStatus from "./VendorNotificationStatus";
 // import VendorFCMTokenGenerator from "./VendorFCMTokenGenerator";
-import VendorNotificationEnable from "./VendorNotificationEnable";
+// import VendorNotificationEnable from "./VendorNotificationEnable";
 
 const VendorHero = () => {
   const theme = useTheme();
@@ -830,34 +830,24 @@ const VendorHero = () => {
               </div>
             </div>
 
-            {/* Notification Status */}
-            {vendorId && (
+            {/* Notification Status - COMPLETELY REMOVED (FCM/Firebase Removed) */}
+            {/* {vendorId && (
               <div className="mt-4">
                 <VendorNotificationStatus vendorId={vendorId} />
               </div>
-            )}
+            )} */}
 
-            {/* Notification Enable Button */}
-            {vendorId && (
+            {/* Notification Enable Button - DISABLED (FCM Removed) */}
+            {/* {vendorId && (
               <div className="mt-4">
                 <VendorNotificationEnable 
                   vendorId={vendorId} 
                   onTokenGenerated={(token) => {
                     console.log('✅ FCM Token generated for vendor:', vendorId);
-                    // Refresh the page to update notification status
-                    setTimeout(() => {
-                      try {
-                        window.location?.reload();
-                      } catch (error) {
-                        console.error('Reload failed:', error);
-                        // Fallback: navigate to dashboard
-                        navigate('/vendor/dashboard');
-                      }
-                    }, 2000);
                   }}
                 />
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </div>

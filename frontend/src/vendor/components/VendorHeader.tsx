@@ -13,9 +13,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useVendor } from '@/contexts/VendorContext';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import VendorNotificationStatus from './VendorNotificationStatus';
-import VendorNotificationEnable from './VendorNotificationEnable';
-import VendorNotificationEnableCompact from './VendorNotificationEnableCompact';
+// Firebase/FCM removed - all notification components disabled
+// import VendorNotificationStatus from './VendorNotificationStatus';
+// import VendorNotificationEnable from './VendorNotificationEnable';
+// import VendorNotificationEnableCompact from './VendorNotificationEnableCompact';
 
 const drawerWidth = 240;
 
@@ -297,8 +298,8 @@ const VendorHeader = () => {
           {/* Right side - Notifications - Hide when sidebar is open */}
           {!open && (
             <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 1 }}>
-              {/* Hidden notification components - they work in background */}
-              {vendorId && (
+              {/* Hidden notification components - COMPLETELY REMOVED (FCM/Firebase Removed) */}
+              {/* {vendorId && (
                 <div style={{ display: 'none' }}>
                   <VendorNotificationStatus vendorId={vendorId} compact={true} />
                   <VendorNotificationEnableCompact 
@@ -308,7 +309,7 @@ const VendorHeader = () => {
                     }}
                   />
                 </div>
-              )}
+              )} */}
               
               {/* Notification Bell Icon */}
               <IconButton
