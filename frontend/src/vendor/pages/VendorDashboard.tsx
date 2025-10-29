@@ -4,14 +4,35 @@ import VendorBottomNav from "../components/VendorBottomNav";
 import Footer from "../../components/Footer";
 import NotFound from "../../pages/NotFound";
 import { useMediaQuery, useTheme } from "@mui/material";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useVendor } from "@/contexts/VendorContext";
 
 const VendorDashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const navigate = useNavigate();
+  const { vendor, isLoading } = useVendor();
 
   console.log('🔍 VendorDashboard: Component rendered');
   console.log('🔍 VendorDashboard: isMobile:', isMobile);
   console.log('🔍 VendorDashboard: Current path:', window.location.pathname);
+  console.log('🔍 VendorDashboard: Vendor:', vendor?.vendorId);
+  console.log('🔍 VendorDashboard: isLoading:', isLoading);
+
+  // Redirect to earnings page if vendor doesn't have initial deposit
+  useEffect(() => {
+    if (!isLoading && vendor) {
+      const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
+                               (vendor.wallet?.currentBalance >= 3999) ||
+                               (vendor.wallet?.totalDeposits > 0);
+      
+      if (!hasInitialDeposit) {
+        console.log('🔄 VendorDashboard: Redirecting to earnings - no initial deposit');
+        navigate('/vendor/earnings', { replace: true });
+      }
+    }
+  }, [vendor, isLoading, navigate]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
