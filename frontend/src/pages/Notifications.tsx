@@ -157,7 +157,7 @@ const Notifications = () => {
   // Remove this line since we're now using the unreadCount state from API
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-32 md:pb-0">
+    <div className="min-h-screen bg-gray-50 pb-36 md:pb-0">
       {isMobile ? (
         // Mobile Layout
         <>

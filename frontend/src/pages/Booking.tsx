@@ -1173,7 +1173,7 @@ For support, contact us at info@fixfly.in
   // Checkout View
   if (isCheckoutView) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pb-32 md:pb-0">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pb-36 md:pb-0">
         {/* Header */}
         <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-100 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-6">
@@ -1332,7 +1332,7 @@ For support, contact us at info@fixfly.in
   // New booking success view
   if (isNewBookingView && newBooking) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-32 md:pb-0">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-36 md:pb-0">
         {/* Header */}
         <div className="bg-white shadow-sm border-b sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
@@ -1462,7 +1462,7 @@ For support, contact us at info@fixfly.in
   }
 
   return (
-    <div className="bg-blue-50 min-h-screen pb-32 md:pb-0">
+    <div className="bg-blue-50 min-h-screen pb-36 md:pb-0">
       {/* Header with Categories */}
       <div className="bg-white shadow-sm border-b pb-0 mb-4 mt-2 sticky top-0 z-50">
         <div className="container px-2 py-24">
