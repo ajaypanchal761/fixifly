@@ -129,7 +129,20 @@ const VendorLogin = () => {
 
         // Redirect to vendor earnings page for mandatory deposit
         console.log('🚀 VendorLogin: Navigating to /vendor/earnings');
-        navigate('/vendor/earnings', { replace: true });
+        
+        // APK-safe navigation - use setTimeout to ensure state is updated
+        const isAPK = /wv|WebView/.test(navigator.userAgent) || 
+                      window.matchMedia('(display-mode: standalone)').matches;
+        
+        if (isAPK) {
+          // In APK, wait a bit longer for context to sync
+          setTimeout(() => {
+            console.log('📱 APK: Navigating after delay');
+            navigate('/vendor/earnings', { replace: true });
+          }, 300);
+        } else {
+          navigate('/vendor/earnings', { replace: true });
+        }
         console.log('✅ VendorLogin: Navigate called');
       } else {
         setError(response.message || 'Login failed. Please try again.');

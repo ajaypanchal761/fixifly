@@ -13,24 +13,20 @@ const VendorDashboard = () => {
   const navigate = useNavigate();
   const { vendor, isLoading } = useVendor();
 
-  // APK-safe mobile detection
-  const [isMobile, setIsMobile] = useState(false);
+  // APK-safe mobile detection - hooks must be at top level
+  const muiIsMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [isAPK, setIsAPK] = useState(false);
   
+  // Check if running in APK/webview
   useEffect(() => {
-    // Check if running in APK/webview
-    const isAPK = /wv|WebView/.test(navigator.userAgent) || 
+    const isAPKDetected = /wv|WebView/.test(navigator.userAgent) || 
                   window.matchMedia('(display-mode: standalone)').matches ||
                   window.navigator.standalone === true;
-    
-    // Force mobile mode in APK
-    if (isAPK) {
-      setIsMobile(true);
-    } else {
-      // Use Material-UI detection for browser
-      const muiIsMobile = useMediaQuery(theme.breakpoints.down('md'));
-      setIsMobile(muiIsMobile);
-    }
-  }, [theme.breakpoints]);
+    setIsAPK(isAPKDetected);
+  }, []);
+  
+  // Force mobile mode in APK, otherwise use Material-UI detection
+  const isMobile = isAPK || muiIsMobile;
 
   console.log('🔍 VendorDashboard: Component rendered');
   console.log('🔍 VendorDashboard: isMobile:', isMobile);

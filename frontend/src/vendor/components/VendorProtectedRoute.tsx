@@ -35,7 +35,7 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
     hasVendor: !!vendor,
     vendorId: vendor?.vendorId,
     hasTokenInStorage,
-    path: window.location.pathname
+    path: window.location?.pathname || 'unknown'
   });
 
   useEffect(() => {
@@ -79,18 +79,30 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
     );
   }
 
-  // If we have token but vendor not loaded yet (race condition), wait a bit
+  // If we have token but vendor not loaded yet (race condition), wait a bit more in APK
   if (hasTokenInStorage && !vendor) {
     console.log('⏳ VendorProtectedRoute: Token found but vendor not loaded yet, waiting...');
-    // Return loading UI - this will re-render when vendor loads
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Initializing vendor dashboard...</p>
+    
+    // In APK, give more time for vendor context to load
+    const isAPK = /wv|WebView/.test(navigator.userAgent) || 
+                  window.matchMedia('(display-mode: standalone)').matches;
+    
+    if (isAPK) {
+      // In APK, allow rendering with token if vendor context is still loading
+      // This prevents infinite loading screen
+      console.log('📱 APK detected: Allowing render with token while vendor loads');
+      // Don't block - let it render and vendor context will update
+    } else {
+      // In browser, show loading
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Initializing vendor dashboard...</p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   // Allow access if authenticated OR if we have token in storage (fallback for timing issues)

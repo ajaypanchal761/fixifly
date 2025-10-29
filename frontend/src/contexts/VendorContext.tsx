@@ -156,8 +156,16 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
     };
     
     console.log('🔄 VendorContext: Setting vendor token and data...');
-    localStorage.setItem('vendorToken', token);
-    localStorage.setItem('vendorData', JSON.stringify(vendorWithWallet));
+    
+    // APK-safe localStorage access
+    try {
+      localStorage.setItem('vendorToken', token);
+      localStorage.setItem('vendorData', JSON.stringify(vendorWithWallet));
+      console.log('✅ VendorContext: localStorage updated');
+    } catch (error) {
+      console.error('❌ VendorContext: localStorage failed:', error);
+      // Continue anyway - state will be updated
+    }
     
     console.log('🔄 VendorContext: Updating vendor state...');
     setVendor(vendorWithWallet);
@@ -165,6 +173,16 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
     // Vendor notifications will be handled via email/SMS only
     console.log('✅ VendorContext: Login completed - notifications via email/SMS only');
+    
+    // In APK, ensure state is fully updated before resolving
+    const isAPK = /wv|WebView/.test(navigator.userAgent) || 
+                  window.matchMedia('(display-mode: standalone)').matches;
+    
+    if (isAPK) {
+      // Give APK webview time to sync state
+      await new Promise(resolve => setTimeout(resolve, 200));
+      console.log('📱 APK: State sync delay completed');
+    }
     
     // Return a promise that resolves immediately (for await support)
     return Promise.resolve();

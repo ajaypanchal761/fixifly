@@ -40,24 +40,21 @@ const VendorHero = () => {
     canAcceptTasks: boolean;
   } | null>(null);
   const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
-  // APK-safe mobile detection
-  const [isMobile, setIsMobile] = useState(false);
   
+  // APK-safe mobile detection - hooks must be at top level
+  const muiIsMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [isAPK, setIsAPK] = useState(false);
+  
+  // Check if running in APK/webview
   useEffect(() => {
-    // Check if running in APK/webview
-    const isAPK = /wv|WebView/.test(navigator.userAgent) || 
+    const isAPKDetected = /wv|WebView/.test(navigator.userAgent) || 
                   window.matchMedia('(display-mode: standalone)').matches ||
                   window.navigator.standalone === true;
-    
-    // Force mobile mode in APK
-    if (isAPK) {
-      setIsMobile(true);
-    } else {
-      // Use Material-UI detection for browser
-      const muiIsMobile = useMediaQuery(theme.breakpoints.down('md'));
-      setIsMobile(muiIsMobile);
-    }
-  }, [theme.breakpoints]);
+    setIsAPK(isAPKDetected);
+  }, []);
+  
+  // Force mobile mode in APK, otherwise use Material-UI detection
+  const isMobile = isAPK || muiIsMobile;
 
   const [vendorStats, setVendorStats] = useState([
     { icon: Users, value: "0", label: "Active Customers", color: "bg-blue-500" },
