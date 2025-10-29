@@ -12150,3 +12150,114 @@
 [2025-10-29T17:02:33.024Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-29T17:03:32.930Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-29T17:04:32.964Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:05:32.965Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:06:32.935Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:07:32.951Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:08:32.954Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:09:33.006Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:10:33.000Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:11:33.004Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:12:18.841Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:12:18.914Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:18.966Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:12:19.265Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:12:19.301Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:12:19.595Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:12:20.046Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:12:20.159Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:12:20.190Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:12:20.206Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:12:20.261Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:20.429Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:12:21.929Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:22.002Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:12:22.097Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:12:22.231Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:12:22.280Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:12:22.650Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:12:22.767Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:22.966Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:12:23.064Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:12:23.343Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:12:23.360Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:12:23.615Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:12:26.532Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:26.597Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:12:26.648Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:12:26.765Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:12:26.816Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:12:27.029Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:12:27.095Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:12:27.445Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:12:27.499Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:12:27.596Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:27.648Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:12:27.777Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:12:29.515Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:29.532Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:12:29.611Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:12:29.829Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:12:29.836Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:12:30.042Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:12:30.263Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:33.018Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:12:33.729Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:33.737Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:12:33.743Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:12:33.814Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:12:33.822Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:12:34.040Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:12:34.176Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:13:00.406Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:13:00.524Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:13:00.555Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:13:00.607Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:13:00.609Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:13:00.627Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:13:00.774Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:13:20.287Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:13:20.335Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:13:20.350Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:13:20.403Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:13:20.404Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:13:20.541Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:13:20.553Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:13:33.200Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:14:15.333Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:14:15.414Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:14:15.426Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:14:15.479Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:14:15.482Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:14:15.546Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:14:15.633Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:14:32.232Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:14:32.281Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:14:32.294Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:14:32.346Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:14:32.349Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:14:32.436Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:14:32.489Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:14:33.022Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:15:33.021Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:16:23.511Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:16:23.551Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:16:23.566Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:16:23.618Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:16:23.630Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:16:23.747Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:16:23.775Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:16:33.024Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T17:16:36.245Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:16:36.262Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:16:36.277Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:16:36.321Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:16:36.324Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:16:36.445Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}
+[2025-10-29T17:16:36.464Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:17:10.570Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:17:10.617Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T17:17:10.641Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T17:17:10.721Z] [INFO] Getting bookings for vendor | {"vendorId":"440","page":1,"limit":10}
+[2025-10-29T17:17:10.723Z] [INFO] Booking query | {"query":{"vendor.vendorId":"440"}}
+[2025-10-29T17:17:10.878Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T17:17:10.896Z] [INFO] Vendor bookings retrieved: 0 for vendor 440 | {"vendorId":"440","totalBookings":0,"page":1}

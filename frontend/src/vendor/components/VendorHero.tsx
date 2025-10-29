@@ -1,6 +1,6 @@
 import { Button } from "@/vendor/components/ui/button";
 import { Users, TrendingUp, Clock, Shield, Star, Plus, CheckCircle, XCircle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
 import vendorApi from "@/services/vendorApi";
@@ -52,7 +52,7 @@ const VendorHero = () => {
 
 
   // Fetch banners from database
-  const fetchBanners = async () => {
+  const fetchBanners = useCallback(async () => {
     try {
       setBannersLoading(true);
       const bannerUrls = await bannerApiService.getBannerImageUrls('vendor');
@@ -70,10 +70,10 @@ const VendorHero = () => {
     } finally {
       setBannersLoading(false);
     }
-  };
+  }, []); // No dependencies - banners are static
 
   // Fetch vendor statistics
-  const fetchVendorStats = async () => {
+  const fetchVendorStats = useCallback(async () => {
     // VENDOR STATS API DISABLED - Using default stats
     // This endpoint was causing non-JSON response errors
     return;
@@ -121,10 +121,10 @@ const VendorHero = () => {
     //   console.error('Error fetching vendor stats:', error);
     //   // Keep default stats on error
     // }
-  };
+  }, []); // No dependencies - stats are disabled
 
   // Fetch vendor deposit status
-  const fetchVendorDepositStatus = async () => {
+  const fetchVendorDepositStatus = useCallback(async () => {
     try {
       const token = localStorage.getItem('vendorToken');
       
@@ -146,7 +146,7 @@ const VendorHero = () => {
     } catch (error) {
       console.error('Error fetching vendor deposit status:', error);
     }
-  };
+  }, []); // No dependencies - uses localStorage directly
 
   const handleMakeDeposit = async () => {
     if (!vendor) {
@@ -218,7 +218,7 @@ const VendorHero = () => {
   };
 
   // Fetch vendor bookings and support tickets and transform them to task format
-  const fetchVendorBookings = async () => {
+  const fetchVendorBookings = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -408,19 +408,24 @@ const VendorHero = () => {
         closed: [...closedTasks, ...completedTasks],
         cancelled: cancelledTasks
       });
-  } catch (error) {
-    console.error('Error fetching vendor bookings:', error);
-    setError('Failed to fetch bookings');
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (error) {
+      console.error('Error fetching vendor bookings:', error);
+      setError('Failed to fetch bookings');
+    } finally {
+      setLoading(false);
+    }
+  }, [vendor?.vendorId]); // Memoize with vendorId dependency
 
   useEffect(() => {
+    if (!vendor?.vendorId) {
+      console.log('⏳ VendorHero: Waiting for vendor data...');
+      return;
+    }
+
+    console.log('🔄 VendorHero: Initializing with vendor:', vendor.vendorId);
     fetchBanners();
     fetchVendorStats();
     fetchVendorDepositStatus();
-    fetchVendorBookings();
     
     // Get vendor ID for notifications
     const getVendorId = async () => {
@@ -440,7 +445,16 @@ const VendorHero = () => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [vendor?.vendorId, fetchBanners, fetchVendorStats, fetchVendorDepositStatus]); // Only run when vendor changes
+
+  // Separate useEffect for fetchVendorBookings to prevent infinite loops
+  useEffect(() => {
+    if (!vendor?.vendorId) {
+      return;
+    }
+    console.log('🔄 VendorHero: Fetching vendor bookings for:', vendor.vendorId);
+    fetchVendorBookings();
+  }, [vendor?.vendorId, fetchVendorBookings]);
 
   // Handle task status update
   const handleTaskStatusUpdate = (taskId: string, newStatus: string) => {
@@ -476,10 +490,7 @@ const VendorHero = () => {
     }, 1000);
   };
 
-  // Fetch bookings when component mounts
-  useEffect(() => {
-    fetchVendorBookings();
-  }, []);
+  // Remove duplicate fetchVendorBookings call - already in main useEffect
 
   // Handle URL tab parameter
   useEffect(() => {
@@ -574,7 +585,15 @@ const VendorHero = () => {
     );
   }
 
-  console.log('✅ VendorHero: Rendering for vendor:', vendor.vendorId);
+  // Memoize vendor ID to prevent unnecessary re-renders
+  const vendorIdMemo = useMemo(() => vendor.vendorId, [vendor.vendorId]);
+  
+  // Only log once per vendor ID change, not on every render
+  useEffect(() => {
+    if (vendorIdMemo) {
+      console.log('✅ VendorHero: Initialized for vendor:', vendorIdMemo);
+    }
+  }, [vendorIdMemo]);
 
   try {
     return (
