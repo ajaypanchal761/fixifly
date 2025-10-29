@@ -1,4 +1,4 @@
-# Environment Variables Setup
+# Environment Variables Setups
 
 ## Required Environment Variables
 
