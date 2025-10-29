@@ -1,6 +1,7 @@
 // Comprehensive notification setup utility
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { getApp } from 'firebase/app';
+import { normalizeApiUrl } from './apiUrl';
 
 const VAPID_KEY = "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU";
 
@@ -79,7 +80,7 @@ export const saveTokenToBackend = async (fcmToken, vendorId) => {
   try {
     console.log('💾 Saving FCM token to backend...');
     
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
     const response = await fetch(`${API_BASE_URL}/vendors/update-fcm-token`, {
       method: 'POST',
       headers: {
@@ -117,15 +118,7 @@ export const saveUserTokenToBackend = async (fcmToken) => {
     console.log('Token length:', token ? token.length : 0);
     
     // Normalize API URL to ensure it ends with /api exactly once
-    let apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    apiBaseUrl = apiBaseUrl.trim().replace(/\/+$/, ''); // Remove trailing slashes
-    // Remove duplicate /api/api if present
-    apiBaseUrl = apiBaseUrl.replace(/\/api\/api$/, '/api');
-    // Ensure it ends with /api exactly once
-    if (!apiBaseUrl.endsWith('/api')) {
-      apiBaseUrl = apiBaseUrl.endsWith('/') ? `${apiBaseUrl}api` : `${apiBaseUrl}/api`;
-    }
-    const API_BASE_URL = apiBaseUrl;
+    const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
     console.log('API URL:', `${API_BASE_URL}/user/notifications/fcm-token`);
     
     const response = await fetch(`${API_BASE_URL}/user/notifications/fcm-token`, {
@@ -161,7 +154,7 @@ export const saveAdminTokenToBackend = async (fcmToken) => {
   try {
     console.log('💾 Saving admin FCM token to backend...');
     
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
     const response = await fetch(`${API_BASE_URL}/admin/update-fcm-token`, {
       method: 'POST',
       headers: {
