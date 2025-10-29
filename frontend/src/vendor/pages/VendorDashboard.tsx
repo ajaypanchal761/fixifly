@@ -22,15 +22,24 @@ const VendorDashboard = () => {
 
   // Redirect to earnings page if vendor doesn't have initial deposit
   useEffect(() => {
+    console.log('🔄 VendorDashboard useEffect: isLoading:', isLoading, 'vendor:', vendor?.vendorId);
+    
     if (!isLoading && vendor) {
       const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
                                (vendor.wallet?.currentBalance >= 3999) ||
                                (vendor.wallet?.totalDeposits > 0);
       
+      console.log('🔄 VendorDashboard: hasInitialDeposit:', hasInitialDeposit);
+      console.log('🔄 VendorDashboard: wallet data:', vendor.wallet);
+      
       if (!hasInitialDeposit) {
         console.log('🔄 VendorDashboard: Redirecting to earnings - no initial deposit');
         navigate('/vendor/earnings', { replace: true });
+      } else {
+        console.log('✅ VendorDashboard: Vendor has initial deposit, staying on dashboard');
       }
+    } else if (!isLoading && !vendor) {
+      console.log('⚠️ VendorDashboard: No vendor data found');
     }
   }, [vendor, isLoading, navigate]);
 
