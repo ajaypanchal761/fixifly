@@ -366,7 +366,7 @@ const Checkout = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 pb-24">
         <div className="max-w-2xl mx-auto">
           {/* Back Button */}
           <div className="mb-6">
@@ -695,7 +695,7 @@ const Checkout = () => {
           </Button>
 
           {/* Terms */}
-          <p className="text-xs text-gray-500 text-center mt-4">
+          <p className="text-xs text-gray-500 text-center mt-4 mb-8">
             By clicking 'Book Now', you agree to our Terms of Service and Privacy Policy. Your payment will be processed securely.
           </p>
         </div>

@@ -116,10 +116,10 @@ export const saveUserTokenToBackend = async (fcmToken) => {
     console.log('Access token found:', token ? 'Yes' : 'No');
     console.log('Token length:', token ? token.length : 0);
     
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    console.log('API URL:', `${API_BASE_URL}/api/user/notifications/fcm-token`);
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    console.log('API URL:', `${API_BASE_URL}/user/notifications/fcm-token`);
     
-    const response = await fetch(`${API_BASE_URL}/api/user/notifications/fcm-token`, {
+    const response = await fetch(`${API_BASE_URL}/user/notifications/fcm-token`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
