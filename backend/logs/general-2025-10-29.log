@@ -1,0 +1,21 @@
+[2025-10-29T09:53:24.456Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T09:53:24.584Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T09:53:25.691Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-29T09:53:26.388Z] [INFO] SMTP connection verified successfully
+[2025-10-29T09:54:25.790Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T09:55:16.556Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T09:55:16.586Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T09:55:17.054Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T09:55:25.751Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T09:56:04.725Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-10-29T09:56:04.766Z] [INFO] Creating new user for OTP | {"phone":"7610416911"}
+[2025-10-29T09:56:04.771Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-10-29T09:56:04.841Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"6901e4b4c025afdd528a9452"}
+[2025-10-29T09:56:04.848Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-10-29T09:56:05.248Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1761731765248","provider":"SMSIndia Hub"}
+[2025-10-29T09:56:22.487Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T09:56:22.530Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T09:56:22.617Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T09:56:22.800Z] [INFO] User updated FCM token | {"userId":"6901e4b4c025afdd528a9452","fcmTokenLength":142}
+[2025-10-29T09:56:22.900Z] [INFO] User updated FCM token | {"userId":"6901e4b4c025afdd528a9452","fcmTokenLength":142}
+[2025-10-29T09:56:25.760Z] [INFO] Found 0 pending assignments to check for auto-rejection

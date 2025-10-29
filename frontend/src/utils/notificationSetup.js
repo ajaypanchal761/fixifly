@@ -4,24 +4,9 @@ import { getApp } from 'firebase/app';
 
 const VAPID_KEY = "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU";
 
-// Detect if running in webview
-const isWebView = () => {
-  const userAgent = navigator.userAgent.toLowerCase();
-  return /wv|webview/.test(userAgent) || 
-         /android.*wv/.test(userAgent) ||
-         /iphone.*wv/.test(userAgent) ||
-         /ipad.*wv/.test(userAgent);
-};
-
 // Register service worker
 export const registerServiceWorker = async () => {
   try {
-    // Skip service worker registration in webview
-    if (isWebView()) {
-      console.log('📱 Running in webview - service worker registration disabled');
-      return null;
-    }
-    
     console.log('🔧 Registering service worker...');
     
     if ('serviceWorker' in navigator) {
@@ -51,12 +36,6 @@ export const registerServiceWorker = async () => {
 // Request notification permission and get FCM token
 export const requestNotificationPermission = async (messaging) => {
   try {
-    // Skip notification permission in webview
-    if (isWebView()) {
-      console.log('📱 Running in webview - notification permission disabled');
-      return null;
-    }
-    
     console.log('🔔 Requesting notification permission...');
     
     // Check if notifications are supported
@@ -267,12 +246,6 @@ export const setupNotifications = async (vendorId) => {
 // Setup complete notification system for users
 export const setupUserNotifications = async () => {
   try {
-    // Skip notification setup in webview
-    if (isWebView()) {
-      console.log('📱 Running in webview - user notification setup disabled');
-      return { success: false, error: 'Running in webview - notifications disabled' };
-    }
-    
     console.log('🚀 Setting up user notification system...');
     
     // Step 1: Register service worker

@@ -503,61 +503,6 @@ const assignVendor = asyncHandler(async (req, res) => {
       // Don't fail the assignment if notification fails
     }
 
-    // Send FCM notification to assigned vendor
-    try {
-      const firebasePushService = require('../services/firebasePushService');
-      const Vendor = require('../models/Vendor');
-      
-      const vendor = await Vendor.findById(vendorId).select('fcmToken firstName lastName');
-      
-      if (vendor && vendor.fcmToken) {
-        const notification = {
-          title: '🔧 New Booking Assigned to You',
-          body: `Booking from ${booking.customer.name} - ${booking.services.map(s => s.serviceName).join(', ')}`
-        };
-
-        const data = {
-          type: 'booking_assigned',
-          bookingId: booking._id.toString(),
-          bookingReference: booking.bookingReference,
-          customerName: booking.customer.name,
-          services: booking.services.map(s => s.serviceName).join(', '),
-          totalAmount: booking.pricing.totalAmount,
-          priority: booking.priority || 'medium',
-          scheduledDate: booking.scheduling?.scheduledDate,
-          scheduledTime: booking.scheduling?.scheduledTime
-        };
-
-        const pushResult = await firebasePushService.sendPushNotification(vendor.fcmToken, notification, data);
-        
-        if (pushResult) {
-          logger.info('FCM notification sent to assigned vendor for booking', {
-            vendorId,
-            bookingId: booking._id,
-            vendorName: `${vendor.firstName} ${vendor.lastName}`
-          });
-        } else {
-          logger.warn('Failed to send FCM notification to assigned vendor for booking', {
-            vendorId,
-            bookingId: booking._id
-          });
-        }
-      } else {
-        logger.warn('Vendor has no FCM token for booking assignment notification', {
-          vendorId,
-          bookingId: booking._id,
-          hasFcmToken: !!vendor?.fcmToken
-        });
-      }
-    } catch (fcmError) {
-      logger.error('Error sending FCM notification to assigned vendor for booking:', {
-        vendorId,
-        bookingId: booking._id,
-        error: fcmError.message
-      });
-      // Don't fail the assignment if FCM notification fails
-    }
-
     // Send notification to user about vendor assignment
     try {
       // Find user by email or phone

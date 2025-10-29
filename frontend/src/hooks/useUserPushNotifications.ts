@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { requestPermission, onMessageListener, isWebView } from '../firebase-messaging';
+import { requestPermission, onMessageListener } from '../firebase-messaging';
 import { setupUserNotifications } from '../utils/notificationSetup';
 import { toast } from 'sonner';
 import userNotificationApi from '../services/userNotificationApi';
@@ -13,13 +13,6 @@ export const useUserPushNotifications = () => {
 
   // Check if notifications are supported
   useEffect(() => {
-    // Disable notifications in webview for compatibility
-    if (isWebView()) {
-      console.log('📱 Running in webview - notifications disabled');
-      setIsSupported(false);
-      return;
-    }
-    
     if ('Notification' in window && 'serviceWorker' in navigator) {
       setIsSupported(true);
     }
@@ -71,12 +64,6 @@ export const useUserPushNotifications = () => {
   // Automatically request permission and get token when user is authenticated
   useEffect(() => {
     const autoRequestPermission = async () => {
-      // Skip notification setup in webview
-      if (isWebView()) {
-        console.log('📱 Running in webview - skipping notification setup');
-        return;
-      }
-      
       if (isSupported && isAuthenticated && !token) {
         console.log('🔔 Auto-requesting notification permission for user...');
         console.log('Current permission status:', permission);
@@ -121,12 +108,6 @@ export const useUserPushNotifications = () => {
 
   // Listen for foreground messages
   useEffect(() => {
-    // Skip message listener in webview
-    if (isWebView()) {
-      console.log('📱 Running in webview - message listener disabled');
-      return;
-    }
-    
     if (isSupported && permission === 'granted') {
       const unsubscribe = onMessageListener().then((payload) => {
         if (payload) {

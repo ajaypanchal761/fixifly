@@ -49,7 +49,6 @@ const cityRoutes = require('./routes/cities');
 const reviewRoutes = require('./routes/reviews');
 const adminNotificationRoutes = require('./routes/adminNotifications');
 const userNotificationRoutes = require('./routes/userNotifications');
-const notificationRoutes = require('./routes/notifications');
 
 // Initialize Express app
 const app = express();
@@ -69,7 +68,7 @@ process.on('uncaughtException', (error) => {
 // Security middleware
 app.use(helmet());
 
-// CORS configuration - Enhanced for FCM endpoints
+// CORS configuration
 app.use(cors({
   origin: [
     process.env.CORS_ORIGIN || 'http://localhost:3000',
@@ -80,10 +79,8 @@ app.use(cors({
     'https://fixifly.vercel.app', // Production frontend
     'https://www.getfixfly.com',
     'https://getfixfly.com',
-    '*' // Allow all origins for FCM endpoints
+
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 }));
 
@@ -114,8 +111,6 @@ app.use(cookieParser());
 // Compression middleware
 app.use(compression());
 
-// CORS middleware already handles preflight requests, no need for explicit OPTIONS handler
-
 // Static file serving for uploads
 app.use('/uploads', express.static('uploads'));
 
@@ -139,165 +134,6 @@ app.get('/api/test', (req, res) => {
     origin: req.get('Origin'),
     userAgent: req.get('User-Agent')
   });
-});
-
-// Debug FCM endpoints (no auth required)
-app.all('/api/debug/user-fcm', (req, res) => {
-  console.log(`Debug User FCM: ${req.method} ${req.originalUrl}`);
-  res.json({
-    success: true,
-    message: 'Debug user FCM endpoint reached',
-    method: req.method,
-    url: req.originalUrl,
-    timestamp: new Date().toISOString()
-  });
-});
-
-app.all('/api/debug/vendor-fcm', (req, res) => {
-  console.log(`Debug Vendor FCM: ${req.method} ${req.originalUrl}`);
-  res.json({
-    success: true,
-    message: 'Debug vendor FCM endpoint reached',
-    method: req.method,
-    url: req.originalUrl,
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Enhanced FCM token endpoints with proper validation and error handling
-app.all('/api/user/notifications/fcm-token', (req, res) => {
-  console.log('=== USER FCM TOKEN RECEIVED ===');
-  console.log('Method:', req.method);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  console.log('Query:', req.query);
-  console.log('================================');
-  
-  try {
-    const { fcmToken } = req.body;
-    
-    if (!fcmToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'FCM token is required',
-        method: req.method
-      });
-    }
-    
-    // Here you can save to database
-    // await User.updateOne({ _id: userId }, { fcmToken: fcmToken });
-    
-    console.log('✅ User FCM Token saved:', fcmToken);
-    
-    res.status(200).json({
-      success: true,
-      message: 'User FCM token saved successfully',
-      method: req.method,
-      data: {
-        fcmToken: fcmToken,
-        timestamp: new Date().toISOString(),
-        endpoint: '/api/user/notifications/fcm-token'
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ Error saving user FCM token:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
-  }
-});
-
-app.all('/api/vendors/update-fcm-token', (req, res) => {
-  console.log('=== VENDOR UPDATE FCM TOKEN RECEIVED ===');
-  console.log('Method:', req.method);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  console.log('Query:', req.query);
-  console.log('=========================================');
-  
-  try {
-    const { fcmToken } = req.body;
-    
-    if (!fcmToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'FCM token is required',
-        method: req.method
-      });
-    }
-    
-    // Here you can save to database
-    // await Vendor.updateOne({ _id: vendorId }, { fcmToken: fcmToken });
-    
-    console.log('✅ Vendor Update FCM Token saved:', fcmToken);
-    
-    res.status(200).json({
-      success: true,
-      message: 'Vendor FCM token updated successfully',
-      method: req.method,
-      data: {
-        fcmToken: fcmToken,
-        timestamp: new Date().toISOString(),
-        endpoint: '/api/vendors/update-fcm-token'
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ Error saving vendor update FCM token:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
-  }
-});
-
-app.all('/api/vendors/fcm-token', (req, res) => {
-  console.log('=== VENDOR FCM TOKEN RECEIVED ===');
-  console.log('Method:', req.method);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  console.log('Query:', req.query);
-  console.log('==================================');
-  
-  try {
-    const { fcmToken } = req.body;
-    
-    if (!fcmToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'FCM token is required',
-        method: req.method
-      });
-    }
-    
-    // Here you can save to database
-    // await Vendor.updateOne({ _id: vendorId }, { fcmToken: fcmToken });
-    
-    console.log('✅ Vendor FCM Token saved:', fcmToken);
-    
-    res.status(200).json({
-      success: true,
-      message: 'Vendor FCM token saved successfully',
-      method: req.method,
-      data: {
-        fcmToken: fcmToken,
-        timestamp: new Date().toISOString(),
-        endpoint: '/api/vendors/fcm-token'
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ Error saving vendor FCM token:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
-  }
 });
 
 // Debug endpoint for FormData testing
@@ -409,7 +245,6 @@ app.use('/api/vendors/withdrawal', withdrawalRoutes);
 app.use('/api/admin/withdrawals', adminWithdrawalRoutes);
 app.use('/api/admin/notifications', adminNotificationRoutes);
 app.use('/api/user/notifications', userNotificationRoutes);
-app.use('/api', notificationRoutes);
 app.use('/api', cityRoutes);
 app.use('/api/reviews', reviewRoutes);
 

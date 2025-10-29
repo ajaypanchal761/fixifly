@@ -33,7 +33,7 @@ export interface NotificationStats {
 
 export interface NotificationResponse {
   success: boolean;
-  data?: {
+  data: {
     notifications: UserNotification[];
     pagination: {
       currentPage: number;
@@ -49,7 +49,7 @@ export interface NotificationResponse {
 
 export interface NotificationStatsResponse {
   success: boolean;
-  data?: NotificationStats;
+  data: NotificationStats;
 }
 
 class UserNotificationApi {
@@ -77,17 +77,17 @@ class UserNotificationApi {
   }
 
   // Get single notification
-  async getNotificationById(id: string): Promise<{ success: boolean; data?: { notification: UserNotification } }> {
+  async getNotificationById(id: string): Promise<{ success: boolean; data: { notification: UserNotification } }> {
     return await apiService.request(`/user/notifications/${id}`, { method: 'GET' });
   }
 
   // Mark notification as read
-  async markAsRead(id: string): Promise<{ success: boolean; message: string; data?: { notification: UserNotification } }> {
+  async markAsRead(id: string): Promise<{ success: boolean; message: string; data: { notification: UserNotification } }> {
     return await apiService.request(`/user/notifications/${id}/read`, { method: 'PUT' });
   }
 
   // Mark all notifications as read
-  async markAllAsRead(): Promise<{ success: boolean; message: string; data?: { modifiedCount: number } }> {
+  async markAllAsRead(): Promise<{ success: boolean; message: string; data: { modifiedCount: number } }> {
     return await apiService.request('/user/notifications/read-all', { method: 'PUT' });
   }
 
@@ -97,7 +97,7 @@ class UserNotificationApi {
   }
 
   // Update FCM token
-  async updateFcmToken(fcmToken: string): Promise<{ success: boolean; message: string; data?: { fcmTokenUpdated: boolean } }> {
+  async updateFcmToken(fcmToken: string): Promise<{ success: boolean; message: string; data: { fcmTokenUpdated: boolean } }> {
     return await apiService.request('/user/notifications/fcm-token', {
       method: 'PUT',
       body: JSON.stringify({ fcmToken })

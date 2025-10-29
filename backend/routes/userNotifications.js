@@ -11,18 +11,6 @@ const {
 } = require('../controllers/userNotificationController');
 const { protect } = require('../middleware/auth');
 
-// Debug endpoint to test routing (no auth required)
-router.all('/debug-fcm', (req, res) => {
-  console.log(`Debug User FCM endpoint called: ${req.method} ${req.originalUrl}`);
-  res.json({
-    success: true,
-    message: 'Debug endpoint reached',
-    method: req.method,
-    url: req.originalUrl,
-    headers: req.headers
-  });
-});
-
 // All routes are protected
 router.use(protect);
 
@@ -56,13 +44,8 @@ router.put('/read-all', markAllAsRead);
 // @access  Private
 router.delete('/:id', deleteNotification);
 
-// @route   POST /api/user/notifications/fcm-token
-// @desc    Update user FCM token
-// @access  Private
-router.post('/fcm-token', updateFcmToken);
-
 // @route   PUT /api/user/notifications/fcm-token
-// @desc    Update user FCM token (alternative method)
+// @desc    Update user FCM token
 // @access  Private
 router.put('/fcm-token', updateFcmToken);
 

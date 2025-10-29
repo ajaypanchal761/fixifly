@@ -53,7 +53,7 @@ export interface SendNotificationRequest {
 export interface SendNotificationResponse {
   success: boolean;
   message: string;
-  data?: {
+  data: {
     notification: AdminNotification;
     sentCount: number;
     deliveredCount: number;
@@ -74,7 +74,7 @@ export interface NotificationStats {
 
 export interface NotificationStatsResponse {
   success: boolean;
-  data?: NotificationStats;
+  data: NotificationStats;
 }
 
 class AdminNotificationApi {
@@ -94,7 +94,7 @@ class AdminNotificationApi {
     targetAudience?: string;
     sortBy?: string;
     sortOrder?: string;
-  }): Promise<{ success: boolean; data?: { notifications: AdminNotification[]; pagination: any } }> {
+  }): Promise<{ success: boolean; data: { notifications: AdminNotification[]; pagination: any } }> {
     const queryParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -109,12 +109,12 @@ class AdminNotificationApi {
   }
 
   // Get single notification
-  async getNotificationById(id: string): Promise<{ success: boolean; data?: { notification: AdminNotification } }> {
+  async getNotificationById(id: string): Promise<{ success: boolean; data: { notification: AdminNotification } }> {
     return await apiService.request(`/admin/notifications/${id}`, { method: 'GET' });
   }
 
   // Update notification
-  async updateNotification(id: string, data: Partial<SendNotificationRequest>): Promise<{ success: boolean; data?: { notification: AdminNotification } }> {
+  async updateNotification(id: string, data: Partial<SendNotificationRequest>): Promise<{ success: boolean; data: { notification: AdminNotification } }> {
     return await apiService.request(`/admin/notifications/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
