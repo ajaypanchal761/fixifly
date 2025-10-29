@@ -90,8 +90,8 @@ const AppContent = () => {
   const isSignupPage = location.pathname === '/signup';
   const isAuthPage = isLoginPage || isSignupPage;
   
-  // Initialize user push notifications
-  useUserPushNotifications();
+  // Initialize user push notifications - DISABLED
+  // useUserPushNotifications();
 
   return (
     <div className="min-h-screen bg-background">

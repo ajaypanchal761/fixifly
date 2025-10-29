@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { setupUserNotifications } from '../utils/notificationSetup';
+// Firebase removed - setupUserNotifications disabled (all code commented)
+// import { setupUserNotifications } from '../utils/notificationSetup';
 import { toast } from 'sonner';
 import userNotificationApi from '../services/userNotificationApi';
 import { useAuth } from '../contexts/AuthContext';

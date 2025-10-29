@@ -11884,3 +11884,35 @@
 [2025-10-29T11:54:58.340Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
 [2025-10-29T11:54:58.446Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
 [2025-10-29T11:55:03.765Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:56:03.106Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T11:56:03.300Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T11:56:04.471Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-29T11:56:05.198Z] [INFO] SMTP connection verified successfully
+[2025-10-29T11:57:04.527Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:58:04.523Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:59:04.556Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:00:04.545Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:01:04.571Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:02:04.570Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:03:04.578Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:04:04.592Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:05:04.607Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:05:57.403Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T12:05:57.421Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T12:05:57.498Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T12:06:04.585Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:07:04.597Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:08:04.600Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:08:18.027Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T12:08:18.037Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T12:08:20.467Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T12:08:30.084Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T12:08:30.183Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T12:08:30.933Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T12:08:40.276Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T12:08:40.301Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T12:08:41.360Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T12:08:43.637Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T12:08:43.646Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T12:08:44.063Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T12:09:04.599Z] [INFO] Found 0 pending assignments to check for auto-rejection

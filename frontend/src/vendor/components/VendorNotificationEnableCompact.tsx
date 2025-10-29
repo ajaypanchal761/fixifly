@@ -35,46 +35,51 @@ const VendorNotificationEnableCompact: React.FC<VendorNotificationEnableCompactP
   }, [isSupported]);
 
   const enableNotifications = async () => {
-    if (!isSupported) {
-      setError('Push notifications are not supported in this browser');
-      setStatus('error');
-      return;
-    }
+    // PUSH NOTIFICATIONS DISABLED
+    setError('Push notifications are currently disabled');
+    setStatus('error');
+    return;
+    
+    // if (!isSupported) {
+    //   setError('Push notifications are not supported in this browser');
+    //   setStatus('error');
+    //   return;
+    // }
 
-    setIsLoading(true);
-    setError(null);
-    setStatus('idle');
+    // setIsLoading(true);
+    // setError(null);
+    // setStatus('idle');
 
-    try {
-      console.log('🔔 Setting up complete notification system for vendor:', vendorId);
-      
-      // Use comprehensive notification setup
-      const result = await setupNotifications(vendorId);
-      
-      if (result.success) {
-        setStatus('success');
-        console.log('✅ Complete notification system setup successful!');
-        
-        if (onTokenGenerated) {
-          onTokenGenerated(result.fcmToken);
-        }
-        
-        // Test notification to verify it works
-        setTimeout(() => {
-          testNotification();
-        }, 1000);
-        
-      } else {
-        setError(result.error || 'Failed to setup notifications');
-        setStatus('error');
-      }
-    } catch (err) {
-      console.error('❌ Error enabling notifications:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-      setStatus('error');
-    } finally {
-      setIsLoading(false);
-    }
+    // try {
+    //   console.log('🔔 Setting up complete notification system for vendor:', vendorId);
+    //   
+    //   // Use comprehensive notification setup
+    //   const result = await setupNotifications(vendorId);
+    //   
+    //   if (result.success) {
+    //     setStatus('success');
+    //     console.log('✅ Complete notification system setup successful!');
+    //     
+    //     if (onTokenGenerated) {
+    //       onTokenGenerated(result.fcmToken);
+    //     }
+    //     
+    //     // Test notification to verify it works
+    //     setTimeout(() => {
+    //       testNotification();
+    //     }, 1000);
+    //     
+    //   } else {
+    //     setError(result.error || 'Failed to setup notifications');
+    //     setStatus('error');
+    //   }
+    // } catch (err) {
+    //   console.error('❌ Error enabling notifications:', err);
+    //   setError(err instanceof Error ? err.message : 'Unknown error');
+    //   setStatus('error');
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   const saveTokenToBackend = async (fcmToken: string) => {
