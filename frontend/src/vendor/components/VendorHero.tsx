@@ -561,7 +561,23 @@ const VendorHero = () => {
     return null;
   }
 
-  return (
+  // Defensive check for vendor context
+  if (!vendor) {
+    console.log('⚠️ VendorHero: No vendor found, showing loading');
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading vendor data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('✅ VendorHero: Rendering for vendor:', vendor.vendorId);
+
+  try {
+    return (
     <section className="relative flex items-start justify-center overflow-hidden min-h-[20vh] sm:min-h-[25vh] mb-4">
       {/* Background Gradient */}
       <div className="absolute bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-50" />
@@ -788,6 +804,22 @@ const VendorHero = () => {
       </div>
     </section>
   );
+  } catch (error) {
+    console.error('❌ VendorHero: Error rendering component:', error);
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading dashboard. Please try refreshing.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default VendorHero;
