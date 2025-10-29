@@ -116,7 +116,16 @@ export const saveUserTokenToBackend = async (fcmToken) => {
     console.log('Access token found:', token ? 'Yes' : 'No');
     console.log('Token length:', token ? token.length : 0);
     
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    // Normalize API URL to ensure it ends with /api exactly once
+    let apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    apiBaseUrl = apiBaseUrl.trim().replace(/\/+$/, ''); // Remove trailing slashes
+    // Remove duplicate /api/api if present
+    apiBaseUrl = apiBaseUrl.replace(/\/api\/api$/, '/api');
+    // Ensure it ends with /api exactly once
+    if (!apiBaseUrl.endsWith('/api')) {
+      apiBaseUrl = apiBaseUrl.endsWith('/') ? `${apiBaseUrl}api` : `${apiBaseUrl}/api`;
+    }
+    const API_BASE_URL = apiBaseUrl;
     console.log('API URL:', `${API_BASE_URL}/user/notifications/fcm-token`);
     
     const response = await fetch(`${API_BASE_URL}/user/notifications/fcm-token`, {

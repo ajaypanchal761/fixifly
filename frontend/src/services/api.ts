@@ -1,5 +1,17 @@
 // API service for Fixfly backend communication
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Normalize API URL to ensure it ends with /api exactly once
+const normalizeApiUrl = (url: string): string => {
+  let normalized = url.trim().replace(/\/+$/, ''); // Remove trailing slashes
+  // Remove duplicate /api/api if present
+  normalized = normalized.replace(/\/api\/api$/, '/api');
+  // Ensure it ends with /api exactly once
+  if (!normalized.endsWith('/api')) {
+    normalized = normalized.endsWith('/') ? `${normalized}api` : `${normalized}/api`;
+  }
+  return normalized;
+};
+
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
 
 // Debug API URL in production
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
