@@ -12478,3 +12478,65 @@
 [2025-10-29T18:06:50.905Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
 [2025-10-29T18:06:50.912Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
 [2025-10-29T18:06:51.260Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:07:21.221Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:07:21.227Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T18:07:21.604Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:07:47.996Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:07:51.238Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:07:51.245Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T18:07:51.953Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:08:21.223Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:08:21.237Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T18:08:21.603Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:08:48.011Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:08:51.231Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:08:51.237Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T18:08:51.577Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:09:21.207Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:09:21.238Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T18:09:21.614Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:09:48.012Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:09:51.231Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:09:51.236Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T18:09:51.628Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:10:23.139Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:10:23.170Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-10-29T18:10:23.583Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-10-29T18:10:33.534Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T18:10:33.551Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T18:10:33.568Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T18:10:33.665Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-10-29T18:10:33.719Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-10-29T18:10:33.935Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-10-29T18:10:34.085Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T18:10:37.319Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T18:10:48.056Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:11:48.054Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:12:48.100Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:13:12.666Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T18:13:12.682Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-10-29T18:13:12.711Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-10-29T18:13:12.779Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-10-29T18:13:12.781Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-10-29T18:13:12.916Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T18:13:12.933Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-10-29T18:13:48.078Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:13:55.466Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-10-29T18:14:07.342Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T18:14:07.460Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T18:14:08.143Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-10-29T18:14:48.067Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:15:48.106Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:16:48.125Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:17:48.105Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:18:48.127Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:19:48.127Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:20:48.128Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:21:48.128Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:22:48.328Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:23:48.142Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:24:48.257Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:25:48.201Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T18:26:10.036Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-10-29T18:26:10.121Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-10-29T18:26:10.600Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}

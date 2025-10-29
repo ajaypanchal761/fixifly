@@ -120,6 +120,12 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    background-color: white !important;
+  }
+  
+  /* Ensure white background for mobile viewport */
+  html, body {
+    background-color: white !important;
   }
 }
 

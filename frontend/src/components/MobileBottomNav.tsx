@@ -16,10 +16,12 @@ const MobileBottomNav = () => {
   return (
     <>
       {/* White background to cover the gap below navigation */}
-      <div className="fixed bottom-0 left-0 right-0 h-4 bg-white z-[59] md:hidden"></div>
+      <div className="fixed bottom-0 left-0 right-0 h-6 bg-white z-[59] md:hidden"></div>
       
       {/* Bottom Navigation */}
-      <div className="fixed bottom-2 left-0 right-0 bg-white border-t border-gray-200 z-[60] md:hidden shadow-lg rounded-t-lg mx-2">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[60] md:hidden shadow-lg" style={{ bottom: '20px' }}>
+        {/* White space below navigation */}
+        <div className="absolute top-full left-0 right-0 h-5 bg-white"></div>
       <div className="flex justify-around items-center py-2">
         {navItems.map((item) => {
           const IconComponent = item.icon;
