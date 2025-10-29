@@ -12,19 +12,6 @@ import "./index.css";
 //   offset: 100
 // });
 
-// Register Service Worker for PWA functionality - COMMENTED OUT FOR WEBVIEW TESTING
-// if ('serviceWorker' in navigator) {
-//   window.addEventListener('load', () => {
-//     navigator.serviceWorker.register('/sw.js')
-//       .then((registration) => {
-//         console.log('SW registered: ', registration);
-//       })
-//       .catch((registrationError) => {
-//         console.log('SW registration failed: ', registrationError);
-//       });
-//   });
-// }
-
 // Global error handler to prevent unhandled errors from showing in console
 window.addEventListener('error', (event) => {
   console.log('Global error caught:', event.error);

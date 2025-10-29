@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { requestPermission } from '../../firebase-messaging';
+// Firebase removed - stub function
+const requestPermission = async () => {
+  console.log('⚠️ Firebase removed - notifications disabled');
+  return null;
+};
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';

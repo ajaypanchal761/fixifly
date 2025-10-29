@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { requestPermission, onMessageListener } from '../firebase-messaging';
 import { toast } from 'sonner';
+
+// Firebase removed - stub functions
+const requestPermission = async () => {
+  console.log('⚠️ Firebase removed - notifications disabled');
+  return null;
+};
+const onMessageListener = () => {
+  return Promise.resolve(null);
+};
 
 export const usePushNotifications = () => {
   const [token, setToken] = useState(null);
