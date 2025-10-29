@@ -25,78 +25,88 @@ const VendorFCMTokenGenerator: React.FC<VendorFCMTokenGeneratorProps> = ({
   // Check if notifications are supported
   const isSupported = 'Notification' in window && 'serviceWorker' in navigator;
 
-  // Auto-generate token when component mounts
+  // Auto-generate token when component mounts - DISABLED
   useEffect(() => {
-    if (isSupported && permission === 'default' && !token) {
-      generateFCMToken();
-    }
+    // PUSH NOTIFICATIONS DISABLED
+    // if (isSupported && permission === 'default' && !token) {
+    //   generateFCMToken();
+    // }
   }, [isSupported, permission, token]);
 
   const generateFCMToken = async () => {
-    if (!isSupported) {
-      setError('Push notifications are not supported in this browser');
-      return;
-    }
+    // PUSH NOTIFICATIONS DISABLED
+    console.log('⚠️ Push notifications are disabled');
+    setError('Push notifications are currently disabled');
+    setIsLoading(false);
+    return;
+    
+    // if (!isSupported) {
+    //   setError('Push notifications are not supported in this browser');
+    //   return;
+    // }
 
-    setIsLoading(true);
-    setError(null);
+    // setIsLoading(true);
+    // setError(null);
 
-    try {
-      console.log('🔔 Generating FCM token for vendor:', vendorId);
-      
-      const fcmToken = await requestPermission();
-      
-      if (fcmToken) {
-        setToken(fcmToken);
-        setPermission(Notification.permission);
-        console.log('✅ FCM Token generated:', fcmToken.substring(0, 20) + '...');
-        
-        // Save token to backend
-        await saveTokenToBackend(fcmToken);
-        
-        if (onTokenGenerated) {
-          onTokenGenerated(fcmToken);
-        }
-      } else {
-        setError('Failed to generate FCM token');
-      }
-    } catch (err) {
-      console.error('❌ Error generating FCM token:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
-    }
+    // try {
+    //   console.log('🔔 Generating FCM token for vendor:', vendorId);
+    //   
+    //   const fcmToken = await requestPermission();
+    //   
+    //   if (fcmToken) {
+    //     setToken(fcmToken);
+    //     setPermission(Notification.permission);
+    //     console.log('✅ FCM Token generated:', fcmToken.substring(0, 20) + '...');
+    //     
+    //     // Save token to backend
+    //     await saveTokenToBackend(fcmToken);
+    //     
+    //     if (onTokenGenerated) {
+    //       onTokenGenerated(fcmToken);
+    //     }
+    //   } else {
+    //     setError('Failed to generate FCM token');
+    //   }
+    // } catch (err) {
+    //   console.error('❌ Error generating FCM token:', err);
+    //   setError(err instanceof Error ? err.message : 'Unknown error');
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   const saveTokenToBackend = async (fcmToken: string) => {
-    try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await fetch(`${API_BASE_URL}/vendors/update-fcm-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('vendorToken')}`
-        },
-        body: JSON.stringify({
-          fcmToken,
-          vendorId
-        })
-      });
+    // PUSH NOTIFICATIONS DISABLED
+    console.log('⚠️ Push notifications are disabled - FCM token save disabled');
+    return false;
+    // try {
+    //   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    //   const response = await fetch(`${API_BASE_URL}/vendors/update-fcm-token`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${localStorage.getItem('vendorToken')}`
+    //     },
+    //     body: JSON.stringify({
+    //       fcmToken,
+    //       vendorId
+    //     })
+    //   });
 
-      if (response.ok) {
-        console.log('✅ FCM token saved to backend successfully');
-        return true;
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('❌ Failed to save FCM token to backend:', errorData);
-        setError('Failed to save token to backend');
-        return false;
-      }
-    } catch (error) {
-      console.error('❌ Error saving FCM token to backend:', error);
-      setError('Failed to save token to backend');
-      return false;
-    }
+    //   if (response.ok) {
+    //     console.log('✅ FCM token saved to backend successfully');
+    //     return true;
+    //   } else {
+    //     const errorData = await response.json().catch(() => ({}));
+    //     console.error('❌ Failed to save FCM token to backend:', errorData);
+    //     setError('Failed to save token to backend');
+    //     return false;
+    //   }
+    // } catch (error) {
+    //   console.error('❌ Error saving FCM token to backend:', error);
+    //   setError('Failed to save token to backend');
+    //   return false;
+    // }
   };
 
   const getStatusIcon = () => {

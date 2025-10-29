@@ -22,9 +22,10 @@ export const saveTokenToBackend = async (fcmToken, vendorId) => {
 
 // Save FCM token to backend for users - DISABLED
 export const saveUserTokenToBackend = async (fcmToken) => {
+  // PUSH NOTIFICATIONS COMPLETELY DISABLED - DO NOT CALL API
   console.log('⚠️ Push notifications are disabled - FCM token save disabled');
-  // DO NOT CALL API - RETURN IMMEDIATELY
-  return false;
+  // Return immediately without any API calls or operations
+  return Promise.resolve(false);
   // const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
   // try {
   //   const response = await fetch(`${API_BASE_URL}/user/notifications/fcm-token`, {
@@ -66,8 +67,13 @@ export const setupNotifications = async (vendorId) => {
 export const setupUserNotifications = async () => {
   // PUSH NOTIFICATIONS COMPLETELY DISABLED - NO API CALLS
   console.log('⚠️ Push notifications are disabled - setupUserNotifications');
-  // Return immediately without any operations
-  return Promise.resolve({ success: false, error: 'Push notifications are disabled', fcmToken: null });
+  // Return immediately without any operations - DO NOT CALL saveUserTokenToBackend
+  // This prevents the error "Failed to save FCM token to backend"
+  return Promise.resolve({ 
+    success: false, 
+    error: 'Push notifications are disabled', 
+    fcmToken: null 
+  });
   // try {
   //   console.log('🚀 Setting up user notification system...');
   //   

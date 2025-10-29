@@ -10,7 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useVendor } from '@/contexts/VendorContext';
 import VendorTaskCard from "./VendorTaskCard";
 import VendorNotificationStatus from "./VendorNotificationStatus";
-import VendorFCMTokenGenerator from "./VendorFCMTokenGenerator";
+// Firebase removed - VendorFCMTokenGenerator disabled
+// import VendorFCMTokenGenerator from "./VendorFCMTokenGenerator";
 import VendorNotificationEnable from "./VendorNotificationEnable";
 
 const VendorHero = () => {
@@ -73,49 +74,53 @@ const VendorHero = () => {
 
   // Fetch vendor statistics
   const fetchVendorStats = async () => {
-    try {
-      const token = localStorage.getItem('vendorToken');
-      
-      if (!token) {
-        console.warn('No vendor token found for stats');
-        return;
-      }
+    // VENDOR STATS API DISABLED - Using default stats
+    // This endpoint was causing non-JSON response errors
+    return;
+    
+    // try {
+    //   const token = localStorage.getItem('vendorToken');
+    //   
+    //   if (!token) {
+    //     console.warn('No vendor token found for stats');
+    //     return;
+    //   }
 
-      const response = await fetch('/api/vendor/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+    //   const response = await fetch('/api/vendor/stats', {
+    //     headers: {
+    //       'Authorization': `Bearer ${token}`,
+    //       'Content-Type': 'application/json',
+    //     },
+    //   });
 
-      if (response.ok) {
-        // Check if response is JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          console.warn('Server returned non-JSON response, server might not be running');
-          return;
-        }
+    //   if (response.ok) {
+    //     // Check if response is JSON
+    //     const contentType = response.headers.get('content-type');
+    //     if (!contentType || !contentType.includes('application/json')) {
+    //       console.warn('Server returned non-JSON response, server might not be running');
+    //       return;
+    //     }
 
-        const data = await response.json();
-        if (data.success && data.data) {
-          const stats = data.data;
-          
-          setVendorStats([
-            { icon: Users, value: `${stats.totalCustomers || 0}`, label: "Active Customers", color: "bg-blue-500" },
-            { icon: TrendingUp, value: `₹${(stats.monthlyRevenue || 0).toLocaleString()}`, label: "Monthly Revenue", color: "bg-green-500" },
-            { icon: Star, value: `${(stats.averageRating || 0).toFixed(1)}`, label: "Average Rating", color: "bg-yellow-500" },
-            { icon: Clock, value: "24/7", label: "Support Available", color: "bg-purple-500" }
-          ]);
-        }
-      } else if (response.status === 404) {
-        console.warn('Vendor stats endpoint not found, using default stats');
-      } else {
-        console.warn(`Failed to fetch vendor stats: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Error fetching vendor stats:', error);
-      // Keep default stats on error
-    }
+    //     const data = await response.json();
+    //     if (data.success && data.data) {
+    //       const stats = data.data;
+    //       
+    //       setVendorStats([
+    //         { icon: Users, value: `${stats.totalCustomers || 0}`, label: "Active Customers", color: "bg-blue-500" },
+    //         { icon: TrendingUp, value: `₹${(stats.monthlyRevenue || 0).toLocaleString()}`, label: "Monthly Revenue", color: "bg-green-500" },
+    //         { icon: Star, value: `${(stats.averageRating || 0).toFixed(1)}`, label: "Average Rating", color: "bg-yellow-500" },
+    //         { icon: Clock, value: "24/7", label: "Support Available", color: "bg-purple-500" }
+    //       ]);
+    //     }
+    //   } else if (response.status === 404) {
+    //     console.warn('Vendor stats endpoint not found, using default stats');
+    //   } else {
+    //     console.warn(`Failed to fetch vendor stats: ${response.status}`);
+    //   }
+    // } catch (error) {
+    //   console.error('Error fetching vendor stats:', error);
+    //   // Keep default stats on error
+    // }
   };
 
   // Fetch vendor deposit status
