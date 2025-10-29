@@ -123,7 +123,9 @@ const VendorLogin = () => {
         });
 
         // Redirect to vendor earnings page for mandatory deposit
+        console.log('🚀 VendorLogin: Navigating to /vendor/earnings');
         navigate('/vendor/earnings');
+        console.log('✅ VendorLogin: Navigate called');
       } else {
         setError(response.message || 'Login failed. Please try again.');
       }

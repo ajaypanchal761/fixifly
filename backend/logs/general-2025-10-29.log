@@ -12069,3 +12069,7 @@
 [2025-10-29T12:51:05.115Z] [INFO] Booking 6901f195c1c292bfc04c7934 auto-rejected and set to waiting_for_engineer | {"bookingId":"6901f195c1c292bfc04c7934","vendorId":"440","newStatus":"waiting_for_engineer","penaltyApplied":true}
 [2025-10-29T12:52:04.932Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-10-29T12:53:04.919Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:54:04.927Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:55:04.939Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:56:04.950Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T12:57:04.967Z] [INFO] Found 0 pending assignments to check for auto-rejection

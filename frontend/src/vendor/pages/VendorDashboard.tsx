@@ -9,6 +9,10 @@ const VendorDashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  console.log('🔍 VendorDashboard: Component rendered');
+  console.log('🔍 VendorDashboard: isMobile:', isMobile);
+  console.log('🔍 VendorDashboard: Current path:', window.location.pathname);
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
