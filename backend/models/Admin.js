@@ -201,12 +201,6 @@ const adminSchema = new mongoose.Schema({
     }
   },
   
-  // FCM Token for push notifications
-  fcmToken: {
-    type: String,
-    default: null
-  },
-  
   // Notification Settings
   notificationSettings: {
     pushNotifications: {

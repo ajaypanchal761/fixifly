@@ -6,7 +6,6 @@ const {
   markAsRead,
   markAllAsRead,
   deleteNotification,
-  updateFcmToken,
   getNotificationStats
 } = require('../controllers/userNotificationController');
 const { protect } = require('../middleware/auth');
@@ -43,10 +42,5 @@ router.put('/read-all', markAllAsRead);
 // @desc    Delete notification
 // @access  Private
 router.delete('/:id', deleteNotification);
-
-// @route   PUT /api/user/notifications/fcm-token
-// @desc    Update user FCM token
-// @access  Private
-router.put('/fcm-token', updateFcmToken);
 
 module.exports = router;

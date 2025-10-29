@@ -82,113 +82,25 @@ export const requestNotificationPermission = async (messaging) => {
   // }
 };
 
-// Save FCM token to backend for vendors
+// Save FCM token to backend for vendors - DISABLED
 export const saveTokenToBackend = async (fcmToken, vendorId) => {
-  try {
-    console.log('💾 Saving FCM token to backend...');
-    
-    const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
-    const response = await fetch(`${API_BASE_URL}/vendors/update-fcm-token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('vendorToken')}`
-      },
-      body: JSON.stringify({
-        fcmToken,
-        vendorId
-      })
-    });
-
-    if (response.ok) {
-      console.log('✅ FCM token saved to backend successfully');
-      return true;
-    } else {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('❌ Failed to save FCM token:', errorData);
-      return false;
-    }
-  } catch (error) {
-    console.error('❌ Error saving FCM token:', error);
-    return false;
-  }
+  // PUSH NOTIFICATIONS DISABLED
+  console.log('⚠️ Push notifications are disabled - FCM token save disabled');
+  return false;
 };
 
-// Save FCM token to backend for users
+// Save FCM token to backend for users - DISABLED
 export const saveUserTokenToBackend = async (fcmToken) => {
-  try {
-    console.log('💾 Saving user FCM token to backend...');
-    console.log('FCM Token:', fcmToken.substring(0, 20) + '...');
-    
-    const token = localStorage.getItem('accessToken');
-    console.log('Access token found:', token ? 'Yes' : 'No');
-    console.log('Token length:', token ? token.length : 0);
-    
-    // Normalize API URL to ensure it ends with /api exactly once
-    const rawEnvUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    console.log('🔍 Raw VITE_API_URL:', rawEnvUrl);
-    const API_BASE_URL = normalizeApiUrl(rawEnvUrl);
-    console.log('🔍 Normalized API_BASE_URL:', API_BASE_URL);
-    const fullUrl = `${API_BASE_URL}/user/notifications/fcm-token`;
-    console.log('🔍 Full API URL:', fullUrl);
-    
-    const response = await fetch(`${API_BASE_URL}/user/notifications/fcm-token`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        fcmToken
-      })
-    });
-
-    console.log('Response status:', response.status);
-    
-    if (response.ok) {
-      const result = await response.json();
-      console.log('✅ User FCM token saved to backend successfully:', result);
-      return true;
-    } else {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('❌ Failed to save user FCM token:', errorData);
-      return false;
-    }
-  } catch (error) {
-    console.error('❌ Error saving user FCM token:', error);
-    return false;
-  }
+  // PUSH NOTIFICATIONS DISABLED
+  console.log('⚠️ Push notifications are disabled - FCM token save disabled');
+  return false;
 };
 
-// Save FCM token to backend for admins
+// Save FCM token to backend for admins - DISABLED
 export const saveAdminTokenToBackend = async (fcmToken) => {
-  try {
-    console.log('💾 Saving admin FCM token to backend...');
-    
-    const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
-    const response = await fetch(`${API_BASE_URL}/admin/update-fcm-token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-      },
-      body: JSON.stringify({
-        fcmToken
-      })
-    });
-
-    if (response.ok) {
-      console.log('✅ Admin FCM token saved to backend successfully');
-      return true;
-    } else {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('❌ Failed to save admin FCM token:', errorData);
-      return false;
-    }
-  } catch (error) {
-    console.error('❌ Error saving admin FCM token:', error);
-    return false;
-  }
+  // PUSH NOTIFICATIONS DISABLED
+  console.log('⚠️ Push notifications are disabled - FCM token save disabled');
+  return false;
 };
 
 // Setup complete notification system for vendors

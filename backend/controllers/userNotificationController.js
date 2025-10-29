@@ -234,55 +234,6 @@ const deleteNotification = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update user FCM token
-// @route   PUT /api/user/fcm-token
-// @access  Private (User)
-const updateFcmToken = asyncHandler(async (req, res) => {
-  try {
-    const { fcmToken } = req.body;
-
-    if (!fcmToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'FCM token is required'
-      });
-    }
-
-    const user = await User.findByIdAndUpdate(
-      req.user.userId,
-      { fcmToken },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    logger.info(`User updated FCM token`, {
-      userId: req.user.userId,
-      fcmTokenLength: fcmToken.length
-    });
-
-    res.json({
-      success: true,
-      message: 'FCM token updated successfully',
-      data: {
-        fcmTokenUpdated: true
-      }
-    });
-  } catch (error) {
-    logger.error('Error updating FCM token:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error updating FCM token',
-      error: error.message
-    });
-  }
-});
-
 // @desc    Get notification statistics
 // @route   GET /api/user/notifications/stats
 // @access  Private (User)

@@ -478,13 +478,7 @@ const vendorSchema = new mongoose.Schema({
     }
   },
 
-  // Push Notification Settings
-  fcmToken: {
-    type: String,
-    default: null,
-    trim: true
-  },
-
+  // Notification Settings
   notificationSettings: {
     pushNotifications: {
       type: Boolean,

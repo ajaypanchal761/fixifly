@@ -11780,3 +11780,13 @@
 [2025-10-29T11:26:40.402Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/bookings?page=1&limit=10&sortBy=createdAt&sortOrder=desc"}
 [2025-10-29T11:26:40.874Z] [INFO] Admin retrieved bookings: 10 | {"totalBookings":49,"page":1,"filters":{}}
 [2025-10-29T11:26:48.303Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:27:48.314Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:28:48.372Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-10-29T11:29:18.676Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T11:29:19.181Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T11:29:21.888Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-10-29T11:29:22.384Z] [INFO] SMTP connection verified successfully
+[2025-10-29T11:30:53.276Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T11:30:54.602Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-10-29T11:32:04.209Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-10-29T11:32:04.665Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}

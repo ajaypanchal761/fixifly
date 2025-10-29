@@ -1600,65 +1600,6 @@ const removeServiceLocation = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update FCM token for push notifications
-// @route   POST /api/vendor/update-fcm-token
-// @access  Private (Vendor)
-const updateFCMToken = asyncHandler(async (req, res) => {
-  const { fcmToken } = req.body;
-  const vendorId = req.vendor._id;
-
-  if (!fcmToken) {
-    return res.status(400).json({
-      success: false,
-      message: 'FCM token is required'
-    });
-  }
-
-  try {
-    const vendor = await Vendor.findByIdAndUpdate(
-      vendorId,
-      { 
-        fcmToken,
-        'notificationSettings.pushNotifications': true
-      },
-      { new: true }
-    ).select('fcmToken notificationSettings');
-
-    if (!vendor) {
-      return res.status(404).json({
-        success: false,
-        message: 'Vendor not found'
-      });
-    }
-
-    logger.info('FCM token updated for vendor', {
-      vendorId: vendorId.toString(),
-      vendorEmail: req.vendor.email,
-      hasToken: !!vendor.fcmToken
-    });
-
-    res.json({
-      success: true,
-      message: 'FCM token updated successfully',
-      data: {
-        fcmToken: vendor.fcmToken,
-        pushNotificationsEnabled: vendor.notificationSettings.pushNotifications
-      }
-    });
-  } catch (error) {
-    logger.error('Error updating FCM token:', {
-      error: error.message,
-      vendorId: vendorId.toString()
-    });
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update FCM token',
-      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
-    });
-  }
-});
-
 module.exports = {
   registerVendor,
   loginVendor,
@@ -1676,7 +1617,6 @@ module.exports = {
   updateServiceLocation,
   removeServiceLocation,
   generateOneSignalIdentityToken,
-  updateFCMToken,
   createVerificationPayment,
   verifyVerificationPayment
 };

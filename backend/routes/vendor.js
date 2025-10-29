@@ -16,7 +16,6 @@ const {
   updateServiceLocation,
   removeServiceLocation,
   generateOneSignalIdentityToken,
-  updateFCMToken,
   createVerificationPayment,
   verifyVerificationPayment
 } = require('../controllers/vendorController');
@@ -200,12 +199,6 @@ router.put('/support-tickets/:id/complete', protectVendor, async (req, res) => {
 // @desc    Get vendor dashboard with new tasks
 // @access  Private
 router.get('/dashboard', protectVendor, getVendorDashboard);
-
-// FCM Token route
-// @route   POST /api/vendors/update-fcm-token
-// @desc    Update FCM token for push notifications
-// @access  Private
-router.post('/update-fcm-token', protectVendor, updateFCMToken);
 
 // Verification Payment routes
 // @route   POST /api/vendors/verification-payment

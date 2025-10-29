@@ -1016,65 +1016,6 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update FCM token for push notifications
-// @route   POST /api/admin/update-fcm-token
-// @access  Private (Admin)
-const updateFCMToken = asyncHandler(async (req, res) => {
-  const { fcmToken } = req.body;
-  const adminId = req.admin._id;
-
-  if (!fcmToken) {
-    return res.status(400).json({
-      success: false,
-      message: 'FCM token is required'
-    });
-  }
-
-  try {
-    const admin = await Admin.findByIdAndUpdate(
-      adminId,
-      { 
-        fcmToken,
-        'notificationSettings.pushNotifications': true
-      },
-      { new: true }
-    ).select('fcmToken notificationSettings');
-
-    if (!admin) {
-      return res.status(404).json({
-        success: false,
-        message: 'Admin not found'
-      });
-    }
-
-    logger.info('FCM token updated for admin', {
-      adminId: adminId.toString(),
-      adminEmail: req.admin.email,
-      hasToken: !!admin.fcmToken
-    });
-
-    res.json({
-      success: true,
-      message: 'FCM token updated successfully',
-      data: {
-        fcmToken: admin.fcmToken,
-        pushNotificationsEnabled: admin.notificationSettings.pushNotifications
-      }
-    });
-  } catch (error) {
-    logger.error('Error updating FCM token:', {
-      error: error.message,
-      adminId: adminId.toString()
-    });
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update FCM token',
-      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
-    });
-  }
-});
-
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -1085,6 +1026,5 @@ module.exports = {
   changePassword,
   getActivityLog,
   getAdminStats,
-  getDashboardStats,
-  updateFCMToken
+  getDashboardStats
 };
