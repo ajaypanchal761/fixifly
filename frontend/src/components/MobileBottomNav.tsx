@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Calendar, Wrench, Phone, ShoppingCart } from 'lucide-react';
+import { Home, Calendar, Wrench, Phone } from 'lucide-react';
 
 const MobileBottomNav = () => {
   const location = useLocation();
@@ -10,7 +10,6 @@ const MobileBottomNav = () => {
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
-    { name: "Buy", href: "https://fixfly.in/buy-laptop/", icon: ShoppingCart, isExternal: true },
   ];
 
   return (

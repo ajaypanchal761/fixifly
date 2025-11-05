@@ -47,10 +47,15 @@ const VendorHero = () => {
   
   // Check if running in APK/webview
   useEffect(() => {
-    const isAPKDetected = /wv|WebView/.test(navigator.userAgent) || 
-                  window.matchMedia('(display-mode: standalone)').matches ||
-                  window.navigator.standalone === true;
-    setIsAPK(isAPKDetected);
+    try {
+      const isAPKDetected = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) || 
+                    (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+                    (typeof window !== 'undefined' && window.navigator && window.navigator.standalone === true);
+      setIsAPK(isAPKDetected);
+    } catch (error) {
+      console.error('Error detecting APK mode:', error);
+      setIsAPK(false);
+    }
   }, []);
   
   // Force mobile mode in APK, otherwise use Material-UI detection
@@ -140,7 +145,13 @@ const VendorHero = () => {
   // Fetch vendor deposit status
   const fetchVendorDepositStatus = useCallback(async () => {
     try {
-      const token = localStorage.getItem('vendorToken');
+      let token: string | null = null;
+      try {
+        token = localStorage.getItem('vendorToken');
+      } catch (error) {
+        console.error('Error accessing localStorage for deposit status:', error);
+        return;
+      }
       
       if (!token) {
         console.warn('No vendor token found for deposit status');
@@ -240,14 +251,44 @@ const VendorHero = () => {
       console.log('Fetching vendor tasks...');
       
       // Check if vendor is logged in
-      const vendorToken = localStorage.getItem('vendorToken');
-      const vendorData = localStorage.getItem('vendorData');
+      let vendorToken: string | null = null;
+      let vendorData: string | null = null;
+      
+      try {
+        vendorToken = localStorage.getItem('vendorToken');
+        vendorData = localStorage.getItem('vendorData');
+      } catch (error) {
+        console.error('Error accessing localStorage:', error);
+        setError('Storage access error. Please try again.');
+        setLoading(false);
+        return;
+      }
+      
+      // Safely parse vendor data
+      let parsedVendorData = null;
+      if (vendorData) {
+        try {
+          parsedVendorData = JSON.parse(vendorData);
+        } catch (error) {
+          console.error('Error parsing vendor data:', error);
+          // Clear corrupted data
+          try {
+            localStorage.removeItem('vendorData');
+            localStorage.removeItem('vendorToken');
+          } catch (e) {
+            console.error('Error clearing corrupted data:', e);
+          }
+          setError('Session data corrupted. Please log in again.');
+          setLoading(false);
+          return;
+        }
+      }
       
       console.log('Vendor authentication check:', {
         hasToken: !!vendorToken,
         hasVendorData: !!vendorData,
         tokenPreview: vendorToken ? `${vendorToken.substring(0, 20)}...` : 'none',
-        vendorData: vendorData ? JSON.parse(vendorData) : null
+        vendorData: parsedVendorData
       });
       
       if (!vendorToken) {

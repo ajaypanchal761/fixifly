@@ -163,7 +163,6 @@ const Header = () => {
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
-    { name: "Shop", href: "https://fixfly.in/buy-laptop/", icon: Store, external: true },
   ];
 
   return (

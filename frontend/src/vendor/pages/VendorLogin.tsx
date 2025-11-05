@@ -131,8 +131,14 @@ const VendorLogin = () => {
         console.log('🚀 VendorLogin: Navigating to /vendor/earnings');
         
         // APK-safe navigation - use setTimeout to ensure state is updated
-        const isAPK = /wv|WebView/.test(navigator.userAgent) || 
-                      window.matchMedia('(display-mode: standalone)').matches;
+        let isAPK = false;
+        try {
+          isAPK = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) || 
+                  (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+        } catch (error) {
+          console.error('Error detecting APK mode:', error);
+          isAPK = false;
+        }
         
         if (isAPK) {
           // In APK, wait a bit longer for context to sync

@@ -80,6 +80,7 @@ import VendorDepositPenalty from "./vendor/pages/VendorDepositPenalty";
 import VendorAbout from "./vendor/pages/VendorAbout";
 import VendorPenaltyCharges from "./vendor/pages/VendorPenaltyCharges";
 import VendorProtectedRoute from "./vendor/components/VendorProtectedRoute";
+import ErrorBoundary from "./vendor/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -185,27 +186,27 @@ const AppContent = () => {
         <Route path="/admin/notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
 
         {/* ================== VENDOR PROTECTED ROUTES ================== */}
-        <Route path="/vendor" element={<VendorProtectedRoute><VendorDashboard /></VendorProtectedRoute>} />
-        <Route path="/vendor/dashboard" element={<VendorProtectedRoute><VendorDashboard /></VendorProtectedRoute>} />
-        <Route path="/vendor/profile" element={<VendorProtectedRoute><VendorProfile /></VendorProtectedRoute>} />
-        <Route path="/vendor/earnings" element={<VendorProtectedRoute><VendorEarnings /></VendorProtectedRoute>} />
-        <Route path="/vendor/notifications" element={<VendorProtectedRoute><VendorNotifications /></VendorProtectedRoute>} />
-        <Route path="/vendor/support" element={<VendorProtectedRoute><VendorSupport /></VendorProtectedRoute>} />
-        <Route path="/vendor/shop" element={<VendorProtectedRoute><VendorShop /></VendorProtectedRoute>} />
-        <Route path="/vendor/privacy" element={<VendorProtectedRoute><VendorPrivacy /></VendorProtectedRoute>} />
-        <Route path="/vendor/terms" element={<VendorProtectedRoute><VendorTermsConditions /></VendorProtectedRoute>} />
-        <Route path="/vendor/deposit-penalty" element={<VendorProtectedRoute><VendorDepositPenalty /></VendorProtectedRoute>} />
-        <Route path="/vendor/about" element={<VendorProtectedRoute><VendorAbout /></VendorProtectedRoute>} />
-        <Route path="/vendor/penalty" element={<VendorProtectedRoute><VendorPenaltyCharges /></VendorProtectedRoute>} />
+        <Route path="/vendor" element={<ErrorBoundary><VendorProtectedRoute><VendorDashboard /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/dashboard" element={<ErrorBoundary><VendorProtectedRoute><VendorDashboard /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/profile" element={<ErrorBoundary><VendorProtectedRoute><VendorProfile /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/earnings" element={<ErrorBoundary><VendorProtectedRoute><VendorEarnings /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/notifications" element={<ErrorBoundary><VendorProtectedRoute><VendorNotifications /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/support" element={<ErrorBoundary><VendorProtectedRoute><VendorSupport /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/shop" element={<ErrorBoundary><VendorProtectedRoute><VendorShop /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/privacy" element={<ErrorBoundary><VendorProtectedRoute><VendorPrivacy /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/terms" element={<ErrorBoundary><VendorProtectedRoute><VendorTermsConditions /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/deposit-penalty" element={<ErrorBoundary><VendorProtectedRoute><VendorDepositPenalty /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/about" element={<ErrorBoundary><VendorProtectedRoute><VendorAbout /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/penalty" element={<ErrorBoundary><VendorProtectedRoute><VendorPenaltyCharges /></VendorProtectedRoute></ErrorBoundary>} />
         
         {/* Vendor Task Routes */}
-        <Route path="/vendor/task/:taskId" element={<VendorProtectedRoute><VendorTaskDetail /></VendorProtectedRoute>} />
-        <Route path="/vendor/task/:taskId/preview" element={<VendorProtectedRoute><VendorTaskPreview /></VendorProtectedRoute>} />
-        <Route path="/vendor/task/:taskId/reschedule" element={<VendorProtectedRoute><VendorRescheduleTask /></VendorProtectedRoute>} />
-        <Route path="/vendor/task/:taskId/cancel" element={<VendorProtectedRoute><VendorCancelTaskDetail /></VendorProtectedRoute>} />
-        <Route path="/vendor/task/:taskId/cancelled" element={<VendorProtectedRoute><VendorCancelledTaskDetail /></VendorProtectedRoute>} />
-        <Route path="/vendor/task/:taskId/close" element={<VendorProtectedRoute><VendorClosedTask /></VendorProtectedRoute>} />
-        <Route path="/vendor/task/:taskId/closed" element={<VendorProtectedRoute><VendorClosedTaskDetail /></VendorProtectedRoute>} />
+        <Route path="/vendor/task/:taskId" element={<ErrorBoundary><VendorProtectedRoute><VendorTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/task/:taskId/preview" element={<ErrorBoundary><VendorProtectedRoute><VendorTaskPreview /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/task/:taskId/reschedule" element={<ErrorBoundary><VendorProtectedRoute><VendorRescheduleTask /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/task/:taskId/cancel" element={<ErrorBoundary><VendorProtectedRoute><VendorCancelTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/task/:taskId/cancelled" element={<ErrorBoundary><VendorProtectedRoute><VendorCancelledTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/task/:taskId/close" element={<ErrorBoundary><VendorProtectedRoute><VendorClosedTask /></VendorProtectedRoute></ErrorBoundary>} />
+        <Route path="/vendor/task/:taskId/closed" element={<ErrorBoundary><VendorProtectedRoute><VendorClosedTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
         
         {/* ================== 404 ROUTE ================== */}
         <Route path="*" element={<NotFound />} />

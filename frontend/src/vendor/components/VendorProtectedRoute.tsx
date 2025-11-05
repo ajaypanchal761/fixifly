@@ -29,21 +29,35 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
   
   const hasTokenInStorage = !!tokenInStorage && !!vendorDataInStorage;
 
+  let currentPath = 'unknown';
+  try {
+    currentPath = typeof window !== 'undefined' && window.location ? window.location.pathname : 'unknown';
+  } catch (error) {
+    console.error('Error accessing window.location:', error);
+  }
+  
   console.log('🔒 VendorProtectedRoute: Checking authentication...', {
     isLoading,
     isAuthenticated,
     hasVendor: !!vendor,
     vendorId: vendor?.vendorId,
     hasTokenInStorage,
-    path: window.location?.pathname || 'unknown'
+    path: currentPath
   });
 
   useEffect(() => {
+    let currentPath = 'unknown';
+    try {
+      currentPath = typeof window !== 'undefined' && window.location ? window.location.pathname : 'unknown';
+    } catch (error) {
+      console.error('Error accessing window.location in useEffect:', error);
+    }
+    
     console.log('🔒 VendorProtectedRoute useEffect:', {
       isLoading,
       isAuthenticated,
       hasTokenInStorage,
-      path: window.location?.pathname || 'unknown'
+      path: currentPath
     });
     
     // Wait for context to load if we have token
@@ -55,7 +69,6 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
     // Only redirect if truly not authenticated (no token in storage and context says not authenticated)
     if (!isLoading && !isAuthenticated && !hasTokenInStorage) {
       console.log('⚠️ VendorProtectedRoute: No token found, redirecting to login');
-      const currentPath = window.location?.pathname || '';
       if (currentPath !== '/vendor/login' && !currentPath.includes('/vendor/signup')) {
         navigate('/vendor/login', { replace: true });
       }
@@ -84,8 +97,14 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
     console.log('⏳ VendorProtectedRoute: Token found but vendor not loaded yet, waiting...');
     
     // In APK, give more time for vendor context to load
-    const isAPK = /wv|WebView/.test(navigator.userAgent) || 
-                  window.matchMedia('(display-mode: standalone)').matches;
+    let isAPK = false;
+    try {
+      isAPK = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) || 
+              (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    } catch (error) {
+      console.error('Error detecting APK mode:', error);
+      isAPK = false;
+    }
     
     if (isAPK) {
       // In APK, allow rendering with token if vendor context is still loading
