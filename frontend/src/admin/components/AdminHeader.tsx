@@ -36,8 +36,6 @@ import {
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment, Select, MenuItem, Menu, ListItemIcon, ListItemText } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import adminApiService from '@/services/adminApi';
-// Push notifications disabled
-// import { setupAdminNotifications, testNotification } from '../../utils/notificationSetup';
 
 const drawerWidth = 280;
 

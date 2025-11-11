@@ -9,10 +9,6 @@ import { vendorDepositService } from '@/services/vendorDepositService';
 import { useToast } from '@/hooks/use-toast';
 import { useVendor } from '@/contexts/VendorContext';
 import VendorTaskCard from "./VendorTaskCard";
-// Firebase removed - All notification components disabled
-// import VendorNotificationStatus from "./VendorNotificationStatus";
-// import VendorFCMTokenGenerator from "./VendorFCMTokenGenerator";
-// import VendorNotificationEnable from "./VendorNotificationEnable";
 
 const VendorHero = () => {
   const theme = useTheme();
@@ -33,7 +29,6 @@ const VendorHero = () => {
   const [error, setError] = useState(null);
   const [banners, setBanners] = useState<string[]>(['/banner1.png', '/banner2.png', '/banner3.png']); // Fallback banners
   const [bannersLoading, setBannersLoading] = useState(true);
-  const [vendorId, setVendorId] = useState<string>('');
   const [vendorDepositStatus, setVendorDepositStatus] = useState<{
     hasFirstTaskAssigned: boolean;
     hasMandatoryDeposit: boolean;
@@ -482,19 +477,6 @@ const VendorHero = () => {
     fetchVendorStats();
     fetchVendorDepositStatus();
     
-    // Get vendor ID for notifications
-    const getVendorId = async () => {
-      try {
-        const response = await vendorApi.getVendorProfile();
-        if (response.success && (response.data as any)._id) {
-          setVendorId((response.data as any)._id);
-        }
-      } catch (error) {
-        console.error('Error getting vendor ID:', error);
-      }
-    };
-    getVendorId();
-    
     const interval = setInterval(() => {
       setCurrentStat((prev) => (prev + 1) % vendorStats.length);
     }, 3000);
@@ -871,24 +853,6 @@ const VendorHero = () => {
               </div>
             </div>
 
-            {/* Notification Status - COMPLETELY REMOVED (FCM/Firebase Removed) */}
-            {/* {vendorId && (
-              <div className="mt-4">
-                <VendorNotificationStatus vendorId={vendorId} />
-              </div>
-            )} */}
-
-            {/* Notification Enable Button - DISABLED (FCM Removed) */}
-            {/* {vendorId && (
-              <div className="mt-4">
-                <VendorNotificationEnable 
-                  vendorId={vendorId} 
-                  onTokenGenerated={(token) => {
-                    console.log('✅ FCM Token generated for vendor:', vendorId);
-                  }}
-                />
-              </div>
-            )} */}
           </div>
         </div>
       </div>

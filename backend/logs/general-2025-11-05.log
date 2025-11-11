@@ -111,3 +111,48 @@
 [2025-11-05T05:28:02.199Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
 [2025-11-05T05:28:02.253Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
 [2025-11-05T05:28:02.259Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-05T05:28:31.052Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:29:31.066Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:30:31.084Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:31:31.094Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:32:03.449Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-05T05:32:03.606Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-05T05:32:04.697Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-05T05:32:05.336Z] [INFO] SMTP connection verified successfully
+[2025-11-05T05:33:04.773Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:34:04.746Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:35:04.760Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:36:04.767Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:37:04.792Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:38:04.782Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:39:04.793Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:40:04.796Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:41:04.796Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:42:04.797Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:43:04.808Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:44:04.816Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:45:04.819Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:46:04.822Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:47:04.826Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:48:04.834Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:50:32.150Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:50:38.465Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-05T05:50:38.510Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-05T05:50:38.535Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-05T05:50:38.635Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-05T05:50:38.648Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-05T05:50:38.730Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-05T05:50:38.785Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-05T05:50:41.877Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-05T05:50:41.930Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-05T05:50:42.606Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-05T05:51:35.185Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:52:32.159Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:53:32.178Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:54:32.183Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:55:32.199Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:56:32.210Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:57:32.217Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:58:32.234Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T05:59:32.519Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-05T06:00:32.338Z] [INFO] Found 0 pending assignments to check for auto-rejection

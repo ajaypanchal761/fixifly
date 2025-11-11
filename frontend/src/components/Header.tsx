@@ -7,7 +7,7 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Calendar, Wrench, Phone, Bell, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Menu, X, Home, Calendar, Wrench, Phone, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield, ShieldCheck, RefreshCw } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -124,10 +124,6 @@ const Header = () => {
     if (!showMobileSearch && searchQuery.trim().length >= 2) {
       setShowSuggestions(true);
     }
-  };
-
-  const handleNotificationClick = () => {
-    navigate("/notifications");
   };
 
   // Close mobile search when clicking outside or pressing escape
@@ -299,21 +295,6 @@ const Header = () => {
                   isVisible={showSuggestions}
                 />
               </Box>
-              
-              {/* Notification Bell Icon */}
-              <IconButton
-                color="inherit"
-                aria-label="notifications"
-                onClick={handleNotificationClick}
-                sx={{
-                  color: 'black',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                  },
-                }}
-              >
-                <Bell size={24} />
-              </IconButton>
             </Box>
           )}
 
@@ -333,20 +314,6 @@ const Header = () => {
                 }}
               >
                 <Search size={24} />
-              </IconButton> 
-              {/* Mobile Notification Bell Icon */}
-              <IconButton
-                color="inherit"
-                aria-label="notifications"
-                onClick={handleNotificationClick}
-                sx={{
-                  color: 'black',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                  },
-                }}
-              >
-                <Bell size={24} />
               </IconButton>
             </Box>
           )}

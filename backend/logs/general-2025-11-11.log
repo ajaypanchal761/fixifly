@@ -1,0 +1,213 @@
+[2025-11-11T06:47:44.219Z] [INFO] Cleaned 8 old log files
+[2025-11-11T06:47:44.672Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T06:47:44.858Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T06:47:45.827Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T06:47:46.934Z] [INFO] SMTP connection verified successfully
+[2025-11-11T06:48:05.166Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T06:48:05.170Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T06:48:05.372Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T06:48:16.907Z] [WARN] Failed admin login attempt | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-11-11T06:48:21.571Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-11-11T06:48:21.650Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-11-11T06:48:21.852Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":0,"totalRevenue":6185.5,"monthlyBookingRevenue":0,"totalBookingRevenue":4485.5,"monthlySupportTicketRevenue":0,"totalSupportTicketRevenue":1700,"pendingBookings":0,"activeAMCSubscriptions":6,"totalAMCAmount":2938.2000000000003,"month":11,"year":2025,"startDate":"2025-10-31T18:30:00.000Z","endDate":"2025-11-30T18:29:59.000Z"}
+[2025-11-11T06:48:21.895Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":11,"year":2025}
+[2025-11-11T06:48:27.179Z] [INFO] Vendor login attempt | {"email":"panchalajay717@gmail.com","hasPassword":true,"hasDeviceToken":false}
+[2025-11-11T06:48:27.218Z] [INFO] Vendor found for login | {"email":"panchalajay717@gmail.com","isActive":true,"isApproved":false,"isBlocked":false}
+[2025-11-11T06:48:27.603Z] [INFO] Password validation result | {"email":"panchalajay717@gmail.com","isPasswordValid":true}
+[2025-11-11T06:48:27.680Z] [INFO] Vendor logged in successfully | {"vendorId":"69024d18ee4a935e635b5b5b","email":"panchalajay717@gmail.com"}
+[2025-11-11T06:48:27.757Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:48:27.763Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T06:48:27.768Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T06:48:27.805Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T06:48:27.814Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T06:48:27.853Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:48:27.866Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:48:27.882Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:48:27.887Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T06:48:28.061Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:48:45.887Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T06:48:47.704Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T06:48:47.721Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T06:48:47.812Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T06:48:59.176Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:48:59.186Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T06:48:59.194Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T06:48:59.226Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T06:48:59.228Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T06:48:59.265Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:48:59.292Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T06:49:05.193Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:05.247Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T06:49:05.265Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T06:49:05.300Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T06:49:05.309Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T06:49:05.368Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:05.392Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T06:49:07.011Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:09.149Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:09.182Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T06:49:09.191Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T06:49:09.220Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T06:49:09.222Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T06:49:09.277Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:09.297Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T06:49:11.830Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:11.850Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T06:49:11.860Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T06:49:11.901Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T06:49:11.908Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T06:49:11.950Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:11.966Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T06:49:13.597Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:49:13.629Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:49:13.801Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:49:14.858Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:16.357Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:16.381Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T06:49:16.391Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T06:49:16.416Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T06:49:16.417Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T06:49:16.461Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:49:16.479Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T06:49:45.877Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T06:50:15.186Z] [INFO] Vendor login attempt | {"email":"panchalajay717@gmail.com","hasPassword":true,"hasDeviceToken":false}
+[2025-11-11T06:50:15.214Z] [INFO] Vendor found for login | {"email":"panchalajay717@gmail.com","isActive":true,"isApproved":false,"isBlocked":false}
+[2025-11-11T06:50:15.501Z] [INFO] Password validation result | {"email":"panchalajay717@gmail.com","isPasswordValid":true}
+[2025-11-11T06:50:15.564Z] [INFO] Vendor logged in successfully | {"vendorId":"69024d18ee4a935e635b5b5b","email":"panchalajay717@gmail.com"}
+[2025-11-11T06:50:15.717Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:50:15.735Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T06:50:15.742Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T06:50:15.784Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:50:15.810Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T06:50:15.818Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T06:50:15.836Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:50:15.875Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T06:50:15.880Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T06:50:15.969Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:50:45.844Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:50:45.868Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:50:45.887Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T06:50:46.077Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:51:16.219Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:51:16.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:51:16.354Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:51:45.894Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T06:51:46.222Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:51:46.227Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:51:46.359Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:52:16.221Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:52:16.227Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:52:16.359Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:52:45.903Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T06:52:46.237Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:52:46.246Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:52:46.372Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:53:16.232Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:53:16.247Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:53:16.369Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:53:45.917Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T06:54:39.220Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:54:39.225Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:54:39.370Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:54:45.918Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T06:55:39.230Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:55:39.271Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T06:55:39.380Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T06:55:45.947Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:33:09.595Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T08:33:09.848Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T08:33:11.726Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T08:33:12.255Z] [INFO] SMTP connection verified successfully
+[2025-11-11T08:33:34.612Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T08:33:34.637Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T08:33:35.015Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T08:34:04.606Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T08:34:04.612Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T08:34:04.700Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T08:34:11.858Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:35:11.829Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:36:11.879Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:36:20.515Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T08:36:20.613Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T08:36:20.821Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T08:37:12.460Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:38:11.905Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:39:13.414Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:40:11.892Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:41:11.855Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:42:11.865Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:43:11.887Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:44:11.921Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:45:11.897Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:46:11.922Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:47:11.949Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:48:11.920Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:49:11.932Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:50:11.927Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:51:11.923Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:52:11.935Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:53:12.583Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T08:54:12.113Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:09:45.285Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:10:42.981Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:11:40.735Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:12:40.725Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:13:40.726Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:14:40.734Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:15:40.746Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:16:40.751Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:17:40.764Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:17:56.612Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T09:17:56.906Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T09:17:57.974Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T09:17:59.055Z] [INFO] SMTP connection verified successfully
+[2025-11-11T09:18:13.037Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T09:18:13.280Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T09:18:13.534Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T09:18:34.950Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T09:18:34.987Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T09:18:35.019Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T09:18:35.043Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T09:18:35.045Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T09:18:35.113Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T09:18:45.139Z] [INFO] Vendor login attempt | {"email":"panchalajay717@gmail.com","hasPassword":true,"hasDeviceToken":false}
+[2025-11-11T09:18:45.170Z] [INFO] Vendor found for login | {"email":"panchalajay717@gmail.com","isActive":true,"isApproved":false,"isBlocked":false}
+[2025-11-11T09:18:45.695Z] [INFO] Password validation result | {"email":"panchalajay717@gmail.com","isPasswordValid":true}
+[2025-11-11T09:18:45.780Z] [INFO] Vendor logged in successfully | {"vendorId":"69024d18ee4a935e635b5b5b","email":"panchalajay717@gmail.com"}
+[2025-11-11T09:18:45.980Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T09:18:46.077Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T09:18:46.100Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T09:18:46.157Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T09:18:46.161Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T09:18:46.183Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T09:18:46.196Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T09:18:46.267Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T09:18:46.379Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T09:18:47.976Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T09:18:47.998Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T09:18:48.010Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T09:18:48.045Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T09:18:48.046Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T09:18:48.120Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T09:18:49.175Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T09:18:49.233Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T09:18:49.398Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T09:18:51.383Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T09:18:53.266Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T09:18:53.310Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-11T09:18:53.517Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-11T09:18:53.745Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T09:18:53.792Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T09:18:53.813Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T09:18:53.828Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T09:18:53.831Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T09:18:53.895Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T09:18:56.272Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/notifications?page=1&limit=50"}
+[2025-11-11T09:18:57.990Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T09:18:57.998Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T09:18:58.011Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T09:18:58.029Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T09:18:58.031Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T09:18:58.050Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:18:58.085Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T09:19:58.053Z] [INFO] Found 0 pending assignments to check for auto-rejection

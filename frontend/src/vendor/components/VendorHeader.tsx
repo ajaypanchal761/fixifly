@@ -7,16 +7,12 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Users, ShoppingBag, LogOut, User, FileText, Star, Info, Search, Lock, Award, Download, Bell, Store, CheckCircle, DollarSign } from 'lucide-react';
-import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment, Badge } from '@mui/material';
+import { Menu, X, Home, Users, ShoppingBag, LogOut, User, FileText, Star, Info, Search, Lock, Award, Download, Store, CheckCircle, DollarSign } from 'lucide-react';
+import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, Badge } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useVendor } from '@/contexts/VendorContext';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-// Firebase/FCM removed - all notification components disabled
-// import VendorNotificationStatus from './VendorNotificationStatus';
-// import VendorNotificationEnable from './VendorNotificationEnable';
-// import VendorNotificationEnableCompact from './VendorNotificationEnableCompact';
 
 const drawerWidth = 240;
 
@@ -81,8 +77,6 @@ const VendorHeader = () => {
   }, [vendor]);
   const [open, setOpen] = React.useState(false);
   const [isCertificateOpen, setIsCertificateOpen] = useState(false);
-  const [vendorId, setVendorId] = useState<string>('');
-  const [unreadCount, setUnreadCount] = useState(0);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Check if vendor has made the initial deposit - once deposit is made, always show Yes
@@ -92,72 +86,8 @@ const VendorHeader = () => {
 
       // Get vendor ID for notifications - Push notifications disabled
   React.useEffect(() => {
-    if (vendor && vendor.vendorId) {
-      setVendorId(vendor.vendorId);
+    if (vendor?.vendorId) {
       console.log('🔔 Vendor ID set:', vendor.vendorId);
-      
-      // Set unread notifications count - in real implementation, fetch from API
-      setUnreadCount(0); // No unread notifications initially
-      
-      // Auto-enable notifications in background - DISABLED
-      // const autoEnableNotifications = async () => {
-      //   try {
-      //     // Check if notifications are supported
-      //     if ('Notification' in window && 'serviceWorker' in navigator) {
-      //       const permission = Notification.permission;
-      //       
-      //       if (permission === 'default') {
-      //         console.log('🔔 Auto-requesting notification permission for vendor:', vendor.vendorId);
-      //         const result = await Notification.requestPermission();
-      //         
-      //         if (result === 'granted') {
-      //           console.log('✅ Notification permission granted automatically');
-      //           
-      //           // Import and setup notifications
-      //           try {
-      //             const { setupNotifications } = await import('../../utils/notificationSetup');
-      //             const notificationResult = await setupNotifications(vendor.vendorId);
-      //             
-      //             if (notificationResult.success) {
-      //               console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
-      //             } else {
-      //               console.log('⚠️ Background notification setup failed:', notificationResult.error);
-      //             }
-      //           } catch (error) {
-      //             console.log('⚠️ Error importing or calling setupNotifications:', error);
-      //           }
-      //         } else {
-      //           console.log('❌ Notification permission denied automatically');
-      //         }
-      //       } else if (permission === 'granted') {
-      //         console.log('✅ Notifications already enabled for vendor:', vendor.vendorId);
-      //         
-      //         // Still setup the notification system to ensure FCM token is generated
-      //         try {
-      //           const { setupNotifications } = await import('../../utils/notificationSetup');
-      //           const notificationResult = await setupNotifications(vendor.vendorId);
-      //           
-      //           if (notificationResult.success) {
-      //             console.log('✅ Background notification setup successful for vendor:', vendor.vendorId);
-      //           } else {
-      //             console.log('⚠️ Background notification setup failed:', notificationResult.error);
-      //           }
-      //         } catch (error) {
-      //           console.log('⚠️ Error setting up background notifications:', error);
-      //         }
-      //       } else {
-      //         console.log('❌ Notifications blocked for vendor:', vendor.vendorId);
-      //       }
-      //     } else {
-      //       console.log('❌ Push notifications not supported in this browser');
-      //     }
-      //   } catch (error) {
-      //     console.error('❌ Error in auto-enable notifications:', error);
-      //   }
-      // };
-      // 
-      // // Run auto-enable after a short delay to ensure page is loaded
-      // setTimeout(autoEnableNotifications, 1000);
     }
   }, [vendor]);
 
@@ -295,48 +225,9 @@ const VendorHeader = () => {
              />
            </Box>
           
-          {/* Right side - Notifications - Hide when sidebar is open */}
+          {/* Right side reserved space - currently no actions */}
           {!open && (
-            <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 1 }}>
-              {/* Hidden notification components - COMPLETELY REMOVED (FCM/Firebase Removed) */}
-              {/* {vendorId && (
-                <div style={{ display: 'none' }}>
-                  <VendorNotificationStatus vendorId={vendorId} compact={true} />
-                  <VendorNotificationEnableCompact 
-                    vendorId={vendorId || 'unknown'} 
-                    onTokenGenerated={(token) => {
-                      console.log('✅ FCM Token generated for vendor:', vendorId);
-                    }}
-                  />
-                </div>
-              )} */}
-              
-              {/* Notification Bell Icon */}
-              <IconButton
-                color="inherit"
-                aria-label="notifications"
-                onClick={() => navigate("/vendor/notifications")}
-                sx={{ 
-                  color: 'black',
-                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
-                }}
-              >
-                <Badge 
-                  badgeContent={unreadCount} 
-                  color="error"
-                  sx={{
-                    '& .MuiBadge-badge': {
-                      fontSize: '0.75rem',
-                      minWidth: '18px',
-                      height: '18px',
-                      borderRadius: '9px',
-                    }
-                  }}
-                >
-                  <Bell size={24} />
-                </Badge>
-              </IconButton>
-            </Box>
+            <Box sx={{ position: 'absolute', right: 16 }} />
           )}
         </Toolbar>
       </AppBar>
