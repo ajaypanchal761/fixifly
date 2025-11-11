@@ -339,3 +339,49 @@
 [2025-11-11T10:37:07.163Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-11T10:38:07.168Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-11T10:39:07.155Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:40:07.157Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:41:08.362Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:42:07.199Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T13:01:54.048Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T13:01:54.249Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T13:01:55.240Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T13:01:56.761Z] [INFO] SMTP connection verified successfully
+[2025-11-11T13:02:55.351Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T13:03:55.326Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T13:04:55.304Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T13:05:55.314Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T13:07:05.894Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T13:07:09.654Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T13:07:18.702Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T13:07:18.921Z] [INFO] SMTP connection verified successfully
+[2025-11-11T13:08:05.564Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T13:08:06.185Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T13:08:07.813Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T13:08:09.835Z] [INFO] SMTP connection verified successfully
+[2025-11-11T13:08:54.219Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T13:08:54.238Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T13:08:55.326Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T13:09:07.801Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T13:09:34.012Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-11T13:09:34.139Z] [INFO] Existing user found | {"userId":"6901e4b4c025afdd528a9452","phone":"7610416911"}
+[2025-11-11T13:09:34.145Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-11-11T13:09:34.413Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"6901e4b4c025afdd528a9452"}
+[2025-11-11T13:09:34.433Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-11-11T13:09:34.759Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1762866574750","provider":"SMSIndia Hub"}
+[2025-11-11T13:10:07.805Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T13:11:07.894Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T13:11:49.428Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T13:11:50.453Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T13:11:53.580Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T13:11:54.885Z] [INFO] SMTP connection verified successfully
+[2025-11-11T13:12:02.961Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T13:12:03.527Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T13:12:06.014Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T13:12:06.911Z] [INFO] SMTP connection verified successfully
+[2025-11-11T13:12:11.602Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-11T13:12:11.693Z] [INFO] Existing user found | {"userId":"6901e4b4c025afdd528a9452","phone":"7610416911"}
+[2025-11-11T13:12:11.704Z] [INFO] Detected default test number, applying static OTP | {"phone":"7610416911"}
+[2025-11-11T13:12:11.827Z] [INFO] Static OTP assigned and user saved | {"phone":"7610416911","userId":"6901e4b4c025afdd528a9452"}
+[2025-11-11T13:12:17.843Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T13:12:18.061Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T13:12:18.985Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
