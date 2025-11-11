@@ -5,42 +5,55 @@
  * - Duplicate /api/api
  * - Missing /api
  */
+const FALLBACK_URL = 'http://localhost:5000/api';
+
+const addProtocolIfMissing = (rawUrl: string): string => {
+  if (/^https?:\/\//i.test(rawUrl)) {
+    return rawUrl;
+  }
+
+  if (rawUrl.startsWith('//')) {
+    return `https:${rawUrl}`;
+  }
+
+  const trimmed = rawUrl.replace(/^\/+/, '');
+  if (!trimmed) {
+    return FALLBACK_URL;
+  }
+
+  // Prefer http for localhost-style hosts to avoid SSL issues during development
+  if (/^(localhost|127\.0\.0\.1)/i.test(trimmed)) {
+    return `http://${trimmed}`;
+  }
+
+  return `https://${trimmed}`;
+};
+
 export const normalizeApiUrl = (url: string): string => {
   if (!url || typeof url !== 'string') {
-    return 'http://localhost:5000/api';
+    return FALLBACK_URL;
   }
-  
-  let normalized = url.trim();
-  
-  // Remove trailing slashes
-  normalized = normalized.replace(/\/+$/, '');
-  
-  // Recursively remove ALL duplicate /api/api patterns
-  let previous = '';
-  while (previous !== normalized) {
-    previous = normalized;
-    normalized = normalized.replace(/\/api\/api/g, '/api');
-    normalized = normalized.replace(/\/api\/\/api/g, '/api'); // Handle /api//api
+
+  const sanitized = url.trim();
+  if (!sanitized) {
+    return FALLBACK_URL;
   }
-  
-  // Split by /api to get base and any remaining /api parts
-  const parts = normalized.split('/api');
-  const base = parts[0] || '';
-  
-  // Reconstruct with exactly one /api at the end
-  if (base) {
-    const cleanBase = base.replace(/\/+$/, '');
-    normalized = `${cleanBase}/api`;
-  } else {
-    normalized = '/api';
+
+  const withProtocol = addProtocolIfMissing(sanitized);
+
+  try {
+    const parsed = new URL(withProtocol);
+
+    // Always force the pathname to exactly /api
+    parsed.pathname = '/api';
+    parsed.search = '';
+    parsed.hash = '';
+
+    const normalized = parsed.toString().replace(/\/+$/, '');
+    return normalized || FALLBACK_URL;
+  } catch {
+    return FALLBACK_URL;
   }
-  
-  // If no protocol, assume localhost (edge case)
-  if (!normalized.match(/^https?:\/\//)) {
-    normalized = `http://localhost:5000${normalized}`;
-  }
-  
-  return normalized;
 };
 
 /**

@@ -211,3 +211,131 @@
 [2025-11-11T09:18:58.050Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-11T09:18:58.085Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
 [2025-11-11T09:19:58.053Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:20:58.063Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:21:58.070Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:22:58.091Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:23:58.186Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:24:58.112Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:25:58.114Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:26:58.115Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:27:58.119Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:28:58.116Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:29:58.118Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:30:58.130Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:31:58.134Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:32:58.145Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:33:58.159Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:34:58.152Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:35:58.246Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:36:39.333Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-11T09:36:39.408Z] [INFO] Existing user found | {"userId":"6901e4b4c025afdd528a9452","phone":"7610416911"}
+[2025-11-11T09:36:39.409Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-11-11T09:36:39.472Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"6901e4b4c025afdd528a9452"}
+[2025-11-11T09:36:39.474Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-11-11T09:36:39.915Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1762853799914","provider":"SMSIndia Hub"}
+[2025-11-11T09:36:58.193Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:37:58.239Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:38:58.278Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:39:58.276Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:40:58.272Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:41:58.273Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:42:58.276Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:43:58.290Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:44:58.299Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:45:58.302Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:46:58.316Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:47:58.323Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:48:58.332Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:49:58.335Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:50:58.339Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:51:58.360Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:52:58.376Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:53:58.367Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:54:58.374Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:55:58.381Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:56:14.698Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-11T09:56:14.729Z] [INFO] Existing user found | {"userId":"6901e4b4c025afdd528a9452","phone":"7610416911"}
+[2025-11-11T09:56:14.730Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-11-11T09:56:14.773Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"6901e4b4c025afdd528a9452"}
+[2025-11-11T09:56:14.774Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-11-11T09:56:15.151Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1762854975150","provider":"SMSIndia Hub"}
+[2025-11-11T09:56:58.383Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:57:58.383Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T09:58:58.384Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:00:00.145Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:00:58.623Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:01:58.495Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:02:58.531Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:03:58.460Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:04:58.486Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:05:58.480Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:06:58.544Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:07:58.836Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:08:58.714Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:09:58.791Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:10:58.746Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:11:58.774Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:12:58.761Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:13:58.763Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:14:58.756Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:15:58.783Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:16:58.814Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:17:59.064Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:19:39.365Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T10:19:39.830Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T10:19:41.034Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T10:19:42.348Z] [INFO] SMTP connection verified successfully
+[2025-11-11T10:20:03.193Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T10:20:03.277Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T10:20:04.121Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T10:20:05.565Z] [INFO] SMTP connection verified successfully
+[2025-11-11T10:20:14.031Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T10:20:14.059Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T10:20:14.392Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T10:21:04.200Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:22:04.194Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:22:39.911Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T10:22:39.972Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T10:22:40.026Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T10:22:48.559Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T10:22:48.594Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-11T10:22:48.621Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-11T10:22:48.658Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-11T10:22:48.660Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-11T10:22:48.780Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-11T10:22:51.502Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-11T10:26:06.035Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-11T10:26:06.198Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-11T10:26:07.037Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-11T10:26:08.788Z] [INFO] SMTP connection verified successfully
+[2025-11-11T10:26:17.314Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T10:26:17.325Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T10:26:17.616Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T10:26:41.634Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-11T10:26:43.015Z] [INFO] Existing user found | {"userId":"6901e4b4c025afdd528a9452","phone":"7610416911"}
+[2025-11-11T10:26:43.016Z] [INFO] Generating random OTP | {"phone":"7610416911"}
+[2025-11-11T10:26:43.181Z] [INFO] OTP generated and user saved | {"phone":"7610416911","userId":"6901e4b4c025afdd528a9452"}
+[2025-11-11T10:26:43.183Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"7610416911"}
+[2025-11-11T10:26:43.523Z] [INFO] SMS sending result | {"phone":"7610416911","success":true,"messageId":"sms_1762856803522","provider":"SMSIndia Hub"}
+[2025-11-11T10:27:00.191Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-11T10:27:00.225Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-11T10:27:00.305Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-11T10:27:07.102Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:28:07.118Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:28:11.928Z] [INFO] Starting OTP send process | {"phone":"9009925021"}
+[2025-11-11T10:28:11.997Z] [INFO] Creating new user for OTP | {"phone":"9009925021"}
+[2025-11-11T10:28:11.999Z] [INFO] Generating random OTP | {"phone":"9009925021"}
+[2025-11-11T10:28:12.062Z] [INFO] OTP generated and user saved | {"phone":"9009925021","userId":"69130fbb057834f7c7964c2d"}
+[2025-11-11T10:28:12.064Z] [INFO] Attempting to send SMS via SMS India Hub | {"phone":"9009925021"}
+[2025-11-11T10:28:12.250Z] [INFO] SMS sending result | {"phone":"9009925021","success":true,"messageId":"sms_1762856892249","provider":"SMSIndia Hub"}
+[2025-11-11T10:29:07.120Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:30:07.190Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:31:07.446Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:32:07.167Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:33:07.157Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:34:07.161Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:35:07.146Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:36:07.158Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:37:07.163Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:38:07.168Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-11T10:39:07.155Z] [INFO] Found 0 pending assignments to check for auto-rejection
