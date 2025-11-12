@@ -1,0 +1,343 @@
+[2025-11-12T09:23:49.145Z] [INFO] Cleaned 1 old log files
+[2025-11-12T09:23:49.479Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-12T09:23:49.639Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-12T09:23:50.538Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-12T09:23:51.760Z] [INFO] SMTP connection verified successfully
+[2025-11-12T09:24:18.174Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:24:18.184Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:24:18.333Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:24:50.580Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:25:50.612Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:26:50.601Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:27:50.621Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:28:50.630Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:29:50.624Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:30:50.642Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:30:53.289Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:30:53.301Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:30:53.468Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:31:50.673Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:32:41.443Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:32:41.486Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:32:41.693Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:32:50.673Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:32:58.205Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:32:58.241Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:32:58.389Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:33:44.537Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:33:44.566Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:33:44.658Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:33:47.699Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:33:47.714Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:33:47.826Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:33:50.683Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:34:50.685Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:35:14.939Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:35:14.958Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:35:15.033Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:35:33.738Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:35:33.755Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:35:33.888Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:35:50.696Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:36:07.298Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:36:07.315Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:36:07.378Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:36:18.424Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:36:18.448Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:36:18.664Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:36:21.580Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:36:21.598Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:36:21.702Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:36:23.532Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:36:23.565Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:36:24.859Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:36:24.878Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:36:24.975Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:36:50.697Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:37:07.186Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:37:07.204Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:37:07.308Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:37:41.321Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:37:41.340Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:37:41.457Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:37:50.709Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:38:50.712Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:39:50.729Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:40:50.729Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:41:50.744Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:42:50.767Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:43:50.763Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:44:50.793Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:45:50.783Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:46:50.795Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:47:50.808Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:48:50.817Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:49:50.878Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:50:50.844Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:51:38.406Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-12T09:51:38.551Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-12T09:51:39.613Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-12T09:51:40.409Z] [INFO] SMTP connection verified successfully
+[2025-11-12T09:51:53.438Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:51:53.453Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:51:53.659Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:52:00.951Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:52:00.979Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:52:01.141Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:52:39.656Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:53:39.676Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:54:39.673Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:55:07.874Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:55:07.884Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:55:08.010Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:55:39.693Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:56:39.704Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:56:41.640Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:56:42.527Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:56:42.591Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:56:49.409Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:56:49.590Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:56:50.492Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:57:39.697Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:58:39.721Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T09:59:07.266Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:59:07.333Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:59:07.423Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:59:19.135Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T09:59:19.145Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T09:59:19.205Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T09:59:39.721Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:00:39.730Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:00:49.107Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:00:49.159Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:00:49.301Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:01:39.729Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:02:39.730Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:03:39.734Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:04:39.758Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:05:14.306Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:05:14.343Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:05:14.504Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:05:39.756Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:06:39.782Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:07:39.773Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:08:39.782Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:09:26.293Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:09:26.302Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:09:26.438Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:09:39.806Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:10:39.807Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:10:47.399Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:10:47.428Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:10:47.489Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:10:52.177Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:10:52.192Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:10:52.321Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:11:12.023Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:11:12.055Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:11:12.122Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:11:16.411Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:11:16.473Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:11:16.907Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:11:39.808Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:12:14.638Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-11-12T10:12:23.186Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:12:23.253Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:12:23.703Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:12:39.753Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:12:40.233Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:12:40.281Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:12:41.314Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:12:50.603Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:12:50.681Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:12:51.504Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:13:12.424Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:13:12.478Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:13:13.263Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:13:40.260Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:13:40.676Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:13:40.686Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:13:41.384Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:13:46.855Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:13:46.875Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:13:54.308Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:13:54.325Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:13:57.671Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:14:00.974Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:14:01.916Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:14:01.925Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:14:13.606Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:14:13.615Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:14:13.778Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:14:40.276Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:15:40.279Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:16:40.297Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:17:40.335Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:18:40.349Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:19:40.348Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:20:06.042Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:20:06.062Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:20:06.210Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:20:40.365Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:21:40.377Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:22:40.383Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:23:40.390Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:24:40.402Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:25:40.410Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:26:40.420Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:27:40.452Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:28:40.438Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:29:40.465Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:31:07.600Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:31:09.554Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-12T10:31:09.786Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-12T10:31:09.879Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-12T10:32:07.612Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:33:04.554Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:33:15.307Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-11-12T10:34:04.578Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:34:06.084Z] [INFO] Vendor login attempt | {"email":"panchalajay717@gmail.com","hasPassword":true,"hasDeviceToken":false}
+[2025-11-12T10:34:06.121Z] [INFO] Vendor found for login | {"email":"panchalajay717@gmail.com","isActive":true,"isApproved":false,"isBlocked":false}
+[2025-11-12T10:34:06.549Z] [INFO] Password validation result | {"email":"panchalajay717@gmail.com","isPasswordValid":true}
+[2025-11-12T10:34:06.663Z] [INFO] Vendor logged in successfully | {"vendorId":"69024d18ee4a935e635b5b5b","email":"panchalajay717@gmail.com"}
+[2025-11-12T10:34:06.743Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:34:06.752Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:34:06.760Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:34:06.785Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:34:06.787Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:34:06.836Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:34:06.848Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:34:06.862Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:34:07.066Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:34:37.236Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:34:37.243Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:34:37.402Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:35:04.593Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:35:07.226Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:35:07.277Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:35:07.397Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:35:37.277Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:35:37.339Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:35:37.458Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:36:04.584Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:36:07.223Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:36:07.234Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:36:07.386Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:36:37.228Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:36:37.234Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:36:37.385Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:37:04.602Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:37:07.226Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:37:07.233Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:37:07.380Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:38:01.227Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:38:01.232Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:38:01.378Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:38:04.588Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:39:01.238Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:39:01.248Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:39:01.399Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:39:04.602Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:40:01.226Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:40:01.236Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:40:01.385Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:40:04.605Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:41:01.218Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:41:01.235Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:41:01.379Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:41:04.608Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:41:08.665Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:41:08.711Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:41:08.870Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:41:13.100Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:41:13.136Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:41:13.162Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:41:13.195Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:41:13.199Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:41:13.269Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:41:18.614Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:41:18.691Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:41:18.702Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:41:18.742Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:41:18.746Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:41:18.807Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:41:24.873Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:41:24.891Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:41:24.900Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:41:24.926Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:41:24.927Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:41:24.987Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:41:26.914Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:41:26.925Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:41:27.075Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:42:04.620Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:43:04.625Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:44:04.630Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:44:31.403Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:44:31.440Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:44:31.461Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:44:31.482Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:44:31.484Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:44:31.541Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:44:44.488Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:44:44.514Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:44:44.522Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:44:44.547Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:44:44.547Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:44:44.601Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:45:04.640Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:46:04.657Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:47:04.662Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:47:21.946Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:47:21.978Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:47:22.013Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:47:22.048Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:47:22.053Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:47:22.117Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:47:27.935Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:47:27.951Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:47:27.966Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:47:27.986Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:47:27.987Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:47:28.049Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:48:04.692Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:49:04.701Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:50:04.707Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:51:04.696Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:52:04.701Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:53:04.716Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:54:04.719Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:54:41.135Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:54:41.182Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:54:41.193Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:54:41.205Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:54:41.206Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:54:41.263Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:55:04.741Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:55:26.858Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:55:26.883Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/withdrawal"}
+[2025-11-12T10:55:27.107Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/wallet"}
+[2025-11-12T10:55:30.232Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:56:04.745Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:57:04.745Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:57:05.403Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:57:05.417Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:57:05.426Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:57:05.447Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:57:05.448Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:57:05.513Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:57:19.134Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T10:57:19.150Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T10:57:19.177Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T10:57:19.284Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T10:57:19.288Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T10:57:19.348Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T10:57:28.773Z] [WARN] Failed admin login attempt | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-11-12T10:57:36.362Z] [INFO] Admin logged in successfully | {"adminId":"ADMIN001","email":"panchalajay717@gmail.com","ip":"::1"}
+[2025-11-12T10:57:36.451Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-11-12T10:57:37.070Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":0,"totalRevenue":6185.5,"monthlyBookingRevenue":0,"totalBookingRevenue":4485.5,"monthlySupportTicketRevenue":0,"totalSupportTicketRevenue":1700,"pendingBookings":0,"activeAMCSubscriptions":6,"totalAMCAmount":2938.2000000000003,"month":11,"year":2025,"startDate":"2025-10-31T18:30:00.000Z","endDate":"2025-11-30T18:29:59.000Z"}
+[2025-11-12T10:57:37.105Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":11,"year":2025}
+[2025-11-12T10:58:04.755Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T10:59:04.774Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:00:04.805Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:01:04.780Z] [INFO] Found 0 pending assignments to check for auto-rejection

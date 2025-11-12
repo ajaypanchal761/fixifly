@@ -251,16 +251,16 @@ const AdminHeader = () => {
                <MenuIcon />
              </IconButton>
              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-               <img 
-                 src="/logofixifly.png" 
-                 alt="Fixfly Logo" 
-                 onClick={handleLogoClick}
-                 style={{
-                   height: '100px',
-                   width: 'auto',
-                   cursor: 'pointer',
-                   transition: 'opacity 0.2s ease-in-out'
-                 }}
+              <img 
+                src="/logofixifly.png" 
+                alt="Fixfly Logo" 
+                onClick={handleLogoClick}
+                style={{
+                  height: isMobile ? '40px' : '60px',
+                  width: 'auto',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.2s ease-in-out'
+                }}
                  onMouseEnter={(e) => {
                    e.currentTarget.style.opacity = '0.8';
                  }}

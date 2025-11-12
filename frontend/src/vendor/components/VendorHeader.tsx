@@ -205,17 +205,17 @@ const VendorHeader = () => {
              >
                <Menu />
              </IconButton>
-             <img 
-               src="/logofixifly.png" 
-               alt="Fixfly Logo" 
-               onClick={handleLogoClick}
-               style={{
-                 height: '85px',
-                 width: 'auto',
-                 marginLeft: '-10px',
-                 cursor: 'pointer',
-                 transition: 'opacity 0.2s ease-in-out'
-               }}
+            <img 
+              src="/logofixifly.png" 
+              alt="Fixfly Logo" 
+              onClick={handleLogoClick}
+              style={{
+                height: '42px',
+                width: 'auto',
+                marginLeft: '-2px',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease-in-out'
+              }}
                onMouseEnter={(e) => {
                  e.currentTarget.style.opacity = '0.8';
                }}

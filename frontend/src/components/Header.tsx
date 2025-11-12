@@ -13,6 +13,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import SearchSuggestions from './SearchSuggestions';
 import { ProductSuggestion } from '../services/publicProductApi';
+import logoFixifly from '@/assets/logofixifly.png';
 
 const drawerWidth = 240;
 
@@ -193,24 +194,24 @@ const Header = () => {
              >
                <Menu />
              </IconButton>
-             <img 
-               src="/logofixifly.png" 
-               alt="Fixfly Logo" 
-               onClick={handleLogoClick}
-               style={{
-                 height: '85px',
-                 width: 'auto',
-                 marginLeft: isMobile ? '-10px' : '0',
-                 cursor: 'pointer',
-                 transition: 'opacity 0.2s ease-in-out'
-               }}
-               onMouseEnter={(e) => {
-                 e.currentTarget.style.opacity = '0.8';
-               }}
-               onMouseLeave={(e) => {
-                 e.currentTarget.style.opacity = '1';
-               }}
-             />
+            <img 
+              src={logoFixifly} 
+              alt="Fixfly Logo" 
+              onClick={handleLogoClick}
+              style={{
+                height: isMobile ? '50px' : '60px',
+                width: 'auto',
+                marginLeft: isMobile ? '-10px' : '0',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease-in-out'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.8';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
+            />
            </Box>
           
           {/* Center - Desktop Navigation Links */}
@@ -221,11 +222,10 @@ const Header = () => {
                 return (
                   <Button
                     key={item.name}
-                    component={item.external ? 'a' : Link}
-                    href={item.external ? item.href : undefined}
-                    to={item.external ? undefined : item.href}
-                    target={item.external ? '_blank' : undefined}
-                    rel={item.external ? 'noopener noreferrer' : undefined}
+                    component={Link}
+                    to={item.href}
+                    target={undefined}
+                    rel={undefined}
                     startIcon={<IconComponent size={18} />}
                     sx={{
                       color: 'black',

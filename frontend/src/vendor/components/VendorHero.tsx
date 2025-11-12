@@ -63,6 +63,13 @@ const VendorHero = () => {
     { icon: Clock, value: "24/7", label: "Support Available", color: "bg-purple-500" }
   ]);
 
+  const vendorIdMemo = useMemo(() => vendor?.vendorId ?? null, [vendor?.vendorId]);
+
+  useEffect(() => {
+    if (vendorIdMemo) {
+      console.log('✅ VendorHero: Initialized for vendor:', vendorIdMemo);
+    }
+  }, [vendorIdMemo]);
 
 
   // Fetch banners from database
@@ -628,16 +635,6 @@ const VendorHero = () => {
       </div>
     );
   }
-
-  // Memoize vendor ID to prevent unnecessary re-renders
-  const vendorIdMemo = useMemo(() => vendor.vendorId, [vendor.vendorId]);
-  
-  // Only log once per vendor ID change, not on every render
-  useEffect(() => {
-    if (vendorIdMemo) {
-      console.log('✅ VendorHero: Initialized for vendor:', vendorIdMemo);
-    }
-  }, [vendorIdMemo]);
 
   // Additional safety check - ensure vendor has required properties
   if (!vendor.vendorId) {
