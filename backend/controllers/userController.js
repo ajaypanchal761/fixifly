@@ -745,46 +745,99 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
 
   try {
     // Format phone number (add +91 if needed)
-    const digits = phone.replace(/\D/g, '');
-    const formattedPhone = digits.length === 10 ? `+91${digits}` : phone;
-
-    // Explicitly select fcmTokenMobile field (it has select: false by default)
-    const user = await User.findOne({ phone: formattedPhone }).select('+fcmTokenMobile');
-    if (!user) {
-      return res.status(404).json({
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    if (!phoneRegex.test(cleanPhone)) {
+      return res.status(400).json({
         success: false,
-        message: 'User not found'
+        message: 'Please provide a valid 10-digit Indian phone number'
       });
     }
 
-    // Add token to fcmTokenMobile array if not already present
-    // Limit to maximum 10 tokens per user
-    const maxTokens = 10;
+    const formattedPhone = `+91${cleanPhone}`;
+    
+    // Find user by phone number (don't use select, just find normally)
+    const user = await User.findOne({ phone: formattedPhone });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found with this phone number. Please register first.'
+      });
+    }
+
+    // Ensure fcmTokenMobile field exists (for existing users who might not have this field)
     if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
       user.fcmTokenMobile = [];
     }
 
-    // Remove token if it already exists (to avoid duplicates)
-    user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== token);
+    const MAX_TOKENS = 10;
+    const oldTokens = [...user.fcmTokenMobile];
     
-    // Add new token at the beginning
-    user.fcmTokenMobile.unshift(token);
+    // Check if token already exists in fcmTokenMobile (case-sensitive exact match)
+    const tokenExists = user.fcmTokenMobile.some(existingToken => existingToken === token);
     
-    // Keep only the most recent tokens
-    if (user.fcmTokenMobile.length > maxTokens) {
-      user.fcmTokenMobile = user.fcmTokenMobile.slice(0, maxTokens);
+    if (tokenExists) {
+      logger.info(`FCM mobile token already exists for user ${user._id}`);
+      return res.status(200).json({
+        success: true,
+        message: 'Token already exists in database',
+        updated: false,
+        tokenCount: user.fcmTokenMobile.length,
+        tokenInDatabase: true,
+        platform: platform || 'mobile'
+      });
     }
 
+    // Also check if token exists in old fcmTokens array (for migration)
+    // If found there, move it to fcmTokenMobile
+    const tokenInOldArray = user.fcmTokens && user.fcmTokens.includes(token);
+    if (tokenInOldArray) {
+      logger.info(`Token found in old fcmTokens array, moving to fcmTokenMobile for user ${user._id}`);
+      user.fcmTokens = user.fcmTokens.filter(t => t !== token);
+    }
+
+    // Add new token to fcmTokenMobile
+    if (user.fcmTokenMobile.length >= MAX_TOKENS) {
+      logger.info(`Token limit reached (${MAX_TOKENS}), removing oldest token for user ${user._id}`);
+      user.fcmTokenMobile.shift();
+    }
+    
+    user.fcmTokenMobile.push(token);
+    
+    // Mark fcmTokenMobile as modified to ensure save (CRITICAL for select: false fields)
+    user.markModified('fcmTokenMobile');
     await user.save();
+
+    // Verify the save by fetching fresh from database
+    const updatedUser = await User.findById(user._id).select('+fcmTokenMobile');
+    if (!updatedUser || !updatedUser.fcmTokenMobile.includes(token)) {
+      logger.error(`Token save verification failed for user ${user._id}! Retrying...`);
+      // Retry save
+      if (!updatedUser.fcmTokenMobile.includes(token)) {
+        if (updatedUser.fcmTokenMobile.length >= MAX_TOKENS) {
+          updatedUser.fcmTokenMobile.shift();
+        }
+        updatedUser.fcmTokenMobile.push(token);
+        updatedUser.markModified('fcmTokenMobile');
+        await updatedUser.save();
+        logger.info(`Retried saving token for user ${user._id}`);
+      }
+    } else {
+      logger.info(`Verified saved tokens for user ${user._id}: ${updatedUser.fcmTokenMobile.length} tokens`);
+    }
 
     logger.info(`FCM mobile token saved for user ${user._id} (phone: ${formattedPhone}, platform: ${platform || 'mobile'})`);
 
     res.status(200).json({
       success: true,
-      message: 'FCM mobile token saved successfully',
-      data: {
-        tokenCount: user.fcmTokenMobile.length
-      }
+      message: 'FCM mobile token saved successfully for mobile device',
+      updated: true,
+      tokenCount: user.fcmTokenMobile.length,
+      previousTokenCount: oldTokens.length,
+      maxTokens: MAX_TOKENS,
+      devicesRegistered: user.fcmTokenMobile.length,
+      platform: platform || 'mobile'
     });
   } catch (error) {
     logger.error('Error saving FCM mobile token:', error);

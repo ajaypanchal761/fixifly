@@ -492,3 +492,44 @@
 [2025-11-18T18:45:13.331Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
 [2025-11-18T18:45:18.620Z] [INFO] FCM token saved for user 691cbe0737edcf6161adb52c (platform: web)
 [2025-11-18T18:45:37.271Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:46:37.274Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:47:37.269Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:48:37.281Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:49:37.312Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:50:37.342Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:51:37.327Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:52:37.317Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:53:37.349Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:53:49.661Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:53:49.978Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:53:50.561Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:53:50.703Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:53:51.842Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:53:53.828Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:54:08.601Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:54:08.744Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:54:08.964Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:54:08.996Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:54:09.820Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:54:11.263Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:55:09.921Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:55:22.120Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:55:22.385Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:55:22.872Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:55:23.055Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:55:24.027Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:55:25.499Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:55:29.393Z] [INFO] Verified saved tokens for user 691cbe0737edcf6161adb52c: 1 tokens
+[2025-11-18T18:55:29.396Z] [INFO] FCM mobile token saved for user 691cbe0737edcf6161adb52c (phone: +917610416911, platform: android)
+[2025-11-18T18:55:47.047Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:55:47.282Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:55:47.642Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:55:47.825Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:55:48.789Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:55:50.294Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:56:09.482Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:56:09.621Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:56:09.824Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:56:09.880Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:56:10.586Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:56:12.085Z] [INFO] SMTP connection verified successfully
