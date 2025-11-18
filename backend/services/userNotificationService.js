@@ -21,32 +21,16 @@ class UserNotificationService {
    */
   async sendToUser(userId, notification, data = {}) {
     try {
-      logger.info('🔔 UserNotificationService: Starting sendToUser', {
-        userId,
-        title: notification.title,
-        type: data.type || 'general'
-      });
-      
       console.log('🔔 UserNotificationService: Starting sendToUser...');
       
-      logger.debug('Step 1: Fetching user with FCM tokens', {
-        userId
-      });
-
       // Get user with FCM tokens (both web and mobile)
       const user = await User.findById(userId).select('fcmTokens fcmTokenMobile name email phone preferences');
       
       if (!user) {
-        logger.warn('❌ User not found for notification', { userId });
         console.log('❌ User not found:', userId);
+        logger.warn('User not found for notification', { userId });
         return false;
       }
-
-      logger.debug('Step 2: User found, combining FCM tokens', {
-        userId,
-        webTokenCount: user.fcmTokens?.length || 0,
-        mobileTokenCount: user.fcmTokenMobile?.length || 0
-      });
 
       // Combine web and mobile tokens
       const allTokens = [
@@ -55,45 +39,21 @@ class UserNotificationService {
       ];
       const uniqueTokens = [...new Set(allTokens)];
 
-      logger.info('📊 FCM Token Summary for User', {
-        userId,
-        userName: user.name,
-        userEmail: user.email,
-        webTokenCount: user.fcmTokens?.length || 0,
-        mobileTokenCount: user.fcmTokenMobile?.length || 0,
-        totalUniqueTokens: uniqueTokens.length,
-        duplicatesRemoved: allTokens.length - uniqueTokens.length,
-        tokenPreviews: uniqueTokens.slice(0, 3).map(t => t.substring(0, 30) + '...')
-      });
-
       console.log(`📊 User found: ${user.name} (${user.email})`);
       console.log(`   Web FCM Tokens: ${user.fcmTokens?.length || 0}`);
       console.log(`   Mobile FCM Tokens: ${user.fcmTokenMobile?.length || 0}`);
       console.log(`   Total Unique Tokens: ${uniqueTokens.length}`);
 
       if (uniqueTokens.length === 0) {
-        logger.warn('❌ User has no FCM tokens', {
-          userId,
-          userEmail: user.email,
-          webTokenCount: user.fcmTokens?.length || 0,
-          mobileTokenCount: user.fcmTokenMobile?.length || 0
-        });
         console.log('❌ User has no FCM tokens');
+        logger.warn('User has no FCM tokens', { userId, userEmail: user.email });
         return false;
       }
 
-      logger.debug('Step 3: Checking user push notification preferences', {
-        userId,
-        pushEnabled: user.preferences?.notifications?.push !== false
-      });
-
       // Check if user has push notifications enabled
       if (user.preferences?.notifications?.push === false) {
-        logger.info('⚠️ User has push notifications disabled', {
-          userId,
-          userEmail: user.email
-        });
         console.log('⚠️ User has push notifications disabled');
+        logger.info('Push notifications disabled for user', { userId, userEmail: user.email });
         return false;
       }
 

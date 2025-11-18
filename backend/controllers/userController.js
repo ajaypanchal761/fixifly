@@ -669,21 +669,7 @@ const saveFCMToken = asyncHandler(async (req, res) => {
   const userId = req.user.userId;
   const { token, platform } = req.body;
 
-  logger.info('📱 FCM Token Save Request (Web)', {
-    requestId: req.requestId,
-    userId,
-    platform: platform || 'web',
-    tokenLength: token?.length || 0,
-    tokenPreview: token ? token.substring(0, 30) + '...' : 'missing'
-  });
-
   if (!token || typeof token !== 'string' || token.trim().length === 0) {
-    logger.warn('FCM token validation failed - token missing or invalid', {
-      requestId: req.requestId,
-      userId,
-      hasToken: !!token,
-      tokenType: typeof token
-    });
     return res.status(400).json({
       success: false,
       message: 'FCM token is required'
@@ -691,86 +677,35 @@ const saveFCMToken = asyncHandler(async (req, res) => {
   }
 
   try {
-    logger.debug('Step 1: Fetching user from database', {
-      requestId: req.requestId,
-      userId
-    });
-
     const user = await User.findById(userId);
     if (!user) {
-      logger.warn('User not found for FCM token save', {
-        requestId: req.requestId,
-        userId
-      });
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
 
-    logger.debug('Step 2: User found, checking existing FCM tokens', {
-      requestId: req.requestId,
-      userId,
-      existingTokenCount: user.fcmTokens?.length || 0
-    });
-
     // Add token to fcmTokens array if not already present
     // Limit to maximum 10 tokens per user
     const maxTokens = 10;
     if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
-      logger.debug('Step 3: Initializing empty fcmTokens array', {
-        requestId: req.requestId,
-        userId
-      });
       user.fcmTokens = [];
     }
 
-    const beforeCount = user.fcmTokens.length;
-    const tokenExists = user.fcmTokens.includes(token);
-
     // Remove token if it already exists (to avoid duplicates)
     user.fcmTokens = user.fcmTokens.filter(t => t !== token);
-    
-    logger.debug('Step 4: Token deduplication', {
-      requestId: req.requestId,
-      userId,
-      tokenExists,
-      beforeCount,
-      afterDedupCount: user.fcmTokens.length
-    });
     
     // Add new token at the beginning
     user.fcmTokens.unshift(token);
     
     // Keep only the most recent tokens
     if (user.fcmTokens.length > maxTokens) {
-      const removedCount = user.fcmTokens.length - maxTokens;
-      logger.debug('Step 5: Token limit reached, removing oldest tokens', {
-        requestId: req.requestId,
-        userId,
-        currentCount: user.fcmTokens.length,
-        maxTokens,
-        removedCount
-      });
       user.fcmTokens = user.fcmTokens.slice(0, maxTokens);
     }
 
-    logger.debug('Step 6: Saving user with updated FCM tokens', {
-      requestId: req.requestId,
-      userId,
-      finalTokenCount: user.fcmTokens.length
-    });
-
     await user.save();
 
-    logger.info('✅ FCM token saved successfully (Web)', {
-      requestId: req.requestId,
-      userId,
-      platform: platform || 'web',
-      tokenCount: user.fcmTokens.length,
-      tokenPreview: token.substring(0, 30) + '...',
-      wasNewToken: !tokenExists
-    });
+    logger.info(`FCM token saved for user ${userId} (platform: ${platform || 'web'})`);
 
     res.status(200).json({
       success: true,
@@ -780,13 +715,7 @@ const saveFCMToken = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('❌ Error saving FCM token (Web)', {
-      requestId: req.requestId,
-      userId,
-      error: error.message,
-      stack: error.stack,
-      tokenPreview: token ? token.substring(0, 30) + '...' : 'missing'
-    });
+    logger.error('Error saving FCM token:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to save FCM token. Please try again.'
@@ -798,124 +727,91 @@ const saveFCMToken = asyncHandler(async (req, res) => {
 // @route   POST /api/users/save-fcm-token-mobile
 // @access  Public (no auth required, uses phone number)
 const saveFCMTokenMobile = asyncHandler(async (req, res) => {
-  const { token, phone, platform } = req.body;
-
-  logger.info('📱 FCM Token Save Request (Mobile)', {
-    requestId: req.requestId,
-    phone: phone ? phone.replace(/\d(?=\d{4})/g, '*') : 'missing',
-    platform: platform || 'mobile',
-    tokenLength: token?.length || 0,
-    tokenPreview: token ? token.substring(0, 30) + '...' : 'missing'
-  });
-
-  if (!token || typeof token !== 'string' || token.trim().length === 0) {
-    logger.warn('FCM mobile token validation failed - token missing or invalid', {
-      requestId: req.requestId,
-      phone: phone ? phone.replace(/\d(?=\d{4})/g, '*') : 'missing',
-      hasToken: !!token,
-      tokenType: typeof token
-    });
-    return res.status(400).json({
+  // Check MongoDB connection before proceeding
+  const mongoose = require('mongoose');
+  if (mongoose.connection.readyState !== 1) {
+    logger.error('❌ MongoDB not connected, cannot save FCM token');
+    return res.status(503).json({
       success: false,
-      message: 'FCM token is required'
-    });
-  }
-
-  if (!phone || typeof phone !== 'string' || phone.trim().length === 0) {
-    logger.warn('FCM mobile token validation failed - phone missing', {
-      requestId: req.requestId,
-      hasPhone: !!phone
-    });
-    return res.status(400).json({
-      success: false,
-      message: 'Phone number is required'
+      message: 'Database service unavailable. Please try again later.',
+      error: 'MongoDB connection not established'
     });
   }
 
   try {
-    logger.debug('Step 1: Formatting phone number', {
-      requestId: req.requestId,
-      originalPhone: phone
-    });
+    logger.info('=== MOBILE FCM TOKEN SAVE REQUEST ===');
+    logger.info('Request body:', { ...req.body, token: req.body.token ? req.body.token.substring(0, 30) + '...' : 'missing' });
+    logger.info('User Agent:', req.headers['user-agent'] || 'Unknown');
+    
+    const { token, phone, platform = 'mobile' } = req.body;
 
-    // Format phone number (add +91 if needed)
+    // Validate token
+    if (!token || typeof token !== 'string' || token.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'FCM token is required'
+      });
+    }
+
+    // Validate phone number
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number is required'
+      });
+    }
+
+    // Clean and format phone number
     const phoneRegex = /^[6-9]\d{9}$/;
     const cleanPhone = phone.replace(/\D/g, '');
     
     if (!phoneRegex.test(cleanPhone)) {
-      logger.warn('Invalid phone number format', {
-        requestId: req.requestId,
-        cleanPhone: cleanPhone.replace(/\d(?=\d{4})/g, '*')
-      });
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid 10-digit Indian phone number'
       });
     }
 
+    // Find user by phone number - explicitly select fcmTokenMobile field
     const formattedPhone = `+91${cleanPhone}`;
+    const user = await User.findOne({ phone: formattedPhone }).select('+fcmTokenMobile');
     
-    logger.debug('Step 2: Searching for user by phone number', {
-      requestId: req.requestId,
-      formattedPhone: formattedPhone.replace(/\d(?=\d{4})/g, '*')
-    });
-    
-    // Find user by phone number (don't use select, just find normally)
-    const user = await User.findOne({ phone: formattedPhone });
     if (!user) {
-      logger.warn('User not found for FCM mobile token save', {
-        requestId: req.requestId,
-        formattedPhone: formattedPhone.replace(/\d(?=\d{4})/g, '*')
-      });
       return res.status(404).json({
         success: false,
         message: 'User not found with this phone number. Please register first.'
       });
     }
 
-    logger.debug('Step 3: User found, checking existing mobile FCM tokens', {
-      requestId: req.requestId,
-      userId: user._id,
-      existingTokenCount: user.fcmTokenMobile?.length || 0
-    });
-
     // Ensure fcmTokenMobile field exists (for existing users who might not have this field)
     if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
-      logger.debug('Step 4: Initializing empty fcmTokenMobile array', {
-        requestId: req.requestId,
-        userId: user._id
-      });
       user.fcmTokenMobile = [];
     }
 
-    const MAX_TOKENS = 10;
-    const oldTokens = [...user.fcmTokenMobile];
-    
-    logger.debug('Step 5: Checking if token already exists', {
-      requestId: req.requestId,
-      userId: user._id,
-      currentTokenCount: user.fcmTokenMobile.length,
-      tokenPreview: token.substring(0, 30) + '...'
+    logger.info('📊 Current FCM tokens before update:', {
+      webTokens: user.fcmTokens?.length || 0,
+      mobileTokens: user.fcmTokenMobile?.length || 0,
+      mobileTokensArray: user.fcmTokenMobile
     });
+    logger.info('🆕 New FCM token:', token.substring(0, 30) + '...');
+    logger.info('📱 Platform:', platform);
+
+    const oldTokens = [...user.fcmTokenMobile];
+    const MAX_TOKENS = 10;
     
     // Check if token already exists in fcmTokenMobile (case-sensitive exact match)
     const tokenExists = user.fcmTokenMobile.some(existingToken => existingToken === token);
     
     if (tokenExists) {
-      logger.info('✅ FCM mobile token already exists', {
-        requestId: req.requestId,
-        userId: user._id,
-        phone: formattedPhone.replace(/\d(?=\d{4})/g, '*'),
-        tokenCount: user.fcmTokenMobile.length,
-        platform: platform || 'mobile'
-      });
-      return res.status(200).json({
+      logger.info('ℹ️ FCM token already exists in fcmTokenMobile database');
+      logger.info('📊 Current fcmTokenMobile array:', user.fcmTokenMobile);
+      return res.json({
         success: true,
         message: 'Token already exists in database',
         updated: false,
         tokenCount: user.fcmTokenMobile.length,
         tokenInDatabase: true,
-        platform: platform || 'mobile'
+        platform: platform
       });
     }
 
@@ -923,104 +819,75 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     // If found there, move it to fcmTokenMobile
     const tokenInOldArray = user.fcmTokens && user.fcmTokens.includes(token);
     if (tokenInOldArray) {
-      logger.info('Token found in old fcmTokens array, migrating to fcmTokenMobile', {
-        requestId: req.requestId,
-        userId: user._id,
-        oldArrayCount: user.fcmTokens.length
-      });
+      logger.info('🔄 Token found in old fcmTokens array, moving to fcmTokenMobile...');
       user.fcmTokens = user.fcmTokens.filter(t => t !== token);
+      user.markModified('fcmTokens');
     }
 
     // Add new token to fcmTokenMobile
+    logger.info('🆕 New mobile token detected, adding to fcmTokenMobile array...');
+    
     if (user.fcmTokenMobile.length >= MAX_TOKENS) {
-      logger.debug('Step 6: Token limit reached, removing oldest token', {
-        requestId: req.requestId,
-        userId: user._id,
-        currentCount: user.fcmTokenMobile.length,
-        maxTokens: MAX_TOKENS
-      });
+      logger.info(`⚠️ Token limit reached (${MAX_TOKENS}), removing oldest token...`);
       user.fcmTokenMobile.shift();
     }
     
     user.fcmTokenMobile.push(token);
-    
-    logger.debug('Step 7: Marking fcmTokenMobile as modified and saving', {
-      requestId: req.requestId,
-      userId: user._id,
-      newTokenCount: user.fcmTokenMobile.length
-    });
+    logger.info(`📱 Added new mobile token to fcmTokenMobile. Total mobile tokens: ${user.fcmTokenMobile.length}/${MAX_TOKENS}`);
     
     // Mark fcmTokenMobile as modified to ensure save (CRITICAL for select: false fields)
     user.markModified('fcmTokenMobile');
+    
+    logger.info('💾 Saving FCM tokens to database...');
     await user.save();
-
+    logger.info('✅ FCM tokens saved successfully');
+    
     // Verify the save by fetching fresh from database
-    logger.debug('Step 8: Verifying token save by fetching from database', {
-      requestId: req.requestId,
-      userId: user._id
-    });
-
     const updatedUser = await User.findById(user._id).select('+fcmTokenMobile');
-    if (!updatedUser || !updatedUser.fcmTokenMobile.includes(token)) {
-      logger.warn('Token save verification failed, retrying save', {
-        requestId: req.requestId,
-        userId: user._id,
-        tokenFound: updatedUser?.fcmTokenMobile?.includes(token) || false
-      });
+    logger.info('✅ Verification - fcmTokenMobile in database:', updatedUser.fcmTokenMobile);
+    
+    if (!updatedUser || !updatedUser.fcmTokenMobile || !updatedUser.fcmTokenMobile.includes(token)) {
+      logger.error('❌ Token save verification failed! Token not found in database after save');
       // Retry save
-      if (!updatedUser.fcmTokenMobile.includes(token)) {
-        if (updatedUser.fcmTokenMobile.length >= MAX_TOKENS) {
-          updatedUser.fcmTokenMobile.shift();
+      if (updatedUser && updatedUser.fcmTokenMobile) {
+        if (!updatedUser.fcmTokenMobile.includes(token)) {
+          if (updatedUser.fcmTokenMobile.length >= MAX_TOKENS) {
+            updatedUser.fcmTokenMobile.shift();
+          }
+          updatedUser.fcmTokenMobile.push(token);
+          updatedUser.markModified('fcmTokenMobile');
+          await updatedUser.save();
+          logger.info('🔄 Retried saving token');
         }
-        updatedUser.fcmTokenMobile.push(token);
-        updatedUser.markModified('fcmTokenMobile');
-        await updatedUser.save();
-        logger.info('Token save retry completed', {
-          requestId: req.requestId,
-          userId: user._id,
-          finalTokenCount: updatedUser.fcmTokenMobile.length
-        });
       }
     } else {
-      logger.debug('Token save verified successfully', {
-        requestId: req.requestId,
-        userId: user._id,
-        verifiedTokenCount: updatedUser.fcmTokenMobile.length
-      });
+      logger.info(`✅ Verified saved tokens: ${updatedUser.fcmTokenMobile.length} tokens`);
+      logger.info(`✅ Total devices registered: ${updatedUser.fcmTokenMobile.length}`);
     }
 
-    logger.info('✅ FCM mobile token saved successfully', {
-      requestId: req.requestId,
-      userId: user._id,
-      phone: formattedPhone.replace(/\d(?=\d{4})/g, '*'),
-      platform: platform || 'mobile',
-      tokenCount: user.fcmTokenMobile.length,
-      previousTokenCount: oldTokens.length,
-      tokenPreview: token.substring(0, 30) + '...',
-      wasNewToken: !tokenExists
-    });
+    logger.info(`✅ Mobile FCM token saved successfully to fcmTokenMobile for user ${user._id}`);
 
-    res.status(200).json({
+    return res.json({
       success: true,
-      message: 'FCM mobile token saved successfully for mobile device',
+      message: 'FCM token saved successfully for mobile device',
       updated: true,
       tokenCount: user.fcmTokenMobile.length,
       previousTokenCount: oldTokens.length,
       maxTokens: MAX_TOKENS,
       devicesRegistered: user.fcmTokenMobile.length,
-      platform: platform || 'mobile'
+      platform: platform
     });
   } catch (error) {
-    logger.error('❌ Error saving FCM mobile token', {
-      requestId: req.requestId,
-      phone: phone ? phone.replace(/\d(?=\d{4})/g, '*') : 'missing',
-      error: error.message,
+    logger.error('❌ Error saving mobile FCM token:', error);
+    logger.error('Error details:', {
+      message: error.message,
       stack: error.stack,
-      tokenPreview: token ? token.substring(0, 30) + '...' : 'missing'
+      name: error.name
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Failed to save FCM mobile token. Please try again.'
+      message: 'Failed to save FCM token',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -1032,19 +899,7 @@ const removeFCMToken = asyncHandler(async (req, res) => {
   const userId = req.user.userId;
   const { token, platform } = req.body;
 
-  logger.info('🗑️ FCM Token Remove Request', {
-    requestId: req.requestId,
-    userId,
-    platform: platform || 'all',
-    tokenLength: token?.length || 0,
-    tokenPreview: token ? token.substring(0, 30) + '...' : 'missing'
-  });
-
   if (!token || typeof token !== 'string' || token.trim().length === 0) {
-    logger.warn('FCM token removal validation failed - token missing', {
-      requestId: req.requestId,
-      userId
-    });
     return res.status(400).json({
       success: false,
       message: 'FCM token is required'
@@ -1052,33 +907,15 @@ const removeFCMToken = asyncHandler(async (req, res) => {
   }
 
   try {
-    logger.debug('Step 1: Fetching user for token removal', {
-      requestId: req.requestId,
-      userId
-    });
-
     const user = await User.findById(userId);
     if (!user) {
-      logger.warn('User not found for FCM token removal', {
-        requestId: req.requestId,
-        userId
-      });
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
 
-    logger.debug('Step 2: Checking existing tokens before removal', {
-      requestId: req.requestId,
-      userId,
-      webTokenCount: user.fcmTokens?.length || 0,
-      mobileTokenCount: user.fcmTokenMobile?.length || 0
-    });
-
     let removed = false;
-    let removedFromWeb = false;
-    let removedFromMobile = false;
 
     // Remove from web tokens if platform is 'web' or not specified
     if (!platform || platform === 'web') {
@@ -1087,13 +924,6 @@ const removeFCMToken = asyncHandler(async (req, res) => {
         user.fcmTokens = user.fcmTokens.filter(t => t !== token);
         if (user.fcmTokens.length < beforeLength) {
           removed = true;
-          removedFromWeb = true;
-          logger.debug('Token removed from web tokens', {
-            requestId: req.requestId,
-            userId,
-            beforeCount: beforeLength,
-            afterCount: user.fcmTokens.length
-          });
         }
       }
     }
@@ -1105,13 +935,6 @@ const removeFCMToken = asyncHandler(async (req, res) => {
         user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== token);
         if (user.fcmTokenMobile.length < beforeLength) {
           removed = true;
-          removedFromMobile = true;
-          logger.debug('Token removed from mobile tokens', {
-            requestId: req.requestId,
-            userId,
-            beforeCount: beforeLength,
-            afterCount: user.fcmTokenMobile.length
-          });
         }
       }
     }
@@ -1123,37 +946,13 @@ const removeFCMToken = asyncHandler(async (req, res) => {
         user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== token);
         if (user.fcmTokenMobile.length < beforeLength) {
           removed = true;
-          removedFromMobile = true;
-          logger.debug('Token removed from mobile tokens (no platform specified)', {
-            requestId: req.requestId,
-            userId,
-            beforeCount: beforeLength,
-            afterCount: user.fcmTokenMobile.length
-          });
         }
       }
     }
 
-    logger.debug('Step 3: Saving user after token removal', {
-      requestId: req.requestId,
-      userId,
-      removed,
-      removedFromWeb,
-      removedFromMobile
-    });
-
     await user.save();
 
-    logger.info('✅ FCM token removal completed', {
-      requestId: req.requestId,
-      userId,
-      platform: platform || 'all',
-      removed,
-      removedFromWeb,
-      removedFromMobile,
-      finalWebTokenCount: user.fcmTokens?.length || 0,
-      finalMobileTokenCount: user.fcmTokenMobile?.length || 0
-    });
+    logger.info(`FCM token removed for user ${userId} (platform: ${platform || 'all'})`);
 
     res.status(200).json({
       success: true,
@@ -1163,13 +962,7 @@ const removeFCMToken = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('❌ Error removing FCM token', {
-      requestId: req.requestId,
-      userId,
-      error: error.message,
-      stack: error.stack,
-      tokenPreview: token ? token.substring(0, 30) + '...' : 'missing'
-    });
+    logger.error('Error removing FCM token:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to remove FCM token. Please try again.'

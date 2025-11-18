@@ -266,9 +266,13 @@ const verifyOTP = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Find user by phone
+    // Find user by phone - explicitly select FCM token fields
     const cleanPhone = phone.replace(/\D/g, '');
     let user = await User.findByPhoneOrEmail(cleanPhone);
+    if (user) {
+      // Explicitly select FCM token fields since they have select: false
+      user = await User.findById(user._id).select('+fcmTokens +fcmTokenMobile');
+    }
 
     if (!user) {
       return res.status(404).json({
@@ -299,17 +303,56 @@ const verifyOTP = asyncHandler(async (req, res) => {
     user.clearOTP();
     user.isPhoneVerified = true;
 
-    // Save FCM token if provided
+    // Save FCM token if provided - detect platform and save to correct array
     if (fcmToken) {
       try {
-        console.log('🔔 Saving FCM token for user:', user._id);
-        user.fcmToken = fcmToken;
-        user.preferences = user.preferences || {};
-        user.preferences.notifications = user.preferences.notifications || {};
-        user.preferences.notifications.pushNotifications = true;
-        console.log('✅ FCM token saved successfully for user:', user._id);
+        // Detect platform from user-agent or request body
+        const userAgent = req.headers['user-agent'] || '';
+        const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
+        
+        logger.info(`🔔 Saving FCM token for user ${user._id} (platform: ${platform})`);
+        
+        if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
+          // Save to fcmTokenMobile array for mobile devices
+          if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
+            user.fcmTokenMobile = [];
+          }
+          
+          // Remove token if already exists to avoid duplicates
+          user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== fcmToken);
+          
+          // Add new token at the beginning
+          user.fcmTokenMobile.unshift(fcmToken);
+          
+          // Keep only the most recent 10 tokens
+          if (user.fcmTokenMobile.length > 10) {
+            user.fcmTokenMobile = user.fcmTokenMobile.slice(0, 10);
+          }
+          
+          user.markModified('fcmTokenMobile');
+          logger.info(`✅ FCM mobile token saved successfully for user ${user._id}`);
+        } else {
+          // Save to fcmTokens array for web devices
+          if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
+            user.fcmTokens = [];
+          }
+          
+          // Remove token if already exists to avoid duplicates
+          user.fcmTokens = user.fcmTokens.filter(t => t !== fcmToken);
+          
+          // Add new token at the beginning
+          user.fcmTokens.unshift(fcmToken);
+          
+          // Keep only the most recent 10 tokens
+          if (user.fcmTokens.length > 10) {
+            user.fcmTokens = user.fcmTokens.slice(0, 10);
+          }
+          
+          user.markModified('fcmTokens');
+          logger.info(`✅ FCM web token saved successfully for user ${user._id}`);
+        }
       } catch (error) {
-        console.error('❌ Error saving FCM token:', error);
+        logger.error('❌ Error saving FCM token:', error);
         // Don't fail login if FCM token saving fails
       }
     }
@@ -521,9 +564,13 @@ const login = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Find user by phone
+    // Find user by phone - explicitly select FCM token fields
     const cleanPhone = phone.replace(/\D/g, '');
-    const user = await User.findByPhoneOrEmail(cleanPhone);
+    let user = await User.findByPhoneOrEmail(cleanPhone);
+    if (user) {
+      // Explicitly select FCM token fields since they have select: false
+      user = await User.findById(user._id).select('+fcmTokens +fcmTokenMobile');
+    }
 
     if (!user) {
       return res.status(404).json({
@@ -566,17 +613,56 @@ const login = asyncHandler(async (req, res) => {
       });
     }
 
-    // Save FCM token if provided
+    // Save FCM token if provided - detect platform and save to correct array
     if (fcmToken) {
       try {
-        console.log('🔔 Saving FCM token for user login:', user._id);
-        user.fcmToken = fcmToken;
-        user.preferences = user.preferences || {};
-        user.preferences.notifications = user.preferences.notifications || {};
-        user.preferences.notifications.pushNotifications = true;
-        console.log('✅ FCM token saved successfully for user login:', user._id);
+        // Detect platform from user-agent or request body
+        const userAgent = req.headers['user-agent'] || '';
+        const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
+        
+        logger.info(`🔔 Saving FCM token for user login ${user._id} (platform: ${platform})`);
+        
+        if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
+          // Save to fcmTokenMobile array for mobile devices
+          if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
+            user.fcmTokenMobile = [];
+          }
+          
+          // Remove token if already exists to avoid duplicates
+          user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== fcmToken);
+          
+          // Add new token at the beginning
+          user.fcmTokenMobile.unshift(fcmToken);
+          
+          // Keep only the most recent 10 tokens
+          if (user.fcmTokenMobile.length > 10) {
+            user.fcmTokenMobile = user.fcmTokenMobile.slice(0, 10);
+          }
+          
+          user.markModified('fcmTokenMobile');
+          logger.info(`✅ FCM mobile token saved successfully for user login ${user._id}`);
+        } else {
+          // Save to fcmTokens array for web devices
+          if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
+            user.fcmTokens = [];
+          }
+          
+          // Remove token if already exists to avoid duplicates
+          user.fcmTokens = user.fcmTokens.filter(t => t !== fcmToken);
+          
+          // Add new token at the beginning
+          user.fcmTokens.unshift(fcmToken);
+          
+          // Keep only the most recent 10 tokens
+          if (user.fcmTokens.length > 10) {
+            user.fcmTokens = user.fcmTokens.slice(0, 10);
+          }
+          
+          user.markModified('fcmTokens');
+          logger.info(`✅ FCM web token saved successfully for user login ${user._id}`);
+        }
       } catch (error) {
-        console.error('❌ Error saving FCM token during login:', error);
+        logger.error('❌ Error saving FCM token during login:', error);
         // Don't fail login if FCM token saving fails
       }
     }

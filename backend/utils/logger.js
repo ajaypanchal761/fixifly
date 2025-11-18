@@ -77,9 +77,10 @@ class Logger {
    * Log debug message
    */
   debug(message, meta = {}) {
-    // Always show debug logs in production for troubleshooting
-    console.log(`🐛 ${message}`, meta);
-    this.writeToFile('debug', 'debug', message, meta);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🐛 ${message}`, meta);
+      this.writeToFile('debug', 'debug', message, meta);
+    }
   }
 
   /**
