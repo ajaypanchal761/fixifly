@@ -19,6 +19,10 @@ const connectDB = require('./config/db');
 // Import services
 const autoRejectService = require('./services/autoRejectService');
 
+// Import middleware
+const { requestLogger } = require('./middleware/requestLogger');
+const { logger } = require('./utils/logger');
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
@@ -55,11 +59,20 @@ const app = express();
 
 // Global error handlers to prevent server crashes
 process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Promise Rejection', {
+    promise: promise.toString(),
+    reason: reason?.message || reason,
+    stack: reason?.stack
+  });
   console.error('Unhandled Promise Rejection at:', promise, 'reason:', reason);
   // Don't exit the process, just log the error
 });
 
 process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception', {
+    message: error.message,
+    stack: error.stack
+  });
   console.error('Uncaught Exception:', error);
   // Don't exit the process, just log the error
 });
@@ -84,24 +97,27 @@ app.use(cors({
   credentials: true
 }));
 
+// Request logging middleware - log all incoming requests
+app.use(requestLogger);
+
 // Body parsing middleware - but skip for routes that use multer
 app.use((req, res, next) => {
   // Skip body parsing for routes that use multer (file uploads)
   if (req.path.includes('/admin/products') && (req.method === 'POST' || req.method === 'PUT')) {
-    console.log('Skipping body parsing for product route:', req.path, req.method);
+    logger.debug('Skipping body parsing for product route', { path: req.path, method: req.method });
     return next();
   }
-  console.log('Using body parsing for route:', req.path, req.method);
+  logger.debug('Using body parsing for route', { path: req.path, method: req.method });
   express.json({ limit: '10mb' })(req, res, next);
 });
 
 app.use((req, res, next) => {
   // Skip body parsing for routes that use multer (file uploads)
   if (req.path.includes('/admin/products') && (req.method === 'POST' || req.method === 'PUT')) {
-    console.log('Skipping urlencoded parsing for product route:', req.path, req.method);
+    logger.debug('Skipping urlencoded parsing for product route', { path: req.path, method: req.method });
     return next();
   }
-  console.log('Using urlencoded parsing for route:', req.path, req.method);
+  logger.debug('Using urlencoded parsing for route', { path: req.path, method: req.method });
   express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
 });
 
@@ -291,6 +307,16 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
+  logger.error('Global Error Handler', {
+    requestId: req.requestId,
+    message: err.message,
+    stack: err.stack,
+    url: req.originalUrl || req.url,
+    method: req.method,
+    statusCode: err.status || 500,
+    userId: req.user?.userId || req.admin?._id || 'anonymous'
+  });
+  
   console.error('Global Error Handler:', err);
   
   res.status(err.status || 500).json({
@@ -312,6 +338,12 @@ const startServer = async () => {
       // Start auto-reject service
       autoRejectService.start();
       
+      logger.system('Server Started', {
+        port: PORT,
+        environment: process.env.NODE_ENV || 'development',
+        timestamp: new Date().toISOString()
+      });
+      
       console.log(`
 🚀 Fixfly Backend Server Started!
 📡 Server running on port: ${PORT}
@@ -327,6 +359,7 @@ const startServer = async () => {
 📝 Blog Endpoints: http://localhost:${PORT}/api/blogs
 📝 Admin Blog Endpoints: http://localhost:${PORT}/api/admin/blogs
 ⏰ Auto-Reject Service: Active (10-minute timer)
+📝 Request Logging: Active (All requests will be logged)
 
 ⚠️  SMS India Hub Template Approval Needed:
    Contact SMS India Hub support to approve OTP template for sender ID: SMSHUB
@@ -335,6 +368,10 @@ const startServer = async () => {
       `);
     });
   } catch (error) {
+    logger.error('Failed to start server', {
+      message: error.message,
+      stack: error.stack
+    });
     console.error('❌ Failed to start server:', error.message);
     process.exit(1);
   }

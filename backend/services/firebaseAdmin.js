@@ -76,22 +76,48 @@ initializeFirebase();
  * @returns {Promise<Object>} - Response with success/failure counts
  */
 const sendPushNotification = async (tokens, payload) => {
+  logger.info('📤 Sending Push Notification via FCM', {
+    tokenCount: Array.isArray(tokens) ? tokens.length : 1,
+    title: payload?.title || 'N/A',
+    body: payload?.body || 'N/A',
+    hasData: !!payload?.data
+  });
+
   if (!firebaseInitialized) {
-    logger.error('Firebase Admin not initialized');
+    logger.error('❌ Firebase Admin not initialized');
     return { success: false, error: 'Firebase Admin not initialized' };
   }
 
   try {
+    logger.debug('Step 1: Processing FCM tokens', {
+      inputTokenCount: Array.isArray(tokens) ? tokens.length : 1,
+      isArray: Array.isArray(tokens)
+    });
+
     // Ensure tokens is an array
     const tokenArray = Array.isArray(tokens) ? tokens : [tokens];
     
     // Remove null/undefined/empty tokens
     const validTokens = tokenArray.filter(token => token && token.trim().length > 0);
     
+    logger.debug('Step 2: Token validation completed', {
+      inputCount: tokenArray.length,
+      validCount: validTokens.length,
+      invalidCount: tokenArray.length - validTokens.length
+    });
+    
     if (validTokens.length === 0) {
-      logger.warn('No valid FCM tokens provided');
+      logger.warn('⚠️ No valid FCM tokens provided', {
+        inputCount: tokenArray.length
+      });
       return { success: false, error: 'No valid FCM tokens provided' };
     }
+
+    logger.debug('Step 3: Building FCM message payload', {
+      validTokenCount: validTokens.length,
+      title: payload?.title,
+      body: payload?.body
+    });
 
     // Build message payload
     const message = {
@@ -142,10 +168,17 @@ const sendPushNotification = async (tokens, payload) => {
 
     // If single token, use send()
     if (validTokens.length === 1) {
+      logger.debug('Step 4: Sending to single FCM token', {
+        tokenPreview: validTokens[0].substring(0, 30) + '...'
+      });
+
       message.token = validTokens[0];
       try {
         const response = await admin.messaging().send(message);
-        logger.info(`Push notification sent successfully to single token: ${response}`);
+        logger.info('✅ Push notification sent successfully (single token)', {
+          messageId: response,
+          tokenPreview: validTokens[0].substring(0, 30) + '...'
+        });
         result = {
           success: true,
           successCount: 1,
@@ -153,27 +186,50 @@ const sendPushNotification = async (tokens, payload) => {
           responses: [{ success: true, messageId: response }],
         };
       } catch (error) {
-        logger.error('Error sending push notification:', error);
+        logger.error('❌ Error sending push notification (single token)', {
+          error: error.message,
+          errorCode: error.code,
+          tokenPreview: validTokens[0].substring(0, 30) + '...',
+          stack: error.stack
+        });
         result = {
           success: false,
           successCount: 0,
           failureCount: 1,
-          responses: [{ success: false, error: error.message }],
+          responses: [{ success: false, error: error.message, errorCode: error.code }],
         };
       }
     } else {
       // Multiple tokens, use sendMulticast()
+      logger.debug('Step 4: Sending to multiple FCM tokens (multicast)', {
+        tokenCount: validTokens.length
+      });
+
       message.tokens = validTokens;
       try {
         const response = await admin.messaging().sendMulticast(message);
-        logger.info(`Push notification sent: ${response.successCount} successful, ${response.failureCount} failed`);
+        logger.info('✅ Push notification sent (multicast)', {
+          successCount: response.successCount,
+          failureCount: response.failureCount,
+          totalTokens: validTokens.length
+        });
         
         // Remove invalid tokens
         if (response.failureCount > 0) {
+          logger.debug('Step 5: Processing failed tokens', {
+            failureCount: response.failureCount
+          });
+
           const invalidTokens = [];
           response.responses.forEach((resp, idx) => {
             if (!resp.success) {
               const errorCode = resp.error?.code;
+              logger.debug('Failed token details', {
+                index: idx,
+                errorCode,
+                errorMessage: resp.error?.message,
+                tokenPreview: validTokens[idx].substring(0, 30) + '...'
+              });
               // Remove tokens that are invalid or unregistered
               if (errorCode === 'messaging/invalid-registration-token' || 
                   errorCode === 'messaging/registration-token-not-registered') {
@@ -183,7 +239,10 @@ const sendPushNotification = async (tokens, payload) => {
           });
           
           if (invalidTokens.length > 0) {
-            logger.warn(`Found ${invalidTokens.length} invalid tokens that should be removed`);
+            logger.warn('⚠️ Found invalid FCM tokens that should be removed', {
+              invalidTokenCount: invalidTokens.length,
+              tokenPreviews: invalidTokens.slice(0, 3).map(t => t.substring(0, 30) + '...')
+            });
             // Return invalid tokens so they can be cleaned up
             result = {
               success: response.successCount > 0,
@@ -201,6 +260,9 @@ const sendPushNotification = async (tokens, payload) => {
             };
           }
         } else {
+          logger.debug('Step 5: All tokens sent successfully', {
+            successCount: response.successCount
+          });
           result = {
             success: true,
             successCount: response.successCount,
@@ -209,7 +271,12 @@ const sendPushNotification = async (tokens, payload) => {
           };
         }
       } catch (error) {
-        logger.error('Error sending multicast push notification:', error);
+        logger.error('❌ Error sending multicast push notification', {
+          error: error.message,
+          errorCode: error.code,
+          tokenCount: validTokens.length,
+          stack: error.stack
+        });
         result = {
           success: false,
           successCount: 0,
@@ -220,9 +287,21 @@ const sendPushNotification = async (tokens, payload) => {
       }
     }
 
+    logger.info('📊 Push notification result summary', {
+      success: result.success,
+      successCount: result.successCount,
+      failureCount: result.failureCount,
+      invalidTokenCount: result.invalidTokens?.length || 0
+    });
+
     return result;
   } catch (error) {
-    logger.error('Error in sendPushNotification:', error);
+    logger.error('❌ Error in sendPushNotification', {
+      error: error.message,
+      errorCode: error.code,
+      stack: error.stack,
+      tokenCount: Array.isArray(tokens) ? tokens.length : 1
+    });
     return {
       success: false,
       error: error.message,
@@ -238,18 +317,43 @@ const sendPushNotification = async (tokens, payload) => {
  */
 const sendPushNotificationToUser = async (userId, payload) => {
   try {
+    logger.info('👤 Sending Push Notification to User', {
+      userId,
+      title: payload?.title || 'N/A'
+    });
+
+    logger.debug('Step 1: Fetching user FCM tokens', {
+      userId
+    });
+
     const User = require('../models/User');
     const user = await User.findById(userId).select('fcmTokens fcmTokenMobile preferences');
     
     if (!user) {
+      logger.warn('User not found for push notification', {
+        userId
+      });
       return { success: false, error: 'User not found' };
     }
 
+    logger.debug('Step 2: Checking user preferences', {
+      userId,
+      pushNotificationsEnabled: user.preferences?.notifications?.push !== false
+    });
+
     // Check if user has push notifications enabled
     if (user.preferences?.notifications?.push === false) {
-      logger.info(`Push notifications disabled for user ${userId}`);
+      logger.info('Push notifications disabled for user', {
+        userId
+      });
       return { success: false, error: 'Push notifications disabled for user' };
     }
+
+    logger.debug('Step 3: Combining web and mobile FCM tokens', {
+      userId,
+      webTokenCount: user.fcmTokens?.length || 0,
+      mobileTokenCount: user.fcmTokenMobile?.length || 0
+    });
 
     // Combine web and mobile tokens
     const allTokens = [
@@ -260,28 +364,65 @@ const sendPushNotificationToUser = async (userId, payload) => {
     // Remove duplicates
     const uniqueTokens = [...new Set(allTokens)];
 
+    logger.debug('Step 4: Token deduplication completed', {
+      userId,
+      totalTokens: allTokens.length,
+      uniqueTokens: uniqueTokens.length,
+      duplicatesRemoved: allTokens.length - uniqueTokens.length
+    });
+
     if (uniqueTokens.length === 0) {
-      logger.warn(`No FCM tokens found for user ${userId}`);
+      logger.warn('⚠️ No FCM tokens found for user', {
+        userId,
+        webTokenCount: user.fcmTokens?.length || 0,
+        mobileTokenCount: user.fcmTokenMobile?.length || 0
+      });
       return { success: false, error: 'No FCM tokens found for user' };
     }
+
+    logger.debug('Step 5: Sending notification to tokens', {
+      userId,
+      uniqueTokenCount: uniqueTokens.length,
+      tokenPreviews: uniqueTokens.slice(0, 3).map(t => t.substring(0, 30) + '...')
+    });
 
     // Send notification
     const result = await sendPushNotification(uniqueTokens, payload);
 
     // Clean up invalid tokens if any
     if (result.invalidTokens && result.invalidTokens.length > 0) {
+      logger.info('Cleaning up invalid FCM tokens', {
+        userId,
+        invalidTokenCount: result.invalidTokens.length,
+        tokenPreviews: result.invalidTokens.slice(0, 3).map(t => t.substring(0, 30) + '...')
+      });
+
       await User.findByIdAndUpdate(userId, {
         $pull: {
           fcmTokens: { $in: result.invalidTokens },
           fcmTokenMobile: { $in: result.invalidTokens },
         },
       });
-      logger.info(`Cleaned up ${result.invalidTokens.length} invalid tokens for user ${userId}`);
+      logger.info('✅ Invalid tokens cleaned up', {
+        userId,
+        removedCount: result.invalidTokens.length
+      });
     }
+
+    logger.info('✅ Push notification to user completed', {
+      userId,
+      success: result.success,
+      successCount: result.successCount,
+      failureCount: result.failureCount
+    });
 
     return result;
   } catch (error) {
-    logger.error('Error in sendPushNotificationToUser:', error);
+    logger.error('❌ Error in sendPushNotificationToUser', {
+      userId,
+      error: error.message,
+      stack: error.stack
+    });
     return {
       success: false,
       error: error.message,
