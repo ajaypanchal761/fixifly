@@ -43,16 +43,23 @@ const sendOTP = asyncHandler(async (req, res) => {
     let user = await User.findByPhoneOrEmail(cleanPhone);
     
     if (!user) {
-      logger.info('Creating new user for OTP', { phone: cleanPhone });
-      // Create new user if doesn't exist
-      user = new User({
-        phone: cleanPhone,
-        role: 'user',
-        isPhoneVerified: false
+      logger.info('User not found for OTP', { phone: cleanPhone });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found. Please sign up first.'
       });
-    } else {
-      logger.info('Existing user found', { userId: user._id, phone: cleanPhone });
     }
+    
+    // Check if user has completed signup (has name and email)
+    if (!user.name || !user.email) {
+      logger.info('User has not completed signup', { userId: user._id, phone: cleanPhone });
+      return res.status(400).json({
+        success: false,
+        message: 'Please complete your signup first. Name and email are required.'
+      });
+    }
+    
+    logger.info('Existing user found with completed signup', { userId: user._id, phone: cleanPhone });
 
     const isDefaultTestNumber = cleanPhone === '7610416911';
     let otp;
@@ -180,13 +187,22 @@ const sendOTP = asyncHandler(async (req, res) => {
       const cleanPhone = req.body.phone.replace(/\D/g, '');
       
       try {
-        // Find or create user and store OTP
+        // Find user - don't create if doesn't exist
         let user = await User.findByPhoneOrEmail(cleanPhone);
         if (!user) {
-          user = new User({
-            phone: cleanPhone,
-            role: 'user',
-            isPhoneVerified: false
+          logger.error('User not found in fallback handler', { phone: cleanPhone });
+          return res.status(404).json({
+            success: false,
+            message: 'User not found. Please sign up first.'
+          });
+        }
+        
+        // Check if user has completed signup
+        if (!user.name || !user.email) {
+          logger.error('User has not completed signup in fallback handler', { userId: user._id, phone: cleanPhone });
+          return res.status(400).json({
+            success: false,
+            message: 'Please complete your signup first. Name and email are required.'
           });
         }
         
@@ -257,7 +273,15 @@ const verifyOTP = asyncHandler(async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found. Please request OTP first.'
+        message: 'User not found. Please sign up first.'
+      });
+    }
+
+    // Check if user has completed signup (has name and email)
+    if (!user.name || !user.email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please complete your signup first. Name and email are required.'
       });
     }
 
@@ -274,40 +298,6 @@ const verifyOTP = asyncHandler(async (req, res) => {
     // Clear OTP after successful verification
     user.clearOTP();
     user.isPhoneVerified = true;
-
-    // If this is a signup (name and email provided), update user info
-    if (name && email) {
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Please enter a valid email address'
-        });
-      }
-
-      // Check if email is already taken by another user
-      const existingUser = await User.findOne({ 
-        email: email.toLowerCase(),
-        _id: { $ne: user._id }
-      });
-      if (existingUser) {
-        return res.status(400).json({
-          success: false,
-          message: 'Email address is already registered'
-        });
-      }
-
-      user.name = name.trim();
-      user.email = email.toLowerCase();
-      user.isEmailVerified = false; // Email verification can be done later
-    } else if (!user.name || !user.email) {
-      // If user doesn't have complete profile, require name and email for signup
-      return res.status(400).json({
-        success: false,
-        message: 'Name and email are required for account creation'
-      });
-    }
 
     // Save FCM token if provided
     if (fcmToken) {
@@ -346,18 +336,13 @@ const verifyOTP = asyncHandler(async (req, res) => {
       stats: user.stats
     };
 
-    // Determine if this is login or signup
-    const isNewUser = !user.name || !user.email;
-    const message = isNewUser ? 'Account created and verified successfully!' : 'Login successful!';
-
     res.status(200).json({
       success: true,
-      message: message,
+      message: 'Login successful!',
       data: {
         user: userData,
         token,
-        isNewUser: isNewUser,
-        redirectTo: isNewUser ? '/profile' : '/' // Redirect new users to profile, existing to home
+        redirectTo: '/' // Redirect to home page after login
       }
     });
 
@@ -543,7 +528,15 @@ const login = asyncHandler(async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found. Please register first.'
+        message: 'User not found. Please sign up first.'
+      });
+    }
+
+    // Check if user has completed signup (has name and email)
+    if (!user.name || !user.email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please complete your signup first. Name and email are required.'
       });
     }
 

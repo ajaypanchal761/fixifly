@@ -52,8 +52,16 @@ const Signup = () => {
   };
 
   const sendOTP = async () => {
-    if (!formData.phone) {
-      setError('Please enter your phone number first');
+    // Validate all required fields for registration
+    if (!formData.name || !formData.email || !formData.phone) {
+      setError('Please fill in name, email, and phone number first');
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
       return;
     }
 
@@ -69,16 +77,20 @@ const Signup = () => {
     setError('');
 
     try {
-      // Call backend API to send OTP
-      const response = await apiService.sendOTP(cleanPhone);
+      // Call register endpoint which creates user and sends OTP
+      const response = await apiService.register({
+        name: formData.name,
+        email: formData.email,
+        phone: cleanPhone
+      });
       
       if (response.success) {
         setOtpSent(true);
         setOtpTimer(60); // 60 seconds timer
         
         toast({
-          title: "OTP Sent!",
-          description: `OTP has been sent to +91 ${cleanPhone}`,
+          title: "Account Created!",
+          description: `OTP has been sent to +91 ${cleanPhone}. Please verify to complete signup.`,
         });
 
         // In development, show OTP in console
@@ -86,11 +98,11 @@ const Signup = () => {
           console.log(`🔧 Development Mode - OTP for ${cleanPhone}: ${response.data.otp}`);
         }
       } else {
-        setError(response.message || 'Failed to send OTP. Please try again.');
+        setError(response.message || 'Failed to create account. Please try again.');
       }
     } catch (err: any) {
-      console.error('Send OTP Error:', err);
-      setError(err.message || 'Failed to send OTP. Please try again.');
+      console.error('Registration Error:', err);
+      setError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -273,10 +285,10 @@ const Signup = () => {
                   <Button
                     type="button"
                     onClick={sendOTP}
-                    disabled={isLoading || !formData.phone}
+                    disabled={isLoading || !formData.name || !formData.email || !formData.phone}
                     className="w-full h-10 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg font-medium transition-all duration-200"
                   >
-                    {isLoading ? 'Sending...' : 'Send OTP'}
+                    {isLoading ? 'Creating Account...' : 'Create Account & Send OTP'}
                   </Button>
                 ) : (
                   <div className="flex items-center justify-between text-xs">

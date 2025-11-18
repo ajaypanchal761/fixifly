@@ -446,7 +446,7 @@ const Header = () => {
               fontSize: isMobile ? '1.2rem' : '1.5rem'
             }}
           >
-            {isAuthenticated && user ? user.name.charAt(0).toUpperCase() : 'U'}
+            {isAuthenticated && user && user.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </Avatar>
           <Typography variant="subtitle1" sx={{ 
             fontWeight: 'bold', 
@@ -454,7 +454,7 @@ const Header = () => {
             color: '#1f2937',
             fontSize: isMobile ? '0.9rem' : '1rem'
           }}>
-            {isAuthenticated && user ? user.name : 'Guest User'}
+            {isAuthenticated && user && user.name ? user.name : 'Guest User'}
           </Typography>
           <Typography variant="body2" sx={{ 
             color: '#6b7280', 

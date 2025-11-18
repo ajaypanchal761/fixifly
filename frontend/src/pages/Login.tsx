@@ -123,13 +123,28 @@ const Login = () => {
         setError(response.message || 'Failed to send OTP. Please try again.');
       }
   } catch (err: any) {
-      console.error('Send OTP Error:', err);
+      // Check if it's an expected error (user not found)
+      const isExpectedError = err.message?.includes('User not found') || 
+                             err.message?.includes('sign up first') ||
+                             err.message?.includes('complete your signup');
+      
+      if (isExpectedError) {
+        // Log expected errors as info instead of error
+        console.info('ℹ️ User account check:', err.message);
+      } else {
+        // Log unexpected errors as errors
+        console.error('Send OTP Error:', err);
+      }
       
       let errorMessage = 'Failed to send OTP. Please try again.';
       
       // Parse specific error messages
       if (err.message) {
-        if (err.message.includes('SMS India Hub')) {
+        if (err.message.includes('User not found') || err.message.includes('sign up first')) {
+          errorMessage = 'Account not found. Please sign up first to create an account.';
+        } else if (err.message.includes('complete your signup')) {
+          errorMessage = 'Please complete your signup first. Name and email are required.';
+        } else if (err.message.includes('SMS India Hub')) {
           errorMessage = 'SMS service is currently unavailable. Please try again later.';
         } else if (err.message.includes('Network error')) {
           errorMessage = 'Network connection failed. Please check your internet connection and try again.';

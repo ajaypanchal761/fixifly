@@ -20,7 +20,7 @@ const router = express.Router();
 const { protect } = require('../middleware/auth');
 const uploadMiddleware = require('../middleware/upload');
 
-// Public routes (no authentication required)
+// Public route - Save FCM token for mobile (no auth required)
 // @route   POST /api/users/save-fcm-token-mobile
 // @desc    Save FCM token for mobile/APK push notifications
 // @access  Public (no auth required)

@@ -311,3 +311,184 @@
 [2025-11-18T17:56:14.051Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-18T17:57:14.052Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-18T17:58:14.206Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T17:59:14.059Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:00:14.065Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:01:14.071Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:02:14.094Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:03:14.093Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:04:14.153Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:05:14.127Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:05:43.391Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:05:43.560Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:05:43.857Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:05:43.915Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:05:45.036Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:05:46.185Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:06:45.098Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:07:45.093Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:08:45.101Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:09:45.108Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:10:03.970Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:10:04.147Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:10:04.389Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:10:04.477Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:10:05.440Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:10:06.895Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:11:05.496Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:12:05.470Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:13:05.467Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:14:05.467Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:14:28.499Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:14:28.688Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:14:28.929Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:14:29.001Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:14:29.900Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:14:31.356Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:15:23.498Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:15:23.832Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:15:24.550Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:15:24.713Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:15:28.145Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:15:28.550Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:15:30.783Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:15:31.130Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:15:31.789Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:15:31.855Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:15:32.745Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:15:34.293Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:15:45.479Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:15:45.812Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:15:46.220Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:15:46.280Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:15:47.092Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:15:49.362Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:16:07.156Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:16:07.259Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:16:07.443Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:16:07.509Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:16:08.294Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:16:10.329Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:17:08.411Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:18:08.375Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:19:08.353Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:20:08.402Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:21:08.382Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:21:36.909Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:21:37.020Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:21:37.248Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:21:37.316Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:21:38.254Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:21:39.713Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:22:00.116Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:22:00.150Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:22:00.311Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:22:38.341Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:23:38.417Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:24:38.335Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:25:38.364Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:26:38.356Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:27:38.678Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:28:38.380Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:29:38.383Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:30:01.142Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:30:01.332Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:30:01.766Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:30:01.843Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:30:02.823Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:30:04.630Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:30:22.975Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-18T18:30:23.049Z] [INFO] Creating new user for OTP | {"phone":"7610416911"}
+[2025-11-18T18:30:23.063Z] [INFO] Detected default test number, applying static OTP | {"phone":"7610416911"}
+[2025-11-18T18:30:23.142Z] [INFO] Static OTP assigned and user saved | {"phone":"7610416911","userId":"691cbb3ff533c933b91a6b19"}
+[2025-11-18T18:30:33.536Z] [INFO] FCM token saved for user 691cbb3ff533c933b91a6b19 (platform: web)
+[2025-11-18T18:30:36.314Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:30:36.393Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:30:36.690Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:30:37.372Z] [INFO] FCM token saved for user 691cbb3ff533c933b91a6b19 (platform: web)
+[2025-11-18T18:30:42.022Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:30:42.073Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:30:42.157Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:30:43.084Z] [INFO] FCM token saved for user 691cbb3ff533c933b91a6b19 (platform: web)
+[2025-11-18T18:31:02.887Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:32:02.879Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:32:28.941Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:32:29.092Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:32:29.462Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:32:29.545Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:32:30.483Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:32:31.814Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:32:39.495Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:32:39.679Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:32:39.948Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:32:40.033Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:32:41.045Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:32:42.539Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:33:03.172Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:33:03.282Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:33:03.933Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:33:03.993Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:33:04.709Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:33:06.203Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:34:04.792Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:34:13.367Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:34:13.505Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:34:13.661Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:34:13.726Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:34:14.494Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:34:15.950Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:34:54.396Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:34:54.409Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:34:54.587Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:35:14.550Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:35:17.791Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:35:17.883Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:35:18.040Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:36:14.562Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:36:15.438Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:36:15.444Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:36:15.547Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:36:41.397Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-18T18:36:41.485Z] [INFO] User not found for OTP | {"phone":"7610416911"}
+[2025-11-18T18:37:14.578Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:38:14.585Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:38:30.855Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-18T18:38:30.909Z] [INFO] User not found for OTP | {"phone":"7610416911"}
+[2025-11-18T18:39:14.597Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:40:14.606Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:41:14.621Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:41:59.609Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-18T18:41:59.649Z] [INFO] User not found for OTP | {"phone":"7610416911"}
+[2025-11-18T18:42:14.619Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:42:20.656Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:42:20.674Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:42:20.789Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:42:34.048Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-18T18:42:34.113Z] [INFO] Existing user found with completed signup | {"userId":"691cbe0737edcf6161adb52c","phone":"7610416911"}
+[2025-11-18T18:42:34.114Z] [INFO] Detected default test number, applying static OTP | {"phone":"7610416911"}
+[2025-11-18T18:42:34.164Z] [INFO] Static OTP assigned and user saved | {"phone":"7610416911","userId":"691cbe0737edcf6161adb52c"}
+[2025-11-18T18:42:38.762Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:42:38.777Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:42:38.915Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:42:43.722Z] [INFO] FCM token saved for user 691cbe0737edcf6161adb52c (platform: web)
+[2025-11-18T18:43:14.670Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:44:10.409Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:44:10.919Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:44:11.430Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:44:11.517Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:44:13.746Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:44:14.338Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:44:35.216Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T18:44:35.490Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T18:44:35.809Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T18:44:35.864Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T18:44:37.212Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T18:44:39.222Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:45:08.575Z] [INFO] Starting OTP send process | {"phone":"7610416911"}
+[2025-11-18T18:45:08.658Z] [INFO] Existing user found with completed signup | {"userId":"691cbe0737edcf6161adb52c","phone":"7610416911"}
+[2025-11-18T18:45:08.659Z] [INFO] Detected default test number, applying static OTP | {"phone":"7610416911"}
+[2025-11-18T18:45:08.776Z] [INFO] Static OTP assigned and user saved | {"phone":"7610416911","userId":"691cbe0737edcf6161adb52c"}
+[2025-11-18T18:45:12.986Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T18:45:13.079Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T18:45:13.331Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T18:45:18.620Z] [INFO] FCM token saved for user 691cbe0737edcf6161adb52c (platform: web)
+[2025-11-18T18:45:37.271Z] [INFO] Found 0 pending assignments to check for auto-rejection

@@ -1,11 +1,10 @@
 // API service for Fixfly backend communication
-import { getApiBaseUrl } from '../utils/apiUrl';
+import { normalizeApiUrl } from '../utils/apiUrl';
 
-// Get initial API URL (will be updated dynamically if localStorage changes)
-const getInitialApiUrl = () => getApiBaseUrl();
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
 
-// Debug API URL
-console.log('🔗 Initial API_BASE_URL:', getInitialApiUrl());
+// Debug API URL in production
+console.log('🔗 API_BASE_URL:', API_BASE_URL);
 console.log('🔗 Environment:', import.meta.env.MODE);
 console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
 
@@ -39,21 +38,17 @@ interface AuthResponse {
 }
 
 class ApiService {
-  // Get API URL dynamically (checks localStorage each time)
-  private getBaseURL(): string {
-    return getApiBaseUrl();
-  }
-  
-  // Method to get current API URL (useful for debugging)
-  getCurrentApiUrl(): string {
-    return this.getBaseURL();
+  private baseURL: string;
+
+  constructor() {
+    this.baseURL = API_BASE_URL;
   }
 
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${this.getBaseURL()}${endpoint}`;
+    const url = `${this.baseURL}${endpoint}`;
     
     const defaultHeaders = {
       'Content-Type': 'application/json',
@@ -91,42 +86,49 @@ class ApiService {
       console.log('Response data:', data);
 
       if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        const error = new Error(data.message || `HTTP error! status: ${response.status}`);
+        // Attach status code to error for better handling
+        (error as any).status = response.status;
+        (error as any).responseData = data;
+        throw error;
       }
 
       return data;
     } catch (error: any) {
-      console.error('API request failed:', error);
-      console.error('Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        url: url,
-        config: config
-      });
+      // Handle expected errors (like 404 - user not found) more gracefully
+      const isExpectedError = error.status === 404 || 
+                             error.message?.includes('User not found') ||
+                             error.message?.includes('sign up first') ||
+                             error.message?.includes('complete your signup');
+      
+      if (isExpectedError) {
+        // Log expected errors as info instead of error
+        console.info('ℹ️ Expected API response:', {
+          message: error.message,
+          status: error.status,
+          url: url
+        });
+      } else {
+        // Log unexpected errors as errors
+        console.error('API request failed:', error);
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          url: url,
+          config: config
+        });
+      }
       
       // Handle network errors
       if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
-        const currentBaseURL = this.getBaseURL();
         console.error('🌐 Network Error Details:', {
           url: url,
-          baseURL: currentBaseURL,
+          baseURL: this.baseURL,
           environment: import.meta.env.MODE,
-          userAgent: navigator.userAgent,
-          isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
-          isWebView: /wv|WebView/i.test(navigator.userAgent)
+          userAgent: navigator.userAgent
         });
-        
-        // Provide helpful error message based on context
-        let errorMessage = 'Network error: Unable to connect to server.';
-        if (currentBaseURL.includes('localhost')) {
-          errorMessage += ' For mobile devices, use production API URL or set API_BASE_URL in localStorage.';
-        } else if (currentBaseURL.includes('getfixfly.com')) {
-          errorMessage += ' Please check if the API server is running and accessible.';
-        }
-        errorMessage += ' Please check your internet connection and try again.';
-        
-        throw new Error(errorMessage);
+        throw new Error('Network error: Unable to connect to server. Please check your internet connection and try again.');
       }
       
       // Handle HTTP errors
@@ -166,7 +168,7 @@ class ApiService {
   // Health check method
   async healthCheck(): Promise<ApiResponse> {
     // Health check endpoint is at root level, not under /api
-    const url = `${this.getBaseURL().replace('/api', '')}/health`;
+    const url = `${this.baseURL.replace('/api', '')}/health`;
     const config: RequestInit = {
       method: 'GET',
       headers: {
@@ -191,7 +193,7 @@ class ApiService {
 
   // SMS test method
   async testSMS(): Promise<ApiResponse> {
-    const url = `${this.getBaseURL().replace('/api', '')}/test-sms`;
+    const url = `${this.baseURL.replace('/api', '')}/test-sms`;
     const config: RequestInit = {
       method: 'GET',
       headers: {
@@ -353,7 +355,7 @@ class ApiService {
 
   async uploadProfileImage(formData: FormData): Promise<ApiResponse<{ profileImage: string; imageUrl: string }>> {
     const token = localStorage.getItem('accessToken');
-    const url = `${this.getBaseURL()}/users/profile/image`;
+    const url = `${this.baseURL}/users/profile/image`;
     
     const response = await fetch(url, {
       method: 'POST',
