@@ -533,3 +533,13 @@
 [2025-11-18T18:56:09.880Z] [INFO] Firebase Admin SDK initialized successfully
 [2025-11-18T18:56:10.586Z] [INFO] Auto-reject service started - checking every minute for pending assignments
 [2025-11-18T18:56:12.085Z] [INFO] SMTP connection verified successfully
+[2025-11-18T18:57:10.656Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:58:10.653Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T18:59:10.662Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T19:00:10.665Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T19:01:10.702Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T19:01:22.619Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T19:01:22.750Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T19:01:23.233Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T19:02:10.701Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T19:03:10.699Z] [INFO] Found 0 pending assignments to check for auto-rejection

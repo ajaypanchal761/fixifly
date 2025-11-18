@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { registerFCMToken } from '../services/pushNotificationService';
+import { registerFCMToken, saveMobileFCMToken } from '../services/pushNotificationService';
 
 interface User {
   id: string;
@@ -100,13 +100,100 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(userData);
     setToken(token);
     
+    // Detect if running in webview/APK
+    const isWebView = (() => {
+      try {
+        // Check for webview user agent
+        const userAgent = navigator.userAgent || '';
+        const isWebViewUA = /wv|WebView/.test(userAgent);
+        
+        // Check for standalone mode (PWA)
+        const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+        
+        // Check for iOS standalone
+        const isIOSStandalone = (window.navigator as any).standalone === true;
+        
+        // Check if Flutter bridge is available (for APK)
+        const hasFlutterBridge = typeof (window as any).flutter_inappwebview !== 'undefined' || 
+                                 typeof (window as any).Android !== 'undefined';
+        
+        return isWebViewUA || isStandalone || isIOSStandalone || hasFlutterBridge;
+      } catch (error) {
+        console.error('Error detecting webview:', error);
+        return false;
+      }
+    })();
+    
     // Register FCM token after successful login
-    // Wait longer to ensure service worker is ready
     setTimeout(() => {
-      registerFCMToken(true).catch((error) => {
-        console.error('Failed to register FCM token after login:', error);
-      });
-    }, 5000); // Wait 5 seconds for app and service worker to fully initialize
+      if (isWebView) {
+        // For webview/APK: Get FCM token from Flutter bridge and save using mobile endpoint
+        console.log('📱 Detected webview/APK environment, using mobile FCM token endpoint');
+        
+        // Try to get FCM token from Flutter bridge
+        const getFCMTokenFromFlutter = (): Promise<string | null> => {
+          return new Promise((resolve) => {
+            try {
+              // Check if Flutter bridge is available
+              if (typeof (window as any).flutter_inappwebview !== 'undefined') {
+                // Flutter InAppWebView
+                (window as any).flutter_inappwebview.callHandler('getFCMToken').then((token: string) => {
+                  resolve(token);
+                }).catch(() => {
+                  resolve(null);
+                });
+              } else if (typeof (window as any).Android !== 'undefined') {
+                // Android WebView
+                const token = (window as any).Android.getFCMToken();
+                resolve(token || null);
+              } else {
+                // Try to get from localStorage (if Flutter saved it)
+                const savedToken = localStorage.getItem('fcmToken');
+                if (savedToken) {
+                  resolve(savedToken);
+                } else {
+                  // Listen for token from Flutter
+                  window.addEventListener('message', function(event) {
+                    if (event.data && event.data.type === 'FCM_TOKEN') {
+                      resolve(event.data.token);
+                    }
+                  });
+                  // Timeout after 3 seconds
+                  setTimeout(() => resolve(null), 3000);
+                }
+              }
+            } catch (error) {
+              console.error('Error getting FCM token from Flutter:', error);
+              resolve(null);
+            }
+          });
+        };
+        
+        getFCMTokenFromFlutter().then((fcmToken) => {
+          if (fcmToken && userData.phone) {
+            // Clean phone number (remove +91 if present)
+            const cleanPhone = userData.phone.replace(/\D/g, '').replace(/^91/, '');
+            saveMobileFCMToken(fcmToken, cleanPhone).then((success) => {
+              if (success) {
+                console.log('✅ Mobile FCM token saved after login');
+              } else {
+                console.warn('⚠️ Failed to save mobile FCM token after login');
+              }
+            }).catch((error) => {
+              console.error('❌ Error saving mobile FCM token after login:', error);
+            });
+          } else {
+            console.warn('⚠️ FCM token or phone not available for mobile save');
+          }
+        });
+      } else {
+        // For web: Use web FCM token endpoint
+        console.log('🌐 Detected web environment, using web FCM token endpoint');
+        registerFCMToken(true).catch((error) => {
+          console.error('Failed to register FCM token after login:', error);
+        });
+      }
+    }, 2000); // Wait 2 seconds for Flutter bridge to be ready
   };
 
   const logout = () => {
