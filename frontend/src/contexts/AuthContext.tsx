@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { registerFCMToken } from '../services/pushNotificationService';
 
 interface User {
   id: string;
@@ -98,6 +99,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('userData', JSON.stringify(userData));
     setUser(userData);
     setToken(token);
+    
+    // Register FCM token after successful login
+    // Wait longer to ensure service worker is ready
+    setTimeout(() => {
+      registerFCMToken(true).catch((error) => {
+        console.error('Failed to register FCM token after login:', error);
+      });
+    }, 5000); // Wait 5 seconds for app and service worker to fully initialize
   };
 
   const logout = () => {

@@ -163,13 +163,14 @@ const createBooking = asyncHandler(async (req, res) => {
           user._id,
           {
             title: '🎉 Booking Confirmed!',
-            body: `Your booking is booked! Booking #${booking.bookingReference} has been confirmed. We'll assign an engineer soon.`
+            body: `Your booking #${booking.bookingReference} has been confirmed. We'll assign an engineer soon.`
           },
           {
             type: 'booking_confirmation',
             bookingId: booking._id.toString(),
             bookingReference: booking.bookingReference,
-            priority: 'high'
+            priority: 'high',
+            link: `/booking/${booking._id}` // Link to booking details page
           }
         );
         
@@ -736,13 +737,14 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
           user._id,
           {
             title: '🎉 Booking Confirmed!',
-            body: `Your booking is booked! Booking #${booking.bookingReference} has been confirmed with payment. We'll assign an engineer soon.`
+            body: `Your booking #${booking.bookingReference} has been confirmed with payment. We'll assign an engineer soon.`
           },
           {
             type: 'booking_confirmation',
             bookingId: booking._id.toString(),
             bookingReference: booking.bookingReference,
-            priority: 'high'
+            priority: 'high',
+            link: `/booking/${booking._id}` // Link to booking details page
           }
         );
         

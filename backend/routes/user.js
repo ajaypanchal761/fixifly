@@ -10,7 +10,10 @@ const {
   reactivateAccount,
   changePhoneNumber,
   getUserActivity,
-  exportUserData
+  exportUserData,
+  saveFCMToken,
+  saveFCMTokenMobile,
+  removeFCMToken
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -78,6 +81,21 @@ router.get('/activity', getUserActivity);
 // @desc    Export user data
 // @access  Private
 router.get('/export', exportUserData);
+
+// @route   POST /api/users/save-fcm-token
+// @desc    Save FCM token for web push notifications
+// @access  Private
+router.post('/save-fcm-token', saveFCMToken);
+
+// @route   POST /api/users/save-fcm-token-mobile
+// @desc    Save FCM token for mobile/APK push notifications
+// @access  Public (no auth required)
+router.post('/save-fcm-token-mobile', saveFCMTokenMobile);
+
+// @route   DELETE /api/users/remove-fcm-token
+// @desc    Remove FCM token
+// @access  Private
+router.delete('/remove-fcm-token', removeFCMToken);
 
 module.exports = router;
 

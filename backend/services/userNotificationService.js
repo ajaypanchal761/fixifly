@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const UserNotification = require('../models/UserNotification');
-const firebasePushService = require('./firebasePushService');
+const { sendPushNotificationToUser } = require('./firebaseAdmin');
 const { logger } = require('../utils/logger');
 
 /**
@@ -23,8 +23,8 @@ class UserNotificationService {
     try {
       console.log('🔔 UserNotificationService: Starting sendToUser...');
       
-      // Get user with FCM token
-      const user = await User.findById(userId).select('fcmToken name email phone');
+      // Get user with FCM tokens (both web and mobile)
+      const user = await User.findById(userId).select('fcmTokens fcmTokenMobile name email phone preferences');
       
       if (!user) {
         console.log('❌ User not found:', userId);
@@ -32,13 +32,28 @@ class UserNotificationService {
         return false;
       }
 
-      console.log(`📊 User found: ${user.name} (${user.email})`);
-      console.log(`   FCM Token: ${user.fcmToken ? 'Present' : 'Missing'}`);
-      console.log(`   Token Length: ${user.fcmToken ? user.fcmToken.length : 0}`);
+      // Combine web and mobile tokens
+      const allTokens = [
+        ...(user.fcmTokens || []),
+        ...(user.fcmTokenMobile || [])
+      ];
+      const uniqueTokens = [...new Set(allTokens)];
 
-      if (!user.fcmToken) {
-        console.log('❌ User has no FCM token');
-        logger.warn('User has no FCM token', { userId, userEmail: user.email });
+      console.log(`📊 User found: ${user.name} (${user.email})`);
+      console.log(`   Web FCM Tokens: ${user.fcmTokens?.length || 0}`);
+      console.log(`   Mobile FCM Tokens: ${user.fcmTokenMobile?.length || 0}`);
+      console.log(`   Total Unique Tokens: ${uniqueTokens.length}`);
+
+      if (uniqueTokens.length === 0) {
+        console.log('❌ User has no FCM tokens');
+        logger.warn('User has no FCM tokens', { userId, userEmail: user.email });
+        return false;
+      }
+
+      // Check if user has push notifications enabled
+      if (user.preferences?.notifications?.push === false) {
+        console.log('⚠️ User has push notifications disabled');
+        logger.info('Push notifications disabled for user', { userId, userEmail: user.email });
         return false;
       }
 
@@ -65,32 +80,44 @@ class UserNotificationService {
       await userNotification.save();
       console.log('✅ User notification saved to database');
 
-      // Send push notification
-      const pushResult = await firebasePushService.sendPushNotification(
-        user.fcmToken,
-        notification,
-        {
+      // Prepare notification payload for Firebase
+      const pushPayload = {
+        title: notification.title,
+        body: notification.body || notification.message,
+        data: {
           ...data,
           notificationId: userNotification._id.toString(),
           userId: userId.toString()
-        }
-      );
+        },
+        handlerName: data.type || 'booking',
+        link: data.link || (data.bookingId ? `/booking/${data.bookingId}` : '/notifications'),
+        icon: '/favicon.png'
+      };
 
-      if (pushResult) {
-        console.log('✅ Push notification sent successfully to user');
+      // Send push notification using Firebase Admin
+      const pushResult = await sendPushNotificationToUser(userId, pushPayload);
+
+      if (pushResult && pushResult.success) {
+        console.log('✅ Push notification sent successfully to user', {
+          successCount: pushResult.successCount,
+          failureCount: pushResult.failureCount
+        });
         logger.info('Push notification sent successfully to user', {
           userId,
           userEmail: user.email,
           notificationId: userNotification._id,
-          title: notification.title
+          title: notification.title,
+          successCount: pushResult.successCount,
+          failureCount: pushResult.failureCount
         });
         return true;
       } else {
-        console.log('❌ Push notification failed for user');
+        console.log('❌ Push notification failed for user', pushResult?.error || 'Unknown error');
         logger.error('Push notification failed for user', {
           userId,
           userEmail: user.email,
-          notificationId: userNotification._id
+          notificationId: userNotification._id,
+          error: pushResult?.error
         });
         return false;
       }
@@ -117,13 +144,16 @@ class UserNotificationService {
       console.log('🔔 UserNotificationService: Starting sendToMultipleUsers...');
       console.log(`📊 Sending to ${userIds.length} users`);
       
-      // Get users with FCM tokens
+      // Get users with FCM tokens (web or mobile)
       console.log(`🔍 Searching for users with IDs: ${userIds.slice(0, 3).join(', ')}${userIds.length > 3 ? '...' : ''}`);
       
       const users = await User.find({
         _id: { $in: userIds },
-        fcmToken: { $exists: true, $ne: null, $ne: '' }
-      }).select('_id fcmToken name email');
+        $or: [
+          { fcmTokens: { $exists: true, $ne: [], $size: { $gt: 0 } } },
+          { fcmTokenMobile: { $exists: true, $ne: [], $size: { $gt: 0 } } }
+        ]
+      }).select('_id fcmTokens fcmTokenMobile name email preferences');
 
       console.log(`📊 Found ${users.length} users with FCM tokens out of ${userIds.length} requested`);
 
@@ -131,7 +161,9 @@ class UserNotificationService {
       if (users.length > 0) {
         console.log('📱 Users with FCM tokens:');
         users.slice(0, 3).forEach((user, index) => {
-          console.log(`   ${index + 1}. ${user.name || 'No Name'} (${user.email || 'No Email'}) - FCM: ${user.fcmToken ? 'Present' : 'Missing'}`);
+          const webTokens = user.fcmTokens?.length || 0;
+          const mobileTokens = user.fcmTokenMobile?.length || 0;
+          console.log(`   ${index + 1}. ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}`);
         });
       }
 
@@ -141,19 +173,33 @@ class UserNotificationService {
         
         const allUsers = await User.find({
           _id: { $in: userIds }
-        }).select('_id fcmToken name email');
+        }).select('_id fcmTokens fcmTokenMobile name email');
         
         console.log(`📊 Found ${allUsers.length} total users with these IDs:`);
         allUsers.forEach((user, index) => {
-          console.log(`   ${index + 1}. ${user.name || 'No Name'} (${user.email || 'No Email'}) - FCM: ${user.fcmToken || 'None'}`);
+          const webTokens = user.fcmTokens?.length || 0;
+          const mobileTokens = user.fcmTokenMobile?.length || 0;
+          console.log(`   ${index + 1}. ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}`);
         });
         
         logger.warn('No users with FCM tokens found', { userIds, totalUsersFound: allUsers.length });
         return { successCount: 0, failureCount: 0, responses: [] };
       }
 
-      const fcmTokens = users.map(user => user.fcmToken).filter(token => token);
-      console.log(`📤 Sending to ${fcmTokens.length} FCM tokens`);
+      // Collect all tokens (web and mobile) from all users
+      const fcmTokens = [];
+      users.forEach(user => {
+        if (user.preferences?.notifications?.push !== false) {
+          if (user.fcmTokens && Array.isArray(user.fcmTokens)) {
+            fcmTokens.push(...user.fcmTokens);
+          }
+          if (user.fcmTokenMobile && Array.isArray(user.fcmTokenMobile)) {
+            fcmTokens.push(...user.fcmTokenMobile);
+          }
+        }
+      });
+      const uniqueTokens = [...new Set(fcmTokens)];
+      console.log(`📤 Sending to ${uniqueTokens.length} unique FCM tokens`);
 
       // Create notifications in database for all users
       const notifications = users.map(user => ({
@@ -178,15 +224,22 @@ class UserNotificationService {
       await UserNotification.insertMany(notifications);
       console.log('✅ User notifications saved to database');
 
-      // Send multicast push notification
-      const result = await firebasePushService.sendMulticastPushNotification(
-        fcmTokens,
-        notification,
-        {
+      // Prepare notification payload for Firebase
+      const pushPayload = {
+        title: notification.title,
+        body: notification.body || notification.message,
+        data: {
           ...data,
           type: 'user_notification'
-        }
-      );
+        },
+        handlerName: data.type || 'notification',
+        link: '/notifications',
+        icon: '/favicon.png'
+      };
+
+      // Send multicast push notification using Firebase Admin
+      const { sendPushNotification } = require('./firebaseAdmin');
+      const result = await sendPushNotification(uniqueTokens, pushPayload);
 
       console.log('📊 Multicast notification result:', {
         successCount: result.successCount,

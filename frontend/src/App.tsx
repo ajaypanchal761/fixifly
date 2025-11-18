@@ -5,6 +5,8 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, Suspense } from "react";
 // Import mandatory deposit handler to fix the error
 import "./services/mandatoryDepositHandler";
+// Import push notification service
+import { initializePushNotifications, setupForegroundNotificationHandler } from "./services/pushNotificationService";
 import Index from "./pages/Index";
 import Booking from "./pages/Booking";
 import AMC from "./pages/AMC";
@@ -219,6 +221,17 @@ const App = () => {
     console.log('✅ App initialized - push notifications enabled');
     console.log('🔍 Checking for TooltipProvider issues...');
     
+    // Initialize push notifications
+    initializePushNotifications().catch((error) => {
+      console.error('❌ Failed to initialize push notifications:', error);
+    });
+    
+    // Setup foreground notification handler
+    const unsubscribe = setupForegroundNotificationHandler((payload) => {
+      console.log('📬 Notification received in foreground:', payload);
+      // Custom handling can be added here if needed
+    });
+    
     // Register service worker for PWA functionality - COMMENTED OUT FOR WEBVIEW TESTING
     // if ('serviceWorker' in navigator) {
     //   import('./serviceWorkerRegistration').then(({ register }) => {
@@ -242,6 +255,13 @@ const App = () => {
     console.log('📱 Mobile WebView detected:', isMobileWebView);
     console.log('📱 PWA mode detected:', isPWA);
     console.log('🌐 User Agent:', navigator.userAgent);
+    
+    // Cleanup function
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   return (

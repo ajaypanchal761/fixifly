@@ -341,3 +341,35 @@
 [2025-11-12T10:59:04.774Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-12T11:00:04.805Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-12T11:01:04.780Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:02:04.804Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:03:04.793Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:04:04.790Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:05:04.809Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:06:04.820Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:07:04.833Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:08:04.838Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:09:04.860Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:10:04.869Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:11:04.881Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:12:04.884Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:13:04.887Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:14:04.897Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:15:04.901Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:16:04.907Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:17:04.917Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:18:04.923Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:19:04.950Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:20:04.929Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:20:35.306Z] [INFO] Admin authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":265,"endpoint":"/api/admin/dashboard"}
+[2025-11-12T11:20:35.997Z] [INFO] AMC plans fetched | {"userId":"anonymous","plansCount":3}
+[2025-11-12T11:20:36.009Z] [INFO] Admin dashboard revenue calculation | {"monthlyRevenue":0,"totalRevenue":6185.5,"monthlyBookingRevenue":0,"totalBookingRevenue":4485.5,"monthlySupportTicketRevenue":0,"totalSupportTicketRevenue":1700,"pendingBookings":0,"activeAMCSubscriptions":6,"totalAMCAmount":2938.2000000000003,"month":11,"year":2025,"startDate":"2025-10-31T18:30:00.000Z","endDate":"2025-11-30T18:29:59.000Z"}
+[2025-11-12T11:20:36.059Z] [INFO] Dashboard stats fetched successfully | {"adminId":"68e556544152df81db3bbb41","month":11,"year":2025}
+[2025-11-12T11:20:36.107Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/vendors/profile"}
+[2025-11-12T11:20:36.125Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/bookings/vendor/me"}
+[2025-11-12T11:20:36.138Z] [INFO] Vendor authentication attempt | {"tokenPrefix":"eyJhbGciOiJIUzI1NiIs...","tokenLength":179,"endpoint":"/api/support-tickets/vendor/assigned?"}
+[2025-11-12T11:20:36.158Z] [INFO] Getting bookings for vendor | {"vendorId":"283","page":1,"limit":10}
+[2025-11-12T11:20:36.159Z] [INFO] Booking query | {"query":{"vendor.vendorId":"283"}}
+[2025-11-12T11:20:36.228Z] [INFO] Vendor bookings retrieved: 0 for vendor 283 | {"vendorId":"283","totalBookings":0,"page":1}
+[2025-11-12T11:21:04.936Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:22:04.962Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-12T11:23:04.965Z] [INFO] Found 0 pending assignments to check for auto-rejection

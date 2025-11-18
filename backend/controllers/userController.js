@@ -662,6 +662,217 @@ const exportUserData = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Save FCM token for web push notifications
+// @route   POST /api/users/save-fcm-token
+// @access  Private
+const saveFCMToken = asyncHandler(async (req, res) => {
+  const userId = req.user.userId;
+  const { token, platform } = req.body;
+
+  if (!token || typeof token !== 'string' || token.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'FCM token is required'
+    });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Add token to fcmTokens array if not already present
+    // Limit to maximum 10 tokens per user
+    const maxTokens = 10;
+    if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
+      user.fcmTokens = [];
+    }
+
+    // Remove token if it already exists (to avoid duplicates)
+    user.fcmTokens = user.fcmTokens.filter(t => t !== token);
+    
+    // Add new token at the beginning
+    user.fcmTokens.unshift(token);
+    
+    // Keep only the most recent tokens
+    if (user.fcmTokens.length > maxTokens) {
+      user.fcmTokens = user.fcmTokens.slice(0, maxTokens);
+    }
+
+    await user.save();
+
+    logger.info(`FCM token saved for user ${userId} (platform: ${platform || 'web'})`);
+
+    res.status(200).json({
+      success: true,
+      message: 'FCM token saved successfully',
+      data: {
+        tokenCount: user.fcmTokens.length
+      }
+    });
+  } catch (error) {
+    logger.error('Error saving FCM token:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save FCM token. Please try again.'
+    });
+  }
+});
+
+// @desc    Save FCM token for mobile/APK push notifications
+// @route   POST /api/users/save-fcm-token-mobile
+// @access  Public (no auth required, uses phone number)
+const saveFCMTokenMobile = asyncHandler(async (req, res) => {
+  const { token, phone, platform } = req.body;
+
+  if (!token || typeof token !== 'string' || token.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'FCM token is required'
+    });
+  }
+
+  if (!phone || typeof phone !== 'string' || phone.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Phone number is required'
+    });
+  }
+
+  try {
+    // Format phone number (add +91 if needed)
+    const digits = phone.replace(/\D/g, '');
+    const formattedPhone = digits.length === 10 ? `+91${digits}` : phone;
+
+    // Explicitly select fcmTokenMobile field (it has select: false by default)
+    const user = await User.findOne({ phone: formattedPhone }).select('+fcmTokenMobile');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Add token to fcmTokenMobile array if not already present
+    // Limit to maximum 10 tokens per user
+    const maxTokens = 10;
+    if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
+      user.fcmTokenMobile = [];
+    }
+
+    // Remove token if it already exists (to avoid duplicates)
+    user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== token);
+    
+    // Add new token at the beginning
+    user.fcmTokenMobile.unshift(token);
+    
+    // Keep only the most recent tokens
+    if (user.fcmTokenMobile.length > maxTokens) {
+      user.fcmTokenMobile = user.fcmTokenMobile.slice(0, maxTokens);
+    }
+
+    await user.save();
+
+    logger.info(`FCM mobile token saved for user ${user._id} (phone: ${formattedPhone}, platform: ${platform || 'mobile'})`);
+
+    res.status(200).json({
+      success: true,
+      message: 'FCM mobile token saved successfully',
+      data: {
+        tokenCount: user.fcmTokenMobile.length
+      }
+    });
+  } catch (error) {
+    logger.error('Error saving FCM mobile token:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save FCM mobile token. Please try again.'
+    });
+  }
+});
+
+// @desc    Remove FCM token
+// @route   DELETE /api/users/remove-fcm-token
+// @access  Private
+const removeFCMToken = asyncHandler(async (req, res) => {
+  const userId = req.user.userId;
+  const { token, platform } = req.body;
+
+  if (!token || typeof token !== 'string' || token.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'FCM token is required'
+    });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    let removed = false;
+
+    // Remove from web tokens if platform is 'web' or not specified
+    if (!platform || platform === 'web') {
+      if (user.fcmTokens && Array.isArray(user.fcmTokens)) {
+        const beforeLength = user.fcmTokens.length;
+        user.fcmTokens = user.fcmTokens.filter(t => t !== token);
+        if (user.fcmTokens.length < beforeLength) {
+          removed = true;
+        }
+      }
+    }
+
+    // Remove from mobile tokens if platform is 'mobile'
+    if (platform === 'mobile') {
+      if (user.fcmTokenMobile && Array.isArray(user.fcmTokenMobile)) {
+        const beforeLength = user.fcmTokenMobile.length;
+        user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== token);
+        if (user.fcmTokenMobile.length < beforeLength) {
+          removed = true;
+        }
+      }
+    }
+
+    // If platform not specified, try both
+    if (!platform) {
+      if (user.fcmTokenMobile && Array.isArray(user.fcmTokenMobile)) {
+        const beforeLength = user.fcmTokenMobile.length;
+        user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== token);
+        if (user.fcmTokenMobile.length < beforeLength) {
+          removed = true;
+        }
+      }
+    }
+
+    await user.save();
+
+    logger.info(`FCM token removed for user ${userId} (platform: ${platform || 'all'})`);
+
+    res.status(200).json({
+      success: true,
+      message: removed ? 'FCM token removed successfully' : 'FCM token not found',
+      data: {
+        removed
+      }
+    });
+  } catch (error) {
+    logger.error('Error removing FCM token:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove FCM token. Please try again.'
+    });
+  }
+});
+
 module.exports = {
   getUserProfile,
   updateUserProfile,
@@ -673,5 +884,8 @@ module.exports = {
   reactivateAccount,
   changePhoneNumber,
   getUserActivity,
-  exportUserData
+  exportUserData,
+  saveFCMToken,
+  saveFCMTokenMobile,
+  removeFCMToken
 };
