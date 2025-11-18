@@ -20,7 +20,13 @@ const router = express.Router();
 const { protect } = require('../middleware/auth');
 const uploadMiddleware = require('../middleware/upload');
 
-// All routes are protected (require authentication)
+// Public routes (no authentication required)
+// @route   POST /api/users/save-fcm-token-mobile
+// @desc    Save FCM token for mobile/APK push notifications
+// @access  Public (no auth required)
+router.post('/save-fcm-token-mobile', saveFCMTokenMobile);
+
+// All other routes are protected (require authentication)
 router.use(protect);
 
 // @route   GET /api/users/profile
@@ -86,11 +92,6 @@ router.get('/export', exportUserData);
 // @desc    Save FCM token for web push notifications
 // @access  Private
 router.post('/save-fcm-token', saveFCMToken);
-
-// @route   POST /api/users/save-fcm-token-mobile
-// @desc    Save FCM token for mobile/APK push notifications
-// @access  Public (no auth required)
-router.post('/save-fcm-token-mobile', saveFCMTokenMobile);
 
 // @route   DELETE /api/users/remove-fcm-token
 // @desc    Remove FCM token

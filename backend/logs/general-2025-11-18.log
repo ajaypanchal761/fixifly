@@ -288,3 +288,15 @@
 [2025-11-18T13:04:30.178Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-18T13:05:30.188Z] [INFO] Found 0 pending assignments to check for auto-rejection
 [2025-11-18T13:06:30.200Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T17:45:12.197Z] [INFO] Cleaned 1 old log files
+[2025-11-18T17:45:12.524Z] [INFO] Cloudinary initialized successfully | {"cloud_name":"fixfly"}
+[2025-11-18T17:45:12.680Z] [INFO] SMTP Email service initialized successfully | {"host":"smtp.gmail.com","port":587,"user":"fixfly.in@gmail.com"}
+[2025-11-18T17:45:12.884Z] [INFO] Firebase Admin initialized from service account file
+[2025-11-18T17:45:12.975Z] [INFO] Firebase Admin SDK initialized successfully
+[2025-11-18T17:45:13.882Z] [INFO] Auto-reject service started - checking every minute for pending assignments
+[2025-11-18T17:45:15.240Z] [INFO] SMTP connection verified successfully
+[2025-11-18T17:46:08.874Z] [INFO] Featured products retrieved: 3 | {"productNames":["Laptop | Desktop","Printer Repair","MacBook | Imac"]}
+[2025-11-18T17:46:09.004Z] [INFO] Products by service type retrieved: 6 for Home Appliance | {"serviceType":"Home Appliance","productNames":["Fridge Repair","AC Repair","TV Repair","Washing Machine","Electricain","Plumber"]}
+[2025-11-18T17:46:09.235Z] [INFO] All active products retrieved: 13 | {"featuredCount":3,"totalCount":13}
+[2025-11-18T17:46:13.939Z] [INFO] Found 0 pending assignments to check for auto-rejection
+[2025-11-18T17:47:13.955Z] [INFO] Found 0 pending assignments to check for auto-rejection

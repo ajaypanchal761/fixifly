@@ -727,6 +727,13 @@ const saveFCMToken = asyncHandler(async (req, res) => {
 // @route   POST /api/users/save-fcm-token-mobile
 // @access  Public (no auth required, uses phone number)
 const saveFCMTokenMobile = asyncHandler(async (req, res) => {
+  console.log('📱 FCM Token Mobile Save Request:', {
+    method: req.method,
+    url: req.url,
+    body: { token: req.body.token ? req.body.token.substring(0, 20) + '...' : 'missing', phone: req.body.phone, platform: req.body.platform },
+    headers: { 'content-type': req.headers['content-type'] }
+  });
+  
   const { token, phone, platform } = req.body;
 
   if (!token || typeof token !== 'string' || token.trim().length === 0) {
