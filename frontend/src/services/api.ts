@@ -1,10 +1,11 @@
 // API service for Fixfly backend communication
-import { normalizeApiUrl } from '../utils/apiUrl';
+import { getApiBaseUrl } from '../utils/apiUrl';
 
-const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
+// Get initial API URL (will be updated dynamically if localStorage changes)
+const getInitialApiUrl = () => getApiBaseUrl();
 
-// Debug API URL in production
-console.log('🔗 API_BASE_URL:', API_BASE_URL);
+// Debug API URL
+console.log('🔗 Initial API_BASE_URL:', getInitialApiUrl());
 console.log('🔗 Environment:', import.meta.env.MODE);
 console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
 
@@ -38,17 +39,21 @@ interface AuthResponse {
 }
 
 class ApiService {
-  private baseURL: string;
-
-  constructor() {
-    this.baseURL = API_BASE_URL;
+  // Get API URL dynamically (checks localStorage each time)
+  private getBaseURL(): string {
+    return getApiBaseUrl();
+  }
+  
+  // Method to get current API URL (useful for debugging)
+  getCurrentApiUrl(): string {
+    return this.getBaseURL();
   }
 
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${this.baseURL}${endpoint}`;
+    const url = `${this.getBaseURL()}${endpoint}`;
     
     const defaultHeaders = {
       'Content-Type': 'application/json',
@@ -102,13 +107,26 @@ class ApiService {
       
       // Handle network errors
       if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+        const currentBaseURL = this.getBaseURL();
         console.error('🌐 Network Error Details:', {
           url: url,
-          baseURL: this.baseURL,
+          baseURL: currentBaseURL,
           environment: import.meta.env.MODE,
-          userAgent: navigator.userAgent
+          userAgent: navigator.userAgent,
+          isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+          isWebView: /wv|WebView/i.test(navigator.userAgent)
         });
-        throw new Error('Network error: Unable to connect to server. Please check your internet connection and try again.');
+        
+        // Provide helpful error message based on context
+        let errorMessage = 'Network error: Unable to connect to server.';
+        if (currentBaseURL.includes('localhost')) {
+          errorMessage += ' For mobile devices, use production API URL or set API_BASE_URL in localStorage.';
+        } else if (currentBaseURL.includes('getfixfly.com')) {
+          errorMessage += ' Please check if the API server is running and accessible.';
+        }
+        errorMessage += ' Please check your internet connection and try again.';
+        
+        throw new Error(errorMessage);
       }
       
       // Handle HTTP errors
@@ -148,7 +166,7 @@ class ApiService {
   // Health check method
   async healthCheck(): Promise<ApiResponse> {
     // Health check endpoint is at root level, not under /api
-    const url = `${this.baseURL.replace('/api', '')}/health`;
+    const url = `${this.getBaseURL().replace('/api', '')}/health`;
     const config: RequestInit = {
       method: 'GET',
       headers: {
@@ -173,7 +191,7 @@ class ApiService {
 
   // SMS test method
   async testSMS(): Promise<ApiResponse> {
-    const url = `${this.baseURL.replace('/api', '')}/test-sms`;
+    const url = `${this.getBaseURL().replace('/api', '')}/test-sms`;
     const config: RequestInit = {
       method: 'GET',
       headers: {
@@ -335,7 +353,7 @@ class ApiService {
 
   async uploadProfileImage(formData: FormData): Promise<ApiResponse<{ profileImage: string; imageUrl: string }>> {
     const token = localStorage.getItem('accessToken');
-    const url = `${this.baseURL}/users/profile/image`;
+    const url = `${this.getBaseURL()}/users/profile/image`;
     
     const response = await fetch(url, {
       method: 'POST',
