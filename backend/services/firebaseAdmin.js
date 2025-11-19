@@ -93,38 +93,77 @@ const sendPushNotification = async (tokens, payload) => {
       return { success: false, error: 'No valid FCM tokens provided' };
     }
 
-    // Build message payload
-    const message = {
+    if (!payload || !payload.title || !payload.body) {
+      logger.error('Invalid payload: title and body are required');
+      return { success: false, error: 'Invalid payload: title and body are required' };
+    }
+
+    console.log('📤 Sending push notification...', {
+      tokenCount: validTokens.length,
+      title: payload.title,
+      body: payload.body.substring(0, 50) + '...',
+      hasData: !!payload.data
+    });
+
+    // Create individual message for each token (like RentYatra - better for webview APK)
+    const messages = validTokens.map((token) => ({
+      token,
       notification: {
-        title: payload.title || 'Notification',
-        body: payload.body || 'You have a new notification',
+        title: payload.title,
+        body: payload.body,
       },
       data: {
         ...(payload.data || {}),
-        handlerName: payload.handlerName || '',
-        link: payload.link || '',
-        icon: payload.icon || '',
+        link: payload.link || '/',
+        handlerName: payload.handlerName || 'handleNotificationClick',
+        // Additional fields for webview/APK compatibility
+        type: payload.data?.type || 'general',
+        title: payload.title,
+        body: payload.body,
         timestamp: new Date().toISOString(),
       },
       // Web push specific options
       webpush: {
         notification: {
-          title: payload.title || 'Notification',
-          body: payload.body || 'You have a new notification',
+          title: payload.title,
+          body: payload.body,
           icon: payload.icon || '/favicon.png',
           badge: '/favicon.png',
+          clickAction: payload.handlerName || 'message',
           requireInteraction: false,
+          // Use bookingId or type as tag to prevent duplicate notifications
+          tag: payload.data?.bookingId 
+            ? `booking_${payload.data.bookingId}` 
+            : payload.data?.type 
+              ? `type_${payload.data.type}`
+              : `notif_${Date.now()}`,
+          vibrate: [200, 100, 200],
+          silent: false,
         },
         fcmOptions: {
           link: payload.link || '/',
         },
+        headers: {
+          Urgency: 'normal',
+        },
       },
-      // Android specific options
+      // Android specific options (for APK/webview)
       android: {
         priority: 'high',
         notification: {
           sound: 'default',
           channelId: 'default',
+          clickAction: payload.link || 'FLUTTER_NOTIFICATION_CLICK',
+          tag: payload.data?.bookingId 
+            ? `booking_${payload.data.bookingId}` 
+            : payload.data?.type 
+              ? `type_${payload.data.type}`
+              : `notif_${Date.now()}`,
+        },
+        data: {
+          ...(payload.data || {}),
+          click_action: payload.link || 'FLUTTER_NOTIFICATION_CLICK',
+          handlerName: payload.handlerName || '',
         },
       },
       // iOS specific options
@@ -136,91 +175,64 @@ const sendPushNotification = async (tokens, payload) => {
           },
         },
       },
-    };
+    }));
 
-    let result;
+    // Use sendEach (like RentYatra) - better for handling individual token failures
+    try {
+      const response = await admin.messaging().sendEach(messages);
+      
+      console.log('✅ Push notification sent:', {
+        successCount: response.successCount,
+        failureCount: response.failureCount,
+        totalTokens: validTokens.length
+      });
 
-    // If single token, use send()
-    if (validTokens.length === 1) {
-      message.token = validTokens[0];
-      try {
-        const response = await admin.messaging().send(message);
-        logger.info(`Push notification sent successfully to single token: ${response}`);
-        result = {
-          success: true,
-          successCount: 1,
-          failureCount: 0,
-          responses: [{ success: true, messageId: response }],
-        };
-      } catch (error) {
-        logger.error('Error sending push notification:', error);
-        result = {
-          success: false,
-          successCount: 0,
-          failureCount: 1,
-          responses: [{ success: false, error: error.message }],
-        };
-      }
-    } else {
-      // Multiple tokens, use sendMulticast()
-      message.tokens = validTokens;
-      try {
-        const response = await admin.messaging().sendMulticast(message);
-        logger.info(`Push notification sent: ${response.successCount} successful, ${response.failureCount} failed`);
-        
-        // Remove invalid tokens
-        if (response.failureCount > 0) {
-          const invalidTokens = [];
-          response.responses.forEach((resp, idx) => {
-            if (!resp.success) {
-              const errorCode = resp.error?.code;
-              // Remove tokens that are invalid or unregistered
-              if (errorCode === 'messaging/invalid-registration-token' || 
-                  errorCode === 'messaging/registration-token-not-registered') {
-                invalidTokens.push(validTokens[idx]);
-              }
+      // Log failed tokens if any
+      if (response.failureCount > 0) {
+        console.warn('⚠️ Some push notifications failed:');
+        const invalidTokens = [];
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            const errorCode = resp.error?.code;
+            console.error(`❌ Token ${idx + 1} failed:`, resp.error?.message || 'Unknown error');
+            // Collect invalid tokens for cleanup
+            if (errorCode === 'messaging/invalid-registration-token' || 
+                errorCode === 'messaging/registration-token-not-registered') {
+              invalidTokens.push(validTokens[idx]);
             }
-          });
-          
-          if (invalidTokens.length > 0) {
-            logger.warn(`Found ${invalidTokens.length} invalid tokens that should be removed`);
-            // Return invalid tokens so they can be cleaned up
-            result = {
-              success: response.successCount > 0,
-              successCount: response.successCount,
-              failureCount: response.failureCount,
-              responses: response.responses,
-              invalidTokens: invalidTokens,
-            };
-          } else {
-            result = {
-              success: response.successCount > 0,
-              successCount: response.successCount,
-              failureCount: response.failureCount,
-              responses: response.responses,
-            };
           }
-        } else {
-          result = {
-            success: true,
-            successCount: response.successCount,
-            failureCount: response.failureCount,
-            responses: response.responses,
-          };
-        }
-      } catch (error) {
-        logger.error('Error sending multicast push notification:', error);
-        result = {
-          success: false,
-          successCount: 0,
-          failureCount: validTokens.length,
-          responses: [],
-          error: error.message,
+        });
+        
+        return {
+          success: response.successCount > 0,
+          successCount: response.successCount,
+          failureCount: response.failureCount,
+          totalTokens: validTokens.length,
+          responses: response.responses,
+          invalidTokens: invalidTokens.length > 0 ? invalidTokens : undefined,
         };
       }
-    }
 
-    return result;
+      return {
+        success: true,
+        successCount: response.successCount,
+        failureCount: response.failureCount,
+        totalTokens: validTokens.length,
+        responses: response.responses,
+      };
+    } catch (error) {
+      logger.error('Error sending push notification:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
+      return {
+        success: false,
+        message: error.message,
+        error: error
+      };
+    }
   } catch (error) {
     logger.error('Error in sendPushNotification:', error);
     return {
@@ -239,7 +251,7 @@ const sendPushNotification = async (tokens, payload) => {
 const sendPushNotificationToUser = async (userId, payload) => {
   try {
     const User = require('../models/User');
-    const user = await User.findById(userId).select('fcmTokens fcmTokenMobile preferences');
+    const user = await User.findById(userId).select('+fcmTokens +fcmTokenMobile preferences');
     
     if (!user) {
       return { success: false, error: 'User not found' };
@@ -260,10 +272,28 @@ const sendPushNotificationToUser = async (userId, payload) => {
     // Remove duplicates
     const uniqueTokens = [...new Set(allTokens)];
 
+    console.log(`📱 FCM Tokens for user ${userId}:`, {
+      webTokens: user.fcmTokens?.length || 0,
+      mobileTokens: user.fcmTokenMobile?.length || 0,
+      totalUnique: uniqueTokens.length,
+      webTokenList: user.fcmTokens?.slice(0, 2).map(t => t.substring(0, 20) + '...') || [],
+      mobileTokenList: user.fcmTokenMobile?.slice(0, 2).map(t => t.substring(0, 20) + '...') || []
+    });
+
     if (uniqueTokens.length === 0) {
       logger.warn(`No FCM tokens found for user ${userId}`);
+      console.log(`❌ No FCM tokens found for user ${userId}`);
       return { success: false, error: 'No FCM tokens found for user' };
     }
+
+    // Log notification details for debugging
+    console.log(`📤 Sending notification to ${uniqueTokens.length} device(s):`, {
+      title: payload.title,
+      body: payload.body?.substring(0, 50) + '...',
+      type: payload.data?.type,
+      bookingId: payload.data?.bookingId,
+      link: payload.link
+    });
 
     // Send notification
     const result = await sendPushNotification(uniqueTokens, payload);
