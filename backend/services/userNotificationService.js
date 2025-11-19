@@ -190,13 +190,18 @@ class UserNotificationService {
       // Get users with FCM tokens (web or mobile)
       console.log(`🔍 Searching for users with IDs: ${userIds.slice(0, 3).join(', ')}${userIds.length > 3 ? '...' : ''}`);
       
-      const users = await User.find({
-        _id: { $in: userIds },
-        $or: [
-          { fcmTokens: { $exists: true, $ne: [], $size: { $gt: 0 } } },
-          { fcmTokenMobile: { $exists: true, $ne: [], $size: { $gt: 0 } } }
-        ]
+      // First get all users, then filter in memory (more reliable than complex MongoDB queries)
+      const allUsers = await User.find({
+        _id: { $in: userIds }
       }).select('+fcmTokens +fcmTokenMobile _id name email preferences');
+      
+      // Filter users that have FCM tokens (web or mobile) and push notifications enabled
+      const users = allUsers.filter(user => {
+        const hasWebTokens = user.fcmTokens && Array.isArray(user.fcmTokens) && user.fcmTokens.length > 0;
+        const hasMobileTokens = user.fcmTokenMobile && Array.isArray(user.fcmTokenMobile) && user.fcmTokenMobile.length > 0;
+        const pushEnabled = user.preferences?.notifications?.push !== false;
+        return (hasWebTokens || hasMobileTokens) && pushEnabled;
+      });
 
       console.log(`📊 Found ${users.length} users with FCM tokens out of ${userIds.length} requested`);
 
@@ -212,20 +217,19 @@ class UserNotificationService {
 
       if (users.length === 0) {
         console.log('❌ No users with FCM tokens found');
-        console.log('🔍 Debugging: Let me check all users with these IDs...');
-        
-        const allUsers = await User.find({
-          _id: { $in: userIds }
-        }).select('+fcmTokens +fcmTokenMobile _id name email');
-        
         console.log(`📊 Found ${allUsers.length} total users with these IDs:`);
         allUsers.forEach((user, index) => {
           const webTokens = user.fcmTokens?.length || 0;
           const mobileTokens = user.fcmTokenMobile?.length || 0;
-          console.log(`   ${index + 1}. ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}`);
+          const pushEnabled = user.preferences?.notifications?.push !== false;
+          console.log(`   ${index + 1}. ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}, Push Enabled: ${pushEnabled}`);
         });
         
-        logger.warn('No users with FCM tokens found', { userIds, totalUsersFound: allUsers.length });
+        logger.warn('No users with FCM tokens found', { 
+          userIds, 
+          totalUsersFound: allUsers.length,
+          usersWithoutTokens: allUsers.length - users.length
+        });
         return { successCount: 0, failureCount: 0, responses: [] };
       }
 
