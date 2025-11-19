@@ -148,17 +148,83 @@ const createBooking = asyncHandler(async (req, res) => {
       // Don't fail the booking creation if notification fails
     }
 
-    // Send notification to user about booking confirmation
+    // Send notification to user about booking confirmation (CASH ON DELIVERY)
     try {
-      // Find user by email or phone
-      const user = await User.findOne({
-        $or: [
-          { email: booking.customer.email },
-          { phone: booking.customer.phone }
-        ]
+      console.log('🔔 === PUSH NOTIFICATION FLOW START (CASH) ===');
+      console.log('📋 Booking Details:', {
+        bookingId: booking._id.toString(),
+        bookingReference: booking.bookingReference,
+        customerEmail: booking.customer.email,
+        customerPhone: booking.customer.phone,
+        paymentMethod: booking.payment?.method || 'cash',
+        paymentStatus: booking.payment?.status || 'pending'
       });
 
-      if (user) {
+      // Normalize phone number for matching (remove spaces, handle +91 prefix)
+      const normalizePhone = (phone) => {
+        if (!phone) return null;
+        const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
+        // If starts with 91 and has 12 digits, remove 91
+        if (cleaned.length === 12 && cleaned.startsWith('91')) {
+          return cleaned.substring(2);
+        }
+        // If has 10 digits, return as is
+        if (cleaned.length === 10) {
+          return cleaned;
+        }
+        return cleaned;
+      };
+
+      const normalizedBookingPhone = normalizePhone(booking.customer.phone);
+      const normalizedBookingEmail = booking.customer.email?.toLowerCase().trim();
+
+      console.log('🔍 Searching for user with:', {
+        email: normalizedBookingEmail,
+        phone: normalizedBookingPhone,
+        originalPhone: booking.customer.phone
+      });
+
+      // Find user by email or phone (try multiple phone formats)
+      let user = await User.findOne({
+        $or: [
+          { email: normalizedBookingEmail },
+          { phone: booking.customer.phone },
+          ...(normalizedBookingPhone ? [
+            { phone: `+91${normalizedBookingPhone}` },
+            { phone: `91${normalizedBookingPhone}` },
+            { phone: normalizedBookingPhone }
+          ] : [])
+        ]
+      }).select('+fcmTokens +fcmTokenMobile');
+
+      if (!user) {
+        console.log('⚠️ User not found for booking confirmation notification');
+        console.log('🔍 Search criteria used:', {
+          email: normalizedBookingEmail,
+          phoneVariants: [
+            booking.customer.phone,
+            normalizedBookingPhone ? `+91${normalizedBookingPhone}` : null,
+            normalizedBookingPhone ? `91${normalizedBookingPhone}` : null,
+            normalizedBookingPhone
+          ].filter(Boolean)
+        });
+        logger.warn('User not found for booking confirmation notification (CASH)', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone,
+          normalizedPhone: normalizedBookingPhone
+        });
+      } else {
+        console.log('✅ User found:', {
+          userId: user._id.toString(),
+          userName: user.name,
+          userEmail: user.email,
+          userPhone: user.phone,
+          webTokensCount: user.fcmTokens?.length || 0,
+          mobileTokensCount: user.fcmTokenMobile?.length || 0,
+          pushNotificationsEnabled: user.preferences?.notifications?.push !== false
+        });
+
         const notificationSent = await userNotificationService.sendToUser(
           user._id,
           {
@@ -175,32 +241,43 @@ const createBooking = asyncHandler(async (req, res) => {
         );
         
         if (notificationSent) {
-          console.log('✅ User notification sent for booking confirmation');
-          logger.info('Push notification sent to user for booking confirmation', {
+          console.log('✅ User notification sent successfully for booking confirmation (CASH)');
+          logger.info('Push notification sent to user for booking confirmation (CASH)', {
             bookingId: booking._id,
             userId: user._id,
             userEmail: user.email,
-            bookingReference: booking.bookingReference
+            userPhone: user.phone,
+            bookingReference: booking.bookingReference,
+            paymentMethod: 'cash'
           });
         } else {
-          console.log('❌ Failed to send user notification for booking confirmation');
-          logger.warn('Failed to send push notification to user for booking confirmation', {
+          console.log('❌ Failed to send user notification for booking confirmation (CASH)');
+          logger.warn('Failed to send push notification to user for booking confirmation (CASH)', {
             bookingId: booking._id,
             userId: user._id,
-            userEmail: user.email
+            userEmail: user.email,
+            userPhone: user.phone,
+            webTokensCount: user.fcmTokens?.length || 0,
+            mobileTokensCount: user.fcmTokenMobile?.length || 0
           });
         }
-      } else {
-        console.log('⚠️ User not found for booking confirmation notification');
-        logger.warn('User not found for booking confirmation notification', {
-          bookingId: booking._id,
-          customerEmail: booking.customer.email,
-          customerPhone: booking.customer.phone
-        });
       }
+      console.log('🔔 === PUSH NOTIFICATION FLOW END (CASH) ===');
     } catch (error) {
-      console.error('❌ Failed to send user notification for booking confirmation:', error);
-      logger.error('Failed to send user notification for booking confirmation:', error);
+      console.error('❌ === ERROR IN PUSH NOTIFICATION (CASH) ===');
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      console.error('Booking ID:', booking._id);
+      console.error('Customer Email:', booking.customer.email);
+      console.error('Customer Phone:', booking.customer.phone);
+      console.error('❌ === END ERROR (CASH) ===');
+      logger.error('Failed to send user notification for booking confirmation (CASH)', {
+        error: error.message,
+        stack: error.stack,
+        bookingId: booking._id,
+        customerEmail: booking.customer.email,
+        customerPhone: booking.customer.phone
+      });
       // Don't fail the booking creation if notification fails
     }
 
@@ -722,17 +799,84 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
 
     // First-time user status update removed - feature disabled
 
-    // Send notification to user about booking confirmation
+    // Send notification to user about booking confirmation (ONLINE PAYMENT)
     try {
-      // Find user by email or phone
-      const user = await User.findOne({
-        $or: [
-          { email: booking.customer.email },
-          { phone: booking.customer.phone }
-        ]
+      console.log('🔔 === PUSH NOTIFICATION FLOW START (ONLINE) ===');
+      console.log('📋 Booking Details:', {
+        bookingId: booking._id.toString(),
+        bookingReference: booking.bookingReference,
+        customerEmail: booking.customer.email,
+        customerPhone: booking.customer.phone,
+        paymentMethod: booking.payment?.method || 'card',
+        paymentStatus: booking.payment?.status || 'completed',
+        paymentId: paymentData.razorpayPaymentId
       });
 
-      if (user) {
+      // Normalize phone number for matching (remove spaces, handle +91 prefix)
+      const normalizePhone = (phone) => {
+        if (!phone) return null;
+        const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
+        // If starts with 91 and has 12 digits, remove 91
+        if (cleaned.length === 12 && cleaned.startsWith('91')) {
+          return cleaned.substring(2);
+        }
+        // If has 10 digits, return as is
+        if (cleaned.length === 10) {
+          return cleaned;
+        }
+        return cleaned;
+      };
+
+      const normalizedBookingPhone = normalizePhone(booking.customer.phone);
+      const normalizedBookingEmail = booking.customer.email?.toLowerCase().trim();
+
+      console.log('🔍 Searching for user with:', {
+        email: normalizedBookingEmail,
+        phone: normalizedBookingPhone,
+        originalPhone: booking.customer.phone
+      });
+
+      // Find user by email or phone (try multiple phone formats)
+      let user = await User.findOne({
+        $or: [
+          { email: normalizedBookingEmail },
+          { phone: booking.customer.phone },
+          ...(normalizedBookingPhone ? [
+            { phone: `+91${normalizedBookingPhone}` },
+            { phone: `91${normalizedBookingPhone}` },
+            { phone: normalizedBookingPhone }
+          ] : [])
+        ]
+      }).select('+fcmTokens +fcmTokenMobile');
+
+      if (!user) {
+        console.log('⚠️ User not found for booking confirmation notification');
+        console.log('🔍 Search criteria used:', {
+          email: normalizedBookingEmail,
+          phoneVariants: [
+            booking.customer.phone,
+            normalizedBookingPhone ? `+91${normalizedBookingPhone}` : null,
+            normalizedBookingPhone ? `91${normalizedBookingPhone}` : null,
+            normalizedBookingPhone
+          ].filter(Boolean)
+        });
+        logger.warn('User not found for booking confirmation notification (ONLINE)', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone,
+          normalizedPhone: normalizedBookingPhone
+        });
+      } else {
+        console.log('✅ User found:', {
+          userId: user._id.toString(),
+          userName: user.name,
+          userEmail: user.email,
+          userPhone: user.phone,
+          webTokensCount: user.fcmTokens?.length || 0,
+          mobileTokensCount: user.fcmTokenMobile?.length || 0,
+          pushNotificationsEnabled: user.preferences?.notifications?.push !== false
+        });
+
         const notificationSent = await userNotificationService.sendToUser(
           user._id,
           {
@@ -749,32 +893,44 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         );
         
         if (notificationSent) {
-          console.log('✅ User notification sent for booking confirmation with payment');
-          logger.info('Push notification sent to user for booking confirmation with payment', {
+          console.log('✅ User notification sent successfully for booking confirmation (ONLINE)');
+          logger.info('Push notification sent to user for booking confirmation (ONLINE)', {
             bookingId: booking._id,
             userId: user._id,
             userEmail: user.email,
-            bookingReference: booking.bookingReference
+            userPhone: user.phone,
+            bookingReference: booking.bookingReference,
+            paymentMethod: 'online',
+            paymentId: paymentData.razorpayPaymentId
           });
         } else {
-          console.log('❌ Failed to send user notification for booking confirmation with payment');
-          logger.warn('Failed to send push notification to user for booking confirmation with payment', {
+          console.log('❌ Failed to send user notification for booking confirmation (ONLINE)');
+          logger.warn('Failed to send push notification to user for booking confirmation (ONLINE)', {
             bookingId: booking._id,
             userId: user._id,
-            userEmail: user.email
+            userEmail: user.email,
+            userPhone: user.phone,
+            webTokensCount: user.fcmTokens?.length || 0,
+            mobileTokensCount: user.fcmTokenMobile?.length || 0
           });
         }
-      } else {
-        console.log('⚠️ User not found for booking confirmation notification with payment');
-        logger.warn('User not found for booking confirmation notification with payment', {
-          bookingId: booking._id,
-          customerEmail: booking.customer.email,
-          customerPhone: booking.customer.phone
-        });
       }
+      console.log('🔔 === PUSH NOTIFICATION FLOW END (ONLINE) ===');
     } catch (error) {
-      console.error('❌ Failed to send user notification for booking confirmation with payment:', error);
-      logger.error('Failed to send user notification for booking confirmation with payment:', error);
+      console.error('❌ === ERROR IN PUSH NOTIFICATION (ONLINE) ===');
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      console.error('Booking ID:', booking._id);
+      console.error('Customer Email:', booking.customer.email);
+      console.error('Customer Phone:', booking.customer.phone);
+      console.error('❌ === END ERROR (ONLINE) ===');
+      logger.error('Failed to send user notification for booking confirmation (ONLINE)', {
+        error: error.message,
+        stack: error.stack,
+        bookingId: booking._id,
+        customerEmail: booking.customer.email,
+        customerPhone: booking.customer.phone
+      });
       // Don't fail the booking creation if notification fails
     }
 

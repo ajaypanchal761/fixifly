@@ -181,27 +181,37 @@ const sendPushNotification = async (tokens, payload) => {
     try {
       const response = await admin.messaging().sendEach(messages);
       
-      console.log('✅ Push notification sent:', {
+      console.log('✅ === Push notification sent successfully ===');
+      console.log('Results:', {
         successCount: response.successCount,
         failureCount: response.failureCount,
-        totalTokens: validTokens.length
+        totalTokens: validTokens.length,
+        successRate: `${((response.successCount / validTokens.length) * 100).toFixed(1)}%`
       });
 
       // Log failed tokens if any
       if (response.failureCount > 0) {
-        console.warn('⚠️ Some push notifications failed:');
+        console.warn('⚠️ === Some push notifications failed ===');
         const invalidTokens = [];
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             const errorCode = resp.error?.code;
-            console.error(`❌ Token ${idx + 1} failed:`, resp.error?.message || 'Unknown error');
+            console.error(`❌ Token ${idx + 1} failed:`, {
+              error: resp.error?.message || 'Unknown error',
+              code: errorCode,
+              tokenPreview: validTokens[idx]?.substring(0, 20) + '...'
+            });
             // Collect invalid tokens for cleanup
             if (errorCode === 'messaging/invalid-registration-token' || 
                 errorCode === 'messaging/registration-token-not-registered') {
               invalidTokens.push(validTokens[idx]);
+              console.log(`🗑️ Marking token ${idx + 1} as invalid for cleanup`);
             }
           }
         });
+        if (invalidTokens.length > 0) {
+          console.log(`🗑️ Total invalid tokens to cleanup: ${invalidTokens.length}`);
+        }
         
         return {
           success: response.successCount > 0,
@@ -272,12 +282,15 @@ const sendPushNotificationToUser = async (userId, payload) => {
     // Remove duplicates
     const uniqueTokens = [...new Set(allTokens)];
 
-    console.log(`📱 FCM Tokens for user ${userId}:`, {
+    console.log(`📱 === FCM Tokens for user ${userId} ===`);
+    console.log('Token Details:', {
       webTokens: user.fcmTokens?.length || 0,
       mobileTokens: user.fcmTokenMobile?.length || 0,
       totalUnique: uniqueTokens.length,
       webTokenList: user.fcmTokens?.slice(0, 2).map(t => t.substring(0, 20) + '...') || [],
-      mobileTokenList: user.fcmTokenMobile?.slice(0, 2).map(t => t.substring(0, 20) + '...') || []
+      mobileTokenList: user.fcmTokenMobile?.slice(0, 2).map(t => t.substring(0, 20) + '...') || [],
+      userEmail: user.email,
+      userPhone: user.phone
     });
 
     if (uniqueTokens.length === 0) {
@@ -287,12 +300,16 @@ const sendPushNotificationToUser = async (userId, payload) => {
     }
 
     // Log notification details for debugging
-    console.log(`📤 Sending notification to ${uniqueTokens.length} device(s):`, {
+    console.log(`📤 === Sending notification to ${uniqueTokens.length} device(s) ===`);
+    console.log('Notification Payload:', {
       title: payload.title,
       body: payload.body?.substring(0, 50) + '...',
       type: payload.data?.type,
       bookingId: payload.data?.bookingId,
-      link: payload.link
+      bookingReference: payload.data?.bookingReference,
+      link: payload.link,
+      handlerName: payload.handlerName,
+      userId: userId.toString()
     });
 
     // Send notification

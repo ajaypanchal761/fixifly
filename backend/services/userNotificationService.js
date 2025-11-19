@@ -21,7 +21,14 @@ class UserNotificationService {
    */
   async sendToUser(userId, notification, data = {}) {
     try {
-      console.log('🔔 UserNotificationService: Starting sendToUser...');
+      console.log('🔔 === UserNotificationService: Starting sendToUser ===');
+      console.log('📋 Notification Details:', {
+        userId: userId.toString(),
+        title: notification.title,
+        body: notification.body?.substring(0, 50) + '...',
+        type: data.type,
+        bookingId: data.bookingId
+      });
       
       // Get user with FCM tokens (both web and mobile) - explicitly include fields with select: false
       const user = await User.findById(userId).select('+fcmTokens +fcmTokenMobile name email phone preferences');
@@ -39,21 +46,38 @@ class UserNotificationService {
       ];
       const uniqueTokens = [...new Set(allTokens)];
 
-      console.log(`📊 User found: ${user.name} (${user.email})`);
-      console.log(`   Web FCM Tokens: ${user.fcmTokens?.length || 0}`);
-      console.log(`   Mobile FCM Tokens: ${user.fcmTokenMobile?.length || 0}`);
-      console.log(`   Total Unique Tokens: ${uniqueTokens.length}`);
+      console.log(`📊 User Details:`, {
+        userId: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        webTokensCount: user.fcmTokens?.length || 0,
+        mobileTokensCount: user.fcmTokenMobile?.length || 0,
+        totalUniqueTokens: uniqueTokens.length,
+        webTokens: user.fcmTokens?.slice(0, 2).map(t => t.substring(0, 20) + '...') || [],
+        mobileTokens: user.fcmTokenMobile?.slice(0, 2).map(t => t.substring(0, 20) + '...') || []
+      });
 
       if (uniqueTokens.length === 0) {
-        console.log('❌ User has no FCM tokens');
-        logger.warn('User has no FCM tokens', { userId, userEmail: user.email });
+        console.log('❌ User has no FCM tokens - Cannot send notification');
+        logger.warn('User has no FCM tokens', { 
+          userId, 
+          userEmail: user.email,
+          userPhone: user.phone,
+          webTokensCount: user.fcmTokens?.length || 0,
+          mobileTokensCount: user.fcmTokenMobile?.length || 0
+        });
         return false;
       }
 
       // Check if user has push notifications enabled
       if (user.preferences?.notifications?.push === false) {
-        console.log('⚠️ User has push notifications disabled');
-        logger.info('Push notifications disabled for user', { userId, userEmail: user.email });
+        console.log('⚠️ User has push notifications disabled in preferences');
+        logger.info('Push notifications disabled for user', { 
+          userId, 
+          userEmail: user.email,
+          userPhone: user.phone
+        });
         return false;
       }
 
@@ -95,37 +119,56 @@ class UserNotificationService {
       };
 
       // Send push notification using Firebase Admin
+      console.log('📤 Sending push notification via Firebase Admin...');
       const pushResult = await sendPushNotificationToUser(userId, pushPayload);
 
       if (pushResult && pushResult.success) {
         console.log('✅ Push notification sent successfully to user', {
           successCount: pushResult.successCount,
-          failureCount: pushResult.failureCount
+          failureCount: pushResult.failureCount,
+          totalTokens: pushResult.totalTokens,
+          notificationId: userNotification._id.toString()
         });
         logger.info('Push notification sent successfully to user', {
           userId,
           userEmail: user.email,
+          userPhone: user.phone,
           notificationId: userNotification._id,
           title: notification.title,
           successCount: pushResult.successCount,
-          failureCount: pushResult.failureCount
+          failureCount: pushResult.failureCount,
+          totalTokens: pushResult.totalTokens
         });
         return true;
       } else {
-        console.log('❌ Push notification failed for user', pushResult?.error || 'Unknown error');
+        console.log('❌ Push notification failed for user', {
+          error: pushResult?.error || pushResult?.message || 'Unknown error',
+          successCount: pushResult?.successCount || 0,
+          failureCount: pushResult?.failureCount || 0,
+          notificationId: userNotification._id.toString()
+        });
         logger.error('Push notification failed for user', {
           userId,
           userEmail: user.email,
+          userPhone: user.phone,
           notificationId: userNotification._id,
-          error: pushResult?.error
+          error: pushResult?.error || pushResult?.message,
+          successCount: pushResult?.successCount,
+          failureCount: pushResult?.failureCount
         });
         return false;
       }
 
     } catch (error) {
-      console.error('❌ Error sending notification to user:', error);
+      console.error('❌ === ERROR in UserNotificationService.sendToUser ===');
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      console.error('UserId:', userId);
+      console.error('Notification title:', notification.title);
+      console.error('❌ === END ERROR ===');
       logger.error('Error sending notification to user', {
         error: error.message,
+        stack: error.stack,
         userId
       });
       return false;
