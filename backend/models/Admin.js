@@ -352,9 +352,7 @@ const adminSchema = new mongoose.Schema({
 });
 
 // Indexes for better performance
-adminSchema.index({ email: 1 });
-adminSchema.index({ phone: 1 });
-adminSchema.index({ adminId: 1 });
+// email, phone, and adminId already have unique indexes from schema definition
 adminSchema.index({ role: 1 });
 adminSchema.index({ isActive: 1 });
 adminSchema.index({ department: 1 });

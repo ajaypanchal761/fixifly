@@ -23,8 +23,8 @@ class UserNotificationService {
     try {
       console.log('🔔 UserNotificationService: Starting sendToUser...');
       
-      // Get user with FCM tokens (both web and mobile)
-      const user = await User.findById(userId).select('fcmTokens fcmTokenMobile name email phone preferences');
+      // Get user with FCM tokens (both web and mobile) - explicitly include fields with select: false
+      const user = await User.findById(userId).select('+fcmTokens +fcmTokenMobile name email phone preferences');
       
       if (!user) {
         console.log('❌ User not found:', userId);
@@ -153,7 +153,7 @@ class UserNotificationService {
           { fcmTokens: { $exists: true, $ne: [], $size: { $gt: 0 } } },
           { fcmTokenMobile: { $exists: true, $ne: [], $size: { $gt: 0 } } }
         ]
-      }).select('_id fcmTokens fcmTokenMobile name email preferences');
+      }).select('+fcmTokens +fcmTokenMobile _id name email preferences');
 
       console.log(`📊 Found ${users.length} users with FCM tokens out of ${userIds.length} requested`);
 
@@ -173,7 +173,7 @@ class UserNotificationService {
         
         const allUsers = await User.find({
           _id: { $in: userIds }
-        }).select('_id fcmTokens fcmTokenMobile name email');
+        }).select('+fcmTokens +fcmTokenMobile _id name email');
         
         console.log(`📊 Found ${allUsers.length} total users with these IDs:`);
         allUsers.forEach((user, index) => {

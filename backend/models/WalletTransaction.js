@@ -112,7 +112,7 @@ const walletTransactionSchema = new mongoose.Schema({
 // Indexes for better query performance
 walletTransactionSchema.index({ vendor: 1, createdAt: -1 });
 walletTransactionSchema.index({ vendorId: 1, createdAt: -1 });
-walletTransactionSchema.index({ transactionId: 1 });
+// transactionId already has unique index from schema definition
 walletTransactionSchema.index({ type: 1, status: 1 });
 walletTransactionSchema.index({ razorpayOrderId: 1 });
 walletTransactionSchema.index({ razorpayPaymentId: 1 });

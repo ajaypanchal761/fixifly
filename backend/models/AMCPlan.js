@@ -171,7 +171,7 @@ const AMCPlanSchema = new mongoose.Schema({
 });
 
 // Indexes for better performance
-AMCPlanSchema.index({ name: 1 });
+// name already has unique index from schema definition
 AMCPlanSchema.index({ status: 1 });
 AMCPlanSchema.index({ isPopular: 1 });
 AMCPlanSchema.index({ sortOrder: 1 });

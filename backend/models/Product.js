@@ -179,7 +179,7 @@ productSchema.pre('save', function(next) {
 });
 
 // Indexes for better performance
-productSchema.index({ productName: 1 });
+// productName already has unique index from schema definition
 productSchema.index({ serviceType: 1 });
 productSchema.index({ status: 1 });
 productSchema.index({ isFeatured: 1 });

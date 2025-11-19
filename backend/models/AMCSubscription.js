@@ -422,7 +422,7 @@ const amcSubscriptionSchema = new mongoose.Schema({
 });
 
 // Indexes
-amcSubscriptionSchema.index({ subscriptionId: 1 });
+// subscriptionId already has unique index from schema definition
 amcSubscriptionSchema.index({ userId: 1 });
 amcSubscriptionSchema.index({ planId: 1 });
 amcSubscriptionSchema.index({ status: 1 });
