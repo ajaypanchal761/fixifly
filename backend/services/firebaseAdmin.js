@@ -7,61 +7,123 @@ const { logger } = require('../utils/logger');
 let firebaseInitialized = false;
 
 const initializeFirebase = () => {
+  // Check if already initialized
+  if (admin.apps.length > 0) {
+    console.log('✅ Firebase Admin already initialized (apps.length > 0)');
+    firebaseInitialized = true;
+    return true;
+  }
+
   if (firebaseInitialized) {
+    console.log('✅ Firebase Admin already initialized (flag set)');
     return true;
   }
 
   try {
+    console.log('🔧 === Initializing Firebase Admin SDK ===');
+    
     // Try to find service account file
     const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || 
       path.join(__dirname, '../config/fixfly-fb12b-firebase-adminsdk-fbsvc-d96cf044fa.json');
+
+    console.log('📁 Checking service account path:', serviceAccountPath);
+    console.log('📁 File exists:', fs.existsSync(serviceAccountPath));
+    console.log('🔑 FIREBASE_CONFIG env var exists:', !!process.env.FIREBASE_CONFIG);
 
     let serviceAccount;
 
     // Option 1: Read from file path
     if (fs.existsSync(serviceAccountPath)) {
+      console.log('📂 Reading service account from file:', serviceAccountPath);
       serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+      console.log('✅ Service account file loaded successfully');
       logger.info('Firebase Admin initialized from service account file');
     }
     // Option 2: Read from environment variable (for production)
     else if (process.env.FIREBASE_CONFIG) {
+      console.log('📦 Reading service account from FIREBASE_CONFIG env variable');
       serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+      console.log('✅ Service account loaded from environment variable');
       logger.info('Firebase Admin initialized from environment variable');
     }
     // Option 3: Try default file name pattern
     else {
+      console.log('🔍 Searching for Firebase service account file in config directory...');
       const configDir = path.join(__dirname, '../config');
+      
+      if (!fs.existsSync(configDir)) {
+        throw new Error(`Config directory not found: ${configDir}`);
+      }
+      
       const files = fs.readdirSync(configDir);
+      console.log('📁 Files in config directory:', files);
+      
       const serviceAccountFile = files.find(file => 
         file.includes('firebase-adminsdk') && file.endsWith('.json')
       );
       
       if (serviceAccountFile) {
         const fullPath = path.join(configDir, serviceAccountFile);
+        console.log('📂 Found service account file:', serviceAccountFile);
         serviceAccount = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+        console.log('✅ Service account file loaded successfully');
         logger.info(`Firebase Admin initialized from ${serviceAccountFile}`);
       } else {
-        throw new Error('Firebase service account file not found');
+        throw new Error(`Firebase service account file not found in ${configDir}. Files: ${files.join(', ')}`);
       }
     }
+
+    if (!serviceAccount) {
+      throw new Error('Service account data is null or undefined');
+    }
+
+    // Validate service account structure
+    if (!serviceAccount.project_id || !serviceAccount.private_key || !serviceAccount.client_email) {
+      throw new Error('Invalid service account structure. Missing required fields (project_id, private_key, or client_email)');
+    }
+
+    console.log('🔧 Initializing Firebase Admin with service account...');
+    console.log('📋 Project ID:', serviceAccount.project_id);
+    console.log('📋 Client Email:', serviceAccount.client_email);
 
     // Initialize Firebase Admin
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
 
-    firebaseInitialized = true;
-    logger.info('Firebase Admin SDK initialized successfully');
-    return true;
+    // Verify initialization
+    if (admin.apps.length > 0) {
+      firebaseInitialized = true;
+      console.log('✅ Firebase Admin SDK initialized successfully');
+      console.log('📊 Active Firebase apps:', admin.apps.length);
+      logger.info('Firebase Admin SDK initialized successfully', {
+        projectId: serviceAccount.project_id,
+        appsCount: admin.apps.length
+      });
+      return true;
+    } else {
+      throw new Error('Firebase Admin initialization completed but no apps found');
+    }
   } catch (error) {
-    logger.error('Failed to initialize Firebase Admin SDK:', error);
+    console.error('❌ === Firebase Admin Initialization Failed ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('❌ === END ERROR ===');
+    logger.error('Failed to initialize Firebase Admin SDK:', {
+      error: error.message,
+      stack: error.stack
+    });
     firebaseInitialized = false;
     return false;
   }
 };
 
 // Initialize on module load
-initializeFirebase();
+console.log('🚀 Attempting to initialize Firebase Admin on module load...');
+const initResult = initializeFirebase();
+if (!initResult) {
+  console.error('⚠️ Firebase Admin initialization failed on module load. Will retry on first use.');
+}
 
 /**
  * Send push notification to one or more FCM tokens
@@ -76,8 +138,21 @@ initializeFirebase();
  * @returns {Promise<Object>} - Response with success/failure counts
  */
 const sendPushNotification = async (tokens, payload) => {
-  if (!firebaseInitialized) {
-    logger.error('Firebase Admin not initialized');
+  // Check if Firebase is initialized, if not try to initialize
+  if (!firebaseInitialized && admin.apps.length === 0) {
+    console.log('⚠️ Firebase Admin not initialized, attempting to initialize now...');
+    const initResult = initializeFirebase();
+    if (!initResult) {
+      console.error('❌ Firebase Admin initialization failed');
+      logger.error('Firebase Admin not initialized');
+      return { success: false, error: 'Firebase Admin not initialized' };
+    }
+  }
+
+  // Double check
+  if (admin.apps.length === 0) {
+    console.error('❌ Firebase Admin apps.length is 0, initialization failed');
+    logger.error('Firebase Admin not initialized - no apps found');
     return { success: false, error: 'Firebase Admin not initialized' };
   }
 
@@ -260,6 +335,16 @@ const sendPushNotification = async (tokens, payload) => {
  */
 const sendPushNotificationToUser = async (userId, payload) => {
   try {
+    // Check if Firebase is initialized, if not try to initialize
+    if (!firebaseInitialized && admin.apps.length === 0) {
+      console.log('⚠️ Firebase Admin not initialized in sendPushNotificationToUser, attempting to initialize...');
+      const initResult = initializeFirebase();
+      if (!initResult) {
+        console.error('❌ Firebase Admin initialization failed in sendPushNotificationToUser');
+        return { success: false, error: 'Firebase Admin not initialized' };
+      }
+    }
+
     const User = require('../models/User');
     const user = await User.findById(userId).select('+fcmTokens +fcmTokenMobile preferences');
     
@@ -342,4 +427,5 @@ module.exports = {
   sendPushNotificationToUser,
   isInitialized: () => firebaseInitialized,
 };
+
 
