@@ -70,31 +70,18 @@ app.use(helmet());
 
 // CORS configuration
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      process.env.CORS_ORIGIN || 'http://localhost:3000',
-      'http://localhost:8080', // Frontend Vite dev server
-      'http://localhost:8081', // Frontend Vite dev server (alternative port)
-      'http://localhost:5173', // Alternative Vite port
-      'http://localhost:3001', // Additional frontend port
-      'https://fixifly.vercel.app', // Production frontend
-      'https://www.getfixfly.com',
-      'https://getfixfly.com',
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(null, true); // Allow all origins for mobile apps
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range']
+  origin: [
+    process.env.CORS_ORIGIN || 'http://localhost:3000',
+    'http://localhost:8080', // Frontend Vite dev server
+    'http://localhost:8081', // Frontend Vite dev server (alternative port)
+    'http://localhost:5173', // Alternative Vite port
+    'http://localhost:3001', // Additional frontend port
+    'https://fixifly.vercel.app', // Production frontend
+    'https://www.getfixfly.com',
+    'https://getfixfly.com',
+
+  ],
+  credentials: true
 }));
 
 // Body parsing middleware - but skip for routes that use multer

@@ -29,28 +29,10 @@ router.options('/save-fcm-token-mobile', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.sendStatus(200);
+  res.status(200).end();
 });
 
-// Add GET endpoint for testing (will return method not allowed message)
-router.get('/save-fcm-token-mobile', (req, res) => {
-  res.status(405).json({
-    success: false,
-    message: 'Method GET not allowed. Use POST.',
-    endpoint: '/api/users/save-fcm-token-mobile',
-    method: 'POST',
-    example: {
-      url: '/api/users/save-fcm-token-mobile',
-      method: 'POST',
-      body: {
-        token: 'your_fcm_token_string',
-        phone: '9876543210',
-        platform: 'mobile'
-      }
-    }
-  });
-});
-
+// POST route for saving FCM token (must be before protect middleware)
 router.post('/save-fcm-token-mobile', saveFCMTokenMobile);
 
 // All other routes are protected (require authentication)

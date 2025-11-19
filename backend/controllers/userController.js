@@ -727,23 +727,12 @@ const saveFCMToken = asyncHandler(async (req, res) => {
 // @route   POST /api/users/save-fcm-token-mobile
 // @access  Public (no auth required, uses phone number)
 const saveFCMTokenMobile = asyncHandler(async (req, res) => {
-  // Log request method for debugging
-  console.log('=== FCM TOKEN MOBILE REQUEST ===');
-  console.log('Method:', req.method);
-  console.log('URL:', req.url);
-  console.log('Original URL:', req.originalUrl);
-  console.log('Path:', req.path);
+  // Log request method and path for debugging
+  logger.info('=== MOBILE FCM TOKEN SAVE REQUEST ===');
+  logger.info('Request Method:', req.method);
+  logger.info('Request Path:', req.path);
+  logger.info('Request URL:', req.url);
   
-  // Check if method is POST
-  if (req.method !== 'POST') {
-    console.log('❌ Invalid method:', req.method, 'Expected: POST');
-    return res.status(405).json({
-      success: false,
-      message: `Method ${req.method} not allowed. Use POST.`,
-      allowedMethods: ['POST', 'OPTIONS']
-    });
-  }
-
   // Check MongoDB connection before proceeding
   const mongoose = require('mongoose');
   if (mongoose.connection.readyState !== 1) {
@@ -756,11 +745,8 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
   }
 
   try {
-    logger.info('=== MOBILE FCM TOKEN SAVE REQUEST ===');
-    logger.info('Request method:', req.method);
     logger.info('Request body:', { ...req.body, token: req.body.token ? req.body.token.substring(0, 30) + '...' : 'missing' });
     logger.info('User Agent:', req.headers['user-agent'] || 'Unknown');
-    logger.info('Content-Type:', req.headers['content-type'] || 'Unknown');
     
     const { token, phone, platform = 'mobile' } = req.body;
 
