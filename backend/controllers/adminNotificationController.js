@@ -84,21 +84,29 @@ const sendNotification = asyncHandler(async (req, res) => {
     
     if (targetAudience === 'all') {
       // Get all users (only regular users, not vendors)
-      console.log('🔍 Searching for users with targetAudience: all');
+      console.log('🔍 === Searching for users with targetAudience: all ===');
       const users = await User.find({
         isActive: true,
         isBlocked: false
-      }).select('_id fcmToken name email phone');
+      }).select('+fcmTokens +fcmTokenMobile _id name email phone preferences');
       
       console.log(`📊 Found ${users.length} total users in database`);
       
-      // Filter users with FCM tokens
-      const usersWithFcmTokens = users.filter(user => user.fcmToken && user.fcmToken.trim() !== '');
-      console.log(`📱 Found ${usersWithFcmTokens.length} users with FCM tokens`);
+      // Filter users with FCM tokens (web or mobile)
+      const usersWithFcmTokens = users.filter(user => {
+        const hasWebTokens = user.fcmTokens && Array.isArray(user.fcmTokens) && user.fcmTokens.length > 0;
+        const hasMobileTokens = user.fcmTokenMobile && Array.isArray(user.fcmTokenMobile) && user.fcmTokenMobile.length > 0;
+        const pushEnabled = user.preferences?.notifications?.push !== false;
+        return (hasWebTokens || hasMobileTokens) && pushEnabled;
+      });
+      
+      console.log(`📱 Found ${usersWithFcmTokens.length} users with FCM tokens (web or mobile)`);
       
       // Log some user details for debugging
-      usersWithFcmTokens.slice(0, 3).forEach((user, index) => {
-        console.log(`   User ${index + 1}: ${user.name} (${user.email}) - FCM Token: ${user.fcmToken ? 'Present' : 'Missing'}`);
+      usersWithFcmTokens.slice(0, 5).forEach((user, index) => {
+        const webTokens = user.fcmTokens?.length || 0;
+        const mobileTokens = user.fcmTokenMobile?.length || 0;
+        console.log(`   User ${index + 1}: ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}`);
       });
       
       targetUserIds = users.map(user => user._id);
@@ -108,6 +116,41 @@ const sendNotification = asyncHandler(async (req, res) => {
         targetUserIds: targetUserIds.length
       });
       // Note: targetVendorIds remains empty for 'all' - only users get notifications
+    } else if (targetAudience === 'specific' && targetUsers && targetUsers.length > 0) {
+      // Get specific users
+      console.log('🔍 === Searching for specific users ===');
+      const users = await User.find({
+        _id: { $in: targetUsers },
+        isActive: true,
+        isBlocked: false
+      }).select('+fcmTokens +fcmTokenMobile _id name email phone preferences');
+      
+      console.log(`📊 Found ${users.length} specific users`);
+      
+      // Filter users with FCM tokens (web or mobile)
+      const usersWithFcmTokens = users.filter(user => {
+        const hasWebTokens = user.fcmTokens && Array.isArray(user.fcmTokens) && user.fcmTokens.length > 0;
+        const hasMobileTokens = user.fcmTokenMobile && Array.isArray(user.fcmTokenMobile) && user.fcmTokenMobile.length > 0;
+        const pushEnabled = user.preferences?.notifications?.push !== false;
+        return (hasWebTokens || hasMobileTokens) && pushEnabled;
+      });
+      
+      console.log(`📱 Found ${usersWithFcmTokens.length} specific users with FCM tokens`);
+      
+      // Log user details for debugging
+      usersWithFcmTokens.slice(0, 5).forEach((user, index) => {
+        const webTokens = user.fcmTokens?.length || 0;
+        const mobileTokens = user.fcmTokenMobile?.length || 0;
+        console.log(`   User ${index + 1}: ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}`);
+      });
+      
+      targetUserIds = users.map(user => user._id);
+      logger.info('Found specific users', { 
+        totalUsers: users.length,
+        usersWithFcmTokens: usersWithFcmTokens.length,
+        targetUserIds: targetUserIds.length,
+        requestedUserIds: targetUsers
+      });
     } else if (targetAudience === 'vendors') {
       // Get all vendors
       const vendors = await Vendor.find({
@@ -149,39 +192,56 @@ const sendNotification = asyncHandler(async (req, res) => {
     // Send notifications to users using the user notification service
     if (targetUserIds.length > 0) {
       try {
-        console.log('🔔 Sending notifications to users via userNotificationService...');
+        console.log('🔔 === Sending notifications to users via userNotificationService ===');
         console.log(`📤 Target user IDs: ${targetUserIds.length} users`);
         console.log(`📝 Notification title: "${title}"`);
-        console.log(`📝 Notification message: "${message}"`);
+        console.log(`📝 Notification message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`);
+        console.log(`🖼️ Image: ${image ? 'Present' : 'Not provided'}`);
         
         userPushResult = await userNotificationService.sendToMultipleUsers(
           targetUserIds,
           {
             title,
             body: message,
-            ...(image && { image: image.secure_url })
+            ...(image && { image: image.secure_url || image })
           },
           {
             type: 'admin_notification',
-            priority: 'medium',
+            priority: 'high',
             timestamp: new Date().toISOString(),
-            ...(image && { image: image.secure_url })
+            link: '/notifications',
+            ...(image && { image: image.secure_url || image })
           }
         );
         
-        console.log('✅ User notifications sent:', {
+        console.log('✅ === User notifications sent ===');
+        console.log('Results:', {
           successCount: userPushResult.successCount,
           failureCount: userPushResult.failureCount,
-          totalTargetUsers: targetUserIds.length
+          totalTargetUsers: targetUserIds.length,
+          successRate: targetUserIds.length > 0 ? `${((userPushResult.successCount / targetUserIds.length) * 100).toFixed(1)}%` : '0%'
         });
         
         if (userPushResult.successCount === 0 && userPushResult.failureCount === 0) {
-          console.log('⚠️ No notifications were sent - this might indicate an issue with FCM tokens or user notification service');
+          console.log('⚠️ No notifications were sent - this might indicate:');
+          console.log('   1. Users have no FCM tokens (web or mobile)');
+          console.log('   2. Users have push notifications disabled');
+          console.log('   3. Issue with user notification service');
+        } else if (userPushResult.failureCount > 0) {
+          console.log(`⚠️ ${userPushResult.failureCount} notifications failed to send`);
+          console.log('   This might indicate invalid FCM tokens that need cleanup');
         }
         
       } catch (error) {
-        console.error('❌ Error sending user notifications:', error);
-        logger.error('Error sending user notifications via userNotificationService:', error);
+        console.error('❌ === ERROR sending user notifications ===');
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('❌ === END ERROR ===');
+        logger.error('Error sending user notifications via userNotificationService:', {
+          error: error.message,
+          stack: error.stack,
+          targetUserIds: targetUserIds.length
+        });
       }
     } else {
       console.log('⚠️ No target user IDs found - skipping user notifications');

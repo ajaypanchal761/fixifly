@@ -699,6 +699,154 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
       // Don't fail the assignment if notification fails
     }
 
+    // Send notification to user about vendor assignment (ENGINEER ASSIGNED TO SUPPORT TICKET)
+    try {
+      const User = require('../models/User');
+      const userNotificationService = require('../services/userNotificationService');
+      
+      console.log('🔔 === PUSH NOTIFICATION FLOW START (SUPPORT TICKET - ENGINEER ASSIGNED) ===');
+      console.log('📋 Support Ticket Details:', {
+        ticketId: ticket.ticketId,
+        subject: ticket.subject,
+        userEmail: ticket.userEmail,
+        userPhone: ticket.userPhone,
+        vendorId: vendorId,
+        status: ticket.status
+      });
+
+      // Normalize phone number for matching (remove spaces, handle +91 prefix)
+      const normalizePhone = (phone) => {
+        if (!phone) return null;
+        const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
+        // If starts with 91 and has 12 digits, remove 91
+        if (cleaned.length === 12 && cleaned.startsWith('91')) {
+          return cleaned.substring(2);
+        }
+        // If has 10 digits, return as is
+        if (cleaned.length === 10) {
+          return cleaned;
+        }
+        return cleaned;
+      };
+
+      const normalizedTicketPhone = normalizePhone(ticket.userPhone);
+      const normalizedTicketEmail = ticket.userEmail?.toLowerCase().trim();
+
+      console.log('🔍 Searching for user with:', {
+        email: normalizedTicketEmail,
+        phone: normalizedTicketPhone,
+        originalPhone: ticket.userPhone
+      });
+
+      // Find user by email or phone (try multiple phone formats)
+      let user = await User.findOne({
+        $or: [
+          { email: normalizedTicketEmail },
+          { phone: ticket.userPhone },
+          ...(normalizedTicketPhone ? [
+            { phone: `+91${normalizedTicketPhone}` },
+            { phone: `91${normalizedTicketPhone}` },
+            { phone: normalizedTicketPhone }
+          ] : [])
+        ]
+      }).select('+fcmTokens +fcmTokenMobile');
+
+      if (!user) {
+        console.log('⚠️ User not found for support ticket engineer assignment notification');
+        console.log('🔍 Search criteria used:', {
+          email: normalizedTicketEmail,
+          phoneVariants: [
+            ticket.userPhone,
+            normalizedTicketPhone ? `+91${normalizedTicketPhone}` : null,
+            normalizedTicketPhone ? `91${normalizedTicketPhone}` : null,
+            normalizedTicketPhone
+          ].filter(Boolean)
+        });
+        logger.warn('User not found for support ticket vendor assignment notification', {
+          ticketId: ticket.ticketId,
+          userEmail: ticket.userEmail,
+          userPhone: ticket.userPhone,
+          normalizedPhone: normalizedTicketPhone,
+          vendorId
+        });
+      } else {
+        console.log('✅ User found:', {
+          userId: user._id.toString(),
+          userName: user.name,
+          userEmail: user.email,
+          userPhone: user.phone,
+          webTokensCount: user.fcmTokens?.length || 0,
+          mobileTokensCount: user.fcmTokenMobile?.length || 0,
+          pushNotificationsEnabled: user.preferences?.notifications?.push !== false
+        });
+
+        // Get vendor name for notification
+        const Vendor = require('../models/Vendor');
+        const vendor = await Vendor.findById(vendorId)
+          .select('firstName lastName');
+        const vendorName = vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Engineer';
+
+        const userNotificationSent = await userNotificationService.sendToUser(
+          user._id,
+          {
+            title: '👨‍🔧 Engineer Assigned to Your Ticket!',
+            body: `Great news! ${vendorName} has been assigned to your support ticket #${ticket.ticketId}. They will contact you soon to resolve your issue.`
+          },
+          {
+            type: 'support_ticket_engineer_assigned',
+            ticketId: ticket.ticketId,
+            subject: ticket.subject,
+            vendorId: vendorId,
+            vendorName: vendorName,
+            priority: 'high',
+            link: `/support-tickets/${ticket.ticketId}`
+          }
+        );
+        
+        if (userNotificationSent) {
+          console.log('✅ User notification sent successfully for support ticket engineer assignment');
+          logger.info('User notification sent successfully for support ticket vendor assignment', {
+            userId: user._id,
+            userEmail: user.email,
+            userPhone: user.phone,
+            ticketId: ticket.ticketId,
+            vendorId,
+            vendorName
+          });
+        } else {
+          console.log('❌ Failed to send user notification for support ticket engineer assignment');
+          logger.warn('Failed to send user notification for support ticket vendor assignment', {
+            userId: user._id,
+            userEmail: user.email,
+            userPhone: user.phone,
+            ticketId: ticket.ticketId,
+            vendorId,
+            webTokensCount: user.fcmTokens?.length || 0,
+            mobileTokensCount: user.fcmTokenMobile?.length || 0
+          });
+        }
+      }
+      console.log('🔔 === PUSH NOTIFICATION FLOW END (SUPPORT TICKET - ENGINEER ASSIGNED) ===');
+    } catch (userNotificationError) {
+      console.error('❌ === ERROR IN PUSH NOTIFICATION (SUPPORT TICKET - ENGINEER ASSIGNED) ===');
+      console.error('Error message:', userNotificationError.message);
+      console.error('Error stack:', userNotificationError.stack);
+      console.error('Ticket ID:', ticket.ticketId);
+      console.error('User Email:', ticket.userEmail);
+      console.error('User Phone:', ticket.userPhone);
+      console.error('Vendor ID:', vendorId);
+      console.error('❌ === END ERROR (SUPPORT TICKET - ENGINEER ASSIGNED) ===');
+      logger.error('Error creating user notification for support ticket vendor assignment', {
+        error: userNotificationError.message,
+        stack: userNotificationError.stack,
+        ticketId: ticket.ticketId,
+        userEmail: ticket.userEmail,
+        userPhone: ticket.userPhone,
+        vendorId
+      });
+      // Don't fail the assignment if notification fails
+    }
+
 
     // Populate vendor data for response
     const populatedTicket = await SupportTicket.findOne({ ticketId: id })

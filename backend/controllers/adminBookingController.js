@@ -503,53 +503,148 @@ const assignVendor = asyncHandler(async (req, res) => {
       // Don't fail the assignment if notification fails
     }
 
-    // Send notification to user about vendor assignment
+    // Send notification to user about vendor assignment (ENGINEER ASSIGNED)
     try {
-      // Find user by email or phone
-      const user = await User.findOne({
-        $or: [
-          { email: booking.customer.email },
-          { phone: booking.customer.phone }
-        ]
+      console.log('🔔 === PUSH NOTIFICATION FLOW START (ENGINEER ASSIGNED) ===');
+      console.log('📋 Booking Details:', {
+        bookingId: booking._id.toString(),
+        bookingReference: booking.bookingReference,
+        customerEmail: booking.customer.email,
+        customerPhone: booking.customer.phone,
+        vendorId: vendorId,
+        status: booking.status
       });
 
-      if (user) {
+      // Normalize phone number for matching (remove spaces, handle +91 prefix)
+      const normalizePhone = (phone) => {
+        if (!phone) return null;
+        const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
+        // If starts with 91 and has 12 digits, remove 91
+        if (cleaned.length === 12 && cleaned.startsWith('91')) {
+          return cleaned.substring(2);
+        }
+        // If has 10 digits, return as is
+        if (cleaned.length === 10) {
+          return cleaned;
+        }
+        return cleaned;
+      };
+
+      const normalizedBookingPhone = normalizePhone(booking.customer.phone);
+      const normalizedBookingEmail = booking.customer.email?.toLowerCase().trim();
+
+      console.log('🔍 Searching for user with:', {
+        email: normalizedBookingEmail,
+        phone: normalizedBookingPhone,
+        originalPhone: booking.customer.phone
+      });
+
+      // Find user by email or phone (try multiple phone formats)
+      let user = await User.findOne({
+        $or: [
+          { email: normalizedBookingEmail },
+          { phone: booking.customer.phone },
+          ...(normalizedBookingPhone ? [
+            { phone: `+91${normalizedBookingPhone}` },
+            { phone: `91${normalizedBookingPhone}` },
+            { phone: normalizedBookingPhone }
+          ] : [])
+        ]
+      }).select('+fcmTokens +fcmTokenMobile');
+
+      if (!user) {
+        console.log('⚠️ User not found for engineer assignment notification');
+        console.log('🔍 Search criteria used:', {
+          email: normalizedBookingEmail,
+          phoneVariants: [
+            booking.customer.phone,
+            normalizedBookingPhone ? `+91${normalizedBookingPhone}` : null,
+            normalizedBookingPhone ? `91${normalizedBookingPhone}` : null,
+            normalizedBookingPhone
+          ].filter(Boolean)
+        });
+        logger.warn('User not found for vendor assignment notification', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone,
+          normalizedPhone: normalizedBookingPhone,
+          vendorId
+        });
+      } else {
+        console.log('✅ User found:', {
+          userId: user._id.toString(),
+          userName: user.name,
+          userEmail: user.email,
+          userPhone: user.phone,
+          webTokensCount: user.fcmTokens?.length || 0,
+          mobileTokensCount: user.fcmTokenMobile?.length || 0,
+          pushNotificationsEnabled: user.preferences?.notifications?.push !== false
+        });
+
+        // Get vendor name for notification
+        const vendor = await Vendor.findOne({ vendorId: vendorId })
+          .select('firstName lastName');
+        const vendorName = vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Engineer';
+
         const userNotificationSent = await userNotificationService.sendToUser(
           user._id,
           {
             title: '👨‍🔧 Engineer Assigned!',
-            body: `Great news! An engineer has been assigned to your booking #${booking.bookingReference}. They will contact you soon to schedule the service.`
+            body: `Great news! ${vendorName} has been assigned to your booking #${booking.bookingReference}. They will contact you soon to schedule the service.`
           },
           {
-            type: 'booking_update',
+            type: 'engineer_assigned',
             bookingId: booking._id.toString(),
             bookingReference: booking.bookingReference,
-            priority: 'high'
+            vendorId: vendorId,
+            vendorName: vendorName,
+            priority: 'high',
+            link: `/booking/${booking._id}`
           }
         );
         
         if (userNotificationSent) {
+          console.log('✅ User notification sent successfully for engineer assignment');
           logger.info('User notification sent successfully for vendor assignment', {
             userId: user._id,
+            userEmail: user.email,
+            userPhone: user.phone,
             bookingId: booking._id,
-            vendorId
+            bookingReference: booking.bookingReference,
+            vendorId,
+            vendorName
           });
         } else {
+          console.log('❌ Failed to send user notification for engineer assignment');
           logger.warn('Failed to send user notification for vendor assignment', {
             userId: user._id,
+            userEmail: user.email,
+            userPhone: user.phone,
             bookingId: booking._id,
-            vendorId
+            vendorId,
+            webTokensCount: user.fcmTokens?.length || 0,
+            mobileTokensCount: user.fcmTokenMobile?.length || 0
           });
         }
-      } else {
-        logger.warn('User not found for vendor assignment notification', {
-          customerEmail: booking.customer.email,
-          customerPhone: booking.customer.phone,
-          bookingId: booking._id
-        });
       }
+      console.log('🔔 === PUSH NOTIFICATION FLOW END (ENGINEER ASSIGNED) ===');
     } catch (userNotificationError) {
-      logger.error('Error creating user notification for vendor assignment:', userNotificationError);
+      console.error('❌ === ERROR IN PUSH NOTIFICATION (ENGINEER ASSIGNED) ===');
+      console.error('Error message:', userNotificationError.message);
+      console.error('Error stack:', userNotificationError.stack);
+      console.error('Booking ID:', booking._id);
+      console.error('Customer Email:', booking.customer.email);
+      console.error('Customer Phone:', booking.customer.phone);
+      console.error('Vendor ID:', vendorId);
+      console.error('❌ === END ERROR (ENGINEER ASSIGNED) ===');
+      logger.error('Error creating user notification for vendor assignment', {
+        error: userNotificationError.message,
+        stack: userNotificationError.stack,
+        bookingId: booking._id,
+        customerEmail: booking.customer.email,
+        customerPhone: booking.customer.phone,
+        vendorId
+      });
       // Don't fail the assignment if notification fails
     }
 
