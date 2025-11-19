@@ -196,21 +196,35 @@ const sendNotification = asyncHandler(async (req, res) => {
         console.log(`📤 Target user IDs: ${targetUserIds.length} users`);
         console.log(`📝 Notification title: "${title}"`);
         console.log(`📝 Notification message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`);
-        console.log(`🖼️ Image: ${image ? 'Present' : 'Not provided'}`);
+        
+        // Extract image URL properly
+        let imageUrl = null;
+        if (image) {
+          if (typeof image === 'string') {
+            imageUrl = image;
+          } else if (image.secure_url) {
+            imageUrl = image.secure_url;
+          } else if (image.url) {
+            imageUrl = image.url;
+          }
+          console.log(`🖼️ Image URL: ${imageUrl ? imageUrl.substring(0, 60) + '...' : 'Not extracted'}`);
+        } else {
+          console.log(`🖼️ Image: Not provided`);
+        }
         
         userPushResult = await userNotificationService.sendToMultipleUsers(
           targetUserIds,
           {
             title,
             body: message,
-            ...(image && { image: image.secure_url || image })
+            ...(imageUrl && { image: imageUrl })
           },
           {
             type: 'admin_notification',
             priority: 'high',
             timestamp: new Date().toISOString(),
             link: '/notifications',
-            ...(image && { image: image.secure_url || image })
+            ...(imageUrl && { image: imageUrl })
           }
         );
         

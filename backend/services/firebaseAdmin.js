@@ -214,7 +214,9 @@ const sendPushNotification = async (tokens, payload) => {
       tokenCount: validTokens.length,
       title: payload.title,
       body: payload.body.substring(0, 50) + '...',
-      hasData: !!payload.data
+      hasData: !!payload.data,
+      hasImage: !!payload.image,
+      imageUrl: payload.image ? payload.image.substring(0, 60) + '...' : 'None'
     });
 
     // Create individual message for each token (like RentYatra - better for webview APK)
@@ -223,6 +225,8 @@ const sendPushNotification = async (tokens, payload) => {
       notification: {
         title: payload.title,
         body: payload.body,
+        // Include image if available
+        ...(payload.image && { image: payload.image })
       },
       data: {
         ...(payload.data || {}),
@@ -233,6 +237,8 @@ const sendPushNotification = async (tokens, payload) => {
         title: payload.title,
         body: payload.body,
         timestamp: new Date().toISOString(),
+        // Include image in data payload
+        ...(payload.image && { image: payload.image })
       },
       // Web push specific options
       webpush: {
@@ -241,6 +247,8 @@ const sendPushNotification = async (tokens, payload) => {
           body: payload.body,
           icon: payload.icon || '/favicon.png',
           badge: '/favicon.png',
+          // Include image for web push
+          ...(payload.image && { image: payload.image }),
           clickAction: payload.handlerName || 'message',
           requireInteraction: false,
           // Use bookingId or type as tag to prevent duplicate notifications
@@ -265,6 +273,8 @@ const sendPushNotification = async (tokens, payload) => {
         notification: {
           sound: 'default',
           channelId: 'default',
+          // Include image for Android
+          ...(payload.image && { imageUrl: payload.image }),
           clickAction: payload.link || 'FLUTTER_NOTIFICATION_CLICK',
           tag: payload.data?.bookingId 
             ? `booking_${payload.data.bookingId}` 
@@ -276,6 +286,8 @@ const sendPushNotification = async (tokens, payload) => {
           ...(payload.data || {}),
           click_action: payload.link || 'FLUTTER_NOTIFICATION_CLICK',
           handlerName: payload.handlerName || '',
+          // Include image in Android data
+          ...(payload.image && { image: payload.image })
         },
       },
       // iOS specific options
@@ -284,8 +296,23 @@ const sendPushNotification = async (tokens, payload) => {
           aps: {
             sound: 'default',
             badge: 1,
+            // Include image for iOS
+            ...(payload.image && { 
+              'mutable-content': 1,
+              'fcm_options': {
+                image: payload.image
+              }
+            })
           },
+          // Include image in APNS payload
+          ...(payload.image && { image: payload.image })
         },
+        // Include image in APNS notification
+        ...(payload.image && {
+          fcmOptions: {
+            image: payload.image
+          }
+        })
       },
     }));
 
@@ -453,7 +480,9 @@ const sendPushNotificationToUser = async (userId, payload) => {
       bookingReference: payload.data?.bookingReference,
       link: payload.link,
       handlerName: payload.handlerName,
-      userId: userId.toString()
+      userId: userId.toString(),
+      hasImage: !!payload.image,
+      imageUrl: payload.image ? payload.image.substring(0, 50) + '...' : 'None'
     });
 
     // Send notification

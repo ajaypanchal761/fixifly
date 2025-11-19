@@ -115,8 +115,18 @@ class UserNotificationService {
         },
         handlerName: data.type || 'booking',
         link: data.link || (data.bookingId ? `/booking/${data.bookingId}` : '/notifications'),
-        icon: '/favicon.png'
+        icon: '/favicon.png',
+        // Include image if available
+        ...(notification.image && { image: notification.image })
       };
+
+      // Log image status
+      if (notification.image) {
+        console.log('🖼️ Image included in push payload:', {
+          imageUrl: notification.image.substring(0, 60) + '...',
+          imageLength: notification.image.length
+        });
+      }
 
       // Send push notification using Firebase Admin
       console.log('📤 Sending push notification via Firebase Admin...');
@@ -281,8 +291,20 @@ class UserNotificationService {
         },
         handlerName: data.type || 'notification',
         link: '/notifications',
-        icon: '/favicon.png'
+        icon: '/favicon.png',
+        // Include image if available
+        ...(notification.image && { image: notification.image })
       };
+
+      // Log image status
+      if (notification.image) {
+        console.log('🖼️ Image included in push payload:', {
+          imageUrl: notification.image.substring(0, 60) + '...',
+          imageLength: notification.image.length
+        });
+      } else {
+        console.log('🖼️ No image in notification payload');
+      }
 
       // Send multicast push notification using Firebase Admin
       const { sendPushNotification } = require('./firebaseAdmin');
