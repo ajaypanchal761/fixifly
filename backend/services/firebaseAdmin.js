@@ -82,14 +82,51 @@ const initializeFirebase = () => {
       throw new Error('Invalid service account structure. Missing required fields (project_id, private_key, or client_email)');
     }
 
+    // Fix private key formatting if needed (handle escaped newlines)
+    if (serviceAccount.private_key && typeof serviceAccount.private_key === 'string') {
+      // Replace escaped newlines with actual newlines if needed
+      serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+      
+      // Ensure proper BEGIN/END markers
+      if (!serviceAccount.private_key.includes('BEGIN PRIVATE KEY')) {
+        throw new Error('Invalid private key format: Missing BEGIN PRIVATE KEY marker');
+      }
+      if (!serviceAccount.private_key.includes('END PRIVATE KEY')) {
+        throw new Error('Invalid private key format: Missing END PRIVATE KEY marker');
+      }
+    }
+
     console.log('🔧 Initializing Firebase Admin with service account...');
     console.log('📋 Project ID:', serviceAccount.project_id);
     console.log('📋 Client Email:', serviceAccount.client_email);
+    console.log('📋 Private Key ID:', serviceAccount.private_key_id);
+    console.log('📋 Private Key Length:', serviceAccount.private_key?.length || 0);
+    console.log('📋 Private Key Has Newlines:', serviceAccount.private_key?.includes('\n') || false);
+
+    // Check server time (JWT signature issues often caused by time sync)
+    const serverTime = new Date();
+    const serverTimeISO = serverTime.toISOString();
+    console.log('🕐 Server Time:', serverTimeISO);
+    console.log('🕐 Server Time UTC:', serverTime.getTime());
 
     // Initialize Firebase Admin
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+    } catch (initError) {
+      // Handle specific credential errors
+      if (initError.message && initError.message.includes('invalid-credential')) {
+        console.error('❌ Firebase credential error detected');
+        console.error('💡 Possible causes:');
+        console.error('   1. Server time is not synced - Check server time sync');
+        console.error('   2. Certificate key file has been revoked - Check Firebase Console');
+        console.error('   3. Private key format issue - Check key formatting');
+        console.error('🔗 Check key at: https://console.firebase.google.com/iam-admin/serviceaccounts/project');
+        console.error('🔗 Generate new key at: https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk');
+      }
+      throw initError;
+    }
 
     // Verify initialization
     if (admin.apps.length > 0) {
@@ -268,14 +305,36 @@ const sendPushNotification = async (tokens, payload) => {
       if (response.failureCount > 0) {
         console.warn('⚠️ === Some push notifications failed ===');
         const invalidTokens = [];
+        let credentialErrorDetected = false;
+        
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             const errorCode = resp.error?.code;
+            const errorMessage = resp.error?.message || 'Unknown error';
+            
             console.error(`❌ Token ${idx + 1} failed:`, {
-              error: resp.error?.message || 'Unknown error',
+              error: errorMessage,
               code: errorCode,
               tokenPreview: validTokens[idx]?.substring(0, 20) + '...'
             });
+            
+            // Check for credential errors
+            if (errorCode === 'app/invalid-credential' || errorMessage.includes('Invalid JWT Signature')) {
+              if (!credentialErrorDetected) {
+                credentialErrorDetected = true;
+                console.error('🔴 === CRITICAL: Firebase Credential Error Detected ===');
+                console.error('💡 This error means:');
+                console.error('   1. Server time is not properly synced');
+                console.error('   2. Certificate key file has been revoked');
+                console.error('');
+                console.error('🔧 Solutions:');
+                console.error('   1. Re-sync time on server: sudo ntpdate -s time.nist.gov');
+                console.error('   2. Check key at: https://console.firebase.google.com/iam-admin/serviceaccounts/project');
+                console.error('   3. Generate new key at: https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk');
+                console.error('🔴 === END CREDENTIAL ERROR ===');
+              }
+            }
+            
             // Collect invalid tokens for cleanup
             if (errorCode === 'messaging/invalid-registration-token' || 
                 errorCode === 'messaging/registration-token-not-registered') {
