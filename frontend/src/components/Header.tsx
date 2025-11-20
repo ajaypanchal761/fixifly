@@ -7,7 +7,7 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Calendar, Wrench, Phone, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Menu, X, Home, Calendar, Wrench, Phone, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield, ShieldCheck, RefreshCw, Download, Handshake, ExternalLink } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -80,6 +80,7 @@ const Header = () => {
 
   const handleDrawerOpen = () => {
     setOpen(true);
+    setShowMobileSearch(false); // Close search bar when drawer opens
   };
 
   const handleDrawerClose = () => {
@@ -132,7 +133,8 @@ const Header = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (showMobileSearch && isMobile) {
         const target = event.target as Element;
-        if (!target.closest('.mobile-search-container')) {
+        // Don't close if clicking on search icon or search container
+        if (!target.closest('.mobile-search-container') && !target.closest('.mobile-search-icon-button')) {
           setShowMobileSearch(false);
         }
       }
@@ -147,12 +149,12 @@ const Header = () => {
     if (showMobileSearch) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleEscape);
-    }
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleEscape);
+      };
+    }
   }, [showMobileSearch, isMobile]);
 
   const navItems = [
@@ -303,9 +305,13 @@ const Header = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 16, gap: 1 }}>
               {/* Mobile Search Icon */}
               <IconButton
+                className="mobile-search-icon-button"
                 color="inherit"
                 aria-label="search"
-                onClick={toggleMobileSearch}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMobileSearch();
+                }}
                 sx={{
                   color: 'black',
                   '&:hover': {
@@ -322,7 +328,7 @@ const Header = () => {
           {isMobile && showMobileSearch && !open && (
             <Box className="mobile-search-container" sx={{ 
               position: 'absolute', 
-              top: '100%', 
+              top: 'calc(100% - 20px)', 
               left: 0, 
               right: 0, 
               backgroundColor: 'white', 
@@ -586,54 +592,36 @@ const Header = () => {
                   // Open app store or download page
                   window.open('https://play.google.com/store/apps/details?id=com.fixfly.app', '_blank');
                 }}
-                startIcon={<Store size={20} />}
-                endIcon={<span style={{ fontSize: '16px' }}>📲</span>}
+                startIcon={<Download size={18} />}
+                endIcon={<ExternalLink size={16} />}
                 fullWidth
                 sx={{
                   justifyContent: 'space-between',
-                  padding: '14px 18px',
-                  margin: '6px 0',
+                  padding: '12px 16px',
+                  margin: '8px 0',
                   textTransform: 'none',
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  minHeight: '56px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  borderRadius: '16px',
-                  boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-                  border: '2px solid rgba(255, 255, 255, 0.1)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: '-100%',
-                    width: '100%',
-                    height: '100%',
-                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                    transition: 'left 0.5s ease-in-out'
-                  },
+                  color: '#1f2937',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  minHeight: '48px',
+                  backgroundColor: '#f9fafb',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                    boxShadow: '0 8px 25px rgba(102, 126, 234, 0.5)',
-                    transform: 'translateY(-2px) scale(1.02)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&::before': {
-                      left: '100%'
-                    }
+                    backgroundColor: '#f3f4f6',
+                    borderColor: '#d1d5db',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    transform: 'translateY(-1px)',
+                    transition: 'all 0.2s ease-in-out'
                   },
                   '&:active': {
-                    transform: 'translateY(-1px) scale(1.01)',
-                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-                    transition: 'all 0.1s ease-in-out'
+                    transform: 'translateY(0)',
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                   }
                 }}
               >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>📱</span>
-                  Download Fixfly App
-                </span>
+                Download Fixfly App
               </Button>
 
               {/* Rate Us on Google Play Store Button */}
@@ -643,54 +631,43 @@ const Header = () => {
                   // Open Google Play Store rating page
                   window.open('https://play.google.com/store/apps/details?id=com.fixfly.app&showAllReviews=true', '_blank');
                 }}
-                startIcon={<Star size={20} />}
-                endIcon={<span style={{ fontSize: '18px' }}>⭐</span>}
+                startIcon={<Star size={18} fill="#fbbf24" color="#fbbf24" />}
+                endIcon={<ExternalLink size={16} />}
                 fullWidth
                 sx={{
                   justifyContent: 'space-between',
-                  padding: '14px 18px',
-                  margin: '6px 0',
+                  padding: '12px 16px',
+                  margin: '8px 0',
                   textTransform: 'none',
-                  color: '#ffffff',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  minHeight: '56px',
-                  background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
-                  borderRadius: '16px',
-                  boxShadow: '0 6px 20px rgba(255, 107, 107, 0.4)',
-                  border: '2px solid rgba(255, 255, 255, 0.1)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: '-100%',
-                    width: '100%',
-                    height: '100%',
-                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                    transition: 'left 0.5s ease-in-out'
-                  },
+                  color: '#1f2937',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  minHeight: '48px',
+                  backgroundColor: '#fef3c7',
+                  border: '1.5px solid #fde68a',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #ff5252 0%, #e74c3c 100%)',
-                    boxShadow: '0 8px 25px rgba(255, 107, 107, 0.5)',
-                    transform: 'translateY(-2px) scale(1.02)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&::before': {
-                      left: '100%'
-                    }
+                    backgroundColor: '#fde68a',
+                    borderColor: '#fcd34d',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    transform: 'translateY(-1px)',
+                    transition: 'all 0.2s ease-in-out'
                   },
                   '&:active': {
-                    transform: 'translateY(-1px) scale(1.01)',
-                    boxShadow: '0 4px 15px rgba(255, 107, 107, 0.4)',
-                    transition: 'all 0.1s ease-in-out'
+                    transform: 'translateY(0)',
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  },
+                  '& .MuiButton-startIcon': {
+                    marginRight: '8px',
+                    '& svg': {
+                      color: '#fbbf24',
+                      fill: '#fbbf24'
+                    }
                   }
                 }}
               >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>⭐</span>
-                  Rate Us on Google Play
-                </span>
+                Rate Us on Google Play
               </Button>
 
               {/* Join as a Partner Button */}
@@ -700,54 +677,34 @@ const Header = () => {
                   // Navigate to partner registration page or open partner info
                   navigate('/partner-registration');
                 }}
-                startIcon={<Shield size={20} />}
-                endIcon={<span style={{ fontSize: '16px' }}>💼</span>}
+                startIcon={<Handshake size={18} />}
                 fullWidth
                 sx={{
-                  justifyContent: 'space-between',
-                  padding: '14px 18px',
-                  margin: '6px 0 24px 0',
+                  justifyContent: 'flex-start',
+                  padding: '12px 16px',
+                  margin: '8px 0 24px 0',
                   textTransform: 'none',
                   color: '#ffffff',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  minHeight: '56px',
-                  background: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)',
-                  borderRadius: '16px',
-                  boxShadow: '0 6px 20px rgba(0, 198, 255, 0.4)',
-                  border: '2px solid rgba(255, 255, 255, 0.1)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: '-100%',
-                    width: '100%',
-                    height: '100%',
-                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                    transition: 'left 0.5s ease-in-out'
-                  },
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  minHeight: '48px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+                  border: 'none',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #0099e6 0%, #0056b3 100%)',
-                    boxShadow: '0 8px 25px rgba(0, 198, 255, 0.5)',
-                    transform: 'translateY(-2px) scale(1.02)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&::before': {
-                      left: '100%'
-                    }
+                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                    boxShadow: '0 4px 6px rgba(59, 130, 246, 0.4)',
+                    transform: 'translateY(-1px)',
+                    transition: 'all 0.2s ease-in-out'
                   },
                   '&:active': {
-                    transform: 'translateY(-1px) scale(1.01)',
-                    boxShadow: '0 4px 15px rgba(0, 198, 255, 0.4)',
-                    transition: 'all 0.1s ease-in-out'
+                    transform: 'translateY(0)',
+                    boxShadow: '0 2px 3px rgba(59, 130, 246, 0.3)'
                   }
                 }}
               >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>🤝</span>
-                  Join as a Partner
-                </span>
+                Join as a Partner
               </Button>
             </>
           )}

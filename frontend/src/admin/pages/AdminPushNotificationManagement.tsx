@@ -22,7 +22,6 @@ import {
   MessageSquare,
   Loader2,
   RefreshCw,
-  Image as ImageIcon
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +33,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import NotificationImageUpload from '@/components/NotificationImageUpload';
 
 interface NotificationStats {
   totalNotifications: number;
@@ -67,13 +65,7 @@ const AdminPushNotificationManagement = () => {
     targetUsers: [] as string[],
     targetVendors: [] as string[],
     scheduledAt: '',
-    isScheduled: false,
-    image: null as {
-      public_id: string;
-      secure_url: string;
-      width: number;
-      height: number;
-    } | null
+    isScheduled: false
   });
 
   // Data states
@@ -202,8 +194,7 @@ const AdminPushNotificationManagement = () => {
         targetUsers: formData.targetUsers.length > 0 ? formData.targetUsers : undefined,
         targetVendors: formData.targetVendors.length > 0 ? formData.targetVendors : undefined,
         scheduledAt: formData.isScheduled ? formData.scheduledAt : undefined,
-        isScheduled: formData.isScheduled,
-        image: formData.image || undefined
+        isScheduled: formData.isScheduled
       };
 
       console.log('Sending notification data:', notificationData);
@@ -212,7 +203,6 @@ const AdminPushNotificationManagement = () => {
       console.log('Target vendors type:', typeof formData.targetVendors);
       console.log('Target vendors length:', formData.targetVendors.length);
       console.log('Target users:', formData.targetUsers);
-      console.log('🖼️ Image data being sent:', formData.image);
       
       const response = await adminNotificationApi.sendNotification(notificationData);
       
@@ -239,8 +229,7 @@ const AdminPushNotificationManagement = () => {
         targetUsers: [],
         targetVendors: [],
         scheduledAt: '',
-        isScheduled: false,
-        image: null
+        isScheduled: false
       });
       setSelectedVendorId(''); // Reset vendor selection
       
@@ -497,15 +486,7 @@ const AdminPushNotificationManagement = () => {
                     <TableRow key={notification._id}>
                       <TableCell>
                         <div>
-                          <div className="flex items-center space-x-2">
-                            <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                            {notification.image && (
-                              <div className="flex items-center space-x-1">
-                                <ImageIcon className="w-3 h-3 text-blue-600" />
-                                <span className="text-xs text-blue-600">Image</span>
-                              </div>
-                            )}
-                          </div>
+                          <p className="text-sm font-medium text-gray-900">{notification.title}</p>
                           <p className="text-xs text-gray-500">
                             {new Date(notification.createdAt).toLocaleDateString()}
                           </p>
@@ -602,12 +583,6 @@ const AdminPushNotificationManagement = () => {
                   rows={3}
                 />
               </div>
-              
-              <NotificationImageUpload
-                onImageSelect={(image) => setFormData({...formData, image})}
-                selectedImage={formData.image}
-                disabled={isLoading}
-              />
               
               <div>
                 <Label htmlFor="targetAudience">Target Audience *</Label>
@@ -748,19 +723,6 @@ const AdminPushNotificationManagement = () => {
                   <Label className="text-sm font-medium text-gray-600">Message</Label>
                   <p className="text-sm text-gray-900">{selectedNotification.message}</p>
                 </div>
-                
-                {selectedNotification.image && (
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Image</Label>
-                    <div className="mt-2">
-                      <img
-                        src={selectedNotification.image.secure_url}
-                        alt="Notification image"
-                        className="max-w-full h-48 object-cover rounded-lg border"
-                      />
-                    </div>
-                  </div>
-                )}
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>

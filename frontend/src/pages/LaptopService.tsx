@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, MessageCircle, Star, Shield, Clock, Check, Home, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Phone, MessageCircle, Star, Shield, Clock, Check, Home, ShoppingCart, ShoppingBag, ArrowRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { serviceConfigs } from "@/data/serviceConfigs";
 
@@ -229,30 +229,57 @@ const ServicePage = () => {
 
         {/* Checkout Section */}
         {cartItems.length > 0 && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:bottom-0 bottom-16">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-semibold text-gray-900">
-                      {cartItems.length} {cartItems.length === 1 ? 'Service' : 'Services'} Selected
-                    </span>
+          <div className="fixed bottom-0 left-0 right-0 z-[70] transition-all duration-300 ease-out">
+            {/* Backdrop blur effect */}
+            <div className="absolute inset-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80"></div>
+            
+            {/* Content */}
+            <div className="relative container mx-auto px-4 py-3 md:py-4">
+              <div className="flex items-center justify-between gap-3 md:gap-4">
+                {/* Left Section - Cart Info */}
+                <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                  {/* Cart Icon Badge */}
+                  <div className="relative flex-shrink-0">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                      <ShoppingBag className="h-5 w-5 md:h-6 md:w-6 text-white" />
+                    </div>
+                    {cartItems.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg">
+                        {cartItems.length}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-lg font-bold text-gray-900">
-                    Total: ₹{totalPrice}
+                  
+                  {/* Price Info */}
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs md:text-sm text-gray-500 font-medium">
+                      {cartItems.length} {cartItems.length === 1 ? 'Service' : 'Services'}
+                    </span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg md:text-xl font-bold text-gray-900">
+                        ₹{totalPrice}
+                      </span>
+                      <span className="text-xs text-gray-500">total</span>
+                    </div>
                   </div>
                 </div>
+                
+                {/* Right Section - Checkout Button */}
                 <Button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 md:px-6 lg:px-8 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0"
                   onClick={() => {
                     // Navigate to checkout or booking page
                     navigate('/booking', { state: { cartItems, totalPrice } });
                   }}
                 >
-                  Proceed to Checkout
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
                 </Button>
               </div>
             </div>
+            
+            {/* Subtle shadow at top */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
           </div>
         )}
       </div>

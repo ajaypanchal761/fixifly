@@ -33,6 +33,7 @@ import {
 import { supportTicketAPI } from "@/services/supportApiService";
 import { getUserAMCSubscriptions } from "@/services/amcApiService";
 import { useAuth } from "@/contexts/AuthContext";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import jsPDF from 'jspdf';
 
 const Support = () => {
@@ -819,7 +820,7 @@ const Support = () => {
   };
 
   return (
-    <div className="min-h-screen pt-16 bg-secondary/30">
+    <div className="min-h-screen pt-16 bg-secondary/30 pb-24 md:pb-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
         <div className="text-center mb-8 md:mb-12">
@@ -1452,6 +1453,9 @@ const Support = () => {
           </div>
         )}
       </div>
+      
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 };
