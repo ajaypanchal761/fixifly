@@ -7,6 +7,8 @@ const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
 const adminNotificationService = require('../services/adminNotificationService');
 const userNotificationService = require('../services/userNotificationService');
+const emailService = require('../services/emailService');
+const botbeeService = require('../services/botbeeService');
 
 // Helper function to check if user is booking for the first time - DISABLED
 // First-time user free service feature has been removed
@@ -120,6 +122,75 @@ const createBooking = asyncHandler(async (req, res) => {
     });
 
     // First-time user status update removed - feature disabled
+
+    // Send booking confirmation WhatsApp to user
+    try {
+      console.log('📱 Sending booking confirmation WhatsApp to user:', {
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference,
+        customerPhone: booking.customer.phone
+      });
+      
+      const whatsappResult = await botbeeService.sendBookingConfirmationToUser(booking);
+      
+      if (whatsappResult.success) {
+        console.log('✅ Booking confirmation WhatsApp sent to user successfully');
+        logger.info('Booking confirmation WhatsApp sent to user', {
+          bookingId: booking._id,
+          customerPhone: booking.customer.phone,
+          data: whatsappResult.data
+        });
+      } else {
+        console.log('⚠️ Failed to send booking confirmation WhatsApp to user:', whatsappResult.error);
+        logger.warn('Failed to send booking confirmation WhatsApp to user', {
+          bookingId: booking._id,
+          customerPhone: booking.customer.phone,
+          error: whatsappResult.error
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error sending booking confirmation WhatsApp to user:', error);
+      logger.error('Error sending booking confirmation WhatsApp to user', {
+        error: error.message,
+        bookingId: booking._id,
+        customerPhone: booking.customer.phone
+      });
+      // Don't fail the booking creation if WhatsApp fails
+    }
+
+    // Send WhatsApp notification to admin via Botbee
+    try {
+      console.log('📱 Sending WhatsApp notification to admin via Botbee:', {
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference
+      });
+      
+      const whatsappResult = await botbeeService.sendBookingNotification(booking);
+      
+      if (whatsappResult.success) {
+        console.log('✅ WhatsApp notification sent to admin successfully');
+        logger.info('WhatsApp notification sent to admin via Botbee', {
+          bookingId: booking._id,
+          bookingReference: booking.bookingReference,
+          data: whatsappResult.data
+        });
+      } else {
+        console.log('⚠️ Failed to send WhatsApp notification to admin:', whatsappResult.error);
+        logger.warn('Failed to send WhatsApp notification to admin via Botbee', {
+          bookingId: booking._id,
+          bookingReference: booking.bookingReference,
+          error: whatsappResult.error
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error sending WhatsApp notification to admin:', error);
+      logger.error('Error sending WhatsApp notification to admin via Botbee', {
+        error: error.message,
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference
+      });
+      // Don't fail the booking creation if WhatsApp fails
+    }
 
     // Send notification to admins about new booking
     try {
@@ -798,6 +869,75 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     });
 
     // First-time user status update removed - feature disabled
+
+    // Send booking confirmation WhatsApp to user
+    try {
+      console.log('📱 Sending booking confirmation WhatsApp to user (ONLINE PAYMENT):', {
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference,
+        customerPhone: booking.customer.phone
+      });
+      
+      const whatsappResult = await botbeeService.sendBookingConfirmationToUser(booking);
+      
+      if (whatsappResult.success) {
+        console.log('✅ Booking confirmation WhatsApp sent to user successfully (ONLINE PAYMENT)');
+        logger.info('Booking confirmation WhatsApp sent to user (ONLINE PAYMENT)', {
+          bookingId: booking._id,
+          customerPhone: booking.customer.phone,
+          data: whatsappResult.data
+        });
+      } else {
+        console.log('⚠️ Failed to send booking confirmation WhatsApp to user (ONLINE PAYMENT):', whatsappResult.error);
+        logger.warn('Failed to send booking confirmation WhatsApp to user (ONLINE PAYMENT)', {
+          bookingId: booking._id,
+          customerPhone: booking.customer.phone,
+          error: whatsappResult.error
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error sending booking confirmation WhatsApp to user (ONLINE PAYMENT):', error);
+      logger.error('Error sending booking confirmation WhatsApp to user (ONLINE PAYMENT)', {
+        error: error.message,
+        bookingId: booking._id,
+        customerPhone: booking.customer.phone
+      });
+      // Don't fail the booking creation if WhatsApp fails
+    }
+
+    // Send WhatsApp notification to admin via Botbee
+    try {
+      console.log('📱 Sending WhatsApp notification to admin via Botbee (ONLINE PAYMENT):', {
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference
+      });
+      
+      const whatsappResult = await botbeeService.sendBookingNotification(booking);
+      
+      if (whatsappResult.success) {
+        console.log('✅ WhatsApp notification sent to admin successfully (ONLINE PAYMENT)');
+        logger.info('WhatsApp notification sent to admin via Botbee (ONLINE PAYMENT)', {
+          bookingId: booking._id,
+          bookingReference: booking.bookingReference,
+          data: whatsappResult.data
+        });
+      } else {
+        console.log('⚠️ Failed to send WhatsApp notification to admin (ONLINE PAYMENT):', whatsappResult.error);
+        logger.warn('Failed to send WhatsApp notification to admin via Botbee (ONLINE PAYMENT)', {
+          bookingId: booking._id,
+          bookingReference: booking.bookingReference,
+          error: whatsappResult.error
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error sending WhatsApp notification to admin (ONLINE PAYMENT):', error);
+      logger.error('Error sending WhatsApp notification to admin via Botbee (ONLINE PAYMENT)', {
+        error: error.message,
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference
+      });
+      // Don't fail the booking creation if WhatsApp fails
+    }
 
     // Send notification to user about booking confirmation (ONLINE PAYMENT)
     try {

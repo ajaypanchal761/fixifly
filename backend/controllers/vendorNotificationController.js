@@ -395,16 +395,19 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
       // Use mobile/webview tokens only (web tokens removed)
       const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
       
+      // Check if push notifications are enabled (default to true if not set)
+      const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;
+      
       logger.info('Vendor details for push notification', {
         vendorId,
         vendorFound: !!vendor,
         mobileTokens: vendor?.fcmTokenMobile?.length || 0,
         totalTokens: uniqueTokens.length,
-        pushNotificationsEnabled: vendor?.notificationSettings?.pushNotifications,
+        pushNotificationsEnabled: pushNotificationsEnabled,
         vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found'
       });
 
-      if (vendor && uniqueTokens.length > 0 && vendor.notificationSettings?.pushNotifications) {
+      if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
           title: '🛠️ New Support Ticket Assigned',
           body: `You have been assigned a new support ticket: ${ticketData.subject}`
@@ -457,12 +460,13 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
           totalTokens: uniqueTokens.length
         });
       } else {
+        const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
         logger.warn('Push notification skipped for support ticket assignment', {
           vendorId,
           ticketId: ticketData.ticketId,
           hasTokens: uniqueTokens.length > 0,
           mobileTokens: vendor?.fcmTokenMobile?.length || 0,
-          pushEnabled: vendor?.notificationSettings?.pushNotifications,
+          pushEnabled: pushNotificationsEnabled,
           vendorExists: !!vendor,
           reason: !vendor ? 'Vendor not found' : 
                   uniqueTokens.length === 0 ? 'No FCM tokens' : 
@@ -558,7 +562,10 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
       // Use mobile/webview tokens only (web tokens removed)
       const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
       
-      if (vendor && uniqueTokens.length > 0 && vendor.notificationSettings?.pushNotifications) {
+      // Check if push notifications are enabled (default to true if not set)
+      const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;
+      
+      if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
           title: '📅 New Service Booking Assigned',
           body: `You have been assigned a new service booking for ${bookingData.customer?.name}`
@@ -603,11 +610,12 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
           mobileTokens: vendor.fcmTokenMobile?.length || 0
         });
       } else {
+        const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
         logger.info('Push notification skipped - no FCM token or disabled', {
         vendorId,
           hasTokens: uniqueTokens.length > 0,
           mobileTokens: vendor?.fcmTokenMobile?.length || 0,
-          pushEnabled: vendor?.notificationSettings?.pushNotifications
+          pushEnabled: pushNotificationsEnabled
         });
       }
     } catch (pushError) {
@@ -703,14 +711,13 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
     try {
       const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokens +fcmTokenMobile notificationSettings');
       
-      // Combine web and mobile tokens
-      const allTokens = [
-        ...(vendor?.fcmTokens || []),
-        ...(vendor?.fcmTokenMobile || [])
-      ];
-      const uniqueTokens = [...new Set(allTokens)];
+      // Use mobile/webview tokens only (web tokens removed)
+      const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
       
-      if (vendor && uniqueTokens.length > 0 && vendor.notificationSettings?.pushNotifications) {
+      // Check if push notifications are enabled (default to true if not set)
+      const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;
+      
+      if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
           title: '🛠️ New Warranty Claim Assigned',
           body: `You have been assigned a new warranty claim for ${claimData.item}`
@@ -741,11 +748,12 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
           mobileTokens: vendor.fcmTokenMobile?.length || 0
         });
       } else {
+        const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
         logger.info('Push notification skipped - no FCM token or disabled', {
         vendorId,
           hasTokens: uniqueTokens.length > 0,
           mobileTokens: vendor?.fcmTokenMobile?.length || 0,
-          pushEnabled: vendor?.notificationSettings?.pushNotifications
+          pushEnabled: pushNotificationsEnabled
         });
       }
     } catch (pushError) {

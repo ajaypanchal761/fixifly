@@ -1130,6 +1130,401 @@ class EmailService {
       html
     });
   }
+
+  /**
+   * Send booking confirmation email to user (Utility Template)
+   * @param {Object} booking - Booking object
+   * @returns {Promise<Object>} - Response object
+   */
+  async sendBookingConfirmationEmail(booking) {
+    if (!this.isEmailConfigured()) {
+      logger.warn('Email service not configured. Skipping booking confirmation email.');
+      return {
+        success: false,
+        message: 'Email service not configured'
+      };
+    }
+
+    try {
+      const bookingReference = booking.bookingReference || `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
+      const customerName = booking.customer?.name || 'Customer';
+      const customerEmail = booking.customer?.email;
+      const customerPhone = booking.customer?.phone || 'N/A';
+      const customerAddress = booking.customer?.address 
+        ? `${booking.customer.address.street}, ${booking.customer.address.city}, ${booking.customer.address.state} - ${booking.customer.address.pincode}`
+        : 'N/A';
+      
+      const preferredDate = booking.scheduling?.preferredDate 
+        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })
+        : 'N/A';
+      const preferredTime = booking.scheduling?.preferredTimeSlot || 'N/A';
+      
+      const services = booking.services || [];
+      const servicesList = services.map(s => `<li>${s.serviceName} - ₹${s.price.toLocaleString()}</li>`).join('');
+      const totalAmount = booking.pricing?.totalAmount ? `₹${booking.pricing.totalAmount.toLocaleString()}` : '₹0';
+      const subtotal = booking.pricing?.subtotal ? `₹${booking.pricing.subtotal.toLocaleString()}` : '₹0';
+      const serviceFee = booking.pricing?.serviceFee ? `₹${booking.pricing.serviceFee.toLocaleString()}` : '₹0';
+      const paymentMethod = booking.payment?.method || 'N/A';
+      const paymentStatus = booking.payment?.status || 'pending';
+      const notes = booking.notes || 'No additional notes';
+      const bookingDate = new Date(booking.createdAt || new Date()).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const subject = `Booking Confirmation - ${bookingReference} | Fixfly`;
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Booking Confirmation</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              line-height: 1.6; 
+              color: #333; 
+              margin: 0; 
+              padding: 0; 
+              background-color: #f5f5f5;
+            }
+            .container { 
+              max-width: 600px; 
+              margin: 0 auto; 
+              background-color: #ffffff;
+            }
+            .header { 
+              background: linear-gradient(135deg, #3B82F6, #1E40AF); 
+              color: white; 
+              padding: 30px 20px; 
+              text-align: center; 
+            }
+            .header h1 { 
+              margin: 0; 
+              font-size: 28px; 
+            }
+            .header p { 
+              margin: 10px 0 0 0; 
+              font-size: 16px; 
+              opacity: 0.9;
+            }
+            .content { 
+              padding: 30px 20px; 
+            }
+            .success-badge {
+              background: #ecfdf5;
+              border: 2px solid #10b981;
+              border-radius: 8px;
+              padding: 15px;
+              text-align: center;
+              margin-bottom: 25px;
+            }
+            .success-badge h2 {
+              color: #059669;
+              margin: 0;
+              font-size: 20px;
+            }
+            .booking-details { 
+              background: #f9fafb; 
+              border-radius: 8px; 
+              padding: 20px; 
+              margin: 20px 0; 
+              border-left: 4px solid #3B82F6;
+            }
+            .booking-details h3 {
+              color: #1f2937;
+              margin: 0 0 15px 0;
+              font-size: 18px;
+            }
+            .detail-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 10px 0;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            .detail-row:last-child {
+              border-bottom: none;
+            }
+            .detail-label {
+              color: #6b7280;
+              font-weight: 500;
+            }
+            .detail-value {
+              color: #1f2937;
+              font-weight: 600;
+              text-align: right;
+            }
+            .services-list {
+              background: #ffffff;
+              border-radius: 8px;
+              padding: 15px;
+              margin: 15px 0;
+            }
+            .services-list ul {
+              margin: 0;
+              padding-left: 20px;
+            }
+            .services-list li {
+              margin: 8px 0;
+              color: #374151;
+            }
+            .amount-highlight {
+              background: #fef3c7;
+              border: 2px solid #f59e0b;
+              border-radius: 8px;
+              padding: 15px;
+              text-align: center;
+              margin: 20px 0;
+            }
+            .amount-highlight .total {
+              font-size: 24px;
+              font-weight: bold;
+              color: #92400e;
+              margin: 5px 0;
+            }
+            .info-box {
+              background: #eff6ff;
+              border-left: 4px solid #3B82F6;
+              border-radius: 4px;
+              padding: 15px;
+              margin: 20px 0;
+            }
+            .info-box p {
+              margin: 5px 0;
+              color: #1e40af;
+            }
+            .footer { 
+              background: #f9fafb;
+              padding: 20px; 
+              text-align: center; 
+              color: #6b7280; 
+              font-size: 14px; 
+              border-top: 1px solid #e5e7eb;
+            }
+            .footer p {
+              margin: 5px 0;
+            }
+            .contact-info {
+              background: #f0f9ff;
+              border-radius: 8px;
+              padding: 15px;
+              margin: 20px 0;
+            }
+            .contact-info h4 {
+              color: #0c4a6e;
+              margin: 0 0 10px 0;
+            }
+            .contact-info p {
+              margin: 5px 0;
+              color: #075985;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🎉 Fixfly</h1>
+              <p>Your Booking Has Been Confirmed!</p>
+            </div>
+            
+            <div class="content">
+              <div class="success-badge">
+                <h2>✅ Booking Confirmed</h2>
+                <p style="margin: 5px 0 0 0; color: #047857;">Your service request has been received and confirmed</p>
+              </div>
+
+              <div class="booking-details">
+                <h3>📋 Booking Information</h3>
+                <div class="detail-row">
+                  <span class="detail-label">Booking Reference:</span>
+                  <span class="detail-value">${bookingReference}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Booking Date:</span>
+                  <span class="detail-value">${bookingDate}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Status:</span>
+                  <span class="detail-value" style="color: #059669; font-weight: bold;">Confirmed</span>
+                </div>
+              </div>
+
+              <div class="booking-details">
+                <h3>👤 Customer Details</h3>
+                <div class="detail-row">
+                  <span class="detail-label">Name:</span>
+                  <span class="detail-value">${customerName}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Email:</span>
+                  <span class="detail-value">${customerEmail}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Phone:</span>
+                  <span class="detail-value">${customerPhone}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Address:</span>
+                  <span class="detail-value" style="text-align: right; max-width: 60%;">${customerAddress}</span>
+                </div>
+              </div>
+
+              <div class="booking-details">
+                <h3>📅 Scheduled Service</h3>
+                <div class="detail-row">
+                  <span class="detail-label">Preferred Date:</span>
+                  <span class="detail-value">${preferredDate}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Time Slot:</span>
+                  <span class="detail-value">${preferredTime}</span>
+                </div>
+              </div>
+
+              <div class="booking-details">
+                <h3>🛠️ Services Requested</h3>
+                <div class="services-list">
+                  <ul>
+                    ${servicesList || '<li>No services specified</li>'}
+                  </ul>
+                </div>
+              </div>
+
+              <div class="booking-details">
+                <h3>💰 Payment Details</h3>
+                <div class="detail-row">
+                  <span class="detail-label">Subtotal:</span>
+                  <span class="detail-value">${subtotal}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Service Fee:</span>
+                  <span class="detail-value">${serviceFee}</span>
+                </div>
+                <div class="amount-highlight">
+                  <div style="color: #6b7280; font-size: 14px;">Total Amount</div>
+                  <div class="total">${totalAmount}</div>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Payment Method:</span>
+                  <span class="detail-value">${paymentMethod.toUpperCase()}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Payment Status:</span>
+                  <span class="detail-value" style="color: ${paymentStatus === 'completed' ? '#059669' : '#f59e0b'};">${paymentStatus.toUpperCase()}</span>
+                </div>
+              </div>
+
+              ${notes && notes !== 'No additional notes' ? `
+              <div class="booking-details">
+                <h3>📝 Additional Notes</h3>
+                <p style="color: #374151; margin: 0;">${notes}</p>
+              </div>
+              ` : ''}
+
+              <div class="info-box">
+                <p><strong>⏰ What's Next?</strong></p>
+                <p>Our team will assign an engineer to your booking shortly. You will receive updates via email and SMS.</p>
+                <p style="margin-top: 10px;"><strong>Please keep this email for your records.</strong></p>
+              </div>
+
+              <div class="contact-info">
+                <h4>📞 Need Help?</h4>
+                <p><strong>Phone:</strong> +91-99313-54354 (24/7 Support)</p>
+                <p><strong>Email:</strong> info@fixfly.in</p>
+                <p><strong>WhatsApp:</strong> +91-99313-54354</p>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p><strong>Thank you for choosing Fixfly!</strong></p>
+              <p>We're committed to providing you with excellent service.</p>
+              <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
+                This is an automated confirmation email. Please do not reply to this email.<br>
+                For support, contact us at info@fixfly.in
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const text = `
+        Booking Confirmation - ${bookingReference} | Fixfly
+        
+        Hello ${customerName},
+        
+        Your booking has been confirmed! We're excited to serve you.
+        
+        BOOKING INFORMATION:
+        - Booking Reference: ${bookingReference}
+        - Booking Date: ${bookingDate}
+        - Status: Confirmed
+        
+        CUSTOMER DETAILS:
+        - Name: ${customerName}
+        - Email: ${customerEmail}
+        - Phone: ${customerPhone}
+        - Address: ${customerAddress}
+        
+        SCHEDULED SERVICE:
+        - Preferred Date: ${preferredDate}
+        - Time Slot: ${preferredTime}
+        
+        SERVICES REQUESTED:
+        ${services.map(s => `- ${s.serviceName} - ₹${s.price.toLocaleString()}`).join('\n')}
+        
+        PAYMENT DETAILS:
+        - Subtotal: ${subtotal}
+        - Service Fee: ${serviceFee}
+        - Total Amount: ${totalAmount}
+        - Payment Method: ${paymentMethod.toUpperCase()}
+        - Payment Status: ${paymentStatus.toUpperCase()}
+        
+        ${notes && notes !== 'No additional notes' ? `ADDITIONAL NOTES:\n${notes}\n` : ''}
+        
+        WHAT'S NEXT?
+        Our team will assign an engineer to your booking shortly. You will receive updates via email and SMS.
+        
+        Please keep this email for your records.
+        
+        NEED HELP?
+        Phone: +91-99313-54354 (24/7 Support)
+        Email: info@fixfly.in
+        WhatsApp: +91-99313-54354
+        
+        Thank you for choosing Fixfly!
+        We're committed to providing you with excellent service.
+        
+        This is an automated confirmation email. Please do not reply to this email.
+        For support, contact us at info@fixfly.in
+      `;
+
+      return await this.sendEmail({
+        to: customerEmail,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+    } catch (error) {
+      logger.error('Failed to send booking confirmation email:', error);
+      return {
+        success: false,
+        message: 'Failed to send booking confirmation email',
+        error: error.message
+      };
+    }
+  }
 }
 
 // Create singleton instance
