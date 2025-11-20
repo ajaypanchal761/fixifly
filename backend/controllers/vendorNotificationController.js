@@ -505,25 +505,45 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
 // @access  Private (Admin) - This will be called from admin controller
 const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookingData) => {
   try {
+    logger.info('🔔 === BOOKING ASSIGNMENT NOTIFICATION START ===', {
+      vendorId,
+      vendorIdType: typeof vendorId,
+      bookingId: bookingData._id,
+      bookingReference: bookingData.bookingReference
+    });
+
     // Use connection service to ensure MongoDB is ready
     await notificationConnectionService.ensureConnection();
 
+    const Vendor = require('../models/Vendor');
+    
     // Convert vendorId string to ObjectId by finding the vendor
     let vendorObjectId = vendorId;
+    let vendorForNotification = null;
+    
     if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
       // vendorId is a string like "967", need to find the vendor
-      const Vendor = require('../models/Vendor');
-      const vendor = await Vendor.findOne({ vendorId: vendorId });
-      if (!vendor) {
+      logger.info('Looking up vendor by vendorId string', { vendorId });
+      vendorForNotification = await Vendor.findOne({ vendorId: vendorId });
+      if (!vendorForNotification) {
+        logger.error('Vendor not found by vendorId string', { vendorId });
         throw new Error(`Vendor with ID ${vendorId} not found`);
       }
-      vendorObjectId = vendor._id;
+      vendorObjectId = vendorForNotification._id;
       
       logger.info('Converted string vendorId to ObjectId for notification', {
         originalVendorId: vendorId,
-        vendorObjectId: vendorObjectId,
-        vendorName: `${vendor.firstName} ${vendor.lastName}`
+        vendorObjectId: vendorObjectId.toString(),
+        vendorName: `${vendorForNotification.firstName} ${vendorForNotification.lastName}`
       });
+    } else if (typeof vendorId === 'string' && vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+      // vendorId is already an ObjectId string
+      logger.info('VendorId is already an ObjectId string', { vendorId });
+      vendorObjectId = vendorId;
+    } else {
+      // vendorId might already be ObjectId
+      logger.info('VendorId appears to be ObjectId', { vendorId });
+      vendorObjectId = vendorId;
     }
 
     const notification = new VendorNotification({
@@ -557,13 +577,42 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
 
     // Send push notification
     try {
-      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings');
+      logger.info('🔍 Fetching vendor for push notification', {
+        vendorObjectId: vendorObjectId.toString(),
+        vendorObjectIdType: typeof vendorObjectId
+      });
+      
+      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      
+      if (!vendor) {
+        logger.error('❌ Vendor not found for push notification', {
+          vendorObjectId: vendorObjectId.toString(),
+          vendorId
+        });
+        throw new Error(`Vendor not found with ID: ${vendorObjectId}`);
+      }
+      
+      logger.info('✅ Vendor found for push notification', {
+        vendorId: vendor._id.toString(),
+        vendorName: `${vendor.firstName} ${vendor.lastName}`,
+        email: vendor.email,
+        hasFcmTokenMobile: !!vendor.fcmTokenMobile,
+        fcmTokenMobileCount: vendor.fcmTokenMobile?.length || 0,
+        notificationSettings: vendor.notificationSettings
+      });
       
       // Use mobile/webview tokens only (web tokens removed)
       const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
       
       // Check if push notifications are enabled (default to true if not set)
       const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;
+      
+      logger.info('📱 Push notification check', {
+        vendorId: vendor._id.toString(),
+        uniqueTokensCount: uniqueTokens.length,
+        pushNotificationsEnabled,
+        tokens: uniqueTokens.map(t => t.substring(0, 20) + '...')
+      });
       
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
@@ -599,39 +648,60 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
           }
         );
 
-        logger.info('Complete notification sent for booking assignment', {
-          vendorId,
+        logger.info('✅ Complete notification sent for booking assignment', {
+          vendorId: vendor._id.toString(),
+          vendorName: `${vendor.firstName} ${vendor.lastName}`,
           bookingId: bookingData._id,
+          bookingReference: bookingData.bookingReference,
           pushNotification: pushResult.successCount > 0,
           pushSuccessCount: pushResult.successCount,
           pushFailureCount: pushResult.failureCount,
           realtimeNotification: realtimeResult,
           totalTokens: uniqueTokens.length,
-          mobileTokens: vendor.fcmTokenMobile?.length || 0
+          mobileTokens: vendor.fcmTokenMobile?.length || 0,
+          pushResult: pushResult
         });
+        
+        if (pushResult.successCount === 0) {
+          logger.warn('⚠️ Push notification sent but successCount is 0', {
+            vendorId: vendor._id.toString(),
+            pushResult,
+            tokens: uniqueTokens
+          });
+        }
       } else {
         const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
-        logger.info('Push notification skipped - no FCM token or disabled', {
-        vendorId,
+        logger.warn('⚠️ Push notification skipped for booking assignment', {
+          vendorId: vendor?._id?.toString() || vendorId,
+          vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found',
           hasTokens: uniqueTokens.length > 0,
           mobileTokens: vendor?.fcmTokenMobile?.length || 0,
-          pushEnabled: pushNotificationsEnabled
+          pushEnabled: pushNotificationsEnabled,
+          reason: !vendor ? 'Vendor not found' : 
+                  uniqueTokens.length === 0 ? 'No FCM tokens' : 
+                  !pushNotificationsEnabled ? 'Push notifications disabled' : 'Unknown'
         });
       }
     } catch (pushError) {
-      logger.error('Failed to send push notification for booking assignment', {
+      logger.error('❌ Failed to send push notification for booking assignment', {
         error: pushError.message,
+        stack: pushError.stack,
         vendorId,
-        bookingId: bookingData._id
+        bookingId: bookingData._id,
+        bookingReference: bookingData.bookingReference
       });
       // Don't fail the notification creation if push notification fails
     }
 
-    logger.info('Booking assignment notification created', {
+    logger.info('✅ Booking assignment notification created', {
       vendorId,
+      vendorObjectId: vendorObjectId.toString(),
       bookingId: bookingData._id,
+      bookingReference: bookingData.bookingReference,
       notificationId: notification._id
     });
+    
+    logger.info('🔔 === BOOKING ASSIGNMENT NOTIFICATION END ===');
 
     return notification;
   } catch (error) {

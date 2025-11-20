@@ -484,19 +484,30 @@ const assignVendor = asyncHandler(async (req, res) => {
 
     // Create notification for vendor (creates notification record + sends push notification)
     try {
+      logger.info('🔔 Attempting to send vendor push notification for booking assignment', {
+        vendorId,
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference,
+        bookingStatus: booking.status,
+        customerName: booking.customer?.name,
+        customerEmail: booking.customer?.email
+      });
+      
       const { createBookingAssignmentNotification } = require('./vendorNotificationController');
       await createBookingAssignmentNotification(vendorId, booking);
-      logger.info('Vendor notification created and sent successfully for booking assignment', {
+      
+      logger.info('✅ Vendor notification created and sent successfully for booking assignment', {
         vendorId,
         bookingId: booking._id,
         bookingReference: booking.bookingReference
       });
     } catch (notificationError) {
-      logger.error('Error creating vendor notification for booking assignment:', {
+      logger.error('❌ Error creating vendor notification for booking assignment:', {
         error: notificationError.message,
         stack: notificationError.stack,
         vendorId,
-        bookingId: booking._id
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference
       });
       // Don't fail the assignment if notification fails
     }

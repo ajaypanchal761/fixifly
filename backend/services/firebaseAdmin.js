@@ -219,6 +219,37 @@ const sendPushNotification = async (tokens, payload) => {
       imageUrl: payload.image ? payload.image.substring(0, 60) + '...' : 'None'
     });
 
+    // Helper function to convert all data values to strings (FCM requirement)
+    const stringifyData = (data) => {
+      const stringified = {};
+      for (const [key, value] of Object.entries(data || {})) {
+        if (value === null || value === undefined) {
+          stringified[key] = '';
+        } else if (typeof value === 'object') {
+          // Convert objects/arrays to JSON strings
+          stringified[key] = JSON.stringify(value);
+        } else {
+          // Convert everything else to string
+          stringified[key] = String(value);
+        }
+      }
+      return stringified;
+    };
+
+    // Prepare data payload with all values as strings
+    const dataPayload = stringifyData({
+      ...(payload.data || {}),
+      link: payload.link || '/',
+      handlerName: payload.handlerName || 'handleNotificationClick',
+      // Additional fields for webview/APK compatibility
+      type: payload.data?.type || 'general',
+      title: payload.title,
+      body: payload.body,
+      timestamp: new Date().toISOString(),
+      // Include image in data payload
+      ...(payload.image && { image: payload.image })
+    });
+
     // Create individual message for each token (like RentYatra - better for webview APK)
     const messages = validTokens.map((token) => ({
       token,
@@ -228,18 +259,7 @@ const sendPushNotification = async (tokens, payload) => {
         // Include image if available
         ...(payload.image && { image: payload.image })
       },
-      data: {
-        ...(payload.data || {}),
-        link: payload.link || '/',
-        handlerName: payload.handlerName || 'handleNotificationClick',
-        // Additional fields for webview/APK compatibility
-        type: payload.data?.type || 'general',
-        title: payload.title,
-        body: payload.body,
-        timestamp: new Date().toISOString(),
-        // Include image in data payload
-        ...(payload.image && { image: payload.image })
-      },
+      data: dataPayload,
       // Web push specific options
       webpush: {
         notification: {
@@ -253,9 +273,9 @@ const sendPushNotification = async (tokens, payload) => {
           requireInteraction: false,
           // Use bookingId or type as tag to prevent duplicate notifications
           tag: payload.data?.bookingId 
-            ? `booking_${payload.data.bookingId}` 
+            ? `booking_${String(payload.data.bookingId)}` 
             : payload.data?.type 
-              ? `type_${payload.data.type}`
+              ? `type_${String(payload.data.type)}`
               : `notif_${Date.now()}`,
           vibrate: [200, 100, 200],
           silent: false,
@@ -277,18 +297,18 @@ const sendPushNotification = async (tokens, payload) => {
           ...(payload.image && { imageUrl: payload.image }),
           clickAction: payload.link || 'FLUTTER_NOTIFICATION_CLICK',
           tag: payload.data?.bookingId 
-            ? `booking_${payload.data.bookingId}` 
+            ? `booking_${String(payload.data.bookingId)}` 
             : payload.data?.type 
-              ? `type_${payload.data.type}`
+              ? `type_${String(payload.data.type)}`
               : `notif_${Date.now()}`,
         },
-        data: {
+        data: stringifyData({
           ...(payload.data || {}),
           click_action: payload.link || 'FLUTTER_NOTIFICATION_CLICK',
           handlerName: payload.handlerName || '',
           // Include image in Android data
           ...(payload.image && { image: payload.image })
-        },
+        }),
       },
       // iOS specific options
       apns: {
