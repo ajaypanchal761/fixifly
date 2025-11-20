@@ -485,30 +485,48 @@ const loginVendor = asyncHandler(async (req, res) => {
       try {
         logger.info(`🔔 Saving FCM token for vendor ${vendor._id} (mobile/webview only)`);
         
+        // Fetch vendor with fcmTokenMobile field explicitly selected
+        const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+        
         // Save to fcmTokenMobile array (mobile/webview only, no web tokens)
-        if (!vendor.fcmTokenMobile || !Array.isArray(vendor.fcmTokenMobile)) {
-          vendor.fcmTokenMobile = [];
+        if (!vendorWithTokens.fcmTokenMobile || !Array.isArray(vendorWithTokens.fcmTokenMobile)) {
+          vendorWithTokens.fcmTokenMobile = [];
         }
         
         // Remove token if already exists to avoid duplicates
-        vendor.fcmTokenMobile = vendor.fcmTokenMobile.filter(t => t !== deviceToken);
+        vendorWithTokens.fcmTokenMobile = vendorWithTokens.fcmTokenMobile.filter(t => t !== deviceToken);
         
         // Add new token at the beginning
-        vendor.fcmTokenMobile.unshift(deviceToken);
+        vendorWithTokens.fcmTokenMobile.unshift(deviceToken);
         
         // Keep only the most recent 10 tokens
-        if (vendor.fcmTokenMobile.length > 10) {
-          vendor.fcmTokenMobile = vendor.fcmTokenMobile.slice(0, 10);
+        if (vendorWithTokens.fcmTokenMobile.length > 10) {
+          vendorWithTokens.fcmTokenMobile = vendorWithTokens.fcmTokenMobile.slice(0, 10);
         }
         
-        vendor.markModified('fcmTokenMobile');
-        vendor.notificationSettings.pushNotifications = true;
-        await vendor.save();
-        logger.info(`✅ FCM mobile/webview token saved successfully for vendor ${vendor._id}`);
+        vendorWithTokens.markModified('fcmTokenMobile');
+        vendorWithTokens.notificationSettings.pushNotifications = true;
+        await vendorWithTokens.save({ validateBeforeSave: false });
+        
+        // Verify save
+        const verifyVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+        logger.info(`✅ FCM mobile/webview token saved successfully for vendor ${vendor._id}`, {
+          tokenCount: verifyVendor.fcmTokenMobile?.length || 0,
+          tokenExists: verifyVendor.fcmTokenMobile?.includes(deviceToken) || false
+        });
       } catch (error) {
-        logger.error('❌ Error saving device token:', error);
+        logger.error('❌ Error saving device token:', {
+          error: error.message,
+          stack: error.stack,
+          vendorId: vendor._id
+        });
         // Don't fail login if device token saving fails
       }
+    } else {
+      logger.info('No deviceToken provided during vendor login', {
+        vendorId: vendor._id,
+        email: vendor.email
+      });
     }
 
     // Generate token
@@ -1867,13 +1885,20 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     // Add new token to fcmTokenMobile
     logger.info('🆕 New mobile token detected, adding to fcmTokenMobile array...');
     
-    if (vendor.fcmTokenMobile.length >= MAX_TOKENS) {
-      logger.info(`⚠️ Token limit reached (${MAX_TOKENS}), removing oldest token...`);
-      vendor.fcmTokenMobile.shift();
+    // Remove token if exists (shouldn't happen but safety check)
+    vendor.fcmTokenMobile = vendor.fcmTokenMobile.filter(t => t !== token);
+    
+    // Add new token at the beginning (most recent first)
+    vendor.fcmTokenMobile.unshift(token);
+    
+    // Keep only the most recent tokens
+    if (vendor.fcmTokenMobile.length > MAX_TOKENS) {
+      logger.info(`⚠️ Token limit reached (${MAX_TOKENS}), removing oldest tokens...`);
+      vendor.fcmTokenMobile = vendor.fcmTokenMobile.slice(0, MAX_TOKENS);
     }
     
-    vendor.fcmTokenMobile.push(token);
     logger.info(`📱 Added new mobile token to fcmTokenMobile. Total mobile tokens: ${vendor.fcmTokenMobile.length}/${MAX_TOKENS}`);
+    logger.info(`📋 Token array preview: ${vendor.fcmTokenMobile.slice(0, 3).map(t => t.substring(0, 20) + '...').join(', ')}`);
     
     // Mark fcmTokenMobile as modified to ensure save (CRITICAL for select: false fields)
     vendor.markModified('fcmTokenMobile');
@@ -1881,7 +1906,9 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     logger.info('💾 Saving FCM tokens to database...', {
       vendorId: vendor._id.toString(),
       vendorIdString: vendor.vendorId,
-      tokensBeforeSave: vendor.fcmTokenMobile.length,
+      phone: vendor.phone,
+      tokensBeforeSave: oldTokens.length,
+      tokensAfterSave: vendor.fcmTokenMobile.length,
       newToken: token.substring(0, 30) + '...'
     });
     
