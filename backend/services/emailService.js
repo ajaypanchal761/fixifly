@@ -187,7 +187,6 @@ class EmailService {
               <h3>Transaction Details</h3>
               <p><strong>Amount Deposited:</strong> <span class="amount">₹${amount.toLocaleString()}</span></p>
               <p><strong>Transaction ID:</strong> ${transactionId}</p>
-              <p><strong>New Wallet Balance:</strong> ₹${newBalance.toLocaleString()}</p>
               <p><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
             </div>
 
@@ -214,7 +213,6 @@ class EmailService {
       Transaction Details:
       - Amount: ₹${amount.toLocaleString()}
       - Transaction ID: ${transactionId}
-      - New Balance: ₹${newBalance.toLocaleString()}
       - Date: ${new Date().toLocaleDateString('en-IN')}
       
       Thank you for using Fixfly!
