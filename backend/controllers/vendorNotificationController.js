@@ -390,18 +390,21 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
         vendorObjectId: vendorObjectId.toString()
       });
 
-      const vendor = await Vendor.findById(vendorObjectId).select('fcmToken notificationSettings firstName lastName email');
+      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      
+      // Use mobile/webview tokens only (web tokens removed)
+      const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
       
       logger.info('Vendor details for push notification', {
         vendorId,
         vendorFound: !!vendor,
-        hasFcmToken: !!vendor?.fcmToken,
-        fcmTokenLength: vendor?.fcmToken?.length || 0,
+        mobileTokens: vendor?.fcmTokenMobile?.length || 0,
+        totalTokens: uniqueTokens.length,
         pushNotificationsEnabled: vendor?.notificationSettings?.pushNotifications,
         vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found'
       });
 
-      if (vendor && vendor.fcmToken && vendor.notificationSettings?.pushNotifications) {
+      if (vendor && uniqueTokens.length > 0 && vendor.notificationSettings?.pushNotifications) {
         const pushNotification = {
           title: '🛠️ New Support Ticket Assigned',
           body: `You have been assigned a new support ticket: ${ticketData.subject}`
@@ -421,33 +424,48 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
           ticketId: ticketData.ticketId,
           notificationTitle: pushNotification.title,
           notificationBody: pushNotification.body,
-          fcmTokenPreview: vendor.fcmToken.substring(0, 20) + '...'
+          totalTokens: uniqueTokens.length,
+          mobileTokens: vendor.fcmTokenMobile?.length || 0
         });
 
-        // Send complete notification (both push and realtime database)
-        const results = await firebaseRealtimeService.sendCompleteNotification(
-          vendorId,
-          vendor.fcmToken,
+        // Send push notification to all tokens using multicast
+        const firebasePushService = require('../services/firebasePushService');
+        const pushResult = await firebasePushService.sendMulticastPushNotification(
+          uniqueTokens,
           pushNotification,
           pushData
+        );
+
+        // Send realtime notification (if enabled)
+        const realtimeResult = await firebaseRealtimeService.sendRealtimeNotification(
+          vendorId,
+          {
+            title: pushNotification.title,
+            message: pushNotification.body,
+            type: 'support_ticket_assignment',
+            data: pushData
+          }
         );
 
         logger.info('Complete notification result for support ticket assignment', {
           vendorId,
           ticketId: ticketData.ticketId,
-          pushNotification: results.pushNotification,
-          realtimeNotification: results.realtimeNotification,
-          fcmToken: vendor.fcmToken ? 'present' : 'missing'
+          pushNotification: pushResult.successCount > 0,
+          pushSuccessCount: pushResult.successCount,
+          pushFailureCount: pushResult.failureCount,
+          realtimeNotification: realtimeResult,
+          totalTokens: uniqueTokens.length
         });
       } else {
         logger.warn('Push notification skipped for support ticket assignment', {
           vendorId,
           ticketId: ticketData.ticketId,
-          hasToken: !!vendor?.fcmToken,
+          hasTokens: uniqueTokens.length > 0,
+          mobileTokens: vendor?.fcmTokenMobile?.length || 0,
           pushEnabled: vendor?.notificationSettings?.pushNotifications,
           vendorExists: !!vendor,
           reason: !vendor ? 'Vendor not found' : 
-                  !vendor.fcmToken ? 'No FCM token' : 
+                  uniqueTokens.length === 0 ? 'No FCM tokens' : 
                   'Push notifications disabled'
         });
       }
@@ -535,8 +553,16 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
 
     // Send push notification
     try {
-      const vendor = await Vendor.findById(vendorObjectId).select('fcmToken notificationSettings');
-      if (vendor && vendor.fcmToken && vendor.notificationSettings?.pushNotifications) {
+      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokens +fcmTokenMobile notificationSettings');
+      
+      // Combine web and mobile tokens
+      const allTokens = [
+        ...(vendor?.fcmTokens || []),
+        ...(vendor?.fcmTokenMobile || [])
+      ];
+      const uniqueTokens = [...new Set(allTokens)];
+      
+      if (vendor && uniqueTokens.length > 0 && vendor.notificationSettings?.pushNotifications) {
         const pushNotification = {
           title: '📅 New Service Booking Assigned',
           body: `You have been assigned a new service booking for ${bookingData.customer?.name}`
@@ -551,25 +577,40 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
           action: 'view_booking'
         };
 
-        // Send complete notification (both push and realtime database)
-        const results = await firebaseRealtimeService.sendCompleteNotification(
-          vendorId,
-          vendor.fcmToken,
+        // Send push notification to all tokens using multicast
+        const firebasePushService = require('../services/firebasePushService');
+        const pushResult = await firebasePushService.sendMulticastPushNotification(
+          uniqueTokens,
           pushNotification,
           pushData
+        );
+
+        // Send realtime notification (if enabled)
+        const realtimeResult = await firebaseRealtimeService.sendRealtimeNotification(
+          vendorId,
+          {
+            title: pushNotification.title,
+            message: pushNotification.body,
+            type: 'booking_assignment',
+            data: pushData
+          }
         );
 
         logger.info('Complete notification sent for booking assignment', {
           vendorId,
           bookingId: bookingData._id,
-          pushNotification: results.pushNotification,
-          realtimeNotification: results.realtimeNotification,
-          fcmToken: vendor.fcmToken ? 'present' : 'missing'
+          pushNotification: pushResult.successCount > 0,
+          pushSuccessCount: pushResult.successCount,
+          pushFailureCount: pushResult.failureCount,
+          realtimeNotification: realtimeResult,
+          totalTokens: uniqueTokens.length,
+          mobileTokens: vendor.fcmTokenMobile?.length || 0
         });
       } else {
         logger.info('Push notification skipped - no FCM token or disabled', {
         vendorId,
-          hasToken: !!vendor?.fcmToken,
+          hasTokens: uniqueTokens.length > 0,
+          mobileTokens: vendor?.fcmTokenMobile?.length || 0,
           pushEnabled: vendor?.notificationSettings?.pushNotifications
         });
       }
@@ -664,14 +705,22 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
 
     // Send push notification
     try {
-      const vendor = await Vendor.findById(vendorObjectId).select('fcmToken notificationSettings');
-      if (vendor && vendor.fcmToken && vendor.notificationSettings?.pushNotifications) {
+      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokens +fcmTokenMobile notificationSettings');
+      
+      // Combine web and mobile tokens
+      const allTokens = [
+        ...(vendor?.fcmTokens || []),
+        ...(vendor?.fcmTokenMobile || [])
+      ];
+      const uniqueTokens = [...new Set(allTokens)];
+      
+      if (vendor && uniqueTokens.length > 0 && vendor.notificationSettings?.pushNotifications) {
         const pushNotification = {
           title: '🛠️ New Warranty Claim Assigned',
           body: `You have been assigned a new warranty claim for ${claimData.item}`
         };
 
-      const pushData = {
+        const pushData = {
           type: 'warranty_claim_assignment',
           claimId: claimData._id,
           item: claimData.item,
@@ -679,21 +728,27 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
           action: 'view_claim'
       };
 
-        await firebasePushService.sendPushNotification(
-          vendor.fcmToken,
+        // Send push notification to all tokens using multicast
+        const firebasePushService = require('../services/firebasePushService');
+        const pushResult = await firebasePushService.sendMulticastPushNotification(
+          uniqueTokens,
           pushNotification,
-        pushData
-      );
+          pushData
+        );
       
         logger.info('Push notification sent for warranty claim assignment', {
           vendorId,
           claimId: claimData._id,
-          fcmToken: vendor.fcmToken ? 'present' : 'missing'
+          pushSuccessCount: pushResult.successCount,
+          pushFailureCount: pushResult.failureCount,
+          totalTokens: uniqueTokens.length,
+          mobileTokens: vendor.fcmTokenMobile?.length || 0
         });
       } else {
         logger.info('Push notification skipped - no FCM token or disabled', {
         vendorId,
-          hasToken: !!vendor?.fcmToken,
+          hasTokens: uniqueTokens.length > 0,
+          mobileTokens: vendor?.fcmTokenMobile?.length || 0,
           pushEnabled: vendor?.notificationSettings?.pushNotifications
         });
       }

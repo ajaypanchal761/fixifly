@@ -265,13 +265,25 @@ const sendNotification = asyncHandler(async (req, res) => {
     if (targetVendorIds.length > 0) {
       try {
         const vendors = await Vendor.find({
-          _id: { $in: targetVendorIds },
-          fcmToken: { $exists: true, $ne: null }
-        }).select('_id fcmToken');
+          _id: { $in: targetVendorIds }
+        }).select('+fcmTokenMobile _id notificationSettings');
 
-        const vendorFcmTokens = vendors.map(vendor => vendor.fcmToken).filter(token => token);
+        // Collect FCM tokens (mobile/webview only - web tokens removed)
+        const vendorFcmTokens = [];
+        vendors.forEach(vendor => {
+          // Check if push notifications are enabled
+          if (vendor.notificationSettings?.pushNotifications !== false) {
+            // Add mobile/webview tokens only
+            if (vendor.fcmTokenMobile && Array.isArray(vendor.fcmTokenMobile)) {
+              vendorFcmTokens.push(...vendor.fcmTokenMobile);
+            }
+          }
+        });
 
-        if (vendorFcmTokens.length > 0) {
+        // Remove duplicates
+        const uniqueVendorTokens = [...new Set(vendorFcmTokens)];
+
+        if (uniqueVendorTokens.length > 0) {
           const pushNotification = {
             title,
             body: message,
@@ -295,7 +307,7 @@ const sendNotification = asyncHandler(async (req, res) => {
             ...(image && { image: image.secure_url })
           };
 
-          vendorPushResult = await sendMulticastPushNotification(vendorFcmTokens, pushNotification, pushData);
+          vendorPushResult = await sendMulticastPushNotification(uniqueVendorTokens, pushNotification, pushData);
           console.log('✅ Vendor notifications sent:', {
             successCount: vendorPushResult.successCount,
             failureCount: vendorPushResult.failureCount

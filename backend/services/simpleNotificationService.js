@@ -53,9 +53,14 @@ class SimpleNotificationService {
         type: notificationData.type
       });
 
-      // Get vendor details for FCM token
+      // Get vendor details for FCM tokens (mobile/webview only - web tokens removed)
       const Vendor = require('../models/Vendor');
-      const vendor = await Vendor.findOne({ vendorId: vendorId }).select('fcmToken notificationSettings');
+      const vendor = await Vendor.findOne({ vendorId: vendorId }).select('+fcmTokenMobile notificationSettings');
+      
+      // Use mobile/webview tokens only
+      const uniqueTokens = [...(vendor?.fcmTokenMobile || [])].filter(token => 
+        token && !token.startsWith('test_') && !token.startsWith('real_fcm_token_')
+      );
       
       let pushNotificationSent = false;
       let realtimeNotificationSent = false;
@@ -75,8 +80,8 @@ class SimpleNotificationService {
         logger.error('Realtime notification failed:', realtimeError);
       }
 
-      // Send push notification if vendor has real FCM token
-      if (vendor && vendor.fcmToken && !vendor.fcmToken.startsWith('test_') && !vendor.fcmToken.startsWith('real_fcm_token_')) {
+      // Send push notification if vendor has real FCM tokens
+      if (vendor && uniqueTokens.length > 0) {
         try {
           const firebasePushService = require('./firebasePushService');
           // Convert data to string values for FCM
@@ -87,29 +92,35 @@ class SimpleNotificationService {
             });
           }
           
-          pushNotificationSent = await firebasePushService.sendPushNotification(
-            vendor.fcmToken,
-            {
-              title: notificationData.title,
-              body: notificationData.message
-            },
+          const pushNotification = {
+            title: notificationData.title,
+            body: notificationData.message
+          };
+          
+          const pushResult = await firebasePushService.sendMulticastPushNotification(
+            uniqueTokens,
+            pushNotification,
             fcmData
           );
           
-          if (pushNotificationSent) {
+          if (pushResult.successCount > 0) {
+            pushNotificationSent = true;
             logger.info('Push notification sent successfully', {
               vendorId,
-              fcmToken: vendor.fcmToken.substring(0, 20) + '...'
+              successCount: pushResult.successCount,
+              failureCount: pushResult.failureCount,
+              totalTokens: uniqueTokens.length,
+              mobileTokens: vendor.fcmTokenMobile?.length || 0
             });
           }
         } catch (pushError) {
           logger.error('Push notification failed:', pushError);
         }
       } else {
-        logger.warn('Push notification skipped - vendor has test FCM token or no token', {
+        logger.warn('Push notification skipped - vendor has no valid FCM tokens', {
           vendorId,
-          hasToken: !!vendor?.fcmToken,
-          tokenType: vendor?.fcmToken ? (vendor.fcmToken.startsWith('test_') ? 'TEST' : 'REAL') : 'NONE'
+          hasTokens: uniqueTokens.length > 0,
+          mobileTokens: vendor?.fcmTokenMobile?.length || 0
         });
       }
 

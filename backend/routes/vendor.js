@@ -17,7 +17,10 @@ const {
   removeServiceLocation,
   generateOneSignalIdentityToken,
   createVerificationPayment,
-  verifyVerificationPayment
+  verifyVerificationPayment,
+  saveFCMToken,
+  saveFCMTokenMobile,
+  removeFCMToken
 } = require('../controllers/vendorController');
 const {
   getVendorNotifications,
@@ -52,6 +55,21 @@ router.post('/register', uploadMiddleware.vendorRegistrationFiles(), registerVen
 // @desc    Login vendor
 // @access  Public
 router.post('/login', loginVendor);
+
+// Public route - Save FCM token for mobile (no auth required)
+// @route   POST /api/vendors/save-fcm-token-mobile
+// @desc    Save FCM token for mobile/APK push notifications
+// @access  Public (no auth required)
+// Handle OPTIONS for CORS preflight
+router.options('/save-fcm-token-mobile', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.status(200).end();
+});
+
+// POST route for saving FCM token (must be before protect middleware)
+router.post('/save-fcm-token-mobile', saveFCMTokenMobile);
 
 // Protected routes (require authentication)
 // @route   GET /api/vendors/profile
@@ -210,5 +228,11 @@ router.post('/verification-payment', protectVendor, createVerificationPayment);
 // @desc    Verify verification payment
 // @access  Private
 router.post('/verify-verification-payment', protectVendor, verifyVerificationPayment);
+
+// FCM Token routes (Mobile/WebView only)
+// @route   DELETE /api/vendors/remove-fcm-token
+// @desc    Remove FCM token
+// @access  Private
+router.delete('/remove-fcm-token', protectVendor, removeFCMToken);
 
 module.exports = router;

@@ -320,7 +320,13 @@ const updateVendorStatus = asyncHandler(async (req, res) => {
     try {
       const { sendMulticastPushNotification } = require('../services/firebasePushService');
       
-      if (vendor.fcmToken) {
+      // Get vendor with FCM tokens (mobile/webview only - web tokens removed)
+      const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+      
+      // Use mobile/webview tokens only
+      const uniqueTokens = [...(vendorWithTokens?.fcmTokenMobile || [])];
+      
+      if (uniqueTokens.length > 0) {
         const notificationData = {
           title: 'Account Blocked',
           body: 'Your account has been blocked by admin. Please contact support for assistance.',
@@ -331,14 +337,17 @@ const updateVendorStatus = asyncHandler(async (req, res) => {
           }
         };
 
-        await sendMulticastPushNotification([vendor.fcmToken], notificationData);
+        const pushResult = await sendMulticastPushNotification(uniqueTokens, notificationData);
         logger.info('Vendor block notification sent successfully', {
           vendorId: vendor._id,
           email: vendor.email,
-          fcmToken: vendor.fcmToken ? 'present' : 'missing'
+          successCount: pushResult.successCount,
+          failureCount: pushResult.failureCount,
+          totalTokens: uniqueTokens.length,
+          mobileTokens: vendorWithTokens.fcmTokenMobile?.length || 0
         });
       } else {
-        logger.warn('No FCM token found for blocked vendor', {
+        logger.warn('No FCM tokens found for blocked vendor', {
           vendorId: vendor._id,
           email: vendor.email
         });
