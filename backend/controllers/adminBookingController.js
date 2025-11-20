@@ -482,24 +482,22 @@ const assignVendor = asyncHandler(async (req, res) => {
       });
     }
 
-    // Create notification for vendor using simple notification service
+    // Create notification for vendor (creates notification record + sends push notification)
     try {
-      const simpleNotificationService = require('../services/simpleNotificationService');
-      const notificationSent = await simpleNotificationService.sendBookingAssignmentNotification(vendorId, booking);
-      
-      if (notificationSent) {
-        logger.info('Vendor notification sent successfully for booking assignment', {
-          vendorId,
-          bookingId: booking._id
-        });
-      } else {
-        logger.warn('Failed to send vendor notification for booking assignment', {
-          vendorId,
-          bookingId: booking._id
-        });
-      }
+      const { createBookingAssignmentNotification } = require('./vendorNotificationController');
+      await createBookingAssignmentNotification(vendorId, booking);
+      logger.info('Vendor notification created and sent successfully for booking assignment', {
+        vendorId,
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference
+      });
     } catch (notificationError) {
-      logger.error('Error creating vendor notification for booking assignment:', notificationError);
+      logger.error('Error creating vendor notification for booking assignment:', {
+        error: notificationError.message,
+        stack: notificationError.stack,
+        vendorId,
+        bookingId: booking._id
+      });
       // Don't fail the assignment if notification fails
     }
 

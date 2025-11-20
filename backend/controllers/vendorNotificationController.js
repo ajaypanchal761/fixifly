@@ -553,14 +553,10 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
 
     // Send push notification
     try {
-      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokens +fcmTokenMobile notificationSettings');
+      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings');
       
-      // Combine web and mobile tokens
-      const allTokens = [
-        ...(vendor?.fcmTokens || []),
-        ...(vendor?.fcmTokenMobile || [])
-      ];
-      const uniqueTokens = [...new Set(allTokens)];
+      // Use mobile/webview tokens only (web tokens removed)
+      const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
       
       if (vendor && uniqueTokens.length > 0 && vendor.notificationSettings?.pushNotifications) {
         const pushNotification = {

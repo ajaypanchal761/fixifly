@@ -1723,27 +1723,113 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
       });
     }
 
-    // Clean and format phone number
-    const phoneRegex = /^[6-9]\d{9}$/;
-    const cleanPhone = phone.replace(/\D/g, '');
+    // Normalize phone number (same logic as registration)
+    const normalizePhone = (phoneNumber) => {
+      if (!phoneNumber) return phoneNumber;
+      const digits = phoneNumber.replace(/\D/g, '');
+      // Remove country code if present (91 or +91)
+      let cleaned = digits;
+      if (cleaned.length === 12 && cleaned.startsWith('91')) {
+        cleaned = cleaned.substring(2);
+      } else if (cleaned.length === 13 && cleaned.startsWith('91')) {
+        cleaned = cleaned.substring(2);
+      }
+      // Remove leading 0 if present
+      if (cleaned.length === 11 && cleaned.startsWith('0')) {
+        cleaned = cleaned.substring(1);
+      }
+      return cleaned;
+    };
+
+    const normalizedPhone = normalizePhone(phone);
     
-    if (!phoneRegex.test(cleanPhone)) {
+    // Validate phone number format
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(normalizedPhone)) {
+      logger.error('Invalid phone number format', {
+        originalPhone: phone,
+        normalizedPhone: normalizedPhone,
+        phoneLength: normalizedPhone.length
+      });
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid 10-digit Indian phone number'
       });
     }
 
+    logger.info('Phone number normalization', {
+      originalPhone: phone,
+      normalizedPhone: normalizedPhone
+    });
+
     // Find vendor by phone number - explicitly select fcmTokenMobile field
-    const formattedPhone = cleanPhone; // Vendor phone is stored without +91 prefix
-    const vendor = await Vendor.findOne({ phone: formattedPhone }).select('+fcmTokenMobile');
+    // Try multiple formats to find vendor
+    let vendor = await Vendor.findOne({ phone: normalizedPhone }).select('+fcmTokenMobile');
+    
+    logger.info('Vendor lookup attempt', {
+      normalizedPhone,
+      found: !!vendor,
+      vendorId: vendor?.vendorId || 'not found'
+    });
+    
+    // If not found, try with alternate formats
+    if (!vendor) {
+      // Try with leading 0
+      const phoneWithZero = '0' + normalizedPhone;
+      vendor = await Vendor.findOne({ phone: phoneWithZero }).select('+fcmTokenMobile');
+      logger.info('Tried phone with leading 0', { phoneWithZero, found: !!vendor });
+    }
     
     if (!vendor) {
+      // Try with +91 prefix
+      const phoneWithPlus91 = '+91' + normalizedPhone;
+      vendor = await Vendor.findOne({ phone: phoneWithPlus91 }).select('+fcmTokenMobile');
+      logger.info('Tried phone with +91', { phoneWithPlus91, found: !!vendor });
+    }
+    
+    if (!vendor) {
+      // Try with 91 prefix
+      const phoneWith91 = '91' + normalizedPhone;
+      vendor = await Vendor.findOne({ phone: phoneWith91 }).select('+fcmTokenMobile');
+      logger.info('Tried phone with 91', { phoneWith91, found: !!vendor });
+    }
+    
+    if (!vendor) {
+      // Try finding by vendorId if phone is actually a vendorId
+      if (normalizedPhone.length === 3) {
+        vendor = await Vendor.findOne({ vendorId: normalizedPhone }).select('+fcmTokenMobile');
+        logger.info('Tried finding by vendorId', { vendorId: normalizedPhone, found: !!vendor });
+      }
+    }
+    
+    if (!vendor) {
+      logger.error('Vendor not found with any phone format', {
+        originalPhone: phone,
+        normalizedPhone,
+        triedFormats: [
+          normalizedPhone,
+          '0' + normalizedPhone,
+          '+91' + normalizedPhone,
+          '91' + normalizedPhone
+        ]
+      });
       return res.status(404).json({
         success: false,
-        message: 'Vendor not found with this phone number. Please register first.'
+        message: 'Vendor not found with this phone number. Please register first.',
+        debug: {
+          originalPhone: phone,
+          normalizedPhone,
+          hint: 'Make sure the phone number matches the one used during registration'
+        }
       });
     }
+    
+    logger.info('✅ Vendor found for FCM token save', {
+      vendorId: vendor._id.toString(),
+      vendorIdString: vendor.vendorId,
+      phone: vendor.phone,
+      email: vendor.email
+    });
 
     // Ensure fcmTokenMobile field exists (for existing vendors who might not have this field)
     if (!vendor.fcmTokenMobile || !Array.isArray(vendor.fcmTokenMobile)) {
@@ -1792,26 +1878,67 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     // Mark fcmTokenMobile as modified to ensure save (CRITICAL for select: false fields)
     vendor.markModified('fcmTokenMobile');
     
-    logger.info('💾 Saving FCM tokens to database...');
-    await vendor.save();
+    logger.info('💾 Saving FCM tokens to database...', {
+      vendorId: vendor._id.toString(),
+      vendorIdString: vendor.vendorId,
+      tokensBeforeSave: vendor.fcmTokenMobile.length,
+      newToken: token.substring(0, 30) + '...'
+    });
+    
+    // Save with explicit options to ensure persistence
+    await vendor.save({ validateBeforeSave: false });
     logger.info('✅ FCM tokens saved successfully');
     
     // Verify the save by fetching fresh from database
     const updatedVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
-    logger.info('✅ Verification - fcmTokenMobile in database:', updatedVendor.fcmTokenMobile);
     
-    if (!updatedVendor || !updatedVendor.fcmTokenMobile || !updatedVendor.fcmTokenMobile.includes(token)) {
+    if (!updatedVendor) {
+      logger.error('❌ Vendor not found after save - verification failed');
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to verify token save'
+      });
+    }
+    
+    logger.info('✅ Verification - fcmTokenMobile in database:', {
+      vendorId: updatedVendor._id.toString(),
+      tokenCount: updatedVendor.fcmTokenMobile?.length || 0,
+      tokenExists: updatedVendor.fcmTokenMobile?.includes(token) || false,
+      tokensArray: updatedVendor.fcmTokenMobile?.map(t => t.substring(0, 20) + '...') || []
+    });
+    
+    // If verification fails, retry save
+    if (!updatedVendor.fcmTokenMobile || !updatedVendor.fcmTokenMobile.includes(token)) {
       logger.error('❌ Token save verification failed! Token not found in database after save');
-      // Retry save
-      if (updatedVendor && updatedVendor.fcmTokenMobile) {
-        if (!updatedVendor.fcmTokenMobile.includes(token)) {
-          if (updatedVendor.fcmTokenMobile.length >= MAX_TOKENS) {
-            updatedVendor.fcmTokenMobile.shift();
-          }
-          updatedVendor.fcmTokenMobile.push(token);
-          updatedVendor.markModified('fcmTokenMobile');
-          await updatedVendor.save();
-          logger.info('🔄 Retried saving token');
+      logger.info('🔄 Retrying save...');
+      
+      // Re-fetch and retry
+      const retryVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+      if (retryVendor) {
+        if (!retryVendor.fcmTokenMobile || !Array.isArray(retryVendor.fcmTokenMobile)) {
+          retryVendor.fcmTokenMobile = [];
+        }
+        
+        // Remove if exists
+        retryVendor.fcmTokenMobile = retryVendor.fcmTokenMobile.filter(t => t !== token);
+        
+        // Add token at beginning
+        retryVendor.fcmTokenMobile.unshift(token);
+        
+        // Limit
+        if (retryVendor.fcmTokenMobile.length > MAX_TOKENS) {
+          retryVendor.fcmTokenMobile = retryVendor.fcmTokenMobile.slice(0, MAX_TOKENS);
+        }
+        
+        retryVendor.markModified('fcmTokenMobile');
+        await retryVendor.save({ validateBeforeSave: false });
+        
+        // Verify again
+        const verifyVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+        if (verifyVendor && verifyVendor.fcmTokenMobile && verifyVendor.fcmTokenMobile.includes(token)) {
+          logger.info('✅ Retry successful - token saved');
+        } else {
+          logger.error('❌ Retry also failed - token still not in database');
         }
       }
     } else {
