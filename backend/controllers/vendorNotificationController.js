@@ -409,8 +409,8 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
 
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
-          title: '🛠️ New Support Ticket Assigned',
-          body: `You have been assigned a new support ticket: ${ticketData.subject}`
+          title: '🛠️ Support Ticket Assigned',
+          body: `A new support ticket "${ticketData.subject}" has been assigned to you. Please review and take action.`
         };
 
         const pushData = {
@@ -567,8 +567,8 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
       
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
-          title: '📅 New Service Booking Assigned',
-          body: `You have been assigned a new service booking for ${bookingData.customer?.name}`
+          title: '📅 Booking Assigned',
+          body: `A new service booking for ${bookingData.customer?.name || 'customer'} has been assigned to you. Please review and take action.`
         };
 
         const pushData = {

@@ -1203,15 +1203,43 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
 
   console.log('Ticket saved successfully');
 
-  // Send email notification to vendor if assigned (new assignment or change)
+  // Send notification to vendor if assigned (new assignment or change)
   if (assignedTo && assignedTo.toString() !== (originalAssignedTo ? originalAssignedTo.toString() : '')) {
-    console.log('Sending vendor assignment email:', {
+    console.log('Sending vendor assignment notifications:', {
       ticketId: ticket.ticketId,
       assignedTo,
       originalAssignedTo,
       vendorId: assignedTo
     });
     
+    // Send push notification to vendor
+    try {
+      const { createSupportTicketAssignmentNotification } = require('./vendorNotificationController');
+      await createSupportTicketAssignmentNotification(assignedTo, {
+        ticketId: ticket.ticketId,
+        subject: ticket.subject,
+        type: ticket.type,
+        priority: ticket.priority,
+        userName: ticket.userName,
+        userEmail: ticket.userEmail,
+        userPhone: ticket.userPhone,
+        description: ticket.description
+      });
+      logger.info('Push notification sent to vendor for support ticket assignment via updateSupportTicket', {
+        ticketId: ticket.ticketId,
+        vendorId: assignedTo
+      });
+    } catch (notificationError) {
+      console.error('Error sending push notification to vendor:', notificationError);
+      logger.error('Error sending push notification to vendor for support ticket assignment', {
+        error: notificationError.message,
+        ticketId: ticket.ticketId,
+        vendorId: assignedTo
+      });
+      // Don't fail the update if notification fails
+    }
+    
+    // Send email notification to vendor
     try {
       const Vendor = require('../models/Vendor');
       const vendor = await Vendor.findById(assignedTo).select('firstName lastName email');
