@@ -1703,10 +1703,17 @@ const saveFCMToken = asyncHandler(async (req, res) => {
 // @route   POST /api/vendors/save-fcm-token-mobile
 // @access  Public (no auth required, uses phone number)
 const saveFCMTokenMobile = asyncHandler(async (req, res) => {
+  // Enhanced logging to help debug
   logger.info('=== VENDOR MOBILE FCM TOKEN SAVE REQUEST ===');
   logger.info('Request Method:', req.method);
   logger.info('Request Path:', req.path);
   logger.info('Request URL:', req.url);
+  logger.info('Request Headers:', {
+    'content-type': req.headers['content-type'],
+    'user-agent': req.headers['user-agent'],
+    'origin': req.headers['origin'],
+    'referer': req.headers['referer']
+  });
   
   // Check MongoDB connection before proceeding
   const mongoose = require('mongoose');
