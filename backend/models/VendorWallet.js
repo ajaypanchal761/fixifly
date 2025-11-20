@@ -3,8 +3,10 @@ const mongoose = require('mongoose');
 const walletTransactionSchema = new mongoose.Schema({
   transactionId: {
     type: String,
-    required: true,
-    unique: true
+    required: true
+    // Removed unique: true - unique constraint on embedded schema fields doesn't work properly
+    // and causes duplicate key errors when multiple documents have null values.
+    // Uniqueness should be enforced at application level or using a sparse index.
   },
   caseId: {
     type: String,

@@ -58,8 +58,8 @@ router.post('/login', loginVendor);
 
 // Public route - Save FCM token for mobile (no auth required)
 // @route   POST /api/vendors/save-fcm-token-mobile
-// @desc    Save FCM token for mobile/APK push notifications
-// @access  Public (no auth required)
+// @desc    Save FCM token for mobile/APK push notifications (uses email)
+// @access  Public (no auth required, uses email)
 // Handle OPTIONS for CORS preflight
 router.options('/save-fcm-token-mobile', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');

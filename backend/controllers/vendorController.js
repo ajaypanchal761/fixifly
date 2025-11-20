@@ -1701,7 +1701,7 @@ const saveFCMToken = asyncHandler(async (req, res) => {
 
 // @desc    Save FCM token for mobile/APK push notifications
 // @route   POST /api/vendors/save-fcm-token-mobile
-// @access  Public (no auth required, uses phone number)
+// @access  Public (no auth required, uses email)
 const saveFCMTokenMobile = asyncHandler(async (req, res) => {
   // Enhanced logging to help debug
   logger.info('=== VENDOR MOBILE FCM TOKEN SAVE REQUEST ===');
@@ -1730,7 +1730,7 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     logger.info('Request body:', { ...req.body, token: req.body.token ? req.body.token.substring(0, 30) + '...' : 'missing' });
     logger.info('User Agent:', req.headers['user-agent'] || 'Unknown');
     
-    const { token, phone, platform = 'mobile' } = req.body;
+    const { token, email, platform = 'mobile' } = req.body;
 
     // Validate token
     if (!token || typeof token !== 'string' || token.trim().length === 0) {
@@ -1740,111 +1740,53 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
       });
     }
 
-    // Validate phone number
-    if (!phone) {
+    // Validate email
+    if (!email) {
       return res.status(400).json({
         success: false,
-        message: 'Phone number is required'
+        message: 'Email is required'
       });
     }
 
-    // Normalize phone number (same logic as registration)
-    const normalizePhone = (phoneNumber) => {
-      if (!phoneNumber) return phoneNumber;
-      const digits = phoneNumber.replace(/\D/g, '');
-      // Remove country code if present (91 or +91)
-      let cleaned = digits;
-      if (cleaned.length === 12 && cleaned.startsWith('91')) {
-        cleaned = cleaned.substring(2);
-      } else if (cleaned.length === 13 && cleaned.startsWith('91')) {
-        cleaned = cleaned.substring(2);
-      }
-      // Remove leading 0 if present
-      if (cleaned.length === 11 && cleaned.startsWith('0')) {
-        cleaned = cleaned.substring(1);
-      }
-      return cleaned;
-    };
-
-    const normalizedPhone = normalizePhone(phone);
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const normalizedEmail = email.toLowerCase().trim();
     
-    // Validate phone number format
-    const phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(normalizedPhone)) {
-      logger.error('Invalid phone number format', {
-        originalPhone: phone,
-        normalizedPhone: normalizedPhone,
-        phoneLength: normalizedPhone.length
+    if (!emailRegex.test(normalizedEmail)) {
+      logger.error('Invalid email format', {
+        email: email,
+        normalizedEmail: normalizedEmail
       });
       return res.status(400).json({
         success: false,
-        message: 'Please provide a valid 10-digit Indian phone number'
+        message: 'Please provide a valid email address'
       });
     }
 
-    logger.info('Phone number normalization', {
-      originalPhone: phone,
-      normalizedPhone: normalizedPhone
+    logger.info('Email validation', {
+      originalEmail: email,
+      normalizedEmail: normalizedEmail
     });
 
-    // Find vendor by phone number - explicitly select fcmTokenMobile field
-    // Try multiple formats to find vendor
-    let vendor = await Vendor.findOne({ phone: normalizedPhone }).select('+fcmTokenMobile');
+    // Find vendor by email - explicitly select fcmTokenMobile field
+    const vendor = await Vendor.findOne({ email: normalizedEmail }).select('+fcmTokenMobile');
     
     logger.info('Vendor lookup attempt', {
-      normalizedPhone,
+      email: normalizedEmail,
       found: !!vendor,
       vendorId: vendor?.vendorId || 'not found'
     });
     
-    // If not found, try with alternate formats
     if (!vendor) {
-      // Try with leading 0
-      const phoneWithZero = '0' + normalizedPhone;
-      vendor = await Vendor.findOne({ phone: phoneWithZero }).select('+fcmTokenMobile');
-      logger.info('Tried phone with leading 0', { phoneWithZero, found: !!vendor });
-    }
-    
-    if (!vendor) {
-      // Try with +91 prefix
-      const phoneWithPlus91 = '+91' + normalizedPhone;
-      vendor = await Vendor.findOne({ phone: phoneWithPlus91 }).select('+fcmTokenMobile');
-      logger.info('Tried phone with +91', { phoneWithPlus91, found: !!vendor });
-    }
-    
-    if (!vendor) {
-      // Try with 91 prefix
-      const phoneWith91 = '91' + normalizedPhone;
-      vendor = await Vendor.findOne({ phone: phoneWith91 }).select('+fcmTokenMobile');
-      logger.info('Tried phone with 91', { phoneWith91, found: !!vendor });
-    }
-    
-    if (!vendor) {
-      // Try finding by vendorId if phone is actually a vendorId
-      if (normalizedPhone.length === 3) {
-        vendor = await Vendor.findOne({ vendorId: normalizedPhone }).select('+fcmTokenMobile');
-        logger.info('Tried finding by vendorId', { vendorId: normalizedPhone, found: !!vendor });
-      }
-    }
-    
-    if (!vendor) {
-      logger.error('Vendor not found with any phone format', {
-        originalPhone: phone,
-        normalizedPhone,
-        triedFormats: [
-          normalizedPhone,
-          '0' + normalizedPhone,
-          '+91' + normalizedPhone,
-          '91' + normalizedPhone
-        ]
+      logger.error('Vendor not found with email', {
+        email: normalizedEmail
       });
       return res.status(404).json({
         success: false,
-        message: 'Vendor not found with this phone number. Please register first.',
+        message: 'Vendor not found with this email. Please register first.',
         debug: {
-          originalPhone: phone,
-          normalizedPhone,
-          hint: 'Make sure the phone number matches the one used during registration'
+          email: normalizedEmail,
+          hint: 'Make sure the email matches the one used during registration'
         }
       });
     }
@@ -1852,8 +1794,8 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     logger.info('✅ Vendor found for FCM token save', {
       vendorId: vendor._id.toString(),
       vendorIdString: vendor.vendorId,
-      phone: vendor.phone,
-      email: vendor.email
+      email: vendor.email,
+      phone: vendor.phone
     });
 
     // Ensure fcmTokenMobile field exists (for existing vendors who might not have this field)
@@ -1913,7 +1855,7 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     logger.info('💾 Saving FCM tokens to database...', {
       vendorId: vendor._id.toString(),
       vendorIdString: vendor.vendorId,
-      phone: vendor.phone,
+      email: vendor.email,
       tokensBeforeSave: oldTokens.length,
       tokensAfterSave: vendor.fcmTokenMobile.length,
       newToken: token.substring(0, 30) + '...'
