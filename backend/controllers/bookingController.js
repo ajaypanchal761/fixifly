@@ -812,6 +812,9 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       shouldVerifyViaAPI = true;
     }
 
+    // CRITICAL: Declare payment variable at function scope so it's accessible later
+    let payment = null;
+    
     // If signature verification failed or parameters missing, verify via Razorpay API
     if (shouldVerifyViaAPI && razorpayPaymentId) {
       try {
@@ -824,7 +827,6 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         });
         
         // Add retry mechanism for API verification (payment might still be processing)
-        let payment = null;
         let retries = 3;
         let lastError = null;
         
@@ -1015,6 +1017,7 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     }
     
     // Additional validation: If we have payment details from API, verify amount matches
+    // CRITICAL: Check if payment variable exists and has amount property
     if (payment && payment.amount) {
       const paymentAmountInRupees = payment.amount / 100; // Convert paise to rupees
       const expectedAmount = pricing.totalAmount;
@@ -1043,6 +1046,11 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
           difference: amountDifference
         });
       }
+    } else if (!payment && razorpayPaymentId) {
+      // If payment variable is null but we have payment ID, log warning but continue
+      // This can happen if signature verification passed but API verification wasn't needed
+      console.log('⚠️ Payment variable not set, but payment ID exists. Continuing with booking creation.');
+      console.log('⚠️ Payment ID:', razorpayPaymentId);
     }
 
     // First-time user free service feature has been removed

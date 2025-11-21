@@ -497,8 +497,13 @@ class RazorpayService {
         // CRITICAL: callback_url is what Razorpay uses to redirect after payment
         // In WebView, Razorpay will automatically redirect to this URL after payment
         // The handler might not execute, so callback_url is essential
-        // IMPORTANT: callbackUrl already has order_id pre-populated above
+        // IMPORTANT: For WebView, callback_url MUST be set for proper redirect
+        // Razorpay will redirect to this URL after payment success/failure
         callback_url: useRedirectMode ? callbackUrl : undefined,
+        
+        // CRITICAL: For WebView, ensure redirect works properly
+        // Add redirect parameter to ensure Razorpay redirects properly
+        redirect: useRedirectMode ? true : undefined,
         // Add timeout
         timeout: 300,
         // Additional WebView compatibility options
@@ -683,6 +688,38 @@ class RazorpayService {
             localStorage.setItem('payment_response', JSON.stringify(responseWithContext));
             sessionStorage.setItem('payment_response', JSON.stringify(responseWithContext));
             console.log('💾 Stored payment response from payment.success event');
+            
+            // CRITICAL: Force redirect to callback URL if not already redirected
+            // Sometimes Razorpay callback_url doesn't work in WebView, so we force it
+            if (callbackUrl && useRedirectMode) {
+              try {
+                const callbackUrlWithParams = new URL(callbackUrl);
+                callbackUrlWithParams.searchParams.set('razorpay_order_id', response.razorpay_order_id || response.razorpayOrderId || '');
+                callbackUrlWithParams.searchParams.set('razorpay_payment_id', response.razorpay_payment_id || response.razorpayPaymentId || '');
+                if (response.razorpay_signature || response.razorpaySignature) {
+                  callbackUrlWithParams.searchParams.set('razorpay_signature', response.razorpay_signature || response.razorpaySignature);
+                }
+                if (paymentData.bookingId) {
+                  callbackUrlWithParams.searchParams.set('booking_id', paymentData.bookingId);
+                }
+                if (paymentData.ticketId) {
+                  callbackUrlWithParams.searchParams.set('ticket_id', paymentData.ticketId);
+                }
+                
+                console.log('🚀 FORCE REDIRECT: Redirecting to callback from payment.success event');
+                console.log('🔗 Callback URL:', callbackUrlWithParams.toString());
+                
+                // Force redirect immediately
+                setTimeout(() => {
+                  if (window.location.href !== callbackUrlWithParams.toString() && 
+                      !window.location.href.includes('/payment-callback')) {
+                    window.location.href = callbackUrlWithParams.toString();
+                  }
+                }, 500);
+              } catch (e) {
+                console.error('❌ Error in payment.success redirect:', e);
+              }
+            }
           } catch (e) {
             console.error('❌ Error storing payment response:', e);
           }
@@ -697,31 +734,35 @@ class RazorpayService {
       }
       
       // Add payment.failed event handler for WebView
-      razorpay.on('payment.failed', (response: any) => {
-        console.error('❌ ========== RAZORPAY PAYMENT.FAILED EVENT FIRED ==========');
-        console.error('❌ Response:', JSON.stringify(response, null, 2));
-        console.error('❌ Error Object:', response.error);
-        console.error('❌ Metadata:', response.metadata);
-        console.error('❌ Use Redirect Mode:', useRedirectMode);
-        console.error('❌ Callback URL:', callbackUrl);
-        console.error('❌ ========================================================');
-        
-        const errorMessage = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';
-        
-        // Store failure info for debugging
-        try {
-          localStorage.setItem('payment_failure', JSON.stringify({
-            error: response.error,
-            metadata: response.metadata,
-            timestamp: Date.now()
-          }));
-          console.log('💾 Stored payment failure info');
-        } catch (e) {
-          console.warn('Could not store payment failure info:', e);
-        }
-        
-        // CRITICAL: For WebView, we MUST redirect to callback so backend can log the failure
-        if (useRedirectMode && callbackUrl) {
+        razorpay.on('payment.failed', (response: any) => {
+          console.error('❌ ========== RAZORPAY PAYMENT.FAILED EVENT FIRED ==========');
+          console.error('❌ Response:', JSON.stringify(response, null, 2));
+          console.error('❌ Error Object:', response.error);
+          console.error('❌ Metadata:', response.metadata);
+          console.error('❌ Use Redirect Mode:', useRedirectMode);
+          console.error('❌ Callback URL:', callbackUrl);
+          console.error('❌ ========================================================');
+          
+          const errorMessage = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';
+          
+          // Store failure info for debugging
+          try {
+            localStorage.setItem('payment_failure', JSON.stringify({
+              error: response.error,
+              metadata: response.metadata,
+              timestamp: Date.now(),
+              orderId: paymentData.orderId,
+              bookingId: paymentData.bookingId,
+              ticketId: paymentData.ticketId
+            }));
+            console.log('💾 Stored payment failure info');
+          } catch (e) {
+            console.warn('Could not store payment failure info:', e);
+          }
+          
+          // CRITICAL: For WebView, we MUST redirect to callback so backend can log the failure
+          // Even if callback_url is set, sometimes it doesn't work, so we force redirect
+          if (useRedirectMode && callbackUrl) {
           try {
             const errorCallbackUrl = new URL(callbackUrl);
             errorCallbackUrl.searchParams.set('error', 'payment_failed');
@@ -753,8 +794,30 @@ class RazorpayService {
             console.error('❌ =============================================');
             
             // IMMEDIATE redirect - don't wait
+            // Try multiple methods to ensure redirect works
             try {
+              // Method 1: Direct redirect
               window.location.href = errorCallbackUrl.toString();
+              
+              // Method 2: Fallback after delay
+              setTimeout(() => {
+                if (window.location.href !== errorCallbackUrl.toString() && 
+                    !window.location.href.includes('/payment-callback')) {
+                  console.log('🔄 Retrying error redirect...');
+                  window.location.replace(errorCallbackUrl.toString());
+                }
+              }, 500);
+              
+              // Method 3: Flutter bridge
+              setTimeout(() => {
+                if ((window as any).flutter_inappwebview) {
+                  try {
+                    (window as any).flutter_inappwebview.callHandler('navigateTo', errorCallbackUrl.toString());
+                  } catch (e) {
+                    console.warn('⚠️ Flutter bridge navigation failed:', e);
+                  }
+                }
+              }, 1000);
             } catch (redirectError) {
               console.error('❌ Error redirecting, trying Flutter bridge...');
               // Try Flutter bridge
@@ -1014,7 +1077,13 @@ class RazorpayService {
         },
         // CRITICAL: For WebView, use callback_url for redirect mode
         // In WebView, handler might not execute reliably, so callback_url is essential
+        // Razorpay will redirect to this URL after payment success/failure
         callback_url: useRedirectMode ? callbackUrl : undefined,
+        
+        // CRITICAL: For WebView, ensure redirect works properly
+        // Add redirect parameter to ensure Razorpay redirects properly
+        redirect: useRedirectMode ? true : undefined,
+        
         // For WebView redirect mode, handler should still be defined as fallback
         // But it will redirect to callback_url instead
         handler: useRedirectMode ? async (response: PaymentResponse) => {
@@ -1164,12 +1233,24 @@ class RazorpayService {
                 }
                 
                 console.log('🔀 Fallback: Redirecting to callback (payment.success in WebView):', callbackUrlWithParams.toString());
-                // Small delay to let callback_url redirect first if it's working
+                // CRITICAL: Force redirect immediately - don't wait for callback_url
+                // In WebView, callback_url might not work, so we force redirect
                 setTimeout(() => {
-                  if (window.location.href !== callbackUrlWithParams.toString()) {
+                  if (window.location.href !== callbackUrlWithParams.toString() && 
+                      !window.location.href.includes('/payment-callback')) {
+                    console.log('🚀 FORCE REDIRECT: callback_url did not work, forcing redirect');
                     window.location.href = callbackUrlWithParams.toString();
                   }
-                }, 1000);
+                }, 500);
+                
+                // Additional fallback after longer delay
+                setTimeout(() => {
+                  if (window.location.href !== callbackUrlWithParams.toString() && 
+                      !window.location.href.includes('/payment-callback')) {
+                    console.log('🔄 Retry redirect after 2 seconds...');
+                    window.location.replace(callbackUrlWithParams.toString());
+                  }
+                }, 2000);
               } catch (e) {
                 console.error('❌ Error in fallback redirect:', e);
               }
