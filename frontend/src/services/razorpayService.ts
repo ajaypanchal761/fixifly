@@ -285,8 +285,8 @@ class RazorpayService {
       console.log('🔍 ===============================================');
 
       // Build callback URL for redirect mode
-      // CRITICAL: Include order_id in callback URL upfront so backend can track it even if handler doesn't execute
-      // SMART FALLBACK: Auto-detect backend URL if VITE_API_URL is not set or is localhost
+      // CRITICAL: For production WebView APK, callback URL must be publicly accessible
+      // Priority: 1. VITE_API_URL (if set and not localhost), 2. Production backend URL, 3. Current origin (if HTTPS)
       let apiBase = import.meta.env.VITE_API_URL || '';
       
       // CRITICAL: Remove /api suffix if present, we'll add it back
@@ -294,9 +294,10 @@ class RazorpayService {
         apiBase = apiBase.replace(/\/api\/?$/, '');
       }
       
-      // SMART: If VITE_API_URL is not set or is localhost, use current origin as backend
-      // This works for WebView APK where frontend and backend might be on same domain
       const currentOrigin = window.location.origin;
+      const isProduction = import.meta.env.PROD || window.location.protocol === 'https:';
+      
+      // Check if VITE_API_URL is localhost or private IP
       const isLocalhostEnv = !apiBase || 
                             apiBase.includes('localhost') || 
                             apiBase.includes('127.0.0.1') ||
@@ -304,26 +305,41 @@ class RazorpayService {
                             apiBase.startsWith('10.') ||
                             apiBase.startsWith('172.');
       
-      // If environment URL is localhost or missing, use current origin (smart fallback)
-      if (isLocalhostEnv && currentOrigin && !currentOrigin.includes('localhost') && !currentOrigin.includes('127.0.0.1')) {
+      // For production WebView, use production backend URL
+      // Try to detect from current origin or use default
+      const getProductionBackendUrl = () => {
+        if (currentOrigin && currentOrigin.includes('getfixfly.com')) {
+          const hostname = new URL(currentOrigin).hostname;
+          if (hostname.startsWith('api.')) {
+            return currentOrigin;
+          } else {
+            return `https://api.${hostname}`;
+          }
+        }
+        return 'https://api.getfixfly.com'; // Default fallback
+      };
+      const PRODUCTION_BACKEND_URL = getProductionBackendUrl();
+      
+      if (isProduction && isLocalhostEnv) {
+        // In production but VITE_API_URL is localhost - use production backend
+        console.log('🔧 PRODUCTION MODE: Using production backend URL');
+        apiBase = PRODUCTION_BACKEND_URL;
+      } else if (isLocalhostEnv && currentOrigin && !currentOrigin.includes('localhost') && !currentOrigin.includes('127.0.0.1')) {
+        // Development but current origin is not localhost - use current origin
         console.log('🔧 SMART FALLBACK: Using current origin as backend URL');
         console.log('🔧 Current Origin:', currentOrigin);
         apiBase = currentOrigin;
       } else if (!apiBase) {
-        // If still no API base, use current origin
-        apiBase = currentOrigin || 'http://localhost:5000';
+        // If still no API base, use current origin or production backend
+        apiBase = isProduction ? PRODUCTION_BACKEND_URL : (currentOrigin || 'http://localhost:5000');
       }
       
       // CRITICAL: Ensure we have a valid absolute URL with protocol
-      // For production, this should be HTTPS
       if (!apiBase.startsWith('http://') && !apiBase.startsWith('https://')) {
-        // If no protocol, determine based on environment
-        const isProduction = import.meta.env.PROD || window.location.protocol === 'https:';
         apiBase = `${isProduction ? 'https://' : 'http://'}${apiBase}`;
       }
       
       // Build callback URL - must be absolute URL for Razorpay
-      // CRITICAL: For Razorpay callback, URL must be publicly accessible
       let callbackUrl = useRedirectMode 
         ? `${apiBase}/api/payment/razorpay-callback`
         : undefined;
@@ -338,58 +354,33 @@ class RazorpayService {
                             urlObj.hostname.startsWith('10.') ||
                             urlObj.hostname.startsWith('172.');
           
-          if (isLocalhost) {
-            console.error('❌ CRITICAL: Callback URL is still localhost after fallback!');
+          if (isLocalhost && isProduction) {
+            console.error('❌ CRITICAL: Callback URL is localhost in production!');
             console.error('❌ Callback URL:', callbackUrl);
-            console.error('❌ Current Origin:', currentOrigin);
-            console.error('❌ VITE_API_URL:', import.meta.env.VITE_API_URL);
-            console.error('❌ This will fail in production. Please set VITE_API_URL to your production backend URL.');
-            
-            // Last resort: if we're in HTTPS, try to construct from current origin
-            if (window.location.protocol === 'https:') {
-              const httpsFallback = `${currentOrigin}/api/payment/razorpay-callback`;
-              console.warn('⚠️ Using HTTPS fallback from current origin:', httpsFallback);
-              callbackUrl = httpsFallback;
-            }
+            console.error('❌ This will fail. Using production backend fallback.');
+            callbackUrl = `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`;
+          } else if (isLocalhost) {
+            console.warn('⚠️ Callback URL is localhost - this will only work in development');
           }
         } catch (urlError) {
           console.error('❌ Error validating callback URL:', urlError);
-          // Last resort fallback
-          if (currentOrigin) {
-            callbackUrl = `${currentOrigin}/api/payment/razorpay-callback`;
-            console.warn('⚠️ Using current origin as last resort fallback');
-          }
+          // Last resort: use production backend or current origin
+          callbackUrl = isProduction 
+            ? `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`
+            : `${currentOrigin}/api/payment/razorpay-callback`;
+          console.warn('⚠️ Using fallback callback URL:', callbackUrl);
         }
       }
       
       // For WebView, pre-populate callback URL with order_id and booking/ticket IDs
+      // CRITICAL: Don't pre-populate callback URL - Razorpay will add payment data automatically
+      // Pre-populating might cause issues with Razorpay's redirect
+      // Instead, we rely on backend callback to extract data from Razorpay's redirect
       if (useRedirectMode && callbackUrl && paymentData.orderId) {
-        try {
-          const callbackUrlObj = new URL(callbackUrl);
-          callbackUrlObj.searchParams.set('razorpay_order_id', paymentData.orderId);
-          callbackUrlObj.searchParams.set('order_id', paymentData.orderId);
-          if (paymentData.bookingId) {
-            callbackUrlObj.searchParams.set('booking_id', paymentData.bookingId);
-          }
-          if (paymentData.ticketId) {
-            callbackUrlObj.searchParams.set('ticket_id', paymentData.ticketId);
-          }
-          callbackUrl = callbackUrlObj.toString();
-          console.log('✅ Pre-populated callback URL with order_id and IDs');
-        } catch (e) {
-          console.error('❌ Error pre-populating callback URL:', e);
-          console.error('❌ Callback URL that failed:', callbackUrl);
-          // Fallback: try to construct URL differently
-          try {
-            // If URL construction fails, try with current origin as fallback
-            const currentOrigin = window.location.origin;
-            const fallbackUrl = `${currentOrigin}/api/payment/razorpay-callback?razorpay_order_id=${paymentData.orderId}`;
-            console.warn('⚠️ Using fallback callback URL:', fallbackUrl);
-            callbackUrl = fallbackUrl;
-          } catch (fallbackError) {
-            console.error('❌ Fallback URL construction also failed:', fallbackError);
-          }
-        }
+        // Just log - don't modify callback URL
+        console.log('✅ Callback URL configured for WebView redirect mode');
+        console.log('✅ Order ID will be passed by Razorpay automatically');
+        console.log('✅ Backend callback will extract payment data from Razorpay redirect');
       }
       
       console.log('🔗 ========== PAYMENT CALLBACK URL SETUP ==========');
@@ -883,7 +874,8 @@ class RazorpayService {
       }
 
       // Build callback URL for redirect mode (WebView)
-      // SMART FALLBACK: Auto-detect backend URL if VITE_API_URL is not set or is localhost
+      // CRITICAL: For production WebView APK, callback URL must be publicly accessible
+      // Priority: 1. VITE_API_URL (if set and not localhost), 2. Production backend URL, 3. Current origin (if HTTPS)
       let apiBase = import.meta.env.VITE_API_URL || '';
       
       // CRITICAL: Remove /api suffix if present, we'll add it back
@@ -891,9 +883,10 @@ class RazorpayService {
         apiBase = apiBase.replace(/\/api\/?$/, '');
       }
       
-      // SMART: If VITE_API_URL is not set or is localhost, use current origin as backend
-      // This works for WebView APK where frontend and backend might be on same domain
       const currentOrigin = window.location.origin;
+      const isProduction = import.meta.env.PROD || window.location.protocol === 'https:';
+      
+      // Check if VITE_API_URL is localhost or private IP
       const isLocalhostEnv = !apiBase || 
                             apiBase.includes('localhost') || 
                             apiBase.includes('127.0.0.1') ||
@@ -901,26 +894,41 @@ class RazorpayService {
                             apiBase.startsWith('10.') ||
                             apiBase.startsWith('172.');
       
-      // If environment URL is localhost or missing, use current origin (smart fallback)
-      if (isLocalhostEnv && currentOrigin && !currentOrigin.includes('localhost') && !currentOrigin.includes('127.0.0.1')) {
+      // For production WebView, use production backend URL
+      // Try to detect from current origin or use default
+      const getProductionBackendUrl = () => {
+        if (currentOrigin && currentOrigin.includes('getfixfly.com')) {
+          const hostname = new URL(currentOrigin).hostname;
+          if (hostname.startsWith('api.')) {
+            return currentOrigin;
+          } else {
+            return `https://api.${hostname}`;
+          }
+        }
+        return 'https://api.getfixfly.com'; // Default fallback
+      };
+      const PRODUCTION_BACKEND_URL = getProductionBackendUrl();
+      
+      if (isProduction && isLocalhostEnv) {
+        // In production but VITE_API_URL is localhost - use production backend
+        console.log('🔧 PRODUCTION MODE: Using production backend URL');
+        apiBase = PRODUCTION_BACKEND_URL;
+      } else if (isLocalhostEnv && currentOrigin && !currentOrigin.includes('localhost') && !currentOrigin.includes('127.0.0.1')) {
+        // Development but current origin is not localhost - use current origin
         console.log('🔧 SMART FALLBACK: Using current origin as backend URL');
         console.log('🔧 Current Origin:', currentOrigin);
         apiBase = currentOrigin;
       } else if (!apiBase) {
-        // If still no API base, use current origin
-        apiBase = currentOrigin || 'http://localhost:5000';
+        // If still no API base, use current origin or production backend
+        apiBase = isProduction ? PRODUCTION_BACKEND_URL : (currentOrigin || 'http://localhost:5000');
       }
       
       // CRITICAL: Ensure we have a valid absolute URL with protocol
-      // For production, this should be HTTPS
       if (!apiBase.startsWith('http://') && !apiBase.startsWith('https://')) {
-        // If no protocol, determine based on environment
-        const isProduction = import.meta.env.PROD || window.location.protocol === 'https:';
         apiBase = `${isProduction ? 'https://' : 'http://'}${apiBase}`;
       }
       
       // Build callback URL - must be absolute URL for Razorpay
-      // CRITICAL: For Razorpay callback, URL must be publicly accessible
       let callbackUrl = useRedirectMode 
         ? `${apiBase}/api/payment/razorpay-callback`
         : undefined;
@@ -935,52 +943,32 @@ class RazorpayService {
                             urlObj.hostname.startsWith('10.') ||
                             urlObj.hostname.startsWith('172.');
           
-          if (isLocalhost) {
-            console.error('❌ CRITICAL: Callback URL is still localhost after fallback!');
+          if (isLocalhost && isProduction) {
+            console.error('❌ CRITICAL: Callback URL is localhost in production!');
             console.error('❌ Callback URL:', callbackUrl);
-            console.error('❌ Current Origin:', currentOrigin);
-            console.error('❌ VITE_API_URL:', import.meta.env.VITE_API_URL);
-            console.error('❌ This will fail in production. Please set VITE_API_URL to your production backend URL.');
-            
-            // Last resort: if we're in HTTPS, try to construct from current origin
-            if (window.location.protocol === 'https:') {
-              const httpsFallback = `${currentOrigin}/api/payment/razorpay-callback`;
-              console.warn('⚠️ Using HTTPS fallback from current origin:', httpsFallback);
-              callbackUrl = httpsFallback;
-            }
+            console.error('❌ This will fail. Using production backend fallback.');
+            callbackUrl = `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`;
+          } else if (isLocalhost) {
+            console.warn('⚠️ Callback URL is localhost - this will only work in development');
           }
         } catch (urlError) {
           console.error('❌ Error validating callback URL:', urlError);
-          // Last resort fallback
-          if (currentOrigin) {
-            callbackUrl = `${currentOrigin}/api/payment/razorpay-callback`;
-            console.warn('⚠️ Using current origin as last resort fallback');
-          }
+          // Last resort: use production backend or current origin
+          callbackUrl = isProduction 
+            ? `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`
+            : `${currentOrigin}/api/payment/razorpay-callback`;
+          console.warn('⚠️ Using fallback callback URL:', callbackUrl);
         }
       }
       
-      // Pre-populate callback URL with order_id and booking ID for WebView
+      // CRITICAL: Don't pre-populate callback URL - Razorpay will add payment data automatically
+      // Pre-populating might cause issues with Razorpay's redirect
+      // Instead, we rely on backend callback to extract data from Razorpay's redirect
       if (useRedirectMode && callbackUrl && order.orderId) {
-        try {
-          const callbackUrlObj = new URL(callbackUrl);
-          callbackUrlObj.searchParams.set('razorpay_order_id', order.orderId);
-          callbackUrlObj.searchParams.set('order_id', order.orderId);
-          callbackUrl = callbackUrlObj.toString();
-          console.log('✅ Pre-populated callback URL with order_id for booking');
-        } catch (e) {
-          console.error('❌ Error pre-populating callback URL:', e);
-          console.error('❌ Callback URL that failed:', callbackUrl);
-          // Fallback: try to construct URL differently
-          try {
-            // If URL construction fails, try with current origin as fallback
-            const currentOrigin = window.location.origin;
-            const fallbackUrl = `${currentOrigin}/api/payment/razorpay-callback?razorpay_order_id=${order.orderId}`;
-            console.warn('⚠️ Using fallback callback URL:', fallbackUrl);
-            callbackUrl = fallbackUrl;
-          } catch (fallbackError) {
-            console.error('❌ Fallback URL construction also failed:', fallbackError);
-          }
-        }
+        // Just log - don't modify callback URL
+        console.log('✅ Callback URL configured for WebView redirect mode (booking)');
+        console.log('✅ Order ID will be passed by Razorpay automatically');
+        console.log('✅ Backend callback will extract payment data from Razorpay redirect');
       }
 
       // Validate Razorpay key

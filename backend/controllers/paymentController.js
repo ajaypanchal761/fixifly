@@ -474,6 +474,35 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       }
     }
     
+    // Check if this is a new booking payment (not existing booking)
+    // Look for pending_booking_token in query params - this indicates a new booking from checkout
+    const pendingBookingToken = req.query?.pending_booking_token || 
+                               req.body?.pending_booking_token ||
+                               req.query?.booking_token ||
+                               req.body?.booking_token;
+    
+    // If we have a pending booking token, this is a new booking from checkout
+    // We need to create the booking after payment verification
+    let pendingBookingData = null;
+    if (pendingBookingToken && !isPaymentFailed && razorpay_payment_id) {
+      try {
+        // Try to get booking data from payment notes (Razorpay stores notes)
+        if (razorpay_payment_id) {
+          const payment = await razorpay.payments.fetch(razorpay_payment_id);
+          if (payment && payment.notes) {
+            // Check if notes contain booking data indicator
+            if (payment.notes.payment_type === 'service_payment' || payment.notes.isWebView === 'true') {
+              console.log('📋 Detected new booking payment from checkout (WebView)');
+              console.log('📋 Payment notes:', JSON.stringify(payment.notes, null, 2));
+              // We'll need to get booking data from frontend callback or create it from stored data
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Could not fetch payment notes:', e.message);
+      }
+    }
+    
     // If no payment data at all, log warning
     if (!razorpay_payment_id && !razorpay_order_id && !isPaymentFailed) {
       console.error('❌ CRITICAL: No payment data received in callback!');
