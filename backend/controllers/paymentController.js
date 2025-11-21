@@ -236,10 +236,22 @@ const createPaymentLink = asyncHandler(async (req, res) => {
       callbackUrl = `${backendUrl}/api/payment/callback`;
     }
     
-    // Detect if request is from WebView
+    // Detect if request is from WebView - Enhanced detection for Android WebView APK
     const userAgent = req.headers['user-agent'] || '';
-    const isWebViewRequest = /wv|WebView|flutter|Android.*wv|iPhone.*wv/i.test(userAgent);
+    // Enhanced WebView detection - must match frontend detection logic
+    const isWebViewRequest = 
+      /wv|WebView|flutter|Android.*wv|iPhone.*wv/i.test(userAgent) ||
+      /Version\/.*Chrome\/.*Mobile/i.test(userAgent) && !/Chrome\/\d+\.\d+\.\d+\.\d+ Mobile/i.test(userAgent) ||
+      /Android/i.test(userAgent) && /wv/i.test(userAgent);
     
+    console.log('[Razorpay][CreatePaymentLink] WebView detection', {
+      userAgent,
+      isWebViewRequest,
+      detectedAs: isWebViewRequest ? 'WebView' : 'Browser'
+    });
+    
+    // CRITICAL: Configure payment link options for WebView compatibility
+    // Payment links work better in WebView than Razorpay checkout modal
     const paymentLinkOptions = {
       amount: Math.round(parseFloat(amount) * 100), // Convert to paise
       currency: currency,
@@ -256,6 +268,7 @@ const createPaymentLink = asyncHandler(async (req, res) => {
       reminder_enable: false,
       callback_url: callbackUrl,
       callback_method: 'get',
+      // CRITICAL: Configure checkout options for WebView compatibility
       options: {
         checkout: {
           method: {
@@ -263,6 +276,10 @@ const createPaymentLink = asyncHandler(async (req, res) => {
             card: 1,
             upi: 1,
             wallet: 1
+          },
+          // Ensure payment stays within WebView (not external browser)
+          theme: {
+            hide_powered_by: false
           }
         }
       },
@@ -270,7 +287,8 @@ const createPaymentLink = asyncHandler(async (req, res) => {
         ...(notes || {}),
         ...(ticketId ? { ticketId, type: 'support_ticket' } : {}),
         ...(bookingId ? { bookingId, type: 'booking' } : {}),
-        isWebView: isWebViewRequest ? 'true' : 'false'
+        isWebView: isWebViewRequest ? 'true' : 'false',
+        source: isWebViewRequest ? 'webview_apk' : 'web_browser'
       }
     };
     
@@ -361,11 +379,15 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
     const { ticketId } = req.query;
     const { razorpay_payment_link_id, razorpay_payment_id, razorpay_payment_link_status } = req.query;
     
+    console.log('=== PAYMENT CALLBACK START ===');
     console.log('[Razorpay][SupportTicket][PaymentCallback] Callback received', {
       ticketId,
       paymentLinkId: razorpay_payment_link_id,
       paymentId: razorpay_payment_id,
-      status: razorpay_payment_link_status
+      status: razorpay_payment_link_status,
+      allQueryParams: req.query,
+      userAgent: req.headers['user-agent'],
+      timestamp: new Date().toISOString()
     });
 
     if (!ticketId) {
@@ -432,7 +454,17 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
     // Check payment status
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const userAgent = req.headers['user-agent'] || '';
-    const isWebViewRequest = /wv|WebView|flutter|Android.*wv|iPhone.*wv/i.test(userAgent);
+    // Enhanced WebView detection - must match frontend detection logic
+    const isWebViewRequest = 
+      /wv|WebView|flutter|Android.*wv|iPhone.*wv/i.test(userAgent) ||
+      /Version\/.*Chrome\/.*Mobile/i.test(userAgent) && !/Chrome\/\d+\.\d+\.\d+\.\d+ Mobile/i.test(userAgent) ||
+      /Android/i.test(userAgent) && /wv/i.test(userAgent);
+    
+    console.log('[Razorpay][SupportTicket][PaymentCallback] WebView detection', {
+      userAgent,
+      isWebViewRequest,
+      detectedAs: isWebViewRequest ? 'WebView' : 'Browser'
+    });
 
     if (paymentLink.status === 'paid' && razorpay_payment_id) {
       // Payment successful - update ticket
@@ -485,6 +517,11 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
       if (isWebViewRequest) {
         // PRIMARY METHOD: HTTP 302 redirect (most reliable for WebView - CreateBharat pattern)
         // This is the most reliable method for WebView redirects
+        console.log('[Razorpay][SupportTicket][PaymentCallback] Redirecting WebView to success page', {
+          frontendUrl,
+          ticketId,
+          redirectUrl: `${frontendUrl}/support?payment=success&ticketId=${ticketId}`
+        });
         return res.redirect(302, `${frontendUrl}/support?payment=success&ticketId=${ticketId}`);
         
         // FALLBACK HTML (uncomment if HTTP redirect doesn't work in your WebView)
@@ -608,6 +645,12 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
       if (isWebViewRequest) {
         // PRIMARY METHOD: HTTP 302 redirect (most reliable for WebView - CreateBharat pattern)
         const encodedMessage = encodeURIComponent(failureMessage);
+        console.log('[Razorpay][SupportTicket][PaymentCallback] Redirecting WebView to failure page', {
+          frontendUrl,
+          ticketId,
+          message: failureMessage,
+          redirectUrl: `${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodedMessage}`
+        });
         return res.redirect(302, `${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodedMessage}`);
         
         // FALLBACK HTML (uncomment if HTTP redirect doesn't work in your WebView)
@@ -777,7 +820,17 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
     // Check payment status
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const userAgent = req.headers['user-agent'] || '';
-    const isWebViewRequest = /wv|WebView|flutter|Android.*wv|iPhone.*wv/i.test(userAgent);
+    // Enhanced WebView detection - must match frontend detection logic
+    const isWebViewRequest = 
+      /wv|WebView|flutter|Android.*wv|iPhone.*wv/i.test(userAgent) ||
+      /Version\/.*Chrome\/.*Mobile/i.test(userAgent) && !/Chrome\/\d+\.\d+\.\d+\.\d+ Mobile/i.test(userAgent) ||
+      /Android/i.test(userAgent) && /wv/i.test(userAgent);
+    
+    console.log('[Razorpay][Booking][PaymentCallback] WebView detection', {
+      userAgent,
+      isWebViewRequest,
+      detectedAs: isWebViewRequest ? 'WebView' : 'Browser'
+    });
 
     if (paymentLink.status === 'paid' && razorpay_payment_id) {
       // Payment successful - update booking
@@ -790,6 +843,11 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
       // Return success response with multiple redirect methods for WebView
       if (isWebViewRequest) {
         // PRIMARY METHOD: HTTP 302 redirect (most reliable for WebView - CreateBharat pattern)
+        console.log('[Razorpay][Booking][PaymentCallback] Redirecting WebView to success page', {
+          frontendUrl,
+          bookingId,
+          redirectUrl: `${frontendUrl}/booking?payment=success&bookingId=${bookingId}`
+        });
         return res.redirect(302, `${frontendUrl}/booking?payment=success&bookingId=${bookingId}`);
         
         // FALLBACK HTML (uncomment if HTTP redirect doesn't work in your WebView)
@@ -910,6 +968,12 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
       if (isWebViewRequest) {
         // PRIMARY METHOD: HTTP 302 redirect (most reliable for WebView - CreateBharat pattern)
         const encodedMessage = encodeURIComponent(failureMessage);
+        console.log('[Razorpay][Booking][PaymentCallback] Redirecting WebView to failure page', {
+          frontendUrl,
+          bookingId,
+          message: failureMessage,
+          redirectUrl: `${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodedMessage}`
+        });
         return res.redirect(302, `${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodedMessage}`);
         
         // FALLBACK HTML (uncomment if HTTP redirect doesn't work in your WebView)

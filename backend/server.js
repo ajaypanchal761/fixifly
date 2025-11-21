@@ -91,7 +91,10 @@ app.use((req, res, next) => {
     console.log('Skipping body parsing for product route:', req.path, req.method);
     return next();
   }
-  console.log('Using body parsing for route:', req.path, req.method);
+  // Only log for non-profile routes to reduce noise
+  if (!req.path.includes('/profile') && !req.path.includes('/users/profile')) {
+    console.log('[BodyParser]', req.method, req.path);
+  }
   express.json({ limit: '10mb' })(req, res, next);
 });
 
@@ -101,7 +104,10 @@ app.use((req, res, next) => {
     console.log('Skipping urlencoded parsing for product route:', req.path, req.method);
     return next();
   }
-  console.log('Using urlencoded parsing for route:', req.path, req.method);
+  // Only log for non-profile routes to reduce noise
+  if (!req.path.includes('/profile') && !req.path.includes('/users/profile')) {
+    console.log('[UrlEncoded]', req.method, req.path);
+  }
   express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
 });
 
