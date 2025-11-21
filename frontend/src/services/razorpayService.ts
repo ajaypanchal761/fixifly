@@ -85,6 +85,7 @@ class RazorpayService {
 
   /**
    * Load Razorpay script dynamically
+   * CRITICAL: For WebView, ensure network permissions and proper script loading
    */
   private async loadRazorpayScript(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -94,37 +95,125 @@ class RazorpayService {
         return;
       }
 
+      // Check if we're in WebView and log network status
+      const isWebView = this.isAPKContext();
+      if (isWebView) {
+        console.log('📱 WebView detected - ensuring network permissions');
+        console.log('📱 User Agent:', navigator.userAgent);
+      }
+
       console.log('📥 Loading Razorpay script...');
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.async = true;
-      script.defer = true;
+      console.log('📥 Script URL: https://checkout.razorpay.com/v1/checkout.js');
       
-      // Add timeout for WebView scenarios
-      const timeout = setTimeout(() => {
-        if (!window.Razorpay) {
-          console.error('❌ Razorpay script loading timeout');
-          reject(new Error('Razorpay script loading timeout. Please try again.'));
+      // Try to load script with retry mechanism
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      const loadScript = () => {
+        // Remove any existing script first
+        const existingScript = document.querySelector('script[src*="razorpay.com"]');
+        if (existingScript) {
+          existingScript.remove();
+          console.log('🧹 Removed existing Razorpay script');
         }
-      }, 10000); // 10 second timeout
-      
-      script.onload = () => {
-        clearTimeout(timeout);
-        console.log('✅ Razorpay script loaded successfully');
-        if (window.Razorpay) {
-          resolve();
-        } else {
-          reject(new Error('Razorpay script loaded but window.Razorpay is not available'));
+
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        script.defer = true;
+        
+        // CRITICAL: For WebView, add crossorigin attribute
+        script.crossOrigin = 'anonymous';
+        
+        // Add integrity check (optional but good for security)
+        // script.integrity = 'sha256-...'; // Add if available
+        
+        // Add timeout for WebView scenarios (increased timeout)
+        const timeout = setTimeout(() => {
+          if (!window.Razorpay) {
+            console.error(`❌ Razorpay script loading timeout (attempt ${retryCount + 1}/${maxRetries})`);
+            
+            // Retry if attempts left
+            if (retryCount < maxRetries - 1) {
+              retryCount++;
+              console.log(`🔄 Retrying script load (attempt ${retryCount + 1}/${maxRetries})...`);
+              setTimeout(loadScript, 2000); // Wait 2 seconds before retry
+            } else {
+              reject(new Error('Razorpay script loading timeout after multiple attempts. Please check your internet connection and WebView network permissions.'));
+            }
+          }
+        }, 15000); // Increased to 15 seconds for WebView
+        
+        script.onload = () => {
+          clearTimeout(timeout);
+          console.log('✅ Razorpay script loaded successfully');
+          
+          // Wait a bit for Razorpay to initialize
+          setTimeout(() => {
+            if (window.Razorpay) {
+              console.log('✅ Razorpay object available');
+              resolve();
+            } else {
+              console.warn('⚠️ Script loaded but Razorpay object not yet available, waiting...');
+              
+              // Wait a bit more
+              setTimeout(() => {
+                if (window.Razorpay) {
+                  console.log('✅ Razorpay object now available');
+                  resolve();
+                } else {
+                  console.error('❌ Razorpay object still not available after waiting');
+                  
+                  // Retry if attempts left
+                  if (retryCount < maxRetries - 1) {
+                    retryCount++;
+                    console.log(`🔄 Retrying script load (attempt ${retryCount + 1}/${maxRetries})...`);
+                    setTimeout(loadScript, 2000);
+                  } else {
+                    reject(new Error('Razorpay script loaded but window.Razorpay is not available. Please check WebView network permissions.'));
+                  }
+                }
+              }, 2000);
+            }
+          }, 500);
+        };
+        
+        script.onerror = (error) => {
+          clearTimeout(timeout);
+          console.error('❌ Failed to load Razorpay script:', error);
+          console.error('❌ Script URL: https://checkout.razorpay.com/v1/checkout.js');
+          console.error('❌ Network status:', navigator.onLine ? 'Online' : 'Offline');
+          
+          // Retry if attempts left
+          if (retryCount < maxRetries - 1) {
+            retryCount++;
+            console.log(`🔄 Retrying script load after error (attempt ${retryCount + 1}/${maxRetries})...`);
+            setTimeout(loadScript, 2000);
+          } else {
+            reject(new Error('Failed to load Razorpay script after multiple attempts. Please check your internet connection and ensure WebView has network permissions.'));
+          }
+        };
+        
+        // CRITICAL: For WebView, try to add script with error handling
+        try {
+          document.head.appendChild(script);
+          console.log('📥 Script element added to DOM');
+        } catch (appendError) {
+          console.error('❌ Error appending script to DOM:', appendError);
+          
+          // Try alternative method
+          try {
+            document.body.appendChild(script);
+            console.log('📥 Script element added to body (fallback)');
+          } catch (bodyError) {
+            console.error('❌ Error appending script to body:', bodyError);
+            reject(new Error('Failed to add Razorpay script to page. WebView may have restrictions.'));
+          }
         }
       };
       
-      script.onerror = (error) => {
-        clearTimeout(timeout);
-        console.error('❌ Failed to load Razorpay script:', error);
-        reject(new Error('Failed to load Razorpay script. Please check your internet connection.'));
-      };
-      
-      document.head.appendChild(script);
+      // Start loading
+      loadScript();
     });
   }
 
@@ -664,6 +753,18 @@ class RazorpayService {
         };
       }
 
+      // CRITICAL: Verify Razorpay is available before opening
+      if (!window.Razorpay) {
+        console.error('❌ Razorpay not available - attempting to reload script...');
+        try {
+          await this.loadRazorpayScript();
+        } catch (reloadError) {
+          console.error('❌ Failed to reload Razorpay script:', reloadError);
+          paymentData.onError(new Error('Razorpay payment gateway is not available. Please check your internet connection and try again.'));
+          return;
+        }
+      }
+      
       // Open Razorpay checkout
       const razorpay = new window.Razorpay(options);
       
@@ -1172,9 +1273,16 @@ class RazorpayService {
         },
       };
 
-      // Validate Razorpay is available
+      // CRITICAL: Verify Razorpay is available before opening
       if (!window.Razorpay) {
-        throw new Error('Razorpay payment gateway is not loaded. Please refresh the page and try again.');
+        console.error('❌ Razorpay not available - attempting to reload script...');
+        try {
+          await this.loadRazorpayScript();
+        } catch (reloadError) {
+          console.error('❌ Failed to reload Razorpay script:', reloadError);
+          onFailure(new Error('Razorpay payment gateway is not available. Please check your internet connection and try again.'));
+          return;
+        }
       }
 
       // Open Razorpay checkout
