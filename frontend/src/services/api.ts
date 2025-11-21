@@ -202,7 +202,9 @@ class ApiService {
   // Health check method
   async healthCheck(): Promise<ApiResponse> {
     // Health check endpoint is at root level, not under /api
-    const url = `${this.baseURL.replace('/api', '')}/health`;
+    // Remove /api from the end of baseURL to get the server base URL
+    const serverBase = this.baseURL.replace(/\/api\/?$/, '');
+    const url = `${serverBase}/health`;
     const config: RequestInit = {
       method: 'GET',
       headers: {
@@ -212,6 +214,16 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
+      
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // Read as text since it's not JSON
+        const text = await response.text();
+        throw new Error(`Expected JSON but received ${contentType || 'unknown type'}. Status: ${response.status}. Response: ${text.substring(0, 200)}`);
+      }
+
+      // Parse as JSON
       const data = await response.json();
 
       if (!response.ok) {
@@ -221,13 +233,20 @@ class ApiService {
       return data;
     } catch (error: any) {
       console.error('Health check failed:', error);
+      // If error is already our custom error, re-throw it; otherwise wrap it
+      if (error.message && error.message.includes('Expected JSON')) {
+        throw error;
+      }
       throw new Error(error.message || 'Health check failed');
     }
   }
 
   // SMS test method
   async testSMS(): Promise<ApiResponse> {
-    const url = `${this.baseURL.replace('/api', '')}/test-sms`;
+    // SMS test endpoint is at root level, not under /api
+    // Remove /api from the end of baseURL to get the server base URL
+    const serverBase = this.baseURL.replace(/\/api\/?$/, '');
+    const url = `${serverBase}/test-sms`;
     const config: RequestInit = {
       method: 'GET',
       headers: {
@@ -237,6 +256,16 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
+      
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // Read as text since it's not JSON
+        const text = await response.text();
+        throw new Error(`Expected JSON but received ${contentType || 'unknown type'}. Status: ${response.status}. Response: ${text.substring(0, 200)}`);
+      }
+
+      // Parse as JSON
       const data = await response.json();
 
       if (!response.ok) {
@@ -246,6 +275,10 @@ class ApiService {
       return data;
     } catch (error: any) {
       console.error('SMS test failed:', error);
+      // If error is already our custom error, re-throw it; otherwise wrap it
+      if (error.message && error.message.includes('Expected JSON')) {
+        throw error;
+      }
       throw new Error(error.message || 'SMS test failed');
     }
   }

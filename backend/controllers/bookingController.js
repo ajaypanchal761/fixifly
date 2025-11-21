@@ -767,31 +767,133 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       });
     }
 
-    // Verify payment signature
+    // Handle both camelCase and snake_case naming conventions (mobile vs web)
+    const razorpayOrderId = paymentData.razorpayOrderId || paymentData.razorpay_order_id;
+    const razorpayPaymentId = paymentData.razorpayPaymentId || paymentData.razorpay_payment_id;
+    const razorpaySignature = paymentData.razorpaySignature || paymentData.razorpay_signature;
+
+    // Validate payment ID is present (required)
+    if (!razorpayPaymentId) {
+      console.error('❌ Payment verification failed: Payment ID is missing');
+      return res.status(400).json({
+        success: false,
+        message: 'Payment ID is required for verification'
+      });
+    }
+
     console.log('=== PAYMENT VERIFICATION DEBUG ===');
-    console.log('Order ID:', paymentData.razorpayOrderId);
-    console.log('Payment ID:', paymentData.razorpayPaymentId);
-    console.log('Signature:', paymentData.razorpaySignature);
+    console.log('Order ID:', razorpayOrderId || 'MISSING');
+    console.log('Payment ID:', razorpayPaymentId);
+    console.log('Signature:', razorpaySignature ? 'PRESENT' : 'MISSING');
     console.log('Razorpay Key ID:', process.env.RAZORPAY_KEY_ID);
     console.log('Razorpay Key Secret exists:', !!process.env.RAZORPAY_KEY_SECRET);
-    console.log('Razorpay Key Secret length:', process.env.RAZORPAY_KEY_SECRET ? process.env.RAZORPAY_KEY_SECRET.length : 0);
     
-    const isSignatureValid = RazorpayService.verifyPaymentSignature(
-      paymentData.razorpayOrderId,
-      paymentData.razorpayPaymentId,
-      paymentData.razorpaySignature
-    );
+    // Verify payment signature (if all parameters are available)
+    let isSignatureValid = false;
+    let shouldVerifyViaAPI = false;
     
-    console.log('Signature valid:', isSignatureValid);
+    if (razorpayOrderId && razorpayPaymentId && razorpaySignature) {
+      // Try signature verification first
+      isSignatureValid = RazorpayService.verifyPaymentSignature(
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature
+      );
+      
+      console.log('Signature valid:', isSignatureValid);
+      
+      if (!isSignatureValid) {
+        console.warn('⚠️ Signature verification failed, will verify via Razorpay API');
+        shouldVerifyViaAPI = true;
+      }
+    } else {
+      // Missing parameters - verify via API (common on mobile/WebView)
+      console.log('⚠️ Missing signature parameters - will verify via Razorpay API (WebView/Mobile scenario)');
+      shouldVerifyViaAPI = true;
+    }
+
+    // If signature verification failed or parameters missing, verify via Razorpay API
+    if (shouldVerifyViaAPI && razorpayPaymentId) {
+      try {
+        console.log('🔍 Verifying payment via Razorpay API...');
+        
+        const Razorpay = require('razorpay');
+        const rzp = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID,
+          key_secret: process.env.RAZORPAY_KEY_SECRET
+        });
+        
+        // Add retry mechanism for API verification (payment might still be processing)
+        let payment = null;
+        let retries = 3;
+        let lastError = null;
+        
+        while (retries > 0) {
+          try {
+            payment = await rzp.payments.fetch(razorpayPaymentId);
+            
+            if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
+              // Verify order_id matches if provided
+              if (!razorpayOrderId || payment.order_id === razorpayOrderId || !payment.order_id) {
+                isSignatureValid = true;
+                console.log('✅ Payment verified via Razorpay API', {
+                  paymentId: razorpayPaymentId,
+                  orderId: payment.order_id,
+                  status: payment.status,
+                  retriesLeft: retries
+                });
+                break;
+              } else {
+                console.warn('⚠️ Order ID mismatch:', {
+                  paymentOrderId: payment.order_id,
+                  providedOrderId: razorpayOrderId
+                });
+              }
+            } else {
+              console.warn(`⚠️ Payment status is not captured/authorized: ${payment?.status} (retries left: ${retries - 1})`);
+            }
+            
+            // Wait before retry (payment might still be processing)
+            if (retries > 1) {
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+            }
+            retries--;
+          } catch (fetchError) {
+            lastError = fetchError;
+            console.error(`❌ Error fetching payment (retry ${4 - retries}/3):`, fetchError.message);
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+            }
+          }
+        }
+        
+        // If still not authenticated after retries
+        if (!isSignatureValid && lastError) {
+          console.error('❌ Payment verification failed after all retries:', lastError.message);
+        }
+      } catch (paymentError) {
+        console.error('❌ Error verifying payment via Razorpay API:', paymentError.message);
+      }
+    }
+    
     console.log('=== END PAYMENT VERIFICATION DEBUG ===');
 
-    // Temporarily disable signature verification for testing
-    // if (!isSignatureValid) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'Payment verification failed'
-    //   });
-    // }
+    // Reject payment if verification failed
+    if (!isSignatureValid) {
+      console.error('❌ ========== PAYMENT VERIFICATION FAILED ==========');
+      console.error('❌ Payment ID:', razorpayPaymentId);
+      console.error('❌ Order ID:', razorpayOrderId || 'MISSING');
+      console.error('❌ Signature:', razorpaySignature ? 'PRESENT' : 'MISSING');
+      console.error('❌ Reason: Signature verification failed and Razorpay API verification failed');
+      console.error('❌ Timestamp:', new Date().toISOString());
+      console.error('❌ ================================================');
+      
+      return res.status(400).json({
+        success: false,
+        message: 'Payment verification failed. Please try again or contact support.'
+      });
+    }
 
     // First-time user free service feature has been removed
     // All users now pay regular pricing
@@ -832,15 +934,15 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       payment: {
         status: 'completed',
         method: 'card',
-        transactionId: paymentData.razorpayPaymentId,
+        transactionId: razorpayPaymentId,
         paidAt: new Date(),
-        razorpayOrderId: paymentData.razorpayOrderId,
-        razorpayPaymentId: paymentData.razorpayPaymentId,
-        razorpaySignature: paymentData.razorpaySignature,
+        razorpayOrderId: razorpayOrderId,
+        razorpayPaymentId: razorpayPaymentId,
+        razorpaySignature: razorpaySignature,
         gatewayResponse: {
-          paymentId: paymentData.razorpayPaymentId,
-          orderId: paymentData.razorpayOrderId,
-          signature: paymentData.razorpaySignature
+          paymentId: razorpayPaymentId,
+          orderId: razorpayOrderId,
+          signature: razorpaySignature
         }
       }
     };
@@ -865,7 +967,7 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       customerEmail: booking.customer.email,
       totalAmount: booking.pricing.totalAmount,
       servicesCount: booking.services.length,
-      paymentId: paymentData.razorpayPaymentId,
+      paymentId: razorpayPaymentId,
     });
 
     // First-time user status update removed - feature disabled
