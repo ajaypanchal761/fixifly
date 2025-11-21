@@ -89,14 +89,41 @@ class RazorpayService {
   private async loadRazorpayScript(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (window.Razorpay) {
+        console.log('✅ Razorpay script already loaded');
         resolve();
         return;
       }
 
+      console.log('📥 Loading Razorpay script...');
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Razorpay script'));
+      script.async = true;
+      script.defer = true;
+      
+      // Add timeout for WebView scenarios
+      const timeout = setTimeout(() => {
+        if (!window.Razorpay) {
+          console.error('❌ Razorpay script loading timeout');
+          reject(new Error('Razorpay script loading timeout. Please try again.'));
+        }
+      }, 10000); // 10 second timeout
+      
+      script.onload = () => {
+        clearTimeout(timeout);
+        console.log('✅ Razorpay script loaded successfully');
+        if (window.Razorpay) {
+          resolve();
+        } else {
+          reject(new Error('Razorpay script loaded but window.Razorpay is not available'));
+        }
+      };
+      
+      script.onerror = (error) => {
+        clearTimeout(timeout);
+        console.error('❌ Failed to load Razorpay script:', error);
+        reject(new Error('Failed to load Razorpay script. Please check your internet connection.'));
+      };
+      
       document.head.appendChild(script);
     });
   }
@@ -204,11 +231,14 @@ class RazorpayService {
       const isAPK = this.isAPKContext();
       const useRedirectMode = isAPK; // Use redirect mode for WebView/APK
 
-      console.log('🔍 Payment context detection:', {
-        isAPK,
-        useRedirectMode,
-        userAgent: navigator.userAgent
-      });
+      console.log('🔍 ========== PAYMENT CONTEXT DETECTION ==========');
+      console.log('🔍 Is APK/WebView:', isAPK);
+      console.log('🔍 Use Redirect Mode:', useRedirectMode);
+      console.log('🔍 User Agent:', navigator.userAgent);
+      console.log('🔍 Has Flutter WebView:', !!(window as any).flutter_inappwebview);
+      console.log('🔍 Has Flutter:', !!(window as any).flutter);
+      console.log('🔍 Has Android Bridge:', !!(window as any).Android);
+      console.log('🔍 ===============================================');
 
       // Build callback URL for redirect mode
       // CRITICAL: Include order_id in callback URL upfront so backend can track it even if handler doesn't execute
@@ -623,6 +653,16 @@ class RazorpayService {
       // Load Razorpay script
       await this.loadRazorpayScript();
 
+      // Detect WebView/APK context
+      const isAPK = this.isAPKContext();
+      const useRedirectMode = isAPK; // Use redirect mode for WebView/APK
+
+      console.log('🔍 Booking Payment - WebView detection:', {
+        isAPK,
+        useRedirectMode,
+        userAgent: navigator.userAgent
+      });
+
       // Create order
       const order = await this.createOrder(
         bookingData.pricing.totalAmount,
@@ -634,8 +674,27 @@ class RazorpayService {
         }
       );
 
+      // Build callback URL for redirect mode (WebView)
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      let callbackUrl = useRedirectMode 
+        ? `${apiBase}/payment/razorpay-callback`
+        : undefined;
+      
+      // Pre-populate callback URL with order_id and booking ID for WebView
+      if (useRedirectMode && callbackUrl && order.orderId) {
+        try {
+          const callbackUrlObj = new URL(callbackUrl);
+          callbackUrlObj.searchParams.set('razorpay_order_id', order.orderId);
+          callbackUrlObj.searchParams.set('order_id', order.orderId);
+          callbackUrl = callbackUrlObj.toString();
+          console.log('✅ Pre-populated callback URL with order_id for booking');
+        } catch (e) {
+          console.warn('⚠️ Error pre-populating callback URL:', e);
+        }
+      }
+
       // Razorpay options
-      const options: RazorpayOptions = {
+      const options: any = {
         key: this.razorpayKey,
         amount: order.amount,
         currency: order.currency,
@@ -649,11 +708,14 @@ class RazorpayService {
         },
         notes: {
           payment_type: 'service_payment',
+          isWebView: useRedirectMode ? 'true' : 'false',
         },
         theme: {
           color: '#3B82F6',
         },
-        handler: async (response: PaymentResponse) => {
+        // CRITICAL: For WebView, use callback_url instead of handler
+        callback_url: useRedirectMode ? callbackUrl : undefined,
+        handler: useRedirectMode ? undefined : async (response: PaymentResponse) => {
           try {
             // Create booking with payment verification
             const bookingResponse = await this.createBookingWithPayment(bookingData, response);
@@ -665,14 +727,141 @@ class RazorpayService {
         },
         modal: {
           ondismiss: onClose,
+          escape: true,
+          animation: true,
+          backdropclose: true,
+        },
+        // WebView specific options
+        retry: {
+          enabled: true,
+          max_count: 3,
+        },
+        timeout: 300,
+        // Additional WebView compatibility options
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: 'All payment methods',
+                instruments: [
+                  { type: 'card' },
+                  { type: 'netbanking' },
+                  { type: 'wallet' },
+                  { type: 'upi' }
+                ]
+              }
+            },
+            sequence: ['block.banks'],
+            preferences: {
+              show_default_blocks: true
+            }
+          }
         },
       };
 
       // Open Razorpay checkout
       const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      
+      // For WebView, add event listeners to catch payment events
+      if (useRedirectMode) {
+        // Store payment data for callback handling
+        try {
+          localStorage.setItem('pending_payment', JSON.stringify({
+            type: 'booking',
+            orderId: order.orderId,
+            amount: order.amount,
+            description: 'Service booking payment',
+            callbackUrl: callbackUrl,
+            timestamp: Date.now()
+          }));
+          console.log('💾 Stored booking payment info in localStorage for callback handling');
+        } catch (e) {
+          console.warn('⚠️ Could not store payment info:', e);
+        }
+
+        // Add payment event listeners for WebView
+        razorpay.on('payment.success', (response: any) => {
+          console.log('✅ ========== PAYMENT.SUCCESS EVENT FIRED (Booking - WebView) ==========');
+          console.log('✅ Response:', JSON.stringify(response, null, 2));
+          console.log('✅ ============================================================');
+          
+          // Store response immediately
+          try {
+            const responseWithContext = {
+              ...response,
+              timestamp: Date.now()
+            };
+            localStorage.setItem('payment_response', JSON.stringify(responseWithContext));
+            sessionStorage.setItem('payment_response', JSON.stringify(responseWithContext));
+            console.log('💾 Stored booking payment response from payment.success event');
+          } catch (e) {
+            console.error('❌ Error storing payment response:', e);
+          }
+        });
+
+        razorpay.on('payment.failed', (response: any) => {
+          console.error('❌ ========== PAYMENT.FAILED EVENT FIRED (Booking - WebView) ==========');
+          console.error('❌ Response:', JSON.stringify(response, null, 2));
+          console.error('❌ ============================================================');
+          
+          const errorMessage = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';
+          
+          // Redirect to callback with error
+          if (callbackUrl) {
+            try {
+              const errorCallbackUrl = new URL(callbackUrl);
+              errorCallbackUrl.searchParams.set('error', 'payment_failed');
+              errorCallbackUrl.searchParams.set('error_message', encodeURIComponent(errorMessage));
+              errorCallbackUrl.searchParams.set('payment_failed', 'true');
+              if (response.error?.metadata?.payment_id) {
+                errorCallbackUrl.searchParams.set('razorpay_payment_id', response.error.metadata.payment_id);
+              }
+              if (order.orderId) {
+                errorCallbackUrl.searchParams.set('razorpay_order_id', order.orderId);
+              }
+              
+              window.location.href = errorCallbackUrl.toString();
+            } catch (e) {
+              console.error('❌ Error redirecting to error callback:', e);
+              onFailure(new Error(errorMessage));
+            }
+          } else {
+            onFailure(new Error(errorMessage));
+          }
+        });
+      }
+      
+      console.log('🎯 ========== OPENING RAZORPAY CHECKOUT (BOOKING) ==========');
+      console.log('🎯 Order ID:', order.orderId);
+      console.log('🎯 Amount:', order.amount, 'paise (₹' + (order.amount / 100).toFixed(2) + ')');
+      console.log('🎯 Callback URL:', callbackUrl);
+      console.log('🎯 Use Redirect Mode:', useRedirectMode);
+      console.log('🎯 Is APK/WebView:', isAPK);
+      console.log('🎯 ===============================================');
+      
+      // For WebView, ensure Razorpay opens properly
+      try {
+        razorpay.open();
+        console.log('✅ Razorpay checkout opened successfully (Booking)');
+        
+        // For WebView, add a check to ensure modal opened
+        if (useRedirectMode) {
+          setTimeout(() => {
+            // Check if Razorpay modal is visible (might not work in all WebViews)
+            const razorpayModal = document.querySelector('.razorpay-container, .razorpay-checkout-frame');
+            if (!razorpayModal) {
+              console.warn('⚠️ Razorpay modal might not be visible in WebView. Payment will proceed via callback_url.');
+            } else {
+              console.log('✅ Razorpay modal is visible');
+            }
+          }, 1000);
+        }
+      } catch (openError) {
+        console.error('❌ Error opening Razorpay checkout:', openError);
+        onFailure(new Error('Failed to open payment gateway. Please try again.'));
+      }
     } catch (error) {
-      console.error('Error processing payment:', error);
+      console.error('Error processing booking payment:', error);
       onFailure(error);
     }
   }

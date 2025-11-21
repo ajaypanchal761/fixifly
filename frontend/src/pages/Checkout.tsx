@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import razorpayService, { BookingData } from "@/services/razorpayService";
 import { getAvailableTimeSlots, getTimeSlotDisplayText } from "@/utils/timeSlotUtils";
+import { runAllWebViewTests } from "@/utils/webviewPaymentTest";
 
 interface CartItem {
   id: string;
@@ -700,6 +701,29 @@ const Checkout = () => {
           <p className="text-xs text-gray-500 text-center mt-4 mb-8">
             By clicking 'Book Now', you agree to our Terms of Service and Privacy Policy. Your payment will be processed securely.
           </p>
+
+          {/* WebView Test Button (Development Only) */}
+          {import.meta.env.DEV && (
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-xs text-yellow-800 mb-2 font-semibold">🧪 WebView Payment Test</p>
+              <Button
+                onClick={() => {
+                  console.log('🧪 Running WebView Payment Tests...');
+                  const results = runAllWebViewTests();
+                  toast({
+                    title: "Test Complete",
+                    description: `Status: ${results.testResults.summary.overallStatus}. Check console for details.`,
+                    variant: results.testResults.summary.overallStatus === 'READY' ? 'default' : 'destructive'
+                  });
+                }}
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+              >
+                Run WebView Payment Tests
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
