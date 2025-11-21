@@ -190,7 +190,10 @@ const verifyPayment = asyncHandler(async (req, res) => {
         booking.status = 'completed';
         await booking.save();
         
-        console.log('✅ ========== PAYMENT SUCCESS ==========');
+        console.log('\n');
+        console.log('═══════════════════════════════════════════════════════════════');
+        console.log('✅ ✅ ✅ PAYMENT SUCCESS ✅ ✅ ✅');
+        console.log('═══════════════════════════════════════════════════════════════');
         console.log('✅ Booking ID:', booking._id);
         console.log('✅ Payment ID:', razorpay_payment_id);
         console.log('✅ Order ID:', razorpay_order_id);
@@ -198,7 +201,8 @@ const verifyPayment = asyncHandler(async (req, res) => {
         console.log('✅ Status: COMPLETED');
         console.log('✅ Payment Method: Online (Razorpay)');
         console.log('✅ Timestamp:', new Date().toISOString());
-        console.log('✅ ======================================');
+        console.log('═══════════════════════════════════════════════════════════════');
+        console.log('\n');
       } else {
         console.warn('⚠️ Booking not found for payment verification:', bookingId);
       }
@@ -328,24 +332,24 @@ const getPaymentDetails = asyncHandler(async (req, res) => {
 // @route   ALL /api/payment/razorpay-callback
 // @access  Public
 const razorpayRedirectCallback = asyncHandler(async (req, res) => {
+  // CRITICAL: Log immediately when callback is received - THESE WILL SHOW IN PM2 LOGS
+  console.log('\n');
+  console.log('═══════════════════════════════════════════════════════════════');
+  console.log('🔔 🔔 🔔 RAZORPAY CALLBACK RECEIVED 🔔 🔔 🔔');
+  console.log('═══════════════════════════════════════════════════════════════');
+  console.log('🔔 Timestamp:', new Date().toISOString());
+  console.log('🔔 Method:', req.method);
+  console.log('🔔 URL:', req.originalUrl || req.url);
+  console.log('🔔 Full URL:', req.protocol + '://' + req.get('host') + req.originalUrl);
+  console.log('🔔 IP:', req.ip || req.connection.remoteAddress);
+  console.log('🔔 User-Agent:', req.headers['user-agent'] || 'N/A');
+  console.log('🔔 Query Params:', JSON.stringify(req.query, null, 2));
+  console.log('🔔 Body:', JSON.stringify(req.body, null, 2));
+  console.log('═══════════════════════════════════════════════════════════════');
+  console.log('\n');
+  
   try {
-    // Log EVERYTHING for debugging
-    console.log('🔔 ========== RAZORPAY CALLBACK RECEIVED ==========');
-    console.log('🔔 Timestamp:', new Date().toISOString());
-    console.log('🔔 Method:', req.method);
-    console.log('🔔 Original URL:', req.originalUrl);
-    console.log('🔔 Full URL:', req.protocol + '://' + req.get('host') + req.originalUrl);
-    console.log('🔔 Query params:', JSON.stringify(req.query, null, 2));
-    console.log('🔔 Body:', JSON.stringify(req.body, null, 2));
-    console.log('🔔 Headers:', {
-      'user-agent': req.headers['user-agent'],
-      'content-type': req.headers['content-type'],
-      'referer': req.headers['referer'],
-      'origin': req.headers['origin'],
-      'host': req.headers['host']
-    });
-    console.log('🔔 IP Address:', req.ip || req.connection.remoteAddress);
-    console.log('🔔 ===============================================');
+    // Additional detailed logging (already logged above, but keeping for completeness)
 
     // Extract payment details from request (can be in query or body)
     // Razorpay sends these as query parameters when redirecting to callback_url
@@ -374,14 +378,18 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       const failedBookingId = bookingId;
       const failedTicketId = ticketId;
       
-      console.error('❌ ========== PAYMENT FAILURE CALLBACK RECEIVED ==========');
+      console.error('\n');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('❌ ❌ ❌ PAYMENT FAILURE CALLBACK RECEIVED ❌ ❌ ❌');
+      console.error('═══════════════════════════════════════════════════════════════');
       console.error('❌ Payment ID:', razorpay_payment_id || 'N/A');
       console.error('❌ Order ID:', razorpay_order_id || 'N/A');
       console.error('❌ Booking ID:', failedBookingId || 'N/A');
       console.error('❌ Ticket ID:', failedTicketId || 'N/A');
       console.error('❌ Failure Reason:', decodeURIComponent(failureReason));
       console.error('❌ Timestamp:', new Date().toISOString());
-      console.error('❌ =====================================================');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('\n');
       
       // Mark payment as failed in backend directly (no need for fetch, we're already in backend)
       if (failedBookingId || failedTicketId) {
@@ -404,12 +412,16 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
               }
               await booking.save();
               
-              console.error('❌ ========== BOOKING PAYMENT MARKED AS FAILED ==========');
+              console.error('\n');
+              console.error('═══════════════════════════════════════════════════════════════');
+              console.error('❌ ❌ ❌ BOOKING PAYMENT MARKED AS FAILED ❌ ❌ ❌');
+              console.error('═══════════════════════════════════════════════════════════════');
               console.error('❌ Booking ID:', booking._id);
               console.error('❌ Payment ID:', razorpay_payment_id || 'N/A');
               console.error('❌ Reason:', decodeURIComponent(failureReason));
               console.error('❌ Timestamp:', new Date().toISOString());
-              console.error('❌ ======================================================');
+              console.error('═══════════════════════════════════════════════════════════════');
+              console.error('\n');
             }
           }
           
@@ -424,12 +436,16 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
               }
               await ticket.save();
               
-              console.error('❌ ========== TICKET PAYMENT MARKED AS FAILED ==========');
+              console.error('\n');
+              console.error('═══════════════════════════════════════════════════════════════');
+              console.error('❌ ❌ ❌ TICKET PAYMENT MARKED AS FAILED ❌ ❌ ❌');
+              console.error('═══════════════════════════════════════════════════════════════');
               console.error('❌ Ticket ID:', ticket.ticketId);
               console.error('❌ Payment ID:', razorpay_payment_id || 'N/A');
               console.error('❌ Reason:', decodeURIComponent(failureReason));
               console.error('❌ Timestamp:', new Date().toISOString());
-              console.error('❌ ====================================================');
+              console.error('═══════════════════════════════════════════════════════════════');
+              console.error('\n');
             }
           }
         } catch (markFailedError) {

@@ -25,7 +25,22 @@ router.route('/mark-failed')
 
 // Razorpay callback route (for WebView/APK redirect mode)
 router.route('/razorpay-callback')
-  .all(razorpayRedirectCallback); // Handle both GET and POST
+  .all((req, res, next) => {
+    // Log when route is hit - THESE WILL SHOW IN PM2 LOGS
+    console.log('\n');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('🔔 🔔 🔔 PAYMENT CALLBACK ROUTE HIT 🔔 🔔 🔔');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('🔔 Method:', req.method);
+    console.log('🔔 Path:', req.path);
+    console.log('🔔 Full Path:', req.originalUrl);
+    console.log('🔔 Query:', JSON.stringify(req.query));
+    console.log('🔔 Body:', JSON.stringify(req.body));
+    console.log('🔔 Timestamp:', new Date().toISOString());
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
+    next();
+  }, razorpayRedirectCallback); // Handle both GET and POST
 
 router.route('/:paymentId')
   .get(getPaymentDetails); // Get payment details

@@ -216,9 +216,12 @@ class RazorpayService {
         ? `${apiBase}/payment/razorpay-callback`
         : undefined;
       
-      console.log('🔗 Payment callback URL:', callbackUrl);
+      console.log('🔗 ========== PAYMENT CALLBACK URL SETUP ==========');
       console.log('🔗 API Base URL:', apiBase);
+      console.log('🔗 Callback URL:', callbackUrl);
       console.log('🔗 Use Redirect Mode:', useRedirectMode);
+      console.log('🔗 Full Callback Path:', callbackUrl ? new URL(callbackUrl).pathname : 'N/A');
+      console.log('🔗 ================================================');
 
       // Store payment data for callback handling (WebView scenario)
       if (useRedirectMode) {
@@ -437,8 +440,14 @@ class RazorpayService {
       
       // Add payment.failed event handler for WebView
       razorpay.on('payment.failed', (response: any) => {
-        console.error('❌ Razorpay payment failed:', response);
-        console.error('❌ Payment failure details:', JSON.stringify(response, null, 2));
+        console.error('❌ ========== RAZORPAY PAYMENT.FAILED EVENT FIRED ==========');
+        console.error('❌ Response:', JSON.stringify(response, null, 2));
+        console.error('❌ Error Object:', response.error);
+        console.error('❌ Metadata:', response.metadata);
+        console.error('❌ Use Redirect Mode:', useRedirectMode);
+        console.error('❌ Callback URL:', callbackUrl);
+        console.error('❌ ========================================================');
+        
         const errorMessage = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';
         
         // Store failure info for debugging
@@ -511,15 +520,32 @@ class RazorpayService {
       });
       
       // Add payment success logging
-      console.log('🎯 Opening Razorpay checkout with options:', {
-        orderId: paymentData.orderId,
-        amount: paymentData.amount,
-        callbackUrl: callbackUrl,
-        useRedirectMode: useRedirectMode,
-        isAPK: isAPK
+      console.log('🎯 ========== OPENING RAZORPAY CHECKOUT ==========');
+      console.log('🎯 Order ID:', paymentData.orderId);
+      console.log('🎯 Amount:', paymentData.amount, 'paise (₹' + (paymentData.amount / 100).toFixed(2) + ')');
+      console.log('🎯 Callback URL:', callbackUrl);
+      console.log('🎯 Use Redirect Mode:', useRedirectMode);
+      console.log('🎯 Is APK/WebView:', isAPK);
+      console.log('🎯 Booking ID:', paymentData.bookingId || 'N/A');
+      console.log('🎯 Ticket ID:', paymentData.ticketId || 'N/A');
+      console.log('🎯 ===============================================');
+      
+      // Add event listeners BEFORE opening
+      razorpay.on('payment.authorized', (response: any) => {
+        console.log('🔐 ========== PAYMENT AUTHORIZED EVENT ==========');
+        console.log('🔐 Response:', JSON.stringify(response, null, 2));
+        console.log('🔐 =============================================');
+      });
+      
+      razorpay.on('payment.captured', (response: any) => {
+        console.log('💰 ========== PAYMENT CAPTURED EVENT ==========');
+        console.log('💰 Response:', JSON.stringify(response, null, 2));
+        console.log('💰 ============================================');
       });
       
       razorpay.open();
+      
+      console.log('✅ Razorpay checkout opened successfully');
     } catch (error) {
       console.error('Error processing payment:', error);
       paymentData.onError(error);
