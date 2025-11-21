@@ -694,9 +694,25 @@ For support, contact us at info@fixfly.in
       const { isWebView, openPaymentLink } = await import('@/utils/webviewUtils');
       const inWebView = isWebView();
       
-      console.log('[Booking][Payment] Environment detected', { isWebView: inWebView });
+      console.log('[Booking][Payment] Environment detected', { 
+        isWebView: inWebView,
+        userAgent: navigator.userAgent,
+        hasWv: navigator.userAgent.includes('wv'),
+        hasWebView: navigator.userAgent.includes('WebView'),
+        hasAndroid: navigator.userAgent.includes('Android')
+      });
+      
+      // CRITICAL: Force WebView mode if user agent contains 'wv' (Android WebView indicator)
+      // This is a fallback in case detection fails
+      const userAgent = navigator.userAgent || '';
+      const forceWebView = /wv/i.test(userAgent) && /Android/i.test(userAgent);
+      const finalWebViewCheck = inWebView || forceWebView;
+      
+      if (forceWebView && !inWebView) {
+        console.warn('[Booking][Payment] WebView detection failed but user agent indicates WebView. Forcing WebView mode.');
+      }
 
-      if (inWebView) {
+      if (finalWebViewCheck) {
         // WebView: Use payment link (redirect-based)
         console.log('[Booking][Payment] Using payment link for webview');
         

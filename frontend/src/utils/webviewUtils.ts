@@ -37,8 +37,14 @@ export const isWebView = (): boolean => {
     window.FlutterWebView !== undefined; // Custom Flutter WebView
   
   // Standard WebView indicators - Enhanced for Android WebView APK
+  // CRITICAL: Check for 'wv' in user agent (Android WebView indicator)
+  const hasWvIndicator = /wv/i.test(userAgent);
+  const hasWebViewText = /WebView/i.test(userAgent);
+  
   const isStandardWebView = 
-    /wv|WebView|Android.*wv|iPhone.*wv/i.test(userAgent) ||
+    hasWvIndicator || // Contains 'wv' (most reliable Android WebView indicator)
+    hasWebViewText || // Contains 'WebView'
+    /Android.*wv|iPhone.*wv/i.test(userAgent) ||
     /Version\/.*Chrome\/.*Mobile/i.test(userAgent) && !/Chrome\/\d+\.\d+\.\d+\.\d+ Mobile/i.test(userAgent) || // Android WebView (not Chrome browser)
     window.ReactNativeWebView !== undefined ||
     window.Android !== undefined ||
@@ -46,13 +52,15 @@ export const isWebView = (): boolean => {
   
   // Additional Android WebView detection
   // Android WebView has specific user agent patterns
+  // CRITICAL: If user agent has 'wv' and 'Android', it's definitely WebView
   const isAndroidWebView = 
-    /Android/i.test(userAgent) && 
-    (
-      /wv/i.test(userAgent) || // Contains 'wv' (WebView)
-      /Version\/.*Chrome\/.*Mobile/i.test(userAgent) && !/Chrome\/\d+\.\d+\.\d+\.\d+ Mobile/i.test(userAgent) || // Chrome WebView pattern
-      (window.Android !== undefined) || // Android bridge
-      (typeof (window as any).Android !== 'undefined') // Android native bridge
+    (/Android/i.test(userAgent) && hasWvIndicator) || // Android + wv = WebView (most reliable)
+    (/Android/i.test(userAgent) && 
+      (
+        /Version\/.*Chrome\/.*Mobile/i.test(userAgent) && !/Chrome\/\d+\.\d+\.\d+\.\d+ Mobile/i.test(userAgent) || // Chrome WebView pattern
+        (window.Android !== undefined) || // Android bridge
+        (typeof (window as any).Android !== 'undefined') // Android native bridge
+      )
     );
   
   // Mobile device check (but not standard browser)
@@ -71,6 +79,8 @@ export const isWebView = (): boolean => {
   
   console.log('[WebViewUtils][Detection]', {
     userAgent,
+    hasWvIndicator,
+    hasWebViewText,
     isFlutterWebView,
     isStandardWebView,
     isAndroidWebView,
