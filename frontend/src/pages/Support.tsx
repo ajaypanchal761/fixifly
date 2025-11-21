@@ -485,10 +485,24 @@ const Support = () => {
         }
 
         const orderData = await orderResponse.json();
-        console.log('Order data:', orderData);
+        console.log('[Support][Payment] Order response data:', orderData);
         
         if (!orderData.success) {
           throw new Error(orderData.message || 'Failed to create order');
+        }
+
+        // CRITICAL: Check if backend returned payment link (WebView detected on backend)
+        if (orderData.data?.paymentUrl) {
+          // Backend detected WebView and returned payment link
+          console.log('[Support][Payment] Backend returned payment link (WebView detected on backend)');
+          const { openPaymentLink } = await import('@/utils/webviewUtils');
+          openPaymentLink(orderData.data.paymentUrl);
+          return;
+        }
+
+        // Browser flow - use Razorpay modal
+        if (!orderData.data?.id) {
+          throw new Error('Invalid order response: missing order ID');
         }
 
         // Razorpay options

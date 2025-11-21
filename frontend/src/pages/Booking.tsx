@@ -694,22 +694,39 @@ For support, contact us at info@fixfly.in
       const { isWebView, openPaymentLink } = await import('@/utils/webviewUtils');
       const inWebView = isWebView();
       
+      const userAgent = navigator.userAgent || '';
+      const hasWv = /wv/i.test(userAgent);
+      const hasAndroid = /Android/i.test(userAgent);
+      const hasWebViewText = /WebView/i.test(userAgent);
+      
       console.log('[Booking][Payment] Environment detected', { 
         isWebView: inWebView,
-        userAgent: navigator.userAgent,
-        hasWv: navigator.userAgent.includes('wv'),
-        hasWebView: navigator.userAgent.includes('WebView'),
-        hasAndroid: navigator.userAgent.includes('Android')
+        userAgent: userAgent,
+        hasWv: hasWv,
+        hasWebView: hasWebViewText,
+        hasAndroid: hasAndroid,
+        userAgentSubstring: userAgent.substring(0, 100) // First 100 chars for debugging
       });
       
       // CRITICAL: Force WebView mode if user agent contains 'wv' (Android WebView indicator)
       // This is a fallback in case detection fails
-      const userAgent = navigator.userAgent || '';
-      const forceWebView = /wv/i.test(userAgent) && /Android/i.test(userAgent);
+      const forceWebView = hasWv && hasAndroid;
       const finalWebViewCheck = inWebView || forceWebView;
       
+      console.log('[Booking][Payment] WebView check result', {
+        isWebView: inWebView,
+        forceWebView: forceWebView,
+        finalWebViewCheck: finalWebViewCheck,
+        willUsePaymentLink: finalWebViewCheck,
+        willUseModal: !finalWebViewCheck
+      });
+      
       if (forceWebView && !inWebView) {
-        console.warn('[Booking][Payment] WebView detection failed but user agent indicates WebView. Forcing WebView mode.');
+        console.warn('[Booking][Payment] ⚠️ WebView detection failed but user agent indicates WebView. Forcing WebView mode.');
+      }
+      
+      if (!finalWebViewCheck && hasWv) {
+        console.error('[Booking][Payment] ❌ ERROR: User agent has "wv" but WebView detection returned false! This is a bug.');
       }
 
       if (finalWebViewCheck) {
@@ -802,7 +819,20 @@ For support, contact us at info@fixfly.in
           currency: 'INR'
         });
 
-        if (response.success && response.data) {
+        console.log('[Booking][Payment] Payment order response:', response);
+
+        // CRITICAL: Check if backend returned payment link (WebView detected on backend)
+        if (response.success && response.data?.paymentUrl) {
+          // Backend detected WebView and returned payment link
+          console.log('[Booking][Payment] Backend returned payment link (WebView detected on backend)');
+          const { openPaymentLink } = await import('@/utils/webviewUtils');
+          openPaymentLink(response.data.paymentUrl);
+          return;
+        }
+
+        if (response.success && response.data?.orderId) {
+          // Browser flow - use Razorpay modal
+          console.log('[Booking][Payment] Using Razorpay modal (browser flow)');
           // Import Razorpay service
           const razorpayService = (await import('@/services/razorpayService')).default;
           

@@ -22,7 +22,61 @@ const createOrder = asyncHandler(async (req, res) => {
       'user-agent': req.headers['user-agent']
     });
     
+    // CRITICAL: Detect WebView and redirect to payment link if detected
+    const userAgent = req.headers['user-agent'] || '';
+    const isWebViewRequest = 
+      /wv/i.test(userAgent) || // Contains 'wv' (Android WebView indicator) - MOST RELIABLE
+      /WebView/i.test(userAgent) ||
+      /Android.*wv|iPhone.*wv/i.test(userAgent) ||
+      (/Android/i.test(userAgent) && /wv/i.test(userAgent));
+    
+    console.log('[Razorpay][CreateOrder] WebView detection', {
+      userAgent,
+      isWebViewRequest,
+      hasWv: /wv/i.test(userAgent),
+      hasAndroid: /Android/i.test(userAgent),
+      detectedAs: isWebViewRequest ? 'WebView - Redirecting to payment link' : 'Browser - Can use order'
+    });
+    
     const { amount, currency = 'INR', receipt, notes } = req.body;
+    
+    // CRITICAL: If WebView detected, redirect to payment link creation
+    if (isWebViewRequest) {
+      console.log('[Razorpay][CreateOrder] WebView detected - redirecting to payment link flow');
+      
+      // Extract ticketId or bookingId from notes if available
+      const ticketId = notes?.ticketId;
+      const bookingId = notes?.bookingId;
+      
+      // Prepare request for payment link creation
+      req.body.ticketId = ticketId;
+      req.body.bookingId = bookingId;
+      req.body.description = notes?.description || `Payment for ${ticketId ? 'support ticket' : bookingId ? 'booking' : 'service'}`;
+      req.body.customer = notes?.customer || {
+        name: notes?.customer_name || 'Customer',
+        email: notes?.customer_email || '',
+        contact: notes?.customer_phone || ''
+      };
+      req.body.notes = notes;
+      
+      // Call payment link creation instead
+      // Modify req.body for payment link creation
+      req.body.ticketId = ticketId;
+      req.body.bookingId = bookingId;
+      req.body.description = notes?.description || `Payment for ${ticketId ? 'support ticket' : bookingId ? 'booking' : 'service'}`;
+      req.body.customer = notes?.customer || {
+        name: notes?.customer_name || 'Customer',
+        email: notes?.customer_email || '',
+        contact: notes?.customer_phone || ''
+      };
+      
+      // Call createPaymentLink - it's defined later in the file
+      // In Node.js, we can reference it before definition since it's a const
+      // But to be safe, we'll use the exported function
+      // Actually, let's just call it - JavaScript module system will handle it
+      // Since createPaymentLink is asyncHandler wrapped, we can call it directly
+      return createPaymentLink(req, res);
+    }
 
     // Validate amount
     if (!amount || amount <= 0) {

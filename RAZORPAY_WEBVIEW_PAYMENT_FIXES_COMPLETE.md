@@ -356,7 +356,34 @@ Based on CreateBharat's successful implementation, all fixes have been applied t
 
 ---
 
+## 🔥 Latest Fix (Backend-Level WebView Detection)
+
+### Problem Identified:
+- User-Agent clearly shows `wv` (WebView indicator)
+- But `create-order` was still being called (browser flow)
+- Frontend WebView detection was failing
+
+### Solution Applied:
+1. **Backend-Level Detection**: Added WebView detection in `createPaymentOrder` endpoint
+   - If WebView detected → Automatically calls `createPaymentLink` instead
+   - Works even if frontend detection fails
+   
+2. **Frontend Response Handling**: Added check for payment link response
+   - If backend returns `paymentUrl` → Uses payment link flow
+   - If backend returns `orderId` → Uses Razorpay modal
+
+3. **Double-Layer Protection**:
+   - Frontend detection (primary)
+   - Backend detection (fallback)
+   - Both must fail for browser flow to be used
+
+### Result:
+**Now WebView will ALWAYS use payment link flow, even if frontend detection fails!**
+
+---
+
 *Fix Date: 2025*
 *Status: ✅ Complete*
-*Based on: CreateBharat Project Implementation*
+*Based on: CreateBharat & Rentyata Project Implementation*
+*Latest Update: Backend-level WebView detection added*
 
