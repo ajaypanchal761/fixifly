@@ -26,11 +26,54 @@ const PaymentCallback = () => {
         // Check for error parameters
         const error = searchParams.get('error');
         const errorMessage = searchParams.get('error_message');
+        const paymentFailed = searchParams.get('payment_failed');
 
-        if (error) {
+        if (error || paymentFailed) {
           console.error('❌ Payment error from backend:', errorMessage);
           setStatus('error');
-          setMessage(errorMessage || 'Payment processing failed. Please contact support.');
+          const finalMessage = errorMessage || 
+                              (error === 'payment_failed' ? 'Payment was declined. Please try again or use a different payment method.' : null) ||
+                              'Payment processing failed. Please contact support.';
+          setMessage(finalMessage);
+          
+          // Mark payment as failed in backend
+          const bookingId = searchParams.get('booking_id');
+          const ticketId = searchParams.get('ticket_id');
+          
+          if (bookingId || ticketId) {
+            try {
+              fetch(
+                `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/mark-failed`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('userToken')}`
+                  },
+                  body: JSON.stringify({
+                    bookingId: bookingId || undefined,
+                    ticketId: ticketId || undefined,
+                    reason: finalMessage || 'Payment failed'
+                  })
+                }
+              ).catch(err => console.error('Error marking payment as failed:', err));
+            } catch (markFailedError) {
+              console.error('❌ Error marking payment as failed:', markFailedError);
+            }
+          }
+          
+          // Redirect after showing error
+          setTimeout(() => {
+            const bookingId = searchParams.get('booking_id');
+            const ticketId = searchParams.get('ticket_id');
+            if (bookingId) {
+              navigate('/bookings', { state: { paymentFailed: true, bookingId } });
+            } else if (ticketId) {
+              navigate('/support', { state: { paymentFailed: true, ticketId } });
+            } else {
+              navigate('/');
+            }
+          }, 3000);
           return;
         }
 
@@ -85,9 +128,9 @@ const PaymentCallback = () => {
             // Method 3: Try pending_payment from localStorage
             if ((!razorpay_order_id || !razorpay_payment_id) && !razorpay_signature) {
               const storedPayment = JSON.parse(localStorage.getItem('pending_payment') || '{}');
-              if (storedPayment.orderId && !razorpay_order_id) {
-                razorpay_order_id = storedPayment.orderId;
-              }
+            if (storedPayment.orderId && !razorpay_order_id) {
+              razorpay_order_id = storedPayment.orderId;
+            }
             }
           } catch (e) {
             console.warn('⚠️ Could not retrieve payment info from storage:', e);
@@ -192,7 +235,7 @@ const PaymentCallback = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('userToken')}`
           },
           body: JSON.stringify(verifyData)
         });
@@ -209,7 +252,7 @@ const PaymentCallback = () => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('userToken')}`
                 },
                 body: JSON.stringify({
                   razorpay_payment_id,
@@ -289,7 +332,7 @@ const PaymentCallback = () => {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+                            'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('userToken')}`
                           },
                           body: JSON.stringify({
                             bookingId: bookingId || undefined,
@@ -388,7 +431,7 @@ const PaymentCallback = () => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('userToken')}`
                 },
                 body: JSON.stringify({
                   bookingId: bookingId || undefined,
@@ -433,7 +476,7 @@ const PaymentCallback = () => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('userToken')}`
                 },
                 body: JSON.stringify({
                   bookingId: bookingId || undefined,
@@ -523,8 +566,8 @@ const PaymentCallback = () => {
                   variant="outline" 
                   className="w-full"
                 >
-                  Go to Home
-                </Button>
+                Go to Home
+              </Button>
               </div>
             )}
           </div>

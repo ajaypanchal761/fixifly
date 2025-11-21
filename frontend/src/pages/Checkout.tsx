@@ -60,11 +60,13 @@ const Checkout = () => {
   });
 
   // Refresh user data when component mounts to ensure we have latest address info
+  // Only refresh once on mount, not on every render
   useEffect(() => {
     if (isAuthenticated && refreshUserData) {
       refreshUserData();
     }
-  }, [isAuthenticated, refreshUserData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]); // Remove refreshUserData from dependencies to prevent infinite loops
 
   // Update customer data when user changes
   useEffect(() => {

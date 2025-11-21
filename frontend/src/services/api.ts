@@ -39,6 +39,8 @@ interface AuthResponse {
 
 class ApiService {
   private baseURL: string;
+  // Cache for in-flight requests to prevent duplicate calls
+  private inFlightRequests: Map<string, Promise<any>> = new Map();
 
   constructor() {
     this.baseURL = API_BASE_URL;
@@ -49,6 +51,18 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
+    
+    // Create a unique key for this request (endpoint + method)
+    const requestKey = `${options.method || 'GET'}:${endpoint}`;
+    
+    // For GET requests, check if there's already an in-flight request
+    if (options.method === 'GET' || !options.method) {
+      const existingRequest = this.inFlightRequests.get(requestKey);
+      if (existingRequest) {
+        console.log('⏭️ Reusing in-flight request for:', requestKey);
+        return existingRequest;
+      }
+    }
     
     const defaultHeaders = {
       'Content-Type': 'application/json',
@@ -74,26 +88,46 @@ class ApiService {
       credentials: 'omit', // Changed from 'include' to 'omit' for mobile webview compatibility
     };
 
-    try {
-      console.log('Making API request to:', url);
-      console.log('Request config:', config);
-      
-      const response = await fetch(url, config);
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      
-      const data = await response.json();
-      console.log('Response data:', data);
+    // Create the request promise
+    const requestPromise = (async () => {
+      try {
+        console.log('Making API request to:', url);
+        console.log('Request config:', config);
+        
+        const response = await fetch(url, config);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        const data = await response.json();
+        console.log('Response data:', data);
 
-      if (!response.ok) {
-        const error = new Error(data.message || `HTTP error! status: ${response.status}`);
-        // Attach status code to error for better handling
-        (error as any).status = response.status;
-        (error as any).responseData = data;
+        if (!response.ok) {
+          const error = new Error(data.message || `HTTP error! status: ${response.status}`);
+          // Attach status code to error for better handling
+          (error as any).status = response.status;
+          (error as any).responseData = data;
+          throw error;
+        }
+
+        return data;
+      } catch (error: any) {
+        // Re-throw error so it can be caught by outer catch
         throw error;
+      } finally {
+        // Remove from in-flight requests after completion (for GET requests)
+        if (options.method === 'GET' || !options.method) {
+          this.inFlightRequests.delete(requestKey);
+        }
       }
+    })();
 
-      return data;
+    // Store in-flight request for GET requests
+    if (options.method === 'GET' || !options.method) {
+      this.inFlightRequests.set(requestKey, requestPromise);
+    }
+
+    try {
+      return await requestPromise;
     } catch (error: any) {
       // Handle expected errors (like 404 - user not found) more gracefully
       const isExpectedError = error.status === 404 || 

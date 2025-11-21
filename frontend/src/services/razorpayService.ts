@@ -319,12 +319,18 @@ class RazorpayService {
           // Store response with multiple methods for reliability
           try {
             // Method 1: localStorage (primary)
-            localStorage.setItem('payment_response', JSON.stringify(response));
+            const responseWithContext = {
+              ...response,
+              bookingId: paymentData.bookingId,
+              ticketId: paymentData.ticketId,
+              timestamp: Date.now()
+            };
+            localStorage.setItem('payment_response', JSON.stringify(responseWithContext));
             console.log('💾 Stored payment response in localStorage');
             
             // Method 2: sessionStorage (backup)
             try {
-              sessionStorage.setItem('payment_response', JSON.stringify(response));
+              sessionStorage.setItem('payment_response', JSON.stringify(responseWithContext));
               console.log('💾 Stored payment response in sessionStorage');
             } catch (e) {
               console.warn('⚠️ Could not store in sessionStorage:', e);
@@ -351,21 +357,79 @@ class RazorpayService {
             console.log('🔀 Redirecting to callback with params:', callbackUrlWithParams.toString());
             
             // Use setTimeout to ensure localStorage write completes before redirect
+            // Increased delay for WebView to ensure storage completes
             setTimeout(() => {
-              window.location.href = callbackUrlWithParams.toString();
-            }, 100);
+              try {
+                window.location.href = callbackUrlWithParams.toString();
+              } catch (redirectError) {
+                console.error('❌ Error redirecting:', redirectError);
+                // Last resort: try to navigate using Flutter bridge if available
+                if ((window as any).flutter_inappwebview) {
+                  (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
+                } else {
+                  // Fallback: show error to user
+                  paymentData.onError(new Error('Payment successful but redirect failed. Please contact support.'));
+                }
+              }
+            }, 300); // Increased from 100ms to 300ms for better reliability
           } catch (e) {
             console.error('❌ Error building callback URL:', e);
             // Fallback: redirect to callback URL without params (will use localStorage)
             setTimeout(() => {
               window.location.href = callbackUrl;
-            }, 100);
+            }, 300);
           }
         };
       }
 
       // Open Razorpay checkout
       const razorpay = new window.Razorpay(options);
+      
+      // Add payment.failed event handler for WebView
+      razorpay.on('payment.failed', (response: any) => {
+        console.error('❌ Razorpay payment failed:', response);
+        const errorMessage = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';
+        
+        // Store failure info for debugging
+        try {
+          localStorage.setItem('payment_failure', JSON.stringify({
+            error: response.error,
+            metadata: response.metadata,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          console.warn('Could not store payment failure info:', e);
+        }
+        
+        // For WebView, redirect to callback with error
+        if (useRedirectMode && callbackUrl) {
+          try {
+            const errorCallbackUrl = new URL(callbackUrl);
+            errorCallbackUrl.searchParams.set('error', 'payment_failed');
+            errorCallbackUrl.searchParams.set('error_message', errorMessage);
+            errorCallbackUrl.searchParams.set('razorpay_payment_id', response.error?.metadata?.payment_id || '');
+            errorCallbackUrl.searchParams.set('razorpay_order_id', response.error?.metadata?.order_id || paymentData.orderId);
+            if (paymentData.bookingId) {
+              errorCallbackUrl.searchParams.set('booking_id', paymentData.bookingId);
+            }
+            if (paymentData.ticketId) {
+              errorCallbackUrl.searchParams.set('ticket_id', paymentData.ticketId);
+            }
+            
+            console.log('🔀 Redirecting to callback with error:', errorCallbackUrl.toString());
+            setTimeout(() => {
+              window.location.href = errorCallbackUrl.toString();
+            }, 500);
+          } catch (e) {
+            console.error('❌ Error building error callback URL:', e);
+            paymentData.onError(new Error(errorMessage));
+          }
+        } else {
+          // For modal mode, call onError directly
+          paymentData.onError(new Error(errorMessage));
+        }
+      });
+      
       razorpay.open();
     } catch (error) {
       console.error('Error processing payment:', error);

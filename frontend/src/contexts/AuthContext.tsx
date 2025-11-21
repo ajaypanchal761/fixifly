@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { registerFCMToken, saveMobileFCMToken } from '../services/pushNotificationService';
 
 interface User {
@@ -213,8 +213,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const refreshUserData = async () => {
+  // Use ref to track if refresh is in progress to prevent duplicate calls
+  const refreshInProgressRef = useRef(false);
+  const lastRefreshTimeRef = useRef<number>(0);
+  const REFRESH_DEBOUNCE_MS = 2000; // 2 seconds debounce
+
+  const refreshUserData = useCallback(async () => {
     if (!token) return;
+    
+    // Prevent duplicate calls within debounce period
+    const now = Date.now();
+    if (refreshInProgressRef.current || (now - lastRefreshTimeRef.current < REFRESH_DEBOUNCE_MS)) {
+      console.log('⏭️ Skipping duplicate refreshUserData call');
+      return;
+    }
+    
+    refreshInProgressRef.current = true;
+    lastRefreshTimeRef.current = now;
     
     try {
       // Import apiService dynamically to avoid circular dependency
@@ -230,8 +245,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Error refreshing user data:', error);
+    } finally {
+      refreshInProgressRef.current = false;
     }
-  };
+  }, [token]);
 
   const checkTokenValidity = () => {
     const token = localStorage.getItem('accessToken');
