@@ -53,7 +53,4 @@ router.put('/vendor/:id/cancel', protectVendor, cancelSupportTicket);
 // Payment verification route (public)
 router.post('/payment/verify', verifySupportTicketPayment);
 
-// Payment callback route (public - called by Razorpay)
-router.get('/payment-callback', require('../controllers/paymentController').handleSupportTicketPaymentCallback);
-
 module.exports = router;

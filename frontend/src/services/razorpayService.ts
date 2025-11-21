@@ -1,6 +1,4 @@
 // Razorpay service for frontend
-import { isWebView, openPaymentLink } from '@/utils/webviewUtils';
-
 declare global {
   interface Window {
     Razorpay: any;
@@ -105,19 +103,9 @@ class RazorpayService {
 
   /**
    * Create Razorpay order
-   * CRITICAL: In WebView, this should use payment link instead
    */
   async createOrder(amount: number, receipt: string, notes: Record<string, string> = {}): Promise<any> {
     try {
-      // CRITICAL: Check for WebView before creating order
-      // If WebView detected, backend will handle it, but we should warn
-      const userAgent = navigator.userAgent || '';
-      const isWebView = /wv/i.test(userAgent) && /Android/i.test(userAgent);
-      
-      if (isWebView) {
-        console.warn('[RazorpayService][CreateOrder] WebView detected - Backend should redirect to payment link');
-      }
-      
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/create-order`, {
         method: 'POST',
         headers: {
@@ -203,7 +191,6 @@ class RazorpayService {
 
   /**
    * Process payment for booking
-   * CRITICAL: Should use payment link in WebView
    */
   async processBookingPayment(
     bookingData: BookingData,
@@ -212,98 +199,6 @@ class RazorpayService {
     onClose: () => void
   ): Promise<void> {
     try {
-      // CRITICAL: Check for WebView - if WebView, use payment link instead
-      const inWebView = isWebView();
-      
-      // Force WebView check if user agent has 'wv'
-      const userAgent = navigator.userAgent || '';
-      const forceWebView = /wv/i.test(userAgent) && /Android/i.test(userAgent);
-      const finalWebViewCheck = inWebView || forceWebView;
-      
-      console.log('[RazorpayService][ProcessBookingPayment] WebView detection', {
-        isWebView: inWebView,
-        forceWebView,
-        finalWebViewCheck,
-        userAgent
-      });
-      
-      if (finalWebViewCheck) {
-        // WebView: Use payment link
-        console.log('[RazorpayService][ProcessBookingPayment] WebView detected - using payment link');
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-        
-        // Note: For new bookings, we don't have bookingId yet, so we'll use a temporary approach
-        // Create payment link with temporary identifier
-        const paymentLinkResponse = await fetch(`${API_BASE_URL}/payment/create-payment-link`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            amount: bookingData.pricing.totalAmount,
-            currency: 'INR',
-            description: `Payment for service: ${bookingData.services.map(s => s.serviceName).join(', ')}`,
-            customer: {
-              name: bookingData.customer.name,
-              email: bookingData.customer.email,
-              contact: bookingData.customer.phone
-            },
-            notes: {
-              type: 'new_booking',
-              description: `Payment for service: ${bookingData.services.map(s => s.serviceName).join(', ')}`,
-              customer_email: bookingData.customer.email,
-              customer_phone: bookingData.customer.phone
-            }
-          })
-        });
-        
-        if (!paymentLinkResponse.ok) {
-          throw new Error('Failed to create payment link');
-        }
-        
-        const paymentLinkData = await paymentLinkResponse.json();
-        console.log('[RazorpayService][ProcessBookingPayment] Payment link response:', paymentLinkData);
-        
-        if (!paymentLinkData.success) {
-          console.error('[RazorpayService][ProcessBookingPayment] Payment link creation failed:', paymentLinkData);
-          throw new Error(paymentLinkData.message || 'Failed to create payment link');
-        }
-        
-        const paymentUrl = paymentLinkData.data?.paymentUrl || paymentLinkData.data?.shortUrl;
-        
-        if (!paymentUrl) {
-          console.error('[RazorpayService][ProcessBookingPayment] No payment URL in response:', paymentLinkData);
-          throw new Error('Payment link created but no URL returned');
-        }
-        
-        console.log('[RazorpayService][ProcessBookingPayment] Opening payment link:', paymentUrl);
-        console.log('[RazorpayService][ProcessBookingPayment] Payment URL type:', typeof paymentUrl);
-        console.log('[RazorpayService][ProcessBookingPayment] Payment URL length:', paymentUrl?.length);
-        
-        // Show user feedback that payment is opening
-        console.log('[RazorpayService][ProcessBookingPayment] ⚠️ Opening payment link - user should see Razorpay page now');
-        
-        // Open payment link
-        const opened = openPaymentLink(paymentUrl);
-        
-        if (!opened) {
-          console.error('[RazorpayService][ProcessBookingPayment] ❌ Failed to open payment link');
-          // Show error to user
-          onFailure(new Error('Failed to open payment link. Please try again or contact support.'));
-          return;
-        }
-        
-        console.log('[RazorpayService][ProcessBookingPayment] ✅ Payment link opened successfully - redirecting to Razorpay...');
-        // Note: For new bookings, payment callback will need special handling
-        // This is a limitation - new booking payments in WebView need callback handling
-        console.warn('[RazorpayService][ProcessBookingPayment] Payment link opened for new booking. Callback handling needed.');
-        
-        // Don't call onFailure or onSuccess yet - wait for payment callback
-        // The payment callback will handle success/failure
-        return;
-      }
-      
-      // Browser: Use Razorpay modal
       // Load Razorpay script
       await this.loadRazorpayScript();
 

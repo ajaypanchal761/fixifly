@@ -1588,7 +1588,7 @@ const completeTask = asyncHandler(async (req, res) => {
 const createPaymentOrder = asyncHandler(async (req, res) => {
   try {
     const { bookingId, amount, currency } = req.body;
-    
+
     logger.info('Creating payment order request:', { bookingId, amount, currency });
 
     if (!bookingId || !amount || !currency) {
@@ -1599,7 +1599,7 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
       });
     }
 
-    // Find the booking first (needed for both flows)
+    // Find the booking
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       logger.error('Booking not found:', bookingId);
@@ -1615,53 +1615,6 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
       paymentStatus: booking.paymentStatus,
       status: booking.status
     });
-    
-    // CRITICAL: Detect WebView and use payment link instead of order
-    const userAgent = req.headers['user-agent'] || '';
-    const isWebViewRequest = 
-      /wv/i.test(userAgent) || // Contains 'wv' (Android WebView indicator) - MOST RELIABLE
-      /WebView/i.test(userAgent) ||
-      /Android.*wv|iPhone.*wv/i.test(userAgent) ||
-      (/Android/i.test(userAgent) && /wv/i.test(userAgent));
-    
-    console.log('[Booking][CreatePaymentOrder] WebView detection', {
-      userAgent,
-      isWebViewRequest,
-      hasWv: /wv/i.test(userAgent),
-      hasAndroid: /Android/i.test(userAgent),
-      detectedAs: isWebViewRequest ? 'WebView - Will use payment link' : 'Browser - Will use order'
-    });
-    
-    // If WebView detected, redirect to payment link creation
-    if (isWebViewRequest) {
-      console.log('[Booking][CreatePaymentOrder] WebView detected - redirecting to payment link flow');
-      const paymentController = require('./paymentController');
-      
-      // Modify request to include all required data for payment link
-      req.body.ticketId = undefined; // Clear ticketId if exists
-      req.body.bookingId = bookingId;
-      req.body.description = `Payment for service: ${booking.services.map(s => s.serviceName).join(', ')}`;
-      req.body.customer = {
-        name: booking.customer.name || 'Customer',
-        email: booking.customer.email || '',
-        contact: booking.customer.phone || ''
-      };
-      req.body.notes = {
-        bookingId: bookingId,
-        type: 'booking',
-        description: `Payment for service: ${booking.services.map(s => s.serviceName).join(', ')}`
-      };
-      
-      console.log('[Booking][CreatePaymentOrder] Calling payment link creation with data:', {
-        amount,
-        bookingId,
-        customer: req.body.customer,
-        description: req.body.description
-      });
-      
-      // Call payment link creation instead
-      return paymentController.createPaymentLink(req, res);
-    }
 
     // Check if booking is ready for payment (completed task with online payment)
     // More flexible check - allow if booking has completion data or is in_progress

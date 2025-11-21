@@ -51,64 +51,6 @@ const Payment = () => {
     setError(null);
 
     try {
-      // CRITICAL: Check for WebView before loading Razorpay script
-      const inWebView = isWebView();
-      
-      const userAgent = navigator.userAgent || '';
-      const forceWebView = /wv/i.test(userAgent) && /Android/i.test(userAgent);
-      const finalWebViewCheck = inWebView || forceWebView;
-      
-      console.log('[Payment] WebView detection', {
-        isWebView: inWebView,
-        forceWebView,
-        finalWebViewCheck,
-        userAgent: userAgent.substring(0, 100)
-      });
-      
-      if (finalWebViewCheck) {
-        // WebView: Use payment link
-        console.log('[Payment] Using payment link for WebView');
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-        
-        const paymentLinkResponse = await fetch(`${API_BASE_URL}/payment/create-payment-link`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-          },
-          body: JSON.stringify({
-            amount: paymentData.amount,
-            currency: 'INR',
-            description: paymentData.description,
-            ticketId: paymentData.ticketId,
-            customer: {
-              name: user?.name || '',
-              email: user?.email || '',
-              contact: user?.phone || ''
-            },
-            notes: {
-              ticketId: paymentData.ticketId,
-              type: paymentData.type,
-              description: paymentData.description
-            }
-          })
-        });
-        
-        if (!paymentLinkResponse.ok) {
-          throw new Error('Failed to create payment link');
-        }
-        
-        const paymentLinkData = await paymentLinkResponse.json();
-        
-        if (paymentLinkData.success && paymentLinkData.data?.paymentUrl) {
-          openPaymentLink(paymentLinkData.data.paymentUrl);
-          return;
-        } else {
-          throw new Error(paymentLinkData.message || 'Failed to create payment link');
-        }
-      }
-      
-      // Browser: Use Razorpay modal
       // Load Razorpay script
       const res = await loadRazorpayScript();
       if (!res) {
@@ -135,22 +77,8 @@ const Payment = () => {
       });
 
       const orderData = await orderResponse.json();
-      console.log('[Payment] Order response data:', orderData);
-      
       if (!orderData.success) {
         throw new Error(orderData.message || 'Failed to create order');
-      }
-
-      // CRITICAL: Check if backend returned payment link (WebView detected on backend)
-      if (orderData.data?.paymentUrl) {
-        // Backend detected WebView and returned payment link
-        console.log('[Payment] Backend returned payment link (WebView detected on backend)');
-        openPaymentLink(orderData.data.paymentUrl);
-        return;
-      }
-
-      if (!orderData.data?.id) {
-        throw new Error('Invalid order response: missing order ID');
       }
 
       // Razorpay options
