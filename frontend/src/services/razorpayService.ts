@@ -261,16 +261,45 @@ class RazorpayService {
         }
         
         const paymentLinkData = await paymentLinkResponse.json();
+        console.log('[RazorpayService][ProcessBookingPayment] Payment link response:', paymentLinkData);
         
-        if (paymentLinkData.success && paymentLinkData.data?.paymentUrl) {
-          openPaymentLink(paymentLinkData.data.paymentUrl);
-          // Note: For new bookings, payment callback will need special handling
-          // This is a limitation - new booking payments in WebView need callback handling
-          console.warn('[RazorpayService][ProcessBookingPayment] Payment link opened for new booking. Callback handling needed.');
-          return;
-        } else {
+        if (!paymentLinkData.success) {
+          console.error('[RazorpayService][ProcessBookingPayment] Payment link creation failed:', paymentLinkData);
           throw new Error(paymentLinkData.message || 'Failed to create payment link');
         }
+        
+        const paymentUrl = paymentLinkData.data?.paymentUrl || paymentLinkData.data?.shortUrl;
+        
+        if (!paymentUrl) {
+          console.error('[RazorpayService][ProcessBookingPayment] No payment URL in response:', paymentLinkData);
+          throw new Error('Payment link created but no URL returned');
+        }
+        
+        console.log('[RazorpayService][ProcessBookingPayment] Opening payment link:', paymentUrl);
+        console.log('[RazorpayService][ProcessBookingPayment] Payment URL type:', typeof paymentUrl);
+        console.log('[RazorpayService][ProcessBookingPayment] Payment URL length:', paymentUrl?.length);
+        
+        // Show user feedback that payment is opening
+        console.log('[RazorpayService][ProcessBookingPayment] ⚠️ Opening payment link - user should see Razorpay page now');
+        
+        // Open payment link
+        const opened = openPaymentLink(paymentUrl);
+        
+        if (!opened) {
+          console.error('[RazorpayService][ProcessBookingPayment] ❌ Failed to open payment link');
+          // Show error to user
+          onFailure(new Error('Failed to open payment link. Please try again or contact support.'));
+          return;
+        }
+        
+        console.log('[RazorpayService][ProcessBookingPayment] ✅ Payment link opened successfully - redirecting to Razorpay...');
+        // Note: For new bookings, payment callback will need special handling
+        // This is a limitation - new booking payments in WebView need callback handling
+        console.warn('[RazorpayService][ProcessBookingPayment] Payment link opened for new booking. Callback handling needed.');
+        
+        // Don't call onFailure or onSuccess yet - wait for payment callback
+        // The payment callback will handle success/failure
+        return;
       }
       
       // Browser: Use Razorpay modal

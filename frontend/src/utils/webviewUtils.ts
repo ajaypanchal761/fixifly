@@ -98,9 +98,23 @@ export const isWebView = (): boolean => {
  * CRITICAL: This ensures payment stays within WebView and doesn't open external browser
  */
 export const openPaymentLink = (paymentUrl: string): boolean => {
-  console.log('[WebViewUtils] Opening payment link:', paymentUrl);
+  console.log('[WebViewUtils] ===== OPENING PAYMENT LINK =====');
+  console.log('[WebViewUtils] Payment URL:', paymentUrl);
+  console.log('[WebViewUtils] Payment URL type:', typeof paymentUrl);
+  console.log('[WebViewUtils] Payment URL valid:', !!paymentUrl && paymentUrl.startsWith('http'));
   console.log('[WebViewUtils] Current location:', window.location.href);
   console.log('[WebViewUtils] User agent:', navigator.userAgent);
+  
+  // Validate URL
+  if (!paymentUrl || typeof paymentUrl !== 'string') {
+    console.error('[WebViewUtils] Invalid payment URL:', paymentUrl);
+    return false;
+  }
+  
+  if (!paymentUrl.startsWith('http://') && !paymentUrl.startsWith('https://')) {
+    console.error('[WebViewUtils] Payment URL is not a valid HTTP/HTTPS URL:', paymentUrl);
+    return false;
+  }
   
   // Method 1: Flutter bridge (if available) - CRITICAL for Flutter WebView
   if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.openPaymentLink === 'function') {
@@ -175,26 +189,39 @@ export const openPaymentLink = (paymentUrl: string): boolean => {
   
   // Method 6: Standard redirect (fallback - most reliable for WebView)
   // CRITICAL: This is the most reliable method for Android WebView APK
-  console.log('[WebViewUtils] Redirecting to payment link using window.location.href (most reliable for WebView)');
+  console.log('[WebViewUtils] ⚠️ All bridge methods failed, using window.location.href (most reliable for WebView)');
+  console.log('[WebViewUtils] Attempting direct navigation to:', paymentUrl);
+  
   try {
     // Use location.href - this works best in WebView
+    // CRITICAL: This should work in Android WebView
+    console.log('[WebViewUtils] Setting window.location.href to payment URL');
     window.location.href = paymentUrl;
+    console.log('[WebViewUtils] ✅ window.location.href set successfully');
+    // Give it a moment to navigate
+    setTimeout(() => {
+      console.log('[WebViewUtils] Navigation should have occurred. Current location:', window.location.href);
+    }, 100);
     return true;
   } catch (error) {
-    console.error('[WebViewUtils] window.location.href failed:', error);
+    console.error('[WebViewUtils] ❌ window.location.href failed:', error);
     // Final fallback - location.replace
     try {
       console.log('[WebViewUtils] Trying window.location.replace as final fallback');
       window.location.replace(paymentUrl);
+      console.log('[WebViewUtils] ✅ window.location.replace executed');
       return true;
     } catch (replaceError) {
-      console.error('[WebViewUtils] All redirect methods failed:', replaceError);
+      console.error('[WebViewUtils] ❌ window.location.replace also failed:', replaceError);
       // Last resort: try assigning to location directly
       try {
+        console.log('[WebViewUtils] Trying direct location assignment as last resort');
         (window as any).location = paymentUrl;
+        console.log('[WebViewUtils] ✅ Direct location assignment executed');
         return true;
       } catch (finalError) {
-        console.error('[WebViewUtils] Complete failure - all methods exhausted:', finalError);
+        console.error('[WebViewUtils] ❌ Complete failure - all methods exhausted:', finalError);
+        alert(`Failed to open payment link. Please copy this URL and open in browser:\n${paymentUrl}`);
         return false;
       }
     }

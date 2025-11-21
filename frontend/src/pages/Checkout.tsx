@@ -333,16 +333,20 @@ const Checkout = () => {
         );
       }
       
-    } catch (error) {
-      console.error('Payment initialization failed:', error);
-      toast({
-        title: "Payment Failed",
-        description: error instanceof Error ? error.message : "Please try again or contact support.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+      } catch (error) {
+        console.error('[Checkout] Payment initialization failed:', error);
+        console.error('[Checkout] Error details:', {
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          error
+        });
+        toast({
+          title: "Payment Failed",
+          description: error instanceof Error ? error.message : "Please try again or contact support.",
+          variant: "destructive"
+        });
+        setLoading(false);
+      }
   };
 
   return (
