@@ -98,7 +98,22 @@ const Support = () => {
   const [showAddResponse, setShowAddResponse] = useState(false);
   const [responseText, setResponseText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isWebViewEnv, setIsWebViewEnv] = useState(false);
   const { toast } = useToast();
+
+  // Check if running in WebView
+  useEffect(() => {
+    const checkWebView = async () => {
+      try {
+        const { isWebView } = await import('@/utils/webviewUtils');
+        setIsWebViewEnv(isWebView());
+      } catch (error) {
+        console.error('Error checking WebView:', error);
+        setIsWebViewEnv(false);
+      }
+    };
+    checkWebView();
+  }, []);
 
   // Fetch user tickets on component mount
   useEffect(() => {
@@ -247,6 +262,61 @@ const Support = () => {
     console.log('Final result - Has pending payment:', hasPayment);
     console.log('=== END PAYMENT CHECK ===');
     return hasPayment;
+  };
+
+  // Manual payment verification for WebView (fallback if automatic methods fail)
+  const handleVerifyPayment = async (ticket) => {
+    try {
+      const userToken = localStorage.getItem('accessToken');
+      if (!userToken) {
+        alert('Please login to verify payment.');
+        return;
+      }
+
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      
+      console.log('[Support][VerifyPayment] Verifying payment for ticket:', ticket.id);
+      
+      // Fetch latest ticket status
+      const response = await fetch(`${API_BASE_URL}/support-tickets/${ticket.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch ticket status');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        const updatedTicket = data.data;
+        
+        if (updatedTicket.paymentStatus === 'collected') {
+          toast({
+            title: "Payment Verified!",
+            description: "Your payment has been successfully verified.",
+            variant: "default"
+          });
+          fetchUserTickets();
+        } else {
+          toast({
+            title: "Payment Pending",
+            description: "Payment is still pending. Please complete the payment or try again later.",
+            variant: "destructive"
+          });
+        }
+      }
+    } catch (error) {
+      console.error('[Support][VerifyPayment] Error:', error);
+      toast({
+        title: "Verification Failed",
+        description: "Failed to verify payment. Please try again or contact support.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Handle payment for support ticket - Direct Razorpay integration with webview support
@@ -1540,18 +1610,31 @@ const Support = () => {
                 {/* Payment Information */}
                 {hasPendingPayment(selectedTicket) && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-sm font-semibold text-green-800 mb-1">Payment Required</h3>
-                        <p className="text-xs text-green-600">Complete your payment to finalize this support ticket</p>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-semibold text-green-800 mb-1">Payment Required</h3>
+                          <p className="text-xs text-green-600">Complete your payment to finalize this support ticket</p>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                          onClick={() => handlePayNow(selectedTicket)}
+                        >
+                          Pay Now ₹{selectedTicket.billingAmount || selectedTicket.totalAmount || 0}
+                        </Button>
                       </div>
-                      <Button 
-                        size="sm" 
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() => handlePayNow(selectedTicket)}
-                      >
-                        Pay Now ₹{selectedTicket.billingAmount || selectedTicket.totalAmount || 0}
-                      </Button>
+                      {/* Manual Verification Button for WebView */}
+                      {isWebViewEnv && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="w-full border-green-300 text-green-700 hover:bg-green-100"
+                          onClick={() => handleVerifyPayment(selectedTicket)}
+                        >
+                          Verify Payment Status
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}

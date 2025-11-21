@@ -13,23 +13,102 @@ const razorpay = new Razorpay({
 // @access  Public
 const createOrder = asyncHandler(async (req, res) => {
   try {
+    console.log('=== RAZORPAY CREATE ORDER REQUEST START ===');
+    console.log('[Razorpay][CreateOrder] Request received at:', new Date().toISOString());
+    console.log('[Razorpay][CreateOrder] Request body:', req.body);
+    console.log('[Razorpay][CreateOrder] Request headers:', {
+      'content-type': req.headers['content-type'],
+      'authorization': req.headers['authorization'] ? 'Present' : 'Missing',
+      'user-agent': req.headers['user-agent']
+    });
+    
     const { amount, currency = 'INR', receipt, notes } = req.body;
 
+    // Validate amount
     if (!amount || amount <= 0) {
+      console.error('[Razorpay][CreateOrder] Invalid amount:', amount);
       return res.status(400).json({
         success: false,
         message: 'Invalid amount'
       });
     }
 
+    // Check Razorpay configuration
+    console.log('[Razorpay][CreateOrder] Checking Razorpay configuration:', {
+      hasKeyId: !!process.env.RAZORPAY_KEY_ID,
+      hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET,
+      keyIdLength: process.env.RAZORPAY_KEY_ID ? process.env.RAZORPAY_KEY_ID.length : 0,
+      keySecretLength: process.env.RAZORPAY_KEY_SECRET ? process.env.RAZORPAY_KEY_SECRET.length : 0,
+      razorpayInstance: !!razorpay
+    });
+
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      console.error('[Razorpay][CreateOrder] Razorpay keys not configured');
+      return res.status(500).json({
+        success: false,
+        message: 'Payment gateway not configured. Please contact support.',
+        error: 'RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing'
+      });
+    }
+
+    if (!razorpay) {
+      console.error('[Razorpay][CreateOrder] Razorpay instance not initialized');
+      return res.status(500).json({
+        success: false,
+        message: 'Payment gateway initialization failed. Please contact support.',
+        error: 'Razorpay instance is null'
+      });
+    }
+
+    const amountInPaise = Math.round(parseFloat(amount) * 100);
     const options = {
-      amount: Math.round(parseFloat(amount) * 100), // Convert rupees to paise
+      amount: amountInPaise,
       currency: currency,
-      receipt: receipt,
+      receipt: receipt || `receipt_${Date.now()}`,
       notes: notes || {}
     };
 
-    const order = await razorpay.orders.create(options);
+    console.log('[Razorpay][CreateOrder] Creating order with options:', {
+      amountInRupees: amount,
+      amountInPaise: amountInPaise,
+      currency: options.currency,
+      receipt: options.receipt,
+      notes: options.notes
+    });
+
+    let order;
+    try {
+      order = await razorpay.orders.create(options);
+      console.log('[Razorpay][CreateOrder] Order created successfully:', {
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        status: order.status,
+        receipt: order.receipt
+      });
+    } catch (razorpayError) {
+      console.error('[Razorpay][CreateOrder] Razorpay API error:', {
+        message: razorpayError?.message,
+        error: razorpayError?.error,
+        statusCode: razorpayError?.statusCode,
+        description: razorpayError?.error?.description,
+        code: razorpayError?.error?.code,
+        fullError: razorpayError
+      });
+      throw razorpayError;
+    }
+
+    if (!order || !order.id) {
+      console.error('[Razorpay][CreateOrder] Invalid order response from Razorpay:', order);
+      return res.status(500).json({
+        success: false,
+        message: 'Invalid response from payment gateway',
+        error: 'Order ID missing in response'
+      });
+    }
+
+    console.log('[Razorpay][CreateOrder] Sending success response');
+    console.log('=== RAZORPAY CREATE ORDER REQUEST END (SUCCESS) ===');
 
     res.json({
       success: true,
@@ -38,11 +117,36 @@ const createOrder = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error creating Razorpay order:', error);
-    res.status(500).json({
+    console.error('=== RAZORPAY CREATE ORDER REQUEST END (ERROR) ===');
+    console.error('[Razorpay][CreateOrder] Error details:', {
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack,
+      error: error?.error,
+      statusCode: error?.statusCode,
+      fullError: error
+    });
+    
+    let errorMessage = 'Failed to create order';
+    let statusCode = 500;
+    
+    if (error?.error?.description) {
+      errorMessage = error.error.description;
+    } else if (error?.error?.code) {
+      errorMessage = `Payment error (${error.error.code}): ${error.error.description || error.message}`;
+    } else if (error?.message) {
+      errorMessage = error.message;
+    }
+    
+    if (error?.statusCode) {
+      statusCode = error.statusCode;
+    }
+    
+    res.status(statusCode).json({
       success: false,
-      message: 'Failed to create order',
-      error: error.message
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      errorCode: error?.error?.code || error?.statusCode
     });
   }
 });

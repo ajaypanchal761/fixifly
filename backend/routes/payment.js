@@ -8,6 +8,16 @@ const {
 
 const router = express.Router();
 
+// Middleware to log payment route requests
+router.use((req, res, next) => {
+  console.log('[PaymentRoute]', req.method, req.originalUrl || req.path, {
+    body: req.body,
+    query: req.query,
+    timestamp: new Date().toISOString()
+  });
+  next();
+});
+
 // Public payment routes
 router.route('/create-order')
   .post(createOrder); // Create Razorpay order
