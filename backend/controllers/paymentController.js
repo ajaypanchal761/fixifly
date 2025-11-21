@@ -503,7 +503,7 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       }
     }
     
-    // If no payment data at all, log warning
+    // If no payment data at all, log warning and try to fetch from Razorpay order
     if (!razorpay_payment_id && !razorpay_order_id && !isPaymentFailed) {
       console.error('❌ CRITICAL: No payment data received in callback!');
       console.error('❌ This means Razorpay did not send payment details');
@@ -511,6 +511,28 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       console.error('   1. callback_url not configured correctly');
       console.error('   2. Razorpay redirect failed');
       console.error('   3. WebView blocked the redirect');
+      console.error('   4. Payment might still be processing');
+      
+      // Try to get payment data from request headers or referer
+      const referer = req.headers.referer || '';
+      if (referer) {
+        try {
+          const refererUrl = new URL(referer);
+          const refOrderId = refererUrl.searchParams.get('razorpay_order_id') || refererUrl.searchParams.get('order_id');
+          const refPaymentId = refererUrl.searchParams.get('razorpay_payment_id') || refererUrl.searchParams.get('payment_id');
+          
+          if (refOrderId && !razorpay_order_id) {
+            razorpay_order_id = refOrderId;
+            console.log('✅ Found order ID from referer:', refOrderId);
+          }
+          if (refPaymentId && !razorpay_payment_id) {
+            razorpay_payment_id = refPaymentId;
+            console.log('✅ Found payment ID from referer:', refPaymentId);
+          }
+        } catch (e) {
+          console.warn('⚠️ Could not parse referer URL:', e.message);
+        }
+      }
     }
 
     // Detect WebView/Flutter context from user agent
@@ -521,7 +543,17 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
                             req.body?.isWebView === 'true';
 
     // Build frontend callback URL
-    const frontendBase = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://getfixfly.com' : 'http://localhost:8080');
+    // CRITICAL: Ensure FRONTEND_URL is properly set and has no trailing slash
+    let frontendBase = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://getfixfly.com' : 'http://localhost:8080');
+    
+    // Remove trailing slash if present
+    frontendBase = frontendBase.replace(/\/+$/, '');
+    
+    // Ensure it's a valid URL
+    if (!frontendBase.startsWith('http://') && !frontendBase.startsWith('https://')) {
+      frontendBase = `https://${frontendBase}`;
+    }
+    
     const url = new URL('/payment-callback', frontendBase);
     
     // If payment failed, add error parameters to frontend URL

@@ -1012,10 +1012,46 @@ class RazorpayService {
         theme: {
           color: '#3B82F6',
         },
-        // CRITICAL: For WebView, use callback_url AND handler (handler as fallback)
-        // Razorpay in WebView might execute handler even with callback_url
+        // CRITICAL: For WebView, use callback_url for redirect mode
+        // In WebView, handler might not execute reliably, so callback_url is essential
         callback_url: useRedirectMode ? callbackUrl : undefined,
-        handler: useRedirectMode ? undefined : async (response: PaymentResponse) => {
+        // For WebView redirect mode, handler should still be defined as fallback
+        // But it will redirect to callback_url instead
+        handler: useRedirectMode ? async (response: PaymentResponse) => {
+          // In WebView redirect mode, handler might execute but we still redirect
+          console.log('✅ Payment handler called (WebView Redirect Mode):', response);
+          console.log('⚠️ Note: Will redirect to callback_url for proper handling');
+          
+          // Store response immediately
+          try {
+            const responseWithContext = {
+              ...response,
+              timestamp: Date.now()
+            };
+            localStorage.setItem('payment_response', JSON.stringify(responseWithContext));
+            sessionStorage.setItem('payment_response', JSON.stringify(responseWithContext));
+            console.log('💾 Stored payment response in handler (WebView)');
+          } catch (e) {
+            console.warn('⚠️ Could not store payment response:', e);
+          }
+          
+          // Redirect to callback URL with payment data
+          if (callbackUrl) {
+            try {
+              const callbackUrlWithParams = new URL(callbackUrl);
+              callbackUrlWithParams.searchParams.set('razorpay_order_id', response.razorpay_order_id);
+              callbackUrlWithParams.searchParams.set('razorpay_payment_id', response.razorpay_payment_id);
+              if (response.razorpay_signature) {
+                callbackUrlWithParams.searchParams.set('razorpay_signature', response.razorpay_signature);
+              }
+              
+              console.log('🚀 Redirecting to callback from handler:', callbackUrlWithParams.toString());
+              window.location.href = callbackUrlWithParams.toString();
+            } catch (e) {
+              console.error('❌ Error redirecting from handler:', e);
+            }
+          }
+        } : async (response: PaymentResponse) => {
           try {
             console.log('✅ Payment handler called (Modal Mode):', response);
             // Create booking with payment verification
@@ -1038,6 +1074,13 @@ class RazorpayService {
           max_count: 3,
         },
         timeout: 300,
+        // CRITICAL: For WebView, ensure proper error handling
+        // Add read_only option to prevent payment method changes that might cause issues
+        read_only: {
+          email: false,
+          contact: false,
+          name: false
+        },
         // Additional WebView compatibility options
         config: {
           display: {

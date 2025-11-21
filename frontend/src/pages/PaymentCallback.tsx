@@ -372,64 +372,79 @@ const PaymentCallback = () => {
         if (verifyResult.success) {
           console.log('✅ Payment verified successfully');
           
-          // CRITICAL: Check if this is a new booking from checkout (WebView scenario)
-          // If there's pending booking data in localStorage, create the booking now
-          let createdBookingId = bookingId;
-          try {
-            const pendingPayment = JSON.parse(localStorage.getItem('pending_payment') || '{}');
-            if (pendingPayment.type === 'booking' && pendingPayment.bookingData && !bookingId) {
-              console.log('📋 Detected pending booking from checkout - creating booking now...');
-              console.log('📋 Pending payment data:', {
-                type: pendingPayment.type,
-                orderId: pendingPayment.orderId,
-                hasBookingData: !!pendingPayment.bookingData
-              });
-              
-              try {
-                // Import Razorpay service to create booking
-                const razorpayService = (await import('@/services/razorpayService')).default;
-                
-                // Create booking with payment verification
-                const bookingResponse = await fetch(
-                  `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings/with-payment`,
-                  {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      ...pendingPayment.bookingData,
-                      paymentData: {
-                        razorpayOrderId: razorpay_order_id,
-                        razorpayPaymentId: razorpay_payment_id,
-                        razorpaySignature: razorpay_signature,
-                      }
-                    })
-                  }
-                );
-                
-                const bookingResult = await bookingResponse.json();
-                
-                if (bookingResult.success && bookingResult.data) {
-                  createdBookingId = bookingResult.data.booking?._id || bookingResult.data.bookingId;
-                  console.log('✅ Booking created successfully from payment callback:', {
-                    bookingId: createdBookingId,
-                    bookingReference: bookingResult.data.bookingReference
-                  });
-                  setMessage(`Payment successful! Booking #${bookingResult.data.bookingReference} has been confirmed.`);
-                } else {
-                  console.error('❌ Failed to create booking:', bookingResult.message);
-                  // Payment is verified but booking creation failed - this is a critical error
-                  setMessage('Payment successful but booking creation failed. Please contact support with Payment ID: ' + razorpay_payment_id);
-                }
-              } catch (bookingError: any) {
-                console.error('❌ Error creating booking from callback:', bookingError);
-                setMessage('Payment successful but booking creation failed. Please contact support with Payment ID: ' + razorpay_payment_id);
+        // CRITICAL: Check if this is a new booking from checkout (WebView scenario)
+        // If there's pending booking data in localStorage, create the booking now
+        let createdBookingId = bookingId;
+        try {
+          const pendingPayment = JSON.parse(localStorage.getItem('pending_payment') || '{}');
+          if (pendingPayment.type === 'booking' && pendingPayment.bookingData && !bookingId) {
+            console.log('📋 Detected pending booking from checkout - creating booking now...');
+            console.log('📋 Pending payment data:', {
+              type: pendingPayment.type,
+              orderId: pendingPayment.orderId,
+              hasBookingData: !!pendingPayment.bookingData
+            });
+            
+            try {
+              // Validate payment data before creating booking
+              if (!razorpay_payment_id) {
+                throw new Error('Payment ID is missing - cannot create booking');
               }
+              
+              // Create booking with payment verification
+              const bookingResponse = await fetch(
+                `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings/with-payment`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    ...pendingPayment.bookingData,
+                    paymentData: {
+                      razorpayOrderId: razorpay_order_id,
+                      razorpayPaymentId: razorpay_payment_id,
+                      razorpaySignature: razorpay_signature,
+                    }
+                  })
+                }
+              );
+              
+              // Check if response is OK
+              if (!bookingResponse.ok) {
+                const errorText = await bookingResponse.text();
+                console.error('❌ Booking creation failed - HTTP Error:', {
+                  status: bookingResponse.status,
+                  statusText: bookingResponse.statusText,
+                  error: errorText
+                });
+                throw new Error(`Booking creation failed: ${bookingResponse.statusText}`);
+              }
+              
+              const bookingResult = await bookingResponse.json();
+              
+              if (bookingResult.success && bookingResult.data) {
+                createdBookingId = bookingResult.data.booking?._id || bookingResult.data.bookingId;
+                console.log('✅ Booking created successfully from payment callback:', {
+                  bookingId: createdBookingId,
+                  bookingReference: bookingResult.data.bookingReference
+                });
+                setMessage(`Payment successful! Booking #${bookingResult.data.bookingReference} has been confirmed.`);
+              } else {
+                console.error('❌ Failed to create booking:', bookingResult.message);
+                // Payment is verified but booking creation failed - this is a critical error
+                const errorMsg = bookingResult.message || 'Booking creation failed';
+                setMessage(`Payment successful but booking creation failed: ${errorMsg}. Please contact support with Payment ID: ${razorpay_payment_id}`);
+              }
+            } catch (bookingError: any) {
+              console.error('❌ Error creating booking from callback:', bookingError);
+              const errorMsg = bookingError.message || 'Unknown error';
+              setMessage(`Payment successful but booking creation failed: ${errorMsg}. Please contact support with Payment ID: ${razorpay_payment_id}`);
             }
-          } catch (e) {
-            console.warn('⚠️ Could not check for pending booking:', e);
           }
+        } catch (e) {
+          console.warn('⚠️ Could not check for pending booking:', e);
+        }
           
           setStatus('success');
           if (!createdBookingId && !bookingId && !ticketId) {
