@@ -307,6 +307,37 @@ For support, contact us at info@fixfly.in
     }
   }, [isAuthenticated, user?.email]);
 
+  // Handle payment success/failure from PaymentCallback
+  useEffect(() => {
+    if (location.state?.paymentSuccess) {
+      toast({
+        title: "Payment Successful!",
+        description: "Your payment has been verified successfully.",
+        variant: "default"
+      });
+      // Refresh bookings to show updated status
+      if (isAuthenticated && user?.email) {
+        fetchBookings();
+      }
+      // Clear the state to prevent showing toast again
+      window.history.replaceState({}, document.title);
+    }
+    
+    if (location.state?.paymentFailed) {
+      toast({
+        title: "Payment Failed",
+        description: "Payment verification failed. Please try again or contact support.",
+        variant: "destructive"
+      });
+      // Refresh bookings to show updated status
+      if (isAuthenticated && user?.email) {
+        fetchBookings();
+      }
+      // Clear the state to prevent showing toast again
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, isAuthenticated, user?.email, toast]);
+
   // Listen for booking updates (including cash payment completions)
   useEffect(() => {
     const handleBookingUpdate = async (event: CustomEvent) => {
@@ -603,6 +634,7 @@ For support, contact us at info@fixfly.in
           email: booking.customer.email,
           phone: booking.customer.phone,
           description: `Payment for service: ${booking.services.map(s => s.serviceName).join(', ')}`,
+          bookingId: booking._id, // Pass bookingId for WebView callback handling
           onSuccess: async (paymentResponse) => {
             // Handle successful payment
             try {

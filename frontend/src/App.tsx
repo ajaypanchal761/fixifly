@@ -14,6 +14,7 @@ import AMCPlanDetails from "./pages/AMCPlanDetails";
 import AMCSubscribe from "./pages/AMCSubscribe";
 import Support from "./pages/Support";
 import Payment from "./pages/Payment";
+import PaymentCallback from "./pages/PaymentCallback";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
@@ -128,6 +129,7 @@ const AppContent = () => {
         {/* Support Routes */}
         <Route path="/support" element={<MobileAuthGuard><Support /></MobileAuthGuard>} />
         <Route path="/payment" element={<MobileAuthGuard><Payment /></MobileAuthGuard>} />
+        <Route path="/payment-callback" element={<PaymentCallback />} />
         
         {/* Profile & Settings Routes */}
         <Route path="/profile" element={<MobileAuthGuard><Profile /></MobileAuthGuard>} />

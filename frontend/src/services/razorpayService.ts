@@ -133,6 +133,54 @@ class RazorpayService {
   }
 
   /**
+   * Check if running in WebView/APK context (Enhanced)
+   */
+  private isAPKContext(): boolean {
+    if (typeof window === 'undefined') return false;
+    
+    try {
+      // Import the enhanced detection from mobileAppBridge
+      // For now, use inline enhanced detection
+      const userAgent = navigator.userAgent || '';
+      const isWebView = /wv|WebView/i.test(userAgent);
+      const isAndroidWebView = /Android.*wv/i.test(userAgent);
+      const isIOSWebView = /iPhone.*wv|iPad.*wv/i.test(userAgent);
+      const hasFlutter = (window as any).flutter_inappwebview !== undefined;
+      const hasFlutterAlt = (window as any).flutter !== undefined;
+      const hasAndroidBridge = (window as any).Android !== undefined;
+      const hasCordova = (window as any).cordova !== undefined;
+      const hasCapacitor = (window as any).Capacitor !== undefined;
+      const hasWebKit = (window as any).webkit && (window as any).webkit.messageHandlers;
+      
+      // Check for standalone mode
+      const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      const isIOSStandalone = (window.navigator as any).standalone === true;
+      
+      // Check if mobile but not standard browser
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      const isStandardBrowser = !userAgent.includes('wv') && 
+                               !userAgent.includes('WebView') && 
+                               !hasFlutter && 
+                               !hasFlutterAlt &&
+                               !hasAndroidBridge;
+      
+      return isWebView || 
+             isAndroidWebView || 
+             isIOSWebView ||
+             hasFlutter || 
+             hasFlutterAlt ||
+             hasAndroidBridge ||
+             hasCordova || 
+             hasCapacitor ||
+             hasWebKit ||
+             (isMobile && !isStandardBrowser && (isStandalone || isIOSStandalone));
+    } catch (error) {
+      console.error('Error detecting APK context:', error);
+      return false;
+    }
+  }
+
+  /**
    * Process payment with order details
    */
   async processPayment(paymentData: {
@@ -143,6 +191,8 @@ class RazorpayService {
     email: string;
     phone: string;
     description: string;
+    bookingId?: string;
+    ticketId?: string;
     onSuccess: (response: any) => void;
     onError: (error: any) => void;
   }): Promise<void> {
@@ -150,8 +200,43 @@ class RazorpayService {
       // Load Razorpay script
       await this.loadRazorpayScript();
 
+      // Detect WebView/APK context
+      const isAPK = this.isAPKContext();
+      const useRedirectMode = isAPK; // Use redirect mode for WebView/APK
+
+      console.log('🔍 Payment context detection:', {
+        isAPK,
+        useRedirectMode,
+        userAgent: navigator.userAgent
+      });
+
+      // Build callback URL for redirect mode
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const callbackUrl = useRedirectMode 
+        ? `${apiBase}/payment/razorpay-callback`
+        : undefined;
+
+      // Store payment data for callback handling (WebView scenario)
+      if (useRedirectMode) {
+        try {
+          localStorage.setItem('pending_payment', JSON.stringify({
+            type: paymentData.bookingId ? 'booking' : 'ticket',
+            orderId: paymentData.orderId,
+            bookingId: paymentData.bookingId,
+            ticketId: paymentData.ticketId,
+            amount: paymentData.amount,
+            description: paymentData.description,
+            callbackUrl: callbackUrl,
+            timestamp: Date.now()
+          }));
+          console.log('💾 Stored payment info in localStorage for callback handling');
+        } catch (e) {
+          console.warn('⚠️ Could not store payment info:', e);
+        }
+      }
+
       // Razorpay options
-      const options: RazorpayOptions = {
+      const options: any = {
         key: this.razorpayKey,
         amount: paymentData.amount, // Amount is already in paise from backend
         currency: paymentData.currency,
@@ -164,21 +249,120 @@ class RazorpayService {
           contact: paymentData.phone,
         },
         notes: {
-          payment_type: 'service_payment',
+          payment_type: paymentData.bookingId ? 'booking_payment' : 'ticket_payment',
+          booking_id: paymentData.bookingId || undefined,
+          ticket_id: paymentData.ticketId || undefined,
+          isWebView: useRedirectMode ? 'true' : 'false', // Flag for backend
         },
         theme: {
           color: '#3B82F6',
         },
         handler: (response: PaymentResponse) => {
-          paymentData.onSuccess(response);
+          // For modal mode (web), handle directly
+          if (!useRedirectMode) {
+            paymentData.onSuccess(response);
+          }
+          // For redirect mode (WebView), callback will be handled by PaymentCallback page
         },
         modal: {
           ondismiss: () => {
-            // User cancellation - don't treat as error, just call onError with a specific cancellation message
-            paymentData.onError(new Error('PAYMENT_CANCELLED'));
+            if (!useRedirectMode) {
+              paymentData.onError(new Error('PAYMENT_CANCELLED'));
+            }
           },
+          escape: true,
+          animation: true,
+          // WebView specific modal settings
+          backdropclose: true,
         },
+        // WebView specific options
+        retry: {
+          enabled: true,
+          max_count: 3,
+        },
+        // Ensure callback works in WebView
+        callback_url: useRedirectMode ? callbackUrl : undefined,
+        // Add timeout
+        timeout: 300,
+        // Additional WebView compatibility options
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: 'All payment methods',
+                instruments: [
+                  { type: 'card' },
+                  { type: 'netbanking' },
+                  { type: 'wallet' },
+                  { type: 'upi' }
+                ]
+              }
+            },
+            sequence: ['block.banks'],
+            preferences: {
+              show_default_blocks: true
+            }
+          }
+        },
+        // Enable external wallet selection
+        external: {
+          wallets: ['paytm']
+        }
       };
+
+      // For WebView/APK, handle redirect in handler
+      if (useRedirectMode && callbackUrl) {
+        // Override handler to redirect to callback URL after payment
+        options.handler = (response: PaymentResponse) => {
+          console.log('✅ Payment successful in WebView, storing response...');
+          
+          // Store response with multiple methods for reliability
+          try {
+            // Method 1: localStorage (primary)
+            localStorage.setItem('payment_response', JSON.stringify(response));
+            console.log('💾 Stored payment response in localStorage');
+            
+            // Method 2: sessionStorage (backup)
+            try {
+              sessionStorage.setItem('payment_response', JSON.stringify(response));
+              console.log('💾 Stored payment response in sessionStorage');
+            } catch (e) {
+              console.warn('⚠️ Could not store in sessionStorage:', e);
+            }
+          } catch (e) {
+            console.error('❌ Error storing payment response:', e);
+          }
+          
+          // Build callback URL with payment data directly in query params (most reliable)
+          try {
+            const callbackUrlWithParams = new URL(callbackUrl);
+            callbackUrlWithParams.searchParams.set('razorpay_order_id', response.razorpay_order_id);
+            callbackUrlWithParams.searchParams.set('razorpay_payment_id', response.razorpay_payment_id);
+            if (response.razorpay_signature) {
+              callbackUrlWithParams.searchParams.set('razorpay_signature', response.razorpay_signature);
+            }
+            if (paymentData.bookingId) {
+              callbackUrlWithParams.searchParams.set('booking_id', paymentData.bookingId);
+            }
+            if (paymentData.ticketId) {
+              callbackUrlWithParams.searchParams.set('ticket_id', paymentData.ticketId);
+            }
+            
+            console.log('🔀 Redirecting to callback with params:', callbackUrlWithParams.toString());
+            
+            // Use setTimeout to ensure localStorage write completes before redirect
+            setTimeout(() => {
+              window.location.href = callbackUrlWithParams.toString();
+            }, 100);
+          } catch (e) {
+            console.error('❌ Error building callback URL:', e);
+            // Fallback: redirect to callback URL without params (will use localStorage)
+            setTimeout(() => {
+              window.location.href = callbackUrl;
+            }, 100);
+          }
+        };
+      }
 
       // Open Razorpay checkout
       const razorpay = new window.Razorpay(options);
