@@ -35,6 +35,7 @@ import { getUserAMCSubscriptions } from "@/services/amcApiService";
 import { useAuth } from "@/contexts/AuthContext";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import jsPDF from 'jspdf';
+import { isWebView, openPaymentLink, sendPaymentCallback } from '@/utils/webviewUtils';
 
 const Support = () => {
   const { user } = useAuth();
@@ -103,9 +104,9 @@ const Support = () => {
 
   // Check if running in WebView
   useEffect(() => {
-    const checkWebView = async () => {
+    const checkWebView = () => {
       try {
-        const { isWebView } = await import('@/utils/webviewUtils');
+        // Use static import for isWebView
         setIsWebViewEnv(isWebView());
       } catch (error) {
         console.error('Error checking WebView:', error);
@@ -157,7 +158,8 @@ const Support = () => {
     let pollInterval: NodeJS.Timeout | null = null;
     let timeoutId: NodeJS.Timeout | null = null;
 
-    import('@/utils/webviewUtils').then(({ isWebView }) => {
+    // Check WebView using static import
+    (() => {
       if (!isWebView()) return;
 
       const ticketsWithPendingPayment = userTickets.filter(ticket => 
@@ -335,8 +337,7 @@ const Support = () => {
 
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       
-      // Import webview utilities
-      const { isWebView, openPaymentLink, sendPaymentCallback } = await import('@/utils/webviewUtils');
+      // Use webview utilities (static import)
       const inWebView = isWebView();
       
       console.log('[Support][Payment] Environment detected', { 
@@ -495,7 +496,6 @@ const Support = () => {
         if (orderData.data?.paymentUrl) {
           // Backend detected WebView and returned payment link
           console.log('[Support][Payment] Backend returned payment link (WebView detected on backend)');
-          const { openPaymentLink } = await import('@/utils/webviewUtils');
           openPaymentLink(orderData.data.paymentUrl);
           return;
         }

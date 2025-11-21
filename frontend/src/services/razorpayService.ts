@@ -1,4 +1,6 @@
 // Razorpay service for frontend
+import { isWebView, openPaymentLink } from '@/utils/webviewUtils';
+
 declare global {
   interface Window {
     Razorpay: any;
@@ -211,7 +213,6 @@ class RazorpayService {
   ): Promise<void> {
     try {
       // CRITICAL: Check for WebView - if WebView, use payment link instead
-      const { isWebView, openPaymentLink } = await import('@/utils/webviewUtils');
       const inWebView = isWebView();
       
       // Force WebView check if user agent has 'wv'

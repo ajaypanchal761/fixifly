@@ -52,7 +52,6 @@ const Payment = () => {
 
     try {
       // CRITICAL: Check for WebView before loading Razorpay script
-      const { isWebView, openPaymentLink } = await import('@/utils/webviewUtils');
       const inWebView = isWebView();
       
       const userAgent = navigator.userAgent || '';
@@ -146,7 +145,6 @@ const Payment = () => {
       if (orderData.data?.paymentUrl) {
         // Backend detected WebView and returned payment link
         console.log('[Payment] Backend returned payment link (WebView detected on backend)');
-        const { openPaymentLink } = await import('@/utils/webviewUtils');
         openPaymentLink(orderData.data.paymentUrl);
         return;
       }

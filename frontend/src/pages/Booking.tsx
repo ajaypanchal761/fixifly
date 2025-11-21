@@ -11,6 +11,7 @@ import bookingApi, { type Booking} from "@/services/bookingApi";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import RatingPopup from "@/components/RatingPopup";
 import jsPDF from 'jspdf';
+import { isWebView, openPaymentLink } from '@/utils/webviewUtils';
 import { 
   Clock, 
   CheckCircle, 
@@ -121,7 +122,8 @@ const Booking = () => {
     let pollInterval: NodeJS.Timeout | null = null;
     let timeoutId: NodeJS.Timeout | null = null;
 
-    import('@/utils/webviewUtils').then(({ isWebView }) => {
+    // Check WebView using static import
+    (() => {
       if (!isWebView()) return;
 
       const bookingsWithPendingPayment = bookings.filter(booking => 
@@ -690,8 +692,7 @@ For support, contact us at info@fixfly.in
         }
       });
       
-      // Import webview utilities
-      const { isWebView, openPaymentLink } = await import('@/utils/webviewUtils');
+      // Use webview utilities (static import)
       const inWebView = isWebView();
       
       const userAgent = navigator.userAgent || '';
@@ -825,7 +826,6 @@ For support, contact us at info@fixfly.in
         if (response.success && response.data?.paymentUrl) {
           // Backend detected WebView and returned payment link
           console.log('[Booking][Payment] Backend returned payment link (WebView detected on backend)');
-          const { openPaymentLink } = await import('@/utils/webviewUtils');
           openPaymentLink(response.data.paymentUrl);
           return;
         }
