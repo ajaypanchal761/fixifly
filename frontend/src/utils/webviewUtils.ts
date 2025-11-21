@@ -56,21 +56,51 @@ export const isWebView = (): boolean => {
 
 /**
  * Open payment link in WebView with multiple fallback methods
+ * Based on CreateBharat's working implementation
  */
 export const openPaymentLink = (paymentUrl: string): boolean => {
   console.log('[WebViewUtils] Opening payment link:', paymentUrl);
   
-  // Method 1: Flutter bridge (if available)
+  // Method 1: Flutter bridge (if available) - CRITICAL for Flutter WebView
   if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.openPaymentLink === 'function') {
     console.log('[WebViewUtils] Using Flutter bridge to open payment link');
-    window.FlutterPaymentBridge.openPaymentLink(paymentUrl);
-    return true;
+    try {
+      window.FlutterPaymentBridge.openPaymentLink(paymentUrl);
+      return true;
+    } catch (error) {
+      console.warn('[WebViewUtils] Flutter bridge failed:', error);
+    }
   }
   
-  // Method 2: window.open (might work in some WebViews)
+  // Method 2: Flutter InAppWebView handler
+  if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+    console.log('[WebViewUtils] Using Flutter InAppWebView handler');
+    try {
+      window.flutter_inappwebview.callHandler('openPaymentLink', paymentUrl);
+      return true;
+    } catch (error) {
+      console.warn('[WebViewUtils] Flutter InAppWebView handler failed:', error);
+    }
+  }
+  
+  // Method 3: PaymentHandler JavaScript channel
+  if (window.PaymentHandler && typeof window.PaymentHandler.postMessage === 'function') {
+    console.log('[WebViewUtils] Using PaymentHandler JavaScript channel');
+    try {
+      window.PaymentHandler.postMessage(JSON.stringify({
+        type: 'openPaymentLink',
+        url: paymentUrl
+      }));
+      return true;
+    } catch (error) {
+      console.warn('[WebViewUtils] PaymentHandler failed:', error);
+    }
+  }
+  
+  // Method 4: window.open (might work in some WebViews)
   try {
     const paymentWindow = window.open(paymentUrl, '_blank', 'noopener,noreferrer');
-    if (paymentWindow) {
+    if (paymentWindow && !paymentWindow.closed) {
       console.log('[WebViewUtils] Opened payment link in new window');
       return true;
     }
@@ -78,10 +108,22 @@ export const openPaymentLink = (paymentUrl: string): boolean => {
     console.warn('[WebViewUtils] window.open failed, trying redirect:', openError);
   }
   
-  // Method 3: Standard redirect (fallback)
-  console.log('[WebViewUtils] Redirecting to payment link');
-  window.location.href = paymentUrl;
-  return true;
+  // Method 5: Standard redirect (fallback - most reliable)
+  console.log('[WebViewUtils] Redirecting to payment link using window.location.href');
+  try {
+    window.location.href = paymentUrl;
+    return true;
+  } catch (error) {
+    console.error('[WebViewUtils] window.location.href failed:', error);
+    // Final fallback
+    try {
+      window.location.replace(paymentUrl);
+      return true;
+    } catch (replaceError) {
+      console.error('[WebViewUtils] All redirect methods failed:', replaceError);
+      return false;
+    }
+  }
 };
 
 /**

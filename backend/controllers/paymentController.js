@@ -483,12 +483,19 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
 
       // Return success response with multiple redirect methods for WebView
       if (isWebViewRequest) {
+        // PRIMARY METHOD: HTTP 302 redirect (most reliable for WebView - CreateBharat pattern)
+        // This is the most reliable method for WebView redirects
+        return res.redirect(302, `${frontendUrl}/support?payment=success&ticketId=${ticketId}`);
+        
+        // FALLBACK HTML (uncomment if HTTP redirect doesn't work in your WebView)
+        /*
         return res.send(`
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="refresh" content="0;url=${frontendUrl}/support?payment=success&ticketId=${ticketId}">
             <title>Payment Successful</title>
             <script>
               (function() {
@@ -496,35 +503,23 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
                 var paymentId = '${razorpay_payment_id}';
                 var frontendUrl = '${frontendUrl}';
                 var redirectUrl = frontendUrl + '/support?payment=success&ticketId=' + ticketId;
-                var deepLink = 'fixifly://payment-callback?ticketId=' + ticketId + '&status=success&paymentId=' + paymentId;
                 
                 // IMMEDIATE REDIRECT - Execute first, before anything else
-                // Try multiple redirect methods simultaneously
-                
-                // Method 1: window.top.location (for WebView iframes)
                 try {
                   if (window.top && window.top !== window) {
                     window.top.location.href = redirectUrl;
                   }
-                } catch (e) {
-                  // Cross-origin error, continue with other methods
-                }
+                } catch (e) {}
                 
-                // Method 2: window.location.href (standard redirect)
                 try {
                   window.location.href = redirectUrl;
-                } catch (e) {
-                  // Fallback
-                }
+                } catch (e) {}
                 
-                // Method 3: window.location.replace (no history)
                 try {
                   window.location.replace(redirectUrl);
-                } catch (e) {
-                  // Fallback
-                }
+                } catch (e) {}
                 
-                // Method 4: Flutter bridge (CRITICAL - Tell Flutter to navigate)
+                // Flutter bridge
                 if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.paymentCallback === 'function') {
                   try {
                     window.FlutterPaymentBridge.paymentCallback({
@@ -534,12 +529,9 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
                       paymentId: paymentId,
                       redirectUrl: redirectUrl
                     });
-                  } catch (e) {
-                    console.error('Flutter bridge error:', e);
-                  }
+                  } catch (e) {}
                 }
                 
-                // Method 5: Flutter InAppWebView handler
                 if (window.flutter_inappwebview) {
                   try {
                     window.flutter_inappwebview.callHandler('paymentCallback', {
@@ -549,12 +541,9 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
                       paymentId: paymentId,
                       redirectUrl: redirectUrl
                     });
-                  } catch (e) {
-                    console.error('Flutter InAppWebView error:', e);
-                  }
+                  } catch (e) {}
                 }
                 
-                // Method 6: JavaScript channel (PaymentHandler)
                 if (window.PaymentHandler && typeof window.PaymentHandler.postMessage === 'function') {
                   try {
                     window.PaymentHandler.postMessage(JSON.stringify({
@@ -564,12 +553,9 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
                       paymentId: paymentId,
                       redirectUrl: redirectUrl
                     }));
-                  } catch (e) {
-                    console.error('PaymentHandler error:', e);
-                  }
+                  } catch (e) {}
                 }
                 
-                // Method 7: postMessage to parent (non-blocking)
                 if (window.parent !== window) {
                   try {
                     window.parent.postMessage({
@@ -578,39 +564,21 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
                       ticketId: ticketId,
                       paymentId: paymentId
                     }, '*');
-                  } catch (e) {
-                    console.error('PostMessage error:', e);
-                  }
+                  } catch (e) {}
                 }
                 
-                // Method 8: Deep link (non-blocking)
-                try {
-                  setTimeout(function() {
-                    try {
-                      window.location.href = deepLink;
-                    } catch (e) {
-                      // If deep link fails, ensure web redirect
-                      window.location.href = redirectUrl;
-                    }
-                  }, 100);
-                } catch (e) {
-                  // Ignore deep link errors
-                }
-                
-                // Force redirect after page load (final fallback)
+                // Force redirect after page load
                 window.addEventListener('load', function() {
                   setTimeout(function() {
                     window.location.href = redirectUrl;
                   }, 100);
                 });
                 
-                // Also try on DOMContentLoaded
                 if (document.readyState === 'loading') {
                   document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = redirectUrl;
                   });
                 } else {
-                  // Already loaded, redirect immediately
                   window.location.href = redirectUrl;
                 }
               })();
@@ -624,8 +592,10 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
           </body>
           </html>
         `);
+        */
       } else {
-        return res.redirect(`${frontendUrl}/support?payment=success&ticketId=${ticketId}`);
+        // Browser: Standard redirect
+        return res.redirect(302, `${frontendUrl}/support?payment=success&ticketId=${ticketId}`);
       }
     } else {
       // Payment failed or cancelled
@@ -636,13 +606,19 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
         : 'Payment not completed. Please try again.';
 
       if (isWebViewRequest) {
+        // PRIMARY METHOD: HTTP 302 redirect (most reliable for WebView - CreateBharat pattern)
         const encodedMessage = encodeURIComponent(failureMessage);
+        return res.redirect(302, `${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodedMessage}`);
+        
+        // FALLBACK HTML (uncomment if HTTP redirect doesn't work in your WebView)
+        /*
         return res.send(`
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="refresh" content="0;url=${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodedMessage}">
             <title>Payment Failed</title>
             <script>
               (function() {
@@ -650,9 +626,7 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
                 var message = '${failureMessage.replace(/'/g, "\\'")}';
                 var frontendUrl = '${frontendUrl}';
                 var redirectUrl = frontendUrl + '/support?payment=failed&ticketId=' + ticketId + '&message=' + encodeURIComponent(message);
-                var deepLink = 'fixifly://payment-callback?ticketId=' + ticketId + '&status=failed&message=' + encodeURIComponent(message);
                 
-                // Try multiple redirect methods
                 try {
                   if (window.top && window.top !== window) {
                     window.top.location.href = redirectUrl;
@@ -663,7 +637,6 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
                   window.location.href = redirectUrl;
                 } catch (e) {}
                 
-                // Flutter bridge
                 if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.paymentCallback === 'function') {
                   try {
                     window.FlutterPaymentBridge.paymentCallback({
@@ -711,8 +684,10 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
           </body>
           </html>
         `);
+        */
       } else {
-        return res.redirect(`${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodeURIComponent(failureMessage)}`);
+        // Browser: Standard redirect
+        return res.redirect(302, `${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodeURIComponent(failureMessage)}`);
       }
     }
   } catch (error) {
@@ -814,12 +789,18 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
 
       // Return success response with multiple redirect methods for WebView
       if (isWebViewRequest) {
+        // PRIMARY METHOD: HTTP 302 redirect (most reliable for WebView - CreateBharat pattern)
+        return res.redirect(302, `${frontendUrl}/booking?payment=success&bookingId=${bookingId}`);
+        
+        // FALLBACK HTML (uncomment if HTTP redirect doesn't work in your WebView)
+        /*
         return res.send(`
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="refresh" content="0;url=${frontendUrl}/booking?payment=success&bookingId=${bookingId}">
             <title>Payment Successful</title>
             <script>
               (function() {
@@ -827,9 +808,7 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
                 var paymentId = '${razorpay_payment_id}';
                 var frontendUrl = '${frontendUrl}';
                 var redirectUrl = frontendUrl + '/booking?payment=success&bookingId=' + bookingId;
-                var deepLink = 'fixifly://payment-callback?bookingId=' + bookingId + '&status=success&paymentId=' + paymentId;
                 
-                // IMMEDIATE REDIRECT - Execute first, before anything else
                 try {
                   if (window.top && window.top !== window) {
                     window.top.location.href = redirectUrl;
@@ -844,7 +823,6 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
                   window.location.replace(redirectUrl);
                 } catch (e) {}
                 
-                // Flutter bridge
                 if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.paymentCallback === 'function') {
                   try {
                     window.FlutterPaymentBridge.paymentCallback({
@@ -892,14 +870,6 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
                   } catch (e) {}
                 }
                 
-                setTimeout(function() {
-                  try {
-                    window.location.href = deepLink;
-                  } catch (e) {
-                    window.location.href = redirectUrl;
-                  }
-                }, 100);
-                
                 window.addEventListener('load', function() {
                   setTimeout(function() {
                     window.location.href = redirectUrl;
@@ -924,8 +894,10 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
           </body>
           </html>
         `);
+        */
       } else {
-        return res.redirect(`${frontendUrl}/booking?payment=success&bookingId=${bookingId}`);
+        // Browser: Standard redirect
+        return res.redirect(302, `${frontendUrl}/booking?payment=success&bookingId=${bookingId}`);
       }
     } else {
       // Payment failed or cancelled
@@ -936,13 +908,19 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
         : 'Payment not completed. Please try again.';
 
       if (isWebViewRequest) {
+        // PRIMARY METHOD: HTTP 302 redirect (most reliable for WebView - CreateBharat pattern)
         const encodedMessage = encodeURIComponent(failureMessage);
+        return res.redirect(302, `${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodedMessage}`);
+        
+        // FALLBACK HTML (uncomment if HTTP redirect doesn't work in your WebView)
+        /*
         return res.send(`
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="refresh" content="0;url=${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodedMessage}">
             <title>Payment Failed</title>
             <script>
               (function() {
@@ -950,9 +928,7 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
                 var message = '${failureMessage.replace(/'/g, "\\'")}';
                 var frontendUrl = '${frontendUrl}';
                 var redirectUrl = frontendUrl + '/booking?payment=failed&bookingId=' + bookingId + '&message=' + encodeURIComponent(message);
-                var deepLink = 'fixifly://payment-callback?bookingId=' + bookingId + '&status=failed&message=' + encodeURIComponent(message);
                 
-                // Try multiple redirect methods
                 try {
                   if (window.top && window.top !== window) {
                     window.top.location.href = redirectUrl;
@@ -963,7 +939,6 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
                   window.location.href = redirectUrl;
                 } catch (e) {}
                 
-                // Flutter bridge
                 if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.paymentCallback === 'function') {
                   try {
                     window.FlutterPaymentBridge.paymentCallback({
@@ -1011,8 +986,10 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
           </body>
           </html>
         `);
+        */
       } else {
-        return res.redirect(`${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodeURIComponent(failureMessage)}`);
+        // Browser: Standard redirect
+        return res.redirect(302, `${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodeURIComponent(failureMessage)}`);
       }
     }
   } catch (error) {
