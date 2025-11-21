@@ -98,9 +98,9 @@ const verifyPayment = asyncHandler(async (req, res) => {
             
             // FIXED: Added parentheses for correct logic evaluation
             if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
-              // Verify order_id matches
-              if (payment.order_id === razorpay_order_id || !payment.order_id) {
-                isAuthentic = true;
+          // Verify order_id matches
+          if (payment.order_id === razorpay_order_id || !payment.order_id) {
+            isAuthentic = true;
                 console.log('✅ Payment verified via Razorpay API', {
                   paymentId: razorpay_payment_id,
                   orderId: payment.order_id,
@@ -108,10 +108,10 @@ const verifyPayment = asyncHandler(async (req, res) => {
                   retriesLeft: retries
                 });
                 break;
-              } else {
-                console.warn('⚠️ Order ID mismatch:', {
-                  paymentOrderId: payment.order_id,
-                  providedOrderId: razorpay_order_id
+          } else {
+            console.warn('⚠️ Order ID mismatch:', {
+              paymentOrderId: payment.order_id,
+              providedOrderId: razorpay_order_id
                 });
                 // Don't break, try again
               }
@@ -158,6 +158,15 @@ const verifyPayment = asyncHandler(async (req, res) => {
     }
 
     if (!isAuthentic) {
+      console.error('❌ ========== PAYMENT VERIFICATION FAILED ==========');
+      console.error('❌ Payment ID:', razorpay_payment_id || 'MISSING');
+      console.error('❌ Order ID:', razorpay_order_id || 'MISSING');
+      console.error('❌ Booking ID:', bookingId || 'N/A');
+      console.error('❌ Ticket ID:', ticketId || 'N/A');
+      console.error('❌ Reason: Signature verification failed or payment not found');
+      console.error('❌ Timestamp:', new Date().toISOString());
+      console.error('❌ ================================================');
+      
       return res.status(400).json({
         success: false,
         message: 'Payment verification failed'
@@ -181,11 +190,15 @@ const verifyPayment = asyncHandler(async (req, res) => {
         booking.status = 'completed';
         await booking.save();
         
-        console.log('✅ Booking payment status updated:', {
-          bookingId: booking._id,
-          paymentId: razorpay_payment_id,
-          status: booking.status
-        });
+        console.log('✅ ========== PAYMENT SUCCESS ==========');
+        console.log('✅ Booking ID:', booking._id);
+        console.log('✅ Payment ID:', razorpay_payment_id);
+        console.log('✅ Order ID:', razorpay_order_id);
+        console.log('✅ Amount:', booking.payment?.amount || 'N/A');
+        console.log('✅ Status: COMPLETED');
+        console.log('✅ Payment Method: Online (Razorpay)');
+        console.log('✅ Timestamp:', new Date().toISOString());
+        console.log('✅ ======================================');
       } else {
         console.warn('⚠️ Booking not found for payment verification:', bookingId);
       }
@@ -257,6 +270,16 @@ const verifyPayment = asyncHandler(async (req, res) => {
       }
     }
 
+    console.log('✅ ========== PAYMENT VERIFICATION SUCCESS ==========');
+    console.log('✅ Payment ID:', razorpay_payment_id);
+    console.log('✅ Order ID:', razorpay_order_id);
+    console.log('✅ Booking ID:', bookingId || 'N/A');
+    console.log('✅ Ticket ID:', ticketId || 'N/A');
+    console.log('✅ Amount:', amount ? `₹${(amount / 100).toFixed(2)}` : 'N/A');
+    console.log('✅ Status: VERIFIED');
+    console.log('✅ Timestamp:', new Date().toISOString());
+    console.log('✅ ==================================================');
+
     res.json({
       success: true,
       message: 'Payment verified successfully',
@@ -306,19 +329,49 @@ const getPaymentDetails = asyncHandler(async (req, res) => {
 // @access  Public
 const razorpayRedirectCallback = asyncHandler(async (req, res) => {
   try {
-    console.log('🔔 Razorpay callback received:', {
-      method: req.method,
-      query: req.query,
-      body: req.body,
-      headers: req.headers
+    // Log EVERYTHING for debugging
+    console.log('🔔 ========== RAZORPAY CALLBACK RECEIVED ==========');
+    console.log('🔔 Timestamp:', new Date().toISOString());
+    console.log('🔔 Method:', req.method);
+    console.log('🔔 Original URL:', req.originalUrl);
+    console.log('🔔 Full URL:', req.protocol + '://' + req.get('host') + req.originalUrl);
+    console.log('🔔 Query params:', JSON.stringify(req.query, null, 2));
+    console.log('🔔 Body:', JSON.stringify(req.body, null, 2));
+    console.log('🔔 Headers:', {
+      'user-agent': req.headers['user-agent'],
+      'content-type': req.headers['content-type'],
+      'referer': req.headers['referer'],
+      'origin': req.headers['origin'],
+      'host': req.headers['host']
     });
+    console.log('🔔 IP Address:', req.ip || req.connection.remoteAddress);
+    console.log('🔔 ===============================================');
 
     // Extract payment details from request (can be in query or body)
-    const razorpay_payment_id = req.body?.razorpay_payment_id || req.query?.razorpay_payment_id;
-    const razorpay_order_id = req.body?.razorpay_order_id || req.query?.razorpay_order_id;
-    const razorpay_signature = req.body?.razorpay_signature || req.query?.razorpay_signature;
-    const bookingId = req.body?.bookingId || req.query?.bookingId;
-    const ticketId = req.body?.ticketId || req.query?.ticketId;
+    // Razorpay sends these as query parameters when redirecting to callback_url
+    const razorpay_payment_id = req.body?.razorpay_payment_id || req.query?.razorpay_payment_id || req.query?.razorpay_payment_id;
+    const razorpay_order_id = req.body?.razorpay_order_id || req.query?.razorpay_order_id || req.query?.razorpay_order_id;
+    const razorpay_signature = req.body?.razorpay_signature || req.query?.razorpay_signature || req.query?.razorpay_signature;
+    const bookingId = req.body?.bookingId || req.query?.bookingId || req.query?.booking_id;
+    const ticketId = req.body?.ticketId || req.query?.ticketId || req.query?.ticket_id;
+    
+    console.log('📋 Extracted payment data:', {
+      razorpay_payment_id: razorpay_payment_id ? `${razorpay_payment_id.substring(0, 10)}...` : 'MISSING',
+      razorpay_order_id: razorpay_order_id ? `${razorpay_order_id.substring(0, 10)}...` : 'MISSING',
+      razorpay_signature: razorpay_signature ? `${razorpay_signature.substring(0, 10)}...` : 'MISSING',
+      bookingId: bookingId || 'MISSING',
+      ticketId: ticketId || 'MISSING'
+    });
+    
+    // If no payment data at all, log warning
+    if (!razorpay_payment_id && !razorpay_order_id) {
+      console.error('❌ CRITICAL: No payment data received in callback!');
+      console.error('❌ This means Razorpay did not send payment details');
+      console.error('❌ Possible causes:');
+      console.error('   1. callback_url not configured correctly');
+      console.error('   2. Razorpay redirect failed');
+      console.error('   3. WebView blocked the redirect');
+    }
 
     // Detect WebView/Flutter context from user agent
     const userAgent = req.headers['user-agent'] || '';
@@ -359,7 +412,31 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     if (razorpay_payment_id && !razorpay_order_id) {
       try {
         console.log('🔍 Order ID missing, fetching payment details from Razorpay...');
-        const payment = await razorpay.payments.fetch(razorpay_payment_id);
+        console.log('🔍 Payment ID:', razorpay_payment_id);
+        
+        let payment = null;
+        let retries = 3;
+        
+        // Retry fetching payment (might still be processing)
+        while (retries > 0 && !payment) {
+          try {
+            payment = await razorpay.payments.fetch(razorpay_payment_id);
+            if (payment && payment.order_id) {
+              break;
+            }
+            if (retries > 1) {
+              console.log(`⏳ Payment not ready, retrying in 2 seconds... (${retries - 1} retries left)`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+            retries--;
+          } catch (fetchError) {
+            console.error(`❌ Error fetching payment (retry ${4 - retries}/3):`, fetchError.message);
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          }
+        }
         
         if (payment && payment.order_id) {
           url.searchParams.set('razorpay_order_id', payment.order_id);
@@ -372,10 +449,14 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
           
           if (notesBookingId && !bookingId) {
             url.searchParams.set('booking_id', notesBookingId);
+            console.log('✅ Found booking ID from payment notes:', notesBookingId);
           }
           if (notesTicketId && !ticketId) {
             url.searchParams.set('ticket_id', notesTicketId);
+            console.log('✅ Found ticket ID from payment notes:', notesTicketId);
           }
+        } else {
+          console.warn('⚠️ Could not fetch payment details or order_id from Razorpay');
         }
       } catch (paymentError) {
         console.error('❌ Error fetching payment from Razorpay:', paymentError.message);
@@ -519,6 +600,17 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       </html>
     `;
     
+    console.log('📤 Sending HTML response to client');
+    console.log('📤 HTML length:', html.length);
+    console.log('📤 Payment data in HTML:', {
+      hasOrderId: !!razorpay_order_id,
+      hasPaymentId: !!razorpay_payment_id,
+      hasSignature: !!razorpay_signature,
+      hasBookingId: !!bookingId,
+      hasTicketId: !!ticketId
+    });
+    
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(html);
 
   } catch (error) {
@@ -632,11 +724,15 @@ const verifyPaymentById = asyncHandler(async (req, res) => {
         booking.status = 'completed';
         await booking.save();
         
-        console.log('✅ Booking payment status updated via verify-by-id:', {
-          bookingId: booking._id,
-          paymentId: razorpay_payment_id,
-          status: booking.status
-        });
+        console.log('✅ ========== PAYMENT SUCCESS (verify-by-id) ==========');
+        console.log('✅ Booking ID:', booking._id);
+        console.log('✅ Payment ID:', razorpay_payment_id);
+        console.log('✅ Order ID:', payment.order_id || 'N/A');
+        console.log('✅ Amount:', payment.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+        console.log('✅ Status: COMPLETED');
+        console.log('✅ Payment Method: Online (Razorpay)');
+        console.log('✅ Timestamp:', new Date().toISOString());
+        console.log('✅ ===================================================');
       }
     }
 
@@ -653,13 +749,29 @@ const verifyPaymentById = asyncHandler(async (req, res) => {
         ticket.resolvedAt = new Date();
         await ticket.save();
         
-        console.log('✅ Support ticket payment status updated via verify-by-id:', {
-          ticketId: ticket.ticketId,
-          paymentId: razorpay_payment_id
-        });
+        console.log('✅ ========== PAYMENT SUCCESS (verify-by-id) ==========');
+        console.log('✅ Ticket ID:', ticket.ticketId);
+        console.log('✅ Payment ID:', razorpay_payment_id);
+        console.log('✅ Order ID:', payment.order_id || 'N/A');
+        console.log('✅ Amount:', payment.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+        console.log('✅ Status: RESOLVED');
+        console.log('✅ Payment Method: Online (Razorpay)');
+        console.log('✅ Timestamp:', new Date().toISOString());
+        console.log('✅ ===================================================');
       }
     }
 
+    console.log('✅ ========== PAYMENT VERIFICATION SUCCESS (verify-by-id) ==========');
+    console.log('✅ Payment ID:', payment.id);
+    console.log('✅ Order ID:', payment.order_id || 'N/A');
+    console.log('✅ Status:', payment.status);
+    console.log('✅ Amount:', payment.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+    console.log('✅ Currency:', payment.currency || 'INR');
+    console.log('✅ Booking ID:', bookingId || 'N/A');
+    console.log('✅ Ticket ID:', ticketId || 'N/A');
+    console.log('✅ Timestamp:', new Date().toISOString());
+    console.log('✅ ===============================================================');
+    
     res.json({
       success: true,
       message: 'Payment verified successfully',
@@ -673,7 +785,14 @@ const verifyPaymentById = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error verifying payment by ID:', error);
+    console.error('❌ ========== PAYMENT VERIFICATION ERROR (verify-by-id) ==========');
+    console.error('❌ Payment ID:', req.body?.razorpay_payment_id || 'MISSING');
+    console.error('❌ Booking ID:', req.body?.bookingId || 'N/A');
+    console.error('❌ Ticket ID:', req.body?.ticketId || 'N/A');
+    console.error('❌ Error:', error.message);
+    console.error('❌ Stack:', error.stack);
+    console.error('❌ Timestamp:', new Date().toISOString());
+    console.error('❌ ==============================================================');
     res.status(500).json({
       success: false,
       message: 'Payment verification failed',
@@ -713,10 +832,12 @@ const markPaymentFailed = asyncHandler(async (req, res) => {
         // Keep booking status as is (don't change to cancelled) so user can retry
         await booking.save();
         
-        console.log('❌ Booking payment marked as failed:', {
-          bookingId: booking._id,
-          reason: reason || 'Payment verification failed'
-        });
+        console.error('❌ ========== PAYMENT FAILED ==========');
+        console.error('❌ Booking ID:', booking._id);
+        console.error('❌ Payment Status: FAILED');
+        console.error('❌ Reason:', reason || 'Payment verification failed');
+        console.error('❌ Timestamp:', new Date().toISOString());
+        console.error('❌ ====================================');
       } else {
         console.warn('⚠️ Booking not found for marking payment as failed:', bookingId);
       }
@@ -735,13 +856,22 @@ const markPaymentFailed = asyncHandler(async (req, res) => {
         }
         await ticket.save();
         
-        console.log('❌ Support ticket payment marked as failed:', {
-          ticketId: ticket.ticketId,
-          reason: reason || 'Payment verification failed'
-        });
+        console.error('❌ ========== PAYMENT FAILED ==========');
+        console.error('❌ Ticket ID:', ticket.ticketId);
+        console.error('❌ Payment Status: FAILED');
+        console.error('❌ Reason:', reason || 'Payment verification failed');
+        console.error('❌ Timestamp:', new Date().toISOString());
+        console.error('❌ ====================================');
       }
     }
 
+    console.error('❌ ========== PAYMENT MARKED AS FAILED ==========');
+    console.error('❌ Booking ID:', bookingId || 'N/A');
+    console.error('❌ Ticket ID:', ticketId || 'N/A');
+    console.error('❌ Reason:', reason || 'Payment verification failed');
+    console.error('❌ Timestamp:', new Date().toISOString());
+    console.error('❌ =============================================');
+    
     res.json({
       success: true,
       message: 'Payment marked as failed',
@@ -752,7 +882,13 @@ const markPaymentFailed = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error marking payment as failed:', error);
+    console.error('❌ ========== ERROR MARKING PAYMENT AS FAILED ==========');
+    console.error('❌ Booking ID:', req.body?.bookingId || 'N/A');
+    console.error('❌ Ticket ID:', req.body?.ticketId || 'N/A');
+    console.error('❌ Error:', error.message);
+    console.error('❌ Stack:', error.stack);
+    console.error('❌ Timestamp:', new Date().toISOString());
+    console.error('❌ =====================================================');
     res.status(500).json({
       success: false,
       message: 'Failed to mark payment as failed',

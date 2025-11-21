@@ -215,6 +215,10 @@ class RazorpayService {
       const callbackUrl = useRedirectMode 
         ? `${apiBase}/payment/razorpay-callback`
         : undefined;
+      
+      console.log('🔗 Payment callback URL:', callbackUrl);
+      console.log('🔗 API Base URL:', apiBase);
+      console.log('🔗 Use Redirect Mode:', useRedirectMode);
 
       // Store payment data for callback handling (WebView scenario)
       if (useRedirectMode) {
@@ -258,11 +262,24 @@ class RazorpayService {
           color: '#3B82F6',
         },
         handler: (response: PaymentResponse) => {
+          console.log('🎯 Razorpay handler called:', {
+            useRedirectMode,
+            hasResponse: !!response,
+            orderId: response?.razorpay_order_id,
+            paymentId: response?.razorpay_payment_id
+          });
+          
           // For modal mode (web), handle directly
           if (!useRedirectMode) {
+            console.log('✅ Modal mode - calling onSuccess directly');
             paymentData.onSuccess(response);
+          } else {
+            // For redirect mode (WebView), handler might not execute
+            // But we still log it for debugging
+            console.log('⚠️ Redirect mode - handler called but redirect will happen via callback_url');
+            console.log('📦 Response data:', JSON.stringify(response, null, 2));
           }
-          // For redirect mode (WebView), callback will be handled by PaymentCallback page
+          // For redirect mode (WebView), callback will be handled by PaymentCallback page via callback_url
         },
         modal: {
           ondismiss: () => {
@@ -280,7 +297,9 @@ class RazorpayService {
           enabled: true,
           max_count: 3,
         },
-        // Ensure callback works in WebView
+        // CRITICAL: callback_url is what Razorpay uses to redirect after payment
+        // In WebView, Razorpay will automatically redirect to this URL after payment
+        // The handler might not execute, so callback_url is essential
         callback_url: useRedirectMode ? callbackUrl : undefined,
         // Add timeout
         timeout: 300,
@@ -315,6 +334,8 @@ class RazorpayService {
         // Override handler to redirect to callback URL after payment
         options.handler = (response: PaymentResponse) => {
           console.log('✅ Payment successful in WebView, storing response...');
+          console.log('📦 Payment response:', JSON.stringify(response, null, 2));
+          console.log('🔗 Callback URL:', callbackUrl);
           
           // Store response with multiple methods for reliability
           try {
@@ -355,23 +376,52 @@ class RazorpayService {
             }
             
             console.log('🔀 Redirecting to callback with params:', callbackUrlWithParams.toString());
+            console.log('📋 Redirect details:', {
+              url: callbackUrlWithParams.toString(),
+              hasOrderId: !!response.razorpay_order_id,
+              hasPaymentId: !!response.razorpay_payment_id,
+              hasSignature: !!response.razorpay_signature,
+              bookingId: paymentData.bookingId,
+              ticketId: paymentData.ticketId
+            });
             
-            // Use setTimeout to ensure localStorage write completes before redirect
-            // Increased delay for WebView to ensure storage completes
-            setTimeout(() => {
-              try {
-                window.location.href = callbackUrlWithParams.toString();
-              } catch (redirectError) {
-                console.error('❌ Error redirecting:', redirectError);
-                // Last resort: try to navigate using Flutter bridge if available
-                if ((window as any).flutter_inappwebview) {
-                  (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
-                } else {
-                  // Fallback: show error to user
-                  paymentData.onError(new Error('Payment successful but redirect failed. Please contact support.'));
+            // CRITICAL: In WebView, handler might not execute, so we MUST redirect immediately
+            // Don't wait - redirect immediately to ensure callback is called
+            try {
+              console.log('🚀 IMMEDIATE redirect to callback (WebView):', callbackUrlWithParams.toString());
+              
+              // Try multiple redirect methods for maximum reliability
+              // Method 1: Direct window.location (most reliable)
+              window.location.href = callbackUrlWithParams.toString();
+              
+              // Method 2: If that doesn't work, try after small delay
+              setTimeout(() => {
+                if (window.location.href !== callbackUrlWithParams.toString()) {
+                  console.log('🔄 Retrying redirect (method 1 failed)...');
+                  window.location.replace(callbackUrlWithParams.toString());
                 }
+              }, 100);
+              
+              // Method 3: Flutter bridge fallback
+              setTimeout(() => {
+                if ((window as any).flutter_inappwebview && window.location.href !== callbackUrlWithParams.toString()) {
+                  console.log('🔄 Trying Flutter bridge navigation...');
+                  (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
+                }
+              }, 200);
+              
+            } catch (redirectError) {
+              console.error('❌ Error redirecting:', redirectError);
+              // Last resort: try to navigate using Flutter bridge if available
+              if ((window as any).flutter_inappwebview) {
+                console.log('🔄 Trying Flutter bridge navigation (error fallback)...');
+                (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
+              } else {
+                // Fallback: show error to user
+                console.error('❌ No navigation method available');
+                paymentData.onError(new Error('Payment successful but redirect failed. Please contact support.'));
               }
-            }, 300); // Increased from 100ms to 300ms for better reliability
+            }
           } catch (e) {
             console.error('❌ Error building callback URL:', e);
             // Fallback: redirect to callback URL without params (will use localStorage)
@@ -388,6 +438,7 @@ class RazorpayService {
       // Add payment.failed event handler for WebView
       razorpay.on('payment.failed', (response: any) => {
         console.error('❌ Razorpay payment failed:', response);
+        console.error('❌ Payment failure details:', JSON.stringify(response, null, 2));
         const errorMessage = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';
         
         // Store failure info for debugging
@@ -397,6 +448,7 @@ class RazorpayService {
             metadata: response.metadata,
             timestamp: Date.now()
           }));
+          console.log('💾 Stored payment failure info');
         } catch (e) {
           console.warn('Could not store payment failure info:', e);
         }
@@ -418,6 +470,7 @@ class RazorpayService {
             
             console.log('🔀 Redirecting to callback with error:', errorCallbackUrl.toString());
             setTimeout(() => {
+              console.log('🚀 Executing error redirect to:', errorCallbackUrl.toString());
               window.location.href = errorCallbackUrl.toString();
             }, 500);
           } catch (e) {
@@ -426,8 +479,18 @@ class RazorpayService {
           }
         } else {
           // For modal mode, call onError directly
+          console.log('📞 Calling onError directly (modal mode)');
           paymentData.onError(new Error(errorMessage));
         }
+      });
+      
+      // Add payment success logging
+      console.log('🎯 Opening Razorpay checkout with options:', {
+        orderId: paymentData.orderId,
+        amount: paymentData.amount,
+        callbackUrl: callbackUrl,
+        useRedirectMode: useRedirectMode,
+        isAPK: isAPK
       });
       
       razorpay.open();

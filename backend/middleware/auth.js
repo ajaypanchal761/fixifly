@@ -7,24 +7,13 @@ const protect = asyncHandler(async (req, res, next) => {
   try {
     let token;
 
-    // Debug logging
-    console.log('=== AUTH MIDDLEWARE START ===');
-    console.log('Request URL:', req.url);
-    console.log('Request Method:', req.method);
-    console.log('Headers received:', {
-      authorization: req.headers.authorization,
-      authorizationType: typeof req.headers.authorization,
-      authorizationLength: req.headers.authorization ? req.headers.authorization.length : 'undefined',
-      contentType: req.headers['content-type'],
-      userAgent: req.headers['user-agent']
-    });
+    // Minimal logging - only log important steps
 
     // SAFE authorization header check - multiple layers of protection
     const authHeader = req.headers.authorization;
     
     // Check if authHeader exists and is a string
     if (!authHeader) {
-      console.log('Auth middleware: No authorization header provided');
       return res.status(401).json({
         success: false,
         message: 'Not authorized, no token provided'
@@ -32,7 +21,6 @@ const protect = asyncHandler(async (req, res, next) => {
     }
 
     if (typeof authHeader !== 'string') {
-      console.log('Auth middleware: Authorization header is not a string:', typeof authHeader);
       return res.status(401).json({
         success: false,
         message: 'Not authorized, invalid token format'
@@ -41,7 +29,6 @@ const protect = asyncHandler(async (req, res, next) => {
 
     // Check if it starts with 'Bearer' - SAFE method
     if (!authHeader.startsWith('Bearer')) {
-      console.log('Auth middleware: Authorization header does not start with Bearer');
       return res.status(401).json({
         success: false,
         message: 'Not authorized, token must start with Bearer'
@@ -53,33 +40,25 @@ const protect = asyncHandler(async (req, res, next) => {
       token = authHeader.split(' ')[1];
 
       if (!token) {
-        console.log('Auth middleware: No token found after Bearer');
         return res.status(401).json({
           success: false,
           message: 'Not authorized, no token found'
         });
       }
 
-      console.log('Auth middleware: Token extracted successfully, length:', token.length);
-
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-      console.log('Auth middleware: Token verified successfully, userId:', decoded.userId);
 
       // Get user from token
       const user = await User.findById(decoded.userId).select('-otp');
 
       if (!user) {
-        console.log('Auth middleware: User not found for token');
-        console.log('Auth middleware: Token payload:', decoded);
-        console.log('Auth middleware: Looking for userId:', decoded.userId);
+        console.error('Auth middleware: User not found for token, userId:', decoded.userId);
         return res.status(401).json({
           success: false,
           message: 'Not authorized, user not found'
         });
       }
-
-      console.log('Auth middleware: User found:', user.email);
 
       // Add user info to request
       req.user = {
@@ -88,7 +67,6 @@ const protect = asyncHandler(async (req, res, next) => {
         user: user
       };
 
-      console.log('Auth middleware: User added to request, proceeding to next middleware');
       next();
 
     } catch (error) {
