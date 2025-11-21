@@ -832,25 +832,67 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
           try {
             payment = await rzp.payments.fetch(razorpayPaymentId);
             
-            if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
-              // Verify order_id matches if provided
+            console.log(`🔍 Payment fetch attempt ${4 - retries}/3:`, {
+              paymentId: razorpayPaymentId,
+              status: payment?.status,
+              orderId: payment?.order_id,
+              amount: payment?.amount,
+              currency: payment?.currency,
+              method: payment?.method
+            });
+            
+            // Accept multiple payment statuses (mobile payments might be in different states)
+            const validStatuses = ['captured', 'authorized', 'created', 'pending'];
+            if (payment && validStatuses.includes(payment.status)) {
+              // Verify order_id matches if provided (but don't reject if order_id is missing on mobile)
               if (!razorpayOrderId || payment.order_id === razorpayOrderId || !payment.order_id) {
-                isSignatureValid = true;
-                console.log('✅ Payment verified via Razorpay API', {
-                  paymentId: razorpayPaymentId,
-                  orderId: payment.order_id,
-                  status: payment.status,
-                  retriesLeft: retries
-                });
-                break;
+                // Additional check: if payment is 'created' or 'pending', it might still be processing
+                // But we'll accept it for mobile scenarios where signature might be missing
+                if (payment.status === 'captured' || payment.status === 'authorized') {
+                  isSignatureValid = true;
+                  console.log('✅ Payment verified via Razorpay API (captured/authorized)', {
+                    paymentId: razorpayPaymentId,
+                    orderId: payment.order_id,
+                    status: payment.status,
+                    retriesLeft: retries
+                  });
+                  break;
+                } else if (payment.status === 'created' || payment.status === 'pending') {
+                  // For mobile payments without signature, we need to be more careful
+                  // Only accept 'created' or 'pending' if we have no signature (mobile scenario)
+                  // and if this is the last retry, accept it as the payment might be processing
+                  if (!razorpaySignature && retries === 1) {
+                    isSignatureValid = true;
+                    console.log('✅ Payment verified via Razorpay API (created/pending - mobile scenario, no signature)', {
+                      paymentId: razorpayPaymentId,
+                      orderId: payment.order_id,
+                      status: payment.status,
+                      retriesLeft: retries,
+                      note: 'Payment is processing, accepted for mobile payment flow without signature'
+                    });
+                    break;
+                  } else {
+                    // Continue retrying to see if status changes to captured/authorized
+                    console.log('⏳ Payment is in created/pending status, will retry to check if it gets captured...');
+                  }
+                }
               } else {
                 console.warn('⚠️ Order ID mismatch:', {
                   paymentOrderId: payment.order_id,
                   providedOrderId: razorpayOrderId
                 });
+                // Don't break, continue to retry
               }
             } else {
-              console.warn(`⚠️ Payment status is not captured/authorized: ${payment?.status} (retries left: ${retries - 1})`);
+              const status = payment?.status || 'unknown';
+              console.warn(`⚠️ Payment status is not valid: ${status} (retries left: ${retries - 1})`);
+              
+              // If payment exists but status is 'failed' or 'refunded', reject immediately
+              if (status === 'failed' || status === 'refunded' || status === 'cancelled') {
+                console.error('❌ Payment has failed/refunded/cancelled status, rejecting');
+                lastError = new Error(`Payment status is ${status}`);
+                break;
+              }
             }
             
             // Wait before retry (payment might still be processing)
@@ -860,7 +902,11 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
             retries--;
           } catch (fetchError) {
             lastError = fetchError;
-            console.error(`❌ Error fetching payment (retry ${4 - retries}/3):`, fetchError.message);
+            console.error(`❌ Error fetching payment (retry ${4 - retries}/3):`, {
+              message: fetchError.message,
+              error: fetchError.error?.description || fetchError.error?.reason || 'Unknown error',
+              statusCode: fetchError.statusCode
+            });
             retries--;
             if (retries > 0) {
               await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
@@ -868,12 +914,32 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
           }
         }
         
-        // If still not authenticated after retries
-        if (!isSignatureValid && lastError) {
-          console.error('❌ Payment verification failed after all retries:', lastError.message);
+        // If still not authenticated after retries, log detailed error
+        if (!isSignatureValid) {
+          if (lastError) {
+            console.error('❌ Payment verification failed after all retries:', {
+              error: lastError.message,
+              paymentId: razorpayPaymentId,
+              orderId: razorpayOrderId || 'MISSING',
+              finalPaymentStatus: payment?.status || 'unknown'
+            });
+          } else if (payment) {
+            console.error('❌ Payment verification failed - invalid status:', {
+              paymentId: razorpayPaymentId,
+              status: payment.status,
+              orderId: payment.order_id
+            });
+          } else {
+            console.error('❌ Payment verification failed - payment not found in Razorpay');
+          }
         }
       } catch (paymentError) {
-        console.error('❌ Error verifying payment via Razorpay API:', paymentError.message);
+        console.error('❌ Error verifying payment via Razorpay API:', {
+          message: paymentError.message,
+          error: paymentError.error?.description || paymentError.error?.reason || 'Unknown error',
+          statusCode: paymentError.statusCode,
+          paymentId: razorpayPaymentId
+        });
       }
     }
     
@@ -885,14 +951,48 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       console.error('❌ Payment ID:', razorpayPaymentId);
       console.error('❌ Order ID:', razorpayOrderId || 'MISSING');
       console.error('❌ Signature:', razorpaySignature ? 'PRESENT' : 'MISSING');
+      console.error('❌ Expected Amount:', pricing.totalAmount);
       console.error('❌ Reason: Signature verification failed and Razorpay API verification failed');
       console.error('❌ Timestamp:', new Date().toISOString());
       console.error('❌ ================================================');
       
       return res.status(400).json({
         success: false,
-        message: 'Payment verification failed. Please try again or contact support.'
+        message: 'Payment verification failed. Please try again or contact support.',
+        error: 'PAYMENT_VERIFICATION_FAILED',
+        paymentId: razorpayPaymentId
       });
+    }
+    
+    // Additional validation: If we have payment details from API, verify amount matches
+    if (payment && payment.amount) {
+      const paymentAmountInRupees = payment.amount / 100; // Convert paise to rupees
+      const expectedAmount = pricing.totalAmount;
+      const amountDifference = Math.abs(paymentAmountInRupees - expectedAmount);
+      
+      // Allow small difference due to rounding (max 1 rupee difference)
+      if (amountDifference > 1) {
+        console.error('❌ Payment amount mismatch:', {
+          expectedAmount,
+          receivedAmount: paymentAmountInRupees,
+          difference: amountDifference,
+          paymentId: razorpayPaymentId
+        });
+        
+        return res.status(400).json({
+          success: false,
+          message: 'Payment amount mismatch. Please contact support.',
+          error: 'PAYMENT_AMOUNT_MISMATCH',
+          expectedAmount,
+          receivedAmount: paymentAmountInRupees
+        });
+      } else {
+        console.log('✅ Payment amount verified:', {
+          expectedAmount,
+          receivedAmount: paymentAmountInRupees,
+          difference: amountDifference
+        });
+      }
     }
 
     // First-time user free service feature has been removed

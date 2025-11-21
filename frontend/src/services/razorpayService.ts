@@ -211,15 +211,38 @@ class RazorpayService {
       });
 
       // Build callback URL for redirect mode
+      // CRITICAL: Include order_id in callback URL upfront so backend can track it even if handler doesn't execute
       const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const callbackUrl = useRedirectMode 
+      let callbackUrl = useRedirectMode 
         ? `${apiBase}/payment/razorpay-callback`
         : undefined;
+      
+      // For WebView, pre-populate callback URL with order_id and booking/ticket IDs
+      if (useRedirectMode && callbackUrl && paymentData.orderId) {
+        try {
+          const callbackUrlObj = new URL(callbackUrl);
+          callbackUrlObj.searchParams.set('razorpay_order_id', paymentData.orderId);
+          callbackUrlObj.searchParams.set('order_id', paymentData.orderId);
+          if (paymentData.bookingId) {
+            callbackUrlObj.searchParams.set('booking_id', paymentData.bookingId);
+          }
+          if (paymentData.ticketId) {
+            callbackUrlObj.searchParams.set('ticket_id', paymentData.ticketId);
+          }
+          callbackUrl = callbackUrlObj.toString();
+          console.log('✅ Pre-populated callback URL with order_id and IDs');
+        } catch (e) {
+          console.warn('⚠️ Error pre-populating callback URL:', e);
+        }
+      }
       
       console.log('🔗 ========== PAYMENT CALLBACK URL SETUP ==========');
       console.log('🔗 API Base URL:', apiBase);
       console.log('🔗 Callback URL:', callbackUrl);
       console.log('🔗 Use Redirect Mode:', useRedirectMode);
+      console.log('🔗 Order ID in Callback:', paymentData.orderId || 'N/A');
+      console.log('🔗 Booking ID in Callback:', paymentData.bookingId || 'N/A');
+      console.log('🔗 Ticket ID in Callback:', paymentData.ticketId || 'N/A');
       console.log('🔗 Full Callback Path:', callbackUrl ? new URL(callbackUrl).pathname : 'N/A');
       console.log('🔗 ================================================');
 
@@ -303,6 +326,7 @@ class RazorpayService {
         // CRITICAL: callback_url is what Razorpay uses to redirect after payment
         // In WebView, Razorpay will automatically redirect to this URL after payment
         // The handler might not execute, so callback_url is essential
+        // IMPORTANT: callbackUrl already has order_id pre-populated above
         callback_url: useRedirectMode ? callbackUrl : undefined,
         // Add timeout
         timeout: 300,
@@ -437,6 +461,40 @@ class RazorpayService {
 
       // Open Razorpay checkout
       const razorpay = new window.Razorpay(options);
+      
+      // CRITICAL: For WebView, add additional event listeners to catch payment events
+      // These might fire even if the handler doesn't execute
+      if (useRedirectMode) {
+        // Listen for payment success events
+        razorpay.on('payment.success', (response: any) => {
+          console.log('✅ ========== PAYMENT.SUCCESS EVENT FIRED (WebView) ==========');
+          console.log('✅ Response:', JSON.stringify(response, null, 2));
+          console.log('✅ This event fired even if handler did not execute');
+          console.log('✅ ============================================================');
+          
+          // Store response immediately
+          try {
+            const responseWithContext = {
+              ...response,
+              bookingId: paymentData.bookingId,
+              ticketId: paymentData.ticketId,
+              timestamp: Date.now()
+            };
+            localStorage.setItem('payment_response', JSON.stringify(responseWithContext));
+            sessionStorage.setItem('payment_response', JSON.stringify(responseWithContext));
+            console.log('💾 Stored payment response from payment.success event');
+          } catch (e) {
+            console.error('❌ Error storing payment response:', e);
+          }
+        });
+        
+        // Listen for payment capture events
+        razorpay.on('payment.captured', (response: any) => {
+          console.log('💰 ========== PAYMENT.CAPTURED EVENT FIRED (WebView) ==========');
+          console.log('💰 Response:', JSON.stringify(response, null, 2));
+          console.log('💰 ============================================================');
+        });
+      }
       
       // Add payment.failed event handler for WebView
       razorpay.on('payment.failed', (response: any) => {

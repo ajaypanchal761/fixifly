@@ -353,11 +353,31 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
 
     // Extract payment details from request (can be in query or body)
     // Razorpay sends these as query parameters when redirecting to callback_url
-    const razorpay_payment_id = req.body?.razorpay_payment_id || req.query?.razorpay_payment_id || req.query?.razorpay_payment_id;
-    const razorpay_order_id = req.body?.razorpay_order_id || req.query?.razorpay_order_id || req.query?.razorpay_order_id;
-    const razorpay_signature = req.body?.razorpay_signature || req.query?.razorpay_signature || req.query?.razorpay_signature;
-    const bookingId = req.body?.bookingId || req.query?.bookingId || req.query?.booking_id;
-    const ticketId = req.body?.ticketId || req.query?.ticketId || req.query?.ticket_id;
+    // IMPORTANT: Check multiple parameter name variations for maximum compatibility
+    // Use let instead of const so we can update these if we fetch from Razorpay API
+    let razorpay_payment_id = req.body?.razorpay_payment_id || 
+                              req.query?.razorpay_payment_id || 
+                              req.query?.payment_id ||
+                              req.body?.razorpayPaymentId ||
+                              req.query?.razorpayPaymentId;
+    let razorpay_order_id = req.body?.razorpay_order_id || 
+                           req.query?.razorpay_order_id || 
+                           req.query?.order_id ||
+                           req.body?.razorpayOrderId ||
+                           req.query?.razorpayOrderId;
+    const razorpay_signature = req.body?.razorpay_signature || 
+                               req.query?.razorpay_signature || 
+                               req.query?.signature ||
+                               req.body?.razorpaySignature ||
+                               req.query?.razorpaySignature;
+    const bookingId = req.body?.bookingId || 
+                     req.query?.bookingId || 
+                     req.query?.booking_id ||
+                     req.body?.booking_id;
+    const ticketId = req.body?.ticketId || 
+                    req.query?.ticketId || 
+                    req.query?.ticket_id ||
+                    req.body?.ticket_id;
     
     console.log('📋 Extracted payment data:', {
       razorpay_payment_id: razorpay_payment_id ? `${razorpay_payment_id.substring(0, 10)}...` : 'MISSING',
@@ -508,7 +528,8 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       url.searchParams.set('ticket_id', ticketId);
     }
 
-    // If order_id is missing, try to fetch from payment
+    // CRITICAL: If order_id or payment_id is missing, try to fetch from Razorpay
+    // This is especially important for WebView where parameters might not be passed correctly
     if (razorpay_payment_id && !razorpay_order_id) {
       try {
         console.log('🔍 Order ID missing, fetching payment details from Razorpay...');
@@ -539,6 +560,7 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
         }
         
         if (payment && payment.order_id) {
+          razorpay_order_id = payment.order_id; // Update the variable
           url.searchParams.set('razorpay_order_id', payment.order_id);
           url.searchParams.set('order_id', payment.order_id);
           console.log('✅ Found order ID from payment:', payment.order_id);
@@ -560,6 +582,44 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
         }
       } catch (paymentError) {
         console.error('❌ Error fetching payment from Razorpay:', paymentError.message);
+      }
+    }
+    
+    // CRITICAL: If we have order_id but missing payment_id, try to find payment from order
+    // This can happen in WebView if Razorpay redirects before payment is fully processed
+    if (razorpay_order_id && !razorpay_payment_id) {
+      try {
+        console.log('🔍 Payment ID missing, fetching order details from Razorpay...');
+        console.log('🔍 Order ID:', razorpay_order_id);
+        
+        const order = await razorpay.orders.fetch(razorpay_order_id);
+        
+        if (order && order.payments) {
+          // Get the most recent payment
+          const payments = order.payments;
+          if (payments && payments.length > 0) {
+            // Fetch the latest payment
+            const latestPaymentId = payments[payments.length - 1];
+            try {
+              const payment = await razorpay.payments.fetch(latestPaymentId);
+              if (payment && payment.id) {
+                razorpay_payment_id = payment.id; // Update the variable
+                url.searchParams.set('razorpay_payment_id', payment.id);
+                url.searchParams.set('payment_id', payment.id);
+                console.log('✅ Found payment ID from order:', payment.id);
+                
+                // Also add signature if available
+                if (payment.notes && payment.notes.signature) {
+                  url.searchParams.set('razorpay_signature', payment.notes.signature);
+                }
+              }
+            } catch (fetchPaymentError) {
+              console.warn('⚠️ Could not fetch payment details from order:', fetchPaymentError.message);
+            }
+          }
+        }
+      } catch (orderError) {
+        console.error('❌ Error fetching order from Razorpay:', orderError.message);
       }
     }
 
