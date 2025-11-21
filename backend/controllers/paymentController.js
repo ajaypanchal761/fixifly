@@ -191,9 +191,19 @@ const getPaymentDetails = asyncHandler(async (req, res) => {
 // @access  Public
 const createPaymentLink = asyncHandler(async (req, res) => {
   try {
+    console.log('[Razorpay][CreatePaymentLink] Request received', {
+      body: req.body,
+      headers: {
+        'user-agent': req.headers['user-agent'],
+        'authorization': req.headers['authorization'] ? 'Present' : 'Missing'
+      },
+      timestamp: new Date().toISOString()
+    });
+
     const { amount, currency = 'INR', description, ticketId, bookingId, customer, notes } = req.body;
 
     if (!amount || amount <= 0) {
+      console.error('[Razorpay][CreatePaymentLink] Invalid amount', { amount });
       return res.status(400).json({
         success: false,
         message: 'Invalid amount'
@@ -202,7 +212,10 @@ const createPaymentLink = asyncHandler(async (req, res) => {
 
     // Validate Razorpay configuration
     if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-      console.error('[Razorpay][CreatePaymentLink] Razorpay keys not configured');
+      console.error('[Razorpay][CreatePaymentLink] Razorpay keys not configured', {
+        hasKeyId: !!process.env.RAZORPAY_KEY_ID,
+        hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET
+      });
       return res.status(500).json({ 
         success: false, 
         message: 'Payment gateway not configured. Please contact support.' 
@@ -263,11 +276,27 @@ const createPaymentLink = asyncHandler(async (req, res) => {
     
     console.log('[Razorpay][CreatePaymentLink] Creating payment link', {
       amount: paymentLinkOptions.amount,
+      amountInRupees: amount,
       currency: paymentLinkOptions.currency,
-      callbackUrl
+      callbackUrl,
+      ticketId,
+      bookingId,
+      customer: customer ? { name: customer.name, email: customer.email, contact: customer.contact ? 'Present' : 'Missing' } : 'Not provided',
+      isWebView: isWebViewRequest
     });
 
-    const paymentLink = await razorpay.paymentLink.create(paymentLinkOptions);
+    let paymentLink;
+    try {
+      paymentLink = await razorpay.paymentLink.create(paymentLinkOptions);
+    } catch (razorpayError) {
+      console.error('[Razorpay][CreatePaymentLink] Razorpay API error:', {
+        message: razorpayError?.message,
+        error: razorpayError?.error,
+        statusCode: razorpayError?.statusCode,
+        fullError: razorpayError
+      });
+      throw razorpayError;
+    }
     
     // Validate payment link response
     if (!paymentLink || !paymentLink.id || !paymentLink.short_url) {
@@ -292,20 +321,34 @@ const createPaymentLink = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('[Razorpay][CreatePaymentLink] Error:', error);
+    console.error('[Razorpay][CreatePaymentLink] Error:', {
+      message: error?.message,
+      stack: error?.stack,
+      error: error?.error,
+      statusCode: error?.statusCode,
+      name: error?.name,
+      fullError: error
+    });
     
     let errorMessage = 'Failed to create payment link. Please try again later.';
     
     if (error?.error?.description) {
       errorMessage = error.error.description;
+    } else if (error?.error?.code) {
+      errorMessage = `Payment error (${error.error.code}): ${error.error.description || 'Please check your payment gateway configuration'}`;
     } else if (error?.message) {
-      errorMessage = error.message;
+      if (error.message.includes('status') || error.message.includes('undefined')) {
+        errorMessage = 'Payment gateway configuration error. Please contact support.';
+      } else {
+        errorMessage = error.message;
+      }
     }
     
     res.status(500).json({
       success: false,
       message: errorMessage,
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      errorCode: error?.error?.code || error?.statusCode
     });
   }
 });
@@ -448,41 +491,136 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Payment Successful</title>
             <script>
-              // Try deep link first
-              window.location.href = 'fixifly://payment-callback?ticketId=${ticketId}&status=success&paymentId=${razorpay_payment_id}';
-              
-              // Fallback: Try to communicate with Flutter WebView
-              if (window.flutter_inappwebview) {
-                window.flutter_inappwebview.callHandler('paymentCallback', {
-                  type: 'paymentCallback',
-                  status: 'success',
-                  ticketId: '${ticketId}',
-                  paymentId: '${razorpay_payment_id}'
-                });
-              }
-              
-              // Fallback: Use postMessage
-              setTimeout(() => {
-                if (window.parent !== window) {
-                  window.parent.postMessage({
-                    type: 'paymentCallback',
-                    status: 'success',
-                    ticketId: '${ticketId}',
-                    paymentId: '${razorpay_payment_id}'
-                  }, '*');
+              (function() {
+                var ticketId = '${ticketId}';
+                var paymentId = '${razorpay_payment_id}';
+                var frontendUrl = '${frontendUrl}';
+                var redirectUrl = frontendUrl + '/support?payment=success&ticketId=' + ticketId;
+                var deepLink = 'fixifly://payment-callback?ticketId=' + ticketId + '&status=success&paymentId=' + paymentId;
+                
+                // IMMEDIATE REDIRECT - Execute first, before anything else
+                // Try multiple redirect methods simultaneously
+                
+                // Method 1: window.top.location (for WebView iframes)
+                try {
+                  if (window.top && window.top !== window) {
+                    window.top.location.href = redirectUrl;
+                  }
+                } catch (e) {
+                  // Cross-origin error, continue with other methods
                 }
-              }, 1000);
-              
-              // Final fallback: Redirect to frontend
-              setTimeout(() => {
-                window.location.href = '${frontendUrl}/support?payment=success&ticketId=${ticketId}';
-              }, 2000);
+                
+                // Method 2: window.location.href (standard redirect)
+                try {
+                  window.location.href = redirectUrl;
+                } catch (e) {
+                  // Fallback
+                }
+                
+                // Method 3: window.location.replace (no history)
+                try {
+                  window.location.replace(redirectUrl);
+                } catch (e) {
+                  // Fallback
+                }
+                
+                // Method 4: Flutter bridge (CRITICAL - Tell Flutter to navigate)
+                if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.paymentCallback === 'function') {
+                  try {
+                    window.FlutterPaymentBridge.paymentCallback({
+                      type: 'paymentCallback',
+                      status: 'success',
+                      ticketId: ticketId,
+                      paymentId: paymentId,
+                      redirectUrl: redirectUrl
+                    });
+                  } catch (e) {
+                    console.error('Flutter bridge error:', e);
+                  }
+                }
+                
+                // Method 5: Flutter InAppWebView handler
+                if (window.flutter_inappwebview) {
+                  try {
+                    window.flutter_inappwebview.callHandler('paymentCallback', {
+                      type: 'paymentCallback',
+                      status: 'success',
+                      ticketId: ticketId,
+                      paymentId: paymentId,
+                      redirectUrl: redirectUrl
+                    });
+                  } catch (e) {
+                    console.error('Flutter InAppWebView error:', e);
+                  }
+                }
+                
+                // Method 6: JavaScript channel (PaymentHandler)
+                if (window.PaymentHandler && typeof window.PaymentHandler.postMessage === 'function') {
+                  try {
+                    window.PaymentHandler.postMessage(JSON.stringify({
+                      type: 'paymentCallback',
+                      status: 'success',
+                      ticketId: ticketId,
+                      paymentId: paymentId,
+                      redirectUrl: redirectUrl
+                    }));
+                  } catch (e) {
+                    console.error('PaymentHandler error:', e);
+                  }
+                }
+                
+                // Method 7: postMessage to parent (non-blocking)
+                if (window.parent !== window) {
+                  try {
+                    window.parent.postMessage({
+                      type: 'paymentCallback',
+                      status: 'success',
+                      ticketId: ticketId,
+                      paymentId: paymentId
+                    }, '*');
+                  } catch (e) {
+                    console.error('PostMessage error:', e);
+                  }
+                }
+                
+                // Method 8: Deep link (non-blocking)
+                try {
+                  setTimeout(function() {
+                    try {
+                      window.location.href = deepLink;
+                    } catch (e) {
+                      // If deep link fails, ensure web redirect
+                      window.location.href = redirectUrl;
+                    }
+                  }, 100);
+                } catch (e) {
+                  // Ignore deep link errors
+                }
+                
+                // Force redirect after page load (final fallback)
+                window.addEventListener('load', function() {
+                  setTimeout(function() {
+                    window.location.href = redirectUrl;
+                  }, 100);
+                });
+                
+                // Also try on DOMContentLoaded
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', function() {
+                    window.location.href = redirectUrl;
+                  });
+                } else {
+                  // Already loaded, redirect immediately
+                  window.location.href = redirectUrl;
+                }
+              })();
             </script>
           </head>
-          <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+          <body onload="window.location.href='${frontendUrl}/support?payment=success&ticketId=${ticketId}'" style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
             <h1 style="color: green;">Payment Successful!</h1>
             <p>Your ticket has been resolved.</p>
             <p>Redirecting...</p>
+            <p style="font-size: 12px; color: #666;">If you are not redirected automatically, <a href="${frontendUrl}/support?payment=success&ticketId=${ticketId}">click here</a></p>
           </body>
           </html>
         `);
@@ -498,6 +636,7 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
         : 'Payment not completed. Please try again.';
 
       if (isWebViewRequest) {
+        const encodedMessage = encodeURIComponent(failureMessage);
         return res.send(`
           <!DOCTYPE html>
           <html>
@@ -506,41 +645,69 @@ const handleSupportTicketPaymentCallback = asyncHandler(async (req, res) => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Payment Failed</title>
             <script>
-              // Try deep link first
-              window.location.href = 'fixifly://payment-callback?ticketId=${ticketId}&status=failed&message=${encodeURIComponent(failureMessage)}';
-              
-              // Fallback: Try to communicate with Flutter WebView
-              if (window.flutter_inappwebview) {
-                window.flutter_inappwebview.callHandler('paymentCallback', {
-                  type: 'paymentCallback',
-                  status: 'failed',
-                  ticketId: '${ticketId}',
-                  message: '${failureMessage.replace(/'/g, "\\'")}'
-                });
-              }
-              
-              // Fallback: Use postMessage
-              setTimeout(() => {
-                if (window.parent !== window) {
-                  window.parent.postMessage({
-                    type: 'paymentCallback',
-                    status: 'failed',
-                    ticketId: '${ticketId}',
-                    message: '${failureMessage.replace(/'/g, "\\'")}'
-                  }, '*');
+              (function() {
+                var ticketId = '${ticketId}';
+                var message = '${failureMessage.replace(/'/g, "\\'")}';
+                var frontendUrl = '${frontendUrl}';
+                var redirectUrl = frontendUrl + '/support?payment=failed&ticketId=' + ticketId + '&message=' + encodeURIComponent(message);
+                var deepLink = 'fixifly://payment-callback?ticketId=' + ticketId + '&status=failed&message=' + encodeURIComponent(message);
+                
+                // Try multiple redirect methods
+                try {
+                  if (window.top && window.top !== window) {
+                    window.top.location.href = redirectUrl;
+                  }
+                } catch (e) {}
+                
+                try {
+                  window.location.href = redirectUrl;
+                } catch (e) {}
+                
+                // Flutter bridge
+                if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.paymentCallback === 'function') {
+                  try {
+                    window.FlutterPaymentBridge.paymentCallback({
+                      type: 'paymentCallback',
+                      status: 'failed',
+                      ticketId: ticketId,
+                      message: message
+                    });
+                  } catch (e) {}
                 }
-              }, 1000);
-              
-              // Final fallback: Redirect to frontend
-              setTimeout(() => {
-                window.location.href = '${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodeURIComponent(failureMessage)}';
-              }, 2000);
+                
+                if (window.flutter_inappwebview) {
+                  try {
+                    window.flutter_inappwebview.callHandler('paymentCallback', {
+                      type: 'paymentCallback',
+                      status: 'failed',
+                      ticketId: ticketId,
+                      message: message
+                    });
+                  } catch (e) {}
+                }
+                
+                if (window.parent !== window) {
+                  try {
+                    window.parent.postMessage({
+                      type: 'paymentCallback',
+                      status: 'failed',
+                      ticketId: ticketId,
+                      message: message
+                    }, '*');
+                  } catch (e) {}
+                }
+                
+                setTimeout(function() {
+                  window.location.href = redirectUrl;
+                }, 1000);
+              })();
             </script>
           </head>
-          <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+          <body onload="setTimeout(function(){window.location.href='${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodedMessage}'}, 1000)" style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
             <h1 style="color: red;">Payment Failed</h1>
             <p>${failureMessage}</p>
             <p>Please try again to complete your payment.</p>
+            <p style="font-size: 12px; color: #666;">If you are not redirected automatically, <a href="${frontendUrl}/support?payment=failed&ticketId=${ticketId}&message=${encodedMessage}">click here</a></p>
           </body>
           </html>
         `);
@@ -655,41 +822,105 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Payment Successful</title>
             <script>
-              // Try deep link first
-              window.location.href = 'fixifly://payment-callback?bookingId=${bookingId}&status=success&paymentId=${razorpay_payment_id}';
-              
-              // Fallback: Try to communicate with Flutter WebView
-              if (window.flutter_inappwebview) {
-                window.flutter_inappwebview.callHandler('paymentCallback', {
-                  type: 'paymentCallback',
-                  status: 'success',
-                  bookingId: '${bookingId}',
-                  paymentId: '${razorpay_payment_id}'
-                });
-              }
-              
-              // Fallback: Use postMessage
-              setTimeout(() => {
-                if (window.parent !== window) {
-                  window.parent.postMessage({
-                    type: 'paymentCallback',
-                    status: 'success',
-                    bookingId: '${bookingId}',
-                    paymentId: '${razorpay_payment_id}'
-                  }, '*');
+              (function() {
+                var bookingId = '${bookingId}';
+                var paymentId = '${razorpay_payment_id}';
+                var frontendUrl = '${frontendUrl}';
+                var redirectUrl = frontendUrl + '/booking?payment=success&bookingId=' + bookingId;
+                var deepLink = 'fixifly://payment-callback?bookingId=' + bookingId + '&status=success&paymentId=' + paymentId;
+                
+                // IMMEDIATE REDIRECT - Execute first, before anything else
+                try {
+                  if (window.top && window.top !== window) {
+                    window.top.location.href = redirectUrl;
+                  }
+                } catch (e) {}
+                
+                try {
+                  window.location.href = redirectUrl;
+                } catch (e) {}
+                
+                try {
+                  window.location.replace(redirectUrl);
+                } catch (e) {}
+                
+                // Flutter bridge
+                if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.paymentCallback === 'function') {
+                  try {
+                    window.FlutterPaymentBridge.paymentCallback({
+                      type: 'paymentCallback',
+                      status: 'success',
+                      bookingId: bookingId,
+                      paymentId: paymentId,
+                      redirectUrl: redirectUrl
+                    });
+                  } catch (e) {}
                 }
-              }, 1000);
-              
-              // Final fallback: Redirect to frontend
-              setTimeout(() => {
-                window.location.href = '${frontendUrl}/booking?payment=success&bookingId=${bookingId}';
-              }, 2000);
+                
+                if (window.flutter_inappwebview) {
+                  try {
+                    window.flutter_inappwebview.callHandler('paymentCallback', {
+                      type: 'paymentCallback',
+                      status: 'success',
+                      bookingId: bookingId,
+                      paymentId: paymentId,
+                      redirectUrl: redirectUrl
+                    });
+                  } catch (e) {}
+                }
+                
+                if (window.PaymentHandler && typeof window.PaymentHandler.postMessage === 'function') {
+                  try {
+                    window.PaymentHandler.postMessage(JSON.stringify({
+                      type: 'paymentCallback',
+                      status: 'success',
+                      bookingId: bookingId,
+                      paymentId: paymentId,
+                      redirectUrl: redirectUrl
+                    }));
+                  } catch (e) {}
+                }
+                
+                if (window.parent !== window) {
+                  try {
+                    window.parent.postMessage({
+                      type: 'paymentCallback',
+                      status: 'success',
+                      bookingId: bookingId,
+                      paymentId: paymentId
+                    }, '*');
+                  } catch (e) {}
+                }
+                
+                setTimeout(function() {
+                  try {
+                    window.location.href = deepLink;
+                  } catch (e) {
+                    window.location.href = redirectUrl;
+                  }
+                }, 100);
+                
+                window.addEventListener('load', function() {
+                  setTimeout(function() {
+                    window.location.href = redirectUrl;
+                  }, 100);
+                });
+                
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', function() {
+                    window.location.href = redirectUrl;
+                  });
+                } else {
+                  window.location.href = redirectUrl;
+                }
+              })();
             </script>
           </head>
-          <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+          <body onload="window.location.href='${frontendUrl}/booking?payment=success&bookingId=${bookingId}'" style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
             <h1 style="color: green;">Payment Successful!</h1>
             <p>Your payment has been processed successfully.</p>
             <p>Redirecting...</p>
+            <p style="font-size: 12px; color: #666;">If you are not redirected automatically, <a href="${frontendUrl}/booking?payment=success&bookingId=${bookingId}">click here</a></p>
           </body>
           </html>
         `);
@@ -705,6 +936,7 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
         : 'Payment not completed. Please try again.';
 
       if (isWebViewRequest) {
+        const encodedMessage = encodeURIComponent(failureMessage);
         return res.send(`
           <!DOCTYPE html>
           <html>
@@ -713,41 +945,69 @@ const handleBookingPaymentCallback = asyncHandler(async (req, res) => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Payment Failed</title>
             <script>
-              // Try deep link first
-              window.location.href = 'fixifly://payment-callback?bookingId=${bookingId}&status=failed&message=${encodeURIComponent(failureMessage)}';
-              
-              // Fallback: Try to communicate with Flutter WebView
-              if (window.flutter_inappwebview) {
-                window.flutter_inappwebview.callHandler('paymentCallback', {
-                  type: 'paymentCallback',
-                  status: 'failed',
-                  bookingId: '${bookingId}',
-                  message: '${failureMessage.replace(/'/g, "\\'")}'
-                });
-              }
-              
-              // Fallback: Use postMessage
-              setTimeout(() => {
-                if (window.parent !== window) {
-                  window.parent.postMessage({
-                    type: 'paymentCallback',
-                    status: 'failed',
-                    bookingId: '${bookingId}',
-                    message: '${failureMessage.replace(/'/g, "\\'")}'
-                  }, '*');
+              (function() {
+                var bookingId = '${bookingId}';
+                var message = '${failureMessage.replace(/'/g, "\\'")}';
+                var frontendUrl = '${frontendUrl}';
+                var redirectUrl = frontendUrl + '/booking?payment=failed&bookingId=' + bookingId + '&message=' + encodeURIComponent(message);
+                var deepLink = 'fixifly://payment-callback?bookingId=' + bookingId + '&status=failed&message=' + encodeURIComponent(message);
+                
+                // Try multiple redirect methods
+                try {
+                  if (window.top && window.top !== window) {
+                    window.top.location.href = redirectUrl;
+                  }
+                } catch (e) {}
+                
+                try {
+                  window.location.href = redirectUrl;
+                } catch (e) {}
+                
+                // Flutter bridge
+                if (window.FlutterPaymentBridge && typeof window.FlutterPaymentBridge.paymentCallback === 'function') {
+                  try {
+                    window.FlutterPaymentBridge.paymentCallback({
+                      type: 'paymentCallback',
+                      status: 'failed',
+                      bookingId: bookingId,
+                      message: message
+                    });
+                  } catch (e) {}
                 }
-              }, 1000);
-              
-              // Final fallback: Redirect to frontend
-              setTimeout(() => {
-                window.location.href = '${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodeURIComponent(failureMessage)}';
-              }, 2000);
+                
+                if (window.flutter_inappwebview) {
+                  try {
+                    window.flutter_inappwebview.callHandler('paymentCallback', {
+                      type: 'paymentCallback',
+                      status: 'failed',
+                      bookingId: bookingId,
+                      message: message
+                    });
+                  } catch (e) {}
+                }
+                
+                if (window.parent !== window) {
+                  try {
+                    window.parent.postMessage({
+                      type: 'paymentCallback',
+                      status: 'failed',
+                      bookingId: bookingId,
+                      message: message
+                    }, '*');
+                  } catch (e) {}
+                }
+                
+                setTimeout(function() {
+                  window.location.href = redirectUrl;
+                }, 1000);
+              })();
             </script>
           </head>
-          <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+          <body onload="setTimeout(function(){window.location.href='${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodedMessage}'}, 1000)" style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
             <h1 style="color: red;">Payment Failed</h1>
             <p>${failureMessage}</p>
             <p>Please try again to complete your payment.</p>
+            <p style="font-size: 12px; color: #666;">If you are not redirected automatically, <a href="${frontendUrl}/booking?payment=failed&bookingId=${bookingId}&message=${encodedMessage}">click here</a></p>
           </body>
           </html>
         `);

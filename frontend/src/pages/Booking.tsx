@@ -114,6 +114,58 @@ const Booking = () => {
     return () => window.removeEventListener('message', handleMessage);
   }, [toast]);
 
+  // Payment polling for webview - poll payment status if payment is pending
+  useEffect(() => {
+    if (!bookings || bookings.length === 0) return;
+
+    let pollInterval: NodeJS.Timeout | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    import('@/utils/webviewUtils').then(({ isWebView }) => {
+      if (!isWebView()) return;
+
+      const bookingsWithPendingPayment = bookings.filter(booking => 
+        booking.status !== 'completed' && 
+        (booking as any).paymentStatus === 'pending' &&
+        (booking as any).paymentGatewayOrderId
+      );
+
+      if (bookingsWithPendingPayment.length === 0) return;
+
+      // Poll for payment status every 3 seconds for bookings with pending payment
+      pollInterval = setInterval(async () => {
+        try {
+          for (const booking of bookingsWithPendingPayment) {
+            const response = await bookingApi.getBookingById(booking._id);
+            if (response.success && response.data) {
+              const updatedBooking = response.data.booking;
+              if (updatedBooking.paymentStatus === 'payment_done' || updatedBooking.status === 'completed') {
+                console.log('[Booking][PaymentPolling] Payment completed for booking:', booking._id);
+                toast({
+                  title: "Payment Successful!",
+                  description: "Your payment has been processed successfully.",
+                  variant: "default"
+                });
+                fetchBookings();
+              }
+            }
+          }
+        } catch (error) {
+          console.error('[Booking][PaymentPolling] Error:', error);
+        }
+      }, 3000); // Poll every 3 seconds
+
+      // Stop polling after 5 minutes
+      timeoutId = setTimeout(() => {
+        if (pollInterval) clearInterval(pollInterval);
+      }, 5 * 60 * 1000);
+    });
+
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [bookings, toast]);
 
   // Function to check if review already exists for a booking
   const checkExistingReview = async (bookingId: string): Promise<boolean> => {
@@ -652,6 +704,13 @@ For support, contact us at info@fixfly.in
           const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
           const userToken = localStorage.getItem('accessToken');
           
+          console.log('[Booking][Payment] Creating payment link with data:', {
+            amount: totalAmount,
+            bookingId: booking._id,
+            API_BASE_URL,
+            hasToken: !!userToken
+          });
+          
           const paymentLinkResponse = await fetch(`${API_BASE_URL}/payment/create-payment-link`, {
             method: 'POST',
             headers: {
@@ -676,25 +735,40 @@ For support, contact us at info@fixfly.in
             })
           });
 
+          console.log('[Booking][Payment] Payment link response status:', paymentLinkResponse.status);
+          console.log('[Booking][Payment] Payment link response headers:', Object.fromEntries(paymentLinkResponse.headers.entries()));
+
           if (!paymentLinkResponse.ok) {
             const errorText = await paymentLinkResponse.text();
+            console.error('[Booking][Payment] Payment link creation failed:', {
+              status: paymentLinkResponse.status,
+              statusText: paymentLinkResponse.statusText,
+              errorText
+            });
             throw new Error(`Payment link creation failed: ${paymentLinkResponse.status} ${errorText}`);
           }
 
           const paymentLinkData = await paymentLinkResponse.json();
+          console.log('[Booking][Payment] Payment link response data:', paymentLinkData);
           
           if (!paymentLinkData.success || !paymentLinkData.data?.paymentUrl) {
+            console.error('[Booking][Payment] Invalid payment link response:', paymentLinkData);
             throw new Error(paymentLinkData.message || 'Failed to create payment link');
           }
           
           const paymentUrl = paymentLinkData.data.paymentUrl;
-          console.log('[Booking][Payment] Payment link created:', paymentUrl);
+          console.log('[Booking][Payment] Payment link created successfully:', paymentUrl);
           
           // Open payment link using webview utilities
           openPaymentLink(paymentUrl);
           
         } catch (webViewError) {
-          console.error('[Booking][Payment] WebView payment error:', webViewError);
+          console.error('[Booking][Payment] WebView payment error:', {
+            error: webViewError,
+            message: webViewError.message,
+            stack: webViewError.stack,
+            name: webViewError.name
+          });
           toast({
             title: "Payment Failed",
             description: `Payment link failed: ${webViewError.message || 'Please check your WebView settings or try in a browser.'}`,

@@ -135,6 +135,60 @@ const Support = () => {
     };
   }, []);
 
+  // Payment polling for webview - poll payment status if payment is pending
+  useEffect(() => {
+    if (!userTickets || userTickets.length === 0) return;
+    
+    let pollInterval: NodeJS.Timeout | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    import('@/utils/webviewUtils').then(({ isWebView }) => {
+      if (!isWebView()) return;
+
+      const ticketsWithPendingPayment = userTickets.filter(ticket => 
+        ticket.status === 'In Progress' && 
+        ticket.paymentMode === 'online' && 
+        ticket.paymentStatus === 'pending' &&
+        (ticket.billingAmount > 0 || ticket.totalAmount > 0)
+      );
+
+      if (ticketsWithPendingPayment.length === 0) return;
+
+      // Poll for payment status every 3 seconds for tickets with pending payment
+      pollInterval = setInterval(async () => {
+        try {
+          for (const ticket of ticketsWithPendingPayment) {
+            const response = await supportTicketAPI.getUserTickets();
+            if (response.success) {
+              const updatedTicket = response.data.tickets.find(t => t.id === ticket.id);
+              if (updatedTicket && updatedTicket.paymentStatus === 'collected') {
+                console.log('[Support][PaymentPolling] Payment completed for ticket:', ticket.id);
+                toast({
+                  title: "Payment Successful!",
+                  description: "Your payment has been processed successfully.",
+                  variant: "default"
+                });
+                fetchUserTickets();
+              }
+            }
+          }
+        } catch (error) {
+          console.error('[Support][PaymentPolling] Error:', error);
+        }
+      }, 3000); // Poll every 3 seconds
+
+      // Stop polling after 5 minutes
+      timeoutId = setTimeout(() => {
+        if (pollInterval) clearInterval(pollInterval);
+      }, 5 * 60 * 1000);
+    });
+
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [userTickets, toast]);
+
   const fetchUserTickets = async () => {
     try {
       console.log('Fetching user tickets...');
@@ -222,6 +276,14 @@ const Support = () => {
         console.log('[Support][Payment] Using payment link for webview');
         
         try {
+          const paymentAmount = (ticket.billingAmount || ticket.totalAmount || 0);
+          console.log('[Support][Payment] Creating payment link with data:', {
+            amount: paymentAmount,
+            ticketId: ticket.id,
+            API_BASE_URL,
+            hasToken: !!userToken
+          });
+
           const paymentLinkResponse = await fetch(`${API_BASE_URL}/payment/create-payment-link`, {
             method: 'POST',
             headers: {
@@ -229,7 +291,7 @@ const Support = () => {
               'Authorization': `Bearer ${userToken}`
             },
             body: JSON.stringify({
-              amount: (ticket.billingAmount || ticket.totalAmount || 0),
+              amount: paymentAmount,
               currency: 'INR',
               description: `Payment for support ticket: ${ticket.subject}`,
               ticketId: ticket.id,
@@ -246,26 +308,42 @@ const Support = () => {
             })
           });
 
+          console.log('[Support][Payment] Payment link response status:', paymentLinkResponse.status);
+          console.log('[Support][Payment] Payment link response headers:', Object.fromEntries(paymentLinkResponse.headers.entries()));
+
           if (!paymentLinkResponse.ok) {
             const errorText = await paymentLinkResponse.text();
+            console.error('[Support][Payment] Payment link creation failed:', {
+              status: paymentLinkResponse.status,
+              statusText: paymentLinkResponse.statusText,
+              errorText
+            });
             throw new Error(`Payment link creation failed: ${paymentLinkResponse.status} ${errorText}`);
           }
 
           const paymentLinkData = await paymentLinkResponse.json();
+          console.log('[Support][Payment] Payment link response data:', paymentLinkData);
           
           if (!paymentLinkData.success || !paymentLinkData.data?.paymentUrl) {
+            console.error('[Support][Payment] Invalid payment link response:', paymentLinkData);
             throw new Error(paymentLinkData.message || 'Failed to create payment link');
           }
           
           const paymentUrl = paymentLinkData.data.paymentUrl;
-          console.log('[Support][Payment] Payment link created:', paymentUrl);
+          console.log('[Support][Payment] Payment link created successfully:', paymentUrl);
           
           // Open payment link using webview utilities
           openPaymentLink(paymentUrl);
           
         } catch (webViewError) {
-          console.error('[Support][Payment] WebView payment error:', webViewError);
-          alert(`Payment link failed: ${webViewError.message || 'Please check your WebView settings or try in a browser.'}`);
+          console.error('[Support][Payment] WebView payment error:', {
+            error: webViewError,
+            message: webViewError.message,
+            stack: webViewError.stack,
+            name: webViewError.name
+          });
+          const errorMessage = webViewError.message || 'Please check your WebView settings or try in a browser.';
+          alert(`Payment link failed: ${errorMessage}`);
         }
       } else {
         // Web Browser: Use Razorpay modal
