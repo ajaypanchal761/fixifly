@@ -453,14 +453,23 @@ class RazorpayService {
           console.warn('Could not store payment failure info:', e);
         }
         
-        // For WebView, redirect to callback with error
+        // CRITICAL: For WebView, we MUST redirect to callback so backend can log the failure
         if (useRedirectMode && callbackUrl) {
           try {
             const errorCallbackUrl = new URL(callbackUrl);
             errorCallbackUrl.searchParams.set('error', 'payment_failed');
-            errorCallbackUrl.searchParams.set('error_message', errorMessage);
-            errorCallbackUrl.searchParams.set('razorpay_payment_id', response.error?.metadata?.payment_id || '');
-            errorCallbackUrl.searchParams.set('razorpay_order_id', response.error?.metadata?.order_id || paymentData.orderId);
+            errorCallbackUrl.searchParams.set('error_message', encodeURIComponent(errorMessage));
+            errorCallbackUrl.searchParams.set('payment_failed', 'true');
+            
+            // Add payment IDs if available
+            if (response.error?.metadata?.payment_id) {
+              errorCallbackUrl.searchParams.set('razorpay_payment_id', response.error.metadata.payment_id);
+            }
+            if (response.error?.metadata?.order_id || paymentData.orderId) {
+              errorCallbackUrl.searchParams.set('razorpay_order_id', response.error?.metadata?.order_id || paymentData.orderId);
+            }
+            
+            // Add booking/ticket IDs for backend logging
             if (paymentData.bookingId) {
               errorCallbackUrl.searchParams.set('booking_id', paymentData.bookingId);
             }
@@ -468,13 +477,30 @@ class RazorpayService {
               errorCallbackUrl.searchParams.set('ticket_id', paymentData.ticketId);
             }
             
-            console.log('🔀 Redirecting to callback with error:', errorCallbackUrl.toString());
-            setTimeout(() => {
-              console.log('🚀 Executing error redirect to:', errorCallbackUrl.toString());
+            console.error('❌ ========== PAYMENT FAILED IN WEBVIEW ==========');
+            console.error('❌ Redirecting to callback with error');
+            console.error('❌ Error URL:', errorCallbackUrl.toString());
+            console.error('❌ Error Message:', errorMessage);
+            console.error('❌ Booking ID:', paymentData.bookingId || 'N/A');
+            console.error('❌ Ticket ID:', paymentData.ticketId || 'N/A');
+            console.error('❌ =============================================');
+            
+            // IMMEDIATE redirect - don't wait
+            try {
               window.location.href = errorCallbackUrl.toString();
-            }, 500);
+            } catch (redirectError) {
+              console.error('❌ Error redirecting, trying Flutter bridge...');
+              // Try Flutter bridge
+              if ((window as any).flutter_inappwebview) {
+                (window as any).flutter_inappwebview.callHandler('navigateTo', errorCallbackUrl.toString());
+              } else {
+                // Last resort: call onError
+                paymentData.onError(new Error(errorMessage));
+              }
+            }
           } catch (e) {
             console.error('❌ Error building error callback URL:', e);
+            // Still call onError as fallback
             paymentData.onError(new Error(errorMessage));
           }
         } else {

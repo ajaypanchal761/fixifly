@@ -363,8 +363,83 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       ticketId: ticketId || 'MISSING'
     });
     
+    // Check if this is a payment failure callback
+    const isPaymentFailed = req.query?.error === 'payment_failed' || 
+                           req.query?.payment_failed === 'true' ||
+                           req.body?.error === 'payment_failed' ||
+                           req.body?.payment_failed === 'true';
+    
+    if (isPaymentFailed) {
+      const failureReason = req.query?.error_message || req.body?.error_message || 'Payment failed by user';
+      const failedBookingId = bookingId;
+      const failedTicketId = ticketId;
+      
+      console.error('❌ ========== PAYMENT FAILURE CALLBACK RECEIVED ==========');
+      console.error('❌ Payment ID:', razorpay_payment_id || 'N/A');
+      console.error('❌ Order ID:', razorpay_order_id || 'N/A');
+      console.error('❌ Booking ID:', failedBookingId || 'N/A');
+      console.error('❌ Ticket ID:', failedTicketId || 'N/A');
+      console.error('❌ Failure Reason:', decodeURIComponent(failureReason));
+      console.error('❌ Timestamp:', new Date().toISOString());
+      console.error('❌ =====================================================');
+      
+      // Mark payment as failed in backend directly (no need for fetch, we're already in backend)
+      if (failedBookingId || failedTicketId) {
+        try {
+          // Import models
+          const Booking = require('../models/Booking');
+          const SupportTicket = require('../models/SupportTicket');
+          
+          if (failedBookingId) {
+            const booking = await Booking.findById(failedBookingId);
+            if (booking) {
+              if (!booking.payment) {
+                booking.payment = {};
+              }
+              booking.payment.status = 'failed';
+              booking.payment.failedAt = new Date();
+              booking.payment.failureReason = decodeURIComponent(failureReason);
+              if (razorpay_payment_id) {
+                booking.payment.transactionId = razorpay_payment_id;
+              }
+              await booking.save();
+              
+              console.error('❌ ========== BOOKING PAYMENT MARKED AS FAILED ==========');
+              console.error('❌ Booking ID:', booking._id);
+              console.error('❌ Payment ID:', razorpay_payment_id || 'N/A');
+              console.error('❌ Reason:', decodeURIComponent(failureReason));
+              console.error('❌ Timestamp:', new Date().toISOString());
+              console.error('❌ ======================================================');
+            }
+          }
+          
+          if (failedTicketId) {
+            const ticket = await SupportTicket.findOne({ ticketId: failedTicketId });
+            if (ticket) {
+              ticket.paymentStatus = 'failed';
+              ticket.paymentFailedAt = new Date();
+              ticket.paymentFailureReason = decodeURIComponent(failureReason);
+              if (razorpay_payment_id) {
+                ticket.paymentId = razorpay_payment_id;
+              }
+              await ticket.save();
+              
+              console.error('❌ ========== TICKET PAYMENT MARKED AS FAILED ==========');
+              console.error('❌ Ticket ID:', ticket.ticketId);
+              console.error('❌ Payment ID:', razorpay_payment_id || 'N/A');
+              console.error('❌ Reason:', decodeURIComponent(failureReason));
+              console.error('❌ Timestamp:', new Date().toISOString());
+              console.error('❌ ====================================================');
+            }
+          }
+        } catch (markFailedError) {
+          console.error('❌ Error marking payment as failed:', markFailedError.message);
+        }
+      }
+    }
+    
     // If no payment data at all, log warning
-    if (!razorpay_payment_id && !razorpay_order_id) {
+    if (!razorpay_payment_id && !razorpay_order_id && !isPaymentFailed) {
       console.error('❌ CRITICAL: No payment data received in callback!');
       console.error('❌ This means Razorpay did not send payment details');
       console.error('❌ Possible causes:');
@@ -383,6 +458,15 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     // Build frontend callback URL
     const frontendBase = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://getfixfly.com' : 'http://localhost:8080');
     const url = new URL('/payment-callback', frontendBase);
+    
+    // If payment failed, add error parameters to frontend URL
+    if (isPaymentFailed) {
+      const failureReason = req.query?.error_message || req.body?.error_message || 'Payment failed by user';
+      url.searchParams.set('error', 'payment_failed');
+      url.searchParams.set('error_message', failureReason);
+      url.searchParams.set('payment_failed', 'true');
+      console.error('❌ Adding error parameters to frontend callback URL');
+    }
     
     // Deep link URL for Flutter app (if configured)
     const deepLinkScheme = process.env.DEEP_LINK_SCHEME || 'fixfly';
