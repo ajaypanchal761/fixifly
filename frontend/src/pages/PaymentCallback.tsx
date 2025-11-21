@@ -371,8 +371,9 @@ const PaymentCallback = () => {
 
         if (verifyResult.success) {
           console.log('✅ Payment verified successfully');
+          console.log('✅ Verification result:', verifyResult);
           
-        // CRITICAL: Check if this is a new booking from checkout (WebView scenario)
+          // CRITICAL: Check if this is a new booking from checkout (WebView scenario)
         // If there's pending booking data in localStorage, create the booking now
         let createdBookingId = bookingId;
         try {
@@ -447,7 +448,19 @@ const PaymentCallback = () => {
         }
           
           setStatus('success');
-          if (!createdBookingId && !bookingId && !ticketId) {
+          
+          // Set success message based on context
+          if (createdBookingId) {
+            // Booking was just created
+            setMessage('Payment successful! Your booking has been confirmed.');
+          } else if (bookingId) {
+            // Existing booking payment
+            setMessage('Payment successful! Your payment has been verified and booking updated.');
+          } else if (ticketId) {
+            // Ticket payment
+            setMessage('Payment successful! Your payment has been verified and ticket updated.');
+          } else {
+            // Generic success
             setMessage('Payment successful! Your transaction has been completed.');
           }
 

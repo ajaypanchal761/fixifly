@@ -684,6 +684,104 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       }
     }
 
+    // CRITICAL: If we have payment_id and order_id, verify payment immediately in backend
+    // This ensures payment is verified even if frontend callback fails
+    if (razorpay_payment_id && razorpay_order_id && !isPaymentFailed) {
+      try {
+        console.log('🔍 Verifying payment immediately in callback handler...');
+        
+        // Import payment verification logic
+        const Razorpay = require('razorpay');
+        const rzp = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID,
+          key_secret: process.env.RAZORPAY_KEY_SECRET
+        });
+        
+        // Fetch payment from Razorpay
+        let payment = null;
+        let retries = 3;
+        while (retries > 0 && !payment) {
+          try {
+            payment = await rzp.payments.fetch(razorpay_payment_id);
+            if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
+              console.log('✅ Payment verified in callback handler:', {
+                paymentId: razorpay_payment_id,
+                status: payment.status,
+                amount: payment.amount
+              });
+              break;
+            }
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          } catch (e) {
+            console.warn(`⚠️ Error fetching payment (retry ${4 - retries}/3):`, e.message);
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+        }
+        
+        // If payment verified, update booking/ticket immediately
+        if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
+          if (bookingId) {
+            try {
+              const Booking = require('../models/Booking');
+              const booking = await Booking.findById(bookingId);
+              if (booking) {
+                if (!booking.payment) {
+                  booking.payment = {};
+                }
+                booking.payment.status = 'completed';
+                booking.payment.method = 'online';
+                booking.payment.transactionId = razorpay_payment_id;
+                booking.payment.razorpayPaymentId = razorpay_payment_id;
+                booking.payment.razorpayOrderId = razorpay_order_id;
+                booking.payment.completedAt = new Date();
+                booking.paymentStatus = 'payment_done';
+                booking.status = 'completed';
+                await booking.save();
+                
+                console.log('✅ ✅ ✅ BOOKING PAYMENT UPDATED IN CALLBACK ✅ ✅ ✅');
+                console.log('✅ Booking ID:', booking._id);
+                console.log('✅ Payment ID:', razorpay_payment_id);
+                console.log('✅ Status: COMPLETED');
+              }
+            } catch (bookingError) {
+              console.error('❌ Error updating booking in callback:', bookingError.message);
+            }
+          }
+          
+          if (ticketId) {
+            try {
+              const SupportTicket = require('../models/SupportTicket');
+              const ticket = await SupportTicket.findOne({ ticketId });
+              if (ticket) {
+                ticket.paymentStatus = 'collected';
+                ticket.paymentId = razorpay_payment_id;
+                ticket.paymentCompletedAt = new Date();
+                ticket.status = 'Resolved';
+                ticket.resolvedAt = new Date();
+                await ticket.save();
+                
+                console.log('✅ ✅ ✅ TICKET PAYMENT UPDATED IN CALLBACK ✅ ✅ ✅');
+                console.log('✅ Ticket ID:', ticket.ticketId);
+                console.log('✅ Payment ID:', razorpay_payment_id);
+                console.log('✅ Status: RESOLVED');
+              }
+            } catch (ticketError) {
+              console.error('❌ Error updating ticket in callback:', ticketError.message);
+            }
+          }
+        }
+      } catch (verifyError) {
+        console.error('❌ Error verifying payment in callback:', verifyError.message);
+        // Don't fail the callback, let frontend handle verification
+      }
+    }
+    
     console.log('🔀 Returning HTML form for reliable WebView redirect:', {
       isWebView,
       isFlutterWebView,
