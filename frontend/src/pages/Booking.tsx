@@ -59,6 +59,61 @@ const Booking = () => {
     console.log('Rating popup state changed:', { showRatingPopup, ratingBooking: ratingBooking?._id });
   }, [showRatingPopup, ratingBooking]);
 
+  // Check for payment callback in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const bookingId = urlParams.get('bookingId');
+    
+    if (paymentStatus === 'success' && bookingId) {
+      toast({
+        title: "Payment Successful!",
+        description: "Your payment has been processed successfully.",
+        variant: "default"
+      });
+      fetchBookings();
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (paymentStatus === 'failed' && bookingId) {
+      const message = urlParams.get('message') || 'Payment failed. Please try again.';
+      toast({
+        title: "Payment Failed",
+        description: message,
+        variant: "destructive"
+      });
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [toast]);
+
+  // Listen for payment callback messages from WebView
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'paymentCallback') {
+        const { status, bookingId, paymentId, message } = event.data;
+        
+        if (status === 'success') {
+          toast({
+            title: "Payment Successful!",
+            description: "Your payment has been processed successfully.",
+            variant: "default"
+          });
+          fetchBookings();
+        } else if (status === 'failed') {
+          const errorMessage = message || 'Payment failed. Please try again.';
+          toast({
+            title: "Payment Failed",
+            description: errorMessage,
+            variant: "destructive"
+          });
+        }
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [toast]);
+
 
   // Function to check if review already exists for a booking
   const checkExistingReview = async (bookingId: string): Promise<boolean> => {
@@ -583,103 +638,171 @@ For support, contact us at info@fixfly.in
         }
       });
       
-      // Create payment order
-      const response = await bookingApi.createPaymentOrder({
-        bookingId: booking._id,
-        amount: totalAmount,
-        currency: 'INR'
-      });
+      // Import webview utilities
+      const { isWebView, openPaymentLink } = await import('@/utils/webviewUtils');
+      const inWebView = isWebView();
+      
+      console.log('[Booking][Payment] Environment detected', { isWebView: inWebView });
 
-      if (response.success && response.data) {
-        // Import Razorpay service
-        const razorpayService = (await import('@/services/razorpayService')).default;
+      if (inWebView) {
+        // WebView: Use payment link (redirect-based)
+        console.log('[Booking][Payment] Using payment link for webview');
         
-        // Process payment with Razorpay
-        await razorpayService.processPayment({
-          orderId: response.data.orderId,
-          amount: response.data.amount, // Use amount from order response (already in paise)
-          currency: 'INR',
-          name: booking.customer.name,
-          email: booking.customer.email,
-          phone: booking.customer.phone,
-          description: `Payment for service: ${booking.services.map(s => s.serviceName).join(', ')}`,
-          onSuccess: async (paymentResponse) => {
-            // Handle successful payment
-            try {
-              // Verify payment with backend
-              const verifyResponse = await bookingApi.verifyPayment({
+        try {
+          const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+          const userToken = localStorage.getItem('accessToken');
+          
+          const paymentLinkResponse = await fetch(`${API_BASE_URL}/payment/create-payment-link`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify({
+              amount: totalAmount,
+              currency: 'INR',
+              description: `Payment for service: ${booking.services.map(s => s.serviceName).join(', ')}`,
+              bookingId: booking._id,
+              customer: {
+                name: booking.customer.name,
+                email: booking.customer.email,
+                contact: booking.customer.phone
+              },
+              notes: {
                 bookingId: booking._id,
-                razorpayOrderId: paymentResponse.razorpay_order_id,
-                razorpayPaymentId: paymentResponse.razorpay_payment_id,
-                razorpaySignature: paymentResponse.razorpay_signature
-              });
+                type: 'booking',
+                description: `Payment for service: ${booking.services.map(s => s.serviceName).join(', ')}`
+              }
+            })
+          });
 
-              if (verifyResponse.success) {
+          if (!paymentLinkResponse.ok) {
+            const errorText = await paymentLinkResponse.text();
+            throw new Error(`Payment link creation failed: ${paymentLinkResponse.status} ${errorText}`);
+          }
+
+          const paymentLinkData = await paymentLinkResponse.json();
+          
+          if (!paymentLinkData.success || !paymentLinkData.data?.paymentUrl) {
+            throw new Error(paymentLinkData.message || 'Failed to create payment link');
+          }
+          
+          const paymentUrl = paymentLinkData.data.paymentUrl;
+          console.log('[Booking][Payment] Payment link created:', paymentUrl);
+          
+          // Open payment link using webview utilities
+          openPaymentLink(paymentUrl);
+          
+        } catch (webViewError) {
+          console.error('[Booking][Payment] WebView payment error:', webViewError);
+          toast({
+            title: "Payment Failed",
+            description: `Payment link failed: ${webViewError.message || 'Please check your WebView settings or try in a browser.'}`,
+            variant: "destructive"
+          });
+        }
+      } else {
+        // Web Browser: Use Razorpay modal
+        console.log('[Booking][Payment] Using Razorpay modal for web browser');
+        
+        // Create payment order
+        const response = await bookingApi.createPaymentOrder({
+          bookingId: booking._id,
+          amount: totalAmount,
+          currency: 'INR'
+        });
+
+        if (response.success && response.data) {
+          // Import Razorpay service
+          const razorpayService = (await import('@/services/razorpayService')).default;
+          
+          // Process payment with Razorpay
+          await razorpayService.processPayment({
+            orderId: response.data.orderId,
+            amount: response.data.amount, // Use amount from order response (already in paise)
+            currency: 'INR',
+            name: booking.customer.name,
+            email: booking.customer.email,
+            phone: booking.customer.phone,
+            description: `Payment for service: ${booking.services.map(s => s.serviceName).join(', ')}`,
+            onSuccess: async (paymentResponse) => {
+              // Handle successful payment
+              try {
+                // Verify payment with backend
+                const verifyResponse = await bookingApi.verifyPayment({
+                  bookingId: booking._id,
+                  razorpayOrderId: paymentResponse.razorpay_order_id,
+                  razorpayPaymentId: paymentResponse.razorpay_payment_id,
+                  razorpaySignature: paymentResponse.razorpay_signature
+                });
+
+                if (verifyResponse.success) {
+                  toast({
+                    title: "Payment Successful!",
+                    description: `Payment of ₹${totalAmount.toLocaleString()} completed successfully. Your service is now completed.`,
+                    variant: "default"
+                  });
+                  
+                  // Trigger refresh events for admin service management
+                  window.dispatchEvent(new CustomEvent('bookingUpdated', { 
+                    detail: { bookingId: booking._id, status: 'completed', paymentStatus: 'payment_done' } 
+                  }));
+                  
+                  // Trigger vendor dashboard refresh
+                  window.dispatchEvent(new CustomEvent('taskCompleted', { 
+                    detail: { taskId: booking._id, status: 'completed', paymentStatus: 'payment_done' } 
+                  }));
+                  
+                  // Check if review already exists before showing popup
+                  console.log('Payment successful, checking for existing review for booking:', booking._id);
+                  const hasExistingReview = await checkExistingReview(booking._id);
+                  console.log('Has existing review:', hasExistingReview);
+                  
+                  if (!hasExistingReview) {
+                    console.log('No existing review found, showing rating popup');
+                    console.log('Setting rating booking:', booking);
+                    setRatingBooking(booking);
+                    setShowRatingPopup(true);
+                    console.log('Rating popup state set to true');
+                  } else {
+                    console.log('Review already exists for booking:', booking._id);
+                  }
+                  
+                  // Refresh bookings
+                  fetchBookings();
+                } else {
+                  toast({
+                    title: "Payment Verification Failed",
+                    description: "Payment was successful but verification failed. Please contact support.",
+                    variant: "destructive"
+                  });
+                }
+              } catch (error) {
+                console.error('Error verifying payment:', error);
                 toast({
-                  title: "Payment Successful!",
-                  description: `Payment of ₹${totalAmount.toLocaleString()} completed successfully. Your service is now completed.`,
+                  title: "Payment Successful",
+                  description: "Payment completed but there was an error verifying the payment. Please contact support.",
                   variant: "default"
                 });
-                
-                // Trigger refresh events for admin service management
-                window.dispatchEvent(new CustomEvent('bookingUpdated', { 
-                  detail: { bookingId: booking._id, status: 'completed', paymentStatus: 'payment_done' } 
-                }));
-                
-                // Trigger vendor dashboard refresh
-                window.dispatchEvent(new CustomEvent('taskCompleted', { 
-                  detail: { taskId: booking._id, status: 'completed', paymentStatus: 'payment_done' } 
-                }));
-                
-                // Check if review already exists before showing popup
-                console.log('Payment successful, checking for existing review for booking:', booking._id);
-                const hasExistingReview = await checkExistingReview(booking._id);
-                console.log('Has existing review:', hasExistingReview);
-                
-                if (!hasExistingReview) {
-                  console.log('No existing review found, showing rating popup');
-                  console.log('Setting rating booking:', booking);
-                  setRatingBooking(booking);
-                  setShowRatingPopup(true);
-                  console.log('Rating popup state set to true');
-                } else {
-                  console.log('Review already exists for booking:', booking._id);
-                }
-                
-                // Refresh bookings
-                fetchBookings();
-              } else {
-                toast({
-                  title: "Payment Verification Failed",
-                  description: "Payment was successful but verification failed. Please contact support.",
-                  variant: "destructive"
-                });
               }
-            } catch (error) {
-              console.error('Error verifying payment:', error);
+            },
+            onError: (error) => {
+              console.error('Payment failed:', error);
               toast({
-                title: "Payment Successful",
-                description: "Payment completed but there was an error verifying the payment. Please contact support.",
-                variant: "default"
+                title: "Payment Failed",
+                description: "Payment was not completed. Please try again.",
+                variant: "destructive"
               });
             }
-          },
-          onError: (error) => {
-            console.error('Payment failed:', error);
-            toast({
-              title: "Payment Failed",
-              description: "Payment was not completed. Please try again.",
-              variant: "destructive"
-            });
-          }
-        });
-        
-      } else {
-        toast({
-          title: "Payment Failed",
-          description: "Failed to create payment order. Please try again.",
-          variant: "destructive"
-        });
+          });
+          
+        } else {
+          toast({
+            title: "Payment Failed",
+            description: "Failed to create payment order. Please try again.",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Error initiating payment:', error);

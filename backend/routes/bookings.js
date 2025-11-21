@@ -89,6 +89,9 @@ router.route('/payment/create-order')
 router.route('/payment/verify')
   .post(verifyPayment); // Verify payment and update booking status
 
+// Payment callback route (public - called by Razorpay)
+router.get('/payment-callback', require('../controllers/paymentController').handleBookingPaymentCallback);
+
 // Test endpoint to check Razorpay configuration
 router.route('/payment/test-config')
   .get((req, res) => {

@@ -39,6 +39,45 @@ import jsPDF from 'jspdf';
 const Support = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("new-ticket");
+  
+  // Check for payment callback in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const ticketId = urlParams.get('ticketId');
+    
+    if (paymentStatus === 'success' && ticketId) {
+      alert('Payment successful! Your ticket has been resolved.');
+      fetchUserTickets();
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (paymentStatus === 'failed' && ticketId) {
+      const message = urlParams.get('message') || 'Payment failed. Please try again.';
+      alert(message);
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+  
+  // Listen for payment callback messages from WebView
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'paymentCallback') {
+        const { status, ticketId, paymentId, message } = event.data;
+        
+        if (status === 'success') {
+          alert('Payment successful! Your ticket has been resolved.');
+          fetchUserTickets();
+        } else if (status === 'failed') {
+          const errorMessage = message || 'Payment failed. Please try again.';
+          alert(errorMessage);
+        }
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [supportType, setSupportType] = useState("");
   const [caseId, setCaseId] = useState("");
@@ -156,7 +195,7 @@ const Support = () => {
     return hasPayment;
   };
 
-  // Handle payment for support ticket - Direct Razorpay integration
+  // Handle payment for support ticket - Direct Razorpay integration with webview support
   const handlePayNow = async (ticket) => {
     try {
       // Check if user is authenticated
@@ -170,153 +209,215 @@ const Support = () => {
       console.log('Amount:', ticket.billingAmount || ticket.totalAmount || 0);
       console.log('User token exists:', !!userToken);
 
-      // Load Razorpay script
-      const loadRazorpayScript = () => {
-        return new Promise((resolve) => {
-          if (window.Razorpay) {
-            resolve(true);
-            return;
-          }
-          const script = document.createElement('script');
-          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-          script.onload = () => resolve(true);
-          script.onerror = () => resolve(false);
-          document.body.appendChild(script);
-        });
-      };
-
-      const res = await loadRazorpayScript();
-      if (!res) {
-        alert('Razorpay SDK failed to load. Please try again.');
-        return;
-      }
-
-      // Create order on backend
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const orderResponse = await fetch(`${API_BASE_URL}/payment/create-order`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify({
-          amount: (ticket.billingAmount || ticket.totalAmount || 0), // Amount in rupees, backend will convert to paise
-          currency: 'INR',
-          receipt: `receipt_${ticket.id}_${Date.now()}`,
-          notes: {
-            ticketId: ticket.id,
-            type: 'support_ticket',
-            description: `Payment for support ticket: ${ticket.subject}`
-          }
-        })
-      });
-
-      console.log('Order response status:', orderResponse.status);
-      console.log('Order response headers:', orderResponse.headers);
       
-      if (!orderResponse.ok) {
-        const errorText = await orderResponse.text();
-        console.error('Order creation failed:', errorText);
-        throw new Error(`Order creation failed: ${orderResponse.status} ${errorText}`);
-      }
-
-      const orderData = await orderResponse.json();
-      console.log('Order data:', orderData);
+      // Import webview utilities
+      const { isWebView, openPaymentLink, sendPaymentCallback } = await import('@/utils/webviewUtils');
+      const inWebView = isWebView();
       
-      if (!orderData.success) {
-        throw new Error(orderData.message || 'Failed to create order');
-      }
+      console.log('[Support][Payment] Environment detected', { isWebView: inWebView });
 
-      // Razorpay options
-      const options = {
-        key: 'rzp_test_8sYbzHWidwe5Zw', // FixFly Razorpay Test Key
-        amount: orderData.data.amount, // Use amount from order response (already in paise)
-        currency: 'INR',
-        name: 'FixFly',
-        description: `Payment for support ticket: ${ticket.subject}`,
-        order_id: orderData.data.id,
-        handler: async function (response) {
-          try {
-            // Verify payment on backend
-            console.log('🔧 PAYMENT DEBUG: API_BASE_URL:', API_BASE_URL);
-            console.log('🔧 PAYMENT DEBUG: Full URL:', `${API_BASE_URL}/support-tickets/payment/verify`);
-            console.log('🔧 PAYMENT DEBUG: Request body:', {
+      if (inWebView) {
+        // WebView: Use payment link (redirect-based)
+        console.log('[Support][Payment] Using payment link for webview');
+        
+        try {
+          const paymentLinkResponse = await fetch(`${API_BASE_URL}/payment/create-payment-link`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify({
+              amount: (ticket.billingAmount || ticket.totalAmount || 0),
+              currency: 'INR',
+              description: `Payment for support ticket: ${ticket.subject}`,
               ticketId: ticket.id,
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-            });
-            
-            const verifyResponse = await fetch(`${API_BASE_URL}/support-tickets/payment/verify`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+              customer: {
+                name: user?.name || '',
+                email: user?.email || '',
+                contact: user?.phone || ''
               },
-              body: JSON.stringify({
+              notes: {
+                ticketId: ticket.id,
+                type: 'support_ticket',
+                description: `Payment for support ticket: ${ticket.subject}`
+              }
+            })
+          });
+
+          if (!paymentLinkResponse.ok) {
+            const errorText = await paymentLinkResponse.text();
+            throw new Error(`Payment link creation failed: ${paymentLinkResponse.status} ${errorText}`);
+          }
+
+          const paymentLinkData = await paymentLinkResponse.json();
+          
+          if (!paymentLinkData.success || !paymentLinkData.data?.paymentUrl) {
+            throw new Error(paymentLinkData.message || 'Failed to create payment link');
+          }
+          
+          const paymentUrl = paymentLinkData.data.paymentUrl;
+          console.log('[Support][Payment] Payment link created:', paymentUrl);
+          
+          // Open payment link using webview utilities
+          openPaymentLink(paymentUrl);
+          
+        } catch (webViewError) {
+          console.error('[Support][Payment] WebView payment error:', webViewError);
+          alert(`Payment link failed: ${webViewError.message || 'Please check your WebView settings or try in a browser.'}`);
+        }
+      } else {
+        // Web Browser: Use Razorpay modal
+        console.log('[Support][Payment] Using Razorpay modal for web browser');
+        
+        // Load Razorpay script
+        const loadRazorpayScript = () => {
+          return new Promise((resolve) => {
+            if (window.Razorpay) {
+              resolve(true);
+              return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+          });
+        };
+
+        const res = await loadRazorpayScript();
+        if (!res) {
+          alert('Razorpay SDK failed to load. Please try again.');
+          return;
+        }
+
+        // Create order on backend
+        const orderResponse = await fetch(`${API_BASE_URL}/payment/create-order`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${userToken}`
+          },
+          body: JSON.stringify({
+            amount: (ticket.billingAmount || ticket.totalAmount || 0),
+            currency: 'INR',
+            receipt: `receipt_${ticket.id}_${Date.now()}`,
+            notes: {
+              ticketId: ticket.id,
+              type: 'support_ticket',
+              description: `Payment for support ticket: ${ticket.subject}`
+            }
+          })
+        });
+
+        console.log('Order response status:', orderResponse.status);
+        console.log('Order response headers:', orderResponse.headers);
+        
+        if (!orderResponse.ok) {
+          const errorText = await orderResponse.text();
+          console.error('Order creation failed:', errorText);
+          throw new Error(`Order creation failed: ${orderResponse.status} ${errorText}`);
+        }
+
+        const orderData = await orderResponse.json();
+        console.log('Order data:', orderData);
+        
+        if (!orderData.success) {
+          throw new Error(orderData.message || 'Failed to create order');
+        }
+
+        // Razorpay options
+        const options = {
+          key: 'rzp_test_8sYbzHWidwe5Zw', // FixFly Razorpay Test Key
+          amount: orderData.data.amount, // Use amount from order response (already in paise)
+          currency: 'INR',
+          name: 'FixFly',
+          description: `Payment for support ticket: ${ticket.subject}`,
+          order_id: orderData.data.id,
+          handler: async function (response) {
+            try {
+              // Verify payment on backend
+              console.log('🔧 PAYMENT DEBUG: API_BASE_URL:', API_BASE_URL);
+              console.log('🔧 PAYMENT DEBUG: Full URL:', `${API_BASE_URL}/support-tickets/payment/verify`);
+              console.log('🔧 PAYMENT DEBUG: Request body:', {
                 ticketId: ticket.id,
                 razorpayOrderId: response.razorpay_order_id,
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpaySignature: response.razorpay_signature,
-              })
-            });
+              });
+              
+              const verifyResponse = await fetch(`${API_BASE_URL}/support-tickets/payment/verify`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: JSON.stringify({
+                  ticketId: ticket.id,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                })
+              });
 
-            console.log('Verify response status:', verifyResponse.status);
-            
-            if (!verifyResponse.ok) {
-              const errorText = await verifyResponse.text();
-              console.error('Payment verification failed:', errorText);
-              throw new Error(`Payment verification failed: ${verifyResponse.status} ${errorText}`);
-            }
+              console.log('Verify response status:', verifyResponse.status);
+              
+              if (!verifyResponse.ok) {
+                const errorText = await verifyResponse.text();
+                console.error('Payment verification failed:', errorText);
+                throw new Error(`Payment verification failed: ${verifyResponse.status} ${errorText}`);
+              }
 
-            const verifyData = await verifyResponse.json();
-            console.log('Verify data:', verifyData);
-            
-            if (verifyData.success) {
-              // Payment successful
-              alert('Payment successful! Your ticket has been resolved.');
-              // Refresh the tickets to show updated status
-              fetchUserTickets();
-            } else {
-              throw new Error(verifyData.message || 'Payment verification failed');
+              const verifyData = await verifyResponse.json();
+              console.log('Verify data:', verifyData);
+              
+              if (verifyData.success) {
+                // Payment successful
+                alert('Payment successful! Your ticket has been resolved.');
+                // Refresh the tickets to show updated status
+                fetchUserTickets();
+              } else {
+                throw new Error(verifyData.message || 'Payment verification failed');
+              }
+            } catch (error) {
+              console.error('Payment verification error:', error);
+              console.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+              });
+              
+              if (error.message.includes('Failed to fetch')) {
+                alert('Network error: Cannot connect to payment server. Please check your internet connection and try again.');
+              } else {
+                alert('Payment verification failed. Please contact support.');
+              }
             }
-          } catch (error) {
-            console.error('Payment verification error:', error);
-            console.error('Error details:', {
-              name: error.name,
-              message: error.message,
-              stack: error.stack
-            });
-            
-            if (error.message.includes('Failed to fetch')) {
-              alert('Network error: Cannot connect to payment server. Please check your internet connection and try again.');
-            } else {
-              alert('Payment verification failed. Please contact support.');
+          },
+          prefill: {
+            name: user?.name || '',
+            email: user?.email || '',
+            contact: user?.phone || ''
+          },
+          theme: {
+            color: '#3B82F6'
+          },
+          modal: {
+            ondismiss: function() {
+              console.log('Payment modal dismissed');
             }
           }
-        },
-        prefill: {
-          name: user?.name || '',
-          email: user?.email || '',
-          contact: user?.phone || ''
-        },
-        theme: {
-          color: '#3B82F6'
-        },
-        modal: {
-          ondismiss: function() {
-            console.log('Payment modal dismissed');
-          }
-        }
-      };
+        };
 
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response) {
-        console.error('Razorpay payment failed:', response);
-        alert('Payment failed. Please try again.');
-      });
-      
-      rzp.open();
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+          console.error('Razorpay payment failed:', response);
+          alert('Payment failed. Please try again.');
+        });
+        
+        rzp.open();
+      }
 
     } catch (error) {
       console.error('Error initiating payment:', error);
