@@ -301,39 +301,78 @@ const Checkout = () => {
         await handleCashPayment(bookingData);
       } else {
         // Process payment with Razorpay
-        await razorpayService.processBookingPayment(
-          bookingData,
-          // Success callback
-          (response) => {
-            toast({
-              title: "Payment Successful!",
-              description: `Your booking has been confirmed. Reference: ${response.bookingReference}`,
-              variant: "default"
-            });
+        console.log('💳 ========== INITIATING RAZORPAY PAYMENT ==========');
+        console.log('💳 Booking Data:', {
+          customer: bookingData.customer.name,
+          email: bookingData.customer.email,
+          phone: bookingData.customer.phone,
+          totalAmount: bookingData.pricing.totalAmount,
+          servicesCount: bookingData.services.length
+        });
+        console.log('💳 ===============================================');
+        
+        try {
+          await razorpayService.processBookingPayment(
+            bookingData,
+            // Success callback
+            (response) => {
+              console.log('✅ Payment successful, booking created:', response);
+              toast({
+                title: "Payment Successful!",
+                description: `Your booking has been confirmed. Reference: ${response.bookingReference}`,
+                variant: "default"
+              });
 
-            // Redirect to booking page with booking data
-            navigate('/booking', { 
-              state: { 
-                booking: response.booking,
-                bookingReference: response.bookingReference,
-                fromCheckout: true 
-              } 
-            });
-          },
-          // Failure callback
-          (error) => {
-            console.error('Payment failed:', error);
-            toast({
-              title: "Payment Failed",
-              description: error instanceof Error ? error.message : "Please try again or contact support.",
-              variant: "destructive"
-            });
-          },
-          // Close callback
-          () => {
-            console.log('Payment modal closed');
-          }
-        );
+              // Redirect to booking page with booking data
+              navigate('/booking', { 
+                state: { 
+                  booking: response.booking,
+                  bookingReference: response.bookingReference,
+                  fromCheckout: true 
+                } 
+              });
+            },
+            // Failure callback
+            (error) => {
+              console.error('❌ ========== PAYMENT FAILED IN CHECKOUT ==========');
+              console.error('❌ Error:', error);
+              console.error('❌ Error Message:', error instanceof Error ? error.message : String(error));
+              console.error('❌ Error Stack:', error instanceof Error ? error.stack : 'N/A');
+              console.error('❌ =============================================');
+              
+              let errorMessage = "Please try again or contact support.";
+              if (error instanceof Error) {
+                errorMessage = error.message;
+              } else if (typeof error === 'string') {
+                errorMessage = error;
+              }
+              
+              toast({
+                title: "Payment Failed",
+                description: errorMessage,
+                variant: "destructive",
+                duration: 5000
+              });
+            },
+            // Close callback
+            () => {
+              console.log('ℹ️ Payment modal closed by user');
+              setLoading(false);
+            }
+          );
+        } catch (paymentError: any) {
+          console.error('❌ ========== PAYMENT INITIALIZATION ERROR ==========');
+          console.error('❌ Error:', paymentError);
+          console.error('❌ Error Message:', paymentError?.message);
+          console.error('❌ =============================================');
+          
+          toast({
+            title: "Payment Failed",
+            description: paymentError?.message || "Failed to initialize payment. Please try again.",
+            variant: "destructive",
+            duration: 5000
+          });
+        }
       }
       
     } catch (error) {
