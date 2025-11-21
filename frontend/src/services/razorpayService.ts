@@ -242,10 +242,52 @@ class RazorpayService {
 
       // Build callback URL for redirect mode
       // CRITICAL: Include order_id in callback URL upfront so backend can track it even if handler doesn't execute
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      // IMPORTANT: For live/production, ensure we use the correct API URL
+      let apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      
+      // CRITICAL: Remove /api suffix if present, we'll add it back
+      apiBase = apiBase.replace(/\/api\/?$/, '');
+      
+      // CRITICAL: Ensure we have a valid absolute URL with protocol
+      // For production, this should be HTTPS
+      if (!apiBase.startsWith('http://') && !apiBase.startsWith('https://')) {
+        // If no protocol, determine based on environment
+        const isProduction = import.meta.env.PROD || window.location.protocol === 'https:';
+        apiBase = `${isProduction ? 'https://' : 'http://'}${apiBase}`;
+      }
+      
+      // Build callback URL - must be absolute URL for Razorpay
+      // CRITICAL: For Razorpay callback, URL must be publicly accessible
       let callbackUrl = useRedirectMode 
-        ? `${apiBase}/payment/razorpay-callback`
+        ? `${apiBase}/api/payment/razorpay-callback`
         : undefined;
+      
+      // CRITICAL: Validate callback URL is publicly accessible (not localhost)
+      if (useRedirectMode && callbackUrl) {
+        try {
+          const urlObj = new URL(callbackUrl);
+          const isLocalhost = urlObj.hostname === 'localhost' || 
+                            urlObj.hostname === '127.0.0.1' || 
+                            urlObj.hostname.startsWith('192.168.') ||
+                            urlObj.hostname.startsWith('10.') ||
+                            urlObj.hostname.startsWith('172.');
+          
+          if (isLocalhost && (import.meta.env.PROD || window.location.protocol === 'https:')) {
+            console.error('❌ CRITICAL: Callback URL is localhost in production! Razorpay cannot access it.');
+            console.error('❌ Callback URL:', callbackUrl);
+            console.error('❌ For live/production, callback URL must be publicly accessible.');
+            console.error('❌ Please set VITE_API_URL to your production backend URL.');
+            
+            // Use current origin as fallback if we're in production
+            const currentOrigin = window.location.origin;
+            const fallbackUrl = `${currentOrigin}/api/payment/razorpay-callback`;
+            console.warn('⚠️ Using current origin as fallback:', fallbackUrl);
+            callbackUrl = fallbackUrl;
+          }
+        } catch (urlError) {
+          console.error('❌ Error validating callback URL:', urlError);
+        }
+      }
       
       // For WebView, pre-populate callback URL with order_id and booking/ticket IDs
       if (useRedirectMode && callbackUrl && paymentData.orderId) {
@@ -262,18 +304,42 @@ class RazorpayService {
           callbackUrl = callbackUrlObj.toString();
           console.log('✅ Pre-populated callback URL with order_id and IDs');
         } catch (e) {
-          console.warn('⚠️ Error pre-populating callback URL:', e);
+          console.error('❌ Error pre-populating callback URL:', e);
+          console.error('❌ Callback URL that failed:', callbackUrl);
+          // Fallback: try to construct URL differently
+          try {
+            // If URL construction fails, try with current origin as fallback
+            const currentOrigin = window.location.origin;
+            const fallbackUrl = `${currentOrigin}/api/payment/razorpay-callback?razorpay_order_id=${paymentData.orderId}`;
+            console.warn('⚠️ Using fallback callback URL:', fallbackUrl);
+            callbackUrl = fallbackUrl;
+          } catch (fallbackError) {
+            console.error('❌ Fallback URL construction also failed:', fallbackError);
+          }
         }
       }
       
       console.log('🔗 ========== PAYMENT CALLBACK URL SETUP ==========');
+      console.log('🔗 Environment:', import.meta.env.MODE);
+      console.log('🔗 Is Production:', import.meta.env.PROD);
+      console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL);
       console.log('🔗 API Base URL:', apiBase);
       console.log('🔗 Callback URL:', callbackUrl);
       console.log('🔗 Use Redirect Mode:', useRedirectMode);
       console.log('🔗 Order ID in Callback:', paymentData.orderId || 'N/A');
       console.log('🔗 Booking ID in Callback:', paymentData.bookingId || 'N/A');
       console.log('🔗 Ticket ID in Callback:', paymentData.ticketId || 'N/A');
-      console.log('🔗 Full Callback Path:', callbackUrl ? new URL(callbackUrl).pathname : 'N/A');
+      if (callbackUrl) {
+        try {
+          const urlObj = new URL(callbackUrl);
+          console.log('🔗 Callback URL Protocol:', urlObj.protocol);
+          console.log('🔗 Callback URL Host:', urlObj.host);
+          console.log('🔗 Callback URL Path:', urlObj.pathname);
+          console.log('🔗 Callback URL Params:', urlObj.search);
+        } catch (e) {
+          console.error('❌ Error parsing callback URL:', e);
+        }
+      }
       console.log('🔗 ================================================');
 
       // Store payment data for callback handling (WebView scenario)
@@ -446,6 +512,19 @@ class RazorpayService {
             // Don't wait - redirect immediately to ensure callback is called
             try {
               console.log('🚀 IMMEDIATE redirect to callback (WebView):', callbackUrlWithParams.toString());
+              console.log('🔍 Redirect details:', {
+                url: callbackUrlWithParams.toString(),
+                protocol: callbackUrlWithParams.protocol,
+                host: callbackUrlWithParams.host,
+                pathname: callbackUrlWithParams.pathname,
+                search: callbackUrlWithParams.search
+              });
+              
+              // CRITICAL: For live/production, ensure callback URL is accessible
+              // Verify URL is valid before redirecting
+              if (!callbackUrlWithParams.host || !callbackUrlWithParams.protocol) {
+                throw new Error('Invalid callback URL: missing host or protocol');
+              }
               
               // Try multiple redirect methods for maximum reliability
               // Method 1: Direct window.location (most reliable)
@@ -453,30 +532,46 @@ class RazorpayService {
               
               // Method 2: If that doesn't work, try after small delay
               setTimeout(() => {
-                if (window.location.href !== callbackUrlWithParams.toString()) {
-                  console.log('🔄 Retrying redirect (method 1 failed)...');
-                  window.location.replace(callbackUrlWithParams.toString());
+                try {
+                  if (window.location.href !== callbackUrlWithParams.toString()) {
+                    console.log('🔄 Retrying redirect (method 1 failed)...');
+                    window.location.replace(callbackUrlWithParams.toString());
+                  }
+                } catch (retryError) {
+                  console.error('❌ Retry redirect failed:', retryError);
                 }
               }, 100);
               
               // Method 3: Flutter bridge fallback
               setTimeout(() => {
-                if ((window as any).flutter_inappwebview && window.location.href !== callbackUrlWithParams.toString()) {
-                  console.log('🔄 Trying Flutter bridge navigation...');
-                  (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
+                try {
+                  if ((window as any).flutter_inappwebview && window.location.href !== callbackUrlWithParams.toString()) {
+                    console.log('🔄 Trying Flutter bridge navigation...');
+                    (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
+                  }
+                } catch (bridgeError) {
+                  console.error('❌ Flutter bridge navigation failed:', bridgeError);
                 }
               }, 200);
               
             } catch (redirectError) {
               console.error('❌ Error redirecting:', redirectError);
+              console.error('❌ Callback URL that failed:', callbackUrlWithParams.toString());
+              
               // Last resort: try to navigate using Flutter bridge if available
               if ((window as any).flutter_inappwebview) {
-                console.log('🔄 Trying Flutter bridge navigation (error fallback)...');
-                (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
+                try {
+                  console.log('🔄 Trying Flutter bridge navigation (error fallback)...');
+                  (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
+                } catch (bridgeError) {
+                  console.error('❌ Flutter bridge also failed:', bridgeError);
+                  // Final fallback: show error to user
+                  paymentData.onError(new Error('Payment successful but redirect failed. Please contact support with payment ID: ' + response.razorpay_payment_id));
+                }
               } else {
-                // Fallback: show error to user
+                // Fallback: show error to user with payment details
                 console.error('❌ No navigation method available');
-                paymentData.onError(new Error('Payment successful but redirect failed. Please contact support.'));
+                paymentData.onError(new Error('Payment successful but redirect failed. Please contact support with payment ID: ' + response.razorpay_payment_id));
               }
             }
           } catch (e) {
@@ -675,10 +770,52 @@ class RazorpayService {
       );
 
       // Build callback URL for redirect mode (WebView)
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      // CRITICAL: For live/production, ensure we use the correct API URL
+      let apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      
+      // CRITICAL: Remove /api suffix if present, we'll add it back
+      apiBase = apiBase.replace(/\/api\/?$/, '');
+      
+      // CRITICAL: Ensure we have a valid absolute URL with protocol
+      // For production, this should be HTTPS
+      if (!apiBase.startsWith('http://') && !apiBase.startsWith('https://')) {
+        // If no protocol, determine based on environment
+        const isProduction = import.meta.env.PROD || window.location.protocol === 'https:';
+        apiBase = `${isProduction ? 'https://' : 'http://'}${apiBase}`;
+      }
+      
+      // Build callback URL - must be absolute URL for Razorpay
+      // CRITICAL: For Razorpay callback, URL must be publicly accessible
       let callbackUrl = useRedirectMode 
-        ? `${apiBase}/payment/razorpay-callback`
+        ? `${apiBase}/api/payment/razorpay-callback`
         : undefined;
+      
+      // CRITICAL: Validate callback URL is publicly accessible (not localhost)
+      if (useRedirectMode && callbackUrl) {
+        try {
+          const urlObj = new URL(callbackUrl);
+          const isLocalhost = urlObj.hostname === 'localhost' || 
+                            urlObj.hostname === '127.0.0.1' || 
+                            urlObj.hostname.startsWith('192.168.') ||
+                            urlObj.hostname.startsWith('10.') ||
+                            urlObj.hostname.startsWith('172.');
+          
+          if (isLocalhost && (import.meta.env.PROD || window.location.protocol === 'https:')) {
+            console.error('❌ CRITICAL: Callback URL is localhost in production! Razorpay cannot access it.');
+            console.error('❌ Callback URL:', callbackUrl);
+            console.error('❌ For live/production, callback URL must be publicly accessible.');
+            console.error('❌ Please set VITE_API_URL to your production backend URL.');
+            
+            // Use current origin as fallback if we're in production
+            const currentOrigin = window.location.origin;
+            const fallbackUrl = `${currentOrigin}/api/payment/razorpay-callback`;
+            console.warn('⚠️ Using current origin as fallback:', fallbackUrl);
+            callbackUrl = fallbackUrl;
+          }
+        } catch (urlError) {
+          console.error('❌ Error validating callback URL:', urlError);
+        }
+      }
       
       // Pre-populate callback URL with order_id and booking ID for WebView
       if (useRedirectMode && callbackUrl && order.orderId) {
@@ -689,7 +826,18 @@ class RazorpayService {
           callbackUrl = callbackUrlObj.toString();
           console.log('✅ Pre-populated callback URL with order_id for booking');
         } catch (e) {
-          console.warn('⚠️ Error pre-populating callback URL:', e);
+          console.error('❌ Error pre-populating callback URL:', e);
+          console.error('❌ Callback URL that failed:', callbackUrl);
+          // Fallback: try to construct URL differently
+          try {
+            // If URL construction fails, try with current origin as fallback
+            const currentOrigin = window.location.origin;
+            const fallbackUrl = `${currentOrigin}/api/payment/razorpay-callback?razorpay_order_id=${order.orderId}`;
+            console.warn('⚠️ Using fallback callback URL:', fallbackUrl);
+            callbackUrl = fallbackUrl;
+          } catch (fallbackError) {
+            console.error('❌ Fallback URL construction also failed:', fallbackError);
+          }
         }
       }
 
