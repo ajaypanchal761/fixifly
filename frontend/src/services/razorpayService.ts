@@ -1157,94 +1157,29 @@ class RazorpayService {
       console.log('🔗 Current Origin:', window.location.origin);
       console.log('🔗 Current URL:', window.location.href);
       
-      // Build callback URL for redirect mode (WebView)
-      // CRITICAL: For production WebView APK, callback URL must be publicly accessible
-      // The callback URL MUST point to the backend server, not the frontend
-      // Priority: 1. VITE_API_URL (if set and not localhost), 2. Production backend URL, 3. Current origin (if HTTPS)
-      let apiBase = import.meta.env.VITE_API_URL || '';
-      console.log('🔗 VITE_API_URL (raw):', import.meta.env.VITE_API_URL || 'NOT SET');
-      
-      // CRITICAL: Remove /api suffix if present, we'll add it back
-      if (apiBase) {
-        apiBase = apiBase.replace(/\/api\/?$/, '');
-      }
-      
-      const currentOrigin = window.location.origin;
+      // CRITICAL: Like RentYatra - use simple approach
+      // Use VITE_API_URL directly (it should already include /api if needed)
+      // For WebView/APK, always use production backend URL
+      let apiUrl = import.meta.env.VITE_API_URL || '/api';
       const isProduction = import.meta.env.PROD || window.location.protocol === 'https:';
       
-      // Check if VITE_API_URL is localhost or private IP
-      const isLocalhostEnv = !apiBase || 
-                            apiBase.includes('localhost') || 
-                            apiBase.includes('127.0.0.1') ||
-                            apiBase.startsWith('192.168.') ||
-                            apiBase.startsWith('10.') ||
-                            apiBase.startsWith('172.');
-      
-      // For production WebView, use production backend URL
-      // CRITICAL: In WebView/APK, we need to use the actual backend server URL
-      // Try multiple methods to detect the correct backend URL
-      const getProductionBackendUrl = () => {
-        // Method 1: Check if current origin is getfixfly.com and construct api subdomain
-        if (currentOrigin && currentOrigin.includes('getfixfly.com')) {
-          const hostname = new URL(currentOrigin).hostname;
-          // If already on api subdomain, use it
-          if (hostname.startsWith('api.')) {
-            return currentOrigin;
-          } else {
-            // Otherwise, construct api subdomain
-            return `https://api.${hostname.replace(/^www\./, '')}`;
-          }
-        }
-        
-        // Method 2: Try to extract from VITE_API_URL if it's a production URL
-        if (apiBase && !apiBase.includes('localhost') && !apiBase.includes('127.0.0.1')) {
-          try {
-            const url = new URL(apiBase);
-            if (url.hostname.includes('getfixfly.com') || url.hostname.includes('vercel.app')) {
-              return apiBase;
-            }
-          } catch (e) {
-            // Invalid URL, continue
-          }
-        }
-        
-        // Method 3: Default production backend URL
-        // CRITICAL: This should be your actual backend server URL
-        // If your backend is on a different domain, update this
-        return 'https://api.getfixfly.com'; // Default fallback - UPDATE THIS IF YOUR BACKEND IS DIFFERENT
-      };
-      const PRODUCTION_BACKEND_URL = getProductionBackendUrl();
-      
-      // CRITICAL: For WebView/APK, ALWAYS use production backend URL
-      // This ensures callback URL is publicly accessible from Razorpay
-      if (isAPK) {
-        // In WebView/APK, always use production backend (even in dev for testing)
-        console.log('🔧 WEBVIEW/APK MODE: Using production backend URL');
-        console.log('🔧 Detected APK/WebView context');
-        apiBase = PRODUCTION_BACKEND_URL;
-      } else if (isProduction && isLocalhostEnv) {
-        // In production but VITE_API_URL is localhost - use production backend
-        console.log('🔧 PRODUCTION MODE: Using production backend URL');
-        apiBase = PRODUCTION_BACKEND_URL;
-      } else if (isLocalhostEnv && currentOrigin && !currentOrigin.includes('localhost') && !currentOrigin.includes('127.0.0.1')) {
-        // Development but current origin is not localhost - use current origin
-        console.log('🔧 SMART FALLBACK: Using current origin as backend URL');
-        console.log('🔧 Current Origin:', currentOrigin);
-        apiBase = currentOrigin;
-      } else if (!apiBase) {
-        // If still no API base, use current origin or production backend
-        apiBase = isProduction ? PRODUCTION_BACKEND_URL : (currentOrigin || 'http://localhost:5000');
+      // For WebView/APK, always use production backend (like RentYatra)
+      if (isAPK || (isProduction && (!apiUrl || apiUrl.includes('localhost')))) {
+        // CRITICAL: Update this to your actual production backend URL
+        apiUrl = 'https://api.getfixfly.com/api'; // UPDATE THIS TO YOUR ACTUAL BACKEND URL
+        console.log('🔧 WEBVIEW/APK MODE: Using production backend URL:', apiUrl);
       }
       
-      // CRITICAL: Ensure we have a valid absolute URL with protocol
-      if (!apiBase.startsWith('http://') && !apiBase.startsWith('https://')) {
-        apiBase = `${isProduction ? 'https://' : 'http://'}${apiBase}`;
+      // Ensure we have a valid absolute URL with protocol
+      if (!apiUrl.startsWith('http://') && !apiUrl.startsWith('https://')) {
+        const currentOrigin = window.location.origin;
+        apiUrl = `${currentOrigin}${apiUrl.startsWith('/') ? '' : '/'}${apiUrl}`;
       }
       
-      // Build callback URL - must be absolute URL for Razorpay
-      // CRITICAL: This URL must be accessible from Razorpay's servers
+      // CRITICAL: Like RentYatra - simple callback URL construction
+      // apiUrl already includes /api, so just append /payment/razorpay-callback
       let callbackUrl = useRedirectMode 
-        ? `${apiBase}/api/payment/razorpay-callback`
+        ? `${apiUrl}/payment/razorpay-callback`
         : undefined;
       
       // CRITICAL: Final validation - ensure callback URL is publicly accessible
@@ -1261,7 +1196,7 @@ class RazorpayService {
             console.error('❌ CRITICAL: Callback URL is localhost in production/WebView!');
             console.error('❌ Callback URL:', callbackUrl);
             console.error('❌ This will fail. Using production backend fallback.');
-            callbackUrl = `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`;
+            callbackUrl = 'https://api.getfixfly.com/api/payment/razorpay-callback'; // UPDATE THIS
           } else if (isLocalhost) {
             console.warn('⚠️ Callback URL is localhost - this will only work in development');
           }
@@ -1274,10 +1209,8 @@ class RazorpayService {
           }
         } catch (urlError) {
           console.error('❌ Error validating callback URL:', urlError);
-          // Last resort: use production backend or current origin
-          callbackUrl = isProduction 
-            ? `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`
-            : `${currentOrigin}/api/payment/razorpay-callback`;
+          // Last resort: use production backend
+          callbackUrl = 'https://api.getfixfly.com/api/payment/razorpay-callback'; // UPDATE THIS
           console.warn('⚠️ Using fallback callback URL:', callbackUrl);
         }
       }

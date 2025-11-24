@@ -273,6 +273,65 @@ const verifyPayment = asyncHandler(async (req, res) => {
       }
     }
 
+    // CRITICAL: Final check - if payment exists in Razorpay, accept it (like RentYatra)
+    // This is the last chance to verify payment before rejecting
+    // CRITICAL: Try multiple times with retries - payment might still be processing
+    if (!isAuthentic && razorpay_payment_id) {
+      try {
+        console.log('🔄 Final attempt: Checking if payment exists in Razorpay (with retries)...');
+        let finalPaymentCheck = null;
+        let finalRetries = 5; // More retries for final check
+        
+        while (finalRetries > 0 && !finalPaymentCheck) {
+          try {
+            finalPaymentCheck = await razorpay.payments.fetch(razorpay_payment_id);
+            if (finalPaymentCheck && finalPaymentCheck.id) {
+              break;
+            }
+          } catch (fetchError) {
+            console.warn(`⚠️ Final check fetch attempt ${6 - finalRetries}/5 failed:`, fetchError.message);
+            finalRetries--;
+            if (finalRetries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          }
+        }
+        
+        if (finalPaymentCheck && finalPaymentCheck.id) {
+          const invalidStatuses = ['failed', 'refunded', 'cancelled'];
+          if (!invalidStatuses.includes(finalPaymentCheck.status)) {
+            isAuthentic = true;
+            if (!razorpay_order_id && finalPaymentCheck.order_id) {
+              razorpay_order_id = finalPaymentCheck.order_id;
+            }
+            console.log('\n');
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('✅ ✅ ✅ PAYMENT ACCEPTED - EXISTS IN RAZORPAY (FINAL CHECK) ✅ ✅ ✅');
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('✅ Payment ID:', razorpay_payment_id);
+            console.log('✅ Payment Status:', finalPaymentCheck.status);
+            console.log('✅ Order ID:', razorpay_order_id || finalPaymentCheck.order_id || 'N/A');
+            console.log('✅ Amount:', finalPaymentCheck.amount ? `₹${(finalPaymentCheck.amount / 100).toFixed(2)}` : 'N/A');
+            console.log('✅ Method:', finalPaymentCheck.method || 'N/A');
+            console.log('✅ Timestamp:', new Date().toISOString());
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('\n');
+          } else {
+            console.error('❌ Payment has invalid status:', finalPaymentCheck.status);
+          }
+        } else {
+          console.warn('⚠️ Final payment check: Payment not found after all retries');
+        }
+      } catch (finalCheckError) {
+        console.warn('⚠️ Final payment check failed:', finalCheckError.message);
+        console.warn('⚠️ Error details:', {
+          message: finalCheckError.message,
+          code: finalCheckError.error?.code,
+          description: finalCheckError.error?.description
+        });
+      }
+    }
+
     if (!isAuthentic) {
       console.error('\n');
       console.error('═══════════════════════════════════════════════════════════════');
@@ -291,7 +350,12 @@ const verifyPayment = asyncHandler(async (req, res) => {
         success: false,
         message: 'Payment verification failed. Payment not found in Razorpay or has invalid status.',
         error: 'PAYMENT_VERIFICATION_FAILED',
-        paymentId: razorpay_payment_id
+        paymentId: razorpay_payment_id,
+        details: {
+          hasPaymentId: !!razorpay_payment_id,
+          hasOrderId: !!razorpay_order_id,
+          hasSignature: !!razorpay_signature
+        }
       });
     }
 

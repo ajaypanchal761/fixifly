@@ -258,6 +258,12 @@ const PaymentCallback = () => {
         console.log('📤 Timestamp:', new Date().toISOString());
         console.log('📤 ===================================================');
 
+        console.log('📤 ========== STEP 5.1: CALLING PAYMENT VERIFY API ==========');
+        console.log('📤 API URL:', `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify`);
+        console.log('📤 Request Data:', JSON.stringify(verifyData, null, 2));
+        console.log('📤 Timestamp:', new Date().toISOString());
+        console.log('📤 ===================================================');
+        
         const verifyResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify`, {
           method: 'POST',
           headers: {
@@ -267,7 +273,25 @@ const PaymentCallback = () => {
           body: JSON.stringify(verifyData)
         });
 
-        let verifyResult = await verifyResponse.json();
+        console.log('📤 ========== STEP 5.2: PAYMENT VERIFY API RESPONSE ==========');
+        console.log('📤 Response Status:', verifyResponse.status);
+        console.log('📤 Response OK:', verifyResponse.ok);
+        console.log('📤 Response Headers:', Object.fromEntries(verifyResponse.headers.entries()));
+        console.log('📤 Timestamp:', new Date().toISOString());
+        console.log('📤 ===================================================');
+
+        const responseText = await verifyResponse.text();
+        console.log('📤 Response Text (raw):', responseText);
+        
+        let verifyResult;
+        try {
+          verifyResult = JSON.parse(responseText);
+          console.log('📤 Response Parsed Successfully:', JSON.stringify(verifyResult, null, 2));
+        } catch (parseError) {
+          console.error('❌ Error parsing response:', parseError);
+          console.error('❌ Response Text:', responseText);
+          throw new Error(`Payment verification failed: Invalid response from server (${verifyResponse.status})`);
+        }
 
         // CRITICAL: If verification failed or order_id is missing, try verify-by-id endpoint (fallback for WebView)
         // This is especially important for WebView where order_id might not be in URL params
