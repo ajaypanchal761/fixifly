@@ -1253,6 +1253,24 @@ class RazorpayService {
         booking_amount: bookingData.pricing.totalAmount.toString(),
         payment_context: 'new_booking_checkout',
       }, null, 2));
+      
+      // CRITICAL: Log the exact callback URL that will be sent to Razorpay
+      if (useRedirectMode && callbackUrl) {
+        console.log('🔗 ========== CALLBACK URL VERIFICATION ==========');
+        console.log('🔗 Full Callback URL:', callbackUrl);
+        try {
+          const urlObj = new URL(callbackUrl);
+          console.log('🔗 Callback URL Protocol:', urlObj.protocol);
+          console.log('🔗 Callback URL Host:', urlObj.host);
+          console.log('🔗 Callback URL Path:', urlObj.pathname);
+          console.log('🔗 Callback URL is Public:', !urlObj.hostname.includes('localhost'));
+          console.log('🔗 Callback URL is HTTPS:', urlObj.protocol === 'https:');
+          console.log('🔗 ============================================');
+        } catch (e) {
+          console.error('❌ Error parsing callback URL:', e);
+        }
+      }
+      
       console.log('⚙️ ===================================================');
 
       // Razorpay options - CRITICAL: Like RentYatra, use spread operator for WebView options
@@ -1490,10 +1508,11 @@ class RazorpayService {
         });
 
         razorpay.on('payment.failed', (response: any) => {
-          console.error('❌ ========== STEP 7: PAYMENT.FAILED EVENT FIRED (Booking - WebView) ==========');
+          console.error('\n');
+          console.error('❌ ❌ ❌ ========== PAYMENT.FAILED EVENT FIRED (Booking - WebView) ========== ❌ ❌ ❌');
           console.error('❌ Timestamp:', new Date().toISOString());
           console.error('❌ Order ID:', order.orderId);
-          console.error('❌ Amount:', order.amount);
+          console.error('❌ Amount:', order.amount, 'paise (₹' + (order.amount / 100).toFixed(2) + ')');
           console.error('❌ Full Response:', JSON.stringify(response, null, 2));
           console.error('❌ Error Object:', JSON.stringify(response.error, null, 2));
           console.error('❌ Error Code:', response.error?.code || 'N/A');
@@ -1502,7 +1521,10 @@ class RazorpayService {
           console.error('❌ Error Source:', response.error?.source || 'N/A');
           console.error('❌ Error Step:', response.error?.step || 'N/A');
           console.error('❌ Error Metadata:', JSON.stringify(response.error?.metadata || {}, null, 2));
+          console.error('❌ Callback URL:', callbackUrl || 'N/A');
+          console.error('❌ Use Redirect Mode:', useRedirectMode);
           console.error('❌ ============================================================');
+          console.error('\n');
           
           // Extract detailed error message
           let errorMessage = 'Payment failed. Please try again.';
@@ -1523,15 +1545,17 @@ class RazorpayService {
               orderId: order.orderId,
               amount: order.amount,
               timestamp: Date.now(),
-              context: 'booking_checkout'
+              context: 'booking_checkout',
+              callbackUrl: callbackUrl
             }));
             console.log('💾 Stored payment failure info in localStorage');
           } catch (e) {
             console.warn('⚠️ Could not store payment failure info:', e);
           }
           
-          // Redirect to callback with error (WebView mode)
-          if (callbackUrl) {
+          // CRITICAL: For WebView, redirect to backend callback with error
+          // Backend will then redirect to frontend with error
+          if (useRedirectMode && callbackUrl) {
             try {
               const errorCallbackUrl = new URL(callbackUrl);
               errorCallbackUrl.searchParams.set('error', 'payment_failed');
@@ -1544,7 +1568,8 @@ class RazorpayService {
                 errorCallbackUrl.searchParams.set('razorpay_order_id', order.orderId);
               }
               
-              console.error('❌ Redirecting to error callback:', errorCallbackUrl.toString());
+              console.error('❌ Redirecting to backend error callback:', errorCallbackUrl.toString());
+              console.error('❌ Backend will then redirect to frontend with error details');
               window.location.href = errorCallbackUrl.toString();
             } catch (e) {
               console.error('❌ Error redirecting to error callback:', e);
