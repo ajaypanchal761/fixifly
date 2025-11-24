@@ -5,17 +5,13 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 require('dotenv').config({ path: './config/production.env' });
 
-// CRITICAL: Force set Razorpay Live Keys (overrides any test keys)
-// This ensures live keys are ALWAYS used in production
-process.env.RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_live_RdvKOG3GEcWnDk';
-process.env.RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'Ofl6YU9sRDxt9es3ffRzp1Uk';
-
-// Log Razorpay configuration on server start
-console.log('\n🔐 ========== RAZORPAY CONFIGURATION ==========');
-console.log('🔐 Key ID:', process.env.RAZORPAY_KEY_ID ? `${process.env.RAZORPAY_KEY_ID.substring(0, 15)}...` : 'NOT SET');
-console.log('🔐 Key Type:', process.env.RAZORPAY_KEY_ID?.includes('live') ? 'LIVE ✅' : process.env.RAZORPAY_KEY_ID?.includes('test') ? 'TEST ⚠️' : 'UNKNOWN');
-console.log('🔐 Secret Key:', process.env.RAZORPAY_KEY_SECRET ? 'SET ✅' : 'NOT SET ❌');
-console.log('🔐 ===========================================\n');
+// Set Razorpay environment variables if not set
+if (!process.env.RAZORPAY_KEY_ID) {
+  process.env.RAZORPAY_KEY_ID = 'rzp_test_8sYbzHWidwe5Zw';
+}
+if (!process.env.RAZORPAY_KEY_SECRET) {
+  process.env.RAZORPAY_KEY_SECRET = 'GkxKRQ2B0U63BKBoayuugS3D';
+}
 
 // Import database connection
 const connectDB = require('./config/db');

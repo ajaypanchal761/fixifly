@@ -1,25 +1,20 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
-// CRITICAL: Force use live keys (override any test keys)
-const razorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_live_RdvKOG3GEcWnDk';
-const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || 'Ofl6YU9sRDxt9es3ffRzp1Uk';
-
-// Log Razorpay configuration
-console.log('\n💳 ========== RAZORPAY SERVICE INIT ==========');
-console.log('💳 Key ID:', razorpayKeyId ? `${razorpayKeyId.substring(0, 15)}...` : 'NOT SET');
-console.log('💳 Key Type:', razorpayKeyId.includes('live') ? 'LIVE ✅' : razorpayKeyId.includes('test') ? 'TEST ⚠️ (SHOULD BE LIVE!)' : 'UNKNOWN');
-console.log('💳 Secret Key:', razorpayKeySecret ? 'SET ✅' : 'NOT SET ❌');
-console.log('💳 ===========================================\n');
+// Check if Razorpay environment variables are set
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  console.error('⚠️  RAZORPAY ENVIRONMENT VARIABLES NOT CONFIGURED!');
+  console.error('Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your .env file');
+}
 
 // Initialize Razorpay instance
 let razorpay;
 try {
   razorpay = new Razorpay({
-    key_id: razorpayKeyId,
-    key_secret: razorpayKeySecret,
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
   });
-  console.log('✅ Razorpay service initialized successfully with', razorpayKeyId.includes('live') ? 'LIVE' : 'TEST', 'keys');
+  console.log('✅ Razorpay service initialized successfully');
 } catch (error) {
   console.error('❌ Failed to initialize Razorpay service:', error.message);
   razorpay = null;
@@ -147,7 +142,7 @@ class RazorpayService {
       console.log('Order ID:', razorpayOrderId);
       console.log('Payment ID:', razorpayPaymentId);
       console.log('Received Signature:', razorpaySignature);
-      console.log('Secret Key exists:', !!razorpayKeySecret);
+      console.log('Secret Key exists:', !!process.env.RAZORPAY_KEY_SECRET);
       
       // Validate input parameters
       if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
@@ -155,7 +150,7 @@ class RazorpayService {
         return false;
       }
       
-      if (!razorpayKeySecret) {
+      if (!process.env.RAZORPAY_KEY_SECRET) {
         console.error('RAZORPAY_KEY_SECRET not configured');
         return false;
       }
@@ -164,7 +159,7 @@ class RazorpayService {
       console.log('Body to hash:', body);
       
       const expectedSignature = crypto
-        .createHmac('sha256', razorpayKeySecret)
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
         .update(body.toString())
         .digest('hex');
       

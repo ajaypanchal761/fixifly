@@ -2,21 +2,10 @@ const asyncHandler = require('express-async-handler');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
-// CRITICAL: Force use live keys if test keys are detected
-const razorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_live_RdvKOG3GEcWnDk';
-const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || 'Ofl6YU9sRDxt9es3ffRzp1Uk';
-
-// Log Razorpay keys being used
-console.log('\n💳 ========== RAZORPAY PAYMENT CONTROLLER INIT ==========');
-console.log('💳 Key ID:', razorpayKeyId ? `${razorpayKeyId.substring(0, 15)}...` : 'NOT SET');
-console.log('💳 Key Type:', razorpayKeyId.includes('live') ? 'LIVE ✅' : razorpayKeyId.includes('test') ? 'TEST ⚠️ (SHOULD BE LIVE!)' : 'UNKNOWN');
-console.log('💳 Secret Key:', razorpayKeySecret ? 'SET ✅' : 'NOT SET ❌');
-console.log('💳 =====================================================\n');
-
 // Initialize Razorpay
 const razorpay = new Razorpay({
-  key_id: razorpayKeyId,
-  key_secret: razorpayKeySecret,
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 // @desc    Create Razorpay order
@@ -80,7 +69,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
     if (razorpay_signature) {
       const body = razorpay_order_id + "|" + razorpay_payment_id;
       const expectedSignature = crypto
-        .createHmac("sha256", razorpayKeySecret)
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
         .update(body.toString())
         .digest("hex");
 
@@ -846,8 +835,8 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
         // Import payment verification logic
         const Razorpay = require('razorpay');
         const rzp = new Razorpay({
-          key_id: razorpayKeyId,
-          key_secret: razorpayKeySecret
+          key_id: process.env.RAZORPAY_KEY_ID,
+          key_secret: process.env.RAZORPAY_KEY_SECRET
         });
         
         // Fetch payment from Razorpay
