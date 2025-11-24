@@ -13,23 +13,59 @@ const razorpay = new Razorpay({
 // @access  Public
 const createOrder = asyncHandler(async (req, res) => {
   try {
+    console.log('\n');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('💰 💰 💰 CREATING RAZORPAY ORDER 💰 💰 💰');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('💰 Timestamp:', new Date().toISOString());
+    console.log('💰 Request Body:', JSON.stringify(req.body, null, 2));
+    console.log('💰 User-Agent:', req.headers['user-agent'] || 'N/A');
+    console.log('💰 Referer:', req.headers.referer || 'N/A');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
+    
     const { amount, currency = 'INR', receipt, notes } = req.body;
 
     if (!amount || amount <= 0) {
+      console.error('❌ Invalid amount:', amount);
       return res.status(400).json({
         success: false,
         message: 'Invalid amount'
       });
     }
 
+    const amountInPaise = Math.round(parseFloat(amount) * 100);
     const options = {
-      amount: Math.round(parseFloat(amount) * 100), // Convert rupees to paise
+      amount: amountInPaise,
       currency: currency,
       receipt: receipt,
-      notes: notes || {}
+      notes: notes || {},
+      payment_capture: 1 // Auto capture payment
     };
 
+    console.log('💰 Order Options:', {
+      amountInRupees: amount,
+      amountInPaise: amountInPaise,
+      currency: currency,
+      receipt: receipt,
+      notes: notes
+    });
+
     const order = await razorpay.orders.create(options);
+
+    console.log('\n');
+    console.log('✅ ✅ ✅ RAZORPAY ORDER CREATED SUCCESSFULLY ✅ ✅ ✅');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('✅ Order ID:', order.id);
+    console.log('✅ Amount (Paise):', order.amount);
+    console.log('✅ Amount (Rupees):', (order.amount / 100).toFixed(2));
+    console.log('✅ Currency:', order.currency);
+    console.log('✅ Status:', order.status);
+    console.log('✅ Receipt:', order.receipt || 'N/A');
+    console.log('✅ Notes:', JSON.stringify(order.notes || {}, null, 2));
+    console.log('✅ Timestamp:', new Date().toISOString());
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
 
     res.json({
       success: true,
@@ -38,7 +74,17 @@ const createOrder = asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error creating Razorpay order:', error);
+    console.error('\n');
+    console.error('❌ ❌ ❌ ERROR CREATING RAZORPAY ORDER ❌ ❌ ❌');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('❌ Error:', error.message);
+    console.error('❌ Error Code:', error.error?.code || 'N/A');
+    console.error('❌ Error Description:', error.error?.description || 'N/A');
+    console.error('❌ Stack:', error.stack);
+    console.error('❌ Timestamp:', new Date().toISOString());
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('\n');
+    
     res.status(500).json({
       success: false,
       message: 'Failed to create order',

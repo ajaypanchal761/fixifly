@@ -1564,22 +1564,54 @@ class RazorpayService {
       console.log('🎯 Callback URL:', callbackUrl);
       console.log('🎯 Use Redirect Mode:', useRedirectMode);
       console.log('🎯 Is APK/WebView:', isAPK);
+      console.log('🎯 Razorpay Options Summary:', {
+        hasKey: !!this.razorpayKey,
+        hasOrderId: !!order.orderId,
+        hasAmount: !!order.amount,
+        hasCallbackUrl: !!callbackUrl,
+        hasRedirect: useRedirectMode,
+        hasHandler: typeof options.handler === 'function'
+      });
+      console.log('🎯 Full Options (sanitized):', {
+        key: this.razorpayKey ? `${this.razorpayKey.substring(0, 10)}...` : 'MISSING',
+        order_id: order.orderId,
+        amount: order.amount,
+        currency: order.currency,
+        callback_url: callbackUrl || 'N/A',
+        redirect: useRedirectMode ? true : undefined,
+        hasHandler: typeof options.handler === 'function',
+        hasModal: !!options.modal
+      });
       console.log('🎯 Timestamp:', new Date().toISOString());
       console.log('🎯 ===============================================================');
       
-        // For WebView, ensure Razorpay opens properly
+      // For WebView, ensure Razorpay opens properly
       try {
         console.log('🚀 ========== STEP 6.1: CALLING RAZORPAY.OPEN() ==========');
         console.log('🚀 Order ID:', order.orderId);
         console.log('🚀 Amount:', order.amount, 'paise (₹' + (order.amount / 100).toFixed(2) + ')');
         console.log('🚀 Callback URL:', callbackUrl);
         console.log('🚀 Is WebView:', useRedirectMode);
+        console.log('🚀 User-Agent:', navigator.userAgent);
+        console.log('🚀 Window Location:', window.location.href);
         console.log('🚀 Timestamp:', new Date().toISOString());
         console.log('🚀 =======================================================');
+        
+        // CRITICAL: Verify Razorpay instance before opening
+        if (!razorpay) {
+          throw new Error('Razorpay instance is null or undefined');
+        }
         
         razorpay.open();
         console.log('✅ ✅ ✅ Razorpay.open() called successfully ✅ ✅ ✅');
         console.log('✅ Timestamp:', new Date().toISOString());
+        
+        // For WebView, log that payment page should be opening
+        if (useRedirectMode) {
+          console.log('🔀 WebView Mode: Payment page should open in redirect mode');
+          console.log('🔀 After payment, Razorpay will redirect to:', callbackUrl);
+          console.log('🔀 Backend callback will then redirect to frontend callback page');
+        }
         
         // For WebView, add multiple checks to ensure modal opened
         if (useRedirectMode) {
