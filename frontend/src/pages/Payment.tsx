@@ -83,7 +83,7 @@ const Payment = () => {
 
       // Razorpay options
       const options = {
-        key: 'rzp_test_8sYbzHWidwe5Zw', // FixFly Razorpay Test Key
+        key: 'rzp_live_RdvKOG3GEcWnDk', // FixFly Razorpay Live Key
         amount: orderData.data.amount, // Use amount from order response (already in paise)
         currency: 'INR',
         name: 'FixFly',
