@@ -1255,7 +1255,7 @@ class RazorpayService {
       }, null, 2));
       console.log('⚙️ ===================================================');
 
-      // Razorpay options
+      // Razorpay options - CRITICAL: Like RentYatra, use spread operator for WebView options
       const options: any = {
         key: this.razorpayKey,
         amount: order.amount, // Already in paise from backend
@@ -1275,64 +1275,85 @@ class RazorpayService {
           // CRITICAL: Store booking data in notes for WebView callback handling
           // Backend can extract this if URL params are missing
           payment_context: 'new_booking_checkout',
+          // Store order_id in payment notes for callback retrieval (like RentYatra)
+          razorpay_order_id: order.orderId,
+          order_id: order.orderId
         },
         theme: {
           color: '#3B82F6',
         },
-        // CRITICAL: For WebView, use callback_url for redirect mode
-        // In WebView, handler might not execute reliably, so callback_url is essential
-        // Razorpay will redirect to this URL after payment success/failure
-        callback_url: useRedirectMode ? callbackUrl : undefined,
+        // CRITICAL: For WebView/APK - MUST use redirect mode (like RentYatra)
+        // Use spread operator to conditionally add redirect options
+        ...(useRedirectMode && {
+          redirect: true, // REQUIRED for WebView - modal mode doesn't work
+          callback_url: callbackUrl, // Callback URL for redirect mode
+        }),
         
-        // CRITICAL: For WebView, ensure redirect works properly
-        // Add redirect parameter to ensure Razorpay redirects properly
-        redirect: useRedirectMode ? true : undefined,
-        
-        // For WebView redirect mode, handler should still be defined as fallback
-        // But it will redirect to callback_url instead
-        handler: useRedirectMode ? async (response: PaymentResponse) => {
-          // In WebView redirect mode, handler might execute but we still redirect
-          console.log('✅ Payment handler called (WebView Redirect Mode):', response);
-          console.log('⚠️ Note: Will redirect to callback_url for proper handling');
-          
-          // Store response immediately
+        // Handler - CRITICAL: Like RentYatra, always define handler
+        // In WebView redirect mode, callback_url will handle redirect, but handler is fallback
+        handler: async (response: PaymentResponse) => {
           try {
-            const responseWithContext = {
-              ...response,
-              timestamp: Date.now()
-            };
-            localStorage.setItem('payment_response', JSON.stringify(responseWithContext));
-            sessionStorage.setItem('payment_response', JSON.stringify(responseWithContext));
-            console.log('💾 Stored payment response in handler (WebView)');
-          } catch (e) {
-            console.warn('⚠️ Could not store payment response:', e);
-          }
-          
-          // Redirect to callback URL with payment data
-          if (callbackUrl) {
+            console.log('✅ ========== PAYMENT HANDLER CALLED ==========');
+            console.log('✅ Timestamp:', new Date().toISOString());
+            console.log('✅ Response:', JSON.stringify(response, null, 2));
+            console.log('✅ Is WebView/Redirect Mode:', useRedirectMode);
+            console.log('✅ Order ID:', order.orderId);
+            console.log('✅ ===========================================');
+            
+            // Store response immediately (like RentYatra)
             try {
-              const callbackUrlWithParams = new URL(callbackUrl);
-              callbackUrlWithParams.searchParams.set('razorpay_order_id', response.razorpay_order_id);
-              callbackUrlWithParams.searchParams.set('razorpay_payment_id', response.razorpay_payment_id);
-              if (response.razorpay_signature) {
-                callbackUrlWithParams.searchParams.set('razorpay_signature', response.razorpay_signature);
-              }
-              
-              console.log('🚀 Redirecting to callback from handler:', callbackUrlWithParams.toString());
-              window.location.href = callbackUrlWithParams.toString();
+              const responseWithContext = {
+                ...response,
+                timestamp: Date.now(),
+                orderId: order.orderId
+              };
+              localStorage.setItem('payment_response', JSON.stringify(responseWithContext));
+              sessionStorage.setItem('payment_response', JSON.stringify(responseWithContext));
+              console.log('💾 Stored payment response in handler');
             } catch (e) {
-              console.error('❌ Error redirecting from handler:', e);
+              console.warn('⚠️ Could not store payment response:', e);
             }
-          }
-        } : async (response: PaymentResponse) => {
-          try {
-            console.log('✅ Payment handler called (Modal Mode):', response);
-            // Create booking with payment verification
-            const bookingResponse = await this.createBookingWithPayment(bookingData, response);
-            onSuccess(bookingResponse);
-          } catch (error) {
-            console.error('❌ Error creating booking with payment:', error);
-            onFailure(error);
+            
+            // For WebView redirect mode, callback_url should handle redirect
+            // But if it doesn't work, we force redirect here as fallback
+            if (useRedirectMode && callbackUrl) {
+              console.log('🔀 WebView Redirect Mode: callback_url should handle redirect');
+              console.log('🔀 If callback_url fails, handler will force redirect');
+              
+              // Fallback: Force redirect after small delay if callback_url didn't work
+              setTimeout(() => {
+                if (!window.location.href.includes('/payment-callback') && 
+                    !window.location.href.includes('razorpay')) {
+                  try {
+                    const callbackUrlWithParams = new URL(callbackUrl);
+                    callbackUrlWithParams.searchParams.set('razorpay_order_id', response.razorpay_order_id || order.orderId);
+                    callbackUrlWithParams.searchParams.set('razorpay_payment_id', response.razorpay_payment_id);
+                    if (response.razorpay_signature) {
+                      callbackUrlWithParams.searchParams.set('razorpay_signature', response.razorpay_signature);
+                    }
+                    
+                    console.log('🚀 FALLBACK: Forcing redirect to callback (callback_url did not work)');
+                    console.log('🚀 Redirect URL:', callbackUrlWithParams.toString());
+                    window.location.href = callbackUrlWithParams.toString();
+                  } catch (e) {
+                    console.error('❌ Error in fallback redirect:', e);
+                  }
+                }
+              }, 2000); // Wait 2 seconds for callback_url to work
+            } else {
+              // Modal mode - create booking directly
+              console.log('📦 Modal Mode: Creating booking with payment verification');
+              try {
+                const bookingResponse = await this.createBookingWithPayment(bookingData, response);
+                onSuccess(bookingResponse);
+              } catch (error) {
+                console.error('❌ Error creating booking with payment:', error);
+                onFailure(error);
+              }
+            }
+          } catch (handlerError) {
+            console.error('❌ Error in payment handler:', handlerError);
+            onFailure(handlerError);
           }
         },
         modal: {
@@ -1347,14 +1368,7 @@ class RazorpayService {
           max_count: 3,
         },
         timeout: 300,
-        // CRITICAL: For WebView, ensure proper error handling
-        // Add read_only option to prevent payment method changes that might cause issues
-        read_only: {
-          email: false,
-          contact: false,
-          name: false
-        },
-        // Additional WebView compatibility options
+        // Additional WebView compatibility options (like RentYatra)
         config: {
           display: {
             blocks: {

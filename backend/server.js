@@ -107,6 +107,52 @@ app.use(cookieParser());
 // Compression middleware
 app.use(compression());
 
+// CRITICAL: Global request logging middleware - logs ALL requests
+// This will help debug payment and booking issues
+app.use((req, res, next) => {
+  // Log payment and booking related requests immediately
+  if (req.path.includes('/payment') || req.path.includes('/booking')) {
+    console.log('\n');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('🌐 🌐 🌐 INCOMING REQUEST (PAYMENT/BOOKING) 🌐 🌐 🌐');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('🌐 Method:', req.method);
+    console.log('🌐 Path:', req.path);
+    console.log('🌐 Full URL:', req.originalUrl || req.url);
+    console.log('🌐 Query:', JSON.stringify(req.query));
+    console.log('🌐 IP:', req.ip || req.connection.remoteAddress);
+    console.log('🌐 User-Agent:', req.headers['user-agent'] || 'N/A');
+    console.log('🌐 Referer:', req.headers.referer || 'N/A');
+    console.log('🌐 Content-Type:', req.headers['content-type'] || 'N/A');
+    console.log('🌐 Timestamp:', new Date().toISOString());
+    
+    // Log body for POST/PUT requests (but limit size for security)
+    if ((req.method === 'POST' || req.method === 'PUT') && req.body) {
+      const bodyKeys = Object.keys(req.body);
+      console.log('🌐 Body Keys:', bodyKeys);
+      
+      // Log specific payment/booking fields
+      if (req.body.razorpay_payment_id || req.body.razorpayPaymentId) {
+        console.log('🌐 Payment ID:', req.body.razorpay_payment_id || req.body.razorpayPaymentId);
+      }
+      if (req.body.razorpay_order_id || req.body.razorpayOrderId) {
+        console.log('🌐 Order ID:', req.body.razorpay_order_id || req.body.razorpayOrderId);
+      }
+      if (req.body.customer) {
+        console.log('🌐 Customer:', req.body.customer.name || 'N/A');
+      }
+      if (req.body.paymentData) {
+        console.log('🌐 Payment Data Present:', !!req.body.paymentData);
+      }
+    }
+    
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
+  }
+  
+  next();
+});
+
 // Static file serving for uploads
 app.use('/uploads', express.static('uploads'));
 

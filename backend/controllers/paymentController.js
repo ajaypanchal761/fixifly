@@ -545,6 +545,10 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
   console.log('═══════════════════════════════════════════════════════════════');
   console.log('\n');
   console.log('\n');
+  // CRITICAL: Force flush to ensure logs are written immediately to PM2
+  if (process.stdout && typeof process.stdout.write === 'function') {
+    process.stdout.write('');
+  }
   
   try {
     // Additional detailed logging (already logged above, but keeping for completeness)
