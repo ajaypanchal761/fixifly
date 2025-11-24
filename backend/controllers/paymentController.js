@@ -596,6 +596,11 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     process.stdout.write('');
   }
   
+  // CRITICAL: Log payment status immediately
+  console.log('💳 ========== PAYMENT STATUS CHECK ==========');
+  console.log('💳 Checking if payment was successful or failed...');
+  console.log('💳 ============================================');
+  
   try {
     // Additional detailed logging (already logged above, but keeping for completeness)
 
@@ -1042,13 +1047,17 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     // This ensures payment is verified even if frontend callback fails
     if (razorpay_payment_id && razorpay_order_id && !isPaymentFailed) {
       try {
-        console.log('🔍 ========== STEP 6: VERIFYING PAYMENT IN CALLBACK HANDLER ==========');
+        console.log('\n');
+        console.log('═══════════════════════════════════════════════════════════════');
+        console.log('💳 💳 💳 VERIFYING PAYMENT STATUS FROM RAZORPAY 💳 💳 💳');
+        console.log('═══════════════════════════════════════════════════════════════');
         console.log('🔍 Payment ID:', razorpay_payment_id);
         console.log('🔍 Order ID:', razorpay_order_id);
         console.log('🔍 Booking ID:', bookingId || 'N/A');
         console.log('🔍 Ticket ID:', ticketId || 'N/A');
         console.log('🔍 Timestamp:', new Date().toISOString());
-        console.log('🔍 ===================================================');
+        console.log('═══════════════════════════════════════════════════════════════');
+        console.log('\n');
         
         // Import payment verification logic
         const Razorpay = require('razorpay');
@@ -1063,13 +1072,43 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
         while (retries > 0 && !payment) {
           try {
             payment = await rzp.payments.fetch(razorpay_payment_id);
+            
+            console.log('💳 ========== PAYMENT STATUS FROM RAZORPAY ==========');
+            console.log('💳 Payment ID:', razorpay_payment_id);
+            console.log('💳 Payment Status:', payment?.status || 'NOT FOUND');
+            console.log('💳 Payment Amount:', payment?.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+            console.log('💳 Payment Method:', payment?.method || 'N/A');
+            console.log('💳 Payment Currency:', payment?.currency || 'N/A');
+            console.log('💳 Payment Created At:', payment?.created_at ? new Date(payment.created_at * 1000).toISOString() : 'N/A');
+            console.log('💳 Payment Captured:', payment?.captured ? 'YES' : 'NO');
+            console.log('💳 ===================================================');
+            
             if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
-              console.log('✅ Payment verified in callback handler:', {
-                paymentId: razorpay_payment_id,
-                status: payment.status,
-                amount: payment.amount
-              });
+              console.log('\n');
+              console.log('═══════════════════════════════════════════════════════════════');
+              console.log('✅ ✅ ✅ PAYMENT SUCCESS - VERIFIED FROM RAZORPAY ✅ ✅ ✅');
+              console.log('═══════════════════════════════════════════════════════════════');
+              console.log('✅ Payment ID:', razorpay_payment_id);
+              console.log('✅ Payment Status:', payment.status);
+              console.log('✅ Payment Amount:', payment.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+              console.log('✅ Payment Method:', payment.method || 'N/A');
+              console.log('✅ Order ID:', razorpay_order_id);
+              console.log('✅ Timestamp:', new Date().toISOString());
+              console.log('═══════════════════════════════════════════════════════════════');
+              console.log('\n');
               break;
+            } else if (payment && payment.status === 'failed') {
+              console.log('\n');
+              console.log('═══════════════════════════════════════════════════════════════');
+              console.log('❌ ❌ ❌ PAYMENT FAILED - STATUS FROM RAZORPAY ❌ ❌ ❌');
+              console.log('═══════════════════════════════════════════════════════════════');
+              console.log('❌ Payment ID:', razorpay_payment_id);
+              console.log('❌ Payment Status:', payment.status);
+              console.log('❌ Payment Amount:', payment.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+              console.log('❌ Order ID:', razorpay_order_id);
+              console.log('❌ Timestamp:', new Date().toISOString());
+              console.log('═══════════════════════════════════════════════════════════════');
+              console.log('\n');
             }
             retries--;
             if (retries > 0) {
@@ -1082,6 +1121,22 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
               await new Promise(resolve => setTimeout(resolve, 1000));
             }
           }
+        }
+        
+        if (!payment) {
+          console.log('\n');
+          console.log('═══════════════════════════════════════════════════════════════');
+          console.log('⚠️ ⚠️ ⚠️ PAYMENT NOT FOUND IN RAZORPAY ⚠️ ⚠️ ⚠️');
+          console.log('═══════════════════════════════════════════════════════════════');
+          console.log('⚠️ Payment ID:', razorpay_payment_id);
+          console.log('⚠️ Order ID:', razorpay_order_id);
+          console.log('⚠️ Possible Reasons:');
+          console.log('   1. Payment is still processing');
+          console.log('   2. Payment ID is incorrect');
+          console.log('   3. Payment was not created');
+          console.log('⚠️ Timestamp:', new Date().toISOString());
+          console.log('═══════════════════════════════════════════════════════════════');
+          console.log('\n');
         }
         
         // If payment verified, update booking/ticket immediately

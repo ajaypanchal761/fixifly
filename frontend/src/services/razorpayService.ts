@@ -84,8 +84,28 @@ class RazorpayService {
     console.log('🔧 RazorpayService initialized:', {
       apiUrl: this.apiUrl,
       razorpayKey: this.razorpayKey ? `${this.razorpayKey.substring(0, 8)}...` : 'NOT SET',
-      env: import.meta.env.MODE || 'unknown'
+      env: import.meta.env.MODE || 'unknown',
+      isProduction: import.meta.env.PROD,
+      viteApiUrl: import.meta.env.VITE_API_URL || 'NOT SET',
+      hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A'
     });
+    
+    // CRITICAL: Live Server Verification
+    if (import.meta.env.PROD || (typeof window !== 'undefined' && window.location.hostname.includes('getfixfly.com'))) {
+      console.log('🌐 ========== LIVE SERVER VERIFICATION ==========');
+      console.log('🌐 VITE_API_URL:', import.meta.env.VITE_API_URL || 'NOT SET');
+      console.log('🌐 this.apiUrl:', this.apiUrl);
+      console.log('🌐 Expected: https://api.getfixfly.com/api');
+      console.log('🌐 Match:', this.apiUrl === 'https://api.getfixfly.com/api' ? '✅ YES' : '❌ NO');
+      
+      if (this.apiUrl !== 'https://api.getfixfly.com/api' && this.apiUrl !== 'https://api.getfixfly.com/api/') {
+        console.warn('⚠️ ⚠️ ⚠️ WARNING: VITE_API_URL might not be set correctly! ⚠️ ⚠️ ⚠️');
+        console.warn('⚠️ Current value:', this.apiUrl);
+        console.warn('⚠️ Expected: https://api.getfixfly.com/api');
+        console.warn('⚠️ Please verify Vercel environment variables');
+      }
+      console.log('🌐 ===============================================');
+    }
     
     if (!this.razorpayKey) {
       console.error('⚠️  RAZORPAY_KEY_ID not configured in environment variables');
@@ -243,7 +263,21 @@ class RazorpayService {
         throw new Error('Invalid payment amount');
       }
 
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/create-order`;
+      // CRITICAL: Live Server Fix - Use production backend URL if in production
+      const isProduction = import.meta.env.PROD || 
+                          window.location.hostname.includes('getfixfly.com') ||
+                          window.location.hostname.includes('vercel.app') ||
+                          window.location.protocol === 'https:';
+      
+      let orderApiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      
+      // If production and VITE_API_URL is relative/localhost, use production backend
+      if (isProduction && (orderApiBase.includes('localhost') || !orderApiBase.startsWith('http'))) {
+        orderApiBase = 'https://api.getfixfly.com/api';
+        console.log('🔧 PRODUCTION: Using production backend for order creation:', orderApiBase);
+      }
+      
+      const apiUrl = `${orderApiBase}/payment/create-order`;
       
       console.log('📤 Creating Razorpay order:', {
         apiUrl,
@@ -346,6 +380,24 @@ class RazorpayService {
   }
 
   /**
+   * Send message to parent window (for iframe scenarios) - RentYatra style
+   */
+  private sendMessageToParent(messageType: string, data: any): void {
+    if (this.isInIframe()) {
+      try {
+        (window.parent as any).postMessage({
+          type: messageType,
+          data: data,
+          source: 'fixfly-payment'
+        }, '*'); // In production, use specific origin
+        console.log(`📤 Sent message to parent: ${messageType}`, data);
+      } catch (error) {
+        console.error('❌ Error sending message to parent:', error);
+      }
+    }
+  }
+
+  /**
    * Process payment with order details
    */
   async processPayment(paymentData: {
@@ -413,6 +465,15 @@ class RazorpayService {
       console.log('🔍 Has Flutter WebView:', !!(window as any).flutter_inappwebview);
       console.log('🔍 Has Cordova:', !!(window as any).cordova);
       console.log('🔍 Has Capacitor:', !!(window as any).Capacitor);
+      
+      // CRITICAL: Iframe detection details
+      if (isInIframe) {
+        console.log('⚠️ ⚠️ ⚠️ IFRAME DETECTED - REDIRECT MODE MANDATORY ⚠️ ⚠️ ⚠️');
+        console.log('⚠️ Iframe mein modal mode work nahi karta');
+        console.log('⚠️ Redirect mode aur callback_url required hai');
+        console.log('⚠️ Parent window communication enabled');
+      }
+      
       console.log('🔍 ===============================================');
 
       // Build callback URL for redirect mode (RentYatra style - Simple)
@@ -426,6 +487,20 @@ class RazorpayService {
       // Remove trailing slash if present
       apiBase = apiBase.replace(/\/+$/, '');
       
+      // CRITICAL: Production/Live Server Detection
+      const isProduction = import.meta.env.PROD || 
+                          window.location.hostname.includes('getfixfly.com') ||
+                          window.location.hostname.includes('vercel.app') ||
+                          window.location.protocol === 'https:';
+      
+      console.log('🌐 ========== PRODUCTION/LIVE SERVER DETECTION ==========');
+      console.log('🌐 Is Production:', isProduction);
+      console.log('🌐 Current Hostname:', window.location.hostname);
+      console.log('🌐 Current Protocol:', window.location.protocol);
+      console.log('🌐 VITE_API_URL:', import.meta.env.VITE_API_URL || 'NOT SET');
+      console.log('🌐 this.apiUrl:', this.apiUrl);
+      console.log('🌐 ===============================================');
+      
       // CRITICAL: For WebView/APK, ensure we use production backend URL
       // If apiBase is relative or localhost, use production backend
       const isLocalhost = apiBase.includes('localhost') || 
@@ -435,27 +510,94 @@ class RazorpayService {
       // Production backend URL (should match your actual backend)
       const PRODUCTION_BACKEND_URL = 'https://api.getfixfly.com';
       
-      // For WebView/APK or if localhost detected, use production backend
-      if (useRedirectMode && (isLocalhost || !apiBase.startsWith('http'))) {
+      // CRITICAL: Live Server/Production Fix
+      // If we're in production but apiBase is relative/localhost, use production backend
+      if (isProduction && (isLocalhost || !apiBase.startsWith('http'))) {
+        console.log('🔧 PRODUCTION MODE: VITE_API_URL is relative/localhost');
+        console.log('🔧 Using production backend URL:', PRODUCTION_BACKEND_URL);
+        apiBase = PRODUCTION_BACKEND_URL;
+      } else if (useRedirectMode && (isLocalhost || !apiBase.startsWith('http'))) {
+        // For WebView/APK, always use production backend if localhost
         console.log('🔧 WEBVIEW/APK MODE: Using production backend URL');
         apiBase = PRODUCTION_BACKEND_URL;
       }
       
       // Ensure absolute URL
       if (!apiBase.startsWith('http://') && !apiBase.startsWith('https://')) {
-        apiBase = `https://${apiBase}`;
+        // If still relative, construct from current origin
+        const currentOrigin = window.location.origin;
+        if (isProduction && currentOrigin.includes('getfixfly.com')) {
+          // Production: use api subdomain
+          apiBase = `https://api.getfixfly.com`;
+        } else {
+          // Development: use current origin
+          apiBase = `${currentOrigin}${apiBase.startsWith('/') ? '' : '/'}${apiBase}`;
+        }
+      }
+      
+      // CRITICAL: Handle /api suffix properly
+      // If apiBase already ends with /api, don't add it again
+      // If apiBase is just the domain, add /api
+      let finalApiBase = apiBase;
+      if (apiBase.endsWith('/api')) {
+        // Already has /api, remove it temporarily
+        finalApiBase = apiBase.replace(/\/api\/?$/, '');
+      } else if (apiBase.endsWith('/api/')) {
+        // Has /api/ with trailing slash
+        finalApiBase = apiBase.replace(/\/api\/+$/, '');
       }
       
       // Build callback URL - RentYatra style (simple)
       // Note: RentYatra uses `/payment/razorpay-callback` (no `/api` prefix)
       // But Fixfly uses `/api/payment/razorpay-callback`
       const callbackUrl = useRedirectMode 
-        ? `${apiBase}/api/payment/razorpay-callback`
+        ? `${finalApiBase}/api/payment/razorpay-callback`
         : undefined;
       
-      console.log('🔗 ========== CALLBACK URL CONFIGURATION ==========');
-      console.log('🔗 API Base:', apiBase);
+      console.log('🔗 ========== CALLBACK URL CONFIGURATION (LIVE SERVER) ==========');
+      console.log('🔗 Is Production:', isProduction);
+      console.log('🔗 VITE_API_URL:', import.meta.env.VITE_API_URL || 'NOT SET');
+      console.log('🔗 this.apiUrl:', this.apiUrl);
+      console.log('🔗 Initial apiBase:', apiBase);
+      console.log('🔗 Final apiBase (after /api handling):', finalApiBase);
       console.log('🔗 Callback URL:', callbackUrl || 'N/A (Modal Mode)');
+      console.log('🔗 Expected Callback URL: https://api.getfixfly.com/api/payment/razorpay-callback');
+      console.log('🔗 Callback URL Match:', callbackUrl === 'https://api.getfixfly.com/api/payment/razorpay-callback' ? '✅ MATCH' : '❌ MISMATCH');
+      
+      // CRITICAL: If mismatch, show detailed comparison
+      if (callbackUrl && callbackUrl !== 'https://api.getfixfly.com/api/payment/razorpay-callback') {
+        console.error('❌ ❌ ❌ CALLBACK URL MISMATCH DETECTED ❌ ❌ ❌');
+        console.error('❌ Expected: https://api.getfixfly.com/api/payment/razorpay-callback');
+        console.error('❌ Actual:', callbackUrl);
+        console.error('❌ This will cause payment failures!');
+        console.error('❌ Please check:');
+        console.error('   1. Vercel environment variable: VITE_API_URL=https://api.getfixfly.com/api');
+        console.error('   2. Frontend rebuild after setting environment variable');
+        console.error('   3. Browser cache cleared');
+      }
+      
+      // CRITICAL: Verify callback URL is publicly accessible
+      if (callbackUrl) {
+        try {
+          const urlObj = new URL(callbackUrl);
+          const isPublic = !urlObj.hostname.includes('localhost') && 
+                          !urlObj.hostname.includes('127.0.0.1') &&
+                          urlObj.protocol === 'https:';
+          console.log('🔗 Callback URL is Public:', isPublic ? '✅ YES' : '❌ NO');
+          console.log('🔗 Callback URL Protocol:', urlObj.protocol);
+          console.log('🔗 Callback URL Hostname:', urlObj.hostname);
+          
+          if (!isPublic && isProduction) {
+            console.error('❌ ❌ ❌ CRITICAL ERROR: Callback URL is not publicly accessible! ❌ ❌ ❌');
+            console.error('❌ This will cause payment failures on live server!');
+            console.error('❌ Callback URL:', callbackUrl);
+            console.error('❌ Expected: https://api.getfixfly.com/api/payment/razorpay-callback');
+          }
+        } catch (e) {
+          console.error('❌ Error parsing callback URL:', e);
+        }
+      }
+      
       console.log('🔗 ===============================================');
       
       // For WebView, pre-populate callback URL with order_id and booking/ticket IDs
@@ -551,6 +693,7 @@ class RazorpayService {
         handler: (response: PaymentResponse) => {
           console.log('🎯 Razorpay handler called:', {
             useRedirectMode,
+            isInIframe: this.isInIframe(),
             hasResponse: !!response,
             orderId: response?.razorpay_order_id,
             paymentId: response?.razorpay_payment_id
@@ -561,40 +704,49 @@ class RazorpayService {
             console.log('✅ Modal mode - calling onSuccess directly');
             paymentData.onSuccess(response);
           } else {
-            // For redirect mode (WebView), handler might not execute
+            // For redirect mode (WebView/Iframe), handler might not execute
             // But we still log it for debugging
             console.log('⚠️ Redirect mode - handler called but redirect will happen via callback_url');
             console.log('📦 Response data:', JSON.stringify(response, null, 2));
-          }
-          // For redirect mode (WebView), callback will be handled by PaymentCallback page via callback_url
-        },
-        modal: {
-          ondismiss: () => {
-            if (!useRedirectMode) {
-              paymentData.onError(new Error('PAYMENT_CANCELLED'));
+            
+            // CRITICAL: Iframe mein parent window ko message send karein (RentYatra style)
+            if (this.isInIframe()) {
+              console.log('📤 Iframe detected - sending payment response to parent window');
+              this.sendMessageToParent('payment_success', {
+                orderId: response?.razorpay_order_id || (response as any)?.razorpayOrderId,
+                paymentId: response?.razorpay_payment_id || (response as any)?.razorpayPaymentId,
+                signature: response?.razorpay_signature || (response as any)?.razorpaySignature,
+                response: response
+              });
             }
-          },
-          escape: true,
-          animation: true,
-          // WebView specific modal settings
-          backdropclose: true,
+          }
+          // For redirect mode (WebView/Iframe), callback will be handled by PaymentCallback page via callback_url
         },
+        // CRITICAL: Iframe mein modal options disable karein - modal iframe mein work nahi karta
+        // RentYatra style: Modal options sirf non-iframe scenarios mein use karein
+        ...(useRedirectMode ? {} : {
+          modal: {
+            ondismiss: () => {
+              paymentData.onError(new Error('PAYMENT_CANCELLED'));
+            },
+            escape: true,
+            animation: true,
+            backdropclose: true,
+          },
+        }),
         // WebView specific options
         retry: {
           enabled: true,
           max_count: 3,
         },
-        // CRITICAL: For WebView/APK - MUST use redirect mode (RentYatra style)
+        // CRITICAL: For WebView/APK/Iframe - MUST use redirect mode (RentYatra style)
         // Use spread operator to conditionally add redirect options
         // RentYatra uses: ...(useRedirectMode && { redirect: true, callback_url: callbackUrl })
+        // IMPORTANT: Iframe mein modal mode work nahi karta, isliye redirect mode mandatory hai
         ...(useRedirectMode && callbackUrl ? {
-          redirect: true, // REQUIRED for WebView - modal mode doesn't work
+          redirect: true, // REQUIRED for WebView/Iframe - modal mode doesn't work
           callback_url: callbackUrl, // Callback URL for redirect mode - MUST be publicly accessible
         } : {}),
-        
-        // CRITICAL: For WebView, ensure redirect works properly
-        // Add redirect parameter to ensure Razorpay redirects properly
-        redirect: useRedirectMode ? true : undefined,
         // Add timeout
         timeout: 300,
         // Additional WebView compatibility options
@@ -836,15 +988,32 @@ class RazorpayService {
         });
       }
       
-      // Add payment.failed event handler for WebView
+      // Add payment.failed event handler for WebView/Iframe
         razorpay.on('payment.failed', (response: any) => {
           console.error('❌ ========== RAZORPAY PAYMENT.FAILED EVENT FIRED ==========');
           console.error('❌ Response:', JSON.stringify(response, null, 2));
           console.error('❌ Error Object:', response.error);
+          console.error('❌ Error Code:', response.error?.code);
+          console.error('❌ Error Description:', response.error?.description);
+          console.error('❌ Error Reason:', response.error?.reason);
           console.error('❌ Metadata:', response.metadata);
           console.error('❌ Use Redirect Mode:', useRedirectMode);
+          console.error('❌ Is In Iframe:', this.isInIframe());
           console.error('❌ Callback URL:', callbackUrl);
           console.error('❌ ========================================================');
+          
+          // CRITICAL: Iframe mein parent window ko failure message send karein
+          if (this.isInIframe()) {
+            console.error('📤 Iframe detected - sending payment failure to parent window');
+            this.sendMessageToParent('payment_failed', {
+              error: response.error,
+              errorCode: response.error?.code,
+              errorDescription: response.error?.description,
+              errorReason: response.error?.reason,
+              metadata: response.metadata,
+              orderId: paymentData.orderId
+            });
+          }
           
           const errorMessage = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';
           
