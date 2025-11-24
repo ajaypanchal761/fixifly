@@ -229,17 +229,20 @@ const PaymentCallback = () => {
           }
         }
 
-        if (!razorpay_order_id || !razorpay_payment_id) {
-          console.error('❌ Missing payment details - cannot proceed with verification');
+        // CRITICAL: For WebView/APK, payment_id is required but order_id might be missing
+        // We can still verify payment using payment_id only
+        if (!razorpay_payment_id) {
+          console.error('❌ Missing payment ID - cannot proceed with verification');
           setStatus('error');
           setMessage('Payment verification failed: Missing payment details. Please contact support.');
           return;
         }
 
         // Verify payment with backend
+        // CRITICAL: order_id is optional for WebView scenarios - backend will fetch it from payment
         const verifyData: any = {
-          razorpay_order_id,
           razorpay_payment_id,
+          razorpay_order_id: razorpay_order_id || undefined, // Optional for WebView
           razorpay_signature: razorpay_signature || undefined,
         };
 
@@ -271,9 +274,11 @@ const PaymentCallback = () => {
 
         let verifyResult = await verifyResponse.json();
 
-        // If verification failed and we have payment_id, try verify-by-id endpoint (fallback for WebView)
-        if (!verifyResult.success && razorpay_payment_id) {
-          console.log('⚠️ Primary verification failed, trying verify-by-id endpoint...');
+        // CRITICAL: If verification failed or order_id is missing, try verify-by-id endpoint (fallback for WebView)
+        // This is especially important for WebView where order_id might not be in URL params
+        if ((!verifyResult.success || !razorpay_order_id) && razorpay_payment_id) {
+          console.log('⚠️ Primary verification failed or order_id missing, trying verify-by-id endpoint...');
+          console.log('⚠️ Reason:', !verifyResult.success ? 'Verification failed' : 'Order ID missing');
           try {
             const verifyByIdResponse = await fetch(
               `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify-by-id`,

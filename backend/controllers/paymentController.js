@@ -98,15 +98,21 @@ const verifyPayment = asyncHandler(async (req, res) => {
             
             // FIXED: Added parentheses for correct logic evaluation
             if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
-          // Verify order_id matches
-          if (payment.order_id === razorpay_order_id || !payment.order_id) {
+          // Verify order_id matches (or accept if order_id not provided - WebView scenario)
+          // CRITICAL: For WebView/APK, order_id might not be in URL params, so we accept payment if status is captured
+          if (!razorpay_order_id || payment.order_id === razorpay_order_id || !payment.order_id) {
             isAuthentic = true;
                 console.log('✅ Payment verified via Razorpay API', {
                   paymentId: razorpay_payment_id,
-                  orderId: payment.order_id,
+                  orderId: payment.order_id || razorpay_order_id || 'N/A',
                   status: payment.status,
-                  retriesLeft: retries
+                  retriesLeft: retries,
+                  note: razorpay_order_id ? 'Order ID matched' : 'Order ID not provided (WebView scenario)'
                 });
+                // Update razorpay_order_id from payment if missing
+                if (!razorpay_order_id && payment.order_id) {
+                  razorpay_order_id = payment.order_id;
+                }
                 break;
           } else {
             console.warn('⚠️ Order ID mismatch:', {
@@ -154,6 +160,29 @@ const verifyPayment = asyncHandler(async (req, res) => {
             message: 'Invalid payment signature'
           });
         }
+      }
+    }
+
+    // CRITICAL: For WebView/APK, if we have payment_id but verification failed, try one more time
+    // Sometimes payment takes a few seconds to be available in Razorpay API
+    if (!isAuthentic && razorpay_payment_id && !razorpay_signature) {
+      console.log('🔄 WebView scenario: Payment verification failed, trying one more time...');
+      try {
+        await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
+        const retryPayment = await razorpay.payments.fetch(razorpay_payment_id);
+        if (retryPayment && (retryPayment.status === 'captured' || retryPayment.status === 'authorized')) {
+          isAuthentic = true;
+          if (!razorpay_order_id && retryPayment.order_id) {
+            razorpay_order_id = retryPayment.order_id;
+          }
+          console.log('✅ Payment verified on retry:', {
+            paymentId: razorpay_payment_id,
+            orderId: razorpay_order_id || retryPayment.order_id,
+            status: retryPayment.status
+          });
+        }
+      } catch (retryError) {
+        console.warn('⚠️ Retry verification also failed:', retryError.message);
       }
     }
 

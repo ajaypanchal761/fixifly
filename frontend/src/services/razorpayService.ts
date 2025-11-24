@@ -461,11 +461,11 @@ class RazorpayService {
       };
       const PRODUCTION_BACKEND_URL = getProductionBackendUrl();
       
-      // CRITICAL: For WebView in production, always use production backend URL
-      // Don't rely on localhost or current origin in production WebView
-      if (isAPK && isProduction) {
-        // In WebView/APK production, always use production backend
-        console.log('🔧 WEBVIEW PRODUCTION MODE: Using production backend URL');
+      // CRITICAL: For WebView/APK, ALWAYS use production backend URL
+      // This ensures callback URL is publicly accessible from Razorpay
+      if (isAPK) {
+        // In WebView/APK, always use production backend (even in dev for testing)
+        console.log('🔧 WEBVIEW/APK MODE: Using production backend URL');
         console.log('🔧 Detected APK/WebView context');
         apiBase = PRODUCTION_BACKEND_URL;
       } else if (isProduction && isLocalhostEnv) {
@@ -1215,11 +1215,11 @@ class RazorpayService {
       };
       const PRODUCTION_BACKEND_URL = getProductionBackendUrl();
       
-      // CRITICAL: For WebView in production, always use production backend URL
-      // Don't rely on localhost or current origin in production WebView
-      if (isAPK && isProduction) {
-        // In WebView/APK production, always use production backend
-        console.log('🔧 WEBVIEW PRODUCTION MODE: Using production backend URL');
+      // CRITICAL: For WebView/APK, ALWAYS use production backend URL
+      // This ensures callback URL is publicly accessible from Razorpay
+      if (isAPK) {
+        // In WebView/APK, always use production backend (even in dev for testing)
+        console.log('🔧 WEBVIEW/APK MODE: Using production backend URL');
         console.log('🔧 Detected APK/WebView context');
         apiBase = PRODUCTION_BACKEND_URL;
       } else if (isProduction && isLocalhostEnv) {
