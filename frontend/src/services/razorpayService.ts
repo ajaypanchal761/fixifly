@@ -1369,16 +1369,10 @@ class RazorpayService {
         },
         // CRITICAL: For WebView/APK - MUST use redirect mode (like RentYatra)
         // Use spread operator to conditionally add redirect options
-        ...(useRedirectMode && {
+        // IMPORTANT: Both redirect: true AND callback_url are required for WebView
+        ...(useRedirectMode && callbackUrl && {
           redirect: true, // REQUIRED for WebView - modal mode doesn't work
           callback_url: callbackUrl, // Callback URL for redirect mode - MUST be publicly accessible
-        }),
-        
-        // CRITICAL: Log the exact options being sent to Razorpay (for debugging)
-        // This helps verify that callback_url is properly set
-        ...(useRedirectMode && {
-          // Add a note in console about callback URL
-          _debug_callback_url: callbackUrl // This won't be sent to Razorpay, just for logging
         }),
         
         // Handler - CRITICAL: Like RentYatra, always define handler
@@ -1448,12 +1442,16 @@ class RazorpayService {
             onFailure(handlerError);
           }
         },
-        modal: {
-          ondismiss: onClose,
-          escape: true,
-          animation: true,
-          backdropclose: true,
-        },
+        // CRITICAL: For WebView redirect mode, modal options should be minimal or undefined
+        // In redirect mode, modal doesn't apply - payment opens in redirect
+        ...(useRedirectMode ? {} : {
+          modal: {
+            ondismiss: onClose,
+            escape: true,
+            animation: true,
+            backdropclose: true,
+          },
+        }),
         // WebView specific options
         retry: {
           enabled: true,
@@ -1496,6 +1494,63 @@ class RazorpayService {
 
       // Open Razorpay checkout
       const razorpay = new window.Razorpay(options);
+      
+      // CRITICAL: For WebView, add event listeners to catch payment events (like RentYatra)
+      // These events are essential for debugging payment failures in WebView/APK
+      if (useRedirectMode) {
+        console.log('📱 ========== ADDING WEBVIEW PAYMENT EVENT LISTENERS ==========');
+        console.log('📱 Adding payment.failed, payment.authorized, payment.captured listeners');
+        console.log('📱 ===================================================');
+        
+        // Add payment.failed event handler (CRITICAL for WebView)
+        razorpay.on('payment.failed', (response: any) => {
+          console.error('❌ ❌ ❌ ========== PAYMENT FAILED EVENT (WEBVIEW) ========== ❌ ❌ ❌');
+          console.error('❌ Timestamp:', new Date().toISOString());
+          console.error('❌ Response:', JSON.stringify(response, null, 2));
+          console.error('❌ Error Code:', response.error?.code);
+          console.error('❌ Error Description:', response.error?.description);
+          console.error('❌ Error Reason:', response.error?.reason);
+          console.error('❌ Error Source:', response.error?.source);
+          console.error('❌ Error Step:', response.error?.step);
+          console.error('❌ Order ID:', order.orderId);
+          console.error('❌ User Agent:', navigator.userAgent);
+          console.error('❌ ========================================================');
+          
+          // Store failure info for debugging
+          try {
+            localStorage.setItem('payment_failure_webview', JSON.stringify({
+              error: response.error,
+              timestamp: Date.now(),
+              orderId: order.orderId,
+              userAgent: navigator.userAgent
+            }));
+            console.log('💾 Stored payment failure info in localStorage');
+          } catch (e) {
+            console.warn('⚠️ Could not store payment failure info:', e);
+          }
+          
+          // Call onError callback
+          onFailure(new Error(response.error?.description || response.error?.reason || 'Payment failed in WebView'));
+        });
+        
+        // Add payment.authorized event handler (for debugging)
+        razorpay.on('payment.authorized', (response: any) => {
+          console.log('✅ ========== PAYMENT AUTHORIZED EVENT (WEBVIEW) ==========');
+          console.log('✅ Response:', JSON.stringify(response, null, 2));
+          console.log('✅ Order ID:', order.orderId);
+          console.log('✅ ===================================================');
+        });
+        
+        // Add payment.captured event handler (for debugging)
+        razorpay.on('payment.captured', (response: any) => {
+          console.log('✅ ========== PAYMENT CAPTURED EVENT (WEBVIEW) ==========');
+          console.log('✅ Response:', JSON.stringify(response, null, 2));
+          console.log('✅ Order ID:', order.orderId);
+          console.log('✅ ===================================================');
+        });
+        
+        console.log('✅ WebView payment event listeners added successfully');
+      }
       
       // For WebView, add event listeners to catch payment events
       if (useRedirectMode) {
@@ -1629,12 +1684,15 @@ class RazorpayService {
           
           // CRITICAL: For WebView, redirect to backend callback with error
           // Backend will then redirect to frontend with error
+          // IMPORTANT: Even if payment fails, we MUST redirect to callback so backend can log it
           if (useRedirectMode && callbackUrl) {
             try {
               const errorCallbackUrl = new URL(callbackUrl);
               errorCallbackUrl.searchParams.set('error', 'payment_failed');
               errorCallbackUrl.searchParams.set('error_message', encodeURIComponent(errorMessage));
               errorCallbackUrl.searchParams.set('payment_failed', 'true');
+              
+              // Add payment IDs if available
               if (response.error?.metadata?.payment_id) {
                 errorCallbackUrl.searchParams.set('razorpay_payment_id', response.error.metadata.payment_id);
               }
@@ -1642,8 +1700,22 @@ class RazorpayService {
                 errorCallbackUrl.searchParams.set('razorpay_order_id', order.orderId);
               }
               
-              console.error('❌ Redirecting to backend error callback:', errorCallbackUrl.toString());
+              // Add error details for backend logging
+              if (response.error?.code) {
+                errorCallbackUrl.searchParams.set('error_code', response.error.code);
+              }
+              if (response.error?.reason) {
+                errorCallbackUrl.searchParams.set('error_reason', encodeURIComponent(response.error.reason));
+              }
+              
+              console.error('❌ ========== REDIRECTING TO BACKEND ERROR CALLBACK ==========');
+              console.error('❌ Error Callback URL:', errorCallbackUrl.toString());
               console.error('❌ Backend will then redirect to frontend with error details');
+              console.error('❌ This ensures payment failure is logged in backend');
+              console.error('❌ ===================================================');
+              
+              // CRITICAL: Force redirect immediately - don't wait
+              // This ensures backend receives the failure callback
               window.location.href = errorCallbackUrl.toString();
             } catch (e) {
               console.error('❌ Error redirecting to error callback:', e);
@@ -1701,7 +1773,7 @@ class RazorpayService {
           throw new Error('Razorpay instance is null or undefined');
         }
         
-        // CRITICAL: Log the exact callback URL before opening Razorpay
+        // CRITICAL: Log the exact callback URL and Razorpay options before opening
         if (useRedirectMode && callbackUrl) {
           console.log('🔗 ========== FINAL CALLBACK URL VERIFICATION ==========');
           console.log('🔗 Callback URL that will be sent to Razorpay:', callbackUrl);
@@ -1718,8 +1790,79 @@ class RazorpayService {
             console.error('❌ ❌ ❌ CALLBACK URL MISMATCH ❌ ❌ ❌');
             console.error('❌ Expected: https://api.getfixfly.com/api/payment/razorpay-callback');
             console.error('❌ Actual:', callbackUrl);
+            console.error('❌ This will cause payment to fail!');
           }
+          
+          // CRITICAL: Verify Razorpay options have callback_url
+          console.log('🔗 Razorpay Options Check:');
+          console.log('🔗   redirect:', useRedirectMode ? 'true' : 'false');
+          console.log('🔗   callback_url:', callbackUrl);
+          console.log('🔗   order_id:', order.orderId);
+          console.log('🔗   amount:', order.amount);
           console.log('🔗 ===================================================');
+        } else if (useRedirectMode && !callbackUrl) {
+          console.error('❌ ❌ ❌ CRITICAL ERROR: CALLBACK URL IS MISSING ❌ ❌ ❌');
+          console.error('❌ WebView mode requires callback_url but it is not set!');
+          console.error('❌ Payment will fail without callback URL!');
+        }
+        
+        // CRITICAL: Log callback URL verification and final options check
+        if (useRedirectMode && callbackUrl) {
+          console.log('🔗 ========== CALLBACK URL VERIFICATION ==========');
+          console.log('🔗 Full Callback URL:', callbackUrl);
+          console.log('🔗 Expected Backend URL: https://api.getfixfly.com/api/payment/razorpay-callback');
+          console.log('🔗 Test Endpoint (confirmed working): https://api.getfixfly.com/api/payment/test-callback');
+          try {
+            const urlObj = new URL(callbackUrl);
+            console.log('🔗 Callback URL Protocol:', urlObj.protocol);
+            console.log('🔗 Callback URL Host:', urlObj.host);
+            console.log('🔗 Callback URL Path:', urlObj.pathname);
+            console.log('🔗 Callback URL is Public:', !urlObj.hostname.includes('localhost'));
+            console.log('🔗 Callback URL is HTTPS:', urlObj.protocol === 'https:');
+            
+            // Verify callback URL matches expected format
+            const expectedUrl = 'https://api.getfixfly.com/api/payment/razorpay-callback';
+            if (callbackUrl === expectedUrl) {
+              console.log('✅ Callback URL matches expected format');
+            } else {
+              console.warn('⚠️ Callback URL does not match expected format');
+              console.warn('⚠️ Expected:', expectedUrl);
+              console.warn('⚠️ Actual:', callbackUrl);
+            }
+            console.log('🔗 ============================================');
+          } catch (e) {
+            console.error('❌ Error parsing callback URL:', e);
+          }
+        }
+        
+        // CRITICAL: Final check before opening Razorpay
+        if (useRedirectMode) {
+          console.log('🔍 ========== FINAL RAZORPAY OPTIONS CHECK ==========');
+          console.log('🔍 Redirect Mode:', useRedirectMode);
+          console.log('🔍 Callback URL:', callbackUrl);
+          console.log('🔍 Options has redirect:', options.redirect === true);
+          console.log('🔍 Options has callback_url:', !!options.callback_url);
+          console.log('🔍 Options callback_url value:', options.callback_url || 'MISSING');
+          console.log('🔍 Order ID:', order.orderId);
+          console.log('🔍 Amount:', order.amount);
+          
+          // CRITICAL: Verify callback_url is set in options
+          if (!options.callback_url) {
+            console.error('❌ ❌ ❌ CRITICAL ERROR: callback_url is NOT set in Razorpay options! ❌ ❌ ❌');
+            console.error('❌ This will cause payment to fail in WebView!');
+            console.error('❌ Callback URL variable:', callbackUrl);
+            console.error('❌ Use Redirect Mode:', useRedirectMode);
+            throw new Error('Callback URL is required for WebView payment but is not set in Razorpay options');
+          }
+          
+          if (options.redirect !== true) {
+            console.error('❌ ❌ ❌ CRITICAL ERROR: redirect is NOT true in Razorpay options! ❌ ❌ ❌');
+            console.error('❌ This will cause payment to fail in WebView!');
+            throw new Error('Redirect mode is required for WebView payment but is not enabled in Razorpay options');
+          }
+          
+          console.log('✅ ✅ ✅ RAZORPAY OPTIONS VERIFIED FOR WEBVIEW ✅ ✅ ✅');
+          console.log('🔍 ===================================================');
         }
         
         razorpay.open();
@@ -1728,13 +1871,21 @@ class RazorpayService {
         
         // For WebView, log that payment page should be opening
         if (useRedirectMode) {
+          console.log('🔀 ========== WEBVIEW PAYMENT FLOW ==========');
           console.log('🔀 WebView Mode: Payment page should open in redirect mode');
           console.log('🔀 After payment, Razorpay will redirect to:', callbackUrl);
           console.log('🔀 Backend callback will then redirect to frontend callback page');
+          console.log('🔀 Expected Flow:');
+          console.log('   1. User completes payment in Razorpay');
+          console.log('   2. Razorpay redirects to:', callbackUrl);
+          console.log('   3. Backend processes callback and redirects to frontend');
+          console.log('   4. Frontend PaymentCallback page handles the result');
           console.log('🔀 If payment fails, check:');
           console.log('   1. Is callback URL publicly accessible?');
           console.log('   2. Is backend server running and accessible?');
           console.log('   3. Check backend logs for callback route hits');
+          console.log('   4. Check browser console for payment.failed event');
+          console.log('🔀 ===========================================');
         }
         
         // For WebView, add multiple checks to ensure modal opened

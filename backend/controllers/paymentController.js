@@ -882,11 +882,16 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     
     // If payment failed, add error parameters to frontend URL
     if (isPaymentFailed) {
-      const failureReason = req.query?.error_message || req.body?.error_message || 'Payment failed by user';
+      const failureReason = req.query?.error_message || req.body?.error_message || req.query?.error?.description || 'Payment failed by user';
       url.searchParams.set('error', 'payment_failed');
-      url.searchParams.set('error_message', failureReason);
+      url.searchParams.set('error_message', encodeURIComponent(failureReason));
       url.searchParams.set('payment_failed', 'true');
-      console.error('❌ Adding error parameters to frontend callback URL');
+      console.error('❌ ========== PAYMENT FAILED - ADDING ERROR PARAMETERS ==========');
+      console.error('❌ Failure Reason:', failureReason);
+      console.error('❌ Order ID:', razorpay_order_id || 'N/A');
+      console.error('❌ Payment ID:', razorpay_payment_id || 'N/A');
+      console.error('❌ Frontend Callback URL with error:', url.toString());
+      console.error('❌ ===================================================');
     }
     
     // Deep link URL for Flutter app (if configured)
