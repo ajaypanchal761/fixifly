@@ -110,23 +110,18 @@ const PaymentCallback = () => {
         console.log('📋 Ticket ID (from URL):', ticketId || 'MISSING');
         console.log('📋 ===================================================');
 
-        // Try multiple fallback methods if payment data is missing (WebView scenario)
+        // CRITICAL: If payment details missing from URL, try localStorage (like RentYatra)
+        // This is especially important for WebView where URL params might not be passed correctly
         if ((!razorpay_order_id || !razorpay_payment_id) && !razorpay_signature) {
           console.log('🔍 ========== STEP 4: PAYMENT DATA MISSING - TRYING FALLBACKS ==========');
           try {
-            // Method 1: Try localStorage (primary fallback)
+            // Method 1: Try localStorage (primary fallback) - like RentYatra
             console.log('🔍 Method 1: Checking localStorage...');
             const storedResponse = JSON.parse(localStorage.getItem('payment_response') || '{}');
-            if (storedResponse.razorpay_order_id) {
-              razorpay_order_id = razorpay_order_id || storedResponse.razorpay_order_id;
-              razorpay_payment_id = razorpay_payment_id || storedResponse.razorpay_payment_id;
-              razorpay_signature = razorpay_signature || storedResponse.razorpay_signature;
-              if (storedResponse.bookingId && !bookingId) {
-                // bookingId will be used from storedResponse
-              }
-              if (storedResponse.ticketId && !ticketId) {
-                // ticketId will be used from storedResponse
-              }
+            if (storedResponse.razorpay_order_id || storedResponse.razorpayOrderId) {
+              razorpay_order_id = razorpay_order_id || storedResponse.razorpay_order_id || storedResponse.razorpayOrderId;
+              razorpay_payment_id = razorpay_payment_id || storedResponse.razorpay_payment_id || storedResponse.razorpayPaymentId;
+              razorpay_signature = razorpay_signature || storedResponse.razorpay_signature || storedResponse.razorpaySignature;
               console.log('✅ ✅ ✅ Retrieved payment data from localStorage');
               console.log('✅ Order ID:', razorpay_order_id ? razorpay_order_id.substring(0, 10) + '...' : 'MISSING');
               console.log('✅ Payment ID:', razorpay_payment_id ? razorpay_payment_id.substring(0, 10) + '...' : 'MISSING');
@@ -139,10 +134,10 @@ const PaymentCallback = () => {
               try {
                 console.log('🔍 Method 2: Checking sessionStorage...');
                 const sessionResponse = JSON.parse(sessionStorage.getItem('payment_response') || '{}');
-                if (sessionResponse.razorpay_order_id) {
-                  razorpay_order_id = razorpay_order_id || sessionResponse.razorpay_order_id;
-                  razorpay_payment_id = razorpay_payment_id || sessionResponse.razorpay_payment_id;
-                  razorpay_signature = razorpay_signature || sessionResponse.razorpay_signature;
+                if (sessionResponse.razorpay_order_id || sessionResponse.razorpayOrderId) {
+                  razorpay_order_id = razorpay_order_id || sessionResponse.razorpay_order_id || sessionResponse.razorpayOrderId;
+                  razorpay_payment_id = razorpay_payment_id || sessionResponse.razorpay_payment_id || sessionResponse.razorpayPaymentId;
+                  razorpay_signature = razorpay_signature || sessionResponse.razorpay_signature || sessionResponse.razorpaySignature;
                   console.log('✅ ✅ ✅ Retrieved payment data from sessionStorage');
                 } else {
                   console.log('⚠️ No payment data in sessionStorage');

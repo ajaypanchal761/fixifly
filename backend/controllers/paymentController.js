@@ -957,11 +957,10 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       }
     }
     
-    console.log('🔀 ========== STEP 7: RETURNING HTML FOR WEBVIEW REDIRECT ==========');
+    console.log('🔀 ========== STEP 7: REDIRECTING TO FRONTEND ==========');
     console.log('🔀 Is WebView:', isWebView);
     console.log('🔀 Is Flutter WebView:', isFlutterWebView);
     console.log('🔀 Redirect URL:', url.toString());
-    console.log('🔀 Deep Link URL:', deepLinkUrl);
     console.log('🔀 Payment ID:', razorpay_payment_id || 'N/A');
     console.log('🔀 Order ID:', razorpay_order_id || 'N/A');
     console.log('🔀 Booking ID:', bookingId || 'N/A');
@@ -969,219 +968,18 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     console.log('🔀 Timestamp:', new Date().toISOString());
     console.log('🔀 ===================================================');
     
-    // Return HTML page with auto-submit form and deep linking support (more reliable in WebView)
-    // CRITICAL: For WebView, use multiple redirect methods to ensure it works
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Processing Payment...</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="UTF-8">
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          }
-          .container {
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            max-width: 400px;
-            width: 90%;
-          }
-          .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h2>Processing Payment...</h2>
-          <p>Please wait while we redirect you...</p>
-          <div class="spinner"></div>
-        </div>
-        <form id="paymentForm" method="GET" action="${url.toString()}" style="display: none;">
-        </form>
-        <script>
-          (function() {
-            // Payment data
-            const paymentData = {
-              razorpay_order_id: '${razorpay_order_id || ''}',
-              razorpay_payment_id: '${razorpay_payment_id || ''}',
-              razorpay_signature: '${razorpay_signature || ''}',
-              bookingId: '${bookingId || ''}',
-              ticketId: '${ticketId || ''}'
-            };
-            
-            const callbackUrl = '${url.toString()}';
-            
-            console.log('🔔 Payment callback received:', paymentData);
-            console.log('🔔 Redirecting to:', callbackUrl);
-            
-            // Store in multiple places for reliability
-            try {
-              // Method 1: localStorage
-              localStorage.setItem('payment_response', JSON.stringify(paymentData));
-              console.log('💾 Stored payment response in localStorage');
-              
-              // Method 2: sessionStorage (backup)
-              sessionStorage.setItem('payment_response', JSON.stringify(paymentData));
-              console.log('💾 Stored payment response in sessionStorage');
-            } catch(e) {
-              console.warn('⚠️ Storage not available:', e);
-            }
-            
-            // CRITICAL: For WebView, try multiple redirect methods
-            let redirectAttempted = false;
-            
-            function performRedirect() {
-              if (redirectAttempted) {
-                console.log('⚠️ Redirect already attempted, skipping');
-                return;
-              }
-              redirectAttempted = true;
-              
-              try {
-                // Method 1: Direct window.location (most reliable)
-                console.log('🚀 Method 1: Direct window.location redirect');
-                window.location.href = callbackUrl;
-                
-                // Method 2: Fallback after delay (if Method 1 didn't work)
-                setTimeout(function() {
-                  if (window.location.href !== callbackUrl && !window.location.href.includes('/payment-callback')) {
-                    console.log('🔄 Method 2: window.location.replace fallback');
-                    window.location.replace(callbackUrl);
-                  }
-                }, 500);
-                
-                // Method 3: Form submit (backup)
-                setTimeout(function() {
-                  if (window.location.href !== callbackUrl && !window.location.href.includes('/payment-callback')) {
-                    console.log('🔄 Method 3: Form submit fallback');
-                    try {
-                      document.getElementById('paymentForm').submit();
-                    } catch(e) {
-                      console.error('❌ Form submit failed:', e);
-                    }
-                  }
-                }, 1000);
-              } catch(e) {
-                console.error('❌ Redirect error:', e);
-                // Last resort: try form submit
-                try {
-                  document.getElementById('paymentForm').submit();
-                } catch(formError) {
-                  console.error('❌ Form submit also failed:', formError);
-                }
-              }
-            }
-            
-            // Try deep linking first (for Flutter WebView)
-            ${isFlutterWebView ? `
-            try {
-              // Method 1: Try Flutter bridge
-              if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-                window.flutter_inappwebview.callHandler('paymentCallback', paymentData);
-                console.log('📱 Sent payment data to Flutter via bridge');
-              }
-              
-              // Method 2: Try deep link
-              const deepLinkUrl = '${deepLinkUrl}';
-              try {
-                window.location.href = deepLinkUrl;
-                console.log('🔗 Attempted deep link:', deepLinkUrl);
-                // Wait a bit to see if deep link works
-                setTimeout(function() {
-                  // If still here, fallback to normal redirect
-                  performRedirect();
-                }, 500);
-                return;
-              } catch(e) {
-                console.warn('⚠️ Deep link failed:', e);
-              }
-              
-              // Method 3: postMessage to parent
-              if (window.parent !== window) {
-                window.parent.postMessage({
-                  type: 'paymentCallback',
-                  ...paymentData
-                }, '*');
-                console.log('📨 Sent payment data via postMessage');
-              }
-            } catch(e) {
-              console.warn('⚠️ Deep linking failed:', e);
-            }
-            ` : ''}
-            
-            // Perform redirect immediately
-            // CRITICAL: Don't wait too long - WebView might timeout
-            setTimeout(performRedirect, 50);
-            
-            // Also try immediately (in case setTimeout is delayed)
-            performRedirect();
-          })();
-        </script>
-      </body>
-      </html>
-    `;
-    
-    console.log('📤 ========== STEP 8: SENDING HTML RESPONSE ==========');
-    console.log('📤 HTML length:', html.length, 'bytes');
-    console.log('📤 Payment data in HTML:');
-    console.log('📤   - Has Order ID:', !!razorpay_order_id);
-    console.log('📤   - Has Payment ID:', !!razorpay_payment_id);
-    console.log('📤   - Has Signature:', !!razorpay_signature);
-    console.log('📤   - Has Booking ID:', !!bookingId);
-    console.log('📤   - Has Ticket ID:', !!ticketId);
-    console.log('📤 Timestamp:', new Date().toISOString());
-    console.log('📤 ===================================================');
-    
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(html);
+    // CRITICAL: Simple redirect like RentYatra - no complex HTML
+    // This is more reliable in WebView/APK scenarios
+    console.log('🔀 Redirecting to frontend callback:', url.toString());
+    return res.redirect(302, url.toString());
 
-  } catch (error) {
-    console.error('❌ Error in Razorpay callback:', error);
+  } catch (err) {
+    console.error('❌ Error in Razorpay callback handler:', err);
+    // Simple redirect to frontend with error - like RentYatra
     const frontendBase = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://getfixfly.com' : 'http://localhost:8080');
-    const errorUrl = new URL('/payment-callback', frontendBase);
-    errorUrl.searchParams.set('error', 'CALLBACK_ERROR');
-    errorUrl.searchParams.set('error_message', 'Payment callback processing failed');
-    
-    // Return error HTML instead of redirect
-    const errorHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Payment Error</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body>
-        <div style="text-align: center; padding: 50px; font-family: Arial;">
-          <h2 style="color: red;">Payment Processing Error</h2>
-          <p>There was an issue processing your payment. Please try again.</p>
-          <a href="${errorUrl.toString()}" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">Continue</a>
-        </div>
-      </body>
-      </html>
-    `;
-    res.send(errorHtml);
+    const fallbackUrl = `${frontendBase}/payment-callback?error=CALLBACK_ERROR&error_message=Payment callback processing failed`;
+    console.log('⚠️ Using fallback redirect to:', fallbackUrl);
+    res.redirect(302, fallbackUrl);
   }
 });
 

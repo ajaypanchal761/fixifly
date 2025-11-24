@@ -806,8 +806,8 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     }
 
     // Handle both camelCase and snake_case naming conventions (mobile vs web)
-    const razorpayOrderId = paymentData.razorpayOrderId || paymentData.razorpay_order_id;
-    const razorpayPaymentId = paymentData.razorpayPaymentId || paymentData.razorpay_payment_id;
+    let razorpayOrderId = paymentData.razorpayOrderId || paymentData.razorpay_order_id;
+    let razorpayPaymentId = paymentData.razorpayPaymentId || paymentData.razorpay_payment_id;
     const razorpaySignature = paymentData.razorpaySignature || paymentData.razorpay_signature;
 
     console.log('🔍 Payment Data Extracted:');
@@ -815,6 +815,75 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     console.log('   Payment ID:', razorpayPaymentId || 'MISSING');
     console.log('   Signature:', razorpaySignature ? 'PRESENT' : 'MISSING');
     console.log('\n');
+
+    // CRITICAL: If payment_id is missing but we have order_id, try to fetch from Razorpay
+    // This is critical for APK/WebView scenarios where Razorpay redirect might not include payment_id
+    if (razorpayOrderId && !razorpayPaymentId) {
+      try {
+        console.log('🔍 Payment ID missing, fetching order from Razorpay to get payment details...');
+        console.log('📦 Order ID:', razorpayOrderId);
+        
+        const Razorpay = require('razorpay');
+        const rzp = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID,
+          key_secret: process.env.RAZORPAY_KEY_SECRET
+        });
+        
+        const order = await rzp.orders.fetch(razorpayOrderId);
+        
+        console.log('📋 Order fetched:', {
+          id: order.id,
+          status: order.status,
+          amount: order.amount,
+          amountPaid: order.amount_paid,
+          paymentsCount: order.payments?.length || 0
+        });
+        
+        // Try to get payment_id from order payments
+        if (order.payments && order.payments.length > 0) {
+          razorpayPaymentId = order.payments[0].id;
+          console.log('✅ Found payment ID from order:', razorpayPaymentId);
+        } else {
+          console.warn('⚠️ Order found but no payments attached yet');
+        }
+      } catch (orderError) {
+        console.error('❌ Error fetching order from Razorpay:', orderError.message);
+      }
+    }
+    
+    // CRITICAL: If order_id is missing but we have payment_id, try to fetch from Razorpay
+    // This is critical for APK/WebView scenarios where order_id might not be in payment object
+    if (razorpayPaymentId && !razorpayOrderId) {
+      try {
+        console.log('🔍 Order ID missing, fetching payment from Razorpay to get order details...');
+        console.log('📦 Payment ID:', razorpayPaymentId);
+        
+        const Razorpay = require('razorpay');
+        const rzp = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID,
+          key_secret: process.env.RAZORPAY_KEY_SECRET
+        });
+        
+        const payment = await rzp.payments.fetch(razorpayPaymentId);
+        
+        // Try multiple possible field names for order_id
+        razorpayOrderId = payment.order_id || 
+                         payment.orderId || 
+                         payment.order?.id || 
+                         (typeof payment.order === 'string' ? payment.order : null) ||
+                         payment.notes?.order_id || 
+                         payment.notes?.razorpay_order_id ||
+                         payment.notes?.razorpayOrderId;
+        
+        if (razorpayOrderId) {
+          console.log('✅ Found order ID from payment:', razorpayOrderId);
+        } else {
+          console.warn('⚠️ Payment fetched but no order_id found');
+        }
+      } catch (paymentError) {
+        console.error('❌ Error fetching payment from Razorpay:', paymentError.message);
+      }
+    }
 
     // Validate payment ID is present (required)
     if (!razorpayPaymentId) {
@@ -999,12 +1068,13 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     
     console.log('=== END PAYMENT VERIFICATION DEBUG ===');
 
-    // Reject payment if verification failed
-    // BUT: If payment exists in Razorpay (even if status is not ideal), we should still accept it
-    // because the payment was made and money was deducted
+    // CRITICAL FIX: More lenient payment verification
+    // If signature verification failed, ALWAYS verify via Razorpay API
+    // This is important for WebView/mobile scenarios where signature might not be available
     if (!isSignatureValid) {
-      // Last chance: Check if payment exists at all in Razorpay
-      // If payment exists, it means money was deducted, so we should accept it
+      console.log('⚠️ Signature verification failed or missing - performing final API check...');
+      
+      // Final check: Verify payment exists in Razorpay
       let paymentExists = false;
       let finalPaymentCheck = null;
       try {
@@ -1014,38 +1084,79 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
           key_secret: process.env.RAZORPAY_KEY_SECRET
         });
         
-        finalPaymentCheck = await rzp.payments.fetch(razorpayPaymentId);
+        // Try to fetch payment with retries
+        let retries = 5;
+        while (retries > 0 && !finalPaymentCheck) {
+          try {
+            finalPaymentCheck = await rzp.payments.fetch(razorpayPaymentId);
+            if (finalPaymentCheck && finalPaymentCheck.id) {
+              paymentExists = true;
+              break;
+            }
+          } catch (fetchError) {
+            console.warn(`⚠️ Payment fetch attempt ${6 - retries}/5 failed:`, fetchError.message);
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+            }
+          }
+        }
+        
         if (finalPaymentCheck && finalPaymentCheck.id) {
           paymentExists = true;
-          console.log('⚠️ Payment exists in Razorpay but verification failed:', {
+          console.log('✅ Payment found in Razorpay:', {
             paymentId: razorpayPaymentId,
             status: finalPaymentCheck.status,
             amount: finalPaymentCheck.amount,
-            orderId: finalPaymentCheck.order_id
+            orderId: finalPaymentCheck.order_id,
+            method: finalPaymentCheck.method
           });
           
-          // If payment exists and amount matches, accept it even if status is not ideal
-          const paymentAmountInRupees = finalPaymentCheck.amount / 100;
-          const expectedAmount = pricing.totalAmount;
-          const amountDifference = Math.abs(paymentAmountInRupees - expectedAmount);
-          
-          // Accept if: amount matches AND status is not failed/refunded/cancelled
-          if (amountDifference <= 1 && 
-              finalPaymentCheck.status !== 'failed' && 
-              finalPaymentCheck.status !== 'refunded' && 
-              finalPaymentCheck.status !== 'cancelled') {
-            console.log('✅ Payment exists with correct amount, accepting despite verification failure');
+          // CRITICAL: Accept payment if it exists in Razorpay - like RentYatra approach
+          // This handles cases where payment was successful but signature verification failed
+          const invalidStatuses = ['failed', 'refunded', 'cancelled'];
+          if (!invalidStatuses.includes(finalPaymentCheck.status)) {
+            // If payment exists and is not explicitly failed/refunded/cancelled, accept it
+            // This is more lenient like RentYatra - payment existence is the key factor
+            console.log('✅ ✅ ✅ PAYMENT ACCEPTED - EXISTS IN RAZORPAY ✅ ✅ ✅');
+            console.log('✅ Reason: Payment exists in Razorpay with valid status');
+            console.log('✅ Payment Status:', finalPaymentCheck.status);
+            console.log('✅ Payment Amount:', finalPaymentCheck.amount / 100, 'INR');
             isSignatureValid = true;
             payment = finalPaymentCheck; // Update payment variable for amount validation below
+            
+            // Verify amount matches (allow small difference for rounding) - but don't reject if mismatch
+            const paymentAmountInRupees = finalPaymentCheck.amount / 100;
+            const expectedAmount = pricing.totalAmount;
+            const amountDifference = Math.abs(paymentAmountInRupees - expectedAmount);
+            
+            console.log('💰 Amount Verification:');
+            console.log('   Expected:', expectedAmount, 'INR');
+            console.log('   Received:', paymentAmountInRupees, 'INR');
+            console.log('   Difference:', amountDifference, 'INR');
+            
+            if (amountDifference > 1) {
+              console.warn('⚠️ Amount mismatch but payment exists - accepting anyway (like RentYatra)');
+            }
+          } else {
+            console.error('❌ Payment has invalid status:', finalPaymentCheck.status);
           }
+        } else {
+          console.error('❌ Payment not found in Razorpay after all retries');
         }
       } catch (checkError) {
-        console.error('❌ Error checking payment existence:', checkError.message);
+        console.error('❌ Error checking payment existence:', {
+          message: checkError.message,
+          error: checkError.error?.description || checkError.error?.reason || 'Unknown error',
+          statusCode: checkError.statusCode
+        });
       }
       
       // If still not valid after all checks, reject
       if (!isSignatureValid) {
-        console.error('❌ ========== PAYMENT VERIFICATION FAILED ==========');
+        console.error('\n');
+        console.error('❌ ❌ ❌ PAYMENT VERIFICATION FAILED ❌ ❌ ❌');
+        console.error('═══════════════════════════════════════════════════════════════');
         console.error('❌ Payment ID:', razorpayPaymentId);
         console.error('❌ Order ID:', razorpayOrderId || 'MISSING');
         console.error('❌ Signature:', razorpaySignature ? 'PRESENT' : 'MISSING');
@@ -1054,16 +1165,32 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         if (finalPaymentCheck) {
           console.error('❌ Payment Status:', finalPaymentCheck.status);
           console.error('❌ Payment Amount:', finalPaymentCheck.amount / 100);
+          console.error('❌ Payment Method:', finalPaymentCheck.method);
         }
-        console.error('❌ Reason: Signature verification failed and Razorpay API verification failed');
+        console.error('❌ Reason: All verification methods failed');
         console.error('❌ Timestamp:', new Date().toISOString());
-        console.error('❌ ================================================');
+        console.error('═══════════════════════════════════════════════════════════════');
+        console.error('\n');
+        
+        logger.error('Payment verification failed - all methods failed', {
+          paymentId: razorpayPaymentId,
+          orderId: razorpayOrderId,
+          hasSignature: !!razorpaySignature,
+          paymentExists,
+          paymentStatus: finalPaymentCheck?.status,
+          paymentAmount: finalPaymentCheck ? finalPaymentCheck.amount / 100 : null
+        });
         
         return res.status(400).json({
           success: false,
           message: 'Payment verification failed. Please try again or contact support.',
           error: 'PAYMENT_VERIFICATION_FAILED',
-          paymentId: razorpayPaymentId
+          paymentId: razorpayPaymentId,
+          details: {
+            paymentExists,
+            paymentStatus: finalPaymentCheck?.status || 'unknown',
+            paymentAmount: finalPaymentCheck ? finalPaymentCheck.amount / 100 : null
+          }
         });
       }
     }

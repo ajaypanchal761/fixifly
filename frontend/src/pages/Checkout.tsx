@@ -376,11 +376,34 @@ const Checkout = () => {
             },
             // Failure callback
             (error) => {
-              console.error('❌ ========== PAYMENT FAILED IN CHECKOUT ==========');
-              console.error('❌ Error:', error);
+              console.error('\n');
+              console.error('❌ ❌ ❌ PAYMENT FAILED IN CHECKOUT ❌ ❌ ❌');
+              console.error('═══════════════════════════════════════════════════════════════');
+              console.error('❌ Error Type:', error instanceof Error ? error.constructor.name : typeof error);
               console.error('❌ Error Message:', error instanceof Error ? error.message : String(error));
               console.error('❌ Error Stack:', error instanceof Error ? error.stack : 'N/A');
-              console.error('❌ =============================================');
+              console.error('❌ Timestamp:', new Date().toISOString());
+              console.error('❌ Customer:', bookingData.customer.name);
+              console.error('❌ Amount:', bookingData.pricing.totalAmount);
+              console.error('═══════════════════════════════════════════════════════════════');
+              console.error('\n');
+              
+              // Check localStorage for additional error info
+              try {
+                const razorpayError = localStorage.getItem('razorpay_open_error');
+                if (razorpayError) {
+                  const errorData = JSON.parse(razorpayError);
+                  console.error('❌ Razorpay Open Error:', errorData);
+                }
+                
+                const paymentFailure = localStorage.getItem('payment_failure');
+                if (paymentFailure) {
+                  const failureData = JSON.parse(paymentFailure);
+                  console.error('❌ Payment Failure Info:', failureData);
+                }
+              } catch (e) {
+                console.warn('⚠️ Could not read error info from localStorage:', e);
+              }
               
               let errorMessage = "Please try again or contact support.";
               if (error instanceof Error) {
@@ -393,7 +416,7 @@ const Checkout = () => {
                 title: "Payment Failed",
                 description: errorMessage,
                 variant: "destructive",
-                duration: 5000
+                duration: 8000
               });
             },
             // Close callback

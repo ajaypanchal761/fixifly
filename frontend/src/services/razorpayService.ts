@@ -1768,18 +1768,33 @@ class RazorpayService {
       });
 
       if (!data.success) {
-        console.error('❌ Backend returned error:', {
-          message: data.message,
-          error: data.error,
-          errorCode: data.error,
-          fullResponse: data
-        });
+        console.error('\n');
+        console.error('❌ ❌ ❌ BACKEND BOOKING CREATION ERROR ❌ ❌ ❌');
+        console.error('═══════════════════════════════════════════════════════════════');
+        console.error('❌ HTTP Status:', response.status);
+        console.error('❌ Error Message:', data.message);
+        console.error('❌ Error Code:', data.error);
+        console.error('❌ Payment ID:', paymentResponse.razorpay_payment_id || 'N/A');
+        console.error('❌ Order ID:', paymentResponse.razorpay_order_id || 'N/A');
+        if (data.details) {
+          console.error('❌ Error Details:', JSON.stringify(data.details, null, 2));
+        }
+        console.error('❌ Full Response:', JSON.stringify(data, null, 2));
+        console.error('═══════════════════════════════════════════════════════════════');
+        console.error('\n');
         
         // Provide more helpful error messages based on error type
         let errorMessage = data.message || 'Failed to create booking';
         
         if (data.error === 'PAYMENT_VERIFICATION_FAILED') {
-          errorMessage = 'Payment verification failed. Your payment may have been processed. Please check your bookings or contact support with Payment ID: ' + (paymentResponse.razorpay_payment_id || 'N/A');
+          const paymentStatus = data.details?.paymentStatus || 'unknown';
+          const paymentExists = data.details?.paymentExists || false;
+          
+          if (paymentExists && paymentStatus !== 'failed') {
+            errorMessage = 'Payment was successful but verification encountered an issue. Your payment may have been processed. Please check your bookings or contact support with Payment ID: ' + (paymentResponse.razorpay_payment_id || 'N/A');
+          } else {
+            errorMessage = 'Payment verification failed. Please try again or contact support with Payment ID: ' + (paymentResponse.razorpay_payment_id || 'N/A');
+          }
         } else if (data.error === 'PAYMENT_AMOUNT_MISMATCH') {
           errorMessage = 'Payment amount mismatch. Please contact support with Payment ID: ' + (paymentResponse.razorpay_payment_id || 'N/A');
         }
