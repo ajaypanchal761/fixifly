@@ -27,7 +27,25 @@ router.route('/')
   .post(createBooking); // Create new booking
 
 router.route('/with-payment')
-  .post(createBookingWithPayment); // Create booking with payment verification
+  .post((req, res, next) => {
+    // CRITICAL: Log when route is hit - THESE WILL SHOW IN PM2 LOGS
+    console.log('\n');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('💳 💳 💳 BOOKING WITH PAYMENT ROUTE HIT 💳 💳 💳');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('💳 Method:', req.method);
+    console.log('💳 Path:', req.path);
+    console.log('💳 Full Path:', req.originalUrl);
+    console.log('💳 Query:', JSON.stringify(req.query));
+    console.log('💳 Body Keys:', Object.keys(req.body || {}));
+    console.log('💳 Has Payment Data:', !!(req.body?.paymentData));
+    console.log('💳 Has Customer:', !!(req.body?.customer));
+    console.log('💳 Has Services:', !!(req.body?.services));
+    console.log('💳 Timestamp:', new Date().toISOString());
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
+    next();
+  }, createBookingWithPayment); // Create booking with payment verification
 
 router.route('/stats')
   .get(getBookingStats); // Get booking statistics

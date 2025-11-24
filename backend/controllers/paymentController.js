@@ -384,9 +384,11 @@ const getPaymentDetails = asyncHandler(async (req, res) => {
 // @access  Public
 const razorpayRedirectCallback = asyncHandler(async (req, res) => {
   // CRITICAL: Log immediately when callback is received - THESE WILL SHOW IN PM2 LOGS
+  // This is the FIRST thing that should appear in logs when payment callback is received
+  console.log('\n');
   console.log('\n');
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log('🔔 🔔 🔔 STEP 1: RAZORPAY CALLBACK RECEIVED 🔔 🔔 🔔');
+  console.log('🔔 🔔 🔔 🔔 🔔 RAZORPAY CALLBACK RECEIVED 🔔 🔔 🔔 🔔 🔔');
   console.log('═══════════════════════════════════════════════════════════════');
   console.log('🔔 Timestamp:', new Date().toISOString());
   console.log('🔔 Method:', req.method);
@@ -403,6 +405,7 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     'origin': req.headers['origin']
   }, null, 2));
   console.log('═══════════════════════════════════════════════════════════════');
+  console.log('\n');
   console.log('\n');
   
   try {
