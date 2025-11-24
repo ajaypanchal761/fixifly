@@ -2005,27 +2005,83 @@ class RazorpayService {
           console.log('🔍 ===================================================');
         }
         
-        razorpay.open();
-        console.log('✅ ✅ ✅ Razorpay.open() called successfully ✅ ✅ ✅');
-        console.log('✅ Timestamp:', new Date().toISOString());
-        
-        // For WebView, log that payment page should be opening
-        if (useRedirectMode) {
-          console.log('🔀 ========== WEBVIEW PAYMENT FLOW ==========');
-          console.log('🔀 WebView Mode: Payment page should open in redirect mode');
-          console.log('🔀 After payment, Razorpay will redirect to:', callbackUrl);
-          console.log('🔀 Backend callback will then redirect to frontend callback page');
-          console.log('🔀 Expected Flow:');
-          console.log('   1. User completes payment in Razorpay');
-          console.log('   2. Razorpay redirects to:', callbackUrl);
-          console.log('   3. Backend processes callback and redirects to frontend');
-          console.log('   4. Frontend PaymentCallback page handles the result');
-          console.log('🔀 If payment fails, check:');
-          console.log('   1. Is callback URL publicly accessible?');
-          console.log('   2. Is backend server running and accessible?');
-          console.log('   3. Check backend logs for callback route hits');
-          console.log('   4. Check browser console for payment.failed event');
-          console.log('🔀 ===========================================');
+        // CRITICAL: Open Razorpay checkout with error handling
+        try {
+          razorpay.open();
+          console.log('✅ ✅ ✅ Razorpay.open() called successfully ✅ ✅ ✅');
+          console.log('✅ Timestamp:', new Date().toISOString());
+          
+          // For WebView, log that payment page should be opening
+          if (useRedirectMode) {
+            console.log('🔀 ========== WEBVIEW PAYMENT FLOW ==========');
+            console.log('🔀 WebView Mode: Payment page should open in redirect mode');
+            console.log('🔀 After payment, Razorpay will redirect to:', callbackUrl);
+            console.log('🔀 Backend callback will then redirect to frontend callback page');
+            console.log('🔀 Expected Flow:');
+            console.log('   1. User completes payment in Razorpay');
+            console.log('   2. Razorpay redirects to:', callbackUrl);
+            console.log('   3. Backend processes callback and redirects to frontend');
+            console.log('   4. Frontend PaymentCallback page handles the result');
+            console.log('🔀 If payment fails, check:');
+            console.log('   1. Is callback URL publicly accessible?');
+            console.log('   2. Is backend server running and accessible?');
+            console.log('   3. Check backend logs for callback route hits');
+            console.log('   4. Check browser console for payment.failed event');
+            console.log('🔀 ===========================================');
+            
+            // CRITICAL: Monitor for payment.failed event (WebView specific)
+            // In WebView, payment might fail silently, so we need to monitor
+            const paymentFailedTimeout = setTimeout(() => {
+              // Check if we're still on the same page after 30 seconds
+              // If yes, payment might have failed silently
+              if (window.location.href.includes('checkout') || 
+                  window.location.href.includes('payment') && 
+                  !window.location.href.includes('payment-callback')) {
+                console.warn('⚠️ ⚠️ ⚠️ PAYMENT TIMEOUT WARNING ⚠️ ⚠️ ⚠️');
+                console.warn('⚠️ Payment page opened but no callback received after 30 seconds');
+                console.warn('⚠️ Possible reasons:');
+                console.warn('   1. Payment failed silently in Razorpay');
+                console.warn('   2. Callback URL not accessible from Razorpay');
+                console.warn('   3. User closed payment page');
+                console.warn('⚠️ Check Razorpay Dashboard for payment status');
+                console.warn('⚠️ Check browser console for payment.failed event');
+              }
+            }, 30000); // 30 seconds timeout
+            
+            // Cleanup timeout on navigation
+            const originalHref = window.location.href;
+            const checkNavigation = setInterval(() => {
+              if (window.location.href !== originalHref) {
+                clearTimeout(paymentFailedTimeout);
+                clearInterval(checkNavigation);
+              }
+            }, 1000);
+          }
+        } catch (openError: any) {
+          console.error('❌ ❌ ❌ ERROR OPENING RAZORPAY CHECKOUT ❌ ❌ ❌');
+          console.error('❌ Error:', openError);
+          console.error('❌ Error Message:', openError?.message);
+          console.error('❌ Error Stack:', openError?.stack);
+          console.error('❌ Order ID:', order.orderId);
+          console.error('❌ Callback URL:', callbackUrl);
+          console.error('❌ Use Redirect Mode:', useRedirectMode);
+          console.error('❌ Timestamp:', new Date().toISOString());
+          console.error('❌ ===================================================');
+          
+          // Store error for debugging
+          try {
+            localStorage.setItem('razorpay_open_error', JSON.stringify({
+              error: openError.message,
+              orderId: order.orderId,
+              callbackUrl: callbackUrl,
+              timestamp: Date.now()
+            }));
+          } catch (e) {
+            console.warn('⚠️ Could not store error info:', e);
+          }
+          
+          // Call onFailure
+          onFailure(new Error(openError?.message || 'Failed to open payment gateway. Please try again.'));
         }
         
         // For WebView, add multiple checks to ensure modal opened
