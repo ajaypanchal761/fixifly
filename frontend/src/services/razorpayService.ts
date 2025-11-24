@@ -357,6 +357,37 @@ class RazorpayService {
     onError: (error: any) => void;
   }): Promise<void> {
     try {
+      // CRITICAL: Check JavaScript enablement before proceeding
+      console.log('🔍 ========== JAVASCRIPT ENABLEMENT CHECK ==========');
+      try {
+        const { checkJavaScriptEnabled, verifyJavaScriptForRazorpay } = await import('../utils/javascriptCheck');
+        const jsCheck = checkJavaScriptEnabled();
+        const razorpayCheck = verifyJavaScriptForRazorpay();
+        
+        console.log('🔍 JavaScript Enabled:', jsCheck.isEnabled);
+        console.log('🔍 Can Execute:', jsCheck.canExecute);
+        console.log('🔍 Can Access DOM:', jsCheck.canAccessDOM);
+        console.log('🔍 Can Access Storage:', jsCheck.canAccessStorage);
+        console.log('🔍 Can Load Scripts:', jsCheck.canLoadScripts);
+        console.log('🔍 Can Make Fetch:', jsCheck.canMakeFetch);
+        console.log('🔍 Ready for Razorpay:', razorpayCheck.ready);
+        
+        if (!razorpayCheck.ready) {
+          console.error('❌ ❌ ❌ JAVASCRIPT NOT READY FOR PAYMENT ❌ ❌ ❌');
+          console.error('❌ Issues:', razorpayCheck.issues);
+          console.error('❌ Recommendations:', razorpayCheck.recommendations);
+          
+          // Don't block payment, but log warning
+          console.warn('⚠️ Proceeding with payment despite JavaScript issues - may fail');
+        } else {
+          console.log('✅ ✅ ✅ JAVASCRIPT READY FOR PAYMENT ✅ ✅ ✅');
+        }
+        console.log('🔍 ===================================================');
+      } catch (jsCheckError) {
+        console.warn('⚠️ JavaScript check failed:', jsCheckError);
+        console.warn('⚠️ Proceeding with payment anyway');
+      }
+      
       // Load Razorpay script
       await this.loadRazorpayScript();
 
@@ -1024,6 +1055,37 @@ class RazorpayService {
     onClose: () => void
   ): Promise<void> {
     try {
+      // CRITICAL: Check JavaScript enablement before proceeding
+      console.log('🔍 ========== JAVASCRIPT ENABLEMENT CHECK ==========');
+      try {
+        const { checkJavaScriptEnabled, verifyJavaScriptForRazorpay } = await import('../utils/javascriptCheck');
+        const jsCheck = checkJavaScriptEnabled();
+        const razorpayCheck = verifyJavaScriptForRazorpay();
+        
+        console.log('🔍 JavaScript Enabled:', jsCheck.isEnabled);
+        console.log('🔍 Can Execute:', jsCheck.canExecute);
+        console.log('🔍 Can Access DOM:', jsCheck.canAccessDOM);
+        console.log('🔍 Can Access Storage:', jsCheck.canAccessStorage);
+        console.log('🔍 Can Load Scripts:', jsCheck.canLoadScripts);
+        console.log('🔍 Can Make Fetch:', jsCheck.canMakeFetch);
+        console.log('🔍 Ready for Razorpay:', razorpayCheck.ready);
+        
+        if (!razorpayCheck.ready) {
+          console.error('❌ ❌ ❌ JAVASCRIPT NOT READY FOR PAYMENT ❌ ❌ ❌');
+          console.error('❌ Issues:', razorpayCheck.issues);
+          console.error('❌ Recommendations:', razorpayCheck.recommendations);
+          
+          // Don't block payment, but log warning
+          console.warn('⚠️ Proceeding with payment despite JavaScript issues - may fail');
+        } else {
+          console.log('✅ ✅ ✅ JAVASCRIPT READY FOR PAYMENT ✅ ✅ ✅');
+        }
+        console.log('🔍 ===================================================');
+      } catch (jsCheckError) {
+        console.warn('⚠️ JavaScript check failed:', jsCheckError);
+        console.warn('⚠️ Proceeding with payment anyway');
+      }
+      
       // Load Razorpay script
       await this.loadRazorpayScript();
 
@@ -1042,12 +1104,22 @@ class RazorpayService {
         throw new Error('Invalid payment amount. Please check your order total.');
       }
 
-      console.log('💰 ========== CREATING RAZORPAY ORDER ==========');
+      console.log('📋 ========== STEP 1: BOOKING PAYMENT INITIATED ==========');
+      console.log('📋 Timestamp:', new Date().toISOString());
+      console.log('📋 Customer Name:', bookingData.customer.name);
+      console.log('📋 Customer Email:', bookingData.customer.email);
+      console.log('📋 Customer Phone:', bookingData.customer.phone);
+      console.log('📋 Services Count:', bookingData.services.length);
+      console.log('📋 =======================================================');
+      
+      console.log('💰 ========== STEP 2: CREATING RAZORPAY ORDER ==========');
       console.log('💰 Amount (Rupees):', bookingData.pricing.totalAmount);
       console.log('💰 Amount (Paise):', Math.round(bookingData.pricing.totalAmount * 100));
-      console.log('💰 Customer Email:', bookingData.customer.email);
-      console.log('💰 Customer Phone:', bookingData.customer.phone);
-      console.log('💰 =============================================');
+      console.log('💰 Subtotal:', bookingData.pricing.subtotal || 'N/A');
+      console.log('💰 GST Amount:', bookingData.pricing.gstAmount || 'N/A');
+      console.log('💰 Service Fee:', bookingData.pricing.serviceFee || 'N/A');
+      console.log('💰 Total Amount:', bookingData.pricing.totalAmount);
+      console.log('💰 =====================================================');
 
       // Create order
       let order;
@@ -1066,22 +1138,31 @@ class RazorpayService {
           throw new Error('Failed to create payment order. Please try again.');
         }
         
-        console.log('✅ Razorpay order created successfully:', {
-          orderId: order.orderId,
-          amount: order.amount,
-          currency: order.currency,
-          status: order.status
-        });
+        console.log('✅ ========== STEP 3: RAZORPAY ORDER CREATED ==========');
+        console.log('✅ Order ID:', order.orderId);
+        console.log('✅ Amount (Paise):', order.amount);
+        console.log('✅ Amount (Rupees):', (order.amount / 100).toFixed(2));
+        console.log('✅ Currency:', order.currency);
+        console.log('✅ Status:', order.status);
+        console.log('✅ Timestamp:', new Date().toISOString());
+        console.log('✅ ===================================================');
       } catch (orderError: any) {
         console.error('❌ Error creating Razorpay order:', orderError);
         throw new Error(orderError.message || 'Failed to create payment order. Please try again.');
       }
 
+      console.log('🔗 ========== STEP 4: BUILDING CALLBACK URL ==========');
+      console.log('🔗 Environment:', import.meta.env.MODE);
+      console.log('🔗 Is Production:', import.meta.env.PROD);
+      console.log('🔗 Current Origin:', window.location.origin);
+      console.log('🔗 Current URL:', window.location.href);
+      
       // Build callback URL for redirect mode (WebView)
       // CRITICAL: For production WebView APK, callback URL must be publicly accessible
       // The callback URL MUST point to the backend server, not the frontend
       // Priority: 1. VITE_API_URL (if set and not localhost), 2. Production backend URL, 3. Current origin (if HTTPS)
       let apiBase = import.meta.env.VITE_API_URL || '';
+      console.log('🔗 VITE_API_URL (raw):', import.meta.env.VITE_API_URL || 'NOT SET');
       
       // CRITICAL: Remove /api suffix if present, we'll add it back
       if (apiBase) {
@@ -1221,7 +1302,7 @@ class RazorpayService {
         throw new Error('Invalid payment order. Please try again.');
       }
 
-      console.log('⚙️ ========== RAZORPAY OPTIONS CONFIGURATION ==========');
+      console.log('⚙️ ========== STEP 5: RAZORPAY OPTIONS CONFIGURATION ==========');
       console.log('⚙️ Key ID:', this.razorpayKey.substring(0, 10) + '...');
       console.log('⚙️ Order ID:', order.orderId);
       console.log('⚙️ Amount (Paise):', order.amount);
@@ -1229,6 +1310,16 @@ class RazorpayService {
       console.log('⚙️ Currency:', order.currency);
       console.log('⚙️ Callback URL:', callbackUrl || 'N/A (Modal Mode)');
       console.log('⚙️ Use Redirect Mode:', useRedirectMode);
+      console.log('⚙️ Is APK/WebView:', isAPK);
+      console.log('⚙️ Customer Name:', bookingData.customer.name);
+      console.log('⚙️ Customer Email:', bookingData.customer.email);
+      console.log('⚙️ Customer Phone:', bookingData.customer.phone);
+      console.log('⚙️ Notes:', JSON.stringify({
+        payment_type: 'service_payment',
+        isWebView: useRedirectMode ? 'true' : 'false',
+        booking_amount: bookingData.pricing.totalAmount.toString(),
+        payment_context: 'new_booking_checkout',
+      }, null, 2));
       console.log('⚙️ ===================================================');
 
       // Razorpay options
@@ -1394,8 +1485,12 @@ class RazorpayService {
         // Add payment event listeners for WebView
         // CRITICAL: payment.success event listener for WebView (fallback if callback_url doesn't work)
         razorpay.on('payment.success', (response: any) => {
-          console.log('✅ ========== PAYMENT.SUCCESS EVENT FIRED (Booking - WebView) ==========');
-          console.log('✅ Response:', JSON.stringify(response, null, 2));
+          console.log('✅ ========== STEP 7: PAYMENT.SUCCESS EVENT FIRED (Booking - WebView) ==========');
+          console.log('✅ Timestamp:', new Date().toISOString());
+          console.log('✅ Payment ID:', response.razorpay_payment_id || response.razorpayPaymentId || 'N/A');
+          console.log('✅ Order ID:', response.razorpay_order_id || response.razorpayOrderId || 'N/A');
+          console.log('✅ Signature:', response.razorpay_signature ? 'PRESENT' : 'MISSING');
+          console.log('✅ Full Response:', JSON.stringify(response, null, 2));
           console.log('✅ This is a fallback - callback_url should handle redirect normally');
           console.log('✅ ============================================================');
           
@@ -1448,17 +1543,18 @@ class RazorpayService {
         });
 
         razorpay.on('payment.failed', (response: any) => {
-          console.error('❌ ========== PAYMENT.FAILED EVENT FIRED (Booking - WebView) ==========');
-          console.error('❌ Response:', JSON.stringify(response, null, 2));
-          console.error('❌ Error Object:', response.error);
-          console.error('❌ Error Code:', response.error?.code);
-          console.error('❌ Error Description:', response.error?.description);
-          console.error('❌ Error Reason:', response.error?.reason);
-          console.error('❌ Error Source:', response.error?.source);
-          console.error('❌ Error Step:', response.error?.step);
-          console.error('❌ Error Metadata:', response.error?.metadata);
+          console.error('❌ ========== STEP 7: PAYMENT.FAILED EVENT FIRED (Booking - WebView) ==========');
+          console.error('❌ Timestamp:', new Date().toISOString());
           console.error('❌ Order ID:', order.orderId);
           console.error('❌ Amount:', order.amount);
+          console.error('❌ Full Response:', JSON.stringify(response, null, 2));
+          console.error('❌ Error Object:', JSON.stringify(response.error, null, 2));
+          console.error('❌ Error Code:', response.error?.code || 'N/A');
+          console.error('❌ Error Description:', response.error?.description || 'N/A');
+          console.error('❌ Error Reason:', response.error?.reason || 'N/A');
+          console.error('❌ Error Source:', response.error?.source || 'N/A');
+          console.error('❌ Error Step:', response.error?.step || 'N/A');
+          console.error('❌ Error Metadata:', JSON.stringify(response.error?.metadata || {}, null, 2));
           console.error('❌ ============================================================');
           
           // Extract detailed error message
@@ -1515,25 +1611,28 @@ class RazorpayService {
         });
       }
       
-      console.log('🎯 ========== OPENING RAZORPAY CHECKOUT (BOOKING) ==========');
+      console.log('🎯 ========== STEP 6: OPENING RAZORPAY CHECKOUT (BOOKING) ==========');
       console.log('🎯 Order ID:', order.orderId);
       console.log('🎯 Amount:', order.amount, 'paise (₹' + (order.amount / 100).toFixed(2) + ')');
       console.log('🎯 Callback URL:', callbackUrl);
       console.log('🎯 Use Redirect Mode:', useRedirectMode);
       console.log('🎯 Is APK/WebView:', isAPK);
-      console.log('🎯 ===============================================');
+      console.log('🎯 Timestamp:', new Date().toISOString());
+      console.log('🎯 ===============================================================');
       
-      // For WebView, ensure Razorpay opens properly
+        // For WebView, ensure Razorpay opens properly
       try {
-        console.log('🚀 ========== OPENING RAZORPAY CHECKOUT (WEBVIEW) ==========');
+        console.log('🚀 ========== STEP 6.1: CALLING RAZORPAY.OPEN() ==========');
         console.log('🚀 Order ID:', order.orderId);
         console.log('🚀 Amount:', order.amount, 'paise (₹' + (order.amount / 100).toFixed(2) + ')');
         console.log('🚀 Callback URL:', callbackUrl);
         console.log('🚀 Is WebView:', useRedirectMode);
+        console.log('🚀 Timestamp:', new Date().toISOString());
         console.log('🚀 =======================================================');
         
         razorpay.open();
-        console.log('✅ Razorpay.open() called successfully');
+        console.log('✅ ✅ ✅ Razorpay.open() called successfully ✅ ✅ ✅');
+        console.log('✅ Timestamp:', new Date().toISOString());
         
         // For WebView, add multiple checks to ensure modal opened
         if (useRedirectMode) {

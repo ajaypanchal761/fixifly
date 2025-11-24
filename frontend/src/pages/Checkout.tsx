@@ -244,6 +244,31 @@ const Checkout = () => {
 
   const handlePayment = async (paymentMethod: 'razorpay' | 'cash') => {
     try {
+      // CRITICAL: Check JavaScript enablement before payment
+      if (paymentMethod === 'razorpay') {
+        console.log('🔍 Checking JavaScript enablement before payment...');
+        try {
+          const { checkJavaScriptEnabled, verifyJavaScriptForRazorpay } = await import('@/utils/javascriptCheck');
+          const jsCheck = checkJavaScriptEnabled();
+          const razorpayCheck = verifyJavaScriptForRazorpay();
+          
+          if (!razorpayCheck.ready) {
+            console.error('❌ JavaScript not ready for payment!');
+            console.error('Issues:', razorpayCheck.issues);
+            toast({
+              title: "JavaScript Issue Detected",
+              description: "Please ensure JavaScript is enabled in your app settings. Payment may not work correctly.",
+              variant: "destructive"
+            });
+            // Continue anyway - let user try
+          } else {
+            console.log('✅ JavaScript ready for payment');
+          }
+        } catch (jsError) {
+          console.warn('JavaScript check failed:', jsError);
+        }
+      }
+      
       setLoading(true);
       
       // Validate required fields

@@ -15,6 +15,12 @@ const PaymentCallback = () => {
 
   useEffect(() => {
     const processPaymentCallback = async () => {
+      console.log('📱 ========== STEP 1: PAYMENT CALLBACK PAGE LOADED ==========');
+      console.log('📱 Current URL:', window.location.href);
+      console.log('📱 Search Params:', window.location.search);
+      console.log('📱 Timestamp:', new Date().toISOString());
+      console.log('📱 ===================================================');
+      
       // Prevent duplicate verification
       if (verificationStarted.current) {
         console.log('⚠️ Payment verification already in progress, skipping duplicate request');
@@ -23,10 +29,14 @@ const PaymentCallback = () => {
       verificationStarted.current = true;
 
       try {
+        console.log('📋 ========== STEP 2: EXTRACTING URL PARAMETERS ==========');
         // Check for error parameters
         const error = searchParams.get('error');
         const errorMessage = searchParams.get('error_message');
         const paymentFailed = searchParams.get('payment_failed');
+        console.log('📋 Error:', error || 'NONE');
+        console.log('📋 Error Message:', errorMessage || 'NONE');
+        console.log('📋 Payment Failed:', paymentFailed || 'NONE');
 
         if (error || paymentFailed) {
           console.error('❌ Payment error from backend:', errorMessage);
@@ -77,6 +87,7 @@ const PaymentCallback = () => {
           return;
         }
 
+        console.log('📋 ========== STEP 3: EXTRACTING PAYMENT DATA FROM URL ==========');
         // Extract payment details from URL parameters
         let razorpay_order_id = searchParams.get('razorpay_order_id') ||
                                 searchParams.get('order_id') ||
@@ -91,11 +102,20 @@ const PaymentCallback = () => {
         
         const bookingId = searchParams.get('booking_id');
         const ticketId = searchParams.get('ticket_id');
+        
+        console.log('📋 Order ID (from URL):', razorpay_order_id || 'MISSING');
+        console.log('📋 Payment ID (from URL):', razorpay_payment_id || 'MISSING');
+        console.log('📋 Signature (from URL):', razorpay_signature ? 'PRESENT' : 'MISSING');
+        console.log('📋 Booking ID (from URL):', bookingId || 'MISSING');
+        console.log('📋 Ticket ID (from URL):', ticketId || 'MISSING');
+        console.log('📋 ===================================================');
 
         // Try multiple fallback methods if payment data is missing (WebView scenario)
         if ((!razorpay_order_id || !razorpay_payment_id) && !razorpay_signature) {
+          console.log('🔍 ========== STEP 4: PAYMENT DATA MISSING - TRYING FALLBACKS ==========');
           try {
             // Method 1: Try localStorage (primary fallback)
+            console.log('🔍 Method 1: Checking localStorage...');
             const storedResponse = JSON.parse(localStorage.getItem('payment_response') || '{}');
             if (storedResponse.razorpay_order_id) {
               razorpay_order_id = razorpay_order_id || storedResponse.razorpay_order_id;
@@ -107,18 +127,25 @@ const PaymentCallback = () => {
               if (storedResponse.ticketId && !ticketId) {
                 // ticketId will be used from storedResponse
               }
-              console.log('✅ Retrieved payment data from localStorage');
+              console.log('✅ ✅ ✅ Retrieved payment data from localStorage');
+              console.log('✅ Order ID:', razorpay_order_id ? razorpay_order_id.substring(0, 10) + '...' : 'MISSING');
+              console.log('✅ Payment ID:', razorpay_payment_id ? razorpay_payment_id.substring(0, 10) + '...' : 'MISSING');
+            } else {
+              console.log('⚠️ No payment data in localStorage');
             }
             
             // Method 2: Try sessionStorage (backup)
             if ((!razorpay_order_id || !razorpay_payment_id) && !razorpay_signature) {
               try {
+                console.log('🔍 Method 2: Checking sessionStorage...');
                 const sessionResponse = JSON.parse(sessionStorage.getItem('payment_response') || '{}');
                 if (sessionResponse.razorpay_order_id) {
                   razorpay_order_id = razorpay_order_id || sessionResponse.razorpay_order_id;
                   razorpay_payment_id = razorpay_payment_id || sessionResponse.razorpay_payment_id;
                   razorpay_signature = razorpay_signature || sessionResponse.razorpay_signature;
-                  console.log('✅ Retrieved payment data from sessionStorage');
+                  console.log('✅ ✅ ✅ Retrieved payment data from sessionStorage');
+                } else {
+                  console.log('⚠️ No payment data in sessionStorage');
                 }
               } catch (e) {
                 console.warn('⚠️ Could not retrieve from sessionStorage:', e);
@@ -223,13 +250,15 @@ const PaymentCallback = () => {
           verifyData.ticketId = ticketId;
         }
 
-        console.log('📤 Verifying payment with backend:', {
-          razorpay_order_id,
-          razorpay_payment_id,
-          has_signature: !!razorpay_signature,
-          bookingId,
-          ticketId
-        });
+        console.log('📤 ========== STEP 5: VERIFYING PAYMENT WITH BACKEND ==========');
+        console.log('📤 Order ID:', razorpay_order_id || 'MISSING');
+        console.log('📤 Payment ID:', razorpay_payment_id || 'MISSING');
+        console.log('📤 Has Signature:', !!razorpay_signature);
+        console.log('📤 Booking ID:', bookingId || 'N/A');
+        console.log('📤 Ticket ID:', ticketId || 'N/A');
+        console.log('📤 API URL:', `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify`);
+        console.log('📤 Timestamp:', new Date().toISOString());
+        console.log('📤 ===================================================');
 
         const verifyResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify`, {
           method: 'POST',
@@ -370,8 +399,13 @@ const PaymentCallback = () => {
         }
 
         if (verifyResult.success) {
+          console.log('✅ ========== STEP 6: PAYMENT VERIFICATION SUCCESS ==========');
           console.log('✅ Payment verified successfully');
-          console.log('✅ Verification result:', verifyResult);
+          console.log('✅ Payment ID:', razorpay_payment_id);
+          console.log('✅ Order ID:', razorpay_order_id);
+          console.log('✅ Verification Result:', JSON.stringify(verifyResult, null, 2));
+          console.log('✅ Timestamp:', new Date().toISOString());
+          console.log('✅ ===================================================');
           
           // CRITICAL: Check if this is a new booking from checkout (WebView scenario)
         // If there's pending booking data in localStorage, create the booking now

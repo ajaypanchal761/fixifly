@@ -335,7 +335,7 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
   // CRITICAL: Log immediately when callback is received - THESE WILL SHOW IN PM2 LOGS
   console.log('\n');
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log('🔔 🔔 🔔 RAZORPAY CALLBACK RECEIVED 🔔 🔔 🔔');
+  console.log('🔔 🔔 🔔 STEP 1: RAZORPAY CALLBACK RECEIVED 🔔 🔔 🔔');
   console.log('═══════════════════════════════════════════════════════════════');
   console.log('🔔 Timestamp:', new Date().toISOString());
   console.log('🔔 Method:', req.method);
@@ -343,8 +343,14 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
   console.log('🔔 Full URL:', req.protocol + '://' + req.get('host') + req.originalUrl);
   console.log('🔔 IP:', req.ip || req.connection.remoteAddress);
   console.log('🔔 User-Agent:', req.headers['user-agent'] || 'N/A');
+  console.log('🔔 Referer:', req.headers.referer || 'N/A');
   console.log('🔔 Query Params:', JSON.stringify(req.query, null, 2));
   console.log('🔔 Body:', JSON.stringify(req.body, null, 2));
+  console.log('🔔 Headers:', JSON.stringify({
+    'content-type': req.headers['content-type'],
+    'accept': req.headers['accept'],
+    'origin': req.headers['origin']
+  }, null, 2));
   console.log('═══════════════════════════════════════════════════════════════');
   console.log('\n');
   
@@ -383,33 +389,49 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     // This is especially important for WebView where URL params might not be passed correctly
     if (razorpay_payment_id && !bookingId && !ticketId) {
       try {
-        console.log('🔍 Payment ID present but booking/ticket ID missing - fetching from payment notes...');
+        console.log('🔍 ========== STEP 2.1: FETCHING PAYMENT NOTES ==========');
+        console.log('🔍 Payment ID:', razorpay_payment_id);
+        console.log('🔍 Reason: Booking/Ticket ID missing from URL params');
+        console.log('🔍 Attempting to fetch from Razorpay payment notes...');
+        
         const payment = await razorpay.payments.fetch(razorpay_payment_id);
+        console.log('🔍 Payment fetched:', payment ? 'SUCCESS' : 'FAILED');
+        
         if (payment && payment.notes) {
+          console.log('🔍 Payment Notes:', JSON.stringify(payment.notes, null, 2));
           const notesBookingId = payment.notes.booking_id || payment.notes.bookingId;
           const notesTicketId = payment.notes.ticket_id || payment.notes.ticketId;
           
           if (notesBookingId && !bookingId) {
             bookingId = notesBookingId;
-            console.log('✅ Extracted booking ID from payment notes:', notesBookingId);
+            console.log('✅ ✅ ✅ Extracted booking ID from payment notes:', notesBookingId);
           }
           if (notesTicketId && !ticketId) {
             ticketId = notesTicketId;
-            console.log('✅ Extracted ticket ID from payment notes:', notesTicketId);
+            console.log('✅ ✅ ✅ Extracted ticket ID from payment notes:', notesTicketId);
           }
+          
+          if (!notesBookingId && !notesTicketId) {
+            console.warn('⚠️ No booking/ticket ID found in payment notes');
+          }
+        } else {
+          console.warn('⚠️ Payment notes not available');
         }
+        console.log('🔍 ===================================================');
       } catch (notesError) {
-        console.warn('⚠️ Could not fetch payment notes to extract booking/ticket ID:', notesError.message);
+        console.error('❌ Error fetching payment notes:', notesError.message);
+        console.error('❌ Stack:', notesError.stack);
       }
     }
     
-    console.log('📋 Extracted payment data:', {
-      razorpay_payment_id: razorpay_payment_id ? `${razorpay_payment_id.substring(0, 10)}...` : 'MISSING',
-      razorpay_order_id: razorpay_order_id ? `${razorpay_order_id.substring(0, 10)}...` : 'MISSING',
-      razorpay_signature: razorpay_signature ? `${razorpay_signature.substring(0, 10)}...` : 'MISSING',
-      bookingId: bookingId || 'MISSING',
-      ticketId: ticketId || 'MISSING'
-    });
+    console.log('📋 ========== STEP 2: EXTRACTING PAYMENT DATA ==========');
+    console.log('📋 Payment ID:', razorpay_payment_id ? `${razorpay_payment_id.substring(0, 10)}...` : 'MISSING');
+    console.log('📋 Order ID:', razorpay_order_id ? `${razorpay_order_id.substring(0, 10)}...` : 'MISSING');
+    console.log('📋 Signature:', razorpay_signature ? `${razorpay_signature.substring(0, 10)}...` : 'MISSING');
+    console.log('📋 Booking ID:', bookingId || 'MISSING');
+    console.log('📋 Ticket ID:', ticketId || 'MISSING');
+    console.log('📋 Timestamp:', new Date().toISOString());
+    console.log('📋 ===================================================');
     
     // Check if this is a payment failure callback
     const isPaymentFailed = req.query?.error === 'payment_failed' || 
@@ -560,23 +582,35 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     }
 
     // Detect WebView/Flutter context from user agent
+    console.log('🔍 ========== STEP 3: DETECTING WEBVIEW CONTEXT ==========');
     const userAgent = req.headers['user-agent'] || '';
     const isWebView = /wv|WebView|flutter|Flutter/i.test(userAgent);
     const isFlutterWebView = /flutter|Flutter/i.test(userAgent) || 
                             req.query?.isWebView === 'true' || 
                             req.body?.isWebView === 'true';
+    console.log('🔍 User Agent:', userAgent);
+    console.log('🔍 Is WebView:', isWebView);
+    console.log('🔍 Is Flutter WebView:', isFlutterWebView);
+    console.log('🔍 ===================================================');
 
     // Build frontend callback URL
+    console.log('🔗 ========== STEP 4: BUILDING FRONTEND CALLBACK URL ==========');
+    console.log('🔗 FRONTEND_URL env:', process.env.FRONTEND_URL || 'NOT SET');
+    console.log('🔗 NODE_ENV:', process.env.NODE_ENV);
+    
     // CRITICAL: Ensure FRONTEND_URL is properly set and has no trailing slash
     // For WebView/APK, this should redirect to the frontend where the app is hosted
     let frontendBase = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://getfixfly.com' : 'http://localhost:8080');
+    console.log('🔗 Frontend Base (initial):', frontendBase);
     
     // Remove trailing slash if present
     frontendBase = frontendBase.replace(/\/+$/, '');
+    console.log('🔗 Frontend Base (after trim):', frontendBase);
     
     // Ensure it's a valid URL
     if (!frontendBase.startsWith('http://') && !frontendBase.startsWith('https://')) {
       frontendBase = `https://${frontendBase}`;
+      console.log('🔗 Frontend Base (after protocol):', frontendBase);
     }
     
     // CRITICAL: For WebView, ensure we're redirecting to the correct frontend URL
@@ -584,13 +618,14 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     // Try to detect from referer if available
     if (isWebView || isFlutterWebView) {
       const referer = req.headers.referer || '';
+      console.log('🔗 Referer:', referer);
       if (referer) {
         try {
           const refererUrl = new URL(referer);
           // If referer is from getfixfly.com, use that as frontend base
           if (refererUrl.hostname.includes('getfixfly.com')) {
             frontendBase = `${refererUrl.protocol}//${refererUrl.hostname}`;
-            console.log('🔧 WebView detected - using referer as frontend base:', frontendBase);
+            console.log('🔧 ✅ WebView detected - using referer as frontend base:', frontendBase);
           }
         } catch (e) {
           console.warn('⚠️ Could not parse referer URL:', e.message);
@@ -598,7 +633,10 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       }
     }
     
+    console.log('🔗 ✅ Final Frontend Base:', frontendBase);
     const url = new URL('/payment-callback', frontendBase);
+    console.log('🔗 ✅ Frontend Callback URL (base):', url.toString());
+    console.log('🔗 ===================================================');
     
     // If payment failed, add error parameters to frontend URL
     if (isPaymentFailed) {
@@ -614,24 +652,42 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     const deepLinkUrl = `${deepLinkScheme}://payment-callback?razorpay_order_id=${razorpay_order_id || ''}&razorpay_payment_id=${razorpay_payment_id || ''}&razorpay_signature=${razorpay_signature || ''}&bookingId=${bookingId || ''}&ticketId=${ticketId || ''}`;
 
     // Add payment parameters
+    console.log('🔗 ========== STEP 5: ADDING PAYMENT PARAMETERS TO URL ==========');
     if (razorpay_order_id) {
       url.searchParams.set('razorpay_order_id', razorpay_order_id);
       url.searchParams.set('order_id', razorpay_order_id);
+      console.log('✅ Added Order ID:', razorpay_order_id.substring(0, 10) + '...');
+    } else {
+      console.warn('⚠️ Order ID missing - not adding to URL');
     }
     if (razorpay_payment_id) {
       url.searchParams.set('razorpay_payment_id', razorpay_payment_id);
       url.searchParams.set('payment_id', razorpay_payment_id);
+      console.log('✅ Added Payment ID:', razorpay_payment_id.substring(0, 10) + '...');
+    } else {
+      console.warn('⚠️ Payment ID missing - not adding to URL');
     }
     if (razorpay_signature) {
       url.searchParams.set('razorpay_signature', razorpay_signature);
       url.searchParams.set('signature', razorpay_signature);
+      console.log('✅ Added Signature: PRESENT');
+    } else {
+      console.warn('⚠️ Signature missing - not adding to URL');
     }
     if (bookingId) {
       url.searchParams.set('booking_id', bookingId);
+      console.log('✅ Added Booking ID:', bookingId);
+    } else {
+      console.log('ℹ️ Booking ID not present');
     }
     if (ticketId) {
       url.searchParams.set('ticket_id', ticketId);
+      console.log('✅ Added Ticket ID:', ticketId);
+    } else {
+      console.log('ℹ️ Ticket ID not present');
     }
+    console.log('🔗 ✅ Final Callback URL with params:', url.toString());
+    console.log('🔗 ===================================================');
 
     // CRITICAL: If order_id or payment_id is missing, try to fetch from Razorpay
     // This is especially important for WebView where parameters might not be passed correctly
@@ -739,7 +795,13 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     // This ensures payment is verified even if frontend callback fails
     if (razorpay_payment_id && razorpay_order_id && !isPaymentFailed) {
       try {
-        console.log('🔍 Verifying payment immediately in callback handler...');
+        console.log('🔍 ========== STEP 6: VERIFYING PAYMENT IN CALLBACK HANDLER ==========');
+        console.log('🔍 Payment ID:', razorpay_payment_id);
+        console.log('🔍 Order ID:', razorpay_order_id);
+        console.log('🔍 Booking ID:', bookingId || 'N/A');
+        console.log('🔍 Ticket ID:', ticketId || 'N/A');
+        console.log('🔍 Timestamp:', new Date().toISOString());
+        console.log('🔍 ===================================================');
         
         // Import payment verification logic
         const Razorpay = require('razorpay');
@@ -777,11 +839,17 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
         
         // If payment verified, update booking/ticket immediately
         if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
+          console.log('✅ ========== STEP 6.1: PAYMENT VERIFIED - UPDATING BOOKING/TICKET ==========');
+          console.log('✅ Payment Status:', payment.status);
+          console.log('✅ Payment Amount:', payment.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+          
           if (bookingId) {
             try {
+              console.log('📝 Updating booking:', bookingId);
               const Booking = require('../models/Booking');
               const booking = await Booking.findById(bookingId);
               if (booking) {
+                console.log('📝 Booking found:', booking._id);
                 if (!booking.payment) {
                   booking.payment = {};
                 }
@@ -798,10 +866,15 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
                 console.log('✅ ✅ ✅ BOOKING PAYMENT UPDATED IN CALLBACK ✅ ✅ ✅');
                 console.log('✅ Booking ID:', booking._id);
                 console.log('✅ Payment ID:', razorpay_payment_id);
+                console.log('✅ Order ID:', razorpay_order_id);
                 console.log('✅ Status: COMPLETED');
+                console.log('✅ Timestamp:', new Date().toISOString());
+              } else {
+                console.warn('⚠️ Booking not found:', bookingId);
               }
             } catch (bookingError) {
               console.error('❌ Error updating booking in callback:', bookingError.message);
+              console.error('❌ Stack:', bookingError.stack);
             }
           }
           
@@ -833,12 +906,17 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       }
     }
     
-    console.log('🔀 Returning HTML form for reliable WebView redirect:', {
-      isWebView,
-      isFlutterWebView,
-      url: url.toString(),
-      deepLinkUrl
-    });
+    console.log('🔀 ========== STEP 7: RETURNING HTML FOR WEBVIEW REDIRECT ==========');
+    console.log('🔀 Is WebView:', isWebView);
+    console.log('🔀 Is Flutter WebView:', isFlutterWebView);
+    console.log('🔀 Redirect URL:', url.toString());
+    console.log('🔀 Deep Link URL:', deepLinkUrl);
+    console.log('🔀 Payment ID:', razorpay_payment_id || 'N/A');
+    console.log('🔀 Order ID:', razorpay_order_id || 'N/A');
+    console.log('🔀 Booking ID:', bookingId || 'N/A');
+    console.log('🔀 Ticket ID:', ticketId || 'N/A');
+    console.log('🔀 Timestamp:', new Date().toISOString());
+    console.log('🔀 ===================================================');
     
     // Return HTML page with auto-submit form and deep linking support (more reliable in WebView)
     // CRITICAL: For WebView, use multiple redirect methods to ensure it works
@@ -1014,15 +1092,16 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       </html>
     `;
     
-    console.log('📤 Sending HTML response to client');
-    console.log('📤 HTML length:', html.length);
-    console.log('📤 Payment data in HTML:', {
-      hasOrderId: !!razorpay_order_id,
-      hasPaymentId: !!razorpay_payment_id,
-      hasSignature: !!razorpay_signature,
-      hasBookingId: !!bookingId,
-      hasTicketId: !!ticketId
-    });
+    console.log('📤 ========== STEP 8: SENDING HTML RESPONSE ==========');
+    console.log('📤 HTML length:', html.length, 'bytes');
+    console.log('📤 Payment data in HTML:');
+    console.log('📤   - Has Order ID:', !!razorpay_order_id);
+    console.log('📤   - Has Payment ID:', !!razorpay_payment_id);
+    console.log('📤   - Has Signature:', !!razorpay_signature);
+    console.log('📤   - Has Booking ID:', !!bookingId);
+    console.log('📤   - Has Ticket ID:', !!ticketId);
+    console.log('📤 Timestamp:', new Date().toISOString());
+    console.log('📤 ===================================================');
     
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(html);
