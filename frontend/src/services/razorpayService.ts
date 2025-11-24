@@ -1630,8 +1630,35 @@ class RazorpayService {
             console.warn('⚠️ Could not store payment failure info:', e);
           }
           
-          // Call onError callback
-          onFailure(new Error(response.error?.description || response.error?.reason || 'Payment failed in WebView'));
+          // CRITICAL: For WebView/APK, redirect to callback with error so backend can log it
+          if (useRedirectMode && callbackUrl) {
+            try {
+              const errorCallbackUrl = new URL(callbackUrl);
+              const errorMessage = response.error?.description || response.error?.reason || 'Payment failed';
+              errorCallbackUrl.searchParams.set('error', 'payment_failed');
+              errorCallbackUrl.searchParams.set('error_message', encodeURIComponent(errorMessage));
+              errorCallbackUrl.searchParams.set('payment_failed', 'true');
+              errorCallbackUrl.searchParams.set('razorpay_order_id', order.orderId);
+              
+              if (response.error?.metadata?.payment_id) {
+                errorCallbackUrl.searchParams.set('razorpay_payment_id', response.error.metadata.payment_id);
+              }
+              
+              console.error('❌ Redirecting to callback with error:', errorCallbackUrl.toString());
+              
+              // Force redirect to backend callback
+              setTimeout(() => {
+                window.location.href = errorCallbackUrl.toString();
+              }, 500);
+            } catch (redirectError) {
+              console.error('❌ Error redirecting to callback:', redirectError);
+              // Fallback: call onError
+              onFailure(new Error(response.error?.description || response.error?.reason || 'Payment failed in WebView'));
+            }
+          } else {
+            // Call onError callback
+            onFailure(new Error(response.error?.description || response.error?.reason || 'Payment failed in WebView'));
+          }
         });
         
         // Add payment.authorized event handler (for debugging)
@@ -1817,9 +1844,21 @@ class RazorpayService {
               
               // CRITICAL: Force redirect immediately - don't wait
               // This ensures backend receives the failure callback
+              // IMPORTANT: Don't call onFailure here - redirect will handle it
+              console.error('🚀 Redirecting to backend error callback - onFailure will be called by PaymentCallback page');
               window.location.href = errorCallbackUrl.toString();
+              
+              // Fallback: If redirect doesn't work, call onFailure after delay
+              setTimeout(() => {
+                if (!window.location.href.includes('/payment-callback') && 
+                    !window.location.href.includes('razorpay')) {
+                  console.warn('⚠️ Redirect did not work, calling onFailure as fallback');
+                  onFailure(new Error(errorMessage));
+                }
+              }, 2000);
             } catch (e) {
               console.error('❌ Error redirecting to error callback:', e);
+              // Only call onFailure if redirect completely fails
               onFailure(new Error(errorMessage));
             }
           } else {
