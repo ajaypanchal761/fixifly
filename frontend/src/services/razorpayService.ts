@@ -375,6 +375,7 @@ class RazorpayService {
 
       // Build callback URL for redirect mode
       // CRITICAL: For production WebView APK, callback URL must be publicly accessible
+      // The callback URL MUST point to the backend server, not the frontend
       // Priority: 1. VITE_API_URL (if set and not localhost), 2. Production backend URL, 3. Current origin (if HTTPS)
       let apiBase = import.meta.env.VITE_API_URL || '';
       
@@ -395,21 +396,48 @@ class RazorpayService {
                             apiBase.startsWith('172.');
       
       // For production WebView, use production backend URL
-      // Try to detect from current origin or use default
+      // CRITICAL: In WebView/APK, we need to use the actual backend server URL
+      // Try multiple methods to detect the correct backend URL
       const getProductionBackendUrl = () => {
+        // Method 1: Check if current origin is getfixfly.com and construct api subdomain
         if (currentOrigin && currentOrigin.includes('getfixfly.com')) {
           const hostname = new URL(currentOrigin).hostname;
+          // If already on api subdomain, use it
           if (hostname.startsWith('api.')) {
             return currentOrigin;
           } else {
-            return `https://api.${hostname}`;
+            // Otherwise, construct api subdomain
+            return `https://api.${hostname.replace(/^www\./, '')}`;
           }
         }
-        return 'https://api.getfixfly.com'; // Default fallback
+        
+        // Method 2: Try to extract from VITE_API_URL if it's a production URL
+        if (apiBase && !apiBase.includes('localhost') && !apiBase.includes('127.0.0.1')) {
+          try {
+            const url = new URL(apiBase);
+            if (url.hostname.includes('getfixfly.com') || url.hostname.includes('vercel.app')) {
+              return apiBase;
+            }
+          } catch (e) {
+            // Invalid URL, continue
+          }
+        }
+        
+        // Method 3: Default production backend URL
+        // CRITICAL: This should be your actual backend server URL
+        // If your backend is on a different domain, update this
+        return 'https://api.getfixfly.com'; // Default fallback - UPDATE THIS IF YOUR BACKEND IS DIFFERENT
       };
       const PRODUCTION_BACKEND_URL = getProductionBackendUrl();
       
-      if (isProduction && isLocalhostEnv) {
+      // CRITICAL: For WebView in production, always use production backend URL
+      // Don't rely on localhost or current origin in production WebView
+      if (isAPK && isProduction) {
+        // In WebView/APK production, always use production backend
+        console.log('🔧 WEBVIEW PRODUCTION MODE: Using production backend URL');
+        console.log('🔧 Detected APK/WebView context');
+        apiBase = PRODUCTION_BACKEND_URL;
+      } else if (isProduction && isLocalhostEnv) {
         // In production but VITE_API_URL is localhost - use production backend
         console.log('🔧 PRODUCTION MODE: Using production backend URL');
         apiBase = PRODUCTION_BACKEND_URL;
@@ -429,6 +457,7 @@ class RazorpayService {
       }
       
       // Build callback URL - must be absolute URL for Razorpay
+      // CRITICAL: This URL must be accessible from Razorpay's servers
       let callbackUrl = useRedirectMode 
         ? `${apiBase}/api/payment/razorpay-callback`
         : undefined;
@@ -443,13 +472,20 @@ class RazorpayService {
                             urlObj.hostname.startsWith('10.') ||
                             urlObj.hostname.startsWith('172.');
           
-          if (isLocalhost && isProduction) {
-            console.error('❌ CRITICAL: Callback URL is localhost in production!');
+          if (isLocalhost && (isProduction || isAPK)) {
+            console.error('❌ CRITICAL: Callback URL is localhost in production/WebView!');
             console.error('❌ Callback URL:', callbackUrl);
             console.error('❌ This will fail. Using production backend fallback.');
             callbackUrl = `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`;
           } else if (isLocalhost) {
             console.warn('⚠️ Callback URL is localhost - this will only work in development');
+          }
+          
+          // Additional validation: Ensure URL is HTTPS in production
+          if (isProduction && urlObj.protocol !== 'https:') {
+            console.warn('⚠️ Callback URL is not HTTPS in production, converting...');
+            urlObj.protocol = 'https:';
+            callbackUrl = urlObj.toString();
           }
         } catch (urlError) {
           console.error('❌ Error validating callback URL:', urlError);
@@ -543,6 +579,10 @@ class RazorpayService {
           booking_id: paymentData.bookingId || undefined,
           ticket_id: paymentData.ticketId || undefined,
           isWebView: useRedirectMode ? 'true' : 'false', // Flag for backend
+          // CRITICAL: Store booking/ticket IDs in notes so backend can extract them
+          // This is important for WebView where callback URL params might not work
+          ...(paymentData.bookingId ? { bookingId: paymentData.bookingId } : {}),
+          ...(paymentData.ticketId ? { ticketId: paymentData.ticketId } : {}),
         },
         theme: {
           color: '#3B82F6',
@@ -1039,6 +1079,7 @@ class RazorpayService {
 
       // Build callback URL for redirect mode (WebView)
       // CRITICAL: For production WebView APK, callback URL must be publicly accessible
+      // The callback URL MUST point to the backend server, not the frontend
       // Priority: 1. VITE_API_URL (if set and not localhost), 2. Production backend URL, 3. Current origin (if HTTPS)
       let apiBase = import.meta.env.VITE_API_URL || '';
       
@@ -1059,21 +1100,48 @@ class RazorpayService {
                             apiBase.startsWith('172.');
       
       // For production WebView, use production backend URL
-      // Try to detect from current origin or use default
+      // CRITICAL: In WebView/APK, we need to use the actual backend server URL
+      // Try multiple methods to detect the correct backend URL
       const getProductionBackendUrl = () => {
+        // Method 1: Check if current origin is getfixfly.com and construct api subdomain
         if (currentOrigin && currentOrigin.includes('getfixfly.com')) {
           const hostname = new URL(currentOrigin).hostname;
+          // If already on api subdomain, use it
           if (hostname.startsWith('api.')) {
             return currentOrigin;
           } else {
-            return `https://api.${hostname}`;
+            // Otherwise, construct api subdomain
+            return `https://api.${hostname.replace(/^www\./, '')}`;
           }
         }
-        return 'https://api.getfixfly.com'; // Default fallback
+        
+        // Method 2: Try to extract from VITE_API_URL if it's a production URL
+        if (apiBase && !apiBase.includes('localhost') && !apiBase.includes('127.0.0.1')) {
+          try {
+            const url = new URL(apiBase);
+            if (url.hostname.includes('getfixfly.com') || url.hostname.includes('vercel.app')) {
+              return apiBase;
+            }
+          } catch (e) {
+            // Invalid URL, continue
+          }
+        }
+        
+        // Method 3: Default production backend URL
+        // CRITICAL: This should be your actual backend server URL
+        // If your backend is on a different domain, update this
+        return 'https://api.getfixfly.com'; // Default fallback - UPDATE THIS IF YOUR BACKEND IS DIFFERENT
       };
       const PRODUCTION_BACKEND_URL = getProductionBackendUrl();
       
-      if (isProduction && isLocalhostEnv) {
+      // CRITICAL: For WebView in production, always use production backend URL
+      // Don't rely on localhost or current origin in production WebView
+      if (isAPK && isProduction) {
+        // In WebView/APK production, always use production backend
+        console.log('🔧 WEBVIEW PRODUCTION MODE: Using production backend URL');
+        console.log('🔧 Detected APK/WebView context');
+        apiBase = PRODUCTION_BACKEND_URL;
+      } else if (isProduction && isLocalhostEnv) {
         // In production but VITE_API_URL is localhost - use production backend
         console.log('🔧 PRODUCTION MODE: Using production backend URL');
         apiBase = PRODUCTION_BACKEND_URL;
@@ -1093,6 +1161,7 @@ class RazorpayService {
       }
       
       // Build callback URL - must be absolute URL for Razorpay
+      // CRITICAL: This URL must be accessible from Razorpay's servers
       let callbackUrl = useRedirectMode 
         ? `${apiBase}/api/payment/razorpay-callback`
         : undefined;
@@ -1107,13 +1176,20 @@ class RazorpayService {
                             urlObj.hostname.startsWith('10.') ||
                             urlObj.hostname.startsWith('172.');
           
-          if (isLocalhost && isProduction) {
-            console.error('❌ CRITICAL: Callback URL is localhost in production!');
+          if (isLocalhost && (isProduction || isAPK)) {
+            console.error('❌ CRITICAL: Callback URL is localhost in production/WebView!');
             console.error('❌ Callback URL:', callbackUrl);
             console.error('❌ This will fail. Using production backend fallback.');
             callbackUrl = `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`;
           } else if (isLocalhost) {
             console.warn('⚠️ Callback URL is localhost - this will only work in development');
+          }
+          
+          // Additional validation: Ensure URL is HTTPS in production
+          if (isProduction && urlObj.protocol !== 'https:') {
+            console.warn('⚠️ Callback URL is not HTTPS in production, converting...');
+            urlObj.protocol = 'https:';
+            callbackUrl = urlObj.toString();
           }
         } catch (urlError) {
           console.error('❌ Error validating callback URL:', urlError);
@@ -1172,6 +1248,9 @@ class RazorpayService {
           payment_type: 'service_payment',
           isWebView: useRedirectMode ? 'true' : 'false',
           booking_amount: bookingData.pricing.totalAmount.toString(),
+          // CRITICAL: Store booking data in notes for WebView callback handling
+          // Backend can extract this if URL params are missing
+          payment_context: 'new_booking_checkout',
         },
         theme: {
           color: '#3B82F6',

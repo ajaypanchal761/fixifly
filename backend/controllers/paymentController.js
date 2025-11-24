@@ -370,14 +370,38 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
                                req.query?.signature ||
                                req.body?.razorpaySignature ||
                                req.query?.razorpaySignature;
-    const bookingId = req.body?.bookingId || 
-                     req.query?.bookingId || 
-                     req.query?.booking_id ||
-                     req.body?.booking_id;
-    const ticketId = req.body?.ticketId || 
-                    req.query?.ticketId || 
-                    req.query?.ticket_id ||
-                    req.body?.ticket_id;
+    let bookingId = req.body?.bookingId || 
+                   req.query?.bookingId || 
+                   req.query?.booking_id ||
+                   req.body?.booking_id;
+    let ticketId = req.body?.ticketId || 
+                  req.query?.ticketId || 
+                  req.query?.ticket_id ||
+                  req.body?.ticket_id;
+    
+    // CRITICAL: If we have payment_id but missing booking_id/ticket_id, try to fetch from payment notes
+    // This is especially important for WebView where URL params might not be passed correctly
+    if (razorpay_payment_id && !bookingId && !ticketId) {
+      try {
+        console.log('🔍 Payment ID present but booking/ticket ID missing - fetching from payment notes...');
+        const payment = await razorpay.payments.fetch(razorpay_payment_id);
+        if (payment && payment.notes) {
+          const notesBookingId = payment.notes.booking_id || payment.notes.bookingId;
+          const notesTicketId = payment.notes.ticket_id || payment.notes.ticketId;
+          
+          if (notesBookingId && !bookingId) {
+            bookingId = notesBookingId;
+            console.log('✅ Extracted booking ID from payment notes:', notesBookingId);
+          }
+          if (notesTicketId && !ticketId) {
+            ticketId = notesTicketId;
+            console.log('✅ Extracted ticket ID from payment notes:', notesTicketId);
+          }
+        }
+      } catch (notesError) {
+        console.warn('⚠️ Could not fetch payment notes to extract booking/ticket ID:', notesError.message);
+      }
+    }
     
     console.log('📋 Extracted payment data:', {
       razorpay_payment_id: razorpay_payment_id ? `${razorpay_payment_id.substring(0, 10)}...` : 'MISSING',
@@ -544,6 +568,7 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
 
     // Build frontend callback URL
     // CRITICAL: Ensure FRONTEND_URL is properly set and has no trailing slash
+    // For WebView/APK, this should redirect to the frontend where the app is hosted
     let frontendBase = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://getfixfly.com' : 'http://localhost:8080');
     
     // Remove trailing slash if present
@@ -552,6 +577,25 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     // Ensure it's a valid URL
     if (!frontendBase.startsWith('http://') && !frontendBase.startsWith('https://')) {
       frontendBase = `https://${frontendBase}`;
+    }
+    
+    // CRITICAL: For WebView, ensure we're redirecting to the correct frontend URL
+    // In WebView, the frontend might be loaded from a different origin
+    // Try to detect from referer if available
+    if (isWebView || isFlutterWebView) {
+      const referer = req.headers.referer || '';
+      if (referer) {
+        try {
+          const refererUrl = new URL(referer);
+          // If referer is from getfixfly.com, use that as frontend base
+          if (refererUrl.hostname.includes('getfixfly.com')) {
+            frontendBase = `${refererUrl.protocol}//${refererUrl.hostname}`;
+            console.log('🔧 WebView detected - using referer as frontend base:', frontendBase);
+          }
+        } catch (e) {
+          console.warn('⚠️ Could not parse referer URL:', e.message);
+        }
+      }
     }
     
     const url = new URL('/payment-callback', frontendBase);
@@ -625,20 +669,27 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
           url.searchParams.set('razorpay_order_id', payment.order_id);
           url.searchParams.set('order_id', payment.order_id);
           console.log('✅ Found order ID from payment:', payment.order_id);
-        } else if (payment && payment.notes) {
-          // Check payment notes for booking_id or ticket_id
+        }
+        
+        // CRITICAL: Always check payment notes for booking_id/ticket_id (even if we have order_id)
+        // This is important for WebView where URL params might not be passed correctly
+        if (payment && payment.notes) {
           const notesBookingId = payment.notes.booking_id || payment.notes.bookingId;
           const notesTicketId = payment.notes.ticket_id || payment.notes.ticketId;
           
           if (notesBookingId && !bookingId) {
+            bookingId = notesBookingId; // Update the variable
             url.searchParams.set('booking_id', notesBookingId);
             console.log('✅ Found booking ID from payment notes:', notesBookingId);
           }
           if (notesTicketId && !ticketId) {
+            ticketId = notesTicketId; // Update the variable
             url.searchParams.set('ticket_id', notesTicketId);
             console.log('✅ Found ticket ID from payment notes:', notesTicketId);
           }
-        } else {
+        }
+        
+        if (!payment || !payment.order_id) {
           console.warn('⚠️ Could not fetch payment details or order_id from Razorpay');
         }
       } catch (paymentError) {
@@ -790,6 +841,7 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     });
     
     // Return HTML page with auto-submit form and deep linking support (more reliable in WebView)
+    // CRITICAL: For WebView, use multiple redirect methods to ensure it works
     const html = `
       <!DOCTYPE html>
       <html>
@@ -850,6 +902,11 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
               ticketId: '${ticketId || ''}'
             };
             
+            const callbackUrl = '${url.toString()}';
+            
+            console.log('🔔 Payment callback received:', paymentData);
+            console.log('🔔 Redirecting to:', callbackUrl);
+            
             // Store in multiple places for reliability
             try {
               // Method 1: localStorage
@@ -861,6 +918,51 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
               console.log('💾 Stored payment response in sessionStorage');
             } catch(e) {
               console.warn('⚠️ Storage not available:', e);
+            }
+            
+            // CRITICAL: For WebView, try multiple redirect methods
+            let redirectAttempted = false;
+            
+            function performRedirect() {
+              if (redirectAttempted) {
+                console.log('⚠️ Redirect already attempted, skipping');
+                return;
+              }
+              redirectAttempted = true;
+              
+              try {
+                // Method 1: Direct window.location (most reliable)
+                console.log('🚀 Method 1: Direct window.location redirect');
+                window.location.href = callbackUrl;
+                
+                // Method 2: Fallback after delay (if Method 1 didn't work)
+                setTimeout(function() {
+                  if (window.location.href !== callbackUrl && !window.location.href.includes('/payment-callback')) {
+                    console.log('🔄 Method 2: window.location.replace fallback');
+                    window.location.replace(callbackUrl);
+                  }
+                }, 500);
+                
+                // Method 3: Form submit (backup)
+                setTimeout(function() {
+                  if (window.location.href !== callbackUrl && !window.location.href.includes('/payment-callback')) {
+                    console.log('🔄 Method 3: Form submit fallback');
+                    try {
+                      document.getElementById('paymentForm').submit();
+                    } catch(e) {
+                      console.error('❌ Form submit failed:', e);
+                    }
+                  }
+                }, 1000);
+              } catch(e) {
+                console.error('❌ Redirect error:', e);
+                // Last resort: try form submit
+                try {
+                  document.getElementById('paymentForm').submit();
+                } catch(formError) {
+                  console.error('❌ Form submit also failed:', formError);
+                }
+              }
             }
             
             // Try deep linking first (for Flutter WebView)
@@ -879,8 +981,8 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
                 console.log('🔗 Attempted deep link:', deepLinkUrl);
                 // Wait a bit to see if deep link works
                 setTimeout(function() {
-                  // If still here, fallback to form submit
-                  submitForm();
+                  // If still here, fallback to normal redirect
+                  performRedirect();
                 }, 500);
                 return;
               } catch(e) {
@@ -900,19 +1002,12 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
             }
             ` : ''}
             
-            // Function to submit form
-            function submitForm() {
-              try {
-                document.getElementById('paymentForm').submit();
-              } catch(e) {
-                console.error('❌ Error submitting form:', e);
-                // Fallback: redirect manually
-                window.location.href = '${url.toString()}';
-              }
-            }
+            // Perform redirect immediately
+            // CRITICAL: Don't wait too long - WebView might timeout
+            setTimeout(performRedirect, 50);
             
-            // Auto-submit form after short delay to ensure storage writes complete
-            setTimeout(submitForm, 100);
+            // Also try immediately (in case setTimeout is delayed)
+            performRedirect();
           })();
         </script>
       </body>
