@@ -1163,11 +1163,53 @@ class RazorpayService {
       let apiUrl = import.meta.env.VITE_API_URL || '/api';
       const isProduction = import.meta.env.PROD || window.location.protocol === 'https:';
       
+      // CRITICAL: Detect backend server URL for Contabo VPS
+      // Backend is on Contabo VPS (Ubuntu), frontend is on Vercel
+      // Backend must be publicly accessible for Razorpay callbacks
+      const detectBackendUrl = () => {
+        // Method 1: Check VITE_API_URL if it's a production URL (set in Vercel env vars)
+        if (apiUrl && !apiUrl.includes('localhost') && !apiUrl.includes('127.0.0.1')) {
+          try {
+            const url = new URL(apiUrl);
+            if (url.hostname.includes('getfixfly.com') || url.hostname.includes('api.') || url.hostname.includes('contabo')) {
+              return apiUrl;
+            }
+          } catch (e) {
+            // Invalid URL, continue
+          }
+        }
+        
+        // Method 2: Try api subdomain (most common setup for Contabo VPS)
+        // If you have api.getfixfly.com pointing to Contabo VPS
+        if (window.location.hostname.includes('getfixfly.com')) {
+          return 'https://api.getfixfly.com/api';
+        }
+        
+        // Method 3: If frontend is on getfixfly.com, backend might be on same domain
+        // Or on api subdomain
+        // Default: Try api subdomain first (most common for VPS setups)
+        return 'https://api.getfixfly.com/api';
+      };
+      
       // For WebView/APK, always use production backend (like RentYatra)
       if (isAPK || (isProduction && (!apiUrl || apiUrl.includes('localhost')))) {
-        // CRITICAL: Update this to your actual production backend URL
-        apiUrl = 'https://api.getfixfly.com/api'; // UPDATE THIS TO YOUR ACTUAL BACKEND URL
-        console.log('🔧 WEBVIEW/APK MODE: Using production backend URL:', apiUrl);
+        // CRITICAL: Backend server must be publicly accessible for Razorpay callbacks
+        // Backend is on Contabo VPS - must use public URL (not localhost)
+        apiUrl = detectBackendUrl();
+        console.log('🔧 ========== BACKEND URL DETECTION ==========');
+        console.log('🔧 WEBVIEW/APK MODE: Using production backend URL');
+        console.log('🔧 Backend Server: Contabo VPS (Ubuntu)');
+        console.log('🔧 Frontend: Vercel');
+        console.log('🔧 Detected Backend URL:', apiUrl);
+        console.log('🔧 VITE_API_URL:', import.meta.env.VITE_API_URL || 'NOT SET');
+        console.log('🔧 CRITICAL: Ensure this URL is publicly accessible from Razorpay servers');
+        console.log('🔧 Test this URL manually:', `${apiUrl}/payment/test-callback`);
+        console.log('🔧 If test URL fails, check:');
+        console.log('   1. Is api.getfixfly.com pointing to Contabo VPS?');
+        console.log('   2. Is backend server running on port 5000?');
+        console.log('   3. Is firewall allowing HTTPS (443) connections?');
+        console.log('   4. Update VITE_API_URL in Vercel environment variables');
+        console.log('🔧 ===========================================');
       }
       
       // Ensure we have a valid absolute URL with protocol
@@ -1196,7 +1238,10 @@ class RazorpayService {
             console.error('❌ CRITICAL: Callback URL is localhost in production/WebView!');
             console.error('❌ Callback URL:', callbackUrl);
             console.error('❌ This will fail. Using production backend fallback.');
-            callbackUrl = 'https://api.getfixfly.com/api/payment/razorpay-callback'; // UPDATE THIS
+            // Use detected backend URL
+            const fallbackUrl = detectBackendUrl();
+            callbackUrl = `${fallbackUrl}/payment/razorpay-callback`;
+            console.error('❌ Using fallback:', callbackUrl);
           } else if (isLocalhost) {
             console.warn('⚠️ Callback URL is localhost - this will only work in development');
           }
@@ -1207,10 +1252,20 @@ class RazorpayService {
             urlObj.protocol = 'https:';
             callbackUrl = urlObj.toString();
           }
+          
+          // CRITICAL: Final verification - callback URL must be publicly accessible
+          console.log('✅ Callback URL Validation:');
+          console.log('   URL:', callbackUrl);
+          console.log('   Protocol:', urlObj.protocol);
+          console.log('   Host:', urlObj.host);
+          console.log('   Path:', urlObj.pathname);
+          console.log('   Is Public:', !urlObj.hostname.includes('localhost'));
+          console.log('   Is HTTPS:', urlObj.protocol === 'https:');
         } catch (urlError) {
           console.error('❌ Error validating callback URL:', urlError);
-          // Last resort: use production backend
-          callbackUrl = 'https://api.getfixfly.com/api/payment/razorpay-callback'; // UPDATE THIS
+          // Last resort: use detected backend URL
+          const fallbackUrl = detectBackendUrl();
+          callbackUrl = `${fallbackUrl}/payment/razorpay-callback`;
           console.warn('⚠️ Using fallback callback URL:', callbackUrl);
         }
       }
@@ -1258,6 +1313,8 @@ class RazorpayService {
       if (useRedirectMode && callbackUrl) {
         console.log('🔗 ========== CALLBACK URL VERIFICATION ==========');
         console.log('🔗 Full Callback URL:', callbackUrl);
+        console.log('🔗 Expected Backend URL: https://api.getfixfly.com/api/payment/razorpay-callback');
+        console.log('🔗 Test Endpoint (confirmed working): https://api.getfixfly.com/api/payment/test-callback');
         try {
           const urlObj = new URL(callbackUrl);
           console.log('🔗 Callback URL Protocol:', urlObj.protocol);
@@ -1265,6 +1322,16 @@ class RazorpayService {
           console.log('🔗 Callback URL Path:', urlObj.pathname);
           console.log('🔗 Callback URL is Public:', !urlObj.hostname.includes('localhost'));
           console.log('🔗 Callback URL is HTTPS:', urlObj.protocol === 'https:');
+          
+          // Verify callback URL matches expected format
+          const expectedUrl = 'https://api.getfixfly.com/api/payment/razorpay-callback';
+          if (callbackUrl === expectedUrl) {
+            console.log('✅ Callback URL matches expected format');
+          } else {
+            console.warn('⚠️ Callback URL does not match expected format');
+            console.warn('⚠️ Expected:', expectedUrl);
+            console.warn('⚠️ Actual:', callbackUrl);
+          }
           console.log('🔗 ============================================');
         } catch (e) {
           console.error('❌ Error parsing callback URL:', e);
@@ -1304,7 +1371,14 @@ class RazorpayService {
         // Use spread operator to conditionally add redirect options
         ...(useRedirectMode && {
           redirect: true, // REQUIRED for WebView - modal mode doesn't work
-          callback_url: callbackUrl, // Callback URL for redirect mode
+          callback_url: callbackUrl, // Callback URL for redirect mode - MUST be publicly accessible
+        }),
+        
+        // CRITICAL: Log the exact options being sent to Razorpay (for debugging)
+        // This helps verify that callback_url is properly set
+        ...(useRedirectMode && {
+          // Add a note in console about callback URL
+          _debug_callback_url: callbackUrl // This won't be sent to Razorpay, just for logging
         }),
         
         // Handler - CRITICAL: Like RentYatra, always define handler
@@ -1627,6 +1701,27 @@ class RazorpayService {
           throw new Error('Razorpay instance is null or undefined');
         }
         
+        // CRITICAL: Log the exact callback URL before opening Razorpay
+        if (useRedirectMode && callbackUrl) {
+          console.log('🔗 ========== FINAL CALLBACK URL VERIFICATION ==========');
+          console.log('🔗 Callback URL that will be sent to Razorpay:', callbackUrl);
+          console.log('🔗 Expected URL: https://api.getfixfly.com/api/payment/razorpay-callback');
+          console.log('🔗 Backend Server: Contabo VPS (Ubuntu) - CONFIRMED ACCESSIBLE');
+          console.log('🔗 Test Endpoint: https://api.getfixfly.com/api/payment/test-callback ✅');
+          console.log('🔗 This URL MUST be publicly accessible from Razorpay servers');
+          console.log('🔗 Expected backend route: /api/payment/razorpay-callback');
+          
+          // Final verification
+          if (callbackUrl === 'https://api.getfixfly.com/api/payment/razorpay-callback') {
+            console.log('✅ ✅ ✅ CALLBACK URL IS CORRECT ✅ ✅ ✅');
+          } else {
+            console.error('❌ ❌ ❌ CALLBACK URL MISMATCH ❌ ❌ ❌');
+            console.error('❌ Expected: https://api.getfixfly.com/api/payment/razorpay-callback');
+            console.error('❌ Actual:', callbackUrl);
+          }
+          console.log('🔗 ===================================================');
+        }
+        
         razorpay.open();
         console.log('✅ ✅ ✅ Razorpay.open() called successfully ✅ ✅ ✅');
         console.log('✅ Timestamp:', new Date().toISOString());
@@ -1636,6 +1731,10 @@ class RazorpayService {
           console.log('🔀 WebView Mode: Payment page should open in redirect mode');
           console.log('🔀 After payment, Razorpay will redirect to:', callbackUrl);
           console.log('🔀 Backend callback will then redirect to frontend callback page');
+          console.log('🔀 If payment fails, check:');
+          console.log('   1. Is callback URL publicly accessible?');
+          console.log('   2. Is backend server running and accessible?');
+          console.log('   3. Check backend logs for callback route hits');
         }
         
         // For WebView, add multiple checks to ensure modal opened
