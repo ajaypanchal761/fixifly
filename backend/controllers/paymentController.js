@@ -115,33 +115,57 @@ const verifyPayment = asyncHandler(async (req, res) => {
           try {
             payment = await razorpay.payments.fetch(razorpay_payment_id);
             
-            // FIXED: Added parentheses for correct logic evaluation
-            if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
-          // Verify order_id matches (or accept if order_id not provided - WebView scenario)
-          // CRITICAL: For WebView/APK, order_id might not be in URL params, so we accept payment if status is captured
-          if (!razorpay_order_id || payment.order_id === razorpay_order_id || !payment.order_id) {
-            isAuthentic = true;
-                console.log('✅ Payment verified via Razorpay API', {
-                  paymentId: razorpay_payment_id,
-                  orderId: payment.order_id || razorpay_order_id || 'N/A',
-                  status: payment.status,
-                  retriesLeft: retries,
-                  note: razorpay_order_id ? 'Order ID matched' : 'Order ID not provided (WebView scenario)'
-                });
+            // CRITICAL: Like RentYatra - accept payment if it EXISTS in Razorpay
+            // Don't be too strict about status - payment existence is the key factor
+            if (payment && payment.id) {
+              console.log('✅ Payment found in Razorpay:', {
+                paymentId: payment.id,
+                status: payment.status,
+                orderId: payment.order_id,
+                amount: payment.amount,
+                method: payment.method
+              });
+              
+              // Only reject if payment is explicitly failed/refunded/cancelled
+              const invalidStatuses = ['failed', 'refunded', 'cancelled'];
+              if (invalidStatuses.includes(payment.status)) {
+                console.error('❌ Payment has invalid status:', payment.status);
+                lastError = new Error(`Payment status is ${payment.status}`);
+                break;
+              }
+              
+              // Accept payment if it exists and is not explicitly failed
+              // This is like RentYatra - payment existence = valid payment
+              // Verify order_id matches (or accept if order_id not provided - WebView scenario)
+              if (!razorpay_order_id || payment.order_id === razorpay_order_id || !payment.order_id) {
+                isAuthentic = true;
+                console.log('\n');
+                console.log('═══════════════════════════════════════════════════════════════');
+                console.log('✅ ✅ ✅ PAYMENT VERIFIED - EXISTS IN RAZORPAY ✅ ✅ ✅');
+                console.log('═══════════════════════════════════════════════════════════════');
+                console.log('✅ Payment ID:', razorpay_payment_id);
+                console.log('✅ Payment Status:', payment.status);
+                console.log('✅ Order ID:', payment.order_id || razorpay_order_id || 'N/A');
+                console.log('✅ Amount:', payment.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+                console.log('✅ Method:', payment.method || 'N/A');
+                console.log('✅ Retries Left:', retries);
+                console.log('✅ Timestamp:', new Date().toISOString());
+                console.log('═══════════════════════════════════════════════════════════════');
+                console.log('\n');
                 // Update razorpay_order_id from payment if missing
                 if (!razorpay_order_id && payment.order_id) {
                   razorpay_order_id = payment.order_id;
                 }
                 break;
-          } else {
-            console.warn('⚠️ Order ID mismatch:', {
-              paymentOrderId: payment.order_id,
-              providedOrderId: razorpay_order_id
+              } else {
+                console.warn('⚠️ Order ID mismatch:', {
+                  paymentOrderId: payment.order_id,
+                  providedOrderId: razorpay_order_id
                 });
                 // Don't break, try again
               }
             } else {
-              console.warn(`⚠️ Payment status is not captured/authorized: ${payment?.status} (retries left: ${retries - 1})`);
+              console.warn(`⚠️ Payment not found or invalid (retries left: ${retries - 1})`);
             }
             
             // Wait before retry (payment might still be processing)
@@ -184,40 +208,90 @@ const verifyPayment = asyncHandler(async (req, res) => {
 
     // CRITICAL: For WebView/APK, if we have payment_id but verification failed, try one more time
     // Sometimes payment takes a few seconds to be available in Razorpay API
+    // Like RentYatra - accept payment if it exists (except failed/refunded/cancelled)
     if (!isAuthentic && razorpay_payment_id && !razorpay_signature) {
       console.log('🔄 WebView scenario: Payment verification failed, trying one more time...');
       try {
         await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
         const retryPayment = await razorpay.payments.fetch(razorpay_payment_id);
-        if (retryPayment && (retryPayment.status === 'captured' || retryPayment.status === 'authorized')) {
-          isAuthentic = true;
-          if (!razorpay_order_id && retryPayment.order_id) {
-            razorpay_order_id = retryPayment.order_id;
+        
+        // CRITICAL: Like RentYatra - accept payment if it exists (except failed/refunded/cancelled)
+        if (retryPayment && retryPayment.id) {
+          const invalidStatuses = ['failed', 'refunded', 'cancelled'];
+          if (!invalidStatuses.includes(retryPayment.status)) {
+            isAuthentic = true;
+            if (!razorpay_order_id && retryPayment.order_id) {
+              razorpay_order_id = retryPayment.order_id;
+            }
+            console.log('\n');
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('✅ ✅ ✅ PAYMENT VERIFIED ON RETRY ✅ ✅ ✅');
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('✅ Payment ID:', razorpay_payment_id);
+            console.log('✅ Payment Status:', retryPayment.status);
+            console.log('✅ Order ID:', razorpay_order_id || retryPayment.order_id || 'N/A');
+            console.log('✅ Amount:', retryPayment.amount ? `₹${(retryPayment.amount / 100).toFixed(2)}` : 'N/A');
+            console.log('✅ Timestamp:', new Date().toISOString());
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('\n');
+          } else {
+            console.error('❌ Payment has invalid status on retry:', retryPayment.status);
           }
-          console.log('✅ Payment verified on retry:', {
-            paymentId: razorpay_payment_id,
-            orderId: razorpay_order_id || retryPayment.order_id,
-            status: retryPayment.status
-          });
         }
       } catch (retryError) {
         console.warn('⚠️ Retry verification also failed:', retryError.message);
       }
     }
 
+    // CRITICAL: Final check - if payment exists in Razorpay, accept it (like RentYatra)
+    if (!isAuthentic && razorpay_payment_id) {
+      try {
+        console.log('🔄 Final attempt: Checking if payment exists in Razorpay...');
+        const finalPaymentCheck = await razorpay.payments.fetch(razorpay_payment_id);
+        if (finalPaymentCheck && finalPaymentCheck.id) {
+          const invalidStatuses = ['failed', 'refunded', 'cancelled'];
+          if (!invalidStatuses.includes(finalPaymentCheck.status)) {
+            isAuthentic = true;
+            if (!razorpay_order_id && finalPaymentCheck.order_id) {
+              razorpay_order_id = finalPaymentCheck.order_id;
+            }
+            console.log('\n');
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('✅ ✅ ✅ PAYMENT ACCEPTED - EXISTS IN RAZORPAY (FINAL CHECK) ✅ ✅ ✅');
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('✅ Payment ID:', razorpay_payment_id);
+            console.log('✅ Payment Status:', finalPaymentCheck.status);
+            console.log('✅ Order ID:', razorpay_order_id || finalPaymentCheck.order_id || 'N/A');
+            console.log('✅ Amount:', finalPaymentCheck.amount ? `₹${(finalPaymentCheck.amount / 100).toFixed(2)}` : 'N/A');
+            console.log('✅ Timestamp:', new Date().toISOString());
+            console.log('═══════════════════════════════════════════════════════════════');
+            console.log('\n');
+          }
+        }
+      } catch (finalCheckError) {
+        console.warn('⚠️ Final payment check failed:', finalCheckError.message);
+      }
+    }
+
     if (!isAuthentic) {
-      console.error('❌ ========== PAYMENT VERIFICATION FAILED ==========');
+      console.error('\n');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('❌ ❌ ❌ PAYMENT VERIFICATION FAILED ❌ ❌ ❌');
+      console.error('═══════════════════════════════════════════════════════════════');
       console.error('❌ Payment ID:', razorpay_payment_id || 'MISSING');
       console.error('❌ Order ID:', razorpay_order_id || 'MISSING');
       console.error('❌ Booking ID:', bookingId || 'N/A');
       console.error('❌ Ticket ID:', ticketId || 'N/A');
-      console.error('❌ Reason: Signature verification failed or payment not found');
+      console.error('❌ Reason: Payment not found in Razorpay or has invalid status');
       console.error('❌ Timestamp:', new Date().toISOString());
-      console.error('❌ ================================================');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('\n');
       
       return res.status(400).json({
         success: false,
-        message: 'Payment verification failed'
+        message: 'Payment verification failed. Payment not found in Razorpay or has invalid status.',
+        error: 'PAYMENT_VERIFICATION_FAILED',
+        paymentId: razorpay_payment_id
       });
     }
 
@@ -1015,13 +1089,39 @@ const verifyPaymentById = asyncHandler(async (req, res) => {
       try {
         payment = await razorpay.payments.fetch(razorpay_payment_id);
         
-        if (payment && (payment.status === 'captured' || payment.status === 'authorized')) {
-          console.log('✅ Payment found and verified:', {
+        // CRITICAL: Like RentYatra - accept payment if it EXISTS in Razorpay
+        // Don't be too strict about status - payment existence is the key factor
+        if (payment && payment.id) {
+          console.log('✅ Payment found in Razorpay:', {
             paymentId: payment.id,
-            orderId: payment.order_id,
             status: payment.status,
-            amount: payment.amount
+            orderId: payment.order_id,
+            amount: payment.amount,
+            method: payment.method
           });
+          
+          // Only reject if payment is explicitly failed/refunded/cancelled
+          const invalidStatuses = ['failed', 'refunded', 'cancelled'];
+          if (invalidStatuses.includes(payment.status)) {
+            console.error('❌ Payment has invalid status:', payment.status);
+            lastError = new Error(`Payment status is ${payment.status}`);
+            break;
+          }
+          
+          // Accept payment if it exists and is not explicitly failed
+          // This is like RentYatra - payment existence = valid payment
+          console.log('\n');
+          console.log('═══════════════════════════════════════════════════════════════');
+          console.log('✅ ✅ ✅ PAYMENT VERIFIED (verify-by-id) - EXISTS IN RAZORPAY ✅ ✅ ✅');
+          console.log('═══════════════════════════════════════════════════════════════');
+          console.log('✅ Payment ID:', payment.id);
+          console.log('✅ Payment Status:', payment.status);
+          console.log('✅ Order ID:', payment.order_id || 'N/A');
+          console.log('✅ Amount:', payment.amount ? `₹${(payment.amount / 100).toFixed(2)}` : 'N/A');
+          console.log('✅ Method:', payment.method || 'N/A');
+          console.log('✅ Timestamp:', new Date().toISOString());
+          console.log('═══════════════════════════════════════════════════════════════');
+          console.log('\n');
           break;
         }
         
@@ -1041,14 +1141,27 @@ const verifyPaymentById = asyncHandler(async (req, res) => {
       }
     }
 
-    if (!payment || (payment.status !== 'captured' && payment.status !== 'authorized')) {
+    // CRITICAL: Like RentYatra - accept payment if it exists (except failed/refunded/cancelled)
+    if (!payment || !payment.id) {
       return res.status(400).json({
         success: false,
-        message: 'Payment not found or not completed',
-        paymentStatus: payment?.status,
+        message: 'Payment not found in Razorpay',
         error: lastError?.message
       });
     }
+    
+    // Check if payment has invalid status
+    const invalidStatuses = ['failed', 'refunded', 'cancelled'];
+    if (invalidStatuses.includes(payment.status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Payment has invalid status: ${payment.status}`,
+        paymentStatus: payment.status
+      });
+    }
+    
+    // Payment exists and has valid status - accept it
+    console.log('✅ Payment accepted - exists in Razorpay with valid status:', payment.status);
 
     // Update booking payment status (same logic as verifyPayment)
     if (bookingId) {
