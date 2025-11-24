@@ -97,10 +97,12 @@ const createBooking = asyncHandler(async (req, res) => {
       notes: notes || '',
       status: 'waiting_for_engineer',
       payment: {
-        status: req.body.payment?.status || (req.body.payment?.method === 'cash' ? 'pending' : 'completed'),
-        method: req.body.payment?.method || 'card',
-        transactionId: req.body.payment?.transactionId || `TXN${Date.now()}`,
-        paidAt: req.body.payment?.method === 'cash' ? null : new Date()
+        // CRITICAL: Only set payment as completed if it's cash payment or explicitly provided with verification
+        // For online payments, must use /with-payment endpoint
+        status: req.body.payment?.status || (req.body.payment?.method === 'cash' ? 'pending' : 'pending'),
+        method: req.body.payment?.method || 'cash',
+        transactionId: req.body.payment?.transactionId || (req.body.payment?.method === 'cash' ? `CASH_${Date.now()}` : null),
+        paidAt: req.body.payment?.method === 'cash' ? null : null
       }
     };
 
@@ -750,6 +752,18 @@ const getBookingStats = asyncHandler(async (req, res) => {
 // @access  Public
 const createBookingWithPayment = asyncHandler(async (req, res) => {
   try {
+    console.log('\n');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('💳 💳 💳 BOOKING WITH PAYMENT REQUEST RECEIVED 💳 💳 💳');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('📅 Timestamp:', new Date().toISOString());
+    console.log('📋 Request Method:', req.method);
+    console.log('🔗 URL:', req.originalUrl || req.url);
+    console.log('🌐 IP:', req.ip || req.connection.remoteAddress);
+    console.log('📱 User-Agent:', req.headers['user-agent'] || 'N/A');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
+    
     const {
       customer,
       services,
@@ -758,9 +772,33 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       notes,
       paymentData
     } = req.body;
+    
+    console.log('📦 Request Body Summary:');
+    console.log('   Customer:', customer?.name || 'N/A', '|', customer?.email || 'N/A');
+    console.log('   Services Count:', services?.length || 0);
+    console.log('   Total Amount:', pricing?.totalAmount || 'N/A');
+    console.log('   Payment ID:', paymentData?.razorpayPaymentId || paymentData?.razorpay_payment_id || 'N/A');
+    console.log('   Order ID:', paymentData?.razorpayOrderId || paymentData?.razorpay_order_id || 'N/A');
+    console.log('\n');
 
     // Validate required fields
     if (!customer || !services || !pricing || !scheduling || !paymentData) {
+      console.error('❌ Validation Failed - Missing Required Fields:');
+      console.error('   Customer:', !!customer);
+      console.error('   Services:', !!services);
+      console.error('   Pricing:', !!pricing);
+      console.error('   Scheduling:', !!scheduling);
+      console.error('   Payment Data:', !!paymentData);
+      console.log('\n');
+      
+      logger.error('Booking with payment validation failed - missing required fields', {
+        hasCustomer: !!customer,
+        hasServices: !!services,
+        hasPricing: !!pricing,
+        hasScheduling: !!scheduling,
+        hasPaymentData: !!paymentData
+      });
+      
       return res.status(400).json({
         success: false,
         message: 'Customer information, services, pricing, scheduling, and payment data are required'
@@ -772,9 +810,23 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     const razorpayPaymentId = paymentData.razorpayPaymentId || paymentData.razorpay_payment_id;
     const razorpaySignature = paymentData.razorpaySignature || paymentData.razorpay_signature;
 
+    console.log('🔍 Payment Data Extracted:');
+    console.log('   Order ID:', razorpayOrderId || 'MISSING');
+    console.log('   Payment ID:', razorpayPaymentId || 'MISSING');
+    console.log('   Signature:', razorpaySignature ? 'PRESENT' : 'MISSING');
+    console.log('\n');
+
     // Validate payment ID is present (required)
     if (!razorpayPaymentId) {
-      console.error('❌ Payment verification failed: Payment ID is missing');
+      console.error('❌ ❌ ❌ PAYMENT VERIFICATION FAILED ❌ ❌ ❌');
+      console.error('❌ Reason: Payment ID is missing');
+      console.error('❌ Payment Data Received:', JSON.stringify(paymentData, null, 2));
+      console.log('\n');
+      
+      logger.error('Payment verification failed - Payment ID missing', {
+        paymentData: paymentData
+      });
+      
       return res.status(400).json({
         success: false,
         message: 'Payment ID is required for verification'
@@ -1112,20 +1164,39 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       status: bookingData.status
     });
 
+    console.log('💾 Creating booking in database...');
     const booking = await Booking.create(bookingData);
 
-    console.log('Booking created successfully:', {
-      id: booking._id,
-      reference: booking.bookingReference,
-      status: booking.status
-    });
+    console.log('\n');
+    console.log('✅ ✅ ✅ BOOKING CREATED SUCCESSFULLY ✅ ✅ ✅');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('✅ Booking ID:', booking._id.toString());
+    console.log('✅ Booking Reference:', booking.bookingReference);
+    console.log('✅ Customer Name:', booking.customer.name);
+    console.log('✅ Customer Email:', booking.customer.email);
+    console.log('✅ Customer Phone:', booking.customer.phone);
+    console.log('✅ Total Amount:', booking.pricing.totalAmount);
+    console.log('✅ Payment Status:', booking.payment?.status);
+    console.log('✅ Payment Method:', booking.payment?.method);
+    console.log('✅ Payment ID:', booking.payment?.razorpayPaymentId || booking.payment?.transactionId);
+    console.log('✅ Order ID:', booking.payment?.razorpayOrderId);
+    console.log('✅ Booking Status:', booking.status);
+    console.log('✅ Services Count:', booking.services.length);
+    console.log('✅ Timestamp:', new Date().toISOString());
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
 
     logger.info(`Booking created with payment: ${booking.bookingReference}`, {
       bookingId: booking._id,
       customerEmail: booking.customer.email,
+      customerName: booking.customer.name,
+      customerPhone: booking.customer.phone,
       totalAmount: booking.pricing.totalAmount,
       servicesCount: booking.services.length,
       paymentId: razorpayPaymentId,
+      orderId: razorpayOrderId,
+      paymentStatus: booking.payment?.status,
+      bookingStatus: booking.status
     });
 
     // First-time user status update removed - feature disabled
@@ -1361,6 +1432,11 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       // Don't fail the booking creation if notification fails
     }
 
+    console.log('📤 Sending success response to client...');
+    console.log('📤 Response Status: 201 Created');
+    console.log('📤 Booking Reference:', booking.bookingReference);
+    console.log('\n');
+    
     res.status(201).json({
       success: true,
       message: 'Booking created successfully with payment verification',
@@ -1368,22 +1444,39 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         booking,
         bookingReference: booking.bookingReference,
         paymentDetails: {
-          paymentId: paymentData.razorpayPaymentId,
-          orderId: paymentData.razorpayOrderId,
-          amount: paymentData.amount || 0,
+          paymentId: razorpayPaymentId,
+          orderId: razorpayOrderId,
+          amount: pricing.totalAmount,
           status: 'captured'
         }
       }
     });
   } catch (error) {
-    console.error('=== BOOKING CREATION ERROR ===');
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    console.error('Error type:', typeof error);
-    console.error('Full error:', error);
-    console.error('=== END BOOKING CREATION ERROR ===');
+    console.error('\n');
+    console.error('❌ ❌ ❌ BOOKING CREATION ERROR ❌ ❌ ❌');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('❌ Error Message:', error.message);
+    console.error('❌ Error Type:', error.constructor.name);
+    console.error('❌ Error Stack:', error.stack);
+    console.error('❌ Timestamp:', new Date().toISOString());
+    console.error('❌ Request URL:', req.originalUrl || req.url);
+    console.error('❌ Request Method:', req.method);
+    if (req.body?.customer) {
+      console.error('❌ Customer Email:', req.body.customer.email);
+    }
+    if (req.body?.paymentData) {
+      console.error('❌ Payment ID:', req.body.paymentData.razorpayPaymentId || req.body.paymentData.razorpay_payment_id || 'N/A');
+    }
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('\n');
     
-    logger.error('Error creating booking with payment:', error);
+    logger.error('Error creating booking with payment', {
+      error: error.message,
+      stack: error.stack,
+      customerEmail: req.body?.customer?.email,
+      paymentId: req.body?.paymentData?.razorpayPaymentId || req.body?.paymentData?.razorpay_payment_id
+    });
+    
     res.status(500).json({
       success: false,
       message: 'Error creating booking with payment',
@@ -1847,7 +1940,22 @@ const completeTask = asyncHandler(async (req, res) => {
 // @access  Public
 const createPaymentOrder = asyncHandler(async (req, res) => {
   try {
+    console.log('\n');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('💳 💳 💳 CREATE PAYMENT ORDER REQUEST 💳 💳 💳');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('📅 Timestamp:', new Date().toISOString());
+    console.log('🔗 URL:', req.originalUrl || req.url);
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
+    
     const { bookingId, amount, currency } = req.body;
+    
+    console.log('📋 Payment Order Request:');
+    console.log('   Booking ID:', bookingId || 'MISSING');
+    console.log('   Amount:', amount || 'MISSING');
+    console.log('   Currency:', currency || 'INR');
+    console.log('\n');
 
     logger.info('Creating payment order request:', { bookingId, amount, currency });
 
@@ -1914,6 +2022,7 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
       bookingId: bookingId
     });
     
+    console.log('🔧 Creating Razorpay order...');
     const razorpayOrder = await RazorpayService.createOrder({
       amount: parseFloat(amount), // Ensure amount is a number
       currency: currency,
@@ -1925,11 +2034,25 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
       }
     });
 
+    console.log('\n');
+    console.log('✅ ✅ ✅ PAYMENT ORDER CREATED SUCCESSFULLY ✅ ✅ ✅');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('✅ Razorpay Order ID:', razorpayOrder.id);
+    console.log('✅ Amount (Paise):', razorpayOrder.amount);
+    console.log('✅ Amount (Rupees):', (razorpayOrder.amount / 100).toFixed(2));
+    console.log('✅ Currency:', razorpayOrder.currency);
+    console.log('✅ Booking ID:', bookingId);
+    console.log('✅ Customer:', booking.customer.name);
+    console.log('✅ Timestamp:', new Date().toISOString());
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
+
     logger.info('Payment order created successfully', {
       bookingId,
       amount,
       currency,
-      orderId: razorpayOrder.id
+      orderId: razorpayOrder.id,
+      customerName: booking.customer.name
     });
 
     res.status(200).json({

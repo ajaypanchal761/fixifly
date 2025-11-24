@@ -52,6 +52,16 @@ const createOrder = asyncHandler(async (req, res) => {
 // @access  Public
 const verifyPayment = asyncHandler(async (req, res) => {
   try {
+    console.log('\n');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('🔍 🔍 🔍 PAYMENT VERIFICATION REQUEST 🔍 🔍 🔍');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('📅 Timestamp:', new Date().toISOString());
+    console.log('🔗 URL:', req.originalUrl || req.url);
+    console.log('🌐 IP:', req.ip || req.connection.remoteAddress);
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
+    
     const { 
       razorpay_order_id, 
       razorpay_payment_id, 
@@ -60,6 +70,15 @@ const verifyPayment = asyncHandler(async (req, res) => {
       bookingId,
       amount 
     } = req.body;
+    
+    console.log('📋 Payment Verification Data:');
+    console.log('   Order ID:', razorpay_order_id || 'MISSING');
+    console.log('   Payment ID:', razorpay_payment_id || 'MISSING');
+    console.log('   Signature:', razorpay_signature ? 'PRESENT' : 'MISSING');
+    console.log('   Booking ID:', bookingId || 'N/A');
+    console.log('   Ticket ID:', ticketId || 'N/A');
+    console.log('   Amount:', amount || 'N/A');
+    console.log('\n');
 
     // Verify the payment signature (if provided)
     // Note: In WebView/APK scenarios, signature might not be available
@@ -303,7 +322,9 @@ const verifyPayment = asyncHandler(async (req, res) => {
       }
     }
 
-    console.log('✅ ========== PAYMENT VERIFICATION SUCCESS ==========');
+    console.log('\n');
+    console.log('✅ ✅ ✅ PAYMENT VERIFICATION SUCCESS ✅ ✅ ✅');
+    console.log('═══════════════════════════════════════════════════════════════');
     console.log('✅ Payment ID:', razorpay_payment_id);
     console.log('✅ Order ID:', razorpay_order_id);
     console.log('✅ Booking ID:', bookingId || 'N/A');
@@ -311,7 +332,8 @@ const verifyPayment = asyncHandler(async (req, res) => {
     console.log('✅ Amount:', amount ? `₹${(amount / 100).toFixed(2)}` : 'N/A');
     console.log('✅ Status: VERIFIED');
     console.log('✅ Timestamp:', new Date().toISOString());
-    console.log('✅ ==================================================');
+    console.log('═══════════════════════════════════════════════════════════════');
+    console.log('\n');
 
     res.json({
       success: true,

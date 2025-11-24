@@ -417,12 +417,18 @@ const PaymentCallback = () => {
         let createdBookingId = bookingId;
         try {
           const pendingPayment = JSON.parse(localStorage.getItem('pending_payment') || '{}');
-          if (pendingPayment.type === 'booking' && pendingPayment.bookingData && !bookingId) {
+          // CRITICAL FIX: Also check if we have bookingId but no booking exists yet
+          // This handles cases where payment succeeded but booking wasn't created
+          const shouldCreateBooking = (pendingPayment.type === 'booking' && pendingPayment.bookingData && !bookingId) ||
+                                     (pendingPayment.type === 'booking' && pendingPayment.bookingData && bookingId && !verifyResult.data?.booking);
+          
+          if (shouldCreateBooking) {
             console.log('📋 Detected pending booking from checkout - creating booking now...');
             console.log('📋 Pending payment data:', {
               type: pendingPayment.type,
               orderId: pendingPayment.orderId,
-              hasBookingData: !!pendingPayment.bookingData
+              hasBookingData: !!pendingPayment.bookingData,
+              existingBookingId: bookingId
             });
             
             try {
@@ -430,6 +436,17 @@ const PaymentCallback = () => {
               if (!razorpay_payment_id) {
                 throw new Error('Payment ID is missing - cannot create booking');
               }
+              
+              // Validate booking data
+              if (!pendingPayment.bookingData || !pendingPayment.bookingData.customer || !pendingPayment.bookingData.services) {
+                throw new Error('Booking data is incomplete - cannot create booking');
+              }
+              
+              console.log('📤 Creating booking with payment verification...');
+              console.log('📤 Payment ID:', razorpay_payment_id);
+              console.log('📤 Order ID:', razorpay_order_id);
+              console.log('📤 Customer:', pendingPayment.bookingData.customer.name);
+              console.log('📤 Amount:', pendingPayment.bookingData.pricing?.totalAmount);
               
               // Create booking with payment verification
               const bookingResponse = await fetch(
@@ -453,37 +470,61 @@ const PaymentCallback = () => {
               // Check if response is OK
               if (!bookingResponse.ok) {
                 const errorText = await bookingResponse.text();
+                let errorData;
+                try {
+                  errorData = JSON.parse(errorText);
+                } catch {
+                  errorData = { message: errorText };
+                }
+                
                 console.error('❌ Booking creation failed - HTTP Error:', {
                   status: bookingResponse.status,
                   statusText: bookingResponse.statusText,
-                  error: errorText
+                  error: errorData
                 });
-                throw new Error(`Booking creation failed: ${bookingResponse.statusText}`);
+                throw new Error(errorData.message || `Booking creation failed: ${bookingResponse.statusText}`);
               }
               
               const bookingResult = await bookingResponse.json();
               
               if (bookingResult.success && bookingResult.data) {
                 createdBookingId = bookingResult.data.booking?._id || bookingResult.data.bookingId;
-                console.log('✅ Booking created successfully from payment callback:', {
-                  bookingId: createdBookingId,
-                  bookingReference: bookingResult.data.bookingReference
-                });
+                console.log('✅ ✅ ✅ Booking created successfully from payment callback ✅ ✅ ✅');
+                console.log('✅ Booking ID:', createdBookingId);
+                console.log('✅ Booking Reference:', bookingResult.data.bookingReference);
+                console.log('✅ Payment ID:', razorpay_payment_id);
+                console.log('✅ Order ID:', razorpay_order_id);
                 setMessage(`Payment successful! Booking #${bookingResult.data.bookingReference} has been confirmed.`);
               } else {
                 console.error('❌ Failed to create booking:', bookingResult.message);
                 // Payment is verified but booking creation failed - this is a critical error
                 const errorMsg = bookingResult.message || 'Booking creation failed';
+                setStatus('error');
                 setMessage(`Payment successful but booking creation failed: ${errorMsg}. Please contact support with Payment ID: ${razorpay_payment_id}`);
+                
+                // Don't clear pending payment on error - user might need to retry
+                return;
               }
             } catch (bookingError: any) {
-              console.error('❌ Error creating booking from callback:', bookingError);
+              console.error('❌ ❌ ❌ Error creating booking from callback ❌ ❌ ❌');
+              console.error('❌ Error:', bookingError);
+              console.error('❌ Error Message:', bookingError.message);
+              console.error('❌ Payment ID:', razorpay_payment_id);
+              console.error('❌ Order ID:', razorpay_order_id);
+              
               const errorMsg = bookingError.message || 'Unknown error';
+              setStatus('error');
               setMessage(`Payment successful but booking creation failed: ${errorMsg}. Please contact support with Payment ID: ${razorpay_payment_id}`);
+              
+              // Don't clear pending payment on error - user might need to retry
+              return;
             }
+          } else if (pendingPayment.type === 'booking' && !pendingPayment.bookingData) {
+            console.warn('⚠️ Pending payment found but booking data is missing');
           }
         } catch (e) {
-          console.warn('⚠️ Could not check for pending booking:', e);
+          console.error('❌ Error checking for pending booking:', e);
+          console.error('❌ Error details:', e instanceof Error ? e.message : String(e));
         }
           
           setStatus('success');

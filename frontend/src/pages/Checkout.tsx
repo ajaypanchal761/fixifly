@@ -337,11 +337,28 @@ const Checkout = () => {
         console.log('💳 ===============================================');
         
         try {
+          // CRITICAL: Ensure booking data is valid before processing payment
+          if (!bookingData.pricing || !bookingData.pricing.totalAmount || bookingData.pricing.totalAmount <= 0) {
+            throw new Error('Invalid booking amount. Please check your order total.');
+          }
+          
+          if (!bookingData.customer || !bookingData.customer.email || !bookingData.customer.phone) {
+            throw new Error('Customer information is incomplete. Please fill all required fields.');
+          }
+          
+          console.log('💳 Starting payment process with validated booking data');
+          console.log('💳 Amount:', bookingData.pricing.totalAmount);
+          console.log('💳 Customer:', bookingData.customer.name);
+          
           await razorpayService.processBookingPayment(
             bookingData,
             // Success callback
             (response) => {
-              console.log('✅ Payment successful, booking created:', response);
+              console.log('✅ ✅ ✅ Payment successful, booking created ✅ ✅ ✅');
+              console.log('✅ Booking Reference:', response.bookingReference);
+              console.log('✅ Booking ID:', response.booking?._id);
+              console.log('✅ Payment Status:', response.booking?.payment?.status);
+              
               toast({
                 title: "Payment Successful!",
                 description: `Your booking has been confirmed. Reference: ${response.bookingReference}`,
