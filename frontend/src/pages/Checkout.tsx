@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,20 +60,22 @@ const Checkout = () => {
     scheduledTime: ""
   });
 
+  // Track if we've already called refreshUserData on mount
+  const hasRefreshedRef = useRef(false);
+
   // Refresh user data when component mounts to ensure we have latest address info
   // Only refresh once on mount, not on every render
   useEffect(() => {
-    if (isAuthenticated && refreshUserData) {
+    if (isAuthenticated && refreshUserData && !hasRefreshedRef.current) {
+      hasRefreshedRef.current = true;
       refreshUserData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]); // Remove refreshUserData from dependencies to prevent infinite loops
+  }, [isAuthenticated]); // Only depend on isAuthenticated, refreshUserData is stable
 
   // Update customer data when user changes
   useEffect(() => {
     if (user) {
-      console.log('User data in Checkout:', user);
-      console.log('User address data:', user.address);
       setCustomerData(prev => ({
         ...prev,
         name: user.name || prev.name,
@@ -198,20 +200,29 @@ const Checkout = () => {
 
       const data = await response.json();
 
-      console.log('Cash payment booking response:', {
-        status: response.status,
-        success: data.success,
-        message: data.message,
-        error: data.error,
-        data: data.data
-      });
-
-      if (!data.success) {
-        console.error('Backend error details:', {
+      // Only log in development mode
+      const isDevelopment = import.meta.env.DEV;
+      if (isDevelopment) {
+        console.log('Cash payment booking response:', {
+          status: response.status,
+          success: data.success,
           message: data.message,
           error: data.error,
-          fullResponse: data
+          data: data.data
         });
+      }
+
+      if (!data.success) {
+        // Always log errors, but reduce verbosity in production
+        if (isDevelopment) {
+          console.error('Backend error details:', {
+            message: data.message,
+            error: data.error,
+            fullResponse: data
+          });
+        } else {
+          console.error('Backend error:', data.message);
+        }
         throw new Error(data.message || 'Failed to create booking');
       }
 
@@ -285,9 +296,12 @@ const Checkout = () => {
         return;
       }
       
-      // Debug: Log the email being used
-      console.log('Creating booking with email:', customerData.email);
-      console.log('Logged in user email:', user?.email);
+      // Debug: Log the email being used (only in development)
+      const isDevelopment = import.meta.env.DEV;
+      if (isDevelopment) {
+        console.log('Creating booking with email:', customerData.email);
+        console.log('Logged in user email:', user?.email);
+      }
       
       // Validate phone number format (should start with +91)
       if (!customerData.phone.startsWith('+91') || customerData.phone.length !== 13) {

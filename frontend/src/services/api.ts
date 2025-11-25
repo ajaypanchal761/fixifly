@@ -91,15 +91,20 @@ class ApiService {
     // Create the request promise
     const requestPromise = (async () => {
       try {
-        console.log('Making API request to:', url);
-        console.log('Request config:', config);
+        // Only log in development mode to reduce console spam
+        const isDevelopment = import.meta.env.DEV;
+        if (isDevelopment) {
+          console.log('Making API request to:', url);
+        }
         
         const response = await fetch(url, config);
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
         
         const data = await response.json();
-        console.log('Response data:', data);
+        
+        if (isDevelopment) {
+          console.log('Response status:', response.status);
+          console.log('Response data:', data);
+        }
 
         if (!response.ok) {
           const error = new Error(data.message || `HTTP error! status: ${response.status}`);

@@ -64,3 +64,45 @@ export const getApiBaseUrl = (): string => {
   return normalizeApiUrl(envUrl || 'http://localhost:5000/api');
 };
 
+/**
+ * Gets the correct API base URL for WebView/APK scenarios
+ * For WebView/APK, always uses production backend URL
+ * For regular web, uses environment variable or fallback
+ */
+export const getApiBaseUrlForWebView = (): string => {
+  // Detect WebView/APK context
+  const isAPK = !!(window as any).flutter_inappwebview || 
+                /flutter|Flutter/i.test(navigator.userAgent) ||
+                !!(window as any).cordova ||
+                !!(window as any).Capacitor;
+  
+  const isProduction = import.meta.env.PROD || 
+                      window.location.hostname.includes('getfixfly.com') ||
+                      window.location.hostname.includes('vercel.app') ||
+                      window.location.protocol === 'https:';
+  
+  // Production backend URL (must be publicly accessible)
+  const PRODUCTION_BACKEND_URL = 'https://api.getfixfly.com';
+  
+  // For WebView/APK, always use production backend
+  if (isAPK) {
+    return `${PRODUCTION_BACKEND_URL}/api`;
+  }
+  
+  // For production web, use production backend
+  if (isProduction) {
+    const envUrl = import.meta.env.VITE_API_URL;
+    const normalized = normalizeApiUrl(envUrl || 'http://localhost:5000/api');
+    
+    // If normalized URL is localhost or not production, use production backend
+    if (normalized.includes('localhost') || normalized.includes('127.0.0.1') || !normalized.includes('getfixfly.com')) {
+      return `${PRODUCTION_BACKEND_URL}/api`;
+    }
+    
+    return normalized;
+  }
+  
+  // For development, use environment variable or fallback
+  return getApiBaseUrl();
+};
+

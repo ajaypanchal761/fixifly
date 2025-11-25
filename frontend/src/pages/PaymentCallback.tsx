@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { isRunningInFlutterWebView, navigateInMobileApp } from '@/utils/mobileAppBridge';
 import { pollPaymentStatus, shouldEnablePolling } from '@/utils/paymentPolling';
+import { getApiBaseUrlForWebView } from '@/utils/apiUrl';
 
 const PaymentCallback = () => {
   const [searchParams] = useSearchParams();
@@ -52,8 +53,9 @@ const PaymentCallback = () => {
           
           if (bookingId || ticketId) {
             try {
+              const apiBaseUrl = getApiBaseUrlForWebView();
               fetch(
-                `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/mark-failed`,
+                `${apiBaseUrl}/payment/mark-failed`,
                 {
                   method: 'POST',
                   headers: {
@@ -220,8 +222,9 @@ const PaymentCallback = () => {
         if (!razorpay_order_id && razorpay_payment_id) {
           try {
             console.log('🔍 Order ID missing, fetching payment details from API...');
+            const apiBaseUrl = getApiBaseUrlForWebView();
             const paymentDetailsResponse = await fetch(
-              `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/${razorpay_payment_id}`
+              `${apiBaseUrl}/payment/${razorpay_payment_id}`
             );
             
             if (paymentDetailsResponse.ok) {
@@ -339,23 +342,28 @@ const PaymentCallback = () => {
           verifyData.ticketId = ticketId;
         }
 
+        // CRITICAL: Use correct API URL for WebView/APK (must use production backend)
+        const apiBaseUrl = getApiBaseUrlForWebView();
+        const verifyUrl = `${apiBaseUrl}/payment/verify`;
+        
         console.log('📤 ========== STEP 5: VERIFYING PAYMENT WITH BACKEND ==========');
         console.log('📤 Order ID:', razorpay_order_id || 'MISSING');
         console.log('📤 Payment ID:', razorpay_payment_id || 'MISSING');
         console.log('📤 Has Signature:', !!razorpay_signature);
         console.log('📤 Booking ID:', bookingId || 'N/A');
         console.log('📤 Ticket ID:', ticketId || 'N/A');
-        console.log('📤 API URL:', `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify`);
+        console.log('📤 API Base URL:', apiBaseUrl);
+        console.log('📤 Verify URL:', verifyUrl);
         console.log('📤 Timestamp:', new Date().toISOString());
         console.log('📤 ===================================================');
 
         console.log('📤 ========== STEP 5.1: CALLING PAYMENT VERIFY API ==========');
-        console.log('📤 API URL:', `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify`);
+        console.log('📤 API URL:', verifyUrl);
         console.log('📤 Request Data:', JSON.stringify(verifyData, null, 2));
         console.log('📤 Timestamp:', new Date().toISOString());
         console.log('📤 ===================================================');
         
-        const verifyResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify`, {
+        const verifyResponse = await fetch(verifyUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -390,8 +398,11 @@ const PaymentCallback = () => {
           console.log('⚠️ Primary verification failed or order_id missing, trying verify-by-id endpoint...');
           console.log('⚠️ Reason:', !verifyResult.success ? 'Verification failed' : 'Order ID missing');
           try {
+            // Use correct API URL for WebView/APK
+            const apiBaseUrl = getApiBaseUrlForWebView();
+            const verifyByIdUrl = `${apiBaseUrl}/payment/verify-by-id`;
             const verifyByIdResponse = await fetch(
-              `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/verify-by-id`,
+              verifyByIdUrl,
               {
                 method: 'POST',
                 headers: {
@@ -470,8 +481,9 @@ const PaymentCallback = () => {
                     
                     // Mark payment as failed in backend
                     try {
+                      const apiBaseUrl = getApiBaseUrlForWebView();
                       fetch(
-                        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/mark-failed`,
+                        `${apiBaseUrl}/payment/mark-failed`,
                         {
                           method: 'POST',
                           headers: {
@@ -559,8 +571,9 @@ const PaymentCallback = () => {
               console.log('📤 Amount:', pendingPayment.bookingData.pricing?.totalAmount);
               
               // Create booking with payment verification
+              const apiBaseUrl = getApiBaseUrlForWebView();
               const bookingResponse = await fetch(
-                `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings/with-payment`,
+                `${apiBaseUrl}/bookings/with-payment`,
                 {
                   method: 'POST',
                   headers: {
@@ -708,8 +721,9 @@ const PaymentCallback = () => {
           
           // Mark payment as failed in backend
           try {
+            const apiBaseUrl = getApiBaseUrlForWebView();
             const markFailedResponse = await fetch(
-              `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/mark-failed`,
+              `${apiBaseUrl}/payment/mark-failed`,
               {
                 method: 'POST',
                 headers: {
@@ -753,8 +767,9 @@ const PaymentCallback = () => {
         
         if (bookingId || ticketId) {
           try {
+            const apiBaseUrl = getApiBaseUrlForWebView();
             fetch(
-              `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/mark-failed`,
+              `${apiBaseUrl}/payment/mark-failed`,
               {
                 method: 'POST',
                 headers: {

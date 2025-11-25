@@ -238,8 +238,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (response.success && response.data?.user) {
         const freshUserData = response.data.user;
-        console.log('AuthContext: Refreshing user data from backend:', freshUserData);
-        console.log('AuthContext: Fresh address data:', freshUserData.address);
+        // Only log in development mode
+        const isDevelopment = import.meta.env.DEV;
+        if (isDevelopment) {
+          console.log('AuthContext: Refreshing user data from backend:', freshUserData);
+          console.log('AuthContext: Fresh address data:', freshUserData.address);
+        }
         setUser(freshUserData);
         localStorage.setItem('userData', JSON.stringify(freshUserData));
       }
