@@ -2208,7 +2208,8 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
       currency: currency,
       receipt: `fix_${bookingId.slice(-8)}_${Date.now().toString().slice(-6)}`, // Shortened receipt ID
       notes: {
-        bookingId: bookingId,
+        booking_id: bookingId, // CRITICAL: Use booking_id (not bookingId) for consistency
+        bookingId: bookingId, // Also include bookingId for backward compatibility
         customerName: booking.customer.name,
         serviceName: booking.services.map(s => s.serviceName).join(', ')
       }

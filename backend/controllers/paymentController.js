@@ -26,6 +26,11 @@ const createOrder = asyncHandler(async (req, res) => {
     
     const { amount, currency = 'INR', receipt, notes } = req.body;
 
+    // CRITICAL: Log notes to see if booking_id is being passed
+    console.log('💰 Notes received:', JSON.stringify(notes || {}, null, 2));
+    console.log('💰 Has booking_id:', !!(notes?.booking_id || notes?.bookingId));
+    console.log('💰 Has ticket_id:', !!(notes?.ticket_id || notes?.ticketId));
+
     if (!amount || amount <= 0) {
       console.error('❌ Invalid amount:', amount);
       return res.status(400).json({
@@ -850,27 +855,89 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       
       // CRITICAL FIX: If we have order_id in notes or can fetch it, try to get payment status
       // This handles the case where Razorpay fails but doesn't redirect
-      const orderIdFromNotes = req.query?.order_id || req.body?.order_id;
-      if (orderIdFromNotes) {
+      const orderIdFromNotes = req.query?.order_id || req.body?.order_id || req.query?.razorpay_order_id;
+      
+      // CRITICAL: Also try to get order_id from referer URL (Razorpay might include it there)
+      if (!orderIdFromNotes) {
+        const referer = req.headers.referer || '';
+        if (referer) {
+          try {
+            const refererUrl = new URL(referer);
+            const refOrderId = refererUrl.searchParams.get('razorpay_order_id') || 
+                              refererUrl.searchParams.get('order_id');
+            if (refOrderId) {
+              console.log('✅ Found order ID from referer URL:', refOrderId);
+              // We'll use this below
+            }
+          } catch (e) {
+            console.warn('⚠️ Could not parse referer for order ID:', e.message);
+          }
+        }
+      }
+      
+      // CRITICAL: If we still don't have order_id, try to get it from recent orders
+      // This is a fallback for when Razorpay doesn't redirect with order_id
+      if (!orderIdFromNotes && !razorpay_order_id) {
+        console.log('🔍 No order_id in callback - this might be a payment failure without redirect');
+        console.log('🔍 Checking if we can identify the order from receipt or other data...');
+        
+        // Try to get order_id from receipt if available
+        const receipt = req.query?.receipt || req.body?.receipt;
+        if (receipt) {
+          console.log('🔍 Receipt found:', receipt);
+          // Note: Razorpay API doesn't support searching by receipt, so we can't fetch order this way
+          // But we can log it for debugging
+        }
+      }
+      
+      if (orderIdFromNotes || razorpay_order_id) {
+        const orderIdToCheck = orderIdFromNotes || razorpay_order_id;
         try {
           console.log('🔍 Attempting to fetch order status from Razorpay...');
-          const order = await razorpay.orders.fetch(orderIdFromNotes);
+          console.log('🔍 Order ID to check:', orderIdToCheck);
+          const order = await razorpay.orders.fetch(orderIdToCheck);
           if (order) {
             console.log('🔍 Order Status:', order.status);
+            console.log('🔍 Order Amount:', order.amount);
+            console.log('🔍 Order Amount Paid:', order.amount_paid);
+            console.log('🔍 Order Payments Count:', order.payments?.length || 0);
+            
             // If order is paid but we don't have payment_id, fetch from order.payments
             if (order.status === 'paid' && order.payments && order.payments.length > 0) {
               const paymentId = order.payments[order.payments.length - 1];
               razorpay_payment_id = paymentId;
-              razorpay_order_id = orderIdFromNotes;
+              razorpay_order_id = orderIdToCheck;
               console.log('✅ Found payment ID from order:', paymentId);
+              
+              // Also try to get booking_id from order notes
+              if (order.notes) {
+                const notesBookingId = order.notes.booking_id || order.notes.bookingId;
+                const notesTicketId = order.notes.ticket_id || order.notes.ticketId;
+                if (notesBookingId && !bookingId) {
+                  bookingId = notesBookingId;
+                  console.log('✅ Found booking ID from order notes:', notesBookingId);
+                }
+                if (notesTicketId && !ticketId) {
+                  ticketId = notesTicketId;
+                  console.log('✅ Found ticket ID from order notes:', notesTicketId);
+                }
+              }
             } else if (order.status === 'attempted' || order.status === 'created') {
-              // Payment was attempted but failed
-              console.error('❌ Order status indicates payment failed:', order.status);
-              isPaymentFailed = true;
+              // Payment was attempted but failed or not completed
+              console.error('❌ Order status indicates payment not completed:', order.status);
+              if (order.status === 'attempted' && order.amount_paid === 0) {
+                isPaymentFailed = true;
+                console.error('❌ Payment failed - order attempted but amount_paid is 0');
+              }
             }
           }
         } catch (orderError) {
           console.error('❌ Error fetching order:', orderError.message);
+          console.error('❌ Order Error Details:', {
+            message: orderError.message,
+            code: orderError.error?.code,
+            description: orderError.error?.description
+          });
         }
       }
       
