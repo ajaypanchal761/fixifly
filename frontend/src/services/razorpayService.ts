@@ -70,7 +70,45 @@ class RazorpayService {
   private apiUrl: string; // RentYatra style - store API URL
 
   constructor() {
+    // CRITICAL FIX #3: Razorpay Key Mismatch Issue
+    // Ensure same key is used everywhere (test or live)
+    // Check environment and use appropriate key
+    const isProduction = import.meta.env.PROD || 
+                        (typeof window !== 'undefined' && window.location.hostname.includes('getfixfly.com'));
+    
+    // Get key from environment variable (should be set in Vercel)
     this.razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_8sYbzHWidwe5Zw';
+    
+    // CRITICAL: Validate key format
+    if (this.razorpayKey) {
+      const isTestKey = this.razorpayKey.startsWith('rzp_test_');
+      const isLiveKey = this.razorpayKey.startsWith('rzp_live_');
+      
+      if (!isTestKey && !isLiveKey) {
+        console.error('❌ Invalid Razorpay Key format:', this.razorpayKey);
+        console.error('❌ Key should start with rzp_test_ or rzp_live_');
+      }
+      
+      // Note: Test key in production is OK for testing (user preference)
+      if (isProduction && isTestKey) {
+        console.log('ℹ️  INFO: Production environment using TEST Razorpay key (for testing)');
+        console.log('ℹ️  This is OK for testing. Switch to live key when ready for production payments.');
+      }
+      
+      // Warn if development but using live key
+      if (!isProduction && isLiveKey) {
+        console.warn('⚠️  WARNING: Development environment but using LIVE Razorpay key!');
+        console.warn('⚠️  This may cause issues. Consider using test key for development.');
+      }
+      
+      console.log('🔑 Razorpay Key Configuration:', {
+        keyType: isTestKey ? 'TEST' : isLiveKey ? 'LIVE' : 'UNKNOWN',
+        keyPrefix: this.razorpayKey.substring(0, 10) + '...',
+        environment: isProduction ? 'PRODUCTION' : 'DEVELOPMENT',
+        isMismatched: (isProduction && isTestKey) || (!isProduction && isLiveKey)
+      });
+    }
+    
     this.apiUrl = import.meta.env.VITE_API_URL || '/api'; // RentYatra style
     
     // Validate API URL in production (RentYatra style)
@@ -798,32 +836,72 @@ class RazorpayService {
         }
       };
 
-      // For WebView/APK, handle redirect in handler
+      // CRITICAL FIX #1: WebView callback return issue
+      // In WebView, Razorpay's handler might not execute, so we MUST use callback_url
+      // But we also need to ensure payment data is stored before redirect
       if (useRedirectMode && callbackUrl) {
+        // CRITICAL: Store payment context BEFORE opening Razorpay (session persistence)
+        // This ensures we can retrieve payment data even if callback fails
+        try {
+          const paymentContext = {
+            orderId: paymentData.orderId,
+            bookingId: paymentData.bookingId,
+            ticketId: paymentData.ticketId,
+            amount: paymentData.amount,
+            timestamp: Date.now(),
+            callbackUrl: callbackUrl
+          };
+          
+          // Store in multiple places for reliability (session persistence fix)
+          localStorage.setItem('payment_context', JSON.stringify(paymentContext));
+          sessionStorage.setItem('payment_context', JSON.stringify(paymentContext));
+          
+          // Also store in a way that survives page reloads
+          document.cookie = `payment_context=${encodeURIComponent(JSON.stringify(paymentContext))}; path=/; max-age=3600; SameSite=Lax`;
+          
+          console.log('💾 Stored payment context for session persistence:', {
+            orderId: paymentData.orderId,
+            bookingId: paymentData.bookingId,
+            hasCallbackUrl: !!callbackUrl
+          });
+        } catch (e) {
+          console.error('❌ Error storing payment context:', e);
+        }
+        
         // Override handler to redirect to callback URL after payment
+        // CRITICAL: This handler might NOT execute in WebView, so callback_url is primary
         options.handler = (response: PaymentResponse) => {
           console.log('✅ Payment successful in WebView, storing response...');
           console.log('📦 Payment response:', JSON.stringify(response, null, 2));
           console.log('🔗 Callback URL:', callbackUrl);
           
-          // Store response with multiple methods for reliability
+          // Store response with multiple methods for reliability (session persistence)
           try {
-            // Method 1: localStorage (primary)
+            // Method 1: localStorage (primary) - survives page reloads
             const responseWithContext = {
               ...response,
               bookingId: paymentData.bookingId,
               ticketId: paymentData.ticketId,
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              orderId: paymentData.orderId
             };
             localStorage.setItem('payment_response', JSON.stringify(responseWithContext));
             console.log('💾 Stored payment response in localStorage');
             
-            // Method 2: sessionStorage (backup)
+            // Method 2: sessionStorage (backup) - survives navigation
             try {
               sessionStorage.setItem('payment_response', JSON.stringify(responseWithContext));
               console.log('💾 Stored payment response in sessionStorage');
             } catch (e) {
               console.warn('⚠️ Could not store in sessionStorage:', e);
+            }
+            
+            // Method 3: Cookie (for session persistence across redirects)
+            try {
+              document.cookie = `payment_response=${encodeURIComponent(JSON.stringify(responseWithContext))}; path=/; max-age=300; SameSite=Lax`;
+              console.log('💾 Stored payment response in cookie');
+            } catch (e) {
+              console.warn('⚠️ Could not store in cookie:', e);
             }
           } catch (e) {
             console.error('❌ Error storing payment response:', e);
@@ -854,78 +932,30 @@ class RazorpayService {
               ticketId: paymentData.ticketId
             });
             
-            // CRITICAL: In WebView, handler might not execute, so we MUST redirect immediately
-            // Don't wait - redirect immediately to ensure callback is called
+            // CRITICAL FIX: In WebView, handler might not execute, so callback_url is primary
+            // But we still try to redirect here as fallback
+            // The main redirect will happen via Razorpay's callback_url
             try {
-              console.log('🚀 IMMEDIATE redirect to callback (WebView):', callbackUrlWithParams.toString());
-              console.log('🔍 Redirect details:', {
-                url: callbackUrlWithParams.toString(),
-                protocol: callbackUrlWithParams.protocol,
-                host: callbackUrlWithParams.host,
-                pathname: callbackUrlWithParams.pathname,
-                search: callbackUrlWithParams.search
-              });
+              console.log('🚀 Attempting redirect to callback (handler fallback):', callbackUrlWithParams.toString());
               
               // CRITICAL: For live/production, ensure callback URL is accessible
-              // Verify URL is valid before redirecting
               if (!callbackUrlWithParams.host || !callbackUrlWithParams.protocol) {
                 throw new Error('Invalid callback URL: missing host or protocol');
               }
               
-              // Try multiple redirect methods for maximum reliability
-              // Method 1: Direct window.location (most reliable)
-              window.location.href = callbackUrlWithParams.toString();
-              
-              // Method 2: If that doesn't work, try after small delay
-              setTimeout(() => {
-                try {
-                  if (window.location.href !== callbackUrlWithParams.toString()) {
-                    console.log('🔄 Retrying redirect (method 1 failed)...');
-                    window.location.replace(callbackUrlWithParams.toString());
-                  }
-                } catch (retryError) {
-                  console.error('❌ Retry redirect failed:', retryError);
-                }
-              }, 100);
-              
-              // Method 3: Flutter bridge fallback
-              setTimeout(() => {
-                try {
-                  if ((window as any).flutter_inappwebview && window.location.href !== callbackUrlWithParams.toString()) {
-                    console.log('🔄 Trying Flutter bridge navigation...');
-                    (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
-                  }
-                } catch (bridgeError) {
-                  console.error('❌ Flutter bridge navigation failed:', bridgeError);
-                }
-              }, 200);
+              // In WebView, callback_url should handle redirect, but we try here too
+              // Use window.location.replace to avoid back button issues
+              window.location.replace(callbackUrlWithParams.toString());
               
             } catch (redirectError) {
-              console.error('❌ Error redirecting:', redirectError);
-              console.error('❌ Callback URL that failed:', callbackUrlWithParams.toString());
-              
-              // Last resort: try to navigate using Flutter bridge if available
-              if ((window as any).flutter_inappwebview) {
-                try {
-                  console.log('🔄 Trying Flutter bridge navigation (error fallback)...');
-                  (window as any).flutter_inappwebview.callHandler('navigateTo', callbackUrlWithParams.toString());
-                } catch (bridgeError) {
-                  console.error('❌ Flutter bridge also failed:', bridgeError);
-                  // Final fallback: show error to user
-                  paymentData.onError(new Error('Payment successful but redirect failed. Please contact support with payment ID: ' + response.razorpay_payment_id));
-                }
-              } else {
-                // Fallback: show error to user with payment details
-                console.error('❌ No navigation method available');
-                paymentData.onError(new Error('Payment successful but redirect failed. Please contact support with payment ID: ' + response.razorpay_payment_id));
-              }
+              console.error('❌ Error redirecting from handler:', redirectError);
+              // Don't fail - callback_url will handle it
+              console.log('ℹ️ Handler redirect failed, but callback_url will handle redirect');
             }
           } catch (e) {
             console.error('❌ Error building callback URL:', e);
-            // Fallback: redirect to callback URL without params (will use localStorage)
-            setTimeout(() => {
-              window.location.href = callbackUrl;
-            }, 300);
+            // Don't fail - callback_url will handle redirect
+            console.log('ℹ️ Callback URL build failed, but Razorpay callback_url will handle redirect');
           }
         };
       }
@@ -1144,6 +1174,24 @@ class RazorpayService {
       console.log('🎯 Is APK/WebView:', isAPK);
       console.log('🎯 Booking ID:', paymentData.bookingId || 'N/A');
       console.log('🎯 Ticket ID:', paymentData.ticketId || 'N/A');
+      
+      // CRITICAL: Log Razorpay options to verify callback_url is set
+      console.log('🎯 Razorpay Options Summary:', {
+        hasCallbackUrl: !!callbackUrl,
+        callbackUrl: callbackUrl || 'NOT SET',
+        hasRedirect: useRedirectMode,
+        orderId: paymentData.orderId,
+        hasBookingId: !!paymentData.bookingId,
+        hasTicketId: !!paymentData.ticketId
+      });
+      
+      // CRITICAL: Verify callback URL is set before opening
+      if (useRedirectMode && !callbackUrl) {
+        console.error('❌ ❌ ❌ CRITICAL ERROR: Redirect mode enabled but callback URL is not set! ❌ ❌ ❌');
+        console.error('❌ This will cause payment to fail - Razorpay cannot redirect without callback URL');
+        throw new Error('Callback URL is required for WebView/APK payment but is not configured');
+      }
+      
       console.log('🎯 ===============================================');
       
       // Add event listeners BEFORE opening

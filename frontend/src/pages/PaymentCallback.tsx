@@ -110,23 +110,57 @@ const PaymentCallback = () => {
         console.log('📋 Ticket ID (from URL):', ticketId || 'MISSING');
         console.log('📋 ===================================================');
 
-        // CRITICAL: If payment details missing from URL, try localStorage (like RentYatra)
-        // This is especially important for WebView where URL params might not be passed correctly
+        // CRITICAL FIX #2: Session/Cookies Persistence in WebView
+        // If payment details missing from URL, try multiple storage methods
+        // This handles WebView session loss during Razorpay redirect
         if ((!razorpay_order_id || !razorpay_payment_id) && !razorpay_signature) {
-          console.log('🔍 ========== STEP 4: PAYMENT DATA MISSING - TRYING FALLBACKS ==========');
+          console.log('🔍 ========== STEP 4: PAYMENT DATA MISSING - TRYING FALLBACKS (Session Persistence) ==========');
           try {
-            // Method 1: Try localStorage (primary fallback) - like RentYatra
+            // Method 1: Try localStorage (primary fallback) - survives page reloads
             console.log('🔍 Method 1: Checking localStorage...');
             const storedResponse = JSON.parse(localStorage.getItem('payment_response') || '{}');
             if (storedResponse.razorpay_order_id || storedResponse.razorpayOrderId) {
               razorpay_order_id = razorpay_order_id || storedResponse.razorpay_order_id || storedResponse.razorpayOrderId;
               razorpay_payment_id = razorpay_payment_id || storedResponse.razorpay_payment_id || storedResponse.razorpayPaymentId;
               razorpay_signature = razorpay_signature || storedResponse.razorpay_signature || storedResponse.razorpaySignature;
-              console.log('✅ ✅ ✅ Retrieved payment data from localStorage');
+              console.log('✅ ✅ ✅ Retrieved payment data from localStorage (Session Persistence Fix)');
               console.log('✅ Order ID:', razorpay_order_id ? razorpay_order_id.substring(0, 10) + '...' : 'MISSING');
               console.log('✅ Payment ID:', razorpay_payment_id ? razorpay_payment_id.substring(0, 10) + '...' : 'MISSING');
             } else {
               console.log('⚠️ No payment data in localStorage');
+            }
+            
+            // Method 1.5: Try payment_context (stored before Razorpay opened)
+            if ((!razorpay_order_id || !razorpay_payment_id) && !razorpay_signature) {
+              console.log('🔍 Method 1.5: Checking payment_context...');
+              const paymentContext = JSON.parse(localStorage.getItem('payment_context') || '{}');
+              if (paymentContext.orderId && !razorpay_order_id) {
+                razorpay_order_id = paymentContext.orderId;
+                console.log('✅ Retrieved order ID from payment_context:', razorpay_order_id.substring(0, 10) + '...');
+              }
+            }
+            
+            // Method 1.6: Try cookies (for session persistence across redirects)
+            if ((!razorpay_order_id || !razorpay_payment_id) && !razorpay_signature) {
+              console.log('🔍 Method 1.6: Checking cookies...');
+              try {
+                const cookies = document.cookie.split(';');
+                for (const cookie of cookies) {
+                  const [name, value] = cookie.trim().split('=');
+                  if (name === 'payment_response') {
+                    const cookieResponse = JSON.parse(decodeURIComponent(value));
+                    if (cookieResponse.razorpay_order_id || cookieResponse.razorpayOrderId) {
+                      razorpay_order_id = razorpay_order_id || cookieResponse.razorpay_order_id || cookieResponse.razorpayOrderId;
+                      razorpay_payment_id = razorpay_payment_id || cookieResponse.razorpay_payment_id || cookieResponse.razorpayPaymentId;
+                      razorpay_signature = razorpay_signature || cookieResponse.razorpay_signature || cookieResponse.razorpaySignature;
+                      console.log('✅ ✅ ✅ Retrieved payment data from cookies (Session Persistence Fix)');
+                      break;
+                    }
+                  }
+                }
+              } catch (cookieError) {
+                console.warn('⚠️ Could not read cookies:', cookieError);
+              }
             }
             
             // Method 2: Try sessionStorage (backup)

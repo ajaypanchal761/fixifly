@@ -2,10 +2,38 @@ const asyncHandler = require('express-async-handler');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
+// CRITICAL FIX #3: Razorpay Key Mismatch Issue
+// Ensure same key is used in backend as frontend
+// Validate key configuration
+const razorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_8sYbzHWidwe5Zw';
+const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || 'GkxKRQ2B0U63BKBoayuugS3D';
+
+// Validate key format
+const isTestKey = razorpayKeyId.startsWith('rzp_test_');
+const isLiveKey = razorpayKeyId.startsWith('rzp_live_');
+
+if (!isTestKey && !isLiveKey) {
+  console.error('❌ Invalid Razorpay Key ID format:', razorpayKeyId);
+  console.error('❌ Key should start with rzp_test_ or rzp_live_');
+}
+
+// Note: Test key in production is OK for testing (user preference)
+if (process.env.NODE_ENV === 'production' && isTestKey) {
+  console.log('ℹ️  INFO: Production environment using TEST Razorpay key (for testing)');
+  console.log('ℹ️  This is OK for testing. Switch to live key when ready for production payments.');
+}
+
+console.log('🔑 Backend Razorpay Key Configuration:', {
+  keyType: isTestKey ? 'TEST' : isLiveKey ? 'LIVE' : 'UNKNOWN',
+  keyPrefix: razorpayKeyId.substring(0, 10) + '...',
+  environment: process.env.NODE_ENV || 'development',
+  isMismatched: (process.env.NODE_ENV === 'production' && isTestKey)
+});
+
 // Initialize Razorpay
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_id: razorpayKeyId,
+  key_secret: razorpayKeySecret,
 });
 
 // @desc    Create Razorpay order
@@ -847,11 +875,35 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       console.error('❌ CRITICAL: No payment data received in callback!');
       console.error('❌ This means Razorpay did not send payment details');
       console.error('❌ Possible causes:');
-      console.error('   1. callback_url not configured correctly');
+      console.error('   1. callback_url not configured correctly in Razorpay options');
       console.error('   2. Razorpay redirect failed (common in WebView)');
       console.error('   3. WebView blocked the redirect');
       console.error('   4. Payment failed but Razorpay did not redirect to callback_url');
       console.error('   5. Payment might still be processing');
+      console.error('   6. User directly accessed callback URL (test/manual access)');
+      console.error('❌ Request Details:', {
+        method: req.method,
+        url: req.originalUrl,
+        query: req.query,
+        body: req.body,
+        referer: req.headers.referer || 'N/A',
+        userAgent: req.headers['user-agent'] || 'N/A'
+      });
+      
+      // CRITICAL: Check if this is a direct access (no referer from Razorpay)
+      const referer = req.headers.referer || '';
+      const isDirectAccess = !referer.includes('razorpay.com') && !referer.includes('checkout.razorpay.com');
+      if (isDirectAccess) {
+        console.warn('⚠️ WARNING: Callback accessed directly (not from Razorpay redirect)');
+        console.warn('⚠️ This is likely a test or manual access - no payment data expected');
+        // Still redirect to frontend but with a message
+        const frontendBase = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://getfixfly.com' : 'http://localhost:8080');
+        const url = new URL('/payment-callback', frontendBase);
+        url.searchParams.set('error', 'NO_PAYMENT_DATA');
+        url.searchParams.set('error_message', 'Payment callback accessed without payment data. This may be a test or the payment was not completed.');
+        console.log('🔀 Redirecting to frontend with error message:', url.toString());
+        return res.redirect(302, url.toString());
+      }
       
       // CRITICAL FIX: If we have order_id in notes or can fetch it, try to get payment status
       // This handles the case where Razorpay fails but doesn't redirect
@@ -1351,8 +1403,17 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     console.log('🔀 Order ID:', razorpay_order_id || 'N/A');
     console.log('🔀 Booking ID:', bookingId || 'N/A');
     console.log('🔀 Ticket ID:', ticketId || 'N/A');
+    console.log('🔀 Is Payment Failed:', isPaymentFailed);
     console.log('🔀 Timestamp:', new Date().toISOString());
     console.log('🔀 ===================================================');
+    
+    // CRITICAL: If no payment data and not a failure, add error parameter
+    // This helps frontend know that payment data is missing
+    if (!razorpay_payment_id && !razorpay_order_id && !isPaymentFailed) {
+      console.warn('⚠️ No payment data - adding error parameter to frontend URL');
+      url.searchParams.set('error', 'NO_PAYMENT_DATA');
+      url.searchParams.set('error_message', 'Payment data not received. Please check if payment was completed or contact support.');
+    }
     
     // CRITICAL: Simple redirect like RentYatra - no complex HTML
     // This is more reliable in WebView/APK scenarios

@@ -229,7 +229,7 @@ const Support = () => {
 
       // Razorpay options
       const options = {
-        key: 'rzp_test_8sYbzHWidwe5Zw', // FixFly Razorpay Test Key
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_8sYbzHWidwe5Zw', // Use environment variable or fallback to test key
         amount: orderData.data.amount, // Use amount from order response (already in paise)
         currency: 'INR',
         name: 'FixFly',
