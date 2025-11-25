@@ -2212,6 +2212,14 @@ class RazorpayService {
                 errorCallbackUrl.searchParams.set('razorpay_order_id', order.orderId);
               }
               
+              // CRITICAL: Add booking/ticket IDs for backend logging
+              if (paymentData.bookingId) {
+                errorCallbackUrl.searchParams.set('booking_id', paymentData.bookingId);
+              }
+              if (paymentData.ticketId) {
+                errorCallbackUrl.searchParams.set('ticket_id', paymentData.ticketId);
+              }
+              
               // Add error details for backend logging
               if (response.error?.code) {
                 errorCallbackUrl.searchParams.set('error_code', response.error.code);
@@ -2226,20 +2234,63 @@ class RazorpayService {
               console.error('❌ This ensures payment failure is logged in backend');
               console.error('❌ ===================================================');
               
-              // CRITICAL: Force redirect immediately - don't wait
-              // This ensures backend receives the failure callback
-              // IMPORTANT: Don't call onFailure here - redirect will handle it
-              console.error('🚀 Redirecting to backend error callback - onFailure will be called by PaymentCallback page');
-              window.location.href = errorCallbackUrl.toString();
+              // CRITICAL FIX: Use multiple redirect methods to ensure it works in WebView/APK
+              const redirectUrl = errorCallbackUrl.toString();
               
-              // Fallback: If redirect doesn't work, call onFailure after delay
-              setTimeout(() => {
-                if (!window.location.href.includes('/payment-callback') && 
-                    !window.location.href.includes('razorpay')) {
-                  console.warn('⚠️ Redirect did not work, calling onFailure as fallback');
-                  onFailure(new Error(errorMessage));
+              // Method 1: Direct redirect (immediate) - try multiple approaches
+              try {
+                window.location.href = redirectUrl;
+                console.error('🚀 Redirect method 1: window.location.href');
+              } catch (e1) {
+                console.warn('⚠️ window.location.href failed, trying replace:', e1);
+                try {
+                  window.location.replace(redirectUrl);
+                  console.error('🚀 Redirect method 2: window.location.replace');
+                } catch (e2) {
+                  console.warn('⚠️ window.location.replace also failed:', e2);
                 }
-              }, 2000);
+              }
+              
+              // Method 2: Flutter bridge (if available) - try immediately
+              if ((window as any).flutter_inappwebview) {
+                try {
+                  (window as any).flutter_inappwebview.callHandler('navigateTo', redirectUrl);
+                  console.log('📤 Redirect method 3: Flutter bridge (immediate)');
+                } catch (e) {
+                  console.warn('⚠️ Flutter bridge redirect failed:', e);
+                }
+              }
+              
+              // Method 3: Fallback redirect after delay (if previous methods didn't work)
+              setTimeout(() => {
+                const currentUrl = window.location.href;
+                if (!currentUrl.includes('/payment-callback') && !currentUrl.includes('razorpay-callback')) {
+                  console.error('🔄 Retry redirect (fallback) - previous redirect may have failed');
+                  try {
+                    window.location.replace(redirectUrl);
+                    console.error('🚀 Redirect method 4: window.location.replace (retry)');
+                  } catch (e) {
+                    console.error('❌ All redirect methods failed:', e);
+                    // Last resort: call onFailure
+                    onFailure(new Error(errorMessage));
+                  }
+                }
+              }, 1500);
+              
+              // Method 4: Additional Flutter bridge attempt after delay
+              if ((window as any).flutter_inappwebview) {
+                setTimeout(() => {
+                  try {
+                    (window as any).flutter_inappwebview.callHandler('navigateTo', redirectUrl);
+                    console.log('📤 Redirect method 5: Flutter bridge (retry)');
+                  } catch (e) {
+                    console.warn('⚠️ Flutter bridge redirect retry failed:', e);
+                  }
+                }, 1000);
+              }
+              
+              // IMPORTANT: Don't call onFailure here - redirect will handle it
+              // Only call onFailure if all redirect methods fail (handled in timeout above)
             } catch (e) {
               console.error('❌ Error redirecting to error callback:', e);
               // Only call onFailure if redirect completely fails
