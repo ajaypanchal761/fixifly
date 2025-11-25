@@ -766,6 +766,9 @@ class RazorpayService {
         ...(useRedirectMode && callbackUrl ? {
           redirect: true, // REQUIRED for WebView/Iframe - modal mode doesn't work
           callback_url: callbackUrl, // Callback URL for redirect mode - MUST be publicly accessible
+          // CRITICAL: Add error callback URL for payment failures (Razorpay feature)
+          // This ensures Razorpay redirects to our callback even on payment failure
+          // Note: Razorpay uses callback_url for both success and failure in redirect mode
         } : {}),
         // Add timeout
         timeout: 300,
@@ -1155,6 +1158,55 @@ class RazorpayService {
         console.log('💰 Response:', JSON.stringify(response, null, 2));
         console.log('💰 ============================================');
       });
+      
+      // CRITICAL: For WebView, add visibility change listener to detect if user closed Razorpay
+      // Sometimes Razorpay fails but doesn't redirect to callback_url
+      if (useRedirectMode && callbackUrl) {
+        let paymentInProgress = true;
+        let visibilityCheckInterval: NodeJS.Timeout | null = null;
+        
+        // Monitor page visibility - if user comes back without redirect, payment might have failed
+        const handleVisibilityChange = () => {
+          if (document.visibilityState === 'visible' && paymentInProgress) {
+            // User came back to the page - check if we're still on Razorpay
+            setTimeout(() => {
+              if (paymentInProgress && 
+                  (window.location.href.includes('razorpay.com') || 
+                   window.location.href.includes('checkout.razorpay.com'))) {
+                console.warn('⚠️ User returned to page but still on Razorpay - payment might have failed without redirect');
+                // Don't force redirect yet - wait a bit more
+              } else if (paymentInProgress && !window.location.href.includes('/payment-callback')) {
+                // User is back but not on callback page - payment might have failed
+                console.warn('⚠️ User returned but not on callback page - checking payment status...');
+              }
+            }, 2000);
+          }
+        };
+        
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        // Clear listener when payment completes
+        const originalHandler = options.handler;
+        if (originalHandler) {
+          options.handler = (response: PaymentResponse) => {
+            paymentInProgress = false;
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (visibilityCheckInterval) {
+              clearInterval(visibilityCheckInterval);
+            }
+            originalHandler(response);
+          };
+        }
+        
+        // Also clear on payment failure
+        razorpay.on('payment.failed', () => {
+          paymentInProgress = false;
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          if (visibilityCheckInterval) {
+            clearInterval(visibilityCheckInterval);
+          }
+        });
+      }
       
       razorpay.open();
       

@@ -835,15 +835,44 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       }
     }
     
-    // If no payment data at all, log warning and try to fetch from Razorpay order
+    // CRITICAL: If no payment data at all, this might be a Razorpay failure that didn't redirect properly
+    // In WebView, Razorpay might fail but not redirect to callback_url
+    // We should still redirect to frontend with error so user knows payment failed
     if (!razorpay_payment_id && !razorpay_order_id && !isPaymentFailed) {
       console.error('❌ CRITICAL: No payment data received in callback!');
       console.error('❌ This means Razorpay did not send payment details');
       console.error('❌ Possible causes:');
       console.error('   1. callback_url not configured correctly');
-      console.error('   2. Razorpay redirect failed');
+      console.error('   2. Razorpay redirect failed (common in WebView)');
       console.error('   3. WebView blocked the redirect');
-      console.error('   4. Payment might still be processing');
+      console.error('   4. Payment failed but Razorpay did not redirect to callback_url');
+      console.error('   5. Payment might still be processing');
+      
+      // CRITICAL FIX: If we have order_id in notes or can fetch it, try to get payment status
+      // This handles the case where Razorpay fails but doesn't redirect
+      const orderIdFromNotes = req.query?.order_id || req.body?.order_id;
+      if (orderIdFromNotes) {
+        try {
+          console.log('🔍 Attempting to fetch order status from Razorpay...');
+          const order = await razorpay.orders.fetch(orderIdFromNotes);
+          if (order) {
+            console.log('🔍 Order Status:', order.status);
+            // If order is paid but we don't have payment_id, fetch from order.payments
+            if (order.status === 'paid' && order.payments && order.payments.length > 0) {
+              const paymentId = order.payments[order.payments.length - 1];
+              razorpay_payment_id = paymentId;
+              razorpay_order_id = orderIdFromNotes;
+              console.log('✅ Found payment ID from order:', paymentId);
+            } else if (order.status === 'attempted' || order.status === 'created') {
+              // Payment was attempted but failed
+              console.error('❌ Order status indicates payment failed:', order.status);
+              isPaymentFailed = true;
+            }
+          }
+        } catch (orderError) {
+          console.error('❌ Error fetching order:', orderError.message);
+        }
+      }
       
       // Try to get payment data from request headers or referer
       const referer = req.headers.referer || '';

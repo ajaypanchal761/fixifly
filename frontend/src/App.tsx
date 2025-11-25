@@ -106,6 +106,9 @@ const AppContent = () => {
         <Route path="/product/:productId" element={<ProductDetail />} />
         <Route path="/laptop-service" element={<LaptopService />} />
         
+        {/* Payment Callback Route - MUST be public for Razorpay redirects */}
+        <Route path="/payment-callback" element={<PaymentCallback />} />
+        
         {/* ================== ADMIN AUTH ROUTES ================== */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/signup" element={<AdminSignup />} />
@@ -129,7 +132,6 @@ const AppContent = () => {
         {/* Support Routes */}
         <Route path="/support" element={<MobileAuthGuard><Support /></MobileAuthGuard>} />
         <Route path="/payment" element={<MobileAuthGuard><Payment /></MobileAuthGuard>} />
-        <Route path="/payment-callback" element={<PaymentCallback />} />
         
         {/* Profile & Settings Routes */}
         <Route path="/profile" element={<MobileAuthGuard><Profile /></MobileAuthGuard>} />
