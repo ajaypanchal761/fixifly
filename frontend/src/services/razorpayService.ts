@@ -434,12 +434,41 @@ class RazorpayService {
 
   /**
    * Detect if running in iframe (RentYatra style)
+   * CRITICAL: Flutter WebView में भी iframe detection important है
    */
   private isInIframe(): boolean {
     try {
-      return window.self !== window.top;
+      // Method 1: Check if window.self !== window.top
+      const isInIframe = window.self !== window.top;
+      
+      // Method 2: Check for Flutter WebView (which often runs in iframe-like context)
+      const hasFlutterWebView = (window as any).flutter_inappwebview !== undefined;
+      
+      // Method 3: Check user agent for WebView indicators
+      const userAgent = navigator.userAgent || '';
+      const isWebViewUA = /wv|WebView/i.test(userAgent);
+      
+      // Method 4: Check if we can access parent (iframe restriction)
+      try {
+        const parentCheck = window.parent !== window;
+        if (parentCheck) {
+          return true;
+        }
+      } catch (e) {
+        // If we can't access window.parent, we're likely in iframe
+        return true;
+      }
+      
+      // If Flutter WebView detected, treat as iframe (needs redirect mode)
+      if (hasFlutterWebView || isWebViewUA) {
+        console.log('🔍 Flutter WebView detected - treating as iframe for redirect mode');
+        return true;
+      }
+      
+      return isInIframe;
     } catch (e) {
       // If we can't access window.top, we're likely in iframe
+      console.log('🔍 Cannot access window.top - treating as iframe');
       return true;
     }
   }
@@ -517,26 +546,35 @@ class RazorpayService {
       const isAPK = this.isAPKContext();
       const isInIframe = this.isInIframe();
       
+      // CRITICAL: Flutter WebView detection (specific for APK)
+      const hasFlutterWebView = (window as any).flutter_inappwebview !== undefined;
+      const isFlutterAPK = hasFlutterWebView || /flutter|Flutter/i.test(navigator.userAgent);
+      
       // CRITICAL: WebView/APK requires redirect mode, not modal mode
       // Modal mode (redirect: false) doesn't work in WebView due to iframe restrictions
       // We must use redirect mode with callback URL for WebView
-      const useRedirectMode = isAPK || isInIframe;
+      // Flutter WebView में भी redirect mode mandatory है
+      const useRedirectMode = isAPK || isInIframe || isFlutterAPK;
 
       console.log('🔍 ========== PAYMENT CONTEXT DETECTION (RentYatra Style) ==========');
       console.log('🔍 Is APK/WebView:', isAPK);
       console.log('🔍 Is In Iframe:', isInIframe);
+      console.log('🔍 Has Flutter WebView:', hasFlutterWebView);
+      console.log('🔍 Is Flutter APK:', isFlutterAPK);
       console.log('🔍 Use Redirect Mode:', useRedirectMode);
       console.log('🔍 User Agent:', navigator.userAgent);
-      console.log('🔍 Has Flutter WebView:', !!(window as any).flutter_inappwebview);
       console.log('🔍 Has Cordova:', !!(window as any).cordova);
       console.log('🔍 Has Capacitor:', !!(window as any).Capacitor);
       
-      // CRITICAL: Iframe detection details
-      if (isInIframe) {
-        console.log('⚠️ ⚠️ ⚠️ IFRAME DETECTED - REDIRECT MODE MANDATORY ⚠️ ⚠️ ⚠️');
-        console.log('⚠️ Iframe mein modal mode work nahi karta');
+      // CRITICAL: Iframe/Flutter WebView detection details
+      if (isInIframe || isFlutterAPK) {
+        console.log('⚠️ ⚠️ ⚠️ IFRAME/FLUTTER WEBVIEW DETECTED - REDIRECT MODE MANDATORY ⚠️ ⚠️ ⚠️');
+        console.log('⚠️ Iframe/Flutter WebView mein modal mode work nahi karta');
         console.log('⚠️ Redirect mode aur callback_url required hai');
         console.log('⚠️ Parent window communication enabled');
+        if (hasFlutterWebView) {
+          console.log('⚠️ Flutter WebView bridge available - will use for navigation');
+        }
       }
       
       console.log('🔍 ===============================================');
@@ -767,15 +805,31 @@ class RazorpayService {
             console.log('⚠️ Redirect mode - handler called but redirect will happen via callback_url');
             console.log('📦 Response data:', JSON.stringify(response, null, 2));
             
-            // CRITICAL: Iframe mein parent window ko message send karein (RentYatra style)
-            if (this.isInIframe()) {
-              console.log('📤 Iframe detected - sending payment response to parent window');
+            // CRITICAL: Iframe/Flutter WebView mein parent window ko message send karein (RentYatra style)
+            if (this.isInIframe() || (window as any).flutter_inappwebview) {
+              console.log('📤 Iframe/Flutter WebView detected - sending payment response to parent window');
               this.sendMessageToParent('payment_success', {
                 orderId: response?.razorpay_order_id || (response as any)?.razorpayOrderId,
                 paymentId: response?.razorpay_payment_id || (response as any)?.razorpayPaymentId,
                 signature: response?.razorpay_signature || (response as any)?.razorpaySignature,
                 response: response
               });
+              
+              // CRITICAL: Flutter WebView में bridge के through भी send करें
+              if ((window as any).flutter_inappwebview) {
+                try {
+                  console.log('📤 Sending payment success to Flutter bridge');
+                  (window as any).flutter_inappwebview.callHandler('paymentSuccess', {
+                    razorpay_order_id: response?.razorpay_order_id || (response as any)?.razorpayOrderId,
+                    razorpay_payment_id: response?.razorpay_payment_id || (response as any)?.razorpayPaymentId,
+                    razorpay_signature: response?.razorpay_signature || (response as any)?.razorpaySignature,
+                    bookingId: paymentData.bookingId,
+                    ticketId: paymentData.ticketId
+                  });
+                } catch (e) {
+                  console.warn('⚠️ Flutter bridge payment success failed:', e);
+                }
+              }
             }
           }
           // For redirect mode (WebView/Iframe), callback will be handled by PaymentCallback page via callback_url
@@ -1055,9 +1109,9 @@ class RazorpayService {
           console.error('❌ Callback URL:', callbackUrl);
           console.error('❌ ========================================================');
           
-          // CRITICAL: Iframe mein parent window ko failure message send karein
-          if (this.isInIframe()) {
-            console.error('📤 Iframe detected - sending payment failure to parent window');
+          // CRITICAL: Iframe/Flutter WebView mein parent window ko failure message send karein
+          if (this.isInIframe() || (window as any).flutter_inappwebview) {
+            console.error('📤 Iframe/Flutter WebView detected - sending payment failure to parent window');
             this.sendMessageToParent('payment_failed', {
               error: response.error,
               errorCode: response.error?.code,
@@ -1066,6 +1120,23 @@ class RazorpayService {
               metadata: response.metadata,
               orderId: paymentData.orderId
             });
+            
+            // CRITICAL: Flutter WebView में bridge के through भी send करें
+            if ((window as any).flutter_inappwebview) {
+              try {
+                console.error('📤 Sending payment failure to Flutter bridge');
+                (window as any).flutter_inappwebview.callHandler('paymentFailed', {
+                  error: response.error,
+                  errorCode: response.error?.code,
+                  errorDescription: response.error?.description,
+                  errorReason: response.error?.reason,
+                  metadata: response.metadata,
+                  orderId: paymentData.orderId
+                });
+              } catch (e) {
+                console.warn('⚠️ Flutter bridge payment failure failed:', e);
+              }
+            }
           }
           
           const errorMessage = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';

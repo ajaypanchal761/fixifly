@@ -110,11 +110,34 @@ const PaymentCallback = () => {
         console.log('📋 Ticket ID (from URL):', ticketId || 'MISSING');
         console.log('📋 ===================================================');
 
-        // CRITICAL FIX #2: Session/Cookies Persistence in WebView
+        // CRITICAL FIX #2: Session/Cookies Persistence in WebView/Flutter WebView
         // If payment details missing from URL, try multiple storage methods
         // This handles WebView session loss during Razorpay redirect
         if ((!razorpay_order_id || !razorpay_payment_id) && !razorpay_signature) {
           console.log('🔍 ========== STEP 4: PAYMENT DATA MISSING - TRYING FALLBACKS (Session Persistence) ==========');
+          console.log('🔍 Flutter WebView detected:', !!(window as any).flutter_inappwebview);
+          
+          // Method 0: Flutter WebView message listener (if available)
+          if ((window as any).flutter_inappwebview) {
+            console.log('🔍 Method 0: Listening for Flutter WebView payment data...');
+            try {
+              // Listen for payment data from Flutter
+              window.addEventListener('message', (event: MessageEvent) => {
+                if (event.data && event.data.type === 'payment_data') {
+                  const flutterPaymentData = event.data.data;
+                  if (flutterPaymentData.razorpay_order_id || flutterPaymentData.razorpayOrderId) {
+                    razorpay_order_id = razorpay_order_id || flutterPaymentData.razorpay_order_id || flutterPaymentData.razorpayOrderId;
+                    razorpay_payment_id = razorpay_payment_id || flutterPaymentData.razorpay_payment_id || flutterPaymentData.razorpayPaymentId;
+                    razorpay_signature = razorpay_signature || flutterPaymentData.razorpay_signature || flutterPaymentData.razorpaySignature;
+                    console.log('✅ ✅ ✅ Retrieved payment data from Flutter WebView message');
+                  }
+                }
+              });
+            } catch (e) {
+              console.warn('⚠️ Could not set up Flutter WebView message listener:', e);
+            }
+          }
+          
           try {
             // Method 1: Try localStorage (primary fallback) - survives page reloads
             console.log('🔍 Method 1: Checking localStorage...');
