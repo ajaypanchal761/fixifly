@@ -760,7 +760,26 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
                            req.query?.payment_failed === 'true' ||
                            req.body?.error === 'payment_failed' ||
                            req.body?.payment_failed === 'true';
-    
+
+    // CRITICAL: Log payment failure immediately
+    if (isPaymentFailed) {
+      console.error('\n');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('❌ ❌ ❌ ========== PAYMENT FAILURE DETECTED ========== ❌ ❌ ❌');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('❌ Timestamp:', new Date().toISOString());
+      console.error('❌ Order ID:', razorpay_order_id || req.query?.razorpay_order_id || req.body?.razorpay_order_id || 'MISSING');
+      console.error('❌ Payment ID:', razorpay_payment_id || req.query?.razorpay_payment_id || req.body?.razorpay_payment_id || 'MISSING');
+      console.error('❌ Error Code:', req.query?.error_code || req.body?.error_code || 'N/A');
+      console.error('❌ Error Reason:', req.query?.error_reason || req.body?.error_reason || 'N/A');
+      console.error('❌ Failure Reason:', req.query?.error_message || req.body?.error_message || 'Payment failed by user');
+      console.error('❌ Query Params:', JSON.stringify(req.query, null, 2));
+      console.error('❌ Body:', JSON.stringify(req.body, null, 2));
+      console.error('❌ User Agent:', req.headers['user-agent'] || 'N/A');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('\n');
+    }
+
     if (isPaymentFailed) {
       const failureReason = req.query?.error_message || req.body?.error_message || 'Payment failed by user';
       const failedBookingId = bookingId;

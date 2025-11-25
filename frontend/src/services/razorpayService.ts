@@ -1888,57 +1888,109 @@ class RazorpayService {
         
         // Add payment.failed event handler (CRITICAL for WebView)
         razorpay.on('payment.failed', (response: any) => {
+          console.error('\n');
+          console.error('═══════════════════════════════════════════════════════════════');
           console.error('❌ ❌ ❌ ========== PAYMENT FAILED EVENT (WEBVIEW) ========== ❌ ❌ ❌');
+          console.error('═══════════════════════════════════════════════════════════════');
           console.error('❌ Timestamp:', new Date().toISOString());
           console.error('❌ Response:', JSON.stringify(response, null, 2));
-          console.error('❌ Error Code:', response.error?.code);
-          console.error('❌ Error Description:', response.error?.description);
-          console.error('❌ Error Reason:', response.error?.reason);
-          console.error('❌ Error Source:', response.error?.source);
-          console.error('❌ Error Step:', response.error?.step);
+          console.error('❌ Error Code:', response.error?.code || 'N/A');
+          console.error('❌ Error Description:', response.error?.description || 'N/A');
+          console.error('❌ Error Reason:', response.error?.reason || 'N/A');
+          console.error('❌ Error Source:', response.error?.source || 'N/A');
+          console.error('❌ Error Step:', response.error?.step || 'N/A');
           console.error('❌ Order ID:', order.orderId);
           console.error('❌ User Agent:', navigator.userAgent);
-          console.error('❌ ========================================================');
+          console.error('❌ Use Redirect Mode:', useRedirectMode);
+          console.error('❌ Callback URL:', callbackUrl || 'NOT SET');
+          console.error('❌ Is Flutter WebView:', !!(window as any).flutter_inappwebview);
+          console.error('═══════════════════════════════════════════════════════════════');
+          console.error('\n');
           
           // Store failure info for debugging
           try {
-            localStorage.setItem('payment_failure_webview', JSON.stringify({
+            const failureData = {
               error: response.error,
               timestamp: Date.now(),
               orderId: order.orderId,
-              userAgent: navigator.userAgent
-            }));
+              userAgent: navigator.userAgent,
+              callbackUrl: callbackUrl,
+              useRedirectMode: useRedirectMode
+            };
+            localStorage.setItem('payment_failure_webview', JSON.stringify(failureData));
             console.log('💾 Stored payment failure info in localStorage');
           } catch (e) {
             console.warn('⚠️ Could not store payment failure info:', e);
           }
           
-          // CRITICAL: For WebView/APK, redirect to callback with error so backend can log it
+          // CRITICAL: For WebView/APK, MUST redirect to callback so backend can log it
           if (useRedirectMode && callbackUrl) {
             try {
               const errorCallbackUrl = new URL(callbackUrl);
               const errorMessage = response.error?.description || response.error?.reason || 'Payment failed';
+              
+              // CRITICAL: Add all error parameters
               errorCallbackUrl.searchParams.set('error', 'payment_failed');
               errorCallbackUrl.searchParams.set('error_message', encodeURIComponent(errorMessage));
               errorCallbackUrl.searchParams.set('payment_failed', 'true');
               errorCallbackUrl.searchParams.set('razorpay_order_id', order.orderId);
               
+              // Add error details
+              if (response.error?.code) {
+                errorCallbackUrl.searchParams.set('error_code', response.error.code);
+              }
+              if (response.error?.reason) {
+                errorCallbackUrl.searchParams.set('error_reason', encodeURIComponent(response.error.reason));
+              }
               if (response.error?.metadata?.payment_id) {
                 errorCallbackUrl.searchParams.set('razorpay_payment_id', response.error.metadata.payment_id);
               }
               
-              console.error('❌ Redirecting to callback with error:', errorCallbackUrl.toString());
+              console.error('❌ ========== REDIRECTING TO BACKEND CALLBACK ==========');
+              console.error('❌ Error Callback URL:', errorCallbackUrl.toString());
+              console.error('❌ This will ensure backend logs the payment failure');
+              console.error('❌ Backend will then redirect to frontend with error');
+              console.error('❌ ===================================================');
               
-              // Force redirect to backend callback
+              // CRITICAL: Force redirect immediately - don't wait
+              // Backend MUST receive this to log the failure
+              console.error('🚀 FORCE REDIRECT: Sending payment failure to backend...');
+              window.location.href = errorCallbackUrl.toString();
+              
+              // Fallback redirect after delay
               setTimeout(() => {
-                window.location.href = errorCallbackUrl.toString();
-              }, 500);
+                if (window.location.href !== errorCallbackUrl.toString() && 
+                    !window.location.href.includes('/payment-callback')) {
+                  console.error('🔄 Retry redirect (fallback)...');
+                  window.location.replace(errorCallbackUrl.toString());
+                }
+              }, 1000);
+              
+              // Flutter bridge fallback
+              if ((window as any).flutter_inappwebview) {
+                setTimeout(() => {
+                  try {
+                    (window as any).flutter_inappwebview.callHandler('navigateTo', errorCallbackUrl.toString());
+                  } catch (e) {
+                    console.warn('⚠️ Flutter bridge redirect failed:', e);
+                  }
+                }, 500);
+              }
             } catch (redirectError) {
-              console.error('❌ Error redirecting to callback:', redirectError);
-              // Fallback: call onError
+              console.error('❌ ❌ ❌ CRITICAL: Error redirecting to callback ❌ ❌ ❌');
+              console.error('❌ Redirect Error:', redirectError);
+              console.error('❌ Callback URL:', callbackUrl);
+              console.error('❌ This means backend will NOT receive payment failure notification!');
+              
+              // Still call onError as fallback
               onFailure(new Error(response.error?.description || response.error?.reason || 'Payment failed in WebView'));
             }
           } else {
+            console.error('❌ ❌ ❌ CRITICAL: Cannot redirect - missing callback URL or redirect mode ❌ ❌ ❌');
+            console.error('❌ Use Redirect Mode:', useRedirectMode);
+            console.error('❌ Callback URL:', callbackUrl || 'NOT SET');
+            console.error('❌ Backend will NOT receive payment failure notification!');
+            
             // Call onError callback
             onFailure(new Error(response.error?.description || response.error?.reason || 'Payment failed in WebView'));
           }
