@@ -1380,15 +1380,35 @@ class RazorpayService {
       // Load Razorpay script
       await this.loadRazorpayScript();
 
-      // Detect WebView/APK context
+      // CRITICAL: Detect WebView/APK/Iframe context (same as processPayment)
       const isAPK = this.isAPKContext();
-      const useRedirectMode = isAPK; // Use redirect mode for WebView/APK
+      const isInIframe = this.isInIframe();
+      const hasFlutterWebView = (window as any).flutter_inappwebview !== undefined;
+      const isFlutterAPK = hasFlutterWebView || /flutter|Flutter/i.test(navigator.userAgent);
+      
+      // CRITICAL: WebView/APK/Iframe requires redirect mode, not modal mode
+      // Flutter WebView में भी redirect mode mandatory है
+      const useRedirectMode = isAPK || isInIframe || isFlutterAPK;
 
-      console.log('🔍 Booking Payment - WebView detection:', {
-        isAPK,
-        useRedirectMode,
-        userAgent: navigator.userAgent
-      });
+      console.log('🔍 ========== BOOKING PAYMENT - WEBVIEW DETECTION ==========');
+      console.log('🔍 Is APK/WebView:', isAPK);
+      console.log('🔍 Is In Iframe:', isInIframe);
+      console.log('🔍 Has Flutter WebView:', hasFlutterWebView);
+      console.log('🔍 Is Flutter APK:', isFlutterAPK);
+      console.log('🔍 Use Redirect Mode:', useRedirectMode);
+      console.log('🔍 User Agent:', navigator.userAgent);
+      
+      // CRITICAL: Iframe/Flutter WebView detection details
+      if (isInIframe || isFlutterAPK) {
+        console.log('⚠️ ⚠️ ⚠️ IFRAME/FLUTTER WEBVIEW DETECTED - REDIRECT MODE MANDATORY ⚠️ ⚠️ ⚠️');
+        console.log('⚠️ Iframe/Flutter WebView mein modal mode work nahi karta');
+        console.log('⚠️ Redirect mode aur callback_url required hai');
+        if (hasFlutterWebView) {
+          console.log('⚠️ Flutter WebView bridge available - will use for navigation');
+        }
+      }
+      
+      console.log('🔍 ===============================================');
 
       // Validate amount before creating order
       if (!bookingData.pricing.totalAmount || bookingData.pricing.totalAmount <= 0) {
@@ -1511,9 +1531,33 @@ class RazorpayService {
       
       // CRITICAL: Like RentYatra - simple callback URL construction
       // apiUrl already includes /api, so just append /payment/razorpay-callback
+      // CRITICAL: For Flutter WebView/APK, ensure production backend URL
       let callbackUrl = useRedirectMode 
         ? `${apiUrl}/payment/razorpay-callback`
         : undefined;
+      
+      // CRITICAL: Final check - ensure callback URL is production URL for WebView/APK
+      if (useRedirectMode && callbackUrl) {
+        const PRODUCTION_BACKEND_URL = 'https://api.getfixfly.com';
+        try {
+          const urlObj = new URL(callbackUrl);
+          const isLocalhost = urlObj.hostname === 'localhost' || 
+                            urlObj.hostname === '127.0.0.1' || 
+                            urlObj.hostname.startsWith('192.168.') ||
+                            urlObj.hostname.startsWith('10.') ||
+                            urlObj.hostname.startsWith('172.');
+          
+          // For WebView/APK, force production backend URL
+          if (isLocalhost || (isAPK || isFlutterAPK)) {
+            console.log('🔧 WebView/APK detected - forcing production backend URL');
+            callbackUrl = `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`;
+            console.log('🔧 Updated callback URL:', callbackUrl);
+          }
+        } catch (e) {
+          console.warn('⚠️ Error checking callback URL, using production fallback:', e);
+          callbackUrl = `${PRODUCTION_BACKEND_URL}/api/payment/razorpay-callback`;
+        }
+      }
       
       // CRITICAL: Final validation - ensure callback URL is publicly accessible
       if (useRedirectMode && callbackUrl) {
@@ -1871,11 +1915,11 @@ class RazorpayService {
         console.log('✅ WebView payment event listeners added successfully');
       }
       
-      // For WebView, add event listeners to catch payment events
+      // CRITICAL: Store booking data BEFORE opening Razorpay (for WebView callback)
+      // This ensures PaymentCallback can create booking even if payment data is missing from URL
       if (useRedirectMode) {
-        // Store payment data for callback handling
         try {
-          localStorage.setItem('pending_payment', JSON.stringify({
+          const pendingPaymentData = {
             type: 'booking',
             orderId: order.orderId,
             amount: order.amount,
@@ -1889,10 +1933,29 @@ class RazorpayService {
               notes: bookingData.notes
             },
             timestamp: Date.now()
-          }));
-          console.log('💾 Stored booking payment info in localStorage for callback handling');
+          };
+          
+          // Store in multiple places for reliability (session persistence)
+          localStorage.setItem('pending_payment', JSON.stringify(pendingPaymentData));
+          sessionStorage.setItem('pending_payment', JSON.stringify(pendingPaymentData));
+          
+          // Also store in cookie for session persistence across redirects
+          try {
+            document.cookie = `pending_payment=${encodeURIComponent(JSON.stringify(pendingPaymentData))}; path=/; max-age=3600; SameSite=Lax`;
+          } catch (cookieError) {
+            console.warn('⚠️ Could not store in cookie:', cookieError);
+          }
+          
+          console.log('💾 ========== STORED BOOKING PAYMENT DATA ==========');
+          console.log('💾 Order ID:', order.orderId);
+          console.log('💾 Amount:', order.amount);
+          console.log('💾 Customer:', bookingData.customer.name);
+          console.log('💾 Services Count:', bookingData.services.length);
+          console.log('💾 Stored in: localStorage, sessionStorage, cookie');
+          console.log('💾 ===============================================');
         } catch (e) {
-          console.warn('⚠️ Could not store payment info:', e);
+          console.error('❌ CRITICAL: Could not store booking payment info:', e);
+          console.error('❌ Payment callback may fail to create booking');
         }
 
         // Add payment event listeners for WebView
