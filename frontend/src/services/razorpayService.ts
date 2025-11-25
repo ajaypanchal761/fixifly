@@ -1828,8 +1828,56 @@ class RazorpayService {
         }
       }
 
+      // CRITICAL: Validate options before creating Razorpay instance
+      console.log('🔍 ========== VALIDATING RAZORPAY OPTIONS ==========');
+      console.log('🔍 Has Key:', !!this.razorpayKey);
+      console.log('🔍 Has Order ID:', !!order.orderId);
+      console.log('🔍 Has Amount:', !!order.amount);
+      console.log('🔍 Amount Value:', order.amount);
+      console.log('🔍 Use Redirect Mode:', useRedirectMode);
+      console.log('🔍 Has Callback URL:', !!callbackUrl);
+      if (callbackUrl) {
+        console.log('🔍 Callback URL:', callbackUrl);
+      }
+      console.log('🔍 Options Keys:', Object.keys(options));
+      console.log('🔍 ===============================================');
+      
+      // CRITICAL: Final validation before opening
+      if (!this.razorpayKey) {
+        const error = 'Razorpay key is not configured. Please contact support.';
+        console.error('❌', error);
+        onFailure(new Error(error));
+        return;
+      }
+      
+      if (!order.orderId || !order.amount || order.amount <= 0) {
+        const error = 'Invalid payment order. Please try again.';
+        console.error('❌', error);
+        onFailure(new Error(error));
+        return;
+      }
+      
+      if (useRedirectMode && !callbackUrl) {
+        const error = 'Callback URL is required for WebView payment but is not configured.';
+        console.error('❌', error);
+        onFailure(new Error(error));
+        return;
+      }
+      
       // Open Razorpay checkout
-      const razorpay = new window.Razorpay(options);
+      let razorpay;
+      try {
+        console.log('🔧 Creating Razorpay instance...');
+        razorpay = new window.Razorpay(options);
+        console.log('✅ Razorpay instance created successfully');
+      } catch (createError: any) {
+        console.error('❌ ❌ ❌ CRITICAL: Failed to create Razorpay instance ❌ ❌ ❌');
+        console.error('❌ Error:', createError);
+        console.error('❌ Error Message:', createError?.message);
+        console.error('❌ Error Stack:', createError?.stack);
+        onFailure(new Error(createError?.message || 'Failed to initialize payment gateway. Please try again.'));
+        return;
+      }
       
       // CRITICAL: For WebView, add event listeners to catch payment events (like RentYatra)
       // These events are essential for debugging payment failures in WebView/APK
@@ -2312,30 +2360,92 @@ class RazorpayService {
             }, 1000);
           }
         } catch (openError: any) {
-          console.error('❌ ❌ ❌ ERROR OPENING RAZORPAY CHECKOUT ❌ ❌ ❌');
-          console.error('❌ Error:', openError);
-          console.error('❌ Error Message:', openError?.message);
-          console.error('❌ Error Stack:', openError?.stack);
+          console.error('❌ ❌ ❌ CRITICAL: ERROR OPENING RAZORPAY CHECKOUT ❌ ❌ ❌');
+          console.error('❌ Error Type:', openError?.constructor?.name || typeof openError);
+          console.error('❌ Error Message:', openError?.message || String(openError));
+          console.error('❌ Error Stack:', openError?.stack || 'N/A');
+          console.error('❌ Full Error:', JSON.stringify(openError, Object.getOwnPropertyNames(openError), 2));
           console.error('❌ Order ID:', order.orderId);
           console.error('❌ Callback URL:', callbackUrl);
           console.error('❌ Use Redirect Mode:', useRedirectMode);
+          console.error('❌ Is WebView:', isAPK);
+          console.error('❌ Is Flutter WebView:', !!(window as any).flutter_inappwebview);
+          console.error('❌ User Agent:', navigator.userAgent);
           console.error('❌ Timestamp:', new Date().toISOString());
           console.error('❌ ===================================================');
           
-          // Store error for debugging
+          // CRITICAL: Diagnose WebView-specific issues
+          console.error('🔍 ========== DIAGNOSING RAZORPAY OPEN ERROR ==========');
+          console.error('🔍 Check 1: Razorpay script loaded?', !!window.Razorpay);
+          console.error('🔍 Check 2: Razorpay is function?', typeof window.Razorpay === 'function');
+          console.error('🔍 Check 3: Razorpay instance exists?', !!razorpay);
+          console.error('🔍 Check 4: Options valid?', {
+            hasKey: !!this.razorpayKey,
+            hasOrderId: !!order.orderId,
+            hasAmount: !!order.amount,
+            hasCallbackUrl: !!callbackUrl,
+            redirectMode: useRedirectMode
+          });
+          console.error('🔍 Check 5: localStorage accessible?', (() => {
+            try {
+              localStorage.setItem('test', 'test');
+              localStorage.removeItem('test');
+              return true;
+            } catch {
+              return false;
+            }
+          })());
+          console.error('🔍 Check 6: In iframe?', this.isInIframe());
+          console.error('🔍 Check 7: Flutter bridge?', !!(window as any).flutter_inappwebview);
+          console.error('🔍 ===================================================');
+          
+          // Store comprehensive error for debugging
           try {
             localStorage.setItem('razorpay_open_error', JSON.stringify({
-              error: openError.message,
+              error: openError?.message || String(openError),
+              errorType: openError?.constructor?.name || typeof openError,
+              stack: openError?.stack,
               orderId: order.orderId,
               callbackUrl: callbackUrl,
+              useRedirectMode: useRedirectMode,
+              isWebView: isAPK,
+              isFlutterWebView: !!(window as any).flutter_inappwebview,
+              userAgent: navigator.userAgent,
+              hasRazorpay: !!window.Razorpay,
+              razorpayType: typeof window.Razorpay,
               timestamp: Date.now()
             }));
           } catch (e) {
             console.warn('⚠️ Could not store error info:', e);
           }
           
-          // Call onFailure
-          onFailure(new Error(openError?.message || 'Failed to open payment gateway. Please try again.'));
+          // CRITICAL: For Flutter WebView, try to notify native app
+          if ((window as any).flutter_inappwebview) {
+            try {
+              console.log('🔄 Notifying Flutter about payment error...');
+              (window as any).flutter_inappwebview.callHandler('paymentError', {
+                error: openError?.message || String(openError),
+                orderId: order.orderId,
+                errorType: 'razorpay_open_failed'
+              });
+            } catch (flutterError) {
+              console.warn('⚠️ Flutter bridge notification failed:', flutterError);
+            }
+          }
+          
+          // Provide helpful error message
+          let errorMessage = openError?.message || 'Failed to open payment gateway.';
+          
+          // Add context for WebView
+          if (isAPK || this.isInIframe()) {
+            errorMessage += ' Please check your internet connection and try again.';
+            if (!window.Razorpay) {
+              errorMessage += ' Payment gateway script failed to load.';
+            }
+          }
+          
+          // Call onFailure with detailed error
+          onFailure(new Error(errorMessage));
         }
         
         // For WebView, add multiple checks to ensure modal opened
