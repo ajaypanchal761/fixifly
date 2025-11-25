@@ -704,6 +704,9 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
                   req.query?.ticket_id ||
                   req.body?.ticket_id;
     
+    // CRITICAL: Declare referer at function level so it can be reused throughout
+    let referer = req.headers.referer || '';
+    
     // CRITICAL: If we have payment_id but missing booking_id/ticket_id, try to fetch from payment notes
     // This is especially important for WebView where URL params might not be passed correctly
     if (razorpay_payment_id && !bookingId && !ticketId) {
@@ -891,7 +894,7 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       });
       
       // CRITICAL: Check if this is a direct access (no referer from Razorpay)
-      const referer = req.headers.referer || '';
+      // Note: referer is already declared at function level above
       const isDirectAccess = !referer.includes('razorpay.com') && !referer.includes('checkout.razorpay.com');
       if (isDirectAccess) {
         console.warn('⚠️ WARNING: Callback accessed directly (not from Razorpay redirect)');
@@ -910,20 +913,17 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
       const orderIdFromNotes = req.query?.order_id || req.body?.order_id || req.query?.razorpay_order_id;
       
       // CRITICAL: Also try to get order_id from referer URL (Razorpay might include it there)
-      if (!orderIdFromNotes) {
-        const referer = req.headers.referer || '';
-        if (referer) {
-          try {
-            const refererUrl = new URL(referer);
-            const refOrderId = refererUrl.searchParams.get('razorpay_order_id') || 
-                              refererUrl.searchParams.get('order_id');
-            if (refOrderId) {
-              console.log('✅ Found order ID from referer URL:', refOrderId);
-              // We'll use this below
-            }
-          } catch (e) {
-            console.warn('⚠️ Could not parse referer for order ID:', e.message);
+      if (!orderIdFromNotes && referer) {
+        try {
+          const refererUrl = new URL(referer);
+          const refOrderId = refererUrl.searchParams.get('razorpay_order_id') || 
+                            refererUrl.searchParams.get('order_id');
+          if (refOrderId) {
+            console.log('✅ Found order ID from referer URL:', refOrderId);
+            // We'll use this below
           }
+        } catch (e) {
+          console.warn('⚠️ Could not parse referer for order ID:', e.message);
         }
       }
       
@@ -993,8 +993,7 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
         }
       }
       
-      // Try to get payment data from request headers or referer
-      const referer = req.headers.referer || '';
+      // Try to get payment data from request headers or referer (reuse referer variable)
       if (referer) {
         try {
           const refererUrl = new URL(referer);
@@ -1049,9 +1048,10 @@ const razorpayRedirectCallback = asyncHandler(async (req, res) => {
     
     // CRITICAL: For WebView, ensure we're redirecting to the correct frontend URL
     // In WebView, the frontend might be loaded from a different origin
-    // Try to detect from referer if available
+    // Try to detect from referer if available (reuse referer variable from above)
     if (isWebView || isFlutterWebView) {
-      const referer = req.headers.referer || '';
+      // Update referer if needed (already declared at function level)
+      referer = req.headers.referer || referer;
       console.log('🔗 Referer:', referer);
       if (referer) {
         try {
