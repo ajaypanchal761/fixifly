@@ -1955,26 +1955,56 @@ class RazorpayService {
               // CRITICAL: Force redirect immediately - don't wait
               // Backend MUST receive this to log the failure
               console.error('🚀 FORCE REDIRECT: Sending payment failure to backend...');
-              window.location.href = errorCallbackUrl.toString();
               
-              // Fallback redirect after delay
-              setTimeout(() => {
-                if (window.location.href !== errorCallbackUrl.toString() && 
-                    !window.location.href.includes('/payment-callback')) {
-                  console.error('🔄 Retry redirect (fallback)...');
-                  window.location.replace(errorCallbackUrl.toString());
+              // CRITICAL FIX: For WebView/APK, use multiple redirect methods to ensure it works
+              const redirectUrl = errorCallbackUrl.toString();
+              
+              // Method 1: Direct redirect (immediate)
+              try {
+                window.location.href = redirectUrl;
+              } catch (e) {
+                console.warn('⚠️ window.location.href failed, trying replace:', e);
+                try {
+                  window.location.replace(redirectUrl);
+                } catch (e2) {
+                  console.warn('⚠️ window.location.replace also failed:', e2);
                 }
-              }, 1000);
+              }
               
-              // Flutter bridge fallback
+              // Method 2: Flutter bridge (if available) - try immediately
+              if ((window as any).flutter_inappwebview) {
+                try {
+                  (window as any).flutter_inappwebview.callHandler('navigateTo', redirectUrl);
+                  console.log('📤 Sent redirect to Flutter bridge');
+                } catch (e) {
+                  console.warn('⚠️ Flutter bridge redirect failed:', e);
+                }
+              }
+              
+              // Method 3: Fallback redirect after delay (if previous methods didn't work)
+              setTimeout(() => {
+                const currentUrl = window.location.href;
+                if (!currentUrl.includes('/payment-callback') && !currentUrl.includes('razorpay')) {
+                  console.error('🔄 Retry redirect (fallback) - previous redirect may have failed');
+                  try {
+                    window.location.replace(redirectUrl);
+                  } catch (e) {
+                    console.error('❌ All redirect methods failed:', e);
+                    // Last resort: call onFailure
+                    onFailure(new Error(response.error?.description || response.error?.reason || 'Payment failed and redirect failed'));
+                  }
+                }
+              }, 2000);
+              
+              // Method 4: Additional Flutter bridge attempt after delay
               if ((window as any).flutter_inappwebview) {
                 setTimeout(() => {
                   try {
-                    (window as any).flutter_inappwebview.callHandler('navigateTo', errorCallbackUrl.toString());
+                    (window as any).flutter_inappwebview.callHandler('navigateTo', redirectUrl);
                   } catch (e) {
-                    console.warn('⚠️ Flutter bridge redirect failed:', e);
+                    console.warn('⚠️ Flutter bridge redirect retry failed:', e);
                   }
-                }, 500);
+                }, 1000);
               }
             } catch (redirectError) {
               console.error('❌ ❌ ❌ CRITICAL: Error redirecting to callback ❌ ❌ ❌');
@@ -2361,6 +2391,63 @@ class RazorpayService {
         
         // CRITICAL: Open Razorpay checkout with error handling
         try {
+          // CRITICAL: For WebView/APK, ensure we catch any errors during open()
+          if (useRedirectMode) {
+            // Add a global error handler for WebView
+            const originalOnError = window.onerror;
+            window.onerror = (message, source, lineno, colno, error) => {
+              if (message && typeof message === 'string' && message.includes('razorpay')) {
+                console.error('❌ Global error caught related to Razorpay:', message);
+                console.error('❌ Source:', source);
+                console.error('❌ Error:', error);
+                
+                // If it's a Razorpay error, try to handle it
+                if (callbackUrl) {
+                  const errorCallbackUrl = new URL(callbackUrl);
+                  errorCallbackUrl.searchParams.set('error', 'razorpay_open_failed');
+                  errorCallbackUrl.searchParams.set('error_message', encodeURIComponent(message));
+                  errorCallbackUrl.searchParams.set('razorpay_order_id', order.orderId);
+                  
+                  console.error('🚀 Redirecting to error callback due to Razorpay error');
+                  setTimeout(() => {
+                    window.location.href = errorCallbackUrl.toString();
+                  }, 1000);
+                }
+              }
+              
+              // Call original handler if it exists
+              if (originalOnError) {
+                return originalOnError(message, source, lineno, colno, error);
+              }
+              return false;
+            };
+            
+            // Clean up error handler after 10 seconds
+            setTimeout(() => {
+              window.onerror = originalOnError;
+            }, 10000);
+          }
+          
+          // CRITICAL FIX: For WebView/APK, verify everything before opening
+          if (useRedirectMode) {
+            // Double-check Razorpay is available
+            if (!window.Razorpay) {
+              throw new Error('Razorpay script not loaded. Please check internet connection.');
+            }
+            
+            // Verify options are valid
+            if (!options.key || !options.order_id || !options.amount) {
+              throw new Error('Invalid Razorpay options. Missing required fields.');
+            }
+            
+            // Verify callback URL is set for redirect mode
+            if (!options.callback_url) {
+              throw new Error('Callback URL is required for WebView payment but is missing.');
+            }
+            
+            console.log('🔍 Pre-flight checks passed for WebView payment');
+          }
+          
           razorpay.open();
           console.log('✅ ✅ ✅ Razorpay.open() called successfully ✅ ✅ ✅');
           console.log('✅ Timestamp:', new Date().toISOString());
