@@ -67,6 +67,45 @@ const createOrder = asyncHandler(async (req, res) => {
     console.log('═══════════════════════════════════════════════════════════════');
     console.log('\n');
 
+    // CRITICAL: According to SOP - Store Order ID immediately when order is created
+    // This is important for WebView scenarios where order_id might be needed for verification
+    if (notes && (notes.booking_id || notes.bookingId || notes.ticket_id || notes.ticketId)) {
+      try {
+        const bookingId = notes.booking_id || notes.bookingId;
+        const ticketId = notes.ticket_id || notes.ticketId;
+        
+        if (bookingId) {
+          const Booking = require('../models/Booking');
+          const booking = await Booking.findById(bookingId);
+          if (booking) {
+            if (!booking.payment) {
+              booking.payment = {};
+            }
+            booking.payment.razorpayOrderId = order.id;
+            booking.payment.status = 'pending';
+            await booking.save();
+            console.log('✅ Order ID stored in booking:', bookingId);
+          }
+        }
+        
+        if (ticketId) {
+          const SupportTicket = require('../models/SupportTicket');
+          const ticket = await SupportTicket.findOne({ ticketId });
+          if (ticket) {
+            ticket.razorpayOrderId = order.id;
+            if (!ticket.paymentStatus) {
+              ticket.paymentStatus = 'pending';
+            }
+            await ticket.save();
+            console.log('✅ Order ID stored in ticket:', ticketId);
+          }
+        }
+      } catch (storeError) {
+        // Don't fail order creation if storing order ID fails
+        console.warn('⚠️ Could not store order ID in booking/ticket:', storeError.message);
+      }
+    }
+
     res.json({
       success: true,
       message: 'Order created successfully',

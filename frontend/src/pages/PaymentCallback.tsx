@@ -225,21 +225,55 @@ const PaymentCallback = () => {
         }
 
         // CRITICAL: For WebView/APK, payment_id is required but order_id might be missing
-        // We can still verify payment using payment_id only
+        // According to SOP, we can verify payment using payment_id only (backend will fetch order_id)
         if (!razorpay_payment_id) {
           console.error('❌ Missing payment ID - cannot proceed with verification');
+          
+          // CRITICAL: In WebView, try to get payment_id from localStorage as fallback (SOP best practice)
+          if (isRunningInFlutterWebView()) {
+            try {
+              const storedPayment = JSON.parse(localStorage.getItem('pending_payment') || '{}');
+              const storedResponse = JSON.parse(localStorage.getItem('payment_response') || '{}');
+              
+              if (storedResponse.razorpay_payment_id || storedResponse.razorpayPaymentId) {
+                razorpay_payment_id = razorpay_payment_id || storedResponse.razorpay_payment_id || storedResponse.razorpayPaymentId;
+                razorpay_order_id = razorpay_order_id || storedResponse.razorpay_order_id || storedResponse.razorpayOrderId;
+                console.log('✅ Retrieved payment data from localStorage (WebView fallback)');
+              } else if (storedPayment.orderId) {
+                // If we have orderId but no payment_id, we can still try verification
+                razorpay_order_id = razorpay_order_id || storedPayment.orderId;
+                console.log('⚠️ Only order ID available, will try verification with order ID only');
+              }
+            } catch (e) {
+              console.warn('⚠️ Could not retrieve payment info from localStorage:', e);
+            }
+          }
+          
+          // If still no payment_id, show error
+          if (!razorpay_payment_id && !razorpay_order_id) {
+            setStatus('error');
+            setMessage('Payment verification failed: Missing payment details. Please contact support.');
+            return;
+          }
+        }
+
+        // Verify payment with backend
+        // CRITICAL: According to SOP - order_id is optional for WebView scenarios
+        // Backend will fetch order_id from payment if missing
+        // Signature is also optional - backend will verify via Razorpay API if missing
+        const verifyData: any = {
+          razorpay_payment_id: razorpay_payment_id || undefined,
+          razorpay_order_id: razorpay_order_id || undefined, // Optional for WebView (SOP requirement)
+          razorpay_signature: razorpay_signature || undefined, // Optional for WebView (SOP requirement)
+        };
+        
+        // CRITICAL: At least one of payment_id or order_id must be present (SOP requirement)
+        if (!verifyData.razorpay_payment_id && !verifyData.razorpay_order_id) {
+          console.error('❌ Both payment_id and order_id are missing - cannot verify');
           setStatus('error');
           setMessage('Payment verification failed: Missing payment details. Please contact support.');
           return;
         }
-
-        // Verify payment with backend
-        // CRITICAL: order_id is optional for WebView scenarios - backend will fetch it from payment
-        const verifyData: any = {
-          razorpay_payment_id,
-          razorpay_order_id: razorpay_order_id || undefined, // Optional for WebView
-          razorpay_signature: razorpay_signature || undefined,
-        };
 
         if (bookingId) {
           verifyData.bookingId = bookingId;

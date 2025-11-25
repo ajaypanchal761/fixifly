@@ -344,23 +344,50 @@ class RazorpayService {
 
   /**
    * Check if running in WebView/APK context (RentYatra style - Simple and Reliable)
+   * CRITICAL: According to SOP, this detection must be accurate for WebView/APK
    */
   private isAPKContext(): boolean {
     if (typeof window === 'undefined') return false;
     
     try {
-      // RentYatra style detection - simple and reliable
-      const hasCordova = (window as any).cordova !== undefined;
-      const hasCapacitor = (window as any).Capacitor !== undefined;
+      // RentYatra style detection - simple and reliable (SOP compliant)
+      // Method 1: Check for Flutter WebView bridge (most reliable)
       const hasFlutterWebView = (window as any).flutter_inappwebview !== undefined;
       
+      // Method 2: Check for Cordova/Capacitor
+      const hasCordova = (window as any).cordova !== undefined;
+      const hasCapacitor = (window as any).Capacitor !== undefined;
+      
+      // Method 3: Check user agent for WebView indicators (SOP method)
       const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
       const isWebView = /wv|WebView/i.test(userAgent);
-      const isFlutterUserAgent = userAgent.includes('Flutter');
+      const isFlutterUserAgent = /flutter|Flutter/i.test(userAgent);
+      const isAndroidWebView = /Android.*wv/i.test(userAgent);
       
-      // Return true for actual native app contexts
+      // Method 4: Check for standalone mode (PWA/APK)
+      const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      const isIOSStandalone = (window.navigator as any).standalone === true;
+      
+      // Return true for actual native app contexts (SOP requirement)
       // This includes Flutter WebView which is used in APK
-      return hasCordova || hasCapacitor || hasFlutterWebView || isWebView || isFlutterUserAgent;
+      const isAPK = hasCordova || hasCapacitor || hasFlutterWebView || isWebView || isFlutterUserAgent || isAndroidWebView || isStandalone || isIOSStandalone;
+      
+      // Log detection for debugging (SOP best practice)
+      if (isAPK) {
+        console.log('🔍 APK/WebView detected:', {
+          hasFlutterWebView,
+          hasCordova,
+          hasCapacitor,
+          isWebView,
+          isFlutterUserAgent,
+          isAndroidWebView,
+          isStandalone,
+          isIOSStandalone,
+          userAgent: userAgent.substring(0, 100) // First 100 chars only
+        });
+      }
+      
+      return isAPK;
     } catch (e) {
       console.warn('Error detecting APK context:', e);
       return false;
@@ -476,10 +503,9 @@ class RazorpayService {
       
       console.log('🔍 ===============================================');
 
-      // Build callback URL for redirect mode (RentYatra style - Simple)
-      // CRITICAL: Use this.apiUrl directly - it's already configured from VITE_API_URL
-      // RentYatra uses: const apiBase = this.apiUrl;
-      // Then: const callbackUrl = useRedirectMode ? `${apiBase}/payment/razorpay-callback` : undefined;
+      // Build callback URL for redirect mode (RentYatra style - Simple and Reliable)
+      // CRITICAL: According to SOP, callback URL should be simple and direct
+      // RentYatra uses: const apiBase = this.apiUrl; then callbackUrl = `${apiBase}/payment/razorpay-callback`
       
       // Get API base URL - RentYatra style (simple and direct)
       let apiBase = this.apiUrl || import.meta.env.VITE_API_URL || '/api';
@@ -493,32 +519,30 @@ class RazorpayService {
                           window.location.hostname.includes('vercel.app') ||
                           window.location.protocol === 'https:';
       
-      console.log('🌐 ========== PRODUCTION/LIVE SERVER DETECTION ==========');
-      console.log('🌐 Is Production:', isProduction);
-      console.log('🌐 Current Hostname:', window.location.hostname);
-      console.log('🌐 Current Protocol:', window.location.protocol);
-      console.log('🌐 VITE_API_URL:', import.meta.env.VITE_API_URL || 'NOT SET');
-      console.log('🌐 this.apiUrl:', this.apiUrl);
-      console.log('🌐 ===============================================');
-      
-      // CRITICAL: For WebView/APK, ensure we use production backend URL
-      // If apiBase is relative or localhost, use production backend
+      // CRITICAL: For WebView/APK, ALWAYS use production backend URL (SOP requirement)
+      // WebView cannot access localhost, so we must use production backend
       const isLocalhost = apiBase.includes('localhost') || 
                          apiBase.includes('127.0.0.1') ||
                          !apiBase.startsWith('http');
       
-      // Production backend URL (should match your actual backend)
+      // Production backend URL (must be publicly accessible)
       const PRODUCTION_BACKEND_URL = 'https://api.getfixfly.com';
       
-      // CRITICAL: Live Server/Production Fix
-      // If we're in production but apiBase is relative/localhost, use production backend
-      if (isProduction && (isLocalhost || !apiBase.startsWith('http'))) {
-        console.log('🔧 PRODUCTION MODE: VITE_API_URL is relative/localhost');
-        console.log('🔧 Using production backend URL:', PRODUCTION_BACKEND_URL);
-        apiBase = PRODUCTION_BACKEND_URL;
-      } else if (useRedirectMode && (isLocalhost || !apiBase.startsWith('http'))) {
-        // For WebView/APK, always use production backend if localhost
-        console.log('🔧 WEBVIEW/APK MODE: Using production backend URL');
+      // CRITICAL FIX: For WebView/APK, always use production backend (SOP requirement)
+      // This is the key fix - WebView cannot access localhost callback URLs
+      if (useRedirectMode) {
+        // WebView/APK scenario - MUST use production backend
+        if (isLocalhost || !apiBase.startsWith('http')) {
+          console.log('🔧 WEBVIEW/APK MODE: Using production backend URL (REQUIRED)');
+          apiBase = PRODUCTION_BACKEND_URL;
+        } else if (isProduction && apiBase !== PRODUCTION_BACKEND_URL) {
+          // Production mode but wrong URL - fix it
+          console.log('🔧 PRODUCTION MODE: Fixing API base URL');
+          apiBase = PRODUCTION_BACKEND_URL;
+        }
+      } else if (isProduction && (isLocalhost || !apiBase.startsWith('http'))) {
+        // Production web - use production backend
+        console.log('🔧 PRODUCTION MODE: Using production backend URL');
         apiBase = PRODUCTION_BACKEND_URL;
       }
       
@@ -535,21 +559,17 @@ class RazorpayService {
         }
       }
       
-      // CRITICAL: Handle /api suffix properly
-      // If apiBase already ends with /api, don't add it again
-      // If apiBase is just the domain, add /api
+      // CRITICAL: Handle /api suffix properly (RentYatra style - simple)
+      // If apiBase already ends with /api, remove it before adding /api/payment/razorpay-callback
       let finalApiBase = apiBase;
       if (apiBase.endsWith('/api')) {
-        // Already has /api, remove it temporarily
         finalApiBase = apiBase.replace(/\/api\/?$/, '');
       } else if (apiBase.endsWith('/api/')) {
-        // Has /api/ with trailing slash
         finalApiBase = apiBase.replace(/\/api\/+$/, '');
       }
       
-      // Build callback URL - RentYatra style (simple)
-      // Note: RentYatra uses `/payment/razorpay-callback` (no `/api` prefix)
-      // But Fixfly uses `/api/payment/razorpay-callback`
+      // Build callback URL - RentYatra style (simple and direct)
+      // Fixfly uses `/api/payment/razorpay-callback` (with /api prefix)
       const callbackUrl = useRedirectMode 
         ? `${finalApiBase}/api/payment/razorpay-callback`
         : undefined;
