@@ -1434,16 +1434,20 @@ class RazorpayService {
 
       // Create order
       let order;
+      const receiptId = `booking_${Date.now()}`;
       try {
         order = await this.createOrder(
           bookingData.pricing.totalAmount,
-          `booking_${Date.now()}`,
+          receiptId,
           {
             description: 'Service booking payment',
             customer_email: bookingData.customer.email,
             customer_phone: bookingData.customer.phone
           }
         );
+        
+        // CRITICAL: Store receipt ID in order object for later use (e.g., error callbacks)
+        (order as any).receipt = receiptId;
         
         if (!order || !order.orderId) {
           throw new Error('Failed to create payment order. Please try again.');
@@ -2213,11 +2217,20 @@ class RazorpayService {
               }
               
               // CRITICAL: Add booking/ticket IDs for backend logging
+              // Note: For new bookings, booking_id doesn't exist yet (booking is created after payment)
+              // But we can use receipt ID or order ID to track the payment attempt
               if (paymentData.bookingId) {
                 errorCallbackUrl.searchParams.set('booking_id', paymentData.bookingId);
               }
               if (paymentData.ticketId) {
                 errorCallbackUrl.searchParams.set('ticket_id', paymentData.ticketId);
+              }
+              
+              // CRITICAL: Add receipt ID for tracking payment attempts (even if booking doesn't exist yet)
+              // This helps backend identify which payment attempt failed
+              const receiptId = (order as any).receipt || order.orderId;
+              if (receiptId) {
+                errorCallbackUrl.searchParams.set('receipt', receiptId);
               }
               
               // Add error details for backend logging
@@ -2499,27 +2512,146 @@ class RazorpayService {
             console.log('🔍 Pre-flight checks passed for WebView payment');
           }
           
-          razorpay.open();
-          console.log('✅ ✅ ✅ Razorpay.open() called successfully ✅ ✅ ✅');
-          console.log('✅ Timestamp:', new Date().toISOString());
-          
-          // For WebView, log that payment page should be opening
+          // CRITICAL FIX: For WebView/APK, ensure Razorpay checkout opens properly
           if (useRedirectMode) {
             console.log('🔀 ========== WEBVIEW PAYMENT FLOW ==========');
             console.log('🔀 WebView Mode: Payment page should open in redirect mode');
             console.log('🔀 After payment, Razorpay will redirect to:', callbackUrl);
             console.log('🔀 Backend callback will then redirect to frontend callback page');
             console.log('🔀 Expected Flow:');
-            console.log('   1. User completes payment in Razorpay');
-            console.log('   2. Razorpay redirects to:', callbackUrl);
-            console.log('   3. Backend processes callback and redirects to frontend');
-            console.log('   4. Frontend PaymentCallback page handles the result');
-            console.log('🔀 If payment fails, check:');
-            console.log('   1. Is callback URL publicly accessible?');
-            console.log('   2. Is backend server running and accessible?');
-            console.log('   3. Check backend logs for callback route hits');
-            console.log('   4. Check browser console for payment.failed event');
+            console.log('   1. Razorpay.open() called');
+            console.log('   2. Razorpay redirects entire page to checkout');
+            console.log('   3. User completes payment in Razorpay');
+            console.log('   4. Razorpay redirects to:', callbackUrl);
+            console.log('   5. Backend processes callback and redirects to frontend');
+            console.log('   6. Frontend PaymentCallback page handles the result');
             console.log('🔀 ===========================================');
+            
+            // CRITICAL: In WebView redirect mode, razorpay.open() should redirect the page
+            // If it doesn't redirect immediately, there might be an issue
+            // Add a check to see if redirect happened
+            const currentUrlBeforeOpen = window.location.href;
+            console.log('🔀 Current URL before razorpay.open():', currentUrlBeforeOpen);
+          }
+          
+          razorpay.open();
+          console.log('✅ ✅ ✅ Razorpay.open() called successfully ✅ ✅ ✅');
+          console.log('✅ Timestamp:', new Date().toISOString());
+          
+          // CRITICAL: For WebView, check if redirect happened
+          if (useRedirectMode) {
+            const urlBeforeOpen = window.location.href;
+            
+            // Check after a short delay if redirect happened
+            setTimeout(() => {
+              const urlAfterOpen = window.location.href;
+              console.log('🔀 URL before razorpay.open():', urlBeforeOpen);
+              console.log('🔀 URL after razorpay.open():', urlAfterOpen);
+              
+              // If URL didn't change and we're not on Razorpay domain, redirect might have failed
+              if (urlAfterOpen === urlBeforeOpen && 
+                  !urlAfterOpen.includes('razorpay.com') &&
+                  !urlAfterOpen.includes('checkout.razorpay.com') &&
+                  !urlAfterOpen.includes('api.razorpay.com')) {
+                console.error('❌ ❌ ❌ RAZORPAY CHECKOUT PAGE NOT OPENING ❌ ❌ ❌');
+                console.error('❌ URL did not change after razorpay.open()');
+                console.error('❌ This means Razorpay checkout page is not opening');
+                console.error('❌ Possible causes:');
+                console.error('   1. Razorpay script not loaded properly');
+                console.error('   2. WebView blocking redirect');
+                console.error('   3. Razorpay options incorrect');
+                console.error('   4. Network/CORS issue');
+                console.error('   5. Razorpay.open() failed silently');
+                
+                // CRITICAL FIX: Try to manually construct and redirect to Razorpay checkout URL
+                // This is a fallback if razorpay.open() doesn't work in WebView
+                // Note: Razorpay redirect mode uses a specific URL format
+                try {
+                  // CRITICAL: Use Razorpay's standard checkout URL format for redirect mode
+                  // Format: https://checkout.razorpay.com/v1/checkout.html with query params
+                  const checkoutParams = new URLSearchParams();
+                  checkoutParams.set('key_id', this.razorpayKey);
+                  checkoutParams.set('order_id', order.orderId);
+                  checkoutParams.set('amount', order.amount.toString());
+                  checkoutParams.set('currency', order.currency || 'INR');
+                  checkoutParams.set('name', 'Fixfly');
+                  checkoutParams.set('description', 'Service Booking Payment');
+                  
+                  // Add prefill data
+                  if (bookingData.customer.name) {
+                    checkoutParams.set('prefill[name]', bookingData.customer.name);
+                  }
+                  if (bookingData.customer.email) {
+                    checkoutParams.set('prefill[email]', bookingData.customer.email);
+                  }
+                  if (bookingData.customer.phone) {
+                    checkoutParams.set('prefill[contact]', bookingData.customer.phone);
+                  }
+                  
+                  // CRITICAL: Add callback URL for redirect mode
+                  if (callbackUrl) {
+                    checkoutParams.set('callback_url', callbackUrl);
+                  }
+                  
+                  // Add redirect flag
+                  checkoutParams.set('redirect', 'true');
+                  
+                  const razorpayCheckoutUrl = `https://checkout.razorpay.com/v1/checkout.html?${checkoutParams.toString()}`;
+                  
+                  console.error('🔄 ========== MANUAL REDIRECT TO RAZORPAY CHECKOUT (FALLBACK) ==========');
+                  console.error('🔄 This is a fallback because razorpay.open() did not redirect');
+                  console.error('🔄 Checkout URL:', razorpayCheckoutUrl);
+                  console.error('🔄 Order ID:', order.orderId);
+                  console.error('🔄 Amount:', order.amount);
+                  console.error('🔄 Callback URL:', callbackUrl);
+                  console.error('🔄 ===========================================================');
+                  
+                  // Try multiple redirect methods
+                  let redirectSuccess = false;
+                  
+                  // Method 1: Flutter bridge (if available) - most reliable for WebView
+                  if ((window as any).flutter_inappwebview) {
+                    try {
+                      (window as any).flutter_inappwebview.callHandler('navigateTo', razorpayCheckoutUrl);
+                      console.log('📤 Method 1: Sent redirect to Flutter bridge');
+                      redirectSuccess = true;
+                    } catch (e) {
+                      console.warn('⚠️ Flutter bridge redirect failed:', e);
+                    }
+                  }
+                  
+                  // Method 2: window.location.href (if Flutter bridge not available or failed)
+                  if (!redirectSuccess) {
+                    try {
+                      window.location.href = razorpayCheckoutUrl;
+                      console.log('📤 Method 2: Using window.location.href');
+                      redirectSuccess = true;
+                    } catch (e) {
+                      console.warn('⚠️ window.location.href failed:', e);
+                    }
+                  }
+                  
+                  // Method 3: window.location.replace (fallback)
+                  if (!redirectSuccess) {
+                    try {
+                      window.location.replace(razorpayCheckoutUrl);
+                      console.log('📤 Method 3: Using window.location.replace');
+                      redirectSuccess = true;
+                    } catch (e) {
+                      console.error('❌ All redirect methods failed:', e);
+                      onFailure(new Error('Failed to open payment gateway. Please check your internet connection and try again.'));
+                    }
+                  }
+                } catch (e) {
+                  console.error('❌ Error in manual redirect attempt:', e);
+                  onFailure(new Error('Failed to open payment gateway. Please check your internet connection and try again.'));
+                }
+              } else if (urlAfterOpen.includes('razorpay.com') || urlAfterOpen.includes('checkout.razorpay.com') || urlAfterOpen.includes('api.razorpay.com')) {
+                console.log('✅ Razorpay checkout page opened successfully');
+                console.log('✅ Current URL:', urlAfterOpen);
+              }
+            }, 2000); // Check after 2 seconds (give Razorpay time to redirect)
+          }
             
             // CRITICAL: Monitor for payment.failed event (WebView specific)
             // In WebView, payment might fail silently, so we need to monitor
