@@ -84,20 +84,116 @@ class RazorpayService {
   }
 
   /**
+   * Detect if running in mobile webview/app
+   */
+  private isMobileWebView(): boolean {
+    try {
+      if (typeof navigator === 'undefined' || typeof window === 'undefined') {
+        return false;
+      }
+
+      const userAgent = navigator.userAgent || '';
+      
+      // Check for webview indicators
+      const isWebView = /wv|WebView/i.test(userAgent);
+      
+      // Check for standalone mode (PWA)
+      const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      
+      // Check for iOS standalone
+      const isIOSStandalone = (window.navigator as any).standalone === true;
+      
+      // Check for mobile device
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      
+      // Check for Flutter bridge or Android bridge
+      const hasNativeBridge = typeof (window as any).flutter_inappwebview !== 'undefined' || 
+                             typeof (window as any).Android !== 'undefined';
+      
+      return isWebView || isStandalone || isIOSStandalone || (isMobileDevice && hasNativeBridge);
+    } catch (error) {
+      console.error('Error detecting mobile webview:', error);
+      return false;
+    }
+  }
+
+  /**
    * Load Razorpay script dynamically
    */
   private async loadRazorpayScript(): Promise<void> {
     return new Promise((resolve, reject) => {
+      // Check if already loaded
       if (window.Razorpay) {
         resolve();
         return;
       }
 
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Razorpay script'));
-      document.head.appendChild(script);
+      // For mobile webview, try to load script with retry mechanism
+      const isMobile = this.isMobileWebView();
+      
+      if (isMobile) {
+        console.log('📱 Mobile webview detected, loading Razorpay with mobile configuration');
+      }
+
+      try {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        script.defer = true;
+        
+        // Add timeout for mobile
+        const timeout = setTimeout(() => {
+          if (!window.Razorpay) {
+            console.warn('⚠️ Razorpay script loading timeout, retrying...');
+            // Retry once
+            const retryScript = document.createElement('script');
+            retryScript.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            retryScript.async = true;
+            retryScript.onload = () => {
+              if (window.Razorpay) {
+                resolve();
+              } else {
+                reject(new Error('Razorpay not available after retry'));
+              }
+            };
+            retryScript.onerror = () => reject(new Error('Failed to load Razorpay script after retry'));
+            document.head.appendChild(retryScript);
+          }
+        }, isMobile ? 5000 : 3000);
+
+        script.onload = () => {
+          clearTimeout(timeout);
+          if (window.Razorpay) {
+            console.log('✅ Razorpay script loaded successfully');
+            resolve();
+          } else {
+            reject(new Error('Razorpay script loaded but window.Razorpay is not available'));
+          }
+        };
+        
+        script.onerror = () => {
+          clearTimeout(timeout);
+          reject(new Error('Failed to load Razorpay script'));
+        };
+        
+        // Append to head or body
+        if (document.head) {
+          document.head.appendChild(script);
+        } else if (document.body) {
+          document.body.appendChild(script);
+        } else {
+          // Wait for DOM to be ready
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+              (document.head || document.body).appendChild(script);
+            });
+          } else {
+            (document.head || document.body).appendChild(script);
+          }
+        }
+      } catch (error) {
+        reject(new Error(`Error creating Razorpay script: ${error}`));
+      }
     });
   }
 
@@ -147,8 +243,38 @@ class RazorpayService {
     onError: (error: any) => void;
   }): Promise<void> {
     try {
-      // Load Razorpay script
-      await this.loadRazorpayScript();
+      const isMobile = this.isMobileWebView();
+      console.log('💳 Processing payment, isMobile:', isMobile);
+
+      // Load Razorpay script with retry for mobile
+      try {
+        await this.loadRazorpayScript();
+      } catch (scriptError) {
+        console.error('❌ Failed to load Razorpay script:', scriptError);
+        
+        // For mobile, try alternative approach
+        if (isMobile) {
+          console.log('📱 Mobile detected, trying alternative Razorpay loading...');
+          // Wait a bit and retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          try {
+            await this.loadRazorpayScript();
+          } catch (retryError) {
+            paymentData.onError(new Error('Razorpay payment gateway failed to load. Please check your internet connection and try again.'));
+            return;
+          }
+        } else {
+          paymentData.onError(new Error('Razorpay payment gateway failed to load. Please refresh the page and try again.'));
+          return;
+        }
+      }
+
+      // Check if Razorpay is available
+      if (!window.Razorpay) {
+        console.error('❌ window.Razorpay is not available');
+        paymentData.onError(new Error('Payment gateway not available. Please refresh the page.'));
+        return;
+      }
 
       // Razorpay options
       const options: RazorpayOptions = {
@@ -170,22 +296,74 @@ class RazorpayService {
           color: '#3B82F6',
         },
         handler: (response: PaymentResponse) => {
+          console.log('✅ Payment successful:', response);
           paymentData.onSuccess(response);
         },
         modal: {
           ondismiss: () => {
+            console.log('⚠️ Payment modal dismissed by user');
             // User cancellation - don't treat as error, just call onError with a specific cancellation message
             paymentData.onError(new Error('PAYMENT_CANCELLED'));
           },
         },
+        // Mobile-specific options
+        ...(isMobile && {
+          config: {
+            display: {
+              blocks: {
+                banks: {
+                  name: "All payment methods",
+                  instruments: [
+                    {
+                      method: "card",
+                    },
+                    {
+                      method: "upi",
+                    },
+                    {
+                      method: "netbanking",
+                    },
+                    {
+                      method: "wallet",
+                    },
+                  ],
+                },
+              },
+              sequence: ["block.banks"],
+              preferences: {
+                show_default_blocks: true,
+              },
+            },
+          },
+        }),
       };
 
+      console.log('💳 Opening Razorpay checkout with options:', {
+        ...options,
+        key: '***hidden***',
+      });
+
       // Open Razorpay checkout
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      try {
+        const razorpay = new window.Razorpay(options);
+        
+        // Add error handler for mobile
+        if (isMobile && razorpay.on) {
+          razorpay.on('payment.failed', (error: any) => {
+            console.error('❌ Payment failed:', error);
+            paymentData.onError(new Error(error.error?.description || 'Payment failed'));
+          });
+        }
+        
+        razorpay.open();
+        console.log('✅ Razorpay checkout opened');
+      } catch (openError) {
+        console.error('❌ Error opening Razorpay checkout:', openError);
+        paymentData.onError(new Error(`Failed to open payment gateway: ${openError}`));
+      }
     } catch (error) {
-      console.error('Error processing payment:', error);
-      paymentData.onError(error);
+      console.error('❌ Error processing payment:', error);
+      paymentData.onError(error instanceof Error ? error : new Error('Unknown payment error'));
     }
   }
 
@@ -199,8 +377,37 @@ class RazorpayService {
     onClose: () => void
   ): Promise<void> {
     try {
-      // Load Razorpay script
-      await this.loadRazorpayScript();
+      const isMobile = this.isMobileWebView();
+      console.log('💳 Processing booking payment, isMobile:', isMobile);
+
+      // Load Razorpay script with retry for mobile
+      try {
+        await this.loadRazorpayScript();
+      } catch (scriptError) {
+        console.error('❌ Failed to load Razorpay script:', scriptError);
+        
+        // For mobile, try alternative approach
+        if (isMobile) {
+          console.log('📱 Mobile detected, trying alternative Razorpay loading...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          try {
+            await this.loadRazorpayScript();
+          } catch (retryError) {
+            onFailure(new Error('Razorpay payment gateway failed to load. Please check your internet connection and try again.'));
+            return;
+          }
+        } else {
+          onFailure(new Error('Razorpay payment gateway failed to load. Please refresh the page and try again.'));
+          return;
+        }
+      }
+
+      // Check if Razorpay is available
+      if (!window.Razorpay) {
+        console.error('❌ window.Razorpay is not available');
+        onFailure(new Error('Payment gateway not available. Please refresh the page.'));
+        return;
+      }
 
       // Create order
       const order = await this.createOrder(
@@ -220,7 +427,7 @@ class RazorpayService {
         currency: order.currency,
         name: 'Fixfly',
         description: 'Service Booking Payment',
-        order_id: order.orderId,
+        order_id: order.orderId || order.id,
         prefill: {
           name: bookingData.customer.name,
           email: bookingData.customer.email,
@@ -234,6 +441,7 @@ class RazorpayService {
         },
         handler: async (response: PaymentResponse) => {
           try {
+            console.log('✅ Payment successful:', response);
             // Create booking with payment verification
             const bookingResponse = await this.createBookingWithPayment(bookingData, response);
             onSuccess(bookingResponse);
@@ -243,16 +451,66 @@ class RazorpayService {
           }
         },
         modal: {
-          ondismiss: onClose,
+          ondismiss: () => {
+            console.log('⚠️ Payment modal dismissed by user');
+            onClose();
+          },
         },
+        // Mobile-specific options
+        ...(isMobile && {
+          config: {
+            display: {
+              blocks: {
+                banks: {
+                  name: "All payment methods",
+                  instruments: [
+                    {
+                      method: "card",
+                    },
+                    {
+                      method: "upi",
+                    },
+                    {
+                      method: "netbanking",
+                    },
+                    {
+                      method: "wallet",
+                    },
+                  ],
+                },
+              },
+              sequence: ["block.banks"],
+              preferences: {
+                show_default_blocks: true,
+              },
+            },
+          },
+        }),
       };
 
+      console.log('💳 Opening Razorpay checkout for booking');
+
       // Open Razorpay checkout
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      try {
+        const razorpay = new window.Razorpay(options);
+        
+        // Add error handler for mobile
+        if (isMobile && razorpay.on) {
+          razorpay.on('payment.failed', (error: any) => {
+            console.error('❌ Payment failed:', error);
+            onFailure(new Error(error.error?.description || 'Payment failed'));
+          });
+        }
+        
+        razorpay.open();
+        console.log('✅ Razorpay checkout opened for booking');
+      } catch (openError) {
+        console.error('❌ Error opening Razorpay checkout:', openError);
+        onFailure(new Error(`Failed to open payment gateway: ${openError}`));
+      }
     } catch (error) {
-      console.error('Error processing payment:', error);
-      onFailure(error);
+      console.error('❌ Error processing booking payment:', error);
+      onFailure(error instanceof Error ? error : new Error('Unknown payment error'));
     }
   }
 

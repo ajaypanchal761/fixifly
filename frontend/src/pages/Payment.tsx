@@ -34,13 +34,51 @@ const Payment = () => {
     }
   }, []);
 
+  // Detect mobile webview
+  const isMobileWebView = () => {
+    try {
+      const userAgent = navigator.userAgent || '';
+      const isWebView = /wv|WebView/i.test(userAgent);
+      const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      const isIOSStandalone = (window.navigator as any).standalone === true;
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      return isWebView || isStandalone || isIOSStandalone || isMobileDevice;
+    } catch {
+      return false;
+    }
+  };
+
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        if (window.Razorpay) {
+          console.log('✅ Razorpay script loaded');
+          resolve(true);
+        } else {
+          console.warn('⚠️ Script loaded but window.Razorpay not available');
+          resolve(false);
+        }
+      };
+      script.onerror = () => {
+        console.error('❌ Failed to load Razorpay script');
+        resolve(false);
+      };
+      
+      if (document.head) {
+        document.head.appendChild(script);
+      } else if (document.body) {
+        document.body.appendChild(script);
+      } else {
+        resolve(false);
+      }
     });
   };
 
@@ -51,10 +89,20 @@ const Payment = () => {
     setError(null);
 
     try {
-      // Load Razorpay script
-      const res = await loadRazorpayScript();
-      if (!res) {
-        throw new Error('Razorpay SDK failed to load');
+      const isMobile = isMobileWebView();
+      console.log('💳 Processing payment, isMobile:', isMobile);
+
+      // Load Razorpay script with retry for mobile
+      let res = await loadRazorpayScript();
+      if (!res && isMobile) {
+        // Retry for mobile
+        console.log('📱 Retrying Razorpay script load for mobile...');
+        await new Promise(r => setTimeout(r, 1000));
+        res = await loadRazorpayScript();
+      }
+      
+      if (!res || !window.Razorpay) {
+        throw new Error('Razorpay payment gateway failed to load. Please check your internet connection and try again.');
       }
 
       // Create order on backend
@@ -135,8 +183,28 @@ const Payment = () => {
         }
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      // Check if Razorpay is available
+      if (!window.Razorpay) {
+        throw new Error('Payment gateway not available. Please refresh the page.');
+      }
+
+      try {
+        const rzp = new window.Razorpay(options);
+        
+        // Add error handler for mobile
+        if (rzp.on) {
+          rzp.on('payment.failed', function (response: any) {
+            console.error('❌ Razorpay payment failed:', response);
+            setError('Payment failed. Please try again.');
+          });
+        }
+        
+        rzp.open();
+        console.log('✅ Razorpay checkout opened');
+      } catch (openError) {
+        console.error('❌ Error opening Razorpay checkout:', openError);
+        throw new Error(`Failed to open payment gateway: ${openError}`);
+      }
 
     } catch (error) {
       console.error('Payment error:', error);

@@ -1,0 +1,284 @@
+{
+	"info": {
+		"name": "Fixfly Payment API",
+		"description": "Razorpay Payment Gateway APIs for Fixfly",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Create Razorpay Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"});",
+							"",
+							"pm.test(\"Order created successfully\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.eql(true);",
+							"    pm.expect(jsonData.data).to.have.property('id');",
+							"    ",
+							"    // Save order ID for next request",
+							"    if (jsonData.data && jsonData.data.id) {",
+							"        pm.environment.set(\"razorpay_order_id\", jsonData.data.id);",
+							"        console.log(\"Order ID saved:\", jsonData.data.id);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\": 1000,\n  \"currency\": \"INR\",\n  \"receipt\": \"receipt_test_{{$timestamp}}\",\n  \"notes\": {\n    \"ticketId\": \"TKT001\",\n    \"type\": \"support_ticket\",\n    \"description\": \"Payment for support ticket\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/payment/create-order",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"payment",
+						"create-order"
+					]
+				},
+				"description": "Creates a new Razorpay order for payment. Amount should be in Rupees (will be converted to paise automatically)."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Verify Payment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Payment verified successfully\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.eql(true);",
+							"    pm.expect(jsonData.data).to.have.property('paymentId');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"razorpay_order_id\": \"{{razorpay_order_id}}\",\n  \"razorpay_payment_id\": \"{{razorpay_payment_id}}\",\n  \"razorpay_signature\": \"{{razorpay_signature}}\",\n  \"ticketId\": \"TKT001\",\n  \"amount\": 1000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/payment/verify",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"payment",
+						"verify"
+					]
+				},
+				"description": "Verifies Razorpay payment signature. Use order_id, payment_id, and signature from Razorpay payment response."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Get Payment Details",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Payment details retrieved\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.eql(true);",
+							"    pm.expect(jsonData.data).to.have.property('id');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/payment/{{razorpay_payment_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"payment",
+						"{{razorpay_payment_id}}"
+					]
+				},
+				"description": "Fetches payment details from Razorpay using payment ID."
+			},
+			"response": []
+		},
+		{
+			"name": "4. Create Order - Invalid Amount",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\": -100,\n  \"currency\": \"INR\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/payment/create-order",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"payment",
+						"create-order"
+					]
+				},
+				"description": "Test case for invalid amount (negative value). Should return error."
+			},
+			"response": []
+		},
+		{
+			"name": "5. Create Order - Missing Amount",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"currency\": \"INR\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/payment/create-order",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"payment",
+						"create-order"
+					]
+				},
+				"description": "Test case for missing amount. Should return error."
+			},
+			"response": []
+		},
+		{
+			"name": "6. Verify Payment - Invalid Signature",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"razorpay_order_id\": \"order_xxxxxxxxxxxxx\",\n  \"razorpay_payment_id\": \"pay_xxxxxxxxxxxxx\",\n  \"razorpay_signature\": \"invalid_signature\",\n  \"amount\": 1000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/payment/verify",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"payment",
+						"verify"
+					]
+				},
+				"description": "Test case for invalid payment signature. Should return error."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000/api",
+			"type": "string"
+		},
+		{
+			"key": "razorpay_order_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "razorpay_payment_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "razorpay_signature",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+
