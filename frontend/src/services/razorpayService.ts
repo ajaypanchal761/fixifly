@@ -367,11 +367,61 @@ class RazorpayService {
       try {
         const razorpay = new window.Razorpay(options);
         
-        // Add error handler for mobile
-        if (isMobile && razorpay.on) {
+        // Add error handlers for mobile and WebView
+        if (razorpay.on) {
+          // Payment failed handler
           razorpay.on('payment.failed', (error: any) => {
             console.error('❌ Payment failed:', error);
-            paymentData.onError(new Error(error.error?.description || 'Payment failed'));
+            console.error('❌ Payment error details:', error);
+            
+            const errorMessage = error.error?.description || error.error?.reason || error.description || 'Payment failed. Please try another payment method.';
+            
+            // Flutter bridge call for error
+            if (window.flutter_inappwebview) {
+              try {
+                window.flutter_inappwebview.callHandler('razorpayError', {
+                  error: error.error || error,
+                  message: errorMessage
+                });
+                console.log('📱 Flutter bridge called with payment error');
+              } catch (bridgeError) {
+                console.error('❌ Error calling Flutter bridge for error:', bridgeError);
+              }
+            }
+            
+            // Show error alert for WebView
+            if (isMobile) {
+              alert(`Payment Failed: ${errorMessage}`);
+            }
+            
+            paymentData.onError(new Error(errorMessage));
+          });
+          
+          // Payment method selection error handler
+          razorpay.on('payment.method_selection_failed', (error: any) => {
+            console.error('❌ Payment method selection failed:', error);
+            console.error('❌ Payment method error details:', error);
+            
+            const errorMessage = error.error?.description || error.description || 'Please use another payment method';
+            
+            // Flutter bridge call for error
+            if (window.flutter_inappwebview) {
+              try {
+                window.flutter_inappwebview.callHandler('razorpayError', {
+                  error: error.error || error,
+                  message: errorMessage
+                });
+              } catch (bridgeError) {
+                console.error('❌ Error calling Flutter bridge:', bridgeError);
+              }
+            }
+            
+            // Show error alert
+            if (isMobile) {
+              alert(`Payment Error: ${errorMessage}`);
+            }
+            
+            paymentData.onError(new Error(errorMessage));
           });
         }
         
@@ -530,11 +580,61 @@ class RazorpayService {
       try {
         const razorpay = new window.Razorpay(options);
         
-        // Add error handler for mobile
-        if (isMobile && razorpay.on) {
+        // Add error handlers for mobile and WebView
+        if (razorpay.on) {
+          // Payment failed handler
           razorpay.on('payment.failed', (error: any) => {
             console.error('❌ Payment failed:', error);
-            onFailure(new Error(error.error?.description || 'Payment failed'));
+            console.error('❌ Payment error details:', error);
+            
+            const errorMessage = error.error?.description || error.error?.reason || error.description || 'Payment failed. Please try another payment method.';
+            
+            // Flutter bridge call for error
+            if (window.flutter_inappwebview) {
+              try {
+                window.flutter_inappwebview.callHandler('razorpayError', {
+                  error: error.error || error,
+                  message: errorMessage
+                });
+                console.log('📱 Flutter bridge called with payment error');
+              } catch (bridgeError) {
+                console.error('❌ Error calling Flutter bridge for error:', bridgeError);
+              }
+            }
+            
+            // Show error alert for WebView
+            if (isMobile) {
+              alert(`Payment Failed: ${errorMessage}`);
+            }
+            
+            onFailure(new Error(errorMessage));
+          });
+          
+          // Payment method selection error handler
+          razorpay.on('payment.method_selection_failed', (error: any) => {
+            console.error('❌ Payment method selection failed:', error);
+            console.error('❌ Payment method error details:', error);
+            
+            const errorMessage = error.error?.description || error.description || 'Please use another payment method';
+            
+            // Flutter bridge call for error
+            if (window.flutter_inappwebview) {
+              try {
+                window.flutter_inappwebview.callHandler('razorpayError', {
+                  error: error.error || error,
+                  message: errorMessage
+                });
+              } catch (bridgeError) {
+                console.error('❌ Error calling Flutter bridge:', bridgeError);
+              }
+            }
+            
+            // Show error alert
+            if (isMobile) {
+              alert(`Payment Error: ${errorMessage}`);
+            }
+            
+            onFailure(new Error(errorMessage));
           });
         }
         
@@ -779,6 +879,57 @@ class RazorpayService {
         };
 
         const rzp = new window.Razorpay(options);
+        
+        // Add error handlers for WebView
+        if (rzp.on) {
+          // Payment failed handler
+          rzp.on('payment.failed', (error: any) => {
+            console.error('❌ Payment failed:', error);
+            console.error('❌ Payment error details:', error);
+            
+            const errorMessage = error.error?.description || error.error?.reason || error.description || 'Payment failed. Please try another payment method.';
+            
+            // Flutter bridge call for error
+            if (window.flutter_inappwebview) {
+              try {
+                window.flutter_inappwebview.callHandler('razorpayError', {
+                  error: error.error || error,
+                  message: errorMessage
+                });
+                console.log('📱 Flutter bridge called with payment error');
+              } catch (bridgeError) {
+                console.error('❌ Error calling Flutter bridge for error:', bridgeError);
+              }
+            }
+            
+            // Show error alert
+            alert(`Payment Failed: ${errorMessage}`);
+          });
+          
+          // Payment method selection error handler
+          rzp.on('payment.method_selection_failed', (error: any) => {
+            console.error('❌ Payment method selection failed:', error);
+            console.error('❌ Payment method error details:', error);
+            
+            const errorMessage = error.error?.description || error.description || 'Please use another payment method';
+            
+            // Flutter bridge call for error
+            if (window.flutter_inappwebview) {
+              try {
+                window.flutter_inappwebview.callHandler('razorpayError', {
+                  error: error.error || error,
+                  message: errorMessage
+                });
+              } catch (bridgeError) {
+                console.error('❌ Error calling Flutter bridge:', bridgeError);
+              }
+            }
+            
+            // Show error alert
+            alert(`Payment Error: ${errorMessage}`);
+          });
+        }
+        
         rzp.open();
         console.log('✅ Razorpay checkout opened via openRazorpayCheckout');
       }).catch((error) => {
