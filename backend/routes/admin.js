@@ -71,7 +71,6 @@ router.put('/profile', protectAdmin, updateAdminProfile);
 // @route   PUT /api/admin/change-password
 // @access  Private (Admin)
 router.put('/change-password', protectAdmin, changePassword);
-
 // @desc    Admin activity routes
 // @route   GET /api/admin/activity-log
 // @access  Private (Admin)
