@@ -33,6 +33,35 @@ import { saveMobileFCMToken } from "./services/pushNotificationService";
   }
 };
 
+// WebView message listener for Razorpay integration
+window.addEventListener("message", function (event) {
+  try {
+    // Check if message is for starting Razorpay
+    if (event.data === "start_razorpay" || (event.data && event.data.type === "start_razorpay")) {
+      console.log('📱 Received start_razorpay message from WebView:', event.data);
+      
+      // Get order data from event detail or data
+      const orderData = event.detail || event.data.orderData || event.data;
+      
+      if (orderData && orderData.orderId) {
+        // Import razorpay service dynamically
+        import('./services/razorpayService').then((module) => {
+          const razorpayService = module.default;
+          razorpayService.openRazorpayCheckout(orderData);
+        }).catch((error) => {
+          console.error('❌ Error loading razorpay service:', error);
+          alert('Failed to load payment gateway. Please refresh the page.');
+        });
+      } else {
+        console.error('❌ Invalid order data received:', orderData);
+        alert('Invalid payment data. Please try again.');
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error handling WebView message:', error);
+  }
+});
+
 // Global error handler - Log errors but don't prevent them
 window.addEventListener('error', (event) => {
   console.error('❌ Global error caught:', event.error);

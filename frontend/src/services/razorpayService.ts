@@ -2,6 +2,10 @@
 declare global {
   interface Window {
     Razorpay: any;
+    flutter_inappwebview?: {
+      callHandler: (handlerName: string, ...args: any[]) => Promise<any>;
+    };
+    openRazorpayCheckout?: (orderData: any) => void;
   }
 }
 
@@ -297,6 +301,22 @@ class RazorpayService {
         },
         handler: (response: PaymentResponse) => {
           console.log('✅ Payment successful:', response);
+          
+          // Flutter bridge call for WebView integration
+          if (window.flutter_inappwebview) {
+            try {
+              window.flutter_inappwebview.callHandler('razorpayResponse', response);
+              console.log('📱 Flutter bridge called with payment response');
+            } catch (error) {
+              console.error('❌ Error calling Flutter bridge:', error);
+            }
+          }
+          
+          // Show success alert for WebView
+          if (this.isMobileWebView()) {
+            alert("Payment Success!");
+          }
+          
           paymentData.onSuccess(response);
         },
         modal: {
@@ -442,6 +462,22 @@ class RazorpayService {
         handler: async (response: PaymentResponse) => {
           try {
             console.log('✅ Payment successful:', response);
+            
+            // Flutter bridge call for WebView integration
+            if (window.flutter_inappwebview) {
+              try {
+                window.flutter_inappwebview.callHandler('razorpayResponse', response);
+                console.log('📱 Flutter bridge called with payment response');
+              } catch (error) {
+                console.error('❌ Error calling Flutter bridge:', error);
+              }
+            }
+            
+            // Show success alert for WebView
+            if (isMobile) {
+              alert("Payment Success!");
+            }
+            
             // Create booking with payment verification
             const bookingResponse = await this.createBookingWithPayment(bookingData, response);
             onSuccess(bookingResponse);
@@ -682,10 +718,87 @@ class RazorpayService {
       throw error;
     }
   }
+
+  /**
+   * Open Razorpay Checkout (WebView compatible function)
+   * This function can be called from Flutter/WebView via message listener
+   */
+  openRazorpayCheckout(orderData: {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    email: string;
+    contact: string;
+    orderId: string;
+    description?: string;
+  }): void {
+    try {
+      const isMobile = this.isMobileWebView();
+      console.log('💳 Opening Razorpay checkout via openRazorpayCheckout, isMobile:', isMobile);
+
+      // Ensure Razorpay script is loaded
+      this.loadRazorpayScript().then(() => {
+        if (!window.Razorpay) {
+          console.error('❌ Razorpay not available');
+          alert('Payment gateway not available. Please refresh the page.');
+          return;
+        }
+
+        const options: RazorpayOptions = {
+          key: orderData.key,
+          amount: orderData.amount,
+          currency: orderData.currency || 'INR',
+          name: orderData.name || 'FixFly',
+          description: orderData.description || 'Payment',
+          order_id: orderData.orderId,
+          handler: function (response: PaymentResponse) {
+            console.log('✅ Payment successful:', response);
+            
+            // Flutter bridge call for WebView integration
+            if (window.flutter_inappwebview) {
+              try {
+                window.flutter_inappwebview.callHandler('razorpayResponse', response);
+                console.log('📱 Flutter bridge called with payment response');
+              } catch (error) {
+                console.error('❌ Error calling Flutter bridge:', error);
+              }
+            }
+            
+            // Show success alert for WebView
+            alert("Payment Success!");
+          },
+          prefill: {
+            name: orderData.name,
+            email: orderData.email,
+            contact: orderData.contact,
+          },
+          theme: {
+            color: '#3399cc',
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+        console.log('✅ Razorpay checkout opened via openRazorpayCheckout');
+      }).catch((error) => {
+        console.error('❌ Error loading Razorpay script:', error);
+        alert('Failed to load payment gateway. Please try again.');
+      });
+    } catch (error) {
+      console.error('❌ Error in openRazorpayCheckout:', error);
+      alert('Failed to open payment gateway. Please try again.');
+    }
+  }
 }
 
 // Create singleton instance
 const razorpayService = RazorpayService.getInstance();
+
+// Export openRazorpayCheckout as global function for WebView/Flutter integration
+(window as any).openRazorpayCheckout = (orderData: any) => {
+  razorpayService.openRazorpayCheckout(orderData);
+};
 
 export default razorpayService;
 export type { BookingData, PaymentResponse };
