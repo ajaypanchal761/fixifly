@@ -331,28 +331,48 @@ const getVendorDashboard = asyncHandler(async (req, res) => {
 // @desc    Create support ticket assignment notification
 // @route   POST /api/vendor/notifications/create-support-assignment
 // @access  Private (Admin) - This will be called from admin controller
-const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, ticketData) => {
+const createSupportTicketAssignmentNotification = async (vendorId, ticketData) => {
   try {
+    logger.info('🔔 === SUPPORT TICKET ASSIGNMENT NOTIFICATION START ===', {
+      vendorId,
+      vendorIdType: typeof vendorId,
+      ticketId: ticketData?.ticketId,
+      subject: ticketData?.subject
+    });
+
     // Use connection service to ensure MongoDB is ready
     await notificationConnectionService.ensureConnection();
 
+    const Vendor = require('../models/Vendor');
+    
     // Convert vendorId string to ObjectId by finding the vendor if needed
     let vendorObjectId = vendorId;
+    let vendorForNotification = null;
+    
     if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
       // vendorId is a string like "967", need to find the vendor
-      const Vendor = require('../models/Vendor');
-      const vendor = await Vendor.findOne({ vendorId: vendorId });
-      if (!vendor) {
+      logger.info('Looking up vendor by vendorId string', { vendorId });
+      vendorForNotification = await Vendor.findOne({ vendorId: vendorId });
+      if (!vendorForNotification) {
+        logger.error('Vendor not found by vendorId string', { vendorId });
         throw new Error(`Vendor with ID ${vendorId} not found`);
       }
-      vendorObjectId = vendor._id;
+      vendorObjectId = vendorForNotification._id;
       
       logger.info('Converted string vendorId to ObjectId for support ticket notification', {
         originalVendorId: vendorId,
-        vendorObjectId: vendorObjectId,
-        vendorName: `${vendor.firstName} ${vendor.lastName}`,
+        vendorObjectId: vendorObjectId.toString(),
+        vendorName: `${vendorForNotification.firstName} ${vendorForNotification.lastName}`,
         ticketId: ticketData.ticketId
       });
+    } else if (typeof vendorId === 'string' && vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+      // vendorId is already an ObjectId string
+      logger.info('VendorId is already an ObjectId string', { vendorId });
+      vendorObjectId = vendorId;
+    } else {
+      // vendorId might already be ObjectId
+      logger.info('VendorId appears to be ObjectId', { vendorId });
+      vendorObjectId = vendorId;
     }
 
     const notification = new VendorNotification({
@@ -384,13 +404,46 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
 
     // Send push notification
     try {
-      logger.info('Attempting to send push notification for support ticket assignment', {
-        vendorId,
-        ticketId: ticketData.ticketId,
-        vendorObjectId: vendorObjectId.toString()
+      logger.info('🔍 Fetching vendor for push notification', {
+        vendorObjectId: vendorObjectId.toString(),
+        vendorObjectIdType: typeof vendorObjectId,
+        originalVendorId: vendorId
       });
 
-      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      // Try to find vendor by _id first, then by vendorId if needed
+      let vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      
+      // If not found by _id and we have the original vendorId string, try finding by vendorId
+      if (!vendor && vendorForNotification) {
+        logger.info('🔄 Vendor not found by _id, using vendorForNotification from earlier lookup');
+        vendor = vendorForNotification;
+        // Re-fetch with fcmTokenMobile field
+        vendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      }
+      
+      // If still not found, try finding by vendorId string directly
+      if (!vendor && typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+        logger.info('🔄 Trying to find vendor by vendorId string:', vendorId);
+        vendor = await Vendor.findOne({ vendorId: vendorId }).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      }
+      
+      if (!vendor) {
+        logger.error('❌ Vendor not found for push notification', {
+          vendorObjectId: vendorObjectId.toString(),
+          vendorId,
+          vendorIdType: typeof vendorId
+        });
+        throw new Error(`Vendor not found with ID: ${vendorObjectId} (original: ${vendorId})`);
+      }
+      
+      logger.info('✅ Vendor found for push notification', {
+        vendorId: vendor._id.toString(),
+        vendorName: `${vendor.firstName} ${vendor.lastName}`,
+        email: vendor.email,
+        hasFcmTokenMobile: !!vendor.fcmTokenMobile,
+        fcmTokenMobileCount: vendor.fcmTokenMobile?.length || 0,
+        notificationSettings: vendor.notificationSettings
+      });
       
       // Use mobile/webview tokens only (web tokens removed)
       const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
@@ -398,14 +451,36 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
       // Check if push notifications are enabled (default to true if not set)
       const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;
       
-      logger.info('Vendor details for push notification', {
-        vendorId,
-        vendorFound: !!vendor,
-        mobileTokens: vendor?.fcmTokenMobile?.length || 0,
-        totalTokens: uniqueTokens.length,
-        pushNotificationsEnabled: pushNotificationsEnabled,
-        vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found'
+      logger.info('📱 Push notification check', {
+        vendorId: vendor._id.toString(),
+        vendorIdString: vendor.vendorId,
+        uniqueTokensCount: uniqueTokens.length,
+        pushNotificationsEnabled,
+        tokens: uniqueTokens.map(t => t.substring(0, 20) + '...'),
+        fcmTokenMobileArray: vendor.fcmTokenMobile
       });
+      
+      // Log warning if no tokens found
+      if (uniqueTokens.length === 0) {
+        logger.warn('⚠️ No FCM tokens found for vendor', {
+          vendorId: vendor._id.toString(),
+          vendorIdString: vendor.vendorId,
+          vendorName: `${vendor.firstName} ${vendor.lastName}`,
+          email: vendor.email,
+          fcmTokenMobileExists: !!vendor.fcmTokenMobile,
+          fcmTokenMobileType: typeof vendor.fcmTokenMobile,
+          fcmTokenMobileLength: vendor.fcmTokenMobile?.length || 0
+        });
+      }
+      
+      // Log warning if push notifications disabled
+      if (!pushNotificationsEnabled) {
+        logger.warn('⚠️ Push notifications disabled for vendor', {
+          vendorId: vendor._id.toString(),
+          vendorIdString: vendor.vendorId,
+          notificationSettings: vendor.notificationSettings
+        });
+      }
 
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
@@ -450,55 +525,77 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
           }
         );
 
-        logger.info('Complete notification result for support ticket assignment', {
-          vendorId,
+        logger.info('✅ Complete notification sent for support ticket assignment', {
+          vendorId: vendor._id.toString(),
+          vendorName: `${vendor.firstName} ${vendor.lastName}`,
           ticketId: ticketData.ticketId,
           pushNotification: pushResult.successCount > 0,
           pushSuccessCount: pushResult.successCount,
           pushFailureCount: pushResult.failureCount,
           realtimeNotification: realtimeResult,
-          totalTokens: uniqueTokens.length
+          totalTokens: uniqueTokens.length,
+          mobileTokens: vendor.fcmTokenMobile?.length || 0,
+          pushResult: pushResult
         });
+        
+        if (pushResult.successCount === 0) {
+          logger.warn('⚠️ Push notification sent but successCount is 0', {
+            vendorId: vendor._id.toString(),
+            vendorIdString: vendor.vendorId,
+            pushResult,
+            tokens: uniqueTokens,
+            failureCount: pushResult.failureCount,
+            error: pushResult.error
+          });
+        }
       } else {
         const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
-        logger.warn('Push notification skipped for support ticket assignment', {
-          vendorId,
+        const reason = !vendor ? 'Vendor not found' : 
+                      uniqueTokens.length === 0 ? 'No FCM tokens' : 
+                      !pushNotificationsEnabled ? 'Push notifications disabled' : 'Unknown';
+        
+        logger.warn('⚠️ Push notification skipped for support ticket assignment', {
+          vendorId: vendor?._id?.toString() || vendorId,
+          vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found',
           ticketId: ticketData.ticketId,
           hasTokens: uniqueTokens.length > 0,
           mobileTokens: vendor?.fcmTokenMobile?.length || 0,
           pushEnabled: pushNotificationsEnabled,
           vendorExists: !!vendor,
-          reason: !vendor ? 'Vendor not found' : 
-                  uniqueTokens.length === 0 ? 'No FCM tokens' : 
-                  'Push notifications disabled'
+          reason: reason
         });
       }
     } catch (pushError) {
-      logger.error('Failed to send push notification for support ticket assignment', {
+      logger.error('❌ Failed to send push notification for support ticket assignment', {
         error: pushError.message,
         stack: pushError.stack,
         vendorId,
-        ticketId: ticketData.ticketId
+        ticketId: ticketData.ticketId,
+        vendorObjectId: vendorObjectId?.toString()
       });
       // Don't fail the notification creation if push notification fails
     }
 
-    logger.info('Support ticket assignment notification created', {
+    logger.info('✅ Support ticket assignment notification created successfully', {
       vendorId,
       ticketId: ticketData.ticketId,
       notificationId: notification._id
     });
 
+    logger.info('🔔 === SUPPORT TICKET ASSIGNMENT NOTIFICATION END ===');
+
     return notification;
   } catch (error) {
-    logger.error('Error creating support ticket assignment notification:', {
+    logger.error('❌ Error creating support ticket assignment notification:', {
       error: error.message,
+      stack: error.stack,
       vendorId,
-      ticketId: ticketData.ticketId
+      ticketId: ticketData?.ticketId
     });
-    throw error;
+    // Don't throw error - just log it so assignment doesn't fail
+    return null;
   }
-});
+};
 
 // @desc    Create booking assignment notification
 // @route   POST /api/vendor/notifications/create-booking-assignment
