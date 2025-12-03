@@ -406,7 +406,7 @@ const VendorClosedTask = () => {
     const spareAmountValue = spareParts.reduce((sum, part) => {
       return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
     }, 0);
-    const travellingAmountValue = 1; // Fixed travelling amount
+    const travellingAmountValue = 100; // Fixed travelling amount
     const bookingAmountValue = 0; // For now, booking amount is 0
     
     const calculation = calculateCashCollectionDeduction({
@@ -477,7 +477,7 @@ const VendorClosedTask = () => {
         gstAmount: includeGST ? calculateGSTAmount() : 0,
         totalAmount: calculateBillingTotal(), // Use total amount including GST
         billingAmount: billingAmountForBackend, // Send GST-excluded amount for vendor calculation
-        travelingAmount: "1"
+        travelingAmount: "100"
       };
       
       console.log('Task data being sent:', taskData);
