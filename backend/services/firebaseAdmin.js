@@ -384,8 +384,22 @@ const sendPushNotification = async (tokens, payload) => {
       // Log failed tokens if any
       if (response.failureCount > 0) {
         console.warn('⚠️ === Some push notifications failed ===');
+        console.log('📊 Response details:', {
+          successCount: response.successCount,
+          failureCount: response.failureCount,
+          responsesLength: response.responses?.length || 0,
+          validTokensLength: validTokens.length
+        });
         const invalidTokens = [];
         let credentialErrorDetected = false;
+        
+        // Ensure responses array exists and has items
+        if (!response.responses || !Array.isArray(response.responses)) {
+          console.error('❌ response.responses is not an array:', {
+            responses: response.responses,
+            responsesType: typeof response.responses
+          });
+        }
         
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
@@ -427,15 +441,30 @@ const sendPushNotification = async (tokens, payload) => {
             }
             
             // Collect invalid tokens for cleanup
-            if (errorCode === 'messaging/invalid-registration-token' || 
-                errorCode === 'messaging/registration-token-not-registered') {
+            // Check for all invalid token error codes
+            const isInvalidToken = errorCode === 'messaging/invalid-registration-token' || 
+                                   errorCode === 'messaging/registration-token-not-registered' ||
+                                   errorCode === 'messaging/invalid-argument' ||
+                                   (errorMessage && errorMessage.includes('not found'));
+            
+            if (isInvalidToken) {
               invalidTokens.push(validTokens[idx]);
-              console.log(`🗑️ Marking token ${idx + 1} as invalid for cleanup`);
+              console.log(`🗑️ Marking token ${idx + 1} as invalid for cleanup:`, {
+                errorCode,
+                errorMessage,
+                tokenPreview: validTokens[idx]?.substring(0, 30) + '...'
+              });
+            } else {
+              console.log(`⚠️ Token ${idx + 1} failed but not marked as invalid:`, {
+                errorCode,
+                errorMessage
+              });
             }
           }
         });
         if (invalidTokens.length > 0) {
           console.log(`🗑️ Total invalid tokens to cleanup: ${invalidTokens.length}`);
+          console.log(`🗑️ Invalid tokens list:`, invalidTokens.map(t => t.substring(0, 30) + '...'));
         }
         
         return {
@@ -444,16 +473,18 @@ const sendPushNotification = async (tokens, payload) => {
           failureCount: response.failureCount,
           totalTokens: validTokens.length,
           responses: response.responses,
-          invalidTokens: invalidTokens.length > 0 ? invalidTokens : undefined,
+          invalidTokens: invalidTokens.length > 0 ? invalidTokens : [],
         };
       }
 
+      // No failures - return success with empty invalidTokens array
       return {
         success: true,
         successCount: response.successCount,
         failureCount: response.failureCount,
         totalTokens: validTokens.length,
         responses: response.responses,
+        invalidTokens: [],
       };
     } catch (error) {
       logger.error('Error sending push notification:', error);

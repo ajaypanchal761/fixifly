@@ -707,12 +707,15 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           failureCount: pushResult.failureCount,
           totalTokens: uniqueTokens.length,
           vendorId: vendor._id.toString(),
-          invalidTokens: pushResult.invalidTokens?.length || 0,
+          invalidTokensCount: pushResult.invalidTokens?.length || 0,
+          invalidTokens: pushResult.invalidTokens || [],
+          hasInvalidTokens: !!pushResult.invalidTokens,
           pushResult: pushResult
         });
         
         // Clean up invalid tokens if any
-        if (pushResult.invalidTokens && pushResult.invalidTokens.length > 0) {
+        // Check if invalidTokens exists and has items
+        if (pushResult.invalidTokens && Array.isArray(pushResult.invalidTokens) && pushResult.invalidTokens.length > 0) {
           console.log('🗑️ Cleaning up invalid FCM tokens:', {
             vendorId: vendor._id.toString(),
             invalidTokenCount: pushResult.invalidTokens.length,

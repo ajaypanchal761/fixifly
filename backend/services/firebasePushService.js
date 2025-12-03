@@ -126,7 +126,8 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
         successCount: 0,
         failureCount: validTokens.length,
         responses: [],
-        error: result.error || result.message
+        error: result.error || result.message,
+        invalidTokens: []
       };
     }
 
@@ -134,7 +135,7 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
       successCount: result.successCount || 0,
       failureCount: result.failureCount || 0,
       responses: result.responses || [],
-      invalidTokens: result.invalidTokens
+      invalidTokens: result.invalidTokens || []
     };
   } catch (error) {
     logger.error('Error in sendMulticastPushNotification:', error);
