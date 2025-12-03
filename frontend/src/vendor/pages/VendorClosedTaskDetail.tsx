@@ -114,7 +114,7 @@ const VendorClosedTaskDetail = () => {
             resolutionNote: bookingTask.completionData?.resolutionNote || 'No resolution notes provided',
             billingAmount: `₹${bookingTask.pricing?.totalAmount || 0}`,
             spareParts: bookingTask.completionData?.spareParts || [],
-            travelingAmount: bookingTask.completionData?.travelingAmount || '₹100',
+            travelingAmount: bookingTask.completionData?.travelingAmount || '₹1',
             totalAmount: `₹${(bookingTask.pricing?.totalAmount || 0) + (bookingTask.completionData?.totalAmount || 0)}`,
             customerRating: 5, // Default rating - can be enhanced later
             customerFeedback: "Service completed successfully.", // Default feedback - can be enhanced later
