@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { getApiBaseUrl } from '@/utils/apiUrl';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// Use normalized API base URL so it works correctly on live (no localhost fallback)
+const API_BASE_URL = getApiBaseUrl();
 
 // Debug API URL
 console.log('🔗 ReviewService API_BASE_URL:', API_BASE_URL);
