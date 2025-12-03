@@ -503,7 +503,7 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
 // @desc    Create booking assignment notification
 // @route   POST /api/vendor/notifications/create-booking-assignment
 // @access  Private (Admin) - This will be called from admin controller
-const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookingData) => {
+const createBookingAssignmentNotification = async (vendorId, bookingData) => {
   try {
     logger.info('🔔 === BOOKING ASSIGNMENT NOTIFICATION START ===', {
       vendorId,
@@ -712,7 +712,7 @@ const createBookingAssignmentNotification = asyncHandler(async (vendorId, bookin
     });
     throw error;
   }
-});
+};
 
 // @desc    Create warranty claim assignment notification
 // @route   POST /api/vendor/notifications/create-warranty-assignment
