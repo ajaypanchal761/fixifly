@@ -584,17 +584,38 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
     try {
       logger.info('🔍 Fetching vendor for push notification', {
         vendorObjectId: vendorObjectId.toString(),
-        vendorObjectIdType: typeof vendorObjectId
+        vendorObjectIdType: typeof vendorObjectId,
+        originalVendorId: vendorId
       });
       
-      const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      // Try to find vendor by _id first, then by vendorId if needed
+      let vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      
+      // If not found by _id and we have the original vendorId string, try finding by vendorId
+      if (!vendor && vendorForNotification) {
+        console.log('🔄 Vendor not found by _id, using vendorForNotification from earlier lookup');
+        vendor = vendorForNotification;
+        // Re-fetch with fcmTokenMobile field
+        vendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      }
+      
+      // If still not found, try finding by vendorId string directly
+      if (!vendor && typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+        console.log('🔄 Trying to find vendor by vendorId string:', vendorId);
+        vendor = await Vendor.findOne({ vendorId: vendorId }).select('+fcmTokenMobile notificationSettings firstName lastName email');
+      }
       
       if (!vendor) {
         logger.error('❌ Vendor not found for push notification', {
           vendorObjectId: vendorObjectId.toString(),
-          vendorId
+          vendorId,
+          vendorIdType: typeof vendorId
         });
-        throw new Error(`Vendor not found with ID: ${vendorObjectId}`);
+        console.error('❌ Vendor lookup failed:', {
+          triedById: vendorObjectId.toString(),
+          triedByVendorId: typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/) ? vendorId : 'N/A'
+        });
+        throw new Error(`Vendor not found with ID: ${vendorObjectId} (original: ${vendorId})`);
       }
       
       logger.info('✅ Vendor found for push notification', {
@@ -614,10 +635,43 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
       
       logger.info('📱 Push notification check', {
         vendorId: vendor._id.toString(),
+        vendorIdString: vendor.vendorId,
         uniqueTokensCount: uniqueTokens.length,
         pushNotificationsEnabled,
-        tokens: uniqueTokens.map(t => t.substring(0, 20) + '...')
+        tokens: uniqueTokens.map(t => t.substring(0, 20) + '...'),
+        fcmTokenMobileArray: vendor.fcmTokenMobile
       });
+      
+      // Log warning if no tokens found
+      if (uniqueTokens.length === 0) {
+        logger.warn('⚠️ No FCM tokens found for vendor', {
+          vendorId: vendor._id.toString(),
+          vendorIdString: vendor.vendorId,
+          vendorName: `${vendor.firstName} ${vendor.lastName}`,
+          email: vendor.email,
+          fcmTokenMobileExists: !!vendor.fcmTokenMobile,
+          fcmTokenMobileType: typeof vendor.fcmTokenMobile,
+          fcmTokenMobileLength: vendor.fcmTokenMobile?.length || 0
+        });
+        console.warn('⚠️ No FCM tokens found for vendor:', {
+          vendorId: vendor._id.toString(),
+          vendorIdString: vendor.vendorId,
+          vendorName: `${vendor.firstName} ${vendor.lastName}`
+        });
+      }
+      
+      // Log warning if push notifications disabled
+      if (!pushNotificationsEnabled) {
+        logger.warn('⚠️ Push notifications disabled for vendor', {
+          vendorId: vendor._id.toString(),
+          vendorIdString: vendor.vendorId,
+          notificationSettings: vendor.notificationSettings
+        });
+        console.warn('⚠️ Push notifications disabled for vendor:', {
+          vendorId: vendor._id.toString(),
+          vendorIdString: vendor.vendorId
+        });
+      }
       
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
@@ -653,8 +707,45 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           failureCount: pushResult.failureCount,
           totalTokens: uniqueTokens.length,
           vendorId: vendor._id.toString(),
+          invalidTokens: pushResult.invalidTokens?.length || 0,
           pushResult: pushResult
         });
+        
+        // Clean up invalid tokens if any
+        if (pushResult.invalidTokens && pushResult.invalidTokens.length > 0) {
+          console.log('🗑️ Cleaning up invalid FCM tokens:', {
+            vendorId: vendor._id.toString(),
+            invalidTokenCount: pushResult.invalidTokens.length,
+            tokens: pushResult.invalidTokens.map(t => t.substring(0, 30) + '...')
+          });
+          
+          try {
+            // Remove invalid tokens from vendor's fcmTokenMobile array
+            vendor.fcmTokenMobile = vendor.fcmTokenMobile.filter(
+              token => !pushResult.invalidTokens.includes(token)
+            );
+            vendor.markModified('fcmTokenMobile');
+            await vendor.save({ validateBeforeSave: false });
+            
+            console.log('✅ Invalid tokens removed from vendor:', {
+              vendorId: vendor._id.toString(),
+              removedCount: pushResult.invalidTokens.length,
+              remainingTokens: vendor.fcmTokenMobile.length
+            });
+            
+            logger.info(`Cleaned up ${pushResult.invalidTokens.length} invalid tokens for vendor ${vendor._id}`, {
+              vendorId: vendor._id.toString(),
+              removedTokens: pushResult.invalidTokens.length,
+              remainingTokens: vendor.fcmTokenMobile.length
+            });
+          } catch (cleanupError) {
+            console.error('❌ Error cleaning up invalid tokens:', cleanupError);
+            logger.error('Error cleaning up invalid FCM tokens for vendor', {
+              error: cleanupError.message,
+              vendorId: vendor._id.toString()
+            });
+          }
+        }
 
         // Send realtime notification (if enabled)
         const realtimeResult = await firebaseRealtimeService.sendRealtimeNotification(
@@ -684,11 +775,33 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         if (pushResult.successCount === 0) {
           logger.warn('⚠️ Push notification sent but successCount is 0', {
             vendorId: vendor._id.toString(),
+            vendorIdString: vendor.vendorId,
             pushResult,
-            tokens: uniqueTokens
+            tokens: uniqueTokens,
+            failureCount: pushResult.failureCount,
+            error: pushResult.error
+          });
+          console.error('❌ All push notifications failed:', {
+            vendorId: vendor._id.toString(),
+            vendorIdString: vendor.vendorId,
+            failureCount: pushResult.failureCount,
+            totalTokens: uniqueTokens.length,
+            error: pushResult.error
           });
         }
       } else {
+        // Log why push notification was not sent
+        if (uniqueTokens.length === 0) {
+          logger.warn('⚠️ Push notification not sent - no FCM tokens found', {
+            vendorId: vendor._id.toString(),
+            vendorIdString: vendor.vendorId
+          });
+        } else if (!pushNotificationsEnabled) {
+          logger.warn('⚠️ Push notification not sent - notifications disabled', {
+            vendorId: vendor._id.toString(),
+            vendorIdString: vendor.vendorId
+          });
+        }
         const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
         const reason = !vendor ? 'Vendor not found' : 
                       uniqueTokens.length === 0 ? 'No FCM tokens' : 

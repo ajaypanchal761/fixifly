@@ -338,6 +338,25 @@ const sendPushNotification = async (tokens, payload) => {
 
     // Use sendEach (like RentYatra) - better for handling individual token failures
     try {
+      // Verify Firebase is initialized before sending
+      if (admin.apps.length === 0) {
+        console.error('❌ Firebase Admin not initialized - cannot send notifications');
+        logger.error('Firebase Admin not initialized when trying to send push notification');
+        return {
+          success: false,
+          error: 'Firebase Admin not initialized',
+          successCount: 0,
+          failureCount: validTokens.length
+        };
+      }
+
+      console.log('📤 Calling Firebase sendEach with', {
+        messageCount: messages.length,
+        tokenCount: validTokens.length,
+        firebaseInitialized: firebaseInitialized,
+        adminAppsCount: admin.apps.length
+      });
+      
       const response = await admin.messaging().sendEach(messages);
       
       console.log('✅ === Push notification sent successfully ===');
@@ -345,8 +364,22 @@ const sendPushNotification = async (tokens, payload) => {
         successCount: response.successCount,
         failureCount: response.failureCount,
         totalTokens: validTokens.length,
-        successRate: `${((response.successCount / validTokens.length) * 100).toFixed(1)}%`
+        successRate: `${((response.successCount / validTokens.length) * 100).toFixed(1)}%`,
+        responsesCount: response.responses?.length || 0
       });
+      
+      // Log all responses for debugging
+      if (response.responses && response.responses.length > 0) {
+        console.log('📋 All responses:', response.responses.map((resp, idx) => ({
+          index: idx + 1,
+          success: resp.success,
+          error: resp.error ? {
+            code: resp.error.code,
+            message: resp.error.message,
+            stack: resp.error.stack
+          } : null
+        })));
+      }
 
       // Log failed tokens if any
       if (response.failureCount > 0) {
@@ -357,12 +390,23 @@ const sendPushNotification = async (tokens, payload) => {
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             const errorCode = resp.error?.code;
-            const errorMessage = resp.error?.message || 'Unknown error';
+            const errorMessage = resp.error?.message || resp.error?.toString() || 'Unknown error';
+            const fullError = resp.error;
             
             console.error(`❌ Token ${idx + 1} failed:`, {
               error: errorMessage,
               code: errorCode,
-              tokenPreview: validTokens[idx]?.substring(0, 20) + '...'
+              tokenPreview: validTokens[idx]?.substring(0, 20) + '...',
+              fullError: fullError ? JSON.stringify(fullError, Object.getOwnPropertyNames(fullError)) : 'No error object',
+              errorType: typeof resp.error,
+              errorKeys: resp.error ? Object.keys(resp.error) : []
+            });
+            
+            logger.error(`Push notification failed for token ${idx + 1}`, {
+              errorCode,
+              errorMessage,
+              tokenPreview: validTokens[idx]?.substring(0, 30) + '...',
+              fullError: fullError
             });
             
             // Check for credential errors
