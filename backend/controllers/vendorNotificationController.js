@@ -505,6 +505,11 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
 // @access  Private (Admin) - This will be called from admin controller
 const createBookingAssignmentNotification = async (vendorId, bookingData) => {
   try {
+    console.log('🔔 === BOOKING ASSIGNMENT NOTIFICATION START ===');
+    console.log('Vendor ID:', vendorId, 'Type:', typeof vendorId);
+    console.log('Booking ID:', bookingData._id);
+    console.log('Booking Reference:', bookingData.bookingReference);
+    
     logger.info('🔔 === BOOKING ASSIGNMENT NOTIFICATION START ===', {
       vendorId,
       vendorIdType: typeof vendorId,
@@ -630,12 +635,26 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         };
 
         // Send push notification to all tokens using multicast
+        console.log('📤 Sending push notification to vendor tokens:', {
+          vendorId: vendor._id.toString(),
+          tokenCount: uniqueTokens.length,
+          tokens: uniqueTokens.map(t => t.substring(0, 30) + '...')
+        });
+        
         const firebasePushService = require('../services/firebasePushService');
         const pushResult = await firebasePushService.sendMulticastPushNotification(
           uniqueTokens,
           pushNotification,
           pushData
         );
+        
+        console.log('📤 Push notification result:', {
+          successCount: pushResult.successCount,
+          failureCount: pushResult.failureCount,
+          totalTokens: uniqueTokens.length,
+          vendorId: vendor._id.toString(),
+          pushResult: pushResult
+        });
 
         // Send realtime notification (if enabled)
         const realtimeResult = await firebaseRealtimeService.sendRealtimeNotification(
@@ -671,18 +690,36 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         }
       } else {
         const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
+        const reason = !vendor ? 'Vendor not found' : 
+                      uniqueTokens.length === 0 ? 'No FCM tokens' : 
+                      !pushNotificationsEnabled ? 'Push notifications disabled' : 'Unknown';
+        
+        console.warn('⚠️ Push notification skipped for booking assignment:', {
+          vendorId: vendor?._id?.toString() || vendorId,
+          vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found',
+          hasTokens: uniqueTokens.length > 0,
+          mobileTokens: vendor?.fcmTokenMobile?.length || 0,
+          pushEnabled: pushNotificationsEnabled,
+          reason: reason
+        });
+        
         logger.warn('⚠️ Push notification skipped for booking assignment', {
           vendorId: vendor?._id?.toString() || vendorId,
           vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found',
           hasTokens: uniqueTokens.length > 0,
           mobileTokens: vendor?.fcmTokenMobile?.length || 0,
           pushEnabled: pushNotificationsEnabled,
-          reason: !vendor ? 'Vendor not found' : 
-                  uniqueTokens.length === 0 ? 'No FCM tokens' : 
-                  !pushNotificationsEnabled ? 'Push notifications disabled' : 'Unknown'
+          reason: reason
         });
       }
     } catch (pushError) {
+      console.error('❌ === PUSH NOTIFICATION ERROR ===');
+      console.error('Error:', pushError);
+      console.error('Error message:', pushError?.message);
+      console.error('Error stack:', pushError?.stack);
+      console.error('Vendor ID:', vendorId);
+      console.error('Booking ID:', bookingData._id);
+      
       logger.error('❌ Failed to send push notification for booking assignment', {
         error: pushError.message,
         stack: pushError.stack,

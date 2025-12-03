@@ -482,8 +482,18 @@ const assignVendor = asyncHandler(async (req, res) => {
       });
     }
 
+    console.log('✅ Booking found, proceeding with notifications');
+    console.log('Booking ID:', booking._id);
+    console.log('Vendor ID to assign:', vendorId);
+
     // Create notification for vendor (creates notification record + sends push notification)
+    // IMPORTANT: Send notification BEFORE user notification to ensure vendor gets notified
     try {
+      console.log('🔔 === VENDOR NOTIFICATION CALL START ===');
+      console.log('Vendor ID:', vendorId);
+      console.log('Booking ID:', booking._id);
+      console.log('Booking Reference:', booking.bookingReference);
+      
       logger.info('🔔 Attempting to send vendor push notification for booking assignment', {
         vendorId,
         bookingId: booking._id,
@@ -493,15 +503,33 @@ const assignVendor = asyncHandler(async (req, res) => {
         customerEmail: booking.customer?.email
       });
       
-      const { createBookingAssignmentNotification } = require('./vendorNotificationController');
-      await createBookingAssignmentNotification(vendorId, booking);
+      console.log('📦 Importing vendorNotificationController...');
+      const vendorNotificationController = require('./vendorNotificationController');
+      console.log('✅ Controller imported:', Object.keys(vendorNotificationController));
       
+      const { createBookingAssignmentNotification } = vendorNotificationController;
+      console.log('✅ Function extracted:', typeof createBookingAssignmentNotification);
+      console.log('📞 Calling createBookingAssignmentNotification with:', {
+        vendorId,
+        bookingId: booking._id,
+        bookingRef: booking.bookingReference
+      });
+      
+      const notificationResult = await createBookingAssignmentNotification(vendorId, booking);
+      console.log('✅ Notification function returned:', notificationResult ? 'Success' : 'No result');
+      
+      console.log('✅ Vendor notification function completed');
       logger.info('✅ Vendor notification created and sent successfully for booking assignment', {
         vendorId,
         bookingId: booking._id,
         bookingReference: booking.bookingReference
       });
     } catch (notificationError) {
+      console.error('❌ === VENDOR NOTIFICATION ERROR ===');
+      console.error('Error:', notificationError);
+      console.error('Error message:', notificationError?.message);
+      console.error('Error stack:', notificationError?.stack);
+      
       logger.error('❌ Error creating vendor notification for booking assignment:', {
         error: notificationError.message,
         stack: notificationError.stack,
