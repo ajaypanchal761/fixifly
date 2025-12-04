@@ -844,7 +844,18 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     user.markModified('fcmTokenMobile');
     
     logger.info('💾 Saving FCM tokens to database...');
-    await user.save();
+    // Use updateOne for more reliable persistence of select: false fields
+    await User.updateOne(
+      { _id: user._id },
+      { 
+        $set: { 
+          fcmTokenMobile: user.fcmTokenMobile,
+          updatedAt: new Date()
+        } 
+      }
+    );
+    // Also save the document to ensure all changes are persisted
+    await user.save({ validateBeforeSave: false });
     logger.info('✅ FCM tokens saved successfully');
     
     // Verify the save by fetching fresh from database
@@ -853,7 +864,7 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     
     if (!updatedUser || !updatedUser.fcmTokenMobile || !updatedUser.fcmTokenMobile.includes(token)) {
       logger.error('❌ Token save verification failed! Token not found in database after save');
-      // Retry save
+      // Retry save with updateOne for reliability
       if (updatedUser && updatedUser.fcmTokenMobile) {
         if (!updatedUser.fcmTokenMobile.includes(token)) {
           if (updatedUser.fcmTokenMobile.length >= MAX_TOKENS) {
@@ -861,7 +872,17 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
           }
           updatedUser.fcmTokenMobile.push(token);
           updatedUser.markModified('fcmTokenMobile');
-          await updatedUser.save();
+          // Use updateOne for more reliable persistence
+          await User.updateOne(
+            { _id: updatedUser._id },
+            { 
+              $set: { 
+                fcmTokenMobile: updatedUser.fcmTokenMobile,
+                updatedAt: new Date()
+              } 
+            }
+          );
+          await updatedUser.save({ validateBeforeSave: false });
           logger.info('🔄 Retried saving token');
         }
       }

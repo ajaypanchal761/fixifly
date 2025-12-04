@@ -1861,7 +1861,17 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
       newToken: token.substring(0, 30) + '...'
     });
     
-    // Save with explicit options to ensure persistence
+    // Use updateOne for more reliable persistence of select: false fields
+    await Vendor.updateOne(
+      { _id: vendor._id },
+      { 
+        $set: { 
+          fcmTokenMobile: vendor.fcmTokenMobile,
+          updatedAt: new Date()
+        } 
+      }
+    );
+    // Also save the document to ensure all changes are persisted
     await vendor.save({ validateBeforeSave: false });
     logger.info('✅ FCM tokens saved successfully');
     
@@ -1907,6 +1917,16 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
         }
         
         retryVendor.markModified('fcmTokenMobile');
+        // Use updateOne for more reliable persistence
+        await Vendor.updateOne(
+          { _id: retryVendor._id },
+          { 
+            $set: { 
+              fcmTokenMobile: retryVendor.fcmTokenMobile,
+              updatedAt: new Date()
+            } 
+          }
+        );
         await retryVendor.save({ validateBeforeSave: false });
         
         // Verify again
