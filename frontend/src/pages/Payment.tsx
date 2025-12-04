@@ -131,7 +131,7 @@ const Payment = () => {
 
       // Razorpay options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_RmLDP4W1dPgg6J', // Use environment variable or fallback to live key
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_8sYbzHWidwe5Zw', // Use environment variable or fallback to live key
         amount: orderData.data.amount, // Use amount from order response (already in paise)
         currency: 'INR',
         name: 'FixFly',
