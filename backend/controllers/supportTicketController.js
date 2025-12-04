@@ -680,34 +680,11 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
       // Don't fail the assignment if this fails
     }
 
-    // Create notification for vendor (creates notification record + sends push notification)
-    // IMPORTANT: Send notification BEFORE user notification to ensure vendor gets notified
+    // Create notification for vendor
+    const { createSupportTicketAssignmentNotification } = require('./vendorNotificationController');
+    
     try {
-      console.log('🔔 === VENDOR NOTIFICATION CALL START (SUPPORT TICKET) ===');
-      console.log('Vendor ID:', vendorId);
-      console.log('Ticket ID:', ticket.ticketId);
-      console.log('Ticket Reference:', ticket.ticketId);
-      
-      logger.info('🔔 Attempting to send vendor push notification for support ticket assignment', {
-        vendorId,
-        ticketId: ticket.ticketId,
-        ticketSubject: ticket.subject,
-        ticketStatus: ticket.status,
-        customerName: ticket.userName,
-        customerEmail: ticket.userEmail
-      });
-      
-      console.log('📦 Importing vendorNotificationController...');
-      const { createSupportTicketAssignmentNotification } = require('./vendorNotificationController');
-      console.log('✅ Controller imported:', Object.keys(require('./vendorNotificationController')));
-      
-      console.log('📞 Calling createSupportTicketAssignmentNotification with:', {
-        vendorId,
-        ticketId: ticket.ticketId,
-        ticketRef: ticket.ticketId
-      });
-      
-      const notificationResult = await createSupportTicketAssignmentNotification(vendorId, {
+      await createSupportTicketAssignmentNotification(vendorId, {
         ticketId: ticket.ticketId,
         subject: ticket.subject,
         type: ticket.type,
@@ -717,37 +694,8 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
         userPhone: ticket.userPhone,
         description: ticket.description
       });
-      
-      console.log('✅ Notification function returned:', notificationResult ? 'Success' : 'No result');
-      
-      if (notificationResult) {
-        console.log('✅ Vendor notification created and sent successfully for support ticket assignment');
-        logger.info('✅ Vendor notification created and sent successfully for support ticket assignment', {
-          vendorId,
-          ticketId: ticket.ticketId,
-          notificationId: notificationResult._id
-        });
-      } else {
-        console.warn('⚠️ Vendor notification function returned null/undefined');
-        logger.warn('⚠️ Vendor notification function returned null/undefined', {
-          vendorId,
-          ticketId: ticket.ticketId
-        });
-      }
-      
-      console.log('✅ Vendor notification function completed');
     } catch (notificationError) {
-      console.error('❌ === VENDOR NOTIFICATION ERROR (SUPPORT TICKET) ===');
-      console.error('Error:', notificationError);
-      console.error('Error message:', notificationError?.message);
-      console.error('Error stack:', notificationError?.stack);
-      
-      logger.error('❌ Error creating vendor notification for support ticket assignment:', {
-        error: notificationError.message,
-        stack: notificationError.stack,
-        vendorId,
-        ticketId: ticket.ticketId
-      });
+      console.error('Error creating vendor notification:', notificationError);
       // Don't fail the assignment if notification fails
     }
 
@@ -1266,18 +1214,8 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
     
     // Send push notification to vendor
     try {
-      console.log('🔔 === VENDOR NOTIFICATION CALL START (UPDATE SUPPORT TICKET) ===');
-      console.log('Vendor ID:', assignedTo);
-      console.log('Ticket ID:', ticket.ticketId);
-      
-      logger.info('🔔 Attempting to send vendor push notification for support ticket assignment via updateSupportTicket', {
-        vendorId: assignedTo,
-        ticketId: ticket.ticketId,
-        ticketSubject: ticket.subject
-      });
-      
       const { createSupportTicketAssignmentNotification } = require('./vendorNotificationController');
-      const notificationResult = await createSupportTicketAssignmentNotification(assignedTo, {
+      await createSupportTicketAssignmentNotification(assignedTo, {
         ticketId: ticket.ticketId,
         subject: ticket.subject,
         type: ticket.type,
@@ -1287,30 +1225,14 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
         userPhone: ticket.userPhone,
         description: ticket.description
       });
-      
-      if (notificationResult) {
-        console.log('✅ Vendor notification sent successfully via updateSupportTicket');
-        logger.info('✅ Push notification sent to vendor for support ticket assignment via updateSupportTicket', {
-          ticketId: ticket.ticketId,
-          vendorId: assignedTo,
-          notificationId: notificationResult._id
-        });
-      } else {
-        console.warn('⚠️ Vendor notification function returned null/undefined');
-        logger.warn('⚠️ Vendor notification function returned null/undefined', {
-          ticketId: ticket.ticketId,
-          vendorId: assignedTo
-        });
-      }
+      logger.info('Push notification sent to vendor for support ticket assignment via updateSupportTicket', {
+        ticketId: ticket.ticketId,
+        vendorId: assignedTo
+      });
     } catch (notificationError) {
-      console.error('❌ === VENDOR NOTIFICATION ERROR (UPDATE SUPPORT TICKET) ===');
-      console.error('Error:', notificationError);
-      console.error('Error message:', notificationError?.message);
-      console.error('Error stack:', notificationError?.stack);
-      
-      logger.error('❌ Error sending push notification to vendor for support ticket assignment', {
+      console.error('Error sending push notification to vendor:', notificationError);
+      logger.error('Error sending push notification to vendor for support ticket assignment', {
         error: notificationError.message,
-        stack: notificationError.stack,
         ticketId: ticket.ticketId,
         vendorId: assignedTo
       });

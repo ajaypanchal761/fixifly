@@ -41,7 +41,7 @@ window.addEventListener("message", function (event) {
       console.log('📱 Received start_razorpay message from WebView:', event.data);
       
       // Get order data from event detail or data
-      const orderData = event.detail || event.data.orderData || event.data;
+      const orderData = (event as any).detail || event.data?.orderData || event.data;
       
       if (orderData && orderData.orderId) {
         // Import razorpay service dynamically

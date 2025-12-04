@@ -661,7 +661,7 @@ const AMCSubscribe = () => {
   const selectedDeviceType = deviceTypes.find(dt => dt.value === formData.deviceType);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <div className="min-h-screen bg-gray-50 pb-36 md:pb-8">
       {/* Header */}
       <div className="bg-white border-b pt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -809,7 +809,7 @@ const AMCSubscribe = () => {
 
                             <div className="space-y-2">
                               <Label htmlFor={`photo_${index}`}>Serial Number Photo (Optional)</Label>
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-2 min-w-0">
                                 <Input
                                   id={`photo_${index}`}
                                   type="file"
@@ -827,9 +827,9 @@ const AMCSubscribe = () => {
                                   Upload Photo
                                 </Button>
                                 {device.serialNumberPhoto && (
-                                  <span className="text-sm text-green-600">
-                                    <CheckCircle className="h-4 w-4 inline mr-1" />
-                                    {device.serialNumberPhoto.name}
+                                  <span className="text-sm text-green-600 flex items-center min-w-0 flex-1">
+                                    <CheckCircle className="h-4 w-4 inline mr-1 flex-shrink-0" />
+                                    <span className="truncate">{device.serialNumberPhoto.name}</span>
                                   </span>
                                 )}
                               </div>

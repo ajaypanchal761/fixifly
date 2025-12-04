@@ -222,7 +222,7 @@ const Login = () => {
 
   return (
     <div className="h-screen flex items-center justify-center p-4 overflow-hidden" style={{ overflow: 'hidden' }}>
-      <div className="w-screen max-w-2xl animate-slide-up max-h-screen overflow-hidden">
+      <div className="w-screen max-w-2xl max-h-screen overflow-hidden">
         <Card className="bg-white border-0 rounded-2xl shadow-2xl overflow-hidden">
           <CardHeader className="text-center pb-6 pt-4">
             <div className="flex justify-center mb-4">
@@ -332,7 +332,7 @@ const Login = () => {
                 Don't have an account?{' '}
                 <Link
                   to="/signup"
-                  className="text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors duration-200"
+                  className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
                 >
                   Sign up here
                 </Link>
