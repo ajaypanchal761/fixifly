@@ -178,7 +178,7 @@ const Signup = () => {
 
   return (
     <div className="h-screen flex items-center justify-center p-4 overflow-hidden" style={{ overflow: 'hidden' }}>
-      <div className="w-screen max-w-2xl animate-slide-up max-h-screen overflow-hidden">
+      <div className="w-screen max-w-2xl max-h-screen overflow-hidden">
         <Card className="bg-white border-0 rounded-2xl shadow-2xl overflow-hidden">
           <CardHeader className="text-center pb-6 pt-4">
             <div className="flex justify-center mb-4">
@@ -217,7 +217,7 @@ const Signup = () => {
                       placeholder="Enter your full name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg transition-all duration-200"
+                      className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg"
                       required
                     />
                   </div>
@@ -236,7 +236,7 @@ const Signup = () => {
                       placeholder="Enter your email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg transition-all duration-200"
+                      className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg"
                       required
                     />
                   </div>
@@ -286,7 +286,7 @@ const Signup = () => {
                     type="button"
                     onClick={sendOTP}
                     disabled={isLoading || !formData.name || !formData.email || !formData.phone}
-                    className="w-full h-10 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg font-medium transition-all duration-200"
+                    className="w-full h-10 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg font-medium"
                   >
                     {isLoading ? 'Creating Account...' : 'Create Account & Send OTP'}
                   </Button>
@@ -312,7 +312,7 @@ const Signup = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 mt-6"
+                className="w-full h-12 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg mt-6"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
@@ -330,7 +330,7 @@ const Signup = () => {
                 Already have an account?{' '}
                 <Link
                   to="/login"
-                  className="text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors duration-200"
+                  className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
                 >
                   Sign in here
                 </Link>
