@@ -501,6 +501,24 @@ const VendorHero = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vendor?.vendorId]); // Only depend on vendorId, not fetchVendorBookings to prevent infinite loops
 
+  // Listen for booking assignment notifications
+  useEffect(() => {
+    const handleBookingAssigned = (event: CustomEvent) => {
+      console.log('📅 VendorHero: Booking assignment notification received', event.detail);
+      // Refresh bookings immediately when new booking is assigned
+      if (vendor?.vendorId) {
+        console.log('🔄 VendorHero: Refreshing bookings due to new assignment');
+        fetchVendorBookings();
+      }
+    };
+
+    window.addEventListener('bookingAssigned' as any, handleBookingAssigned as EventListener);
+
+    return () => {
+      window.removeEventListener('bookingAssigned' as any, handleBookingAssigned as EventListener);
+    };
+  }, [vendor?.vendorId, fetchVendorBookings]);
+
   // Handle task status update
   const handleTaskStatusUpdate = (taskId: string, newStatus: string) => {
     setTaskData(prev => ({

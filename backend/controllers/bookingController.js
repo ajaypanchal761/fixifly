@@ -1167,7 +1167,8 @@ const acceptTask = asyncHandler(async (req, res) => {
       });
     }
 
-    if (!vendor.canAcceptNewTasks()) {
+    const canAccept = await vendor.canAcceptNewTasks();
+    if (!canAccept) {
       return res.status(400).json({
         success: false,
         message: 'Mandatory deposit of ₹2000 required to accept tasks',

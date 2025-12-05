@@ -547,25 +547,44 @@ vendorWalletSchema.statics.getVendorSummary = async function(vendorId) {
 
 // Static method to get recent transactions
 vendorWalletSchema.statics.getRecentTransactions = async function(vendorId, limit = 10) {
-  const wallet = await this.findOne({ vendorId });
-  if (!wallet) {
+  try {
+    const wallet = await this.findOne({ vendorId });
+    if (!wallet) {
+      return [];
+    }
+
+    if (!wallet.transactions || !Array.isArray(wallet.transactions)) {
+      return [];
+    }
+
+    // Safely sort transactions, handling missing createdAt fields
+    const sortedTransactions = wallet.transactions
+      .sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA; // Sort descending (newest first)
+      })
+      .slice(0, limit)
+      .map(transaction => ({
+        _id: transaction._id,
+        transactionId: transaction.transactionId,
+        amount: transaction.amount || 0,
+        type: transaction.type || 'unknown',
+        description: transaction.description || '',
+        status: transaction.status || 'completed',
+        createdAt: transaction.createdAt || transaction.timestamp || new Date(),
+        caseId: transaction.caseId,
+        bookingId: transaction.bookingId,
+        metadata: transaction.metadata || {},
+        formattedAmount: `₹${Math.abs(transaction.amount || 0).toLocaleString()}`,
+        typeDisplay: (transaction.type || 'unknown').replace('_', ' ').toUpperCase()
+      }));
+
+    return sortedTransactions;
+  } catch (error) {
+    console.error('Error in getRecentTransactions:', error);
     return [];
   }
-
-  return wallet.transactions
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, limit)
-    .map(transaction => ({
-      _id: transaction._id,
-      transactionId: transaction.transactionId,
-      amount: transaction.amount,
-      type: transaction.type,
-      description: transaction.description,
-      status: transaction.status,
-      createdAt: transaction.createdAt,
-      formattedAmount: `₹${Math.abs(transaction.amount).toLocaleString()}`,
-      typeDisplay: transaction.type.replace('_', ' ').toUpperCase()
-    }));
 };
 
 // Add manual adjustment transaction

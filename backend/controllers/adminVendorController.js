@@ -500,6 +500,124 @@ const updateVendorRatings = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Grant account access to vendor (Admin) - Enable account without ₹3999 deposit
+// @route   POST /api/admin/vendors/:id/grant-access
+// @access  Private (Admin with vendorManagement permission)
+const grantAccountAccess = asyncHandler(async (req, res) => {
+  try {
+    const vendor = await Vendor.findById(req.params.id);
+    
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    // Update vendor wallet to mark initial deposit as done
+    vendor.wallet.hasInitialDeposit = true;
+    vendor.wallet.initialDepositAmount = 3999;
+    
+    // Also update VendorWallet model if it exists
+    const VendorWallet = require('../models/VendorWallet');
+    let vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
+    
+    if (vendorWallet) {
+      // Update wallet to reflect initial deposit
+      if (!vendorWallet.totalDeposits || vendorWallet.totalDeposits < 3999) {
+        vendorWallet.totalDeposits = 3999;
+      }
+      if (vendorWallet.currentBalance < 3999) {
+        vendorWallet.currentBalance = 3999;
+      }
+      await vendorWallet.save();
+    } else {
+      // Create wallet if it doesn't exist
+      vendorWallet = new VendorWallet({
+        vendorId: vendor.vendorId,
+        currentBalance: 3999,
+        securityDeposit: 3999,
+        availableBalance: 0,
+        totalDeposits: 3999
+      });
+      await vendorWallet.save();
+    }
+
+    // Also ensure vendor is active and approved
+    vendor.isActive = true;
+    vendor.isApproved = true;
+    vendor.isBlocked = false;
+    
+    await vendor.save();
+
+    // Send push notification to vendor about account access granted
+    try {
+      const { sendMulticastPushNotification } = require('../services/firebasePushService');
+      
+      // Get vendor with FCM tokens
+      const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+      
+      // Use mobile/webview tokens only
+      const uniqueTokens = [...(vendorWithTokens?.fcmTokenMobile || [])];
+      
+      if (uniqueTokens.length > 0) {
+        const notificationData = {
+          title: '✅ Account Access Granted',
+          body: 'Your account has been activated! You can now access all features without ₹3999 deposit.',
+          data: {
+            type: 'account_access_granted',
+            vendorId: vendor.vendorId,
+            timestamp: new Date().toISOString(),
+            action: 'refresh_profile'
+          }
+        };
+
+        const pushResult = await sendMulticastPushNotification(uniqueTokens, notificationData);
+        logger.info('Account access notification sent successfully', {
+          vendorId: vendor._id,
+          email: vendor.email,
+          successCount: pushResult.successCount,
+          failureCount: pushResult.failureCount,
+          totalTokens: uniqueTokens.length
+        });
+      } else {
+        logger.warn('No FCM tokens found for vendor to send account access notification', {
+          vendorId: vendor._id,
+          email: vendor.email
+        });
+      }
+    } catch (notificationError) {
+      logger.error('Failed to send account access notification:', notificationError);
+      // Don't fail the grant access if notification fails
+    }
+
+    logger.info('Account access granted to vendor by admin', {
+      vendorId: vendor._id,
+      vendorEmail: vendor.email,
+      adminId: req.admin?._id
+    });
+
+    res.json({
+      success: true,
+      message: 'Account access granted successfully. Vendor can now access all features without ₹3999 deposit.',
+      data: { 
+        vendor: {
+          id: vendor._id,
+          vendorId: vendor.vendorId,
+          hasInitialDeposit: vendor.wallet.hasInitialDeposit
+        }
+      }
+    });
+  } catch (error) {
+    logger.error('Error granting account access:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to grant account access',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   getVendors,
   getVendorStats,
@@ -508,5 +626,6 @@ module.exports = {
   updateVendor,
   deleteVendor,
   sendEmailToVendor,
-  updateVendorRatings
+  updateVendorRatings,
+  grantAccountAccess
 };

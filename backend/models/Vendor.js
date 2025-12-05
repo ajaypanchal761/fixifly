@@ -317,7 +317,7 @@ const vendorSchema = new mongoose.Schema({
   // Account Status
   isActive: {
     type: Boolean,
-    default: false  // Changed to false - requires admin approval
+    default: true  // Instant activation - vendor account is active immediately upon creation
   },
   
   isBlocked: {
@@ -866,19 +866,50 @@ vendorSchema.statics.findByLocationAndService = function(city, pincode, serviceC
 };
 
 // Instance method to check if vendor can accept tasks (mandatory deposit requirement)
-vendorSchema.methods.canAcceptNewTasks = function() {
+vendorSchema.methods.canAcceptNewTasks = async function() {
   // If vendor has never been assigned a task, they can accept
   if (!this.wallet.firstTaskAssignedAt) {
     return true;
   }
   
-  // If vendor has been assigned a task but hasn't made mandatory deposit, they cannot accept
-  if (this.wallet.firstTaskAssignedAt && !this.wallet.hasMandatoryDeposit) {
-    return false;
+  // If vendor has already made mandatory deposit, they can accept
+  if (this.wallet.hasMandatoryDeposit) {
+    return true;
   }
   
-  // If vendor has made mandatory deposit, they can accept
-  return this.wallet.hasMandatoryDeposit;
+  // Check if vendor has initial deposit (₹3999) - if yes, they can accept
+  if (this.wallet.hasInitialDeposit) {
+    // Auto-mark mandatory deposit as completed if they have initial deposit
+    if (!this.wallet.hasMandatoryDeposit) {
+      this.wallet.hasMandatoryDeposit = true;
+      this.wallet.mandatoryDepositAmount = 3999;
+      await this.save();
+    }
+    return true;
+  }
+  
+  // Check wallet balance from VendorWallet model
+  const VendorWallet = require('./VendorWallet');
+  const vendorWallet = await VendorWallet.findOne({ vendorId: this.vendorId });
+  
+  if (vendorWallet) {
+    const currentBalance = vendorWallet.currentBalance || 0;
+    const totalDeposits = vendorWallet.totalDeposits || 0;
+    
+    // If vendor has ₹2000 or more in balance, they can accept tasks
+    if (currentBalance >= 2000 || totalDeposits >= 2000) {
+      // Auto-mark mandatory deposit as completed
+      if (!this.wallet.hasMandatoryDeposit) {
+        this.wallet.hasMandatoryDeposit = true;
+        this.wallet.mandatoryDepositAmount = Math.max(2000, currentBalance >= 2000 ? currentBalance : totalDeposits);
+        await this.save();
+      }
+      return true;
+    }
+  }
+  
+  // If vendor has been assigned a task but hasn't made mandatory deposit, they cannot accept
+  return false;
 };
 
 // Instance method to mark first task assignment

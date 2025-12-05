@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Clock, User, Phone, MessageCircle } from "lucide-react";
 import { Card as CardType } from "@/services/cardApi";
-import { getAvailableTimeSlots, getTimeSlotDisplayText } from "@/utils/timeSlotUtils";
+import { generateDynamicTimeSlots } from "@/utils/timeSlotUtils";
 
 interface ServiceBookingModalProps {
   isOpen: boolean;
@@ -60,14 +60,24 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showThankYou, setShowThankYou] = useState(false);
 
-  const timeSlots = [
-    "9:00 AM - 11:00 AM",
-    "11:00 AM - 1:00 PM", 
-    "1:00 PM - 3:00 PM",
-    "3:00 PM - 5:00 PM",
-    "5:00 PM - 7:00 PM",
-    "7:00 PM - 9:00 PM"
-  ];
+  // Generate dynamic time slots based on selected date
+  const getTimeSlots = () => {
+    if (!formData.preferredDate) {
+      // Default slots if no date selected
+      return [
+        "9:00 AM - 11:00 AM",
+        "11:00 AM - 1:00 PM", 
+        "1:00 PM - 3:00 PM",
+        "3:00 PM - 5:00 PM",
+        "5:00 PM - 7:00 PM",
+        "7:00 PM - 9:00 PM"
+      ];
+    }
+    // Generate dynamic slots for entire day (24 hours) - max 12 slots for full day coverage
+    return generateDynamicTimeSlots(formData.preferredDate, 2, 12);
+  };
+  
+  const timeSlots = getTimeSlots();
 
   const urgencyOptions = [
     { value: "urgent", label: "Urgent (Same Day)", color: "bg-red-100 text-red-800" },
@@ -81,11 +91,11 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
       
       // If date is changed, check if current time slot is still valid
       if (field === 'preferredDate' && prev.preferredTime) {
-        const availableSlots = getAvailableTimeSlots(timeSlots, value);
-        const currentSlot = availableSlots.find(slot => slot.value === prev.preferredTime);
+        const availableSlots = generateDynamicTimeSlots(value, 2, 6);
+        const isSlotAvailable = availableSlots.includes(prev.preferredTime);
         
-        // If current time slot is disabled, clear it
-        if (currentSlot && currentSlot.disabled) {
+        // If current time slot is not available, clear it
+        if (!isSlotAvailable) {
           newFormData.preferredTime = "";
         }
       }
@@ -426,14 +436,12 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                     <SelectValue placeholder="Select time slot" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getAvailableTimeSlots(timeSlots, formData.preferredDate).map((slot) => (
+                    {timeSlots.map((slot) => (
                       <SelectItem 
-                        key={slot.value} 
-                        value={slot.value}
-                        disabled={slot.disabled}
-                        className={slot.disabled ? "text-gray-400 cursor-not-allowed" : ""}
+                        key={slot} 
+                        value={slot}
                       >
-                        {getTimeSlotDisplayText(slot.label, slot.disabled)}
+                        {slot}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -192,7 +192,7 @@ const registerVendor = asyncHandler(async (req, res) => {
         aadhaarFront: aadhaarFrontUrl,
         aadhaarBack: aadhaarBackUrl
       },
-      isApproved: false,  // Admin approval for verification features
+      isApproved: true,  // Instant approval - vendor account created and approved immediately
       isActive: true,     // Allow immediate login
       isBlocked: false
     });
@@ -235,7 +235,7 @@ const registerVendor = asyncHandler(async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Vendor registered successfully. You can now login and access your account.',
+      message: 'Vendor account created and approved instantly! You can now login and access all features immediately.',
       data: {
         vendor: vendorData,
         token
@@ -546,6 +546,11 @@ const loginVendor = asyncHandler(async (req, res) => {
       };
     }
 
+    // Check hasInitialDeposit from vendor model first, then fallback to wallet calculation
+    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
+                             (vendorWallet.currentBalance >= 3999) ||
+                             (vendorWallet.totalDeposits >= 3999);
+
     // Prepare vendor data for response
     const vendorData = {
       id: vendor._id,
@@ -574,8 +579,8 @@ const loginVendor = asyncHandler(async (req, res) => {
       preferences: vendor.preferences,
       wallet: {
         currentBalance: vendorWallet.currentBalance,
-        hasInitialDeposit: vendorWallet.currentBalance >= 4000,
-        initialDepositAmount: vendorWallet.currentBalance >= 4000 ? 4000 : 0,
+        hasInitialDeposit: hasInitialDeposit,
+        initialDepositAmount: hasInitialDeposit ? (vendor.wallet?.initialDepositAmount || 3999) : 0,
         totalDeposits: vendorWallet.totalDeposits,
         totalWithdrawals: vendorWallet.totalWithdrawals
       }
@@ -636,6 +641,11 @@ const getVendorProfile = asyncHandler(async (req, res) => {
       await vendorWallet.save();
     }
 
+    // Check hasInitialDeposit from vendor model first, then fallback to wallet calculation
+    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
+                             (vendorWallet.currentBalance >= 3999) ||
+                             (vendorWallet.totalDeposits >= 3999);
+
     const vendorData = {
       id: vendor._id,
       vendorId: vendor.vendorId,
@@ -670,8 +680,8 @@ const getVendorProfile = asyncHandler(async (req, res) => {
       updatedAt: vendor.updatedAt,
       wallet: {
         currentBalance: vendorWallet.currentBalance,
-        hasInitialDeposit: vendorWallet.currentBalance >= 4000,
-        initialDepositAmount: vendorWallet.currentBalance >= 4000 ? 4000 : 0,
+        hasInitialDeposit: hasInitialDeposit,
+        initialDepositAmount: hasInitialDeposit ? (vendor.wallet?.initialDepositAmount || 3999) : 0,
         totalDeposits: vendorWallet.totalDeposits,
         totalWithdrawals: vendorWallet.totalWithdrawals
       }
@@ -1428,31 +1438,63 @@ const getVendorWallet = asyncHandler(async (req, res) => {
       await wallet.save();
     }
 
-    const summary = await VendorWallet.getVendorSummary(vendorWalletId);
-    const recentTransactions = await VendorWallet.getRecentTransactions(vendorWalletId, parseInt(limit));
+    // Safely get summary and transactions with error handling
+    let summary;
+    let recentTransactions = [];
+    
+    try {
+      summary = await VendorWallet.getVendorSummary(vendorWalletId);
+    } catch (summaryError) {
+      logger.error('Error fetching vendor summary:', summaryError);
+      // Use default summary if there's an error
+      summary = {
+        currentBalance: wallet.currentBalance || 0,
+        availableBalance: wallet.availableForWithdrawal || 0,
+        totalEarnings: wallet.totalEarnings || 0,
+        totalPenalties: wallet.totalPenalties || 0,
+        totalWithdrawals: wallet.totalWithdrawals || 0,
+        totalDeposits: wallet.totalDeposits || 0,
+        totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees || 0,
+        totalCashCollections: wallet.totalCashCollections || 0,
+        totalRefunds: wallet.totalRefunds || 0,
+        totalTasksCompleted: wallet.totalTasksCompleted || 0,
+        totalTasksRejected: wallet.totalTasksRejected || 0,
+        totalTasksCancelled: wallet.totalTasksCancelled || 0
+      };
+    }
+
+    try {
+      recentTransactions = await VendorWallet.getRecentTransactions(vendorWalletId, parseInt(limit) || 20);
+    } catch (transactionsError) {
+      logger.error('Error fetching recent transactions:', transactionsError);
+      // Continue with empty array if transactions fail
+      recentTransactions = [];
+    }
 
     res.status(200).json({
       success: true,
       data: {
         wallet: {
-          currentBalance: wallet.currentBalance,
-          securityDeposit: wallet.securityDeposit,
-          availableBalance: wallet.availableForWithdrawal,
-          totalEarnings: wallet.totalEarnings,
-          totalPenalties: wallet.totalPenalties,
-          totalWithdrawals: wallet.totalWithdrawals,
-          totalDeposits: wallet.totalDeposits,
-          totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees,
-          totalCashCollections: wallet.totalCashCollections,
-          totalRefunds: wallet.totalRefunds,
-          totalTasksCompleted: wallet.totalTasksCompleted,
-          totalTasksRejected: wallet.totalTasksRejected,
-          totalTasksCancelled: wallet.totalTasksCancelled,
-          lastTransactionAt: wallet.lastTransactionAt,
-          isActive: wallet.isActive
+          currentBalance: wallet.currentBalance || 0,
+          securityDeposit: wallet.securityDeposit || 3999,
+          availableBalance: wallet.availableForWithdrawal || 0,
+          totalEarnings: wallet.totalEarnings || 0,
+          totalPenalties: wallet.totalPenalties || 0,
+          totalWithdrawals: wallet.totalWithdrawals || 0,
+          totalDeposits: wallet.totalDeposits || 0,
+          totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees || 0,
+          totalCashCollections: wallet.totalCashCollections || 0,
+          totalRefunds: wallet.totalRefunds || 0,
+          totalTasksCompleted: wallet.totalTasksCompleted || 0,
+          totalTasksRejected: wallet.totalTasksRejected || 0,
+          totalTasksCancelled: wallet.totalTasksCancelled || 0,
+          lastTransactionAt: wallet.lastTransactionAt || null,
+          isActive: wallet.isActive !== undefined ? wallet.isActive : true,
+          hasInitialDeposit: (wallet.totalDeposits || 0) >= 3999 || (wallet.currentBalance || 0) >= 3999,
+          initialDepositAmount: wallet.totalDeposits || 0
         },
-        summary,
-        recentTransactions
+        summary: summary || {},
+        recentTransactions: recentTransactions || []
       }
     });
 

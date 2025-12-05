@@ -229,7 +229,37 @@ const App = () => {
     // Setup foreground notification handler
     const unsubscribe = setupForegroundNotificationHandler((payload) => {
       console.log('📬 Notification received in foreground:', payload);
-      // Custom handling can be added here if needed
+      
+      // Handle account access granted notification
+      if (payload.data?.type === 'account_access_granted') {
+        console.log('✅ Account access granted notification received');
+        // Dispatch custom event to trigger vendor context refresh
+        const event = new CustomEvent('accountAccessGranted', {
+          detail: payload.data
+        });
+        window.dispatchEvent(event);
+      }
+      
+      // Handle booking assignment notification
+      if (payload.data?.type === 'booking_assignment') {
+        console.log('📅 Booking assignment notification received');
+        // Dispatch custom event to trigger vendor dashboard refresh
+        const event = new CustomEvent('bookingAssigned', {
+          detail: payload.data
+        });
+        window.dispatchEvent(event);
+        
+        // Show browser notification if permission granted
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('📅 New Booking Assigned', {
+            body: payload.notification?.body || payload.data?.message || 'A new service booking has been assigned to you.',
+            icon: '/favicon.png',
+            badge: '/favicon.png',
+            tag: 'booking-assignment',
+            requireInteraction: true
+          });
+        }
+      }
     });
     
     // Register service worker for PWA functionality - COMMENTED OUT FOR WEBVIEW TESTING

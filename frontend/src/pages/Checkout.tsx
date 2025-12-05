@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import razorpayService, { BookingData } from "@/services/razorpayService";
-import { getAvailableTimeSlots, getTimeSlotDisplayText } from "@/utils/timeSlotUtils";
+import { generateDynamicTimeSlots, getTimeSlotDisplayText } from "@/utils/timeSlotUtils";
 
 interface CartItem {
   id: string;
@@ -32,16 +32,6 @@ const Checkout = () => {
   // First-time user free service feature has been removed
   const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean>(false);
   const [checkingFirstTime, setCheckingFirstTime] = useState(false);
-  
-  // Time slots for scheduling
-  const timeSlots = [
-    "9:00 AM - 11:00 AM",
-    "11:00 AM - 1:00 PM", 
-    "1:00 PM - 3:00 PM",
-    "3:00 PM - 5:00 PM",
-    "5:00 PM - 7:00 PM",
-    "7:00 PM - 9:00 PM"
-  ];
   
   // Customer form data - initialize with user data if available
   const [customerData, setCustomerData] = useState({
@@ -86,14 +76,30 @@ const Checkout = () => {
     }
   }, [user]);
 
-  // Clear selected time slot if it becomes disabled when date changes
+  // Generate dynamic time slots based on selected date - using useMemo after customerData is declared
+  const timeSlots = useMemo(() => {
+    if (!customerData.scheduledDate) {
+      // Default slots if no date selected
+      return [
+        "9:00 AM - 11:00 AM",
+        "11:00 AM - 1:00 PM", 
+        "1:00 PM - 3:00 PM",
+        "3:00 PM - 5:00 PM",
+        "5:00 PM - 7:00 PM",
+        "7:00 PM - 9:00 PM"
+      ];
+    }
+    // Generate dynamic slots for entire day (24 hours) - max 12 slots for full day coverage
+    return generateDynamicTimeSlots(customerData.scheduledDate, 2, 12);
+  }, [customerData.scheduledDate]);
+
+  // Clear selected time slot if it's not in available slots when date changes
   useEffect(() => {
     if (customerData.scheduledDate && customerData.scheduledTime) {
-      const availableSlots = getAvailableTimeSlots(timeSlots, customerData.scheduledDate);
-      const currentSlot = availableSlots.find(slot => slot.value === customerData.scheduledTime);
+      const isSlotAvailable = timeSlots.includes(customerData.scheduledTime);
       
-      // If current time slot is disabled, clear it
-      if (currentSlot && currentSlot.disabled) {
+      // If current time slot is not available, clear it
+      if (!isSlotAvailable) {
         setCustomerData(prev => ({ ...prev, scheduledTime: "" }));
       }
     }
@@ -580,14 +586,12 @@ const Checkout = () => {
                   required
                 >
                   <option value="">Select time slot</option>
-                  {getAvailableTimeSlots(timeSlots, customerData.scheduledDate).map((slot) => (
+                  {timeSlots.map((slot) => (
                     <option 
-                      key={slot.value} 
-                      value={slot.value}
-                      disabled={slot.disabled}
-                      className={slot.disabled ? "text-gray-400" : ""}
+                      key={slot} 
+                      value={slot}
                     >
-                      {getTimeSlotDisplayText(slot.label, slot.disabled)}
+                      {slot}
                     </option>
                   ))}
                 </select>

@@ -270,21 +270,21 @@ const sendPushNotification = async (tokens, payload) => {
           // Include image for web push
           ...(payload.image && { image: payload.image }),
           clickAction: payload.handlerName || 'message',
-          requireInteraction: false,
+          requireInteraction: payload.data?.priority === 'high' || payload.data?.type === 'booking_assignment' || payload.requireInteraction || false,
           // Use bookingId or type as tag to prevent duplicate notifications
           tag: payload.data?.bookingId 
             ? `booking_${String(payload.data.bookingId)}` 
             : payload.data?.type 
               ? `type_${String(payload.data.type)}`
               : `notif_${Date.now()}`,
-          vibrate: [200, 100, 200],
+          vibrate: payload.data?.type === 'booking_assignment' ? [200, 100, 200, 100, 200] : [200, 100, 200],
           silent: false,
         },
         fcmOptions: {
           link: payload.link || '/',
         },
         headers: {
-          Urgency: 'normal',
+          Urgency: payload.data?.priority === 'high' || payload.data?.type === 'booking_assignment' ? 'high' : 'normal',
         },
       },
       // Android specific options (for APK/webview)

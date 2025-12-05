@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
+import vendorApiService from '@/services/vendorApi';
 
 interface ServiceLocation {
   _id: string;
@@ -76,6 +77,7 @@ interface VendorContextType {
   login: (vendorData: Vendor, token: string) => Promise<void>;
   logout: () => Promise<void>;
   updateVendor: (vendorData: Partial<Vendor>) => Promise<void>;
+  refreshVendor: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -96,6 +98,7 @@ interface VendorProviderProps {
 export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // VendorContext loaded - notifications will be handled via push notifications
@@ -210,12 +213,91 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
     }
   };
 
+  // Refresh vendor data from API
+  const refreshVendor = async () => {
+    try {
+      const token = localStorage.getItem('vendorToken');
+      if (!token || !vendor) {
+        return;
+      }
+
+      console.log('🔄 VendorContext: Refreshing vendor data from API...');
+      const response = await vendorApiService.getVendorProfile();
+      
+      if (response.success && response.data?.vendor) {
+        const updatedVendor = response.data.vendor;
+        console.log('✅ VendorContext: Vendor data refreshed from API');
+        console.log('Updated wallet data:', updatedVendor.wallet);
+        
+        // Update localStorage and state
+        localStorage.setItem('vendorData', JSON.stringify(updatedVendor));
+        setVendor(updatedVendor);
+        
+        return Promise.resolve();
+      }
+    } catch (error) {
+      console.error('❌ VendorContext: Failed to refresh vendor data:', error);
+      // Don't throw error, just log it
+    }
+  };
+
+  // Set up periodic refresh when vendor is logged in
+  useEffect(() => {
+    if (vendor) {
+      // Clear any existing interval
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+
+      // Refresh immediately on mount
+      refreshVendor();
+
+      // Set up periodic refresh every 15 seconds for instant access
+      refreshIntervalRef.current = setInterval(() => {
+        refreshVendor();
+      }, 15000); // 15 seconds for faster updates
+
+      console.log('✅ VendorContext: Periodic refresh enabled (every 15 seconds)');
+
+      // Listen for account access granted notifications
+      const handleAccountAccessGranted = (event: CustomEvent) => {
+        console.log('🔄 VendorContext: Account access granted notification received');
+        // Refresh vendor data immediately
+        refreshVendor();
+      };
+
+      // Listen for custom event
+      window.addEventListener('accountAccessGranted' as any, handleAccountAccessGranted as EventListener);
+
+      return () => {
+        if (refreshIntervalRef.current) {
+          clearInterval(refreshIntervalRef.current);
+        }
+        window.removeEventListener('accountAccessGranted' as any, handleAccountAccessGranted as EventListener);
+      };
+    } else {
+      // Clear interval when vendor logs out
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [vendor?.id]); // Only depend on vendor ID to avoid infinite loops
+
   const value: VendorContextType = {
     vendor,
     isAuthenticated: !!vendor,
     login,
     logout,
     updateVendor,
+    refreshVendor,
     isLoading,
   };
 

@@ -1272,6 +1272,30 @@ class AdminApiService {
     }
   }
 
+  // Grant account access to vendor (enable without ₹3999 deposit)
+  async grantAccountAccess(vendorId: string): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/vendors/${vendorId}/grant-access`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to grant account access');
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('Grant account access error:', error);
+      throw new Error(error.message || 'Failed to grant account access');
+    }
+  }
+
   // Send test email
   async sendTestEmail(to: string): Promise<{
     success: boolean;

@@ -21,7 +21,8 @@ import {
   Award,
   AlertTriangle,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Key
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -251,6 +252,28 @@ const AdminVendorManagement = () => {
       });
     } finally {
       setSendingEmail(false);
+    }
+  };
+
+  // Handle grant account access (enable without ₹3999 deposit)
+  const handleGrantAccountAccess = async (vendorId: string) => {
+    if (!confirm('Are you sure you want to grant account access to this vendor? This will enable their account without requiring ₹3999 deposit. The vendor will receive instant access within 15 seconds.')) {
+      return;
+    }
+
+    try {
+      await adminApiService.grantAccountAccess(vendorId);
+      toast({
+        title: "Success",
+        description: "Account access granted successfully! Vendor can now access all features without ₹3999 deposit. Changes will be applied automatically within 15 seconds.",
+      });
+      fetchVendors(); // Refresh the list
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to grant account access',
+        variant: "destructive",
+      });
     }
   };
 
@@ -587,6 +610,13 @@ const AdminVendorManagement = () => {
                               }}>
                                 <Mail className="w-4 h-4 mr-2" />
                                 Send Email
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-green-600"
+                                onClick={() => handleGrantAccountAccess(vendor.id)}
+                              >
+                                <Key className="w-4 h-4 mr-2" />
+                                Account Access
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 className="text-red-600"

@@ -305,8 +305,8 @@ const VendorSignup = () => {
 
       if (response.success) {
         toast({
-          title: "Registration Successful",
-          description: "Your vendor account has been created. You can now login or get verified!",
+          title: "Account Created Successfully!",
+          description: "Your vendor account has been created and approved instantly. You can now login and access all features!",
         });
 
         // Redirect to verification page
@@ -873,16 +873,15 @@ const VendorSignup = () => {
               </p>
             </div>
 
-            {/* Approval Process Information */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-              <div className="flex items-center gap-2 text-blue-800 mb-2">
+            {/* Account Creation Information */}
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+              <div className="flex items-center gap-2 text-green-800 mb-2">
                 <Clock className="h-4 w-4" />
-                <p className="text-sm font-medium">Account Approval Required</p>
+                <p className="text-sm font-medium">Instant Account Creation</p>
               </div>
-              <p className="text-xs text-blue-700">
-                After registration, your vendor account will be reviewed by our admin team. 
-                You'll receive an email notification once your account is approved and you can login.
-                This process typically takes 1-2 business days.
+              <p className="text-xs text-green-700">
+                Your vendor account will be created instantly! You can login immediately after registration 
+                and start accessing all features. No admin approval required.
               </p>
             </div>
         </div>

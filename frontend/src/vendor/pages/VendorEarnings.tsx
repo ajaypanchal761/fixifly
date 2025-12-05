@@ -317,9 +317,23 @@ const VendorEarnings = () => {
           // Wallet not found, create empty transaction history
           console.warn('Vendor wallet not found, using empty transaction history');
           setTransactionHistory([]);
+          setLoadingTransactions(false);
           return;
         }
-        throw new Error(`HTTP ${response.status}: Failed to fetch transaction history`);
+        
+        // Try to get error message from response
+        let errorMessage = `HTTP ${response.status}: Failed to fetch transaction history`;
+        try {
+          const errorText = await response.text();
+          const errorData = errorText ? JSON.parse(errorText) : null;
+          if (errorData?.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          // Ignore parsing errors
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // Check if response is JSON before parsing
@@ -344,23 +358,33 @@ const VendorEarnings = () => {
         return;
       }
       
-      // Check if data structure is correct
-      if (!data.success || !data.data || !Array.isArray(data.data.recentTransactions)) {
+      // Check if data structure is correct - handle both old and new response formats
+      if (!data.success || !data.data) {
         console.warn('Invalid API response structure:', data);
         setTransactionHistory([]);
+        setLoadingTransactions(false);
+        return;
+      }
+      
+      // Handle both old format (data.data.recentTransactions) and new format (data.data.recentTransactions)
+      const transactions = data.data.recentTransactions || data.data.transactions || [];
+      if (!Array.isArray(transactions)) {
+        console.warn('Transactions is not an array:', transactions);
+        setTransactionHistory([]);
+        setLoadingTransactions(false);
         return;
       }
       
       // Debug: Log all transactions received from API
       console.log('=== TRANSACTION HISTORY DEBUG ===');
       console.log('Full API response:', data);
-      console.log('All transactions from API:', data.data.recentTransactions);
-      console.log('Number of transactions:', data.data.recentTransactions.length);
-      console.log('Withdrawal request transactions:', data.data.recentTransactions.filter((t: any) => t.type === 'withdrawal_request'));
+      console.log('All transactions from API:', transactions);
+      console.log('Number of transactions:', transactions.length);
+      console.log('Withdrawal request transactions:', transactions.filter((t: any) => t.type === 'withdrawal_request'));
       console.log('=== END TRANSACTION HISTORY DEBUG ===');
       
       // Transform API data to match component interface and sort by date (latest first)
-      const transformedTransactions = data.data.recentTransactions
+      const transformedTransactions = transactions
         .sort((a: any, b: any) => {
           const dateA = new Date(a.createdAt || a.timestamp || 0);
           const dateB = new Date(b.createdAt || b.timestamp || 0);

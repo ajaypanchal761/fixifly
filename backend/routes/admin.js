@@ -174,7 +174,8 @@ const {
   updateVendor,
   deleteVendor,
   sendEmailToVendor,
-  updateVendorRatings
+  updateVendorRatings,
+  grantAccountAccess
 } = require('../controllers/adminVendorController');
 
 // @route   GET /api/admin/vendors
@@ -204,6 +205,10 @@ router.delete('/vendors/:id', protectAdmin, requirePermission('vendorManagement'
 // @route   POST /api/admin/vendors/:id/send-email
 // @access  Private (Admin with vendorManagement permission)
 router.post('/vendors/:id/send-email', protectAdmin, requirePermission('vendorManagement'), sendEmailToVendor);
+
+// @route   POST /api/admin/vendors/:id/grant-access
+// @access  Private (Admin with vendorManagement permission)
+router.post('/vendors/:id/grant-access', protectAdmin, requirePermission('vendorManagement'), grantAccountAccess);
 
 // @route   POST /api/admin/vendors/update-ratings
 // @access  Private (Admin with vendorManagement permission)

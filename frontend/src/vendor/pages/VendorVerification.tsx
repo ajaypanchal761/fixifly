@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
   Dialog,
   DialogContent,
@@ -17,22 +16,16 @@ import {
   Shield, 
   TrendingUp, 
   Users, 
-  Clock, 
   CreditCard,
   ArrowRight,
   Crown,
   Zap,
   Target,
-  Eye,
-  X
+  Eye
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import vendorApiService from '@/services/vendorApi';
 
 const VendorVerification = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
 
   const benefits = [
     {
@@ -68,136 +61,10 @@ const VendorVerification = () => {
   ];
 
   const handlePayment = async () => {
-    setIsLoading(true);
-    try {
-      // Create verification payment order
-      const response = await vendorApiService.createVerificationPayment();
-      
-      if (response.success && response.data) {
-        // Load Razorpay script
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.onload = () => {
-          const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_RmLDP4W1dPgg6J',
-            amount: response.data.amount,
-            currency: response.data.currency,
-            name: 'Fixfly Partner Verification',
-            description: 'Partner Verification Fee',
-            order_id: response.data.orderId,
-            handler: async (paymentResponse: any) => {
-              try {
-                // Verify payment
-                const verifyResponse = await vendorApiService.verifyVerificationPayment({
-                  razorpay_payment_id: paymentResponse.razorpay_payment_id,
-                  razorpay_order_id: paymentResponse.razorpay_order_id,
-                  razorpay_signature: paymentResponse.razorpay_signature
-                });
-
-                if (verifyResponse.success) {
-                  toast({
-                    title: "Payment Successful!",
-                    description: "Your verification payment has been processed successfully.",
-                  });
-                  
-                  // Show verification progress popup
-                  showVerificationProgress();
-                } else {
-                  toast({
-                    title: "Payment Verification Failed",
-                    description: "Please contact support for assistance.",
-                    variant: "destructive"
-                  });
-                }
-              } catch (error) {
-                console.error('Payment verification error:', error);
-                toast({
-                  title: "Payment Verification Failed",
-                  description: "Please contact support for assistance.",
-                  variant: "destructive"
-                });
-              }
-            },
-            prefill: {
-              name: 'Vendor',
-              email: 'vendor@fixfly.com',
-            },
-            theme: {
-              color: '#3B82F6'
-            }
-          };
-
-          const razorpay = new (window as any).Razorpay(options);
-          razorpay.open();
-        };
-        document.body.appendChild(script);
-      } else {
-        toast({
-          title: "Payment Failed",
-          description: "Failed to create payment order. Please try again.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Payment creation error:', error);
-      toast({
-        title: "Payment Failed",
-        description: "Failed to create payment order. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // Redirect to login page immediately when button is clicked
+    navigate('/vendor/login');
   };
 
-  const showVerificationProgress = () => {
-    // Create and show verification progress popup
-    const popup = document.createElement('div');
-    popup.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    popup.innerHTML = `
-      <div class="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
-        <div class="mb-6">
-          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Clock className="h-8 w-8 text-blue-600" />
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">Account Verification Progress</h3>
-          <p class="text-gray-600">Your verification request has been submitted successfully!</p>
-        </div>
-        
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <div class="flex items-center justify-center mb-2">
-            <Clock className="h-5 w-5 text-blue-600 mr-2" />
-            <span class="text-blue-800 font-medium">Processing Time</span>
-          </div>
-          <p class="text-blue-700 text-sm">It will take 24 hours for admin to review and approve your verification request.</p>
-        </div>
-        
-        <div class="space-y-3 text-sm text-gray-600">
-          <div class="flex items-center justify-center">
-            <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-            <span>Payment completed successfully</span>
-          </div>
-          <div class="flex items-center justify-center">
-            <Clock className="h-4 w-4 text-yellow-500 mr-2" />
-            <span>Under admin review</span>
-          </div>
-          <div class="flex items-center justify-center">
-            <Clock className="h-4 w-4 text-gray-400 mr-2" />
-            <span>Verification approval pending</span>
-          </div>
-        </div>
-        
-        <Button 
-          onClick="this.closest('.fixed').remove(); window.location.href='/vendor/dashboard';"
-          className="w-full mt-6 bg-blue-600 hover:bg-blue-700"
-        >
-          Go to Dashboard
-        </Button>
-      </div>
-    `;
-    
-    document.body.appendChild(popup);
-  };
 
 
   return (
@@ -308,21 +175,13 @@ const VendorVerification = () => {
             <div className="flex justify-center">
               <Button
                 onClick={handlePayment}
-                disabled={isLoading}
                 className="w-full max-w-md h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
               >
-                {isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Processing...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <CreditCard className="h-5 w-5" />
-                    <span>Pay ₹3,999 & Get Verified</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                )}
+                <div className="flex items-center space-x-2">
+                  <CreditCard className="h-5 w-5" />
+                  <span>Pay ₹3,999 & Get Verified</span>
+                  <ArrowRight className="h-4 w-4" />
+                </div>
               </Button>
             </div>
 

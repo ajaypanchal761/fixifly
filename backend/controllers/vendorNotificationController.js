@@ -676,7 +676,9 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
           title: '📅 Booking Assigned',
-          body: `A new service booking for ${bookingData.customer?.name || 'customer'} has been assigned to you. Please review and take action.`
+          body: `A new service booking for ${bookingData.customer?.name || 'customer'} has been assigned to you. Please review and take action.`,
+          priority: 'high', // High priority for instant delivery
+          requireInteraction: true // Require user interaction for important notifications
         };
 
         const pushData = {
@@ -685,7 +687,9 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           customerName: bookingData.customer?.name,
           scheduledDate: bookingData.scheduling?.scheduledDate,
           totalAmount: bookingData.pricing?.totalAmount,
-          action: 'view_booking'
+          action: 'view_booking',
+          priority: 'high', // High priority for instant delivery
+          timestamp: new Date().toISOString()
         };
 
         // Send push notification to all tokens using multicast
