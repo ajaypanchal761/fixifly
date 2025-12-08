@@ -173,13 +173,14 @@ const Header = () => {
         sx={{
           backgroundColor: 'white',
           color: 'black',
-          boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+          boxShadow: '0px 1px 2px rgba(0,0,0,0.08)',
           height: '76px',
           top: 0,
           paddingTop: '0px',
+          marginBottom: '0px',
         }}
       >
-         <Toolbar sx={{ minHeight: '76px !important', justifyContent: 'center', position: 'relative', paddingTop: '8px !important', paddingBottom: '8px !important' }}>
+         <Toolbar sx={{ minHeight: '76px !important', justifyContent: 'center', position: 'relative', paddingTop: '8px !important', paddingBottom: '4px !important' }}>
            {/* Left side - Menu Icon and Logo */}
            <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', left: 0 }}>
              <IconButton

@@ -16,7 +16,7 @@ const MobileBottomNav = () => {
     <>
       {/* Bottom Navigation */}
       <div className="fixed left-0 right-0 bg-white border-t border-gray-200 z-[60] md:hidden shadow-lg" style={{ bottom: '-4px', paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}>
-      <div className="flex justify-around items-center py-1">
+      <div className="flex justify-around items-center py-0.5">
         {navItems.map((item) => {
           const IconComponent = item.icon;
           const isActive = location.pathname === item.href;
@@ -28,11 +28,11 @@ const MobileBottomNav = () => {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center py-2 px-3 rounded-lg transition-colors duration-200 text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+                className="flex flex-col items-center py-1 px-3 rounded-lg transition-colors duration-200 text-gray-600 hover:text-blue-600 hover:bg-gray-50"
               >
                 <IconComponent 
                   size={20} 
-                  className="mb-1 text-gray-600"
+                  className="mb-0.5 mt-0.5 text-gray-600"
                 />
                 <span className="text-xs font-medium text-gray-600">
                   {item.name}
@@ -45,7 +45,7 @@ const MobileBottomNav = () => {
             <Link
               key={item.name}
               to={item.href}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors duration-200 ${
+              className={`flex flex-col items-center py-1 px-3 rounded-lg transition-colors duration-200 ${
                 isActive 
                   ? 'text-blue-600 bg-blue-50' 
                   : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
@@ -53,7 +53,7 @@ const MobileBottomNav = () => {
             >
               <IconComponent 
                 size={20} 
-                className={`mb-1 ${isActive ? 'text-blue-600' : 'text-gray-600'}`}
+                className={`mb-0.5 mt-0.5 ${isActive ? 'text-blue-600' : 'text-gray-600'}`}
               />
               <span className={`text-xs font-medium ${isActive ? 'text-blue-600' : 'text-gray-600'}`}>
                 {item.name}
