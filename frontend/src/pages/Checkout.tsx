@@ -308,17 +308,26 @@ const Checkout = () => {
           bookingData,
           // Success callback
           (response) => {
+            console.log('✅ Payment success callback received:', {
+              hasBooking: !!response.booking,
+              bookingReference: response.bookingReference,
+              responseKeys: Object.keys(response)
+            });
+
+            const bookingRef = response.bookingReference || response.booking?.bookingReference;
+            
             toast({
               title: "Payment Successful!",
-              description: `Your booking has been confirmed. Reference: ${response.bookingReference}`,
+              description: `Your booking has been confirmed. Reference: ${bookingRef}`,
               variant: "default"
             });
 
-            // Redirect to booking page with booking data
+            // Redirect to booking page with booking data - ensure immediate navigation
             navigate('/booking', { 
+              replace: true, // Replace current history entry to prevent back navigation to checkout
               state: { 
                 booking: response.booking,
-                bookingReference: response.bookingReference,
+                bookingReference: bookingRef,
                 fromCheckout: true 
               } 
             });

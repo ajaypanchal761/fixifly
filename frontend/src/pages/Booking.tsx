@@ -54,6 +54,47 @@ const Booking = () => {
   const [checkedReviews, setCheckedReviews] = useState<Set<string>>(new Set());
   const [submittedReviews, setSubmittedReviews] = useState<Set<string>>(new Set());
 
+  // Update state when location state changes (e.g., after payment success)
+  useEffect(() => {
+    if (location.state) {
+      console.log('📍 Location state updated:', {
+        hasBooking: !!location.state.booking,
+        bookingReference: location.state.bookingReference,
+        fromCheckout: location.state.fromCheckout,
+        hasCartItems: !!location.state.cartItems
+      });
+      
+      if (location.state.booking) {
+        setNewBooking(location.state.booking);
+        console.log('✅ Booking state set:', location.state.booking.bookingReference || location.state.booking._id);
+      }
+      if (location.state.bookingReference) {
+        setBookingReference(location.state.bookingReference);
+        console.log('✅ Booking reference set:', location.state.bookingReference);
+      }
+      if (location.state.fromCheckout !== undefined) {
+        setFromCheckout(location.state.fromCheckout);
+        console.log('✅ From checkout set:', location.state.fromCheckout);
+      }
+      if (location.state.cartItems) {
+        setCartItems(location.state.cartItems);
+      }
+      if (location.state.totalPrice) {
+        setTotalPrice(location.state.totalPrice);
+      }
+    }
+  }, [location.state]);
+
+  // Debug confirmation view state
+  useEffect(() => {
+    console.log('🔍 Confirmation view state:', {
+      isNewBookingView,
+      hasNewBooking: !!newBooking,
+      bookingReference,
+      fromCheckout
+    });
+  }, [isNewBookingView, newBooking, bookingReference, fromCheckout]);
+
   // Debug popup state changes
   useEffect(() => {
     console.log('Rating popup state changed:', { showRatingPopup, ratingBooking: ratingBooking?._id });
@@ -301,11 +342,21 @@ For support, contact us at info@fixfly.in
   };
 
   // Fetch bookings when component mounts or user changes
+  // Skip fetching if showing confirmation view to ensure instant display
   useEffect(() => {
+    // Don't fetch bookings if we're showing the confirmation page
+    const isShowingConfirmation = (location.state?.booking && location.state?.fromCheckout) || 
+                                  (newBooking && fromCheckout);
+    
+    if (isShowingConfirmation) {
+      console.log('⏭️ Skipping bookings fetch - showing confirmation view');
+      return;
+    }
+    
     if (isAuthenticated && user?.email) {
       fetchBookings();
     }
-  }, [isAuthenticated, user?.email]);
+  }, [isAuthenticated, user?.email, location.state, newBooking, fromCheckout]);
 
   // Listen for booking updates (including cash payment completions)
   useEffect(() => {
