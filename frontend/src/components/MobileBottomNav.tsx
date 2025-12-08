@@ -15,8 +15,8 @@ const MobileBottomNav = () => {
   return (
     <>
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[60] md:hidden shadow-lg" style={{ bottom: '0px', paddingBottom: '2px' }}>
-      <div className="flex justify-around items-center py-2">
+      <div className="fixed left-0 right-0 bg-white border-t border-gray-200 z-[60] md:hidden shadow-lg" style={{ bottom: '-4px', paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}>
+      <div className="flex justify-around items-center py-1">
         {navItems.map((item) => {
           const IconComponent = item.icon;
           const isActive = location.pathname === item.href;
