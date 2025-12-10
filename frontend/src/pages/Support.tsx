@@ -673,7 +673,9 @@ const Support = () => {
   // Helper function to open URL scheme (works in WebView)
   const openURLScheme = (url: string, scheme: 'tel' | 'mailto' | 'http' = 'http') => {
     try {
-      const isAndroid = isAndroidWebView();
+      const userAgent = navigator.userAgent || '';
+      const isAndroid = /Android/i.test(userAgent);
+      const isWebView = /wv|WebView/i.test(userAgent);
       const hasBridge = hasNativeBridge();
       
       // Method 1: Try native bridge if available
@@ -692,106 +694,190 @@ const Support = () => {
         }
       }
       
-      // Method 2: For Android WebView with tel: scheme, use Intent URL
-      if (isAndroid && scheme === 'tel') {
-        const phoneNumber = url.replace('tel:', '').replace(/[^0-9+]/g, '');
-        const intentUrl = `intent://${phoneNumber}#Intent;scheme=tel;end`;
-        
-        try {
-          window.location.href = intentUrl;
-          // Give it a moment, then try fallback if needed
-          setTimeout(() => {
-            // If still here, try standard method
-            const anchor = document.createElement('a');
-            anchor.href = url;
-            anchor.style.display = 'none';
-            document.body.appendChild(anchor);
-            anchor.click();
-            setTimeout(() => {
-              if (document.body.contains(anchor)) {
-                document.body.removeChild(anchor);
-              }
-            }, 100);
-          }, 300);
-          return;
-        } catch (e) {
-          console.log('Intent failed, continuing with other methods:', e);
-        }
-      }
-      
-      // Method 3: Try iframe approach (works in some WebViews)
-      if (scheme === 'tel' || scheme === 'mailto') {
-        try {
-          const iframe = document.createElement('iframe');
-          iframe.style.display = 'none';
-          iframe.style.width = '0';
-          iframe.style.height = '0';
-          iframe.style.border = 'none';
-          iframe.src = url;
-          document.body.appendChild(iframe);
+      // Method 2: For Android WebView, ALWAYS use Intent URLs (never use window.location.href)
+      if (isAndroid && isWebView && (scheme === 'tel' || scheme === 'mailto')) {
+        if (scheme === 'tel') {
+          const phoneNumber = url.replace('tel:', '').replace(/[^0-9+]/g, '');
+          // Use Intent URL format for Android - multiple formats to try
+          const intentUrl1 = `intent://${phoneNumber}#Intent;scheme=tel;end`;
+          const intentUrl2 = `intent://tel:${phoneNumber}#Intent;scheme=tel;end`;
           
-          // Clean up iframe after a delay
-          setTimeout(() => {
-            if (document.body.contains(iframe)) {
-              document.body.removeChild(iframe);
+          // Try multiple methods
+          let success = false;
+          
+          // Method 2a: window.open without target
+          try {
+            window.open(intentUrl1);
+            success = true;
+          } catch (e) {
+            console.log('window.open without target failed:', e);
+          }
+          
+          // Method 2b: window.open with _blank
+          if (!success) {
+            try {
+              const opened = window.open(intentUrl1, '_blank');
+              if (opened) success = true;
+            } catch (e) {
+              console.log('window.open with _blank failed:', e);
             }
-          }, 1000);
+          }
           
-          // Also try anchor as backup
-          setTimeout(() => {
-            const anchor = document.createElement('a');
-            anchor.href = url;
-            anchor.style.display = 'none';
-            document.body.appendChild(anchor);
-            anchor.click();
-            setTimeout(() => {
-              if (document.body.contains(anchor)) {
-                document.body.removeChild(anchor);
-              }
-            }, 100);
-          }, 200);
+          // Method 2c: Try alternative Intent format
+          if (!success) {
+            try {
+              window.open(intentUrl2);
+              success = true;
+            } catch (e) {
+              console.log('Alternative intent format failed:', e);
+            }
+          }
+          
+          // Method 2d: Form submission
+          if (!success) {
+            try {
+              const form = document.createElement('form');
+              form.method = 'GET';
+              form.action = intentUrl1;
+              form.target = '_self';
+              form.style.display = 'none';
+              document.body.appendChild(form);
+              form.submit();
+              setTimeout(() => {
+                if (document.body.contains(form)) {
+                  document.body.removeChild(form);
+                }
+              }, 100);
+              success = true;
+            } catch (e) {
+              console.log('Form submission failed:', e);
+            }
+          }
+          
+          if (!success) {
+            // Show user message
+            toast({
+              title: "Phone call not available",
+              description: `Please dial manually: ${phoneNumber}`,
+              variant: "destructive",
+              duration: 4000,
+            });
+          }
           return;
-        } catch (e) {
-          console.log('Iframe method failed:', e);
+          
+        } else if (scheme === 'mailto') {
+          // Extract email and params
+          const mailtoMatch = url.match(/mailto:([^?]+)(\?.*)?/);
+          if (mailtoMatch) {
+            const email = mailtoMatch[1];
+            const params = mailtoMatch[2] || '';
+            // Use Intent URL for mailto
+            const intentUrl = `intent:${email}${params}#Intent;scheme=mailto;end`;
+            
+            let success = false;
+            
+            // Try window.open
+            try {
+              window.open(intentUrl);
+              success = true;
+            } catch (e) {
+              console.log('Mailto window.open failed:', e);
+            }
+            
+            // Try form if window.open failed
+            if (!success) {
+              try {
+                const form = document.createElement('form');
+                form.method = 'GET';
+                form.action = intentUrl;
+                form.target = '_self';
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                form.submit();
+                setTimeout(() => {
+                  if (document.body.contains(form)) {
+                    document.body.removeChild(form);
+                  }
+                }, 100);
+                success = true;
+              } catch (e) {
+                console.log('Mailto form failed:', e);
+              }
+            }
+            
+            if (!success) {
+              toast({
+                title: "Email not available",
+                description: `Please copy the email: ${email}`,
+                variant: "destructive",
+                duration: 3000,
+              });
+            }
+            return;
+          }
         }
       }
       
-      // Method 4: Standard anchor element approach (most reliable)
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.style.display = 'none';
-      anchor.target = '_self';
-      document.body.appendChild(anchor);
-      
-      setTimeout(() => {
-        try {
-          anchor.click();
-        } catch (e) {
-          console.log('Anchor click failed, trying window.location:', e);
-          window.location.href = url;
-        }
+      // Method 3: For non-WebView or regular browsers, use standard methods
+      if (!isWebView) {
+        // Use anchor element for regular browsers
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.style.display = 'none';
+        anchor.target = '_self';
+        document.body.appendChild(anchor);
         
         setTimeout(() => {
-          if (document.body.contains(anchor)) {
-            document.body.removeChild(anchor);
+          try {
+            anchor.click();
+          } catch (e) {
+            console.log('Anchor click failed:', e);
           }
-        }, 100);
-      }, 10);
+          
+          setTimeout(() => {
+            if (document.body.contains(anchor)) {
+              document.body.removeChild(anchor);
+            }
+          }, 100);
+        }, 10);
+        return;
+      }
+      
+      // Method 4: Last resort for WebView - show user message
+      if (isWebView && (scheme === 'tel' || scheme === 'mailto')) {
+        if (scheme === 'tel') {
+          const phoneNumber = url.replace('tel:', '');
+          toast({
+            title: "Phone call not available",
+            description: `Please dial manually: ${phoneNumber}`,
+            variant: "destructive",
+            duration: 4000,
+          });
+        } else {
+          const email = url.replace('mailto:', '').split('?')[0];
+          toast({
+            title: "Email not available",
+            description: `Please copy the email: ${email}`,
+            variant: "destructive",
+            duration: 4000,
+          });
+        }
+        return;
+      }
+      
+      // For HTTP URLs, use standard method
+      if (scheme === 'http') {
+        window.open(url, '_blank');
+      }
       
     } catch (error) {
       console.error('Error opening URL scheme:', error);
-      // Final fallback: try window.location
-      try {
-        window.location.href = url;
-      } catch (e) {
-        console.error('All methods failed to open URL:', e);
-        toast({
-          title: "Unable to open",
-          description: "Please try copying the contact information manually",
-          variant: "destructive",
-          duration: 3000,
-        });
-      }
+      toast({
+        title: "Unable to open",
+        description: "Please try copying the contact information manually",
+        variant: "destructive",
+        duration: 3000,
+      });
     }
   };
 
