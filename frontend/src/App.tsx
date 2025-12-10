@@ -27,6 +27,7 @@ import LaptopService from "./pages/LaptopService";
 import RateUs from "./pages/RateUs";
 import Shop from "./pages/Shop";
 import Notifications from "./pages/Notifications";
+import SearchResults from "./pages/SearchResults";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
@@ -104,6 +105,8 @@ const AppContent = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/product/:productId" element={<ProductDetail />} />
         <Route path="/laptop-service" element={<LaptopService />} />
+        <Route path="/service/:serviceType" element={<LaptopService />} />
+        <Route path="/search" element={<SearchResults />} />
         
         {/* ================== ADMIN AUTH ROUTES ================== */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -118,6 +121,7 @@ const AppContent = () => {
         {/* ================== PROTECTED USER ROUTES ================== */}
         <Route path="/booking" element={<MobileAuthGuard><Booking /></MobileAuthGuard>} />
         <Route path="/checkout" element={<MobileAuthGuard><Checkout /></MobileAuthGuard>} />
+        <Route path="/reschedule/:id" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
         <Route path="/reschedule" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
         
         {/* AMC Routes */}

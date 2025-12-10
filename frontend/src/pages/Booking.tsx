@@ -54,6 +54,12 @@ const Booking = () => {
   const [checkedReviews, setCheckedReviews] = useState<Set<string>>(new Set());
   const [submittedReviews, setSubmittedReviews] = useState<Set<string>>(new Set());
 
+  // If coming from service page with cart items, show checkout view
+  const isCheckoutView = cartItems && cartItems.length > 0;
+  
+  // If coming from checkout with new booking, show success view
+  const isNewBookingView = newBooking && fromCheckout;
+
   // Update state when location state changes (e.g., after payment success)
   useEffect(() => {
     if (location.state) {
@@ -139,12 +145,6 @@ const Booking = () => {
     }
   };
 
-  // If coming from service page with cart items, show checkout view
-  const isCheckoutView = cartItems && cartItems.length > 0;
-  
-  // If coming from checkout with new booking, show success view
-  const isNewBookingView = newBooking && fromCheckout;
-
   // Download booking receipt function
   const downloadBookingReceipt = () => {
     if (!newBooking || !bookingReference) {
@@ -194,7 +194,7 @@ ${newBooking.payment?.method !== 'cash' ? `Method: ${newBooking.payment?.method 
 ${newBooking.payment?.method !== 'cash' && newBooking.payment?.transactionId ? `Transaction ID: ${newBooking.payment.transactionId}` : ''}
 
 Thank you for choosing Fixfly!
-For support, contact us at info@fixfly.in
+For support, contact us at info@getfixfly.com
     `.trim();
 
     // Create and download the receipt as PDF
@@ -263,7 +263,7 @@ For support, contact us at info@fixfly.in
 
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
           <p style="color: #6b7280; margin: 0;">Thank you for choosing Fixfly!</p>
-          <p style="color: #6b7280; margin: 5px 0;">For support, contact us at info@fixfly.in</p>
+          <p style="color: #6b7280; margin: 5px 0;">For support, contact us at info@getfixfly.com</p>
         </div>
       </div>
     `;
@@ -871,7 +871,7 @@ For support, contact us at info@fixfly.in
 
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
             <p style="color: #6b7280; margin: 0;">Thank you for choosing Fixfly!</p>
-            <p style="color: #6b7280; margin: 5px 0;">For support, contact us at info@fixfly.in</p>
+            <p style="color: #6b7280; margin: 5px 0;">For support, contact us at info@getfixfly.com</p>
           </div>
         </body>
         </html>
@@ -1118,7 +1118,7 @@ For support, contact us at info@fixfly.in
     doc.setFontSize(8);
     doc.setFont('helvetica', 'italic');
     yPosition = addText('Thank you for choosing Fixfly for your service needs!', pageWidth / 2, pageHeight - 20);
-    yPosition = addText('For any queries, contact us at info@fixfly.in', pageWidth / 2, pageHeight - 15);
+    yPosition = addText('For any queries, contact us at info@getfixfly.com', pageWidth / 2, pageHeight - 15);
 
     // Save the PDF
     const fileName = `Fixfly_Receipt_${bookingRef}_${new Date().toISOString().split('T')[0]}.pdf`;
@@ -1513,7 +1513,7 @@ For support, contact us at info@fixfly.in
   }
 
   return (
-    <div className="bg-blue-50 min-h-screen pb-36 md:pb-0">
+    <div className="bg-blue-50 min-h-screen pb-40 md:pb-20">
       {/* Header with Categories */}
       <div className="bg-white shadow-sm border-b pb-0 mb-4 mt-2 sticky top-0 z-50">
         <div className="container px-2 py-24">
@@ -1549,7 +1549,7 @@ For support, contact us at info@fixfly.in
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-4 pb-16 max-w-7xl">
+      <div className="container mx-auto px-4 py-4 pb-24 md:pb-8 max-w-7xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Ongoing Bookings */}
           <TabsContent value="ongoing" className="space-y-4 md:space-y-0">
@@ -2166,220 +2166,213 @@ For support, contact us at info@fixfly.in
 
       {/* View Details Modal */}
       <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
-        <DialogContent className="w-[95vw] max-w-md md:max-w-2xl mx-auto rounded-xl max-h-[85vh] md:max-h-[80vh] overflow-y-auto p-4 mt-8 md:mt-0">
-          <DialogHeader className="pb-2">
+        <DialogContent className="w-[95vw] max-w-md md:max-w-2xl mx-auto rounded-xl max-h-[85vh] md:max-h-[80vh] p-0 mt-8 md:mt-8 flex flex-col">
+          <DialogHeader className="pb-2 px-4 pt-4 flex-shrink-0">
             <DialogTitle className="text-center text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">
               Booking Details
             </DialogTitle>
           </DialogHeader>
           
-          {loadingDetails ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading booking details...</p>
-            </div>
-          ) : bookingDetails ? (
-            <div className="space-y-3 md:space-y-4">
-              {/* Booking Reference */}
-              <div className="bg-blue-50 rounded-lg p-2.5 md:p-3">
-                <h3 className="font-bold text-sm md:text-base text-blue-900 mb-1">Booking Reference</h3>
-                <p className="text-blue-800 font-mono text-sm md:text-base">
-                  {bookingDetails.bookingReference || `FIX${bookingDetails._id.toString().substring(bookingDetails._id.toString().length - 8).toUpperCase()}`}
-                </p>
+          <div className="flex-1 overflow-y-auto px-4 min-h-0">
+            {loadingDetails ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading booking details...</p>
               </div>
-
-              {/* Customer Information */}
-              <div className="bg-white border rounded-lg p-2.5 md:p-3">
-                <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
-                  <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
-                  Customer Information
-                </h3>
-                <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Name</p>
-                    <p className="font-medium text-xs md:text-sm">{bookingDetails.customer.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Email</p>
-                    <p className="font-medium text-xs md:text-sm break-all">{bookingDetails.customer.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Phone</p>
-                    <p className="font-medium text-xs md:text-sm">{bookingDetails.customer.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Address</p>
-                    <p className="font-medium text-xs md:text-sm leading-tight">
-                      {bookingDetails.customer.address.street}, {bookingDetails.customer.address.city}, {bookingDetails.customer.address.state} - {bookingDetails.customer.address.pincode}
-                    </p>
-                  </div>
+            ) : bookingDetails ? (
+              <div className="space-y-3 md:space-y-4 pb-4">
+                {/* Booking Reference */}
+                <div className="bg-blue-50 rounded-lg p-2.5 md:p-3">
+                  <h3 className="font-bold text-sm md:text-base text-blue-900 mb-1">Booking Reference</h3>
+                  <p className="text-blue-800 font-mono text-sm md:text-base">
+                    {bookingDetails.bookingReference || `FIX${bookingDetails._id.toString().substring(bookingDetails._id.toString().length - 8).toUpperCase()}`}
+                  </p>
                 </div>
-              </div>
 
-              {/* Service Details */}
-              <div className="bg-white border rounded-lg p-2.5 md:p-3">
-                <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
-                  <Wrench className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
-                  Service Details
-                </h3>
-                <div className="space-y-1 md:space-y-2">
-                  {bookingDetails.services.map((service: any, index: number) => (
-                    <div key={index} className="flex justify-between items-center py-1 md:py-2 border-b border-gray-100 last:border-b-0">
-                      <span className="font-medium text-xs md:text-sm flex-1 pr-2">{service.serviceName}</span>
-                      <span className="text-blue-600 font-bold text-xs md:text-sm">₹{service.price}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Scheduling Information */}
-              <div className="bg-white border rounded-lg p-2.5 md:p-3">
-                <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
-                  <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
-                  Scheduling Information
-                </h3>
-                <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Preferred Date</p>
-                    <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.scheduling.preferredDate)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Preferred Time</p>
-                    <p className="font-medium text-xs md:text-sm">{bookingDetails.scheduling.preferredTimeSlot}</p>
-                  </div>
-                  {bookingDetails.scheduling.scheduledDate && (
-                    <div>
-                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Scheduled Date</p>
-                      <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.scheduling.scheduledDate)}</p>
-                    </div>
-                  )}
-                  {bookingDetails.scheduling.scheduledTime && (
-                    <div>
-                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Scheduled Time</p>
-                      <p className="font-medium text-xs md:text-sm">{bookingDetails.scheduling.scheduledTime}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Engineer Information */}
-              {bookingDetails.vendor && bookingDetails.vendor.vendorId && typeof bookingDetails.vendor.vendorId === 'object' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 md:p-3">
-                  <h3 className="font-bold text-sm md:text-base text-green-900 mb-1.5 md:mb-2 flex items-center">
-                    <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
-                    Assigned Engineer
+                {/* Customer Information */}
+                <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                  <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                    <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
+                    Customer Information
                   </h3>
                   <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
                     <div>
-                      <p className="text-xs md:text-sm text-green-600 md:text-green-700">Name</p>
-                      <p className="font-medium text-xs md:text-sm text-green-900">
-                        {bookingDetails.vendor.vendorId.firstName} {bookingDetails.vendor.vendorId.lastName}
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Name</p>
+                      <p className="font-medium text-xs md:text-sm">{bookingDetails.customer.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Email</p>
+                      <p className="font-medium text-xs md:text-sm break-all">{bookingDetails.customer.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Phone</p>
+                      <p className="font-medium text-xs md:text-sm">{bookingDetails.customer.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Address</p>
+                      <p className="font-medium text-xs md:text-sm leading-tight">
+                        {bookingDetails.customer.address.street}, {bookingDetails.customer.address.city}, {bookingDetails.customer.address.state} - {bookingDetails.customer.address.pincode}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-xs md:text-sm text-green-600 md:text-green-700">Phone</p>
-                      <p className="font-medium text-xs md:text-sm text-green-900">{bookingDetails.vendor.vendorId.phone}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs md:text-sm text-green-600 md:text-green-700">Email</p>
-                      <p className="font-medium text-xs md:text-sm text-green-900 break-all">{bookingDetails.vendor.vendorId.email}</p>
-                    </div>
                   </div>
                 </div>
-              )}
 
-
-              {/* Completion Data (if available) */}
-              {bookingDetails.completionData && (
+                {/* Service Details */}
                 <div className="bg-white border rounded-lg p-2.5 md:p-3">
                   <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
-                    <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
-                    Service Completion Details
+                    <Wrench className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
+                    Service Details
                   </h3>
-                  
-                  {bookingDetails.completionData.resolutionNote && (
-                    <div className="mb-2 md:mb-3">
-                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Resolution Note</p>
-                      <p className="font-medium text-xs md:text-sm bg-gray-50 p-1.5 md:p-2 rounded leading-tight">{bookingDetails.completionData.resolutionNote}</p>
-                    </div>
-                  )}
+                  <div className="space-y-1 md:space-y-2">
+                    {bookingDetails.services.map((service: any, index: number) => (
+                      <div key={index} className="flex justify-between items-center py-1 md:py-2 border-b border-gray-100 last:border-b-0">
+                        <span className="font-medium text-xs md:text-sm flex-1 pr-2">{service.serviceName}</span>
+                        <span className="text-blue-600 font-bold text-xs md:text-sm">₹{service.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                  {bookingDetails.completionData.billingAmount && (
-                    <div className="mb-2 md:mb-3">
-                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Service Charges</p>
-                      <p className="font-bold text-sm md:text-base text-green-600">₹{bookingDetails.completionData.billingAmount}</p>
+                {/* Scheduling Information */}
+                <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                  <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                    <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
+                    Scheduling Information
+                  </h3>
+                  <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Preferred Date</p>
+                      <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.scheduling.preferredDate)}</p>
                     </div>
-                  )}
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Preferred Time</p>
+                      <p className="font-medium text-xs md:text-sm">{bookingDetails.scheduling.preferredTimeSlot}</p>
+                    </div>
+                    {bookingDetails.scheduling.scheduledDate && (
+                      <div>
+                        <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Scheduled Date</p>
+                        <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.scheduling.scheduledDate)}</p>
+                      </div>
+                    )}
+                    {bookingDetails.scheduling.scheduledTime && (
+                      <div>
+                        <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Scheduled Time</p>
+                        <p className="font-medium text-xs md:text-sm">{bookingDetails.scheduling.scheduledTime}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                  {bookingDetails.completionData.spareParts && bookingDetails.completionData.spareParts.length > 0 && (
-                    <div className="mb-2 md:mb-3">
-                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Spare Parts Used</p>
-                      <div className="space-y-1 md:space-y-2">
-                        {bookingDetails.completionData.spareParts.map((part: any, index: number) => (
-                          <div key={index} className="bg-gray-50 p-1 md:p-1.5 rounded space-y-1">
-                            <div className="flex justify-between items-center">
-                              <span className="font-medium text-xs md:text-sm flex-1 pr-2">{part.name}</span>
-                              <span className="text-blue-600 font-bold text-xs md:text-sm">₹{part.amount}</span>
-                            </div>
-                            {part.warranty && (
-                              <div className="flex items-center space-x-1 ml-2">
-                                <span className="text-xs text-gray-500">Warranty:</span>
-                                <span className="text-xs font-medium text-blue-600">{part.warranty}</span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                {/* Engineer Information */}
+                {bookingDetails.vendor && bookingDetails.vendor.vendorId && typeof bookingDetails.vendor.vendorId === 'object' && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 md:p-3">
+                    <h3 className="font-bold text-sm md:text-base text-green-900 mb-1.5 md:mb-2 flex items-center">
+                      <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
+                      Assigned Engineer
+                    </h3>
+                    <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                      <div>
+                        <p className="text-xs md:text-sm text-green-600 md:text-green-700">Name</p>
+                        <p className="font-medium text-xs md:text-sm text-green-900">
+                          {bookingDetails.vendor.vendorId.firstName} {bookingDetails.vendor.vendorId.lastName}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs md:text-sm text-green-600 md:text-green-700">Phone</p>
+                        <p className="font-medium text-xs md:text-sm text-green-900">{bookingDetails.vendor.vendorId.phone}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs md:text-sm text-green-600 md:text-green-700">Email</p>
+                        <p className="font-medium text-xs md:text-sm text-green-900 break-all">{bookingDetails.vendor.vendorId.email}</p>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
 
-              {/* Status Information */}
-              <div className="bg-white border rounded-lg p-2.5 md:p-3">
-                <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
-                  <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
-                  Status Information
-                </h3>
-                <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Current Status</p>
-                    <Badge className={`${getStatusColor(bookingDetails.status, bookingDetails)} px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs md:text-sm`}>
-                      {getStatusText(bookingDetails.status, bookingDetails)}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Created Date</p>
-                    <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.createdAt)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Last Updated</p>
-                    <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.updatedAt)}</p>
-                  </div>
-                </div>
-              </div>
 
-              {/* Notes */}
-              {bookingDetails.notes && (
+                {/* Completion Data (if available) */}
+                {bookingDetails.completionData && (
+                  <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                    <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                      <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
+                      Service Completion Details
+                    </h3>
+                    
+                    {bookingDetails.completionData.resolutionNote && (
+                      <div className="mb-2 md:mb-3">
+                        <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Resolution Note</p>
+                        <p className="font-medium text-xs md:text-sm bg-gray-50 p-1.5 md:p-2 rounded leading-tight">{bookingDetails.completionData.resolutionNote}</p>
+                      </div>
+                    )}
+
+                    {bookingDetails.completionData.billingAmount && (
+                      <div className="mb-2 md:mb-3">
+                        <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Service Charges</p>
+                        <p className="font-bold text-sm md:text-base text-green-600">₹{bookingDetails.completionData.billingAmount}</p>
+                      </div>
+                    )}
+
+                    {bookingDetails.completionData.spareParts && bookingDetails.completionData.spareParts.length > 0 && (
+                      <div className="mb-2 md:mb-3">
+                        <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Spare Parts Used</p>
+                        <div className="space-y-1 md:space-y-2">
+                          {bookingDetails.completionData.spareParts.map((part: any, index: number) => (
+                            <div key={index} className="bg-gray-50 p-1 md:p-1.5 rounded space-y-1">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium text-xs md:text-sm flex-1 pr-2">{part.name}</span>
+                                <span className="text-blue-600 font-bold text-xs md:text-sm">₹{part.amount}</span>
+                              </div>
+                              {part.warranty && (
+                                <div className="flex items-center space-x-1 ml-2">
+                                  <span className="text-xs text-gray-500">Warranty:</span>
+                                  <span className="text-xs font-medium text-blue-600">{part.warranty}</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Status Information */}
                 <div className="bg-white border rounded-lg p-2.5 md:p-3">
-                  <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2">Additional Notes</h3>
-                  <p className="text-gray-700 text-xs md:text-sm bg-gray-50 p-1.5 md:p-2 rounded leading-tight">{bookingDetails.notes}</p>
+                  <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
+                    <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-blue-600" />
+                    Status Information
+                  </h3>
+                  <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Current Status</p>
+                      <Badge className={`${getStatusColor(bookingDetails.status, bookingDetails)} px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs md:text-sm`}>
+                        {getStatusText(bookingDetails.status, bookingDetails)}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Created Date</p>
+                      <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.createdAt)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Last Updated</p>
+                      <p className="font-medium text-xs md:text-sm">{formatDate(bookingDetails.updatedAt)}</p>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Failed to load booking details</p>
-            </div>
-          )}
-          
-          <div className="flex justify-end mt-3 md:mt-4">
-            <Button 
-              onClick={() => setIsViewDetailsOpen(false)}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm"
-            >
-              Close
-            </Button>
+
+                {/* Notes */}
+                {bookingDetails.notes && (
+                  <div className="bg-white border rounded-lg p-2.5 md:p-3">
+                    <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2">Additional Notes</h3>
+                    <p className="text-gray-700 text-xs md:text-sm bg-gray-50 p-1.5 md:p-2 rounded leading-tight">{bookingDetails.notes}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600">Failed to load booking details</p>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

@@ -16,32 +16,40 @@ export interface PublicProduct {
   serviceType: string;
   categories: {
     A: Array<{
+      _id?: string;
       serviceName: string;
       description?: string;
       price: number;
       discountPrice?: number;
       isActive: boolean;
+      serviceImage?: string;
     }>;
     B: Array<{
+      _id?: string;
       serviceName: string;
       description?: string;
       price: number;
       discountPrice?: number;
       isActive: boolean;
+      serviceImage?: string;
     }>;
     C: Array<{
+      _id?: string;
       serviceName: string;
       description?: string;
       price: number;
       discountPrice?: number;
       isActive: boolean;
+      serviceImage?: string;
     }>;
     D: Array<{
+      _id?: string;
       serviceName: string;
       description?: string;
       price: number;
       discountPrice?: number;
       isActive: boolean;
+      serviceImage?: string;
     }>;
   };
   categoryNames: {
@@ -238,24 +246,40 @@ class PublicProductApi {
       
       // If search is provided, use search functionality
       if (filters.search) {
-        const searchResponse = await this.searchProducts(filters.search, filters.page || 1, filters.limit || 12);
+        // Get all products to preserve original data structure
+        const allProductsResponse = await this.getAllActiveProducts();
+        const allProducts = allProductsResponse.data?.products || [];
+        
+        // Filter products based on search query
+        const searchTerm = filters.search.toLowerCase();
+        const filteredProducts = allProducts.filter(product => {
+          const productName = (product.productName || product.name || '').toLowerCase();
+          const serviceType = (product.serviceType || product.category || '').toLowerCase();
+          
+          return productName.includes(searchTerm) || serviceType.includes(searchTerm);
+        });
+        
+        // Calculate pagination
+        const page = filters.page || 1;
+        const limit = filters.limit || 12;
+        const total = filteredProducts.length;
+        const totalPages = Math.ceil(total / limit);
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+        
         return {
-          success: searchResponse.success,
-          message: searchResponse.message,
+          success: true,
+          message: 'Products found',
           data: {
-            products: searchResponse.data.products.map(suggestion => ({
-              _id: suggestion._id,
-              name: suggestion.name,
-              productName: suggestion.name,
-              category: suggestion.category,
-              serviceType: suggestion.category,
-              primaryImage: suggestion.primaryImage,
-              productImage: suggestion.primaryImage,
-              slug: suggestion.slug,
-              categories: { A: [], B: [], C: [], D: [] },
-              categoryNames: { A: '', B: '', C: '', D: '' }
-            } as PublicProduct)),
-            pagination: searchResponse.data.pagination
+            products: paginatedProducts, // Return original product structure with correct fields
+            pagination: {
+              currentPage: page,
+              totalPages,
+              totalProducts: total,
+              hasNext: page < totalPages,
+              hasPrev: page > 1
+            }
           }
         };
       }

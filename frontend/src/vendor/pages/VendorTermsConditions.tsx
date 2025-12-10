@@ -32,7 +32,7 @@ const VendorTermsConditions = () => {
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Fixfly Partner & Vendor Terms & Conditions</h1>
             <p className="text-muted-foreground text-sm">Last Updated: October 2025</p>
-            <p className="text-muted-foreground text-xs">Company Name: Pixfly Innovations Private Limited</p>
+            <p className="text-muted-foreground text-xs">Company Name: Pixfly Innovations Pvt. Ltd.</p>
             <p className="text-muted-foreground text-xs">Brand Name: Fixfly™</p>
             <p className="text-muted-foreground text-xs">Applicable To: All Fixfly Service Providers, Technicians, Vendors & Business Partners</p>
           </div>
@@ -49,7 +49,7 @@ const VendorTermsConditions = () => {
             </CardHeader>
             <CardContent className="p-4">
               <p className="text-sm text-gray-700 leading-relaxed">
-                These Terms & Conditions ("Terms") define the rules, responsibilities, and code of conduct for all Fixfly Partners and Vendors associated with Pixfly Innovations Private Limited ("the Company").
+                These Terms & Conditions ("Terms") define the rules, responsibilities, and code of conduct for all Fixfly Partners and Vendors associated with Pixfly Innovations Pvt. Ltd. ("the Company").
               </p>
               <p className="text-sm text-gray-700 leading-relaxed mt-2">
                 By signing up or working as a Fixfly Partner, you agree to follow these rules strictly. Violation of these Terms may lead to penalties, suspension, or permanent termination from the platform.
@@ -513,7 +513,7 @@ const VendorTermsConditions = () => {
                 <p><strong>Phone:</strong> 022-6964-7030</p>
                 <p><strong>WhatsApp:</strong> 99313-54354</p>
                 <p><strong>Email:</strong> info@getfixfly.com</p>
-                <p><strong>Address:</strong> Pixfly Innovations Private Limited, Sion, Mumbai – 400022, Maharashtra</p>
+                <p><strong>Address:</strong> Pixfly Innovations Pvt. Ltd., Sion, Mumbai – 400022, Maharashtra</p>
               </div>
             </CardContent>
           </Card>

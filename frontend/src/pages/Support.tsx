@@ -467,7 +467,7 @@ const Support = () => {
       doc.setFontSize(10);
       doc.setTextColor(100, 100, 100);
       doc.text('Thank you for using FixFly services!', 20, 300);
-      doc.text('For any queries, contact us at support@fixfly.com', 20, 310);
+      doc.text('For any queries, contact us at info@getfixfly.com', 20, 310);
       
       // Save the PDF
       doc.save(`FixFly_Invoice_${invoiceData.ticketId}.pdf`);
@@ -651,11 +651,19 @@ const Support = () => {
 
   // Quick contact functionality
   const handlePhoneCall = () => {
-    window.open('tel:+912269647030', '_self');
+    // Remove dashes and spaces, use tel: protocol for mobile dialer
+    window.location.href = 'tel:02269647030';
   };
 
   const handleEmailClick = () => {
-    window.open('mailto:info@fixfly.in?subject=Support Request&body=Hello, I need help with...', '_blank');
+    window.location.href = 'mailto:info@getfixfly.com?subject=Support Request&body=Hello, I need help with...';
+  };
+
+  const handleWhatsApp = () => {
+    // WhatsApp number: 99313-54354, format: 919931354354 (with country code)
+    const phoneNumber = '919931354354';
+    const message = encodeURIComponent('Hello, I need support assistance.');
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
 
   const handleCopyToClipboard = (text: string, type: string) => {
@@ -1278,13 +1286,13 @@ const Support = () => {
             <h2 className="text-lg md:text-xl font-bold mb-1">Need Immediate Help?</h2>
             <p className="text-xs md:text-sm text-muted-foreground">Get in touch with our support team</p>
           </div>
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
+          <div className="grid grid-cols-3 gap-3 md:gap-4">
             <div className="text-center cursor-pointer group" onClick={handlePhoneCall}>
               <div className="bg-gradient-tech p-2 md:p-3 rounded-lg w-fit mx-auto mb-2 md:mb-3 group-hover:scale-105 transition-transform duration-300">
                 <Phone className="h-4 w-4 md:h-5 md:w-5 text-white" />
               </div>
               <h3 className="text-sm md:text-base font-semibold mb-1 md:mb-2">Phone</h3>
-              <div className="hidden md:flex items-center justify-center gap-1 mb-1">
+              <div className="flex items-center justify-center gap-1 mb-1">
                 <p className="font-semibold text-primary text-xs md:text-sm">022-6964-7030</p>
                 <Button
                   variant="ghost"
@@ -1298,10 +1306,9 @@ const Support = () => {
                   <Copy className="h-2 w-2" />
                 </Button>
               </div>
-              <p className="hidden md:block text-xs text-muted-foreground mb-2">24/7 Available</p>
               <Button 
                 size="sm" 
-                className="hidden md:flex bg-primary hover:bg-primary/90 text-white text-xs px-2 py-1 w-full"
+                className="flex bg-primary hover:bg-primary/90 text-white text-xs px-2 py-1 w-full"
                 onClick={(e) => {
                   e.stopPropagation();
                   handlePhoneCall();
@@ -1317,24 +1324,23 @@ const Support = () => {
                 <Mail className="h-4 w-4 md:h-5 md:w-5 text-white" />
               </div>
               <h3 className="text-sm md:text-base font-semibold mb-1 md:mb-2">Email</h3>
-              <div className="hidden md:flex items-center justify-center gap-1 mb-1">
-                <p className="font-semibold text-primary text-xs md:text-sm">info@fixfly.in</p>
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <p className="font-semibold text-primary text-xs md:text-sm">info@getfixfly.com</p>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-5 w-5 p-0 hover:bg-primary/10"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleCopyToClipboard('info@fixfly.in', 'Email address');
+                    handleCopyToClipboard('info@getfixfly.com', 'Email address');
                   }}
                 >
                   <Copy className="h-2 w-2" />
                 </Button>
               </div>
-              <p className="hidden md:block text-xs text-muted-foreground mb-2">Response within 2 hours</p>
               <Button 
                 size="sm" 
-                className="hidden md:flex bg-primary hover:bg-primary/90 text-white text-xs px-2 py-1 w-full"
+                className="flex bg-primary hover:bg-primary/90 text-white text-xs px-2 py-1 w-full"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleEmailClick();
@@ -1342,6 +1348,38 @@ const Support = () => {
               >
                 <Mail className="h-3 w-3 mr-1" />
                 Email
+              </Button>
+            </div>
+
+            <div className="text-center cursor-pointer group" onClick={handleWhatsApp}>
+              <div className="bg-gradient-to-r from-green-500 to-green-600 p-2 md:p-3 rounded-lg w-fit mx-auto mb-2 md:mb-3 group-hover:scale-105 transition-transform duration-300">
+                <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-white" />
+              </div>
+              <h3 className="text-sm md:text-base font-semibold mb-1 md:mb-2">WhatsApp</h3>
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <p className="font-semibold text-primary text-xs md:text-sm">99313-54354</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 w-5 p-0 hover:bg-primary/10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyToClipboard('99313-54354', 'WhatsApp number');
+                  }}
+                >
+                  <Copy className="h-2 w-2" />
+                </Button>
+              </div>
+              <Button 
+                size="sm" 
+                className="flex bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 w-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleWhatsApp();
+                }}
+              >
+                <MessageCircle className="h-3 w-3 mr-1" />
+                WhatsApp
               </Button>
             </div>
           </div>

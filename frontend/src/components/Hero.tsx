@@ -334,7 +334,7 @@ const Hero = () => {
 
 
   return (
-    <section className="relative flex items-center justify-center min-h-[90vh] sm:min-h-screen">
+    <section className="relative flex items-center justify-center min-h-[96vh] sm:min-h-[106vh]">
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
       
@@ -349,7 +349,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:pt-14 lg:pt-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-        <div className="relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-80 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 mt-6 lg:mt-0 lg:z-50" data-aos="fade-left" data-aos-delay="200">
+        <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-80 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 ${showMoreProducts ? 'mt-12 sm:mt-16' : 'mt-4 sm:mt-8'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">

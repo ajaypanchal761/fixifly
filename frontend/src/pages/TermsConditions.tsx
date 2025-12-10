@@ -218,7 +218,7 @@ const TermsConditions = () => {
                     
                     <div className="flex items-center gap-3">
                       <Globe className="w-5 h-5 text-primary" />
-                      <span className="text-gray-600">Pixfly Innovations Private Limited, Sion, Mumbai – 400022, Maharashtra</span>
+                      <span className="text-gray-600">Pixfly Innovations Pvt. Ltd., Sion, Mumbai – 400022, Maharashtra</span>
                     </div>
                   </div>
                 </section>

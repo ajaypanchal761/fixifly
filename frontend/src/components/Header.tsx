@@ -112,18 +112,19 @@ const Header = () => {
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchQuery(value);
-    setShowSuggestions(value.trim().length >= 2);
+    // Show suggestions if field is focused (user is interacting with search)
+    setShowSuggestions(true);
   };
 
   const handleSearchInputFocus = () => {
-    if (searchQuery.trim().length >= 2) {
-      setShowSuggestions(true);
-    }
+    // Show suggestions when search field is focused, even if query is empty
+    setShowSuggestions(true);
   };
 
   const toggleMobileSearch = () => {
     setShowMobileSearch(!showMobileSearch);
-    if (!showMobileSearch && searchQuery.trim().length >= 2) {
+    // Show suggestions when mobile search is opened
+    if (!showMobileSearch) {
       setShowSuggestions(true);
     }
   };
@@ -593,7 +594,7 @@ const Header = () => {
                 onClick={() => {
                   handleDrawerClose();
                   // Open app store or download page
-                  window.open('https://play.google.com/store/apps/details?id=com.fixfly.app', '_blank');
+                  window.open('https://play.google.com/store/apps/details?id=com.flixfy.user', '_blank');
                 }}
                 startIcon={<Download size={18} />}
                 endIcon={<ExternalLink size={16} />}
@@ -632,7 +633,7 @@ const Header = () => {
                 onClick={() => {
                   handleDrawerClose();
                   // Open Google Play Store rating page
-                  window.open('https://play.google.com/store/apps/details?id=com.fixfly.app&showAllReviews=true', '_blank');
+                  window.open('https://play.google.com/store/apps/details?id=com.flixfy.user', '_blank');
                 }}
                 startIcon={<Star size={18} fill="#fbbf24" color="#fbbf24" />}
                 endIcon={<ExternalLink size={16} />}
@@ -677,10 +678,11 @@ const Header = () => {
               <Button
                 onClick={() => {
                   handleDrawerClose();
-                  // Navigate to partner registration page or open partner info
-                  navigate('/partner-registration');
+                  // Open Fixfly Partner app on Google Play Store
+                  window.open('https://play.google.com/store/apps/details?id=com.fixfly.vendor', '_blank');
                 }}
                 startIcon={<Handshake size={18} />}
+                endIcon={<ExternalLink size={16} />}
                 fullWidth
                 sx={{
                   justifyContent: 'flex-start',
@@ -708,6 +710,57 @@ const Header = () => {
                 }}
               >
                 Join as a Partner
+              </Button>
+            </>
+          )}
+
+          {/* Rate Us on Google Play Button - Desktop Only */}
+          {!isMobile && (
+            <>
+              <Divider sx={{ margin: '12px 0' }} />
+              <Button
+                onClick={() => {
+                  handleDrawerClose();
+                  // Open Google Play Store rating page
+                  window.open('https://play.google.com/store/apps/details?id=com.flixfy.user', '_blank');
+                }}
+                startIcon={<Star size={18} fill="#fbbf24" color="#fbbf24" />}
+                endIcon={<ExternalLink size={16} />}
+                fullWidth
+                sx={{
+                  justifyContent: 'space-between',
+                  padding: '12px 16px',
+                  margin: '8px 0',
+                  textTransform: 'none',
+                  color: '#1f2937',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  minHeight: '48px',
+                  backgroundColor: '#fef3c7',
+                  border: '1.5px solid #fde68a',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  '&:hover': {
+                    backgroundColor: '#fde68a',
+                    borderColor: '#fcd34d',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    transform: 'translateY(-1px)',
+                    transition: 'all 0.2s ease-in-out'
+                  },
+                  '&:active': {
+                    transform: 'translateY(0)',
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  },
+                  '& .MuiButton-startIcon': {
+                    marginRight: '8px',
+                    '& svg': {
+                      color: '#fbbf24',
+                      fill: '#fbbf24'
+                    }
+                  }
+                }}
+              >
+                Rate Us on Google Play
               </Button>
             </>
           )}

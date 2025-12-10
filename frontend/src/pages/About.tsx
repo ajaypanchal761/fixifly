@@ -47,7 +47,7 @@ const About = () => {
             </CardHeader>
             <CardContent className="prose prose-lg max-w-none">
               <p className="text-gray-700 leading-relaxed text-lg">
-                Fixfly is a trusted IT service provider and a brand of Fixfly Innovations Pvt. Ltd., established in 2019. 
+                Fixfly is a trusted IT service provider and a brand of Pixfly Innovations Pvt. Ltd., established in 2019. 
                 Recognized as one of India's most reliable after-sales service providers, Fixfly specializes in offering 
                 a wide range of IT services tailored to both individual and corporate clients.
               </p>
@@ -70,7 +70,7 @@ const About = () => {
                   Brand Authorization
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Fixfly Innovations Pvt. Ltd. is a trusted, brand-authorized service provider for laptops, printers, and electronics. 
+                  Pixfly Innovations Pvt. Ltd. is a trusted, brand-authorized service provider for laptops, printers, and electronics. 
                   Leading brands like HP recognize Fixfly as an authorized service partner, ensuring customers receive genuine and reliable services.
                 </p>
               </section>
@@ -140,7 +140,7 @@ const About = () => {
             </CardHeader>
             <CardContent>
               <p className="text-gray-700 leading-relaxed text-center">
-                Fixfly Innovations Pvt. Ltd. is an <strong>ISO 9001:2015 certified company</strong>, reflecting its commitment to 
+                Pixfly Innovations Pvt. Ltd. is an <strong>ISO 9001:2015 certified company</strong>, reflecting its commitment to 
                 quality management and customer satisfaction.
               </p>
             </CardContent>
@@ -206,8 +206,8 @@ const About = () => {
                     <Mail className="w-5 h-5 text-primary" />
                     <div>
                       <p className="text-gray-600">Email:</p>
-                      <a href="mailto:info@fixfly.in" className="text-primary hover:underline font-medium">
-                        info@fixfly.in
+                      <a href="mailto:info@getfixfly.com" className="text-primary hover:underline font-medium">
+                        info@getfixfly.com
                       </a>
                     </div>
                   </div>
@@ -216,8 +216,8 @@ const About = () => {
                     <Globe className="w-5 h-5 text-primary" />
                     <div>
                       <p className="text-gray-600">Website:</p>
-                      <a href="https://www.fixfly.in" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
-                        www.fixfly.in
+                      <a href="https://www.getfixfly.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+                        www.getfixfly.com
                       </a>
                     </div>
                   </div>

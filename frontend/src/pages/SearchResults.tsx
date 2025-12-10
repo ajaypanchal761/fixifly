@@ -47,9 +47,90 @@ const SearchResults: React.FC = () => {
     }
   };
 
+  // Map product name to service config key
+  const getServiceConfigKey = (product: PublicProduct): string => {
+    const productName = (product.productName || product.name || '').toLowerCase();
+    
+    // Check for Mac products
+    if (productName.includes('macbook') || productName.includes('imac') || productName.includes('mac')) {
+      return 'mac';
+    }
+    
+    // Check for Desktop products
+    if (productName.includes('desktop')) {
+      return 'desktop';
+    }
+    
+    // Check for Printer products
+    if (productName.includes('printer')) {
+      return 'printer';
+    }
+    
+    // Check for Tablet products
+    if (productName.includes('tablet') || productName.includes('ipad')) {
+      return 'tablet';
+    }
+    
+    // Check for TV products
+    if (productName.includes('tv') || productName.includes('television')) {
+      return 'tv';
+    }
+    
+    // Check for AC products
+    if (productName.includes('ac') || productName.includes('air conditioner')) {
+      return 'ac';
+    }
+    
+    // Check for Fridge products
+    if (productName.includes('fridge') || productName.includes('refrigerator')) {
+      return 'fridge';
+    }
+    
+    // Check for Washing Machine products
+    if (productName.includes('washing') || productName.includes('washing machine')) {
+      return 'washing';
+    }
+    
+    // Check for CCTV products
+    if (productName.includes('cctv') || productName.includes('camera')) {
+      return 'cctv';
+    }
+    
+    // Check for Electrician services
+    if (productName.includes('electric') || productName.includes('electrical')) {
+      return 'electrician';
+    }
+    
+    // Check for Plumber services
+    if (productName.includes('plumb') || productName.includes('pipe')) {
+      return 'plumber';
+    }
+    
+    // Default to laptop for IT Needs products
+    const serviceType = (product.serviceType || product.category || '').toLowerCase();
+    if (serviceType.includes('it needs') || serviceType.includes('it')) {
+      return 'laptop';
+    }
+    
+    // Fallback to laptop
+    return 'laptop';
+  };
+
   const handleProductClick = (product: PublicProduct) => {
-    // Navigate to product detail or service page
-    navigate(`/service/${product.category.toLowerCase().replace(/\s+/g, '-')}`);
+    // Navigate to product detail or service page using mapped service config key
+    // Pass product data AND productId to ensure correct product is loaded
+    const serviceConfigKey = getServiceConfigKey(product);
+    console.log('🔗 Navigating to service page:', {
+      serviceConfigKey,
+      productId: product._id,
+      productName: product.productName
+    });
+    navigate(`/service/${serviceConfigKey}`, { 
+      state: { 
+        product,
+        productId: product._id 
+      } 
+    });
   };
 
   const handlePageChange = (newPage: number) => {
@@ -133,7 +214,10 @@ const SearchResults: React.FC = () => {
             <>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 mb-8">
                 {products.map((product) => {
-                  const primaryImage = product.primaryImage;
+                  // Use correct field names from PublicProduct interface
+                  const productName = product.productName || product.name || 'Unknown Product';
+                  const serviceType = product.serviceType || product.category || 'General';
+                  const primaryImage = product.productImage || product.primaryImage;
                   
                   return (
                     <div
@@ -144,7 +228,7 @@ const SearchResults: React.FC = () => {
                       <div className="aspect-square p-1">
                         <img
                           src={primaryImage || '/placeholder.svg'}
-                          alt={product.name}
+                          alt={productName}
                           className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -154,10 +238,10 @@ const SearchResults: React.FC = () => {
                       </div>
                       <div className="p-1 border-t">
                         <h3 className="text-xs font-medium text-gray-900 mb-0.5 line-clamp-2 leading-tight">
-                          {product.name}
+                          {productName}
                         </h3>
                         <p className="text-xs text-gray-600 mb-0.5">
-                          {product.category}
+                          {serviceType}
                         </p>
                         {product.price && (
                           <p className="text-xs font-bold text-blue-600">

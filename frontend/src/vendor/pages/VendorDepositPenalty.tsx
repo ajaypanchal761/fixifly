@@ -31,7 +31,7 @@ const VendorDepositPenalty = () => {
               <DollarSign className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Fixfly Partner – Security Deposit & Penalty Policy</h1>
-            <p className="text-muted-foreground text-sm">Company Name: Pixfly Innovations Private Limited</p>
+            <p className="text-muted-foreground text-sm">Company Name: Pixfly Innovations Pvt. Ltd.</p>
             <p className="text-muted-foreground text-xs">Brand Name: Fixfly™</p>
             <p className="text-muted-foreground text-xs">Effective From: October 2025</p>
           </div>

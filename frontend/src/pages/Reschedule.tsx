@@ -272,7 +272,7 @@ const Reschedule = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
+      <div className="container mx-auto px-4 py-6 pb-24 md:pb-8 max-w-2xl">
         {/* Booking Details Card */}
         <Card className="mb-6">
           <CardHeader>

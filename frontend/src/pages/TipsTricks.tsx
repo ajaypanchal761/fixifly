@@ -31,7 +31,12 @@ const TipsTricks = () => {
   };
 
   const handleBackToHome = () => {
-    navigate("/");
+    // Use navigate(-1) to go back one step in history instead of always going to home
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
   };
 
   const handleLike = async (blogId: string) => {

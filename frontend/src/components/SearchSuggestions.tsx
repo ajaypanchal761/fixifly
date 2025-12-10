@@ -20,19 +20,37 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
   const [error, setError] = useState<string | null>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Debounce search requests
+  // Fetch suggestions or popular products
   useEffect(() => {
-    if (!query || query.trim().length < 2) {
+    // Only fetch when suggestions are visible
+    if (!isVisible) {
       setSuggestions([]);
       return;
     }
 
-    const timeoutId = setTimeout(async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await publicProductApi.getSuggestions(query.trim(), 8);
-        setSuggestions(response.data.suggestions || []);
+        
+        if (query && query.trim().length >= 2) {
+          // If query exists and is >= 2 characters, search for suggestions
+          const response = await publicProductApi.getSuggestions(query.trim(), 8);
+          setSuggestions(response.data.suggestions || []);
+        } else {
+          // If query is empty or short, show popular/all products
+          const response = await publicProductApi.getProducts({ limit: 8 });
+          // Convert products to suggestions format
+          const products = response.data.products || [];
+          const productSuggestions: ProductSuggestion[] = products.map((product: any) => ({
+            _id: product._id,
+            name: product.productName || product.name || '',
+            category: product.serviceType || product.category || '',
+            primaryImage: product.productImage || product.primaryImage,
+            slug: product.slug
+          }));
+          setSuggestions(productSuggestions);
+        }
       } catch (err) {
         console.error('Error fetching suggestions:', err);
         setError('Failed to load suggestions');
@@ -40,10 +58,12 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
       } finally {
         setLoading(false);
       }
-    }, 300); // 300ms debounce
+    };
+
+    const timeoutId = setTimeout(fetchData, query && query.trim().length >= 2 ? 300 : 0); // No debounce for empty query
 
     return () => clearTimeout(timeoutId);
-  }, [query]);
+  }, [query, isVisible]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -106,7 +126,7 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
       {!loading && !error && suggestions.length > 0 && (
         <div className="py-2">
           <div className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide border-b border-gray-100">
-            Product Suggestions
+            {query && query.trim().length >= 2 ? 'Product Suggestions' : 'Popular Services'}
           </div>
           {suggestions.map((suggestion) => (
             <button
@@ -145,10 +165,17 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
         </div>
       )}
 
-      {!loading && !error && suggestions.length === 0 && query.trim().length >= 2 && (
+      {!loading && !error && suggestions.length === 0 && query && query.trim().length >= 2 && (
         <div className="p-4 text-center text-gray-500">
           <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
           <p>No products found for "{query}"</p>
+        </div>
+      )}
+      
+      {!loading && !error && suggestions.length === 0 && (!query || query.trim().length < 2) && (
+        <div className="p-4 text-center text-gray-500">
+          <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+          <p>Start typing to search for services</p>
         </div>
       )}
     </div>

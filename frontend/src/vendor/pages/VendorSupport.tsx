@@ -13,7 +13,7 @@ const VendorSupport = () => {
   };
 
   const handleEmail = () => {
-    window.open('mailto:info@fixfly.in?subject=Vendor Support Request', '_self');
+    window.open('mailto:info@getfixfly.com?subject=Vendor Support Request', '_self');
   };
 
   // Show 404 error on desktop
@@ -81,7 +81,7 @@ const VendorSupport = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Email Support</h3>
                     <p className="text-sm text-gray-600">Send us your queries</p>
-                    <p className="text-sm font-medium text-gray-800">info@fixfly.in</p>
+                    <p className="text-sm font-medium text-gray-800">info@getfixfly.com</p>
                   </div>
                 </div>
                 <button

@@ -221,7 +221,7 @@ const VendorPrivacyPolicy = () => {
               </p>
               <div className="flex items-center gap-2 text-sm text-teal-600 font-medium">
                 <Mail className="w-4 h-4" />
-                <span>support@fixfly.com</span>
+                <span>info@getfixfly.com</span>
               </div>
             </CardContent>
           </Card>

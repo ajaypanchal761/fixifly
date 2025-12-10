@@ -32,7 +32,7 @@ const CitySelectionModal: React.FC<CitySelectionModalProps> = ({
       const fetchCities = async () => {
         try {
           setLoading(true);
-          const response = await cityApiService.getActiveCities({ limit: 10 });
+          const response = await cityApiService.getActiveCities({ limit: 1000 });
           if (response.success) {
             setCities(response.data.cities);
           } else {
@@ -74,7 +74,7 @@ const CitySelectionModal: React.FC<CitySelectionModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col mt-8">
         <DialogHeader>
           <DialogTitle className="text-center">
             Select Your City
@@ -84,7 +84,7 @@ const CitySelectionModal: React.FC<CitySelectionModalProps> = ({
           </p>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 overflow-hidden flex flex-col space-y-4">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -101,53 +101,98 @@ const CitySelectionModal: React.FC<CitySelectionModalProps> = ({
               </Button>
             </div>
           ) : (
-            <div className="space-y-3">
-              {cities.map((city) => (
-                <Card 
-                  key={city._id}
-                  className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                    !city.isActive ? 'opacity-60' : 'hover:border-primary'
-                  } ${selectedCity?._id === city._id ? 'border-primary bg-primary/5' : ''}`}
-                  onClick={() => handleCitySelect(city)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          city.isActive ? 'bg-green-100' : 'bg-gray-100'
-                        }`}>
-                          <MapPin className={`w-5 h-5 ${
-                            city.isActive ? 'text-green-600' : 'text-gray-400'
-                          }`} />
+            <div className="flex-1 overflow-y-auto">
+              {/* Desktop: Grid Layout */}
+              <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-3 pb-2">
+                {cities.map((city) => (
+                  <Card 
+                    key={city._id}
+                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      !city.isActive ? 'opacity-60' : 'hover:border-primary'
+                    } ${selectedCity?._id === city._id ? 'border-primary bg-primary/5' : ''}`}
+                    onClick={() => handleCitySelect(city)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            city.isActive ? 'bg-green-100' : 'bg-gray-100'
+                          }`}>
+                            <MapPin className={`w-5 h-5 ${
+                              city.isActive ? 'text-green-600' : 'text-gray-400'
+                            }`} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold text-sm truncate">{city.name}</h3>
+                            <p className="text-xs text-muted-foreground truncate">{city.state}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-sm">{city.name}</h3>
-                          <p className="text-xs text-muted-foreground">{city.state}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="text-right">
-                        {city.isActive ? (
-                          <div className="space-y-1">
-                            <Badge variant="secondary" className="text-xs">
-                              <CheckCircle className="w-3 h-3 mr-1" />
+                        
+                        <div className="text-right flex-shrink-0 ml-2">
+                          {city.isActive ? (
+                            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                              <CheckCircle className="w-3 h-3 mr-1 inline" />
                               Available
                             </Badge>
-                          </div>
-                        ) : (
-                          <Badge variant="outline" className="text-xs">
-                            Coming Soon
-                          </Badge>
-                        )}
+                          ) : (
+                            <Badge variant="outline" className="text-xs whitespace-nowrap">
+                              Coming Soon
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Mobile: Vertical Stack Layout */}
+              <div className="md:hidden flex flex-col gap-3 pb-2 pt-4">
+                {cities.map((city) => (
+                  <Card 
+                    key={city._id}
+                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      !city.isActive ? 'opacity-60' : 'hover:border-primary'
+                    } ${selectedCity?._id === city._id ? 'border-primary bg-primary/5' : ''}`}
+                    onClick={() => handleCitySelect(city)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            city.isActive ? 'bg-green-100' : 'bg-gray-100'
+                          }`}>
+                            <MapPin className={`w-5 h-5 ${
+                              city.isActive ? 'text-green-600' : 'text-gray-400'
+                            }`} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold text-sm truncate">{city.name}</h3>
+                            <p className="text-xs text-muted-foreground truncate">{city.state}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="text-right flex-shrink-0 ml-2">
+                          {city.isActive ? (
+                            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                              <CheckCircle className="w-3 h-3 mr-1 inline" />
+                              Available
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs whitespace-nowrap">
+                              Coming Soon
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           )}
 
-          <div className="pt-4 border-t">
+          <div className="pt-4 border-t flex-shrink-0">
             <p className="text-xs text-muted-foreground text-center">
               Don't see your city? Service is not available in your city yet.
             </p>

@@ -43,9 +43,9 @@ const CancellationRefundPolicy = () => {
               </CardTitle>
               <div className="text-center text-gray-600 mt-2">
                 <p><strong>Last Updated:</strong> October 2025</p>
-                <p><strong>Company Name:</strong> Pixfly Innovations Private Limited</p>
+                <p><strong>Company Name:</strong> Pixfly Innovations Pvt. Ltd.</p>
                 <p><strong>Brand Name:</strong> Fixfly™</p>
-                <p><strong>Websites:</strong> www.fixfly.in | www.getfixfly.com</p>
+                <p><strong>Website:</strong> www.getfixfly.com</p>
               </div>
             </CardHeader>
             <CardContent className="prose prose-lg max-w-none">

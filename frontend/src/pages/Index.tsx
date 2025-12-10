@@ -6,7 +6,7 @@ import Blog from "@/components/Blog";
 
 const Index = () => {
   return (
-    <div className="min-h-screen overflow-y-auto pb-36 md:pb-0">
+    <div className="min-h-screen overflow-y-auto pb-16 md:pb-0">
       <Hero />
       <ServicesGrid />
       <BannerAd />

@@ -236,7 +236,7 @@ const VendorAbout = () => {
                   <Mail className="w-4 h-4 text-teal-600 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-800">Email</p>
-                    <p className="text-xs text-gray-600">support@fixfly.com</p>
+                    <p className="text-xs text-gray-600">info@getfixfly.com</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

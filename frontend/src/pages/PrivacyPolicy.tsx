@@ -43,9 +43,9 @@ const PrivacyPolicy = () => {
               </CardTitle>
               <div className="text-center text-gray-600 mt-2">
                 <p><strong>Last Updated:</strong> October 2025</p>
-                <p><strong>Company Name:</strong> Pixfly Innovations Private Limited</p>
+                <p><strong>Company Name:</strong> Pixfly Innovations Pvt. Ltd.</p>
                 <p><strong>Brand Name:</strong> Fixfly™</p>
-                <p><strong>Websites:</strong> www.fixfly.in | www.getfixfly.com</p>
+                <p><strong>Website:</strong> www.getfixfly.com</p>
               </div>
             </CardHeader>
             <CardContent className="prose prose-lg max-w-none">
@@ -249,7 +249,7 @@ const PrivacyPolicy = () => {
                     
                     <div className="flex items-center gap-3">
                       <Globe className="w-5 h-5 text-primary" />
-                      <span className="text-gray-600">Pixfly Innovations Private Limited, Sion, Mumbai – 400022, Maharashtra</span>
+                      <span className="text-gray-600">Pixfly Innovations Pvt. Ltd., Sion, Mumbai – 400022, Maharashtra</span>
                     </div>
                   </div>
                 </section>
