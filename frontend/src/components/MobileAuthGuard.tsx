@@ -6,6 +6,23 @@ interface MobileAuthGuardProps {
   children: React.ReactNode;
 }
 
+// Public routes that don't require authentication on mobile
+const PUBLIC_ROUTES = [
+  '/login', 
+  '/signup',
+  '/profile',
+  '/booking',
+  '/amc',
+  '/terms-conditions',
+  '/privacy-policy',
+  '/cancellation-refund-policy',
+  '/tips-tricks',
+  '/tips',
+  '/about',
+  '/rate-us',
+  '/rate'
+];
+
 const MobileAuthGuard: React.FC<MobileAuthGuardProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -14,19 +31,20 @@ const MobileAuthGuard: React.FC<MobileAuthGuardProps> = ({ children }) => {
   // Check if we're on mobile
   const isMobile = window.innerWidth <= 768;
 
+  // Check if current route or any parent route matches public routes
+  const isPublicRoute = PUBLIC_ROUTES.some(route => 
+    location.pathname === route || location.pathname.startsWith(route + '/')
+  );
+
   useEffect(() => {
     // Only apply mobile auth guard on mobile devices
     if (isMobile && !isLoading) {
-      // Allow access to login and signup pages
-      const publicRoutes = ['/login', '/signup'];
-      const isPublicRoute = publicRoutes.includes(location.pathname);
-
       // If not authenticated and not on a public route, redirect to login
       if (!isAuthenticated && !isPublicRoute) {
         navigate('/login', { replace: true });
       }
     }
-  }, [isMobile, isAuthenticated, isLoading, location.pathname, navigate]);
+  }, [isMobile, isAuthenticated, isLoading, location.pathname, navigate, isPublicRoute]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -41,7 +59,7 @@ const MobileAuthGuard: React.FC<MobileAuthGuardProps> = ({ children }) => {
   }
 
   // On mobile, if not authenticated and not on public route, don't render children
-  if (isMobile && !isAuthenticated && !['/login', '/signup'].includes(location.pathname)) {
+  if (isMobile && !isAuthenticated && !isPublicRoute) {
     return null;
   }
 
