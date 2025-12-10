@@ -649,21 +649,75 @@ const Support = () => {
     )
   })).filter(category => category.questions.length > 0);
 
+  // Helper function to detect WebView
+  const isWebView = () => {
+    try {
+      const userAgent = navigator.userAgent || '';
+      const isWebViewUA = /wv|WebView/i.test(userAgent);
+      const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      const isIOSStandalone = (window.navigator as any).standalone === true;
+      const hasNativeBridge = typeof (window as any).flutter_inappwebview !== 'undefined' || 
+                             typeof (window as any).Android !== 'undefined';
+      return isWebViewUA || isStandalone || isIOSStandalone || hasNativeBridge;
+    } catch {
+      return false;
+    }
+  };
+
+  // Helper function to open URL scheme (works in WebView)
+  const openURLScheme = (url: string) => {
+    try {
+      // Try window.open first (works better in WebView)
+      const opened = window.open(url, '_blank');
+      
+      // If window.open failed or returned null, try creating an anchor element
+      if (!opened || opened.closed || typeof opened.closed === 'undefined') {
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.target = '_blank';
+        anchor.style.display = 'none';
+        document.body.appendChild(anchor);
+        anchor.click();
+        setTimeout(() => {
+          document.body.removeChild(anchor);
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error opening URL scheme:', error);
+      // Fallback: try window.location as last resort
+      try {
+        window.location.href = url;
+      } catch (e) {
+        console.error('All methods failed to open URL:', e);
+        toast({
+          title: "Unable to open",
+          description: "Please try copying the contact information manually",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+    }
+  };
+
   // Quick contact functionality
   const handlePhoneCall = () => {
     // Remove dashes and spaces, use tel: protocol for mobile dialer
-    window.location.href = 'tel:02269647030';
+    const phoneNumber = '02269647030';
+    openURLScheme(`tel:${phoneNumber}`);
   };
 
   const handleEmailClick = () => {
-    window.location.href = 'mailto:info@getfixfly.com?subject=Support Request&body=Hello, I need help with...';
+    const email = 'info@getfixfly.com';
+    const subject = encodeURIComponent('Support Request');
+    const body = encodeURIComponent('Hello, I need help with...');
+    openURLScheme(`mailto:${email}?subject=${subject}&body=${body}`);
   };
 
   const handleWhatsApp = () => {
     // WhatsApp number: 99313-54354, format: 919931354354 (with country code)
     const phoneNumber = '919931354354';
     const message = encodeURIComponent('Hello, I need support assistance.');
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    openURLScheme(`https://wa.me/${phoneNumber}?text=${message}`);
   };
 
   const handleCopyToClipboard = (text: string, type: string) => {
