@@ -24,12 +24,23 @@ const Login = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (with guard to prevent loops)
+  const hasRedirectedRef = React.useRef(false);
   React.useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
       const from = location.state?.from?.pathname || '/';
-      navigate(from, { replace: true });
+      // Use timeout to prevent immediate redirect loops
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 100);
     }
+    // Reset flag when pathname changes
+    return () => {
+      if (location.pathname !== '/login') {
+        hasRedirectedRef.current = false;
+      }
+    };
   }, [isAuthenticated, navigate, location]);
 
   // OTP Timer
