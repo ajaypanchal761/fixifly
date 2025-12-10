@@ -649,42 +649,138 @@ const Support = () => {
     )
   })).filter(category => category.questions.length > 0);
 
-  // Helper function to detect WebView
-  const isWebView = () => {
+  // Helper function to detect Android WebView
+  const isAndroidWebView = () => {
     try {
       const userAgent = navigator.userAgent || '';
-      const isWebViewUA = /wv|WebView/i.test(userAgent);
-      const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
-      const isIOSStandalone = (window.navigator as any).standalone === true;
-      const hasNativeBridge = typeof (window as any).flutter_inappwebview !== 'undefined' || 
-                             typeof (window as any).Android !== 'undefined';
-      return isWebViewUA || isStandalone || isIOSStandalone || hasNativeBridge;
+      return /Android/i.test(userAgent) && /wv|WebView/i.test(userAgent);
+    } catch {
+      return false;
+    }
+  };
+
+  // Helper function to check for native bridge
+  const hasNativeBridge = () => {
+    try {
+      return typeof (window as any).Android !== 'undefined' || 
+             typeof (window as any).webkit !== 'undefined' ||
+             typeof (window as any).flutter_inappwebview !== 'undefined';
     } catch {
       return false;
     }
   };
 
   // Helper function to open URL scheme (works in WebView)
-  const openURLScheme = (url: string) => {
+  const openURLScheme = (url: string, scheme: 'tel' | 'mailto' | 'http' = 'http') => {
     try {
-      // Try window.open first (works better in WebView)
-      const opened = window.open(url, '_blank');
+      const isAndroid = isAndroidWebView();
+      const hasBridge = hasNativeBridge();
       
-      // If window.open failed or returned null, try creating an anchor element
-      if (!opened || opened.closed || typeof opened.closed === 'undefined') {
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.target = '_blank';
-        anchor.style.display = 'none';
-        document.body.appendChild(anchor);
-        anchor.click();
-        setTimeout(() => {
-          document.body.removeChild(anchor);
-        }, 100);
+      // Method 1: Try native bridge if available
+      if (hasBridge) {
+        try {
+          if ((window as any).Android && typeof (window as any).Android.openUrl === 'function') {
+            (window as any).Android.openUrl(url);
+            return;
+          }
+          if ((window as any).webkit && (window as any).webkit.messageHandlers && (window as any).webkit.messageHandlers.openUrl) {
+            (window as any).webkit.messageHandlers.openUrl.postMessage(url);
+            return;
+          }
+        } catch (e) {
+          console.log('Native bridge failed:', e);
+        }
       }
+      
+      // Method 2: For Android WebView with tel: scheme, use Intent URL
+      if (isAndroid && scheme === 'tel') {
+        const phoneNumber = url.replace('tel:', '').replace(/[^0-9+]/g, '');
+        const intentUrl = `intent://${phoneNumber}#Intent;scheme=tel;end`;
+        
+        try {
+          window.location.href = intentUrl;
+          // Give it a moment, then try fallback if needed
+          setTimeout(() => {
+            // If still here, try standard method
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.style.display = 'none';
+            document.body.appendChild(anchor);
+            anchor.click();
+            setTimeout(() => {
+              if (document.body.contains(anchor)) {
+                document.body.removeChild(anchor);
+              }
+            }, 100);
+          }, 300);
+          return;
+        } catch (e) {
+          console.log('Intent failed, continuing with other methods:', e);
+        }
+      }
+      
+      // Method 3: Try iframe approach (works in some WebViews)
+      if (scheme === 'tel' || scheme === 'mailto') {
+        try {
+          const iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.style.width = '0';
+          iframe.style.height = '0';
+          iframe.style.border = 'none';
+          iframe.src = url;
+          document.body.appendChild(iframe);
+          
+          // Clean up iframe after a delay
+          setTimeout(() => {
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe);
+            }
+          }, 1000);
+          
+          // Also try anchor as backup
+          setTimeout(() => {
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.style.display = 'none';
+            document.body.appendChild(anchor);
+            anchor.click();
+            setTimeout(() => {
+              if (document.body.contains(anchor)) {
+                document.body.removeChild(anchor);
+              }
+            }, 100);
+          }, 200);
+          return;
+        } catch (e) {
+          console.log('Iframe method failed:', e);
+        }
+      }
+      
+      // Method 4: Standard anchor element approach (most reliable)
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.style.display = 'none';
+      anchor.target = '_self';
+      document.body.appendChild(anchor);
+      
+      setTimeout(() => {
+        try {
+          anchor.click();
+        } catch (e) {
+          console.log('Anchor click failed, trying window.location:', e);
+          window.location.href = url;
+        }
+        
+        setTimeout(() => {
+          if (document.body.contains(anchor)) {
+            document.body.removeChild(anchor);
+          }
+        }, 100);
+      }, 10);
+      
     } catch (error) {
       console.error('Error opening URL scheme:', error);
-      // Fallback: try window.location as last resort
+      // Final fallback: try window.location
       try {
         window.location.href = url;
       } catch (e) {
@@ -703,21 +799,21 @@ const Support = () => {
   const handlePhoneCall = () => {
     // Remove dashes and spaces, use tel: protocol for mobile dialer
     const phoneNumber = '02269647030';
-    openURLScheme(`tel:${phoneNumber}`);
+    openURLScheme(`tel:${phoneNumber}`, 'tel');
   };
 
   const handleEmailClick = () => {
     const email = 'info@getfixfly.com';
     const subject = encodeURIComponent('Support Request');
     const body = encodeURIComponent('Hello, I need help with...');
-    openURLScheme(`mailto:${email}?subject=${subject}&body=${body}`);
+    openURLScheme(`mailto:${email}?subject=${subject}&body=${body}`, 'mailto');
   };
 
   const handleWhatsApp = () => {
     // WhatsApp number: 99313-54354, format: 919931354354 (with country code)
     const phoneNumber = '919931354354';
     const message = encodeURIComponent('Hello, I need support assistance.');
-    openURLScheme(`https://wa.me/${phoneNumber}?text=${message}`);
+    openURLScheme(`https://wa.me/${phoneNumber}?text=${message}`, 'http');
   };
 
   const handleCopyToClipboard = (text: string, type: string) => {
