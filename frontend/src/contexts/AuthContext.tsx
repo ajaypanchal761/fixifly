@@ -91,7 +91,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
+    // Set a timeout to force loading to stop after 5 seconds (safety net)
+    const timeoutId = setTimeout(() => {
+      console.warn('AuthContext: Loading timeout reached, forcing loading to stop');
+      setIsLoading(false);
+    }, 5000);
+
     checkAuthStatus();
+
+    // Cleanup timeout
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const login = (userData: User, token: string) => {

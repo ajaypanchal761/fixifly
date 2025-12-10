@@ -13,6 +13,7 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
   // APK-safe localStorage check
   const [tokenInStorage, setTokenInStorage] = useState<string | null>(null);
   const [vendorDataInStorage, setVendorDataInStorage] = useState<string | null>(null);
+  const [waitTimeout, setWaitTimeout] = useState(false);
   
   useEffect(() => {
     try {
@@ -93,7 +94,22 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
   }
 
   // If we have token but vendor not loaded yet (race condition), wait a bit more in APK
-  if (hasTokenInStorage && !vendor) {
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    if (hasTokenInStorage && !vendor && !isLoading) {
+      // Set timeout to stop waiting after 3 seconds
+      const timeoutId = setTimeout(() => {
+        console.warn('VendorProtectedRoute: Timeout waiting for vendor data, proceeding anyway');
+        setWaitTimeout(true);
+      }, 3000);
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setWaitTimeout(false);
+    }
+  }, [hasTokenInStorage, vendor, isLoading]);
+  
+  if (hasTokenInStorage && !vendor && !waitTimeout) {
     console.log('⏳ VendorProtectedRoute: Token found but vendor not loaded yet, waiting...');
     
     // In APK, give more time for vendor context to load
@@ -112,7 +128,7 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
       console.log('📱 APK detected: Allowing render with token while vendor loads');
       // Don't block - let it render and vendor context will update
     } else {
-      // In browser, show loading
+      // In browser, show loading but with timeout
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">

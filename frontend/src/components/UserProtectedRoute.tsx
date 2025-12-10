@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -9,8 +9,23 @@ interface UserProtectedRouteProps {
 const UserProtectedRoute: React.FC<UserProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+  const [forceStopLoading, setForceStopLoading] = useState(false);
 
-  if (isLoading) {
+  // Add timeout to prevent infinite loading (5 seconds)
+  useEffect(() => {
+    if (isLoading) {
+      const timeoutId = setTimeout(() => {
+        console.warn('UserProtectedRoute: Loading timeout reached, forcing stop');
+        setForceStopLoading(true);
+      }, 5000);
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setForceStopLoading(false);
+    }
+  }, [isLoading]);
+
+  if (isLoading && !forceStopLoading) {
     // Show loading spinner while checking authentication
     return (
       <div className="min-h-screen flex items-center justify-center">
