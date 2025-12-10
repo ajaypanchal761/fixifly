@@ -271,7 +271,9 @@ const Signup = () => {
                   <Input
                     id="otp"
                     name="otp"
-                    type="text"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="Enter 6-digit OTP"
                     value={formData.otp}
                     onChange={handleInputChange}

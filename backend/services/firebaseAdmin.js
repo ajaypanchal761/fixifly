@@ -250,15 +250,21 @@ const sendPushNotification = async (tokens, payload) => {
       ...(payload.image && { image: payload.image })
     });
 
+    // Generate consistent tag/notification ID to prevent duplicates
+    // Use bookingId or type to ensure same notification type gets same tag
+    const notificationTag = payload.data?.bookingId 
+      ? `booking_${String(payload.data.bookingId)}` 
+      : payload.data?.type 
+        ? `type_${String(payload.data.type)}`
+        : `notif_${payload.data?.notificationId || Date.now()}`;
+
     // Create individual message for each token (like RentYatra - better for webview APK)
+    // NOTE: Removed top-level 'notification' field to prevent duplicate notifications
+    // Platform-specific notifications (webpush, android, apns) will handle display
     const messages = validTokens.map((token) => ({
       token,
-      notification: {
-        title: payload.title,
-        body: payload.body,
-        // Include image if available
-        ...(payload.image && { image: payload.image })
-      },
+      // Removed top-level notification field to prevent duplicates
+      // Platform-specific notifications below will handle display
       data: dataPayload,
       // Web push specific options
       webpush: {
@@ -271,12 +277,8 @@ const sendPushNotification = async (tokens, payload) => {
           ...(payload.image && { image: payload.image }),
           clickAction: payload.handlerName || 'message',
           requireInteraction: payload.data?.priority === 'high' || payload.data?.type === 'booking_assignment' || payload.requireInteraction || false,
-          // Use bookingId or type as tag to prevent duplicate notifications
-          tag: payload.data?.bookingId 
-            ? `booking_${String(payload.data.bookingId)}` 
-            : payload.data?.type 
-              ? `type_${String(payload.data.type)}`
-              : `notif_${Date.now()}`,
+          // Use consistent tag to prevent duplicate notifications
+          tag: notificationTag,
           vibrate: payload.data?.type === 'booking_assignment' ? [200, 100, 200, 100, 200] : [200, 100, 200],
           silent: false,
         },
@@ -296,11 +298,8 @@ const sendPushNotification = async (tokens, payload) => {
           // Include image for Android
           ...(payload.image && { imageUrl: payload.image }),
           clickAction: payload.link || 'FLUTTER_NOTIFICATION_CLICK',
-          tag: payload.data?.bookingId 
-            ? `booking_${String(payload.data.bookingId)}` 
-            : payload.data?.type 
-              ? `type_${String(payload.data.type)}`
-              : `notif_${Date.now()}`,
+          // Use consistent tag to prevent duplicate notifications
+          tag: notificationTag,
         },
         data: stringifyData({
           ...(payload.data || {}),
@@ -316,6 +315,8 @@ const sendPushNotification = async (tokens, payload) => {
           aps: {
             sound: 'default',
             badge: 1,
+            // Use consistent thread-id (similar to tag) to prevent duplicate notifications
+            'thread-id': notificationTag,
             // Include image for iOS
             ...(payload.image && { 
               'mutable-content': 1,
@@ -332,7 +333,11 @@ const sendPushNotification = async (tokens, payload) => {
           fcmOptions: {
             image: payload.image
           }
-        })
+        }),
+        // Use consistent headers to prevent duplicates
+        headers: {
+          'apns-collapse-id': notificationTag
+        }
       },
     }));
 

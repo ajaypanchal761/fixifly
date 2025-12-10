@@ -221,7 +221,7 @@ const ServicesGrid = () => {
         {/* Section Header */}
         <div className="text-center mb-16 animate-slide-up" data-aos="fade-up" data-aos-delay="100">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Top Booking <span className="text-gradient">IT Services </span>Here
+            Top Engineers of <span className="text-gradient">Repair Services</span> are Here
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Professional repair services at your DoorStep for all your electronic devices. 
