@@ -216,8 +216,8 @@ const bookingSchema = new mongoose.Schema({
     autoRejectAt: {
       type: Date,
       default: function() {
-        // Set auto-reject time to 10 minutes from assignment
-        return new Date(Date.now() + 10 * 60 * 1000);
+        // Set auto-reject time to 25 minutes from assignment
+        return new Date(Date.now() + 25 * 60 * 1000);
       }
     }
   },
@@ -456,7 +456,7 @@ bookingSchema.methods.updateStatus = function(newStatus) {
 bookingSchema.methods.assignVendor = function(vendorId) {
   this.vendor.vendorId = vendorId;
   this.vendor.assignedAt = new Date();
-  this.vendor.autoRejectAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+  this.vendor.autoRejectAt = new Date(Date.now() + 25 * 60 * 1000); // 25 minutes from now
   return this.save();
 };
 

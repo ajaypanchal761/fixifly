@@ -1181,7 +1181,7 @@ const AdminBookingManagement = () => {
                 <TableRow>
                   <TableHead>Booking ID</TableHead>
                   <TableHead>Customer</TableHead>
-                  <TableHead>Service</TableHead>
+                  <TableHead className="max-w-xs">Service</TableHead>
                   <TableHead>Vendor</TableHead>
                   <TableHead>Booking & Scheduled Date</TableHead>
                   <TableHead>Amount</TableHead>
@@ -1216,16 +1216,10 @@ const AdminBookingManagement = () => {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
+                    <TableCell className="max-w-xs">
+                      <div className="overflow-hidden">
+                        <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap" title={booking.services?.map(service => service.serviceName).join(', ') || 'N/A'}>
                           {booking.services?.map(service => service.serviceName).join(', ') || 'N/A'}
-                        </p>
-                        <p className="text-xs text-gray-500 max-w-xs truncate">
-                          {(() => {
-                            const notes = booking.notes || '';
-                            return notes.replace(/Booking created from checkout/gi, '').trim() || '';
-                          })()}
                         </p>
                       </div>
                     </TableCell>
@@ -1373,7 +1367,9 @@ const AdminBookingManagement = () => {
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleAssignEngineer(booking)}>
                             <UserPlus className="w-4 h-4 mr-2" />
-                            {booking.vendor ? 'Reassign Vendor' : 'Assign Vendor'}
+                            {(booking.vendor && (booking.vendor.vendorId || (booking.vendor as any)._id))
+                              ? 'Reassign Vendor'
+                              : 'Assign Vendor'}
                           </DropdownMenuItem>
                           {booking.status === 'pending' && (
                             <DropdownMenuItem onClick={() => handleConfirmBooking(booking._id)}>
@@ -1577,7 +1573,9 @@ const AdminBookingManagement = () => {
                     </div>
                 <div>
                       <h3 className="text-sm font-semibold text-gray-900">
-                        {selectedBooking.vendor ? 'Reassign Vendor' : 'Select Vendor'}
+                        {(selectedBooking.vendor && (selectedBooking.vendor.vendorId || (selectedBooking.vendor as any)._id))
+                          ? 'Reassign Vendor'
+                          : 'Select Vendor'}
                       </h3>
                       <p className="text-xs text-gray-600">Choose a qualified vendor for this booking</p>
                     </div>
@@ -1802,7 +1800,9 @@ const AdminBookingManagement = () => {
                       ) : (
                         <>
                     <UserPlus className="w-3 h-3 mr-2" />
-                          {selectedBooking.vendor ? 'Reassign Vendor' : 'Assign Vendor'}
+                          {(selectedBooking.vendor && (selectedBooking.vendor.vendorId || (selectedBooking.vendor as any)._id))
+                            ? 'Reassign Vendor'
+                            : 'Assign Vendor'}
                         </>
                       )}
                   </Button>

@@ -30,6 +30,8 @@ const VendorClosedTaskDetail = () => {
   // Fetch task details from API
   const fetchTaskDetails = async () => {
     try {
+      // Track loading start time for minimum 1 second display
+      const loadingStartTime = Date.now();
       setLoading(true);
       setError(null);
       
@@ -45,6 +47,14 @@ const VendorClosedTaskDetail = () => {
         vendorApi.getVendorBookings(),
         vendorApi.getAssignedSupportTickets()
       ]);
+      
+      // Ensure loading shows for at least 1 second
+      const elapsedTime = Date.now() - loadingStartTime;
+      const remainingTime = Math.max(0, 1000 - elapsedTime);
+      
+      if (remainingTime > 0) {
+        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      }
       
       let foundTask = null;
       let isSupportTicket = false;

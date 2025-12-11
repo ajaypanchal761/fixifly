@@ -246,13 +246,20 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         
         return Promise.resolve();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ VendorContext: Failed to refresh vendor data:', error);
-      // Don't throw error, just log it
+      
+      // If it's a network error, don't spam the console with repeated errors
+      if (error?.isNetworkError) {
+        console.warn('⚠️ Network error detected - backend might be down. Will retry on next interval.');
+      }
+      
+      // Don't throw error, just log it - this prevents breaking the app
+      // The periodic refresh will retry automatically
     }
   };
 
-  // Set up periodic refresh when vendor is logged in
+  // Set up refresh when vendor is logged in (single refresh on mount + on notifications)
   useEffect(() => {
     if (vendor) {
       // Clear any existing interval
@@ -262,13 +269,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
       // Refresh immediately on mount
       refreshVendor();
-
-      // Set up periodic refresh every 15 seconds for instant access
-      refreshIntervalRef.current = setInterval(() => {
-        refreshVendor();
-      }, 15000); // 15 seconds for faster updates
-
-      console.log('✅ VendorContext: Periodic refresh enabled (every 15 seconds)');
+      console.log('✅ VendorContext: One-time refresh on mount; periodic refresh disabled to avoid UI jump');
 
       // Listen for account access granted notifications
       const handleAccountAccessGranted = (event: CustomEvent) => {
@@ -281,9 +282,6 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       window.addEventListener('accountAccessGranted' as any, handleAccountAccessGranted as EventListener);
 
       return () => {
-        if (refreshIntervalRef.current) {
-          clearInterval(refreshIntervalRef.current);
-        }
         window.removeEventListener('accountAccessGranted' as any, handleAccountAccessGranted as EventListener);
       };
     } else {
@@ -296,9 +294,6 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
     // Cleanup on unmount
     return () => {
-      if (refreshIntervalRef.current) {
-        clearInterval(refreshIntervalRef.current);
-      }
     };
   }, [vendor?.id]); // Only depend on vendor ID to avoid infinite loops
 

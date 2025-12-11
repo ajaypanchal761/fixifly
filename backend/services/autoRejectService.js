@@ -72,7 +72,7 @@ class AutoRejectService {
           caseId: booking.bookingReference || booking._id.toString(),
           type: 'auto_rejection',
           amount: 100, // ₹100 penalty for auto-rejection
-          description: `Auto-rejection penalty - Task not responded within 10 minutes - ${booking.bookingReference || booking._id}`
+          description: `Auto-rejection penalty - Task not responded within 25 minutes - ${booking.bookingReference || booking._id}`
         });
 
         logger.info(`Auto-rejection penalty applied to vendor ${vendorId}`, {
@@ -88,7 +88,7 @@ class AutoRejectService {
         {
           'vendorResponse.status': 'declined',
           'vendorResponse.respondedAt': new Date(),
-          'vendorResponse.responseNote': 'Auto-rejected: No response within 10 minutes',
+          'vendorResponse.responseNote': 'Auto-rejected: No response within 25 minutes',
           status: 'waiting_for_engineer', // Set back to waiting for engineer
           'vendor.vendorId': null, // Remove vendor assignment
           'vendor.assignedAt': null,

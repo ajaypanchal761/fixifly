@@ -1,5 +1,7 @@
 // Vendor API service for Fixfly backend communication
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { normalizeApiUrl } from '../utils/apiUrl';
+
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -190,12 +192,27 @@ class VendorApiService {
       });
       
       // Handle Network errors  
-      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch') || error.name === 'TypeError') {
+      if (error.code === 'NETWORK_ERROR' || 
+          error.message.includes('fetch') || 
+          error.message.includes('Failed to fetch') ||
+          error.name === 'TypeError' ||
+          (error.name === 'TypeError' && error.message === 'Failed to fetch')) {
         console.error('Network error - backend might be down or CORS issue');
         console.error('Backend URL:', url);
+        console.error('Base URL:', this.baseURL);
+        console.error('API_BASE_URL:', API_BASE_URL);
         console.error('Check if backend is running on:', this.baseURL);
-        const networkError = new Error('Network error: Please check your internet connection and try again.');
+        
+        // Provide more helpful error message
+        const networkError = new Error(
+          `Network error: Unable to connect to backend server.\n` +
+          `Please check:\n` +
+          `1. Backend server is running on ${this.baseURL}\n` +
+          `2. Your internet connection is working\n` +
+          `3. CORS is properly configured on the backend`
+        );
         (networkError as any).response = error.response;
+        (networkError as any).isNetworkError = true;
         throw networkError;
       }
       
@@ -487,8 +504,8 @@ class VendorApiService {
   }
 
   // Decline Task
-  async declineTask(bookingId: string, reason: string): Promise<ApiResponse<any>> {
-    console.log('Declining task:', { bookingId, reason });
+  async declineTask(bookingId: string, reason: string, options?: { skipPenalty?: boolean }): Promise<ApiResponse<any>> {
+    console.log('Declining task:', { bookingId, reason, options });
     const response = await this.request(`/bookings/${bookingId}/decline`, {
       method: 'PATCH',
       body: JSON.stringify({ 
@@ -496,7 +513,9 @@ class VendorApiService {
           status: 'declined',
           respondedAt: new Date().toISOString(),
           responseNote: reason
-        }
+        },
+        // Let backend know when penalty should be skipped (e.g., zero wallet balance)
+        ...(options?.skipPenalty ? { skipPenalty: true } : {})
       }),
     });
     console.log('Decline task response:', response);

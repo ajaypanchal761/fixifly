@@ -370,9 +370,27 @@ export const setupForegroundNotificationHandler = (
           // Handle notification click
           notification.onclick = (event) => {
             event.preventDefault();
-            const link = payload.data?.link || payload.fcmOptions?.link || '/';
+            // Get link from multiple possible locations
+            const notificationData = payload.data || {};
+            let link = notificationData.link || 
+                       payload.fcmOptions?.link || 
+                       (notificationData.type === 'booking_assignment' && notificationData.bookingId 
+                         ? `/vendor/task/${notificationData.bookingId}` 
+                         : null) ||
+                       (notificationData.type === 'booking_assignment' && notificationData.taskId 
+                         ? `/vendor/task/${notificationData.taskId}` 
+                         : null) ||
+                       '/';
+            
+            console.log('📬 Notification clicked, navigating to:', link);
             window.focus();
-            window.location.href = link;
+            
+            // Use React Router navigation if available, otherwise use window.location
+            if (window.location.pathname.startsWith('/vendor')) {
+              window.location.href = link;
+            } else {
+              window.location.href = link;
+            }
             notification.close();
           };
         }

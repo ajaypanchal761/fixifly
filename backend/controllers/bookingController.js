@@ -1,5 +1,6 @@
 const { Booking } = require('../models/Booking');
 const Vendor = require('../models/Vendor');
+const Admin = require('../models/Admin');
 const VendorWallet = require('../models/VendorWallet');
 const User = require('../models/User');
 const { asyncHandler } = require('../middleware/asyncHandler');
@@ -9,6 +10,82 @@ const adminNotificationService = require('../services/adminNotificationService')
 const userNotificationService = require('../services/userNotificationService');
 const emailService = require('../services/emailService');
 const botbeeService = require('../services/botbeeService');
+
+// Helper: send email to all active admins for booking events
+const notifyAdminsByEmail = async (subject, messageLines = []) => {
+  try {
+    const admins = await Admin.find({ isActive: true }).select('name email');
+    if (!admins.length) {
+      logger.warn('No active admins found for email notification', { subject });
+      return;
+    }
+
+    const htmlBody = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <style>
+            body { font-family: Arial, sans-serif; color: #111827; background: #f9fafb; padding: 16px; }
+            .card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
+            .title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+            .line { margin: 4px 0; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="title">${subject}</div>
+            ${messageLines.map(line => `<div class="line">${line}</div>`).join('')}
+          </div>
+        </body>
+      </html>
+    `;
+
+    for (const admin of admins) {
+      try {
+        await emailService.sendEmail({
+          to: admin.email,
+          subject,
+          html: htmlBody
+        });
+        logger.info('Admin booking email sent', { subject, admin: admin.email });
+      } catch (err) {
+        logger.error('Failed sending admin booking email', { subject, admin: admin.email, error: err.message });
+      }
+    }
+  } catch (error) {
+    logger.error('notifyAdminsByEmail failed', { subject, error: error.message });
+  }
+};
+
+// Helper: booking identifier display
+const getDisplayBookingId = (booking) => {
+  if (!booking) return 'N/A';
+  if (booking.bookingReference) return booking.bookingReference;
+  if (booking._id) return `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
+  return 'N/A';
+};
+
+// Helper: compact booking summary lines
+const buildBookingSummaryLines = (booking, extra = {}) => {
+  if (!booking) return [];
+  const displayId = getDisplayBookingId(booking);
+  const bookingIdLine = extra.showBookingId
+    ? `Booking ID: ${displayId}`
+    : `Booking Ref: ${displayId}`;
+  const statusLine = extra.statusText ? `Status: ${extra.statusText}` : `Status: ${booking.status || 'N/A'}`;
+  const vendorLine = extra.vendorInfo ? `Vendor: ${extra.vendorInfo}` : null;
+  return [
+    bookingIdLine,
+    `Customer: ${booking.customer?.name || 'N/A'} (${booking.customer?.phone || 'N/A'})`,
+    `Address: ${booking.customer?.address?.street || ''} ${booking.customer?.address?.city || ''} ${booking.customer?.address?.pincode || ''}`,
+    `Services: ${(booking.services || []).map(s => s.serviceName).join(', ') || 'N/A'}`,
+    statusLine,
+    `Scheduled: ${booking.scheduling?.scheduledDate ? new Date(booking.scheduling.scheduledDate).toLocaleString('en-IN') : booking.scheduling?.preferredDate ? new Date(booking.scheduling.preferredDate).toLocaleString('en-IN') : 'N/A'} ${booking.scheduling?.scheduledTime || booking.scheduling?.preferredTimeSlot || ''}`,
+    ...(vendorLine ? [vendorLine] : []),
+    ...(extra.details ? [extra.details] : [])
+  ];
+};
 
 // Helper function to check if user is booking for the first time - DISABLED
 // First-time user free service feature has been removed
@@ -213,6 +290,12 @@ const createBooking = asyncHandler(async (req, res) => {
         successCount: notificationResult.successCount,
         failureCount: notificationResult.failureCount
       });
+
+      // Email admins
+      await notifyAdminsByEmail(
+        '🆕 New Booking Received',
+        buildBookingSummaryLines(booking)
+      );
     } catch (error) {
       console.error('❌ Failed to send admin notification for new booking:', error);
       logger.error('Failed to send admin notification for new booking:', error);
@@ -442,6 +525,18 @@ const getBookingById = asyncHandler(async (req, res) => {
       }
     }
 
+    // Hide customer phone number if vendor is accessing and hasn't accepted the task
+    if (req.vendor && booking.customer && booking.customer.phone) {
+      const isAccepted = booking.vendorResponse?.status === 'accepted' || 
+                        booking.status === 'in_progress' || 
+                        booking.status === 'completed';
+      
+      if (!isAccepted) {
+        // Hide phone number - set to null
+        booking.customer.phone = null;
+      }
+    }
+
     // Generate booking reference for response
     const bookingReference = `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
 
@@ -592,6 +687,14 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
       newStatus: status
     });
 
+    // Email admins on key terminal states
+    if (['completed', 'cancelled'].includes(status)) {
+      await notifyAdminsByEmail(
+        status === 'completed' ? '✅ Booking Completed' : '❌ Booking Cancelled',
+        buildBookingSummaryLines(booking)
+      );
+    }
+
     res.json({
       success: true,
       message: 'Booking status updated successfully',
@@ -636,19 +739,31 @@ const getBookingsByVendor = asyncHandler(async (req, res) => {
     logger.info('Booking query', { query });
 
     const bookings = await Booking.find(query)
-      .select('customer services pricing scheduling status priority vendor notes assignmentNotes completionData payment paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
+      .select('customer services pricing scheduling status priority vendor vendorResponse notes assignmentNotes completionData payment paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit))
       .lean();
 
-    // Manually populate vendor data
+    // Manually populate vendor data and hide customer phone if task not accepted
     for (const booking of bookings) {
       if (booking.vendor && booking.vendor.vendorId) {
         const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
           .select('firstName lastName email phone');
         if (vendor) {
           booking.vendor.vendorId = vendor;
+        }
+      }
+      
+      // Hide customer phone number if vendor hasn't accepted the task
+      if (booking.customer && booking.customer.phone) {
+        const isAccepted = booking.vendorResponse?.status === 'accepted' || 
+                          booking.status === 'in_progress' || 
+                          booking.status === 'completed';
+        
+        if (!isAccepted) {
+          // Hide phone number - set to null
+          booking.customer.phone = null;
         }
       }
     }
@@ -1095,6 +1210,12 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         successCount: notificationResult.successCount,
         failureCount: notificationResult.failureCount
       });
+
+      // Email admins
+      await notifyAdminsByEmail(
+        '🆕 New Booking (Payment Verified)',
+        buildBookingSummaryLines(booking, { details: `Payment: captured (${paymentData.amount || 0} paisa)` })
+      );
     } catch (error) {
       console.error('❌ Failed to send admin notification for new booking with payment:', error);
       logger.error('Failed to send admin notification for new booking with payment:', error);
@@ -1197,6 +1318,64 @@ const acceptTask = asyncHandler(async (req, res) => {
     ).lean();
 
     logger.info(`Vendor accepted task for booking ${bookingId}`);
+
+    // Notify user that engineer accepted/assigned
+    try {
+      const normalizePhone = (phone) => {
+        if (!phone) return null;
+        const cleaned = phone.replace(/\D/g, '');
+        if (cleaned.length === 12 && cleaned.startsWith('91')) return cleaned.substring(2);
+        if (cleaned.length === 10) return cleaned;
+        return cleaned;
+      };
+
+      const normalizedBookingPhone = normalizePhone(booking.customer.phone);
+      const normalizedBookingEmail = booking.customer.email?.toLowerCase().trim();
+
+      let user = await User.findOne({
+        $or: [
+          { email: normalizedBookingEmail },
+          { phone: booking.customer.phone },
+          ...(normalizedBookingPhone ? [
+            { phone: `+91${normalizedBookingPhone}` },
+            { phone: `91${normalizedBookingPhone}` },
+            { phone: normalizedBookingPhone }
+          ] : [])
+        ]
+      }).select('+fcmTokens +fcmTokenMobile');
+
+      if (user) {
+        const vendorName = `${vendor.firstName || 'Engineer'} ${vendor.lastName || ''}`.trim();
+        await userNotificationService.sendToUser(
+          user._id,
+          {
+            title: '👨‍🔧 Engineer Accepted!',
+            body: `${vendorName} has accepted your booking #${booking.bookingReference}.`
+          },
+          {
+            type: 'engineer_assigned',
+            bookingId: booking._id.toString(),
+            bookingReference: booking.bookingReference,
+            vendorId: booking.vendor.vendorId,
+            vendorName,
+            priority: 'high',
+            link: `/booking/${booking._id}`
+          }
+        );
+      } else {
+        logger.warn('User not found for engineer accepted notification', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone
+        });
+      }
+    } catch (notifyError) {
+      logger.error('Error sending user notification after vendor acceptance', {
+        error: notifyError.message,
+        bookingId,
+        vendorId
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -1329,6 +1508,22 @@ const declineTask = asyncHandler(async (req, res) => {
       bookingId,
       penaltyApplied: true
     });
+
+    // Get vendor name for email
+    let vendorNameForEmail = vendorId;
+    try {
+      const vendorDoc = await Vendor.findOne({ vendorId }).select('firstName lastName');
+      if (vendorDoc) {
+        vendorNameForEmail = `${vendorDoc.firstName} ${vendorDoc.lastName} (${vendorId})`;
+      }
+    } catch (err) {
+      logger.warn('Could not fetch vendor name for decline email', { vendorId, error: err.message });
+    }
+
+    await notifyAdminsByEmail(
+      '⚠️ Task Declined by Vendor',
+      buildBookingSummaryLines(updatedBooking, { showBookingId: true, statusText: 'Cancelled by vendor', vendorInfo: vendorNameForEmail })
+    );
 
     res.status(200).json({
       success: true,
@@ -1551,6 +1746,11 @@ const completeTask = asyncHandler(async (req, res) => {
       paymentMethod: completionData.paymentMethod,
       totalAmount
     });
+
+    await notifyAdminsByEmail(
+      '✅ Booking Task Completed',
+      buildBookingSummaryLines(updatedBooking, { details: `Payment method: ${completionData.paymentMethod || 'N/A'}`, vendorInfo: updatedBooking?.vendor?.vendorId ? `${updatedBooking.vendor.vendorId.firstName || ''} ${updatedBooking.vendor.vendorId.lastName || ''} (${updatedBooking.vendor.vendorId.vendorId || updatedBooking.vendor.vendorId})`.trim() : undefined })
+    );
 
     // For cash payments, trigger rating popup for user
     if (completionData.paymentMethod === 'cash') {
@@ -1815,6 +2015,11 @@ const cancelBooking = asyncHandler(async (req, res) => {
       vendorName: vendorName
     });
 
+    await notifyAdminsByEmail(
+      '❌ Booking Cancelled (Vendor)',
+      buildBookingSummaryLines(updatedBooking, { showBookingId: true, vendorInfo: vendorName, details: `Reason: ${reason.trim()}` })
+    );
+
     res.json({
       success: true,
       message: 'Booking cancelled successfully',
@@ -1904,6 +2109,11 @@ const cancelBookingByUser = asyncHandler(async (req, res) => {
       reason: reason.trim(),
       cancelledBy: 'customer'
     });
+
+    await notifyAdminsByEmail(
+      '❌ Booking Cancelled (Customer)',
+      buildBookingSummaryLines(updatedBooking, { showBookingId: true, details: `Reason: ${reason.trim()}` })
+    );
 
     res.json({
       success: true,
@@ -2019,6 +2229,11 @@ const rescheduleBookingByUser = asyncHandler(async (req, res) => {
       reason: reason
     });
 
+    await notifyAdminsByEmail(
+      '🔄 Booking Rescheduled by User',
+      buildBookingSummaryLines(updatedBooking, { showBookingId: true, details: `New slot: ${newDate} ${newTime} | Reason: ${reason}` })
+    );
+
     res.json({
       success: true,
       message: 'Booking rescheduled successfully',
@@ -2122,6 +2337,16 @@ const rescheduleBooking = asyncHandler(async (req, res) => {
       newTime: newTime,
       reason: reason
     });
+
+    // Notify admins when vendor reschedules
+    let vendorInfo = updatedBooking?.vendor?.vendorId;
+    if (vendorInfo && typeof vendorInfo === 'object') {
+      vendorInfo = `${vendorInfo.firstName || ''} ${vendorInfo.lastName || ''} (${vendorInfo.vendorId || ''})`.trim();
+    }
+    await notifyAdminsByEmail(
+      '🔄 Booking Rescheduled by Vendor',
+      buildBookingSummaryLines(updatedBooking, { showBookingId: true, vendorInfo, details: `New slot: ${newDate} ${newTime} | Reason: ${reason}` })
+    );
 
     res.json({
       success: true,

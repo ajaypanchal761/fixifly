@@ -823,24 +823,7 @@ For support, contact us at info@getfixfly.com
           </div>
           ` : ''}
 
-          ${(booking as any).completionData?.spareParts && (booking as any).completionData.spareParts.length > 0 ? `
-          <div class="section">
-            <h3>SPARE PARTS USED</h3>
-            ${(booking as any).completionData.spareParts.map((part: any, index: number) => `
-              <div style="margin-bottom: 10px; padding: 10px; background-color: #f9fafb; border-radius: 5px;">
-                <p><strong>${index + 1}. ${part.name}</strong></p>
-                <p>Amount: ₹${part.amount}</p>
-                ${part.warranty ? `<p style="color: #2563eb;"><strong>Warranty: ${part.warranty}</strong></p>` : ''}
-              </div>
-            `).join('')}
-            <div class="row">
-              <span><strong>Total Spare Parts:</strong></span>
-              <span><strong>₹${(booking as any).completionData.spareParts.reduce((sum: number, part: any) => 
-                sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
-              ).toLocaleString()}</strong></span>
-            </div>
-          </div>
-          ` : ''}
+          ${(booking as any).completionData?.spareParts && (booking as any).completionData.spareParts.length > 0 ? `` : ``}
 
           <div class="section">
             <h3>PAYMENT DETAILS</h3>
@@ -2061,9 +2044,6 @@ For support, contact us at info@getfixfly.com
 
                     {/* Action Buttons */}
                     <div className="space-y-1 mb-1">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5">
-                        Book Similar Service
-                      </Button>
                       <Button 
                         className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
                         onClick={() => handleViewDetails(booking)}
@@ -2074,8 +2054,8 @@ For support, contact us at info@getfixfly.com
 
                       {/* Status Tag */}
                       <div className="text-center">
-                        <Badge className={`${getStatusColor(booking.status, booking)} px-3 py-1 rounded-full text-xs`}>
-                          {getStatusText(booking.status, booking)}
+                        <Badge className="px-3 py-1 rounded-full text-xs bg-red-100 text-red-700">
+                          Cancelled
                         </Badge>
                       </div>
                     </CardContent>
@@ -2306,32 +2286,7 @@ For support, contact us at info@getfixfly.com
                     )}
 
                     {bookingDetails.completionData.billingAmount && (
-                      <div className="mb-2 md:mb-3">
-                        <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Service Charges</p>
-                        <p className="font-bold text-sm md:text-base text-green-600">₹{bookingDetails.completionData.billingAmount}</p>
-                      </div>
-                    )}
-
-                    {bookingDetails.completionData.spareParts && bookingDetails.completionData.spareParts.length > 0 && (
-                      <div className="mb-2 md:mb-3">
-                        <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Spare Parts Used</p>
-                        <div className="space-y-1 md:space-y-2">
-                          {bookingDetails.completionData.spareParts.map((part: any, index: number) => (
-                            <div key={index} className="bg-gray-50 p-1 md:p-1.5 rounded space-y-1">
-                              <div className="flex justify-between items-center">
-                                <span className="font-medium text-xs md:text-sm flex-1 pr-2">{part.name}</span>
-                                <span className="text-blue-600 font-bold text-xs md:text-sm">₹{part.amount}</span>
-                              </div>
-                              {part.warranty && (
-                                <div className="flex items-center space-x-1 ml-2">
-                                  <span className="text-xs text-gray-500">Warranty:</span>
-                                  <span className="text-xs font-medium text-blue-600">{part.warranty}</span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      null
                     )}
                   </div>
                 )}

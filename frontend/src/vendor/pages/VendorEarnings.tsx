@@ -506,6 +506,7 @@ const VendorEarnings = () => {
         return {
           id: transaction._id || transaction.id,
           caseId: caseId,
+          bookingId: transaction.bookingId || caseId, // Store bookingId separately
           type: transaction.type === 'deposit' || transaction.type === 'earning' ? 'Payment Received' : 
                 transaction.type === 'withdrawal' ? 'Withdrawal' :
                 transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved'))) ? 'Withdrawal Request' :
@@ -522,7 +523,9 @@ const VendorEarnings = () => {
             (transaction.metadata && transaction.metadata.status ? transaction.metadata.status : 
              transaction.description.includes('Withdrawal approved') ? 'approved' : 'pending') :
             (transaction.status || 'completed'),
-          description: transaction.description || 'Wallet transaction'
+          description: (transaction.description || 'Wallet transaction')
+            .replace(/10 minutes/g, '25 minutes')
+            .replace(/10 minute/g, '25 minutes')
         };
       });
       
@@ -885,12 +888,12 @@ const VendorEarnings = () => {
   // Export to Excel function
   const exportToExcel = () => {
     // Create CSV content
-    const headers = ['Transaction ID', 'Case ID', 'Type', 'Amount', 'Date', 'Description', 'Status'];
+    const headers = ['Transaction ID', 'Booking ID', 'Type', 'Amount', 'Date', 'Description', 'Status'];
     const csvContent = [
       headers.join(','),
       ...transactionHistory.map(transaction => [
         transaction.id,
-        transaction.caseId,
+        (transaction as any).bookingId || transaction.caseId || 'N/A',
         transaction.type,
         transaction.amount,
         transaction.date,
@@ -1313,20 +1316,21 @@ const VendorEarnings = () => {
                   return (
                 <div 
                   key={transaction.id} 
-                  className="p-4 border border-border rounded-lg hover:bg-muted/30 transition-colors cursor-pointer"
+                  className="p-4 border border-border rounded-lg hover:bg-muted/30 transition-colors cursor-pointer break-words overflow-hidden"
                   onClick={() => {
                     // Show transaction details
-                    alert(`Transaction Details:\n\nID: ${transaction.id}\nCase ID: ${transaction.caseId}\nType: ${transaction.type}\nAmount: ₹${Math.abs(transaction.amount).toLocaleString()}\nDate: ${transaction.date}\nDescription: ${transaction.description}`);
+                    const bookingId = (transaction as any).bookingId || transaction.caseId;
+                    alert(`Transaction Details:\n\nID: ${transaction.id}\nBooking ID: ${bookingId}\nType: ${transaction.type}\nAmount: ₹${Math.abs(transaction.amount).toLocaleString()}\nDate: ${transaction.date}\nDescription: ${transaction.description}`);
                   }}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between mb-3 gap-2">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       {getTransactionIcon(transaction.type, transaction.status)}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-foreground">{transaction.type}</h3>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-semibold text-foreground break-words">{transaction.type}</h3>
                           {transaction.type === 'Withdrawal Request' && (
-                            <span className={`px-2 py-1 text-xs rounded-full ${
+                            <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
                               transaction.status === 'pending' ? 'bg-orange-100 text-orange-800' :
                               transaction.status === 'approved' ? 'bg-green-100 text-green-800' :
                               transaction.status === 'declined' ? 'bg-red-100 text-red-800' :
@@ -1336,17 +1340,19 @@ const VendorEarnings = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">Case ID: {transaction.caseId}</p>
+                        <p className="text-sm text-muted-foreground break-words">
+                          Booking ID: {(transaction as any).bookingId || transaction.caseId || 'N/A'}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                       <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
                         {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toLocaleString()}
                       </p>
                       <p className="text-sm text-muted-foreground">{transaction.date}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{transaction.description}</p>
+                  <p className="text-sm text-muted-foreground break-words">{transaction.description}</p>
                 </div>
                   );
                 })

@@ -25,8 +25,9 @@ const VendorHero = () => {
     closed: [...completedTasks],
     cancelled: []
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Start with false - show cached data immediately
   const [error, setError] = useState(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [banners, setBanners] = useState<string[]>(['/banner1.png', '/banner2.png', '/banner3.png']); // Fallback banners
   const [bannersLoading, setBannersLoading] = useState(true);
   const [vendorDepositStatus, setVendorDepositStatus] = useState<{
@@ -247,7 +248,10 @@ const VendorHero = () => {
   // Fetch vendor bookings and support tickets and transform them to task format
   const fetchVendorBookings = useCallback(async () => {
     try {
-      setLoading(true);
+      // Only show loading on initial load
+      if (isInitialLoad) {
+        setLoading(true);
+      }
       setError(null);
       
       console.log('Fetching vendor tasks...');
@@ -299,11 +303,25 @@ const VendorHero = () => {
         return;
       }
       
-      // Fetch both bookings and support tickets
+      // Track loading start time for minimum 1 second display
+      const loadingStartTime = Date.now();
+      
+      // Fetch both bookings and support tickets in parallel
       const [bookingsResponse, supportTicketsResponse] = await Promise.all([
         vendorApi.getVendorBookings(),
         vendorApi.getAssignedSupportTickets()
       ]);
+      
+      // Ensure loading shows for at least 1 second
+      const elapsedTime = Date.now() - loadingStartTime;
+      const remainingTime = Math.max(0, 1000 - elapsedTime);
+      
+      if (remainingTime > 0) {
+        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      }
+      
+      // Hide loading after minimum 1 second
+      setLoading(false);
       
       const bookings = bookingsResponse.success ? (bookingsResponse.data?.bookings || []) : [];
       const supportTickets = supportTicketsResponse.success ? (supportTicketsResponse.data?.tickets || []) : [];
@@ -314,13 +332,27 @@ const VendorHero = () => {
       });
       
       // Transform bookings to task format
-      const transformedBookings = bookings.map(booking => ({
+      const transformedBookings = bookings.map(booking => {
+        // Calculate amount based on payment status
+        let displayAmount = '₹0';
+        const totalAmount = booking.pricing?.totalAmount || 0;
+        const paymentStatus = booking.payment?.status || 'pending';
+        const paymentMethod = booking.payment?.method || booking.paymentMode || 'card';
+        
+        // Show amount - payment status is shown separately in UI
+        if (totalAmount > 0) {
+          displayAmount = `₹${totalAmount.toLocaleString('en-IN')}`;
+        } else {
+          displayAmount = '₹0';
+        }
+        
+        return {
         id: booking._id,
         caseId: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
         title: booking.services?.[0]?.serviceName || 'Service Request',
         customer: booking.customer?.name || 'Unknown Customer',
         phone: booking.customer?.phone || 'N/A',
-        amount: `₹0`,
+        amount: displayAmount,
         date: booking.scheduling?.scheduledDate 
           ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
           : booking.scheduling?.preferredDate 
@@ -355,8 +387,12 @@ const VendorHero = () => {
           priority: booking.priority || 'medium',
           bookingStatus: booking.status,
           vendorResponse: booking.vendorResponse,
+          assignmentNotes: booking.assignmentNotes || null,
+          payment: booking.payment,
+          paymentMode: booking.paymentMode,
           isSupportTicket: false
-        }));
+        };
+      });
 
       // Transform support tickets to task format
       const transformedSupportTickets = supportTickets.map(ticket => ({
@@ -460,18 +496,33 @@ const VendorHero = () => {
         cancelled: cancelledTasks.length
       });
 
-      setTaskData({
+      // Update task data immediately - this will show tasks instantly
+      const updatedTaskData = {
         new: newTasks,
         closed: [...closedTasks, ...completedTasks],
         cancelled: cancelledTasks
-      });
+      };
+      
+      setTaskData(updatedTaskData);
+      
+      // Cache tasks in localStorage for instant loading next time
+      try {
+        localStorage.setItem(`vendorTasks_${vendor?.vendorId}`, JSON.stringify(updatedTaskData));
+        localStorage.setItem(`vendorTasksTime_${vendor?.vendorId}`, Date.now().toString());
+      } catch (error) {
+        console.error('Error caching tasks:', error);
+      }
+      
+      // Mark initial load as complete
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
     } catch (error) {
       console.error('Error fetching vendor bookings:', error);
       setError('Failed to fetch bookings');
-    } finally {
       setLoading(false);
     }
-  }, [vendor?.vendorId]); // Memoize with vendorId dependency
+  }, [vendor?.vendorId, completedTasks, isInitialLoad]); // Memoize with vendorId dependency
 
   useEffect(() => {
     if (!vendor?.vendorId) {
@@ -490,6 +541,34 @@ const VendorHero = () => {
 
     return () => clearInterval(interval);
   }, [vendor?.vendorId, fetchBanners, fetchVendorStats, fetchVendorDepositStatus]); // Only run when vendor changes
+
+  // Load cached tasks immediately on mount for instant display
+  useEffect(() => {
+    if (!vendor?.vendorId) {
+      return;
+    }
+    try {
+      const cachedTasks = localStorage.getItem(`vendorTasks_${vendor.vendorId}`);
+      if (cachedTasks) {
+        const parsed = JSON.parse(cachedTasks);
+        const cacheTime = localStorage.getItem(`vendorTasksTime_${vendor.vendorId}`);
+        const now = Date.now();
+        // Use cache if less than 5 minutes old
+        if (cacheTime && (now - parseInt(cacheTime)) < 5 * 60 * 1000) {
+          console.log('✅ Loading cached tasks instantly');
+          setTaskData(parsed);
+          // Show loading for minimum 1 second even with cache
+          setLoading(true);
+          setTimeout(() => {
+            setLoading(false);
+            setIsInitialLoad(false);
+          }, 1000);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cached tasks:', error);
+    }
+  }, [vendor?.vendorId]);
 
   // Separate useEffect for fetchVendorBookings to prevent infinite loops
   useEffect(() => {

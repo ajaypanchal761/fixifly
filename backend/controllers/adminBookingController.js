@@ -430,7 +430,7 @@ const assignVendor = asyncHandler(async (req, res) => {
     const updateData = {
       'vendor.vendorId': vendorId,
       'vendor.assignedAt': new Date(),
-      'vendor.autoRejectAt': new Date(Date.now() + 10 * 60 * 1000), // Set 10-minute auto-reject timer
+      'vendor.autoRejectAt': new Date(Date.now() + 25 * 60 * 1000), // Set 25-minute auto-reject timer
       'tracking.updatedAt': new Date(),
       status: 'confirmed', // Automatically confirm booking when vendor is assigned
       // Reset vendor response when reassigning to new vendor
@@ -540,7 +540,8 @@ const assignVendor = asyncHandler(async (req, res) => {
       // Don't fail the assignment if notification fails
     }
 
-    // Send notification to user about vendor assignment (ENGINEER ASSIGNED)
+    // Send notification to user about vendor assignment (ENGINEER ASSIGNED) only after vendor accepts
+    if (booking.vendorResponse?.status === 'accepted') {
     try {
       console.log('🔔 === PUSH NOTIFICATION FLOW START (ENGINEER ASSIGNED) ===');
       console.log('📋 Booking Details:', {
@@ -683,6 +684,13 @@ const assignVendor = asyncHandler(async (req, res) => {
         vendorId
       });
       // Don't fail the assignment if notification fails
+    }
+    } else {
+      logger.info('User notification deferred: vendor has not accepted yet', {
+        bookingId: booking._id,
+        vendorId,
+        vendorResponseStatus: booking.vendorResponse?.status
+      });
     }
 
     logger.info(`Admin assigned vendor to booking: ${booking.bookingReference}`, {

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import vendorApiService from '@/services/vendorApi';
+import reviewService from '@/services/reviewService';
 import VendorHeader from '../components/VendorHeader';
 import VendorBottomNav from '../components/VendorBottomNav';
 import VendorBenefitsModal from '../components/VendorBenefitsModal';
@@ -48,6 +49,10 @@ const VendorProfile = () => {
     to: ''
   });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [ratingSummary, setRatingSummary] = useState<{ average: number | null; totalReviews: number | null }>({
+    average: null,
+    totalReviews: null
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -75,6 +80,27 @@ const VendorProfile = () => {
       fetchVendorProfile();
     }
   }, [isAuthenticated, vendor]);
+
+  useEffect(() => {
+    const vendorId = vendorData?._id || vendorData?.id;
+    if (!vendorId) return;
+
+    const fetchRatingSummary = async () => {
+      try {
+        const response = await reviewService.getVendorRatingStats(vendorId);
+        if (response.success && response.data) {
+          setRatingSummary({
+            average: response.data.averageRating ?? null,
+            totalReviews: response.data.totalReviews ?? null
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching vendor rating summary:', error);
+      }
+    };
+
+    fetchRatingSummary();
+  }, [vendorData?._id, vendorData?.id]);
 
   const getStatusBadge = (isApproved: boolean, isActive: boolean, isBlocked: boolean) => {
     if (isBlocked) {
@@ -654,7 +680,16 @@ const VendorProfile = () => {
                   <div className="flex items-center gap-2">
                     <Star className="h-4 w-4 text-yellow-500" />
                     <span className="text-sm">
-                      Rating: {vendorData.rating?.average || 0}/5 ({vendorData.rating?.count || 0} reviews)
+                      {(() => {
+                        const averageRating = ratingSummary.average ?? vendorData.rating?.average ?? 0;
+                        const totalReviews =
+                          ratingSummary.totalReviews ??
+                          vendorData.rating?.totalReviews ??
+                          vendorData.rating?.count ??
+                          0;
+
+                        return `Rating: ${averageRating.toFixed(1)}/5 (${totalReviews} reviews)`;
+                      })()}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">

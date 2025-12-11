@@ -684,10 +684,12 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         const pushData = {
           type: 'booking_assignment',
           bookingId: bookingData._id,
+          taskId: bookingData._id.toString(), // Use bookingId as taskId for vendor task route
           customerName: bookingData.customer?.name,
           scheduledDate: bookingData.scheduling?.scheduledDate,
           totalAmount: bookingData.pricing?.totalAmount,
           action: 'view_booking',
+          link: `/vendor/task/${bookingData._id}`, // Add link to vendor task page
           priority: 'high', // High priority for instant delivery
           timestamp: new Date().toISOString()
         };

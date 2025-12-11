@@ -358,7 +358,7 @@ const VendorClosedTask = () => {
     ));
   };
 
-  const handlePhotoUpload = (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoCapture = (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -367,6 +367,42 @@ const VendorClosedTask = () => {
       };
       reader.readAsDataURL(file);
     }
+    // Reset input to allow capturing same photo again if needed
+    event.target.value = '';
+  };
+  
+  // Function to trigger camera directly - opens camera immediately in APK/mobile
+  const triggerCamera = (partId: number) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment'; // Force back camera
+    input.style.display = 'none';
+    
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          updateSparePart(partId, 'photo', event.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+      // Clean up
+      if (document.body.contains(input)) {
+        document.body.removeChild(input);
+      }
+    };
+    
+    input.oncancel = () => {
+      if (document.body.contains(input)) {
+        document.body.removeChild(input);
+      }
+    };
+    
+    document.body.appendChild(input);
+    // Trigger click to open camera directly
+    input.click();
   };
 
   const calculateTotal = () => {
@@ -432,8 +468,6 @@ const VendorClosedTask = () => {
 
   const handleNext = async () => {
     try {
-      setIsCompleting(true);
-      
       // Validate payment method is selected
       if (!paymentMethod) {
         alert('Please select a payment method');
@@ -451,13 +485,34 @@ const VendorClosedTask = () => {
         alert('Please enter billing amount');
         return;
       }
+      
+      setIsCompleting(true);
 
       // Validate billing amount value
       const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
       if (billingAmountValue <= 0) {
         alert('Please enter a valid billing amount greater than 0');
+        setIsCompleting(false);
         return;
       }
+      
+      // Validate spare parts - check if all spare parts with names have photos and warranty
+      const validSpareParts = spareParts.filter(part => part.name.trim() !== '');
+      if (validSpareParts.length > 0) {
+        for (const part of validSpareParts) {
+          if (!part.photo) {
+            alert(`Please capture photo for spare part: ${part.name || 'Part ' + (spareParts.indexOf(part) + 1)}`);
+            setIsCompleting(false);
+            return;
+          }
+          if (!part.warranty) {
+            alert(`Please select warranty period for spare part: ${part.name || 'Part ' + (spareParts.indexOf(part) + 1)}`);
+            setIsCompleting(false);
+            return;
+          }
+        }
+      }
+      
       console.log('Billing amount calculation:', {
         originalBillingAmount: billingAmount,
         billingAmountValue: billingAmountValue,
@@ -471,7 +526,7 @@ const VendorClosedTask = () => {
       
       const taskData = {
         resolutionNote: resolutionNote.trim(),
-        spareParts: spareParts.filter(part => part.name.trim() !== ''), // Filter out empty parts
+        spareParts: validSpareParts, // Only include parts with names, photos, and warranty
         paymentMethod: paymentMethod as 'online' | 'cash',
         includeGST: includeGST,
         gstAmount: includeGST ? calculateGSTAmount() : 0,
@@ -685,7 +740,7 @@ const VendorClosedTask = () => {
 
                     {/* Service Warranty */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600">Service Warranty</label>
+                      <label className="text-sm font-medium text-gray-600">Service Warranty <span className="text-red-500">*</span></label>
                       <select
                         value={part.warranty}
                         onChange={(e) => updateSparePart(part.id, 'warranty', e.target.value)}
@@ -696,39 +751,48 @@ const VendorClosedTask = () => {
                         <option value="90 days">90 days</option>
                         <option value="180 days">180 days</option>
                         <option value="1 year">1 year</option>
+                        <option value="3 years">3 years</option>
+                        <option value="5 years">5 years</option>
                       </select>
                     </div>
 
-                    {/* Photo Upload */}
+                    {/* Photo Capture - Mandatory */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600">Photo</label>
+                      <label className="text-sm font-medium text-gray-600">
+                        Photo <span className="text-red-500">*</span>
+                      </label>
                       <div className="flex items-center space-x-3">
                         {part.photo ? (
                           <div className="relative">
                             <img
                               src={part.photo}
                               alt="Spare part"
-                              className="w-16 h-16 object-cover rounded-md border border-gray-300"
+                              className="w-20 h-20 object-cover rounded-md border-2 border-green-500"
                             />
                             <button
                               onClick={() => updateSparePart(part.id, 'photo', '')}
-                              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                              type="button"
                             >
-                              <X className="w-3 h-3" />
+                              <X className="w-4 h-4" />
                             </button>
                           </div>
                         ) : (
-                          <label className="flex items-center justify-center w-16 h-16 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-gray-400 transition-colors">
-                            <Camera className="w-6 h-6 text-gray-400" />
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handlePhotoUpload(part.id, e)}
-                              className="hidden"
-                            />
-                          </label>
+                          <button
+                            type="button"
+                            onClick={() => triggerCamera(part.id)}
+                            className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-red-300 rounded-md cursor-pointer hover:border-red-400 transition-colors bg-red-50"
+                          >
+                            <Camera className="w-8 h-8 text-red-500 mb-1" />
+                            <span className="text-xs text-red-600 font-medium">Capture</span>
+                          </button>
                         )}
-                        <span className="text-xs text-gray-500">Tap to add photo</span>
+                        {!part.photo && (
+                          <span className="text-xs text-red-600 font-medium">Photo capture required</span>
+                        )}
+                        {part.photo && (
+                          <span className="text-xs text-green-600 font-medium">✓ Photo captured</span>
+                        )}
                       </div>
                     </div>
                   </div>

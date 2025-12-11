@@ -31,9 +31,13 @@ const VendorTaskDetail = () => {
   const [error, setError] = useState(null);
 
   // Fetch task details from API
-  const fetchTaskDetails = async () => {
+  const fetchTaskDetails = async (showLoading = true) => {
     try {
-      setLoading(true);
+      // Track loading start time for minimum 1 second display
+      const loadingStartTime = Date.now();
+      if (showLoading) {
+        setLoading(true);
+      }
       setError(null);
       
       const vendorToken = localStorage.getItem('vendorToken');
@@ -49,6 +53,14 @@ const VendorTaskDetail = () => {
         vendorApi.getAssignedSupportTickets()
       ]);
       
+      // Ensure loading shows for at least 1 second
+      const elapsedTime = Date.now() - loadingStartTime;
+      const remainingTime = Math.max(0, 1000 - elapsedTime);
+      
+      if (remainingTime > 0) {
+        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      }
+      
       let foundTask = null;
       let isSupportTicket = false;
 
@@ -58,6 +70,10 @@ const VendorTaskDetail = () => {
         const bookingTask = bookings.find(booking => booking._id === taskId);
         
         if (bookingTask) {
+          // Calculate amount - payment status messages show pending/completed separately
+          const totalAmount = bookingTask.pricing?.totalAmount || 0;
+          const displayAmount = totalAmount > 0 ? `₹${totalAmount.toLocaleString('en-IN')}` : '₹0';
+          
           // Transform booking data to task format
           foundTask = {
             id: bookingTask._id,
@@ -65,7 +81,7 @@ const VendorTaskDetail = () => {
             title: bookingTask.services?.[0]?.serviceName || 'Service Request',
             customer: bookingTask.customer?.name || 'Unknown Customer',
             phone: bookingTask.customer?.phone || 'N/A',
-            amount: `₹0`,
+            amount: displayAmount,
             date: bookingTask.scheduling?.scheduledDate 
               ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
               : bookingTask.scheduling?.preferredDate 
@@ -101,6 +117,8 @@ const VendorTaskDetail = () => {
             bookingStatus: bookingTask.status,
             priority: bookingTask.priority || 'medium',
             payment: bookingTask.payment,
+            paymentMode: bookingTask.paymentMode,
+            assignmentNotes: bookingTask.assignmentNotes || null,
             isSupportTicket: false
           };
         }
@@ -171,20 +189,65 @@ const VendorTaskDetail = () => {
         console.log('Task data with payment info:', foundTask);
         console.log('Payment data:', foundTask.payment);
         setTask(foundTask);
+        
+        // Cache task details for instant loading next time
+        try {
+          localStorage.setItem(`vendorTaskDetail_${taskId}`, JSON.stringify(foundTask));
+          localStorage.setItem(`vendorTaskDetailTime_${taskId}`, Date.now().toString());
+        } catch (error) {
+          console.error('Error caching task details:', error);
+        }
       } else {
         setError('Task not found');
       }
     } catch (error) {
       console.error('Error fetching task details:', error);
-      setError('Failed to load task details. Please try again.');
+      // Only set error if we don't have cached data
+      if (!task) {
+        setError('Failed to load task details. Please try again.');
+      }
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
+  // Load cached task details immediately on mount for instant display
   useEffect(() => {
-    if (taskId) {
-      fetchTaskDetails();
+    if (!taskId) return;
+    
+    let hasCache = false;
+    try {
+      // Try to load from cache first for instant display
+      const cachedTask = localStorage.getItem(`vendorTaskDetail_${taskId}`);
+      if (cachedTask) {
+        const parsed = JSON.parse(cachedTask);
+        const cacheTime = localStorage.getItem(`vendorTaskDetailTime_${taskId}`);
+        const now = Date.now();
+        // Use cache if less than 2 minutes old
+        if (cacheTime && (now - parseInt(cacheTime)) < 2 * 60 * 1000) {
+          console.log('✅ Loading cached task details instantly');
+          setTask(parsed);
+          hasCache = true;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cached task:', error);
+    }
+    
+    // Always fetch fresh data in background, but show cached data immediately
+    if (hasCache) {
+      // Show loading for exactly 1 second even with cache
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+      // Fetch fresh data in background without showing loading spinner
+      fetchTaskDetails(false);
+    } else {
+      // No cache, fetch normally with loading
+      fetchTaskDetails(true);
     }
   }, [taskId]);
 
@@ -304,7 +367,7 @@ const VendorTaskDetail = () => {
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
       <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 pb-32">
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
@@ -315,7 +378,7 @@ const VendorTaskDetail = () => {
           </button>
 
           {/* Task Details Card */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             {/* Header */}
             <div className="p-4 border-b border-gray-200">
               <h1 className="text-xl font-semibold text-gray-800 mb-2">{task.title}</h1>
@@ -457,12 +520,25 @@ const VendorTaskDetail = () => {
                 <p className="text-sm text-gray-800 bg-gray-50 p-3 rounded-md">{task.issue}</p>
               </div>
 
+              {/* Assignment Notes */}
+              {task.assignmentNotes && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-orange-500" />
+                    Assignment Notes from Admin
+                  </h3>
+                  <div className="bg-orange-50 border border-orange-200 p-3 rounded-md">
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap">{task.assignmentNotes}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Billing */}
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-gray-600">Billing Information</h3>
                 <div className="flex items-center space-x-2">
                   <DollarSign className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-semibold text-gray-800">{task.isSupportTicket ? task.amount : '₹0'}</span>
+                  <span className="text-sm font-semibold text-gray-800">{task.amount}</span>
                 </div>
                 
                 {/* Payment Status for Cash on Delivery */}
@@ -504,18 +580,23 @@ const VendorTaskDetail = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="p-4 border-t border-gray-200 space-y-2 bg-white">
-              {/* Show different buttons based on task status */}
-              {(() => {
-                const currentStatus = task.bookingStatus || task.vendorStatus;
-                const isCompleted = currentStatus === 'completed' || currentStatus === 'Completed';
-                const isInProgress = currentStatus === 'in_progress' || currentStatus === 'Accepted';
-                const isCancelled = currentStatus === 'cancelled' || currentStatus === 'Cancelled';
-                const isDeclined = currentStatus === 'declined' || currentStatus === 'Declined';
+            {/* Action Buttons - Only show for in-progress/completed/cancelled tasks, removed for pending to avoid bottom nav overlap */}
+            {(() => {
+              const currentStatus = task.bookingStatus || task.vendorStatus;
+              const isCompleted = currentStatus === 'completed' || currentStatus === 'Completed';
+              const isInProgress = currentStatus === 'in_progress' || currentStatus === 'Accepted';
+              const isCancelled = currentStatus === 'cancelled' || currentStatus === 'Cancelled';
+              const isDeclined = currentStatus === 'declined' || currentStatus === 'Declined';
+              const isPending = !isCompleted && !isInProgress && !isCancelled && !isDeclined;
 
-                if (isCompleted) {
-                  return (
+              // Hide entire section for pending tasks
+              if (isPending) {
+                return null;
+              }
+
+              return (
+                <div className="p-4 border-t border-gray-200 bg-white pb-24">
+                  {isCompleted ? (
                     <div className="text-center py-4">
                       <div className="flex items-center justify-center mb-2">
                         <CheckCircle className="w-8 h-8 text-green-500" />
@@ -523,11 +604,7 @@ const VendorTaskDetail = () => {
                       <p className="text-green-600 font-medium">Task Completed Successfully</p>
                       <p className="text-sm text-gray-600 mt-1">This task has been completed and closed.</p>
                     </div>
-                  );
-                }
-
-                if (isCancelled || isDeclined) {
-                  return (
+                  ) : isCancelled || isDeclined ? (
                     <div className="text-center py-4">
                       <div className="flex items-center justify-center mb-2">
                         <XCircle className="w-8 h-8 text-red-500" />
@@ -539,12 +616,8 @@ const VendorTaskDetail = () => {
                         {isCancelled ? 'This task has been cancelled.' : 'This task has been declined.'}
                       </p>
                     </div>
-                  );
-                }
-
-                if (isInProgress) {
-                  return (
-                    <>
+                  ) : isInProgress ? (
+                    <div className="space-y-2">
                       <button 
                         onClick={handleCloseTask}
                         className="w-full py-3 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors font-medium flex items-center justify-center space-x-2"
@@ -566,22 +639,11 @@ const VendorTaskDetail = () => {
                         <XCircle className="w-5 h-5" />
                         <span>Cancel Task</span>
                       </button>
-                    </>
-                  );
-                }
-
-                // Default case - task is pending/assigned
-                return (
-                  <div className="text-center py-4">
-                    <div className="flex items-center justify-center mb-2">
-                      <Clock className="w-8 h-8 text-yellow-500" />
                     </div>
-                    <p className="text-yellow-600 font-medium">Task Pending</p>
-                    <p className="text-sm text-gray-600 mt-1">Please accept this task first to start working on it.</p>
-                  </div>
-                );
-              })()}
-            </div>
+                  ) : null}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </main>

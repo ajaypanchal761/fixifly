@@ -326,7 +326,7 @@ const startServer = async () => {
 🃏 Card Endpoints: http://localhost:${PORT}/api/cards
 📝 Blog Endpoints: http://localhost:${PORT}/api/blogs
 📝 Admin Blog Endpoints: http://localhost:${PORT}/api/admin/blogs
-⏰ Auto-Reject Service: Active (10-minute timer)
+⏰ Auto-Reject Service: Active (25-minute timer)
 
 ⚠️  SMS India Hub Template Approval Needed:
    Contact SMS India Hub support to approve OTP template for sender ID: SMSHUB

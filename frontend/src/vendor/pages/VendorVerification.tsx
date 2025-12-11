@@ -1,64 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { 
   CheckCircle, 
   Star, 
   Shield, 
-  TrendingUp, 
   Users, 
   CreditCard,
   ArrowRight,
   Crown,
-  Zap,
-  Target,
   Eye
 } from 'lucide-react';
 
 const VendorVerification = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  const benefits = [
-    {
-      icon: <Crown className="h-6 w-6 text-yellow-500" />,
-      title: "Verified Partner Badge",
-      description: "Get the official Fixfly verified partner badge on your profile"
-    },
-    {
-      icon: <TrendingUp className="h-6 w-6 text-green-500" />,
-      title: "50% Revenue Share",
-      description: "Earn 50% of the total revenue from every completed task"
-    },
-    {
-      icon: <Zap className="h-6 w-6 text-blue-500" />,
-      title: "Priority Task Assignment",
-      description: "Get priority access to high-value tasks and bookings"
-    },
-    {
-      icon: <Shield className="h-6 w-6 text-purple-500" />,
-      title: "Enhanced Trust",
-      description: "Build customer trust with verified partner status"
-    },
-    {
-      icon: <Users className="h-6 w-6 text-orange-500" />,
-      title: "Premium Support",
-      description: "Get dedicated support for all your queries and issues"
-    },
-    {
-      icon: <Target className="h-6 w-6 text-red-500" />,
-      title: "Advanced Analytics",
-      description: "Access detailed analytics and performance insights"
-    }
-  ];
+  // Minimum 1 second loading time
+  useEffect(() => {
+    const loadingStartTime = Date.now();
+    setLoading(true);
+    
+    const timer = setTimeout(() => {
+      const elapsedTime = Date.now() - loadingStartTime;
+      const remainingTime = Math.max(0, 1000 - elapsedTime);
+      
+      if (remainingTime > 0) {
+        setTimeout(() => {
+          setLoading(false);
+        }, remainingTime);
+      } else {
+        setLoading(false);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePayment = async () => {
     // Redirect to login page immediately when button is clicked
@@ -66,6 +44,17 @@ const VendorVerification = () => {
   };
 
 
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
@@ -85,56 +74,14 @@ const VendorVerification = () => {
 
         {/* View Benefits Button */}
         <div className="text-center mb-8">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="h-12 px-8 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold"
-              >
-                <Eye className="h-5 w-5 mr-2" />
-                View All Benefits
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-center text-gray-900">
-                  Verified Partner Benefits
-                </DialogTitle>
-                <DialogDescription className="text-center text-gray-600">
-                  Unlock these exclusive benefits as a verified Fixfly partner
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                {benefits.map((benefit, index) => (
-                  <Card key={index} className="border-0 shadow-lg">
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                          {benefit.icon}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                            {benefit.title}
-                          </h3>
-                          <p className="text-gray-600 text-sm">
-                            {benefit.description}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-                <div className="flex items-center justify-center space-x-2 text-green-700">
-                  <Crown className="h-5 w-5" />
-                  <span className="font-semibold">Plus many more exclusive benefits!</span>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            variant="outline" 
+            className="h-12 px-8 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold"
+            onClick={() => navigate('/vendor/benefits')}
+          >
+            <Eye className="h-5 w-5 mr-2" />
+            View All Benefits
+          </Button>
         </div>
 
         {/* Pricing Card */}

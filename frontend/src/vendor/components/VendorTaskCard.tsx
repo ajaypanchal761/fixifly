@@ -60,6 +60,7 @@ interface VendorTaskCardProps {
       respondedAt?: string;
       responseNote?: string;
     };
+    assignmentNotes?: string;
     isSupportTicket?: boolean;
   };
   onStatusUpdate: (taskId: string, newStatus: string) => void;
@@ -110,6 +111,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   const [declineReason, setDeclineReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isWalletCheckOpen, setIsWalletCheckOpen] = useState(false);
+  const currentWalletBalance = vendor?.wallet?.currentBalance ?? 0;
   
   // Debug: Log task data to identify object issues
   useEffect(() => {
@@ -312,8 +314,8 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               wallet: {
                 ...vendor.wallet,
                 currentBalance: (vendor.wallet?.currentBalance || 0) + depositAmount,
-                hasMandatoryDeposit: true,
-                canAcceptTasks: true
+                hasInitialDeposit: true,
+                totalDeposits: (vendor.wallet?.totalDeposits || 0) + depositAmount
               }
             });
           }
@@ -369,19 +371,22 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
     try {
       console.log('handleWalletCheckProceed: Starting decline process for task:', task.id);
       let response;
+      const skipPenalty = currentWalletBalance <= 0;
       
       if (task.isSupportTicket) {
         console.log('handleWalletCheckProceed: Declining support ticket');
         response = await vendorApi.declineSupportTicket(task.id, declineReason);
       } else {
         console.log('handleWalletCheckProceed: Declining booking task');
-        response = await vendorApi.declineTask(task.id, declineReason);
+        response = await vendorApi.declineTask(task.id, declineReason, { skipPenalty });
       }
       
       if (response.success) {
-        const penaltyMessage = response.penalty?.applied 
-          ? ` ₹${response.penalty.amount} penalty has been applied to your wallet.`
-          : '';
+        const penaltyMessage = skipPenalty
+          ? ' No penalty has been applied because your wallet balance is ₹0.'
+          : (response.penalty?.applied 
+            ? ` ₹${response.penalty.amount} penalty has been applied to your wallet.`
+            : '');
         
         toast({
           title: "Task Declined",
@@ -483,7 +488,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
   return (
     <>
-      <Card className="mb-4 border-l-4 border-l-blue-500">
+      <Card className="mb-4 border-l-4 border-l-blue-500 rounded-xl">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
@@ -508,7 +513,11 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               <User className="w-4 h-4 text-gray-500" />
               <span className="font-medium">{safeRender(task.customer)}</span>
               <Phone className="w-4 h-4 text-gray-500 ml-2" />
-              <span className="text-gray-600">{safeRender(task.phone)}</span>
+              {isTaskAccepted ? (
+                <span className="text-gray-600">{safeRender(task.phone)}</span>
+              ) : (
+                <span className="text-gray-400 italic">Hidden (Accept to view)</span>
+              )}
             </div>
 
             {/* Address */}
@@ -598,7 +607,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* Accept Task Modal */}
       <Dialog open={isAcceptModalOpen} onOpenChange={setIsAcceptModalOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-20">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-20 rounded-xl">
           <DialogHeader>
             <DialogTitle>Accept Task</DialogTitle>
           </DialogHeader>
@@ -655,7 +664,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* Decline Task Modal */}
       <Dialog open={isDeclineModalOpen} onOpenChange={setIsDeclineModalOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-8">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-8 rounded-xl">
           <DialogHeader>
             <DialogTitle>Decline Task</DialogTitle>
           </DialogHeader>
@@ -678,9 +687,17 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                 <h3 className="font-semibold text-orange-800">Penalty Notice</h3>
               </div>
               <p className="text-sm text-orange-700 mt-2">
-                <strong>Warning:</strong> Declining this task will result in a <strong>₹100 penalty</strong> 
-                being deducted from your wallet balance. This penalty applies to all task rejections 
-                in your assigned area.
+                {currentWalletBalance > 0 ? (
+                  <>
+                    <strong>Warning:</strong> Declining this task will result in a <strong>₹100 penalty</strong> 
+                    being deducted from your wallet balance. This penalty applies to all task rejections 
+                    in your assigned area.
+                  </>
+                ) : (
+                  <>
+                    Your wallet balance is ₹0, so this task will be rejected without any penalty deduction.
+                  </>
+                )}
               </p>
             </div>
             
@@ -734,7 +751,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* View Task Details Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col mt-20">
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col mt-20 rounded-xl">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2 text-lg">
               <Eye className="w-4 h-4" />
@@ -752,7 +769,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                 </div>
                 <div>
                   <span className="font-medium text-blue-700">Amount:</span>
-                  <p className="text-blue-600">{task.isSupportTicket ? safeRender(task.amount) : '₹0'}</p>
+                  <p className="text-blue-600">{safeRender(task.amount)}</p>
                 </div>
                 <div>
                   <span className="font-medium text-blue-700">Priority:</span>
@@ -864,33 +881,25 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               <h3 className="font-semibold text-orange-800 mb-2">Issue Description</h3>
               <p className="text-orange-700 text-sm">{safeRender(task.issue)}</p>
             </div>
+
+            {/* Assignment Notes */}
+            {task.assignmentNotes && (
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <h3 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  Assignment Notes from Admin
+                </h3>
+                <p className="text-yellow-700 text-sm whitespace-pre-wrap">{safeRender(task.assignmentNotes)}</p>
+              </div>
+            )}
           </div>
           
-          {/* Action Buttons - Fixed at bottom */}
+          {/* Close Button - Removed accept/reject buttons to avoid bottom nav overlap */}
           <div className="flex gap-3 p-4 border-t flex-shrink-0 bg-white mt-auto">
-            <Button
-              onClick={() => setIsAcceptModalOpen(true)}
-              className="flex-1 bg-green-600 hover:bg-green-700"
-              size="sm"
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Accept Task
-            </Button>
-            <Button
-              onClick={() => {
-                setIsViewModalOpen(false);
-                navigate(`/vendor/task/${task.id}/cancel`);
-              }}
-              variant="destructive"
-              className="flex-1"
-              size="sm"
-            >
-              <XCircle className="w-4 h-4 mr-2" />
-              Decline Task
-            </Button>
             <Button
               variant="outline"
               onClick={() => setIsViewModalOpen(false)}
+              className="w-full"
               size="sm"
             >
               Close
@@ -919,7 +928,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
       {/* Mandatory Deposit Required Modal */}
       <Dialog open={isDepositRequiredModalOpen} onOpenChange={setIsDepositRequiredModalOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-20">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mt-20 rounded-xl">
           <DialogHeader>
             <DialogTitle className="text-center text-red-600">Mandatory Deposit Required</DialogTitle>
           </DialogHeader>

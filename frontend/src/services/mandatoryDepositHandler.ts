@@ -56,6 +56,12 @@ window.fetch = async (...args) => {
     
     return response;
   } catch (error) {
+    // If it's a network error (Failed to fetch), re-throw it properly
+    // Don't try to fetch again as it will fail again
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw error; // Re-throw network errors
+    }
+    // For other errors, try original fetch
     return originalFetch(...args);
   }
 };

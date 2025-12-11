@@ -63,6 +63,7 @@ import VendorLogin from "./vendor/pages/VendorLogin";
 import VendorSignup from "./vendor/pages/VendorSignup";
 import VendorVerification from "./vendor/pages/VendorVerification";
 import VendorVerified from "./vendor/pages/VendorVerified";
+import VendorBenefits from "./vendor/pages/VendorBenefits";
 import VendorDashboard from "./vendor/pages/VendorDashboard";
 import VendorProfile from "./vendor/pages/VendorProfile";
 import VendorEarnings from "./vendor/pages/VendorEarnings";
@@ -117,6 +118,7 @@ const AppContent = () => {
         <Route path="/vendor/signup" element={<VendorSignup />} />
         <Route path="/vendor/verification" element={<VendorVerification />} />
         <Route path="/vendor/verified" element={<VendorVerified />} />
+        <Route path="/vendor/benefits" element={<VendorBenefits />} />
 
         {/* ================== PROTECTED USER ROUTES ================== */}
         <Route path="/booking" element={<MobileAuthGuard><Booking /></MobileAuthGuard>} />
@@ -247,6 +249,8 @@ const App = () => {
       // Handle booking assignment notification
       if (payload.data?.type === 'booking_assignment') {
         console.log('📅 Booking assignment notification received');
+        console.log('📅 Booking assignment data:', payload.data);
+        
         // Dispatch custom event to trigger vendor dashboard refresh
         const event = new CustomEvent('bookingAssigned', {
           detail: payload.data
@@ -255,13 +259,38 @@ const App = () => {
         
         // Show browser notification if permission granted
         if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification('📅 New Booking Assigned', {
+          const notificationData = payload.data || {};
+          const taskLink = notificationData.link || 
+                          (notificationData.bookingId ? `/vendor/task/${notificationData.bookingId}` : null) ||
+                          (notificationData.taskId ? `/vendor/task/${notificationData.taskId}` : null) ||
+                          '/vendor/dashboard';
+          
+          const notification = new Notification('📅 New Booking Assigned', {
             body: payload.notification?.body || payload.data?.message || 'A new service booking has been assigned to you.',
             icon: '/favicon.png',
             badge: '/favicon.png',
             tag: 'booking-assignment',
-            requireInteraction: true
+            requireInteraction: true,
+            data: {
+              ...notificationData,
+              link: taskLink
+            }
           });
+          
+          // Handle notification click to navigate to task
+          notification.onclick = (event) => {
+            event.preventDefault();
+            console.log('📅 Notification clicked, navigating to:', taskLink);
+            window.focus();
+            // Use window.location for navigation
+            if (window.location.pathname.startsWith('/vendor')) {
+              window.location.href = taskLink;
+            } else {
+              // If not on vendor route, navigate to vendor login first, then task
+              window.location.href = `/vendor/login?redirect=${encodeURIComponent(taskLink)}`;
+            }
+            notification.close();
+          };
         }
       }
     });
@@ -290,11 +319,30 @@ const App = () => {
     console.log('📱 PWA mode detected:', isPWA);
     console.log('🌐 User Agent:', navigator.userAgent);
     
+    // Listen for messages from service worker (notification clicks)
+    const handleServiceWorkerMessage = (event: MessageEvent) => {
+      console.log('📬 Message received from service worker:', event.data);
+      if (event.data && event.data.type === 'NOTIFICATION_CLICK') {
+        const { link, data } = event.data;
+        console.log('📅 Notification click message received, navigating to:', link);
+        
+        // Navigate to the task page
+        if (link && link.startsWith('/vendor/task/')) {
+          window.location.href = link;
+        } else if (link) {
+          window.location.href = link;
+        }
+      }
+    };
+    
+    navigator.serviceWorker?.addEventListener('message', handleServiceWorkerMessage);
+    
     // Cleanup function
     return () => {
       if (unsubscribe) {
         unsubscribe();
       }
+      navigator.serviceWorker?.removeEventListener('message', handleServiceWorkerMessage);
     };
   }, []);
 

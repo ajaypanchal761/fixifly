@@ -57,26 +57,49 @@ messaging.onBackgroundMessage(function(payload) {
 // Handle notification click
 self.addEventListener('notificationclick', function(event) {
   console.log('[firebase-messaging-sw.js] Notification click received.', event);
+  console.log('[firebase-messaging-sw.js] Notification data:', event.notification.data);
   
   event.notification.close();
 
   // Get the link from notification data
-  const link = event.notification.data?.link || event.notification.data?.data?.link || '/';
+  // Check multiple possible locations for the link
+  const notificationData = event.notification.data || {};
+  let link = notificationData.link || 
+             notificationData.data?.link || 
+             (notificationData.type === 'booking_assignment' && notificationData.bookingId 
+               ? `/vendor/task/${notificationData.bookingId}` 
+               : null) ||
+             (notificationData.type === 'booking_assignment' && notificationData.taskId 
+               ? `/vendor/task/${notificationData.taskId}` 
+               : null) ||
+             '/';
+  
+  console.log('[firebase-messaging-sw.js] Navigating to:', link);
+  
+  // Get the origin URL
+  const origin = self.location.origin;
+  const fullUrl = link.startsWith('http') ? link : `${origin}${link}`;
   
   // Open or focus the app
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      // Check if there's already a window/tab open with the target URL
+      // Check if there's already a window/tab open
       for (let i = 0; i < clientList.length; i++) {
         const client = clientList[i];
-        // If we can find an existing window, focus it
-        if (client.url === link && 'focus' in client) {
+        // Focus any existing window
+        if ('focus' in client) {
+          // Send message to navigate to the task
+          client.postMessage({
+            type: 'NOTIFICATION_CLICK',
+            link: link,
+            data: notificationData
+          });
           return client.focus();
         }
       }
       // If no existing window, open a new one
       if (clients.openWindow) {
-        return clients.openWindow(link);
+        return clients.openWindow(fullUrl);
       }
     })
   );
