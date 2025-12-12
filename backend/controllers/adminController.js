@@ -6,6 +6,7 @@ const Card = require('../models/Card');
 const { Booking } = require('../models/Booking');
 const AMCSubscription = require('../models/AMCSubscription');
 const SupportTicket = require('../models/SupportTicket');
+const WithdrawalRequest = require('../models/WithdrawalRequest');
 const jwt = require('jsonwebtoken');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
@@ -634,7 +635,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       blockedVendors,
       totalBlogs,
       totalCards,
-      activeAMCSubscriptionsResult
+      activeAMCSubscriptionsResult,
+      pendingWithdrawalRequests
     ] = await Promise.all([
       User.countDocuments({ isActive: true }),
       Vendor.countDocuments(),
@@ -669,7 +671,9 @@ const getDashboardStats = asyncHandler(async (req, res) => {
             totalAmount: { $sum: '$amount' }
           }
         }
-      ])
+      ]),
+      // Pending withdrawal requests
+      WithdrawalRequest.countDocuments({ status: 'pending' })
     ]);
 
     // Extract AMC subscription data
@@ -977,7 +981,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         blockedVendors,
         pendingBookings,
         activeAMCSubscriptions,
-        totalAMCAmount
+        totalAMCAmount,
+        pendingWithdrawalRequests: pendingWithdrawalRequests || 0
       },
       recentActivity: {
         recentUsers,

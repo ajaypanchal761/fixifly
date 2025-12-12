@@ -98,6 +98,10 @@ const AdminVendorWalletManagement = () => {
   const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([]);
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [loadingWithdrawals, setLoadingWithdrawals] = useState(false);
+  
+  // State for recent transactions in wallet details modal
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
 
   const [newTransaction, setNewTransaction] = useState({
     vendorId: '',
@@ -149,18 +153,44 @@ const AdminVendorWalletManagement = () => {
     try {
       setLoadingWithdrawals(true);
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      
+      console.log('Fetching withdrawal requests from:', `${API_BASE_URL}/admin/withdrawals`);
+      
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/withdrawals`, {
         method: 'GET'
+      }).catch((fetchError) => {
+        console.error('Network error fetching withdrawal requests:', fetchError);
+        // If it's a network error, it might be CORS or server not running
+        if (fetchError instanceof TypeError && fetchError.message === 'Failed to fetch') {
+          throw new Error('Cannot connect to server. Please make sure the backend server is running.');
+        }
+        throw fetchError;
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch withdrawal requests');
+        const errorText = await response.text();
+        let errorMessage = 'Failed to fetch withdrawal requests';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${errorText || response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      setWithdrawalRequests(data.data.requests || []);
+      console.log('Withdrawal requests response:', data);
+      
+      if (data.success && data.data) {
+        setWithdrawalRequests(data.data.requests || []);
+      } else {
+        console.warn('Unexpected response format:', data);
+        setWithdrawalRequests([]);
+      }
     } catch (error) {
       console.error('Error fetching withdrawal requests:', error);
+      // Don't show error to user if it's just a network issue, just set empty array
       setWithdrawalRequests([]);
     } finally {
       setLoadingWithdrawals(false);
@@ -214,16 +244,28 @@ const AdminVendorWalletManagement = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to decline withdrawal request');
+        // Try to get error message from response
+        let errorMessage = 'Failed to decline withdrawal request';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
+      const data = await response.json();
+      
       // Refresh withdrawal requests
       await fetchWithdrawalRequests();
       
-      alert('Withdrawal request declined successfully!');
-    } catch (error) {
+      alert(data.message || 'Withdrawal request declined successfully!');
+    } catch (error: any) {
       console.error('Error declining withdrawal request:', error);
-      alert('Failed to decline withdrawal request. Please try again.');
+      const errorMessage = error?.message || 'Failed to decline withdrawal request. Please try again.';
+      alert(errorMessage);
     }
   };
 
@@ -248,9 +290,64 @@ const AdminVendorWalletManagement = () => {
     return selectedVendorId === '' || transaction.vendorId === selectedVendorId;
   });
 
-  const handleViewWallet = (wallet: VendorWallet) => {
+  // Fetch wallet details with transactions
+  const fetchWalletDetails = async (vendorId: string) => {
+    try {
+      setLoadingTransactions(true);
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await adminApiService.makeAuthenticatedRequest(
+        `${API_BASE_URL}/admin/wallets/${vendorId}?limit=10`,
+        {
+          method: 'GET'
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Wallet details response:', data);
+      console.log('Transactions data:', data.data?.transactions);
+      console.log('Transactions count:', data.data?.transactions?.length);
+      
+      if (data.success && data.data && data.data.transactions) {
+        // Transform transactions to match the expected format
+        // Credit types: deposit, earning, refund, bonus
+        // Debit types: withdrawal, penalty
+        const creditTypes = ['deposit', 'earning', 'refund', 'bonus'];
+        const transformedTransactions = data.data.transactions.map((txn: any) => {
+          const isCredit = creditTypes.includes(txn.type?.toLowerCase());
+          return {
+            id: txn._id || txn.transactionId,
+            vendorId: txn.vendorId,
+            type: isCredit ? 'credit' : 'debit',
+            amount: Math.abs(txn.amount || 0),
+            description: txn.description || txn.type || 'Transaction',
+            reference: txn.transactionId || txn._id,
+            status: txn.status || 'completed',
+            createdAt: txn.createdAt || txn.timestamp || new Date().toISOString()
+          };
+        });
+        console.log('Transformed transactions:', transformedTransactions);
+        setRecentTransactions(transformedTransactions);
+      } else {
+        console.log('No transactions found in response');
+        setRecentTransactions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching wallet details:', error);
+      setRecentTransactions([]);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
+  const handleViewWallet = async (wallet: VendorWallet) => {
     setSelectedWallet(wallet);
     setIsViewWalletOpen(true);
+    // Fetch recent transactions when modal opens
+    await fetchWalletDetails(wallet.vendorId);
   };
 
   const handleViewTransactions = (vendorId: string) => {
@@ -836,7 +933,14 @@ const AdminVendorWalletManagement = () => {
         </Dialog>
 
         {/* View Wallet Dialog */}
-        <Dialog open={isViewWalletOpen} onOpenChange={setIsViewWalletOpen}>
+        <Dialog open={isViewWalletOpen} onOpenChange={(open) => {
+          setIsViewWalletOpen(open);
+          if (!open) {
+            // Clear transactions when modal closes
+            setRecentTransactions([]);
+            setSelectedWallet(null);
+          }
+        }}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mt-12">
             <DialogHeader>
               <DialogTitle className="text-lg">Wallet Details</DialogTitle>
@@ -926,11 +1030,14 @@ const AdminVendorWalletManagement = () => {
                 {/* Recent Transactions */}
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Recent Transactions</h3>
-                  <div className="space-y-2">
-                    {walletTransactions
-                      .filter(t => t.vendorId === selectedWallet.vendorId)
-                      .slice(0, 5)
-                      .map((transaction) => (
+                  {loadingTransactions ? (
+                    <div className="flex items-center justify-center py-8">
+                      <RefreshCw className="h-5 w-5 animate-spin mr-2" />
+                      <p className="text-sm text-muted-foreground">Loading transactions...</p>
+                    </div>
+                  ) : recentTransactions.length > 0 ? (
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {recentTransactions.map((transaction) => (
                         <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg">
                           <div className="flex items-center space-x-3">
                             {transaction.type === 'credit' ? (
@@ -941,7 +1048,13 @@ const AdminVendorWalletManagement = () => {
                             <div>
                               <p className="text-sm font-medium">{transaction.description}</p>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(transaction.createdAt).toLocaleDateString()}
+                                {new Date(transaction.createdAt).toLocaleDateString('en-IN', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
                               </p>
                             </div>
                           </div>
@@ -958,7 +1071,12 @@ const AdminVendorWalletManagement = () => {
                           </div>
                         </div>
                       ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 border rounded-lg">
+                      <p className="text-sm text-muted-foreground">No recent transactions found</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-2 pt-4">

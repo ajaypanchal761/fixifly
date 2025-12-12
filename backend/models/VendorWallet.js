@@ -30,7 +30,7 @@ const walletTransactionSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'failed', 'refunded', 'approved', 'declined'],
+    enum: ['pending', 'completed', 'failed', 'refunded', 'approved', 'declined', 'rejected'],
     default: 'completed'
   },
   paymentMethod: {
@@ -594,11 +594,17 @@ vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
     type,
     description,
     processedBy = 'admin',
-    metadata = {}
+    metadata = {},
+    status = 'completed' // Allow custom status, default to 'completed'
   } = adjustmentData;
 
   // Determine if this is a credit or debit based on metadata or amount
   const isCredit = metadata.isCredit !== undefined ? metadata.isCredit : amount > 0;
+  
+  // For withdrawal_request, use status from metadata if provided, otherwise use the passed status
+  const transactionStatus = type === 'withdrawal_request' && metadata.status 
+    ? metadata.status 
+    : status;
   
   const transaction = {
     transactionId: `ADJ_${this.vendorId}_${Date.now()}`,
@@ -606,13 +612,14 @@ vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
     amount: isCredit ? amount : -amount,
     description,
     paymentMethod: 'system',
-    status: 'completed',
-    processedBy: 'admin',
+    status: transactionStatus, // Use the determined status
+    processedBy: processedBy === 'system' ? 'system' : 'admin',
     metadata: {
       ...metadata,
       adminId: processedBy
     },
     verificationStatus: 'approved',
+    createdAt: new Date(),
     // Add required fields for withdrawal_request type
     ...(type === 'withdrawal_request' && {
       caseId: `WR-${Date.now()}`,

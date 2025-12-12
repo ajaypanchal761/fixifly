@@ -101,24 +101,31 @@ const createWithdrawalRequest = asyncHandler(async (req, res) => {
 
     await withdrawalRequest.save();
 
-    // Add transaction record for the withdrawal request (pending status)
+    // Deduct amount from wallet immediately when withdrawal request is created
     try {
-      logger.info('Adding withdrawal request transaction record', {
+      logger.info('Deducting withdrawal amount from wallet', {
         vendorId: vendor.vendorId,
         withdrawalAmount,
+        currentBalance: vendorWallet.currentBalance,
         requestId: withdrawalRequest._id
       });
       
+      // Deduct the amount from wallet immediately
+      vendorWallet.currentBalance -= withdrawalAmount;
+      vendorWallet.lastTransactionAt = new Date();
+      
+      // Add transaction record for the withdrawal request (pending status)
       const transactionData = {
-        amount: 0, // No amount deducted yet (pending)
+        amount: -withdrawalAmount, // Negative amount for deduction
         type: 'withdrawal_request',
         description: `Withdrawal request submitted - Amount above ₹5,000: ₹${withdrawalAmount.toLocaleString()} (Request ID: ${withdrawalRequest._id})`,
         processedBy: 'system',
+        status: 'pending', // Set transaction status to pending
         metadata: {
-          withdrawalRequestId: withdrawalRequest._id,
+          withdrawalRequestId: String(withdrawalRequest._id), // Store as string for consistent comparison
           amountAbove5000: withdrawalAmount,
           status: 'pending',
-          note: 'Withdrawal request pending admin approval'
+          note: 'Withdrawal request pending admin approval - Amount deducted from wallet'
         }
       };
       
@@ -126,13 +133,16 @@ const createWithdrawalRequest = asyncHandler(async (req, res) => {
       
       await vendorWallet.addManualAdjustment(transactionData);
       
-      logger.info('Withdrawal request transaction record added successfully', {
+      logger.info('Withdrawal request transaction record added and amount deducted successfully', {
         vendorId: vendor.vendorId,
-        requestId: withdrawalRequest._id
+        requestId: withdrawalRequest._id,
+        newBalance: vendorWallet.currentBalance
       });
     } catch (transactionError) {
-      logger.error('Error adding withdrawal request transaction record:', transactionError);
-      // Don't fail the request if transaction record fails
+      logger.error('Error processing withdrawal request transaction:', transactionError);
+      // Rollback the withdrawal request if transaction fails
+      await WithdrawalRequest.findByIdAndDelete(withdrawalRequest._id);
+      throw new Error('Failed to process withdrawal request. Please try again.');
     }
 
     // Log the withdrawal request
@@ -331,11 +341,20 @@ const approveWithdrawalRequest = asyncHandler(async (req, res) => {
       });
     }
 
-    // Process the withdrawal (deduct only the amount above ₹5000)
+    // Update withdrawal totals (amount already deducted when request was created)
     try {
-      vendorWallet.currentBalance -= withdrawalRequest.amount; // Only deduct the amount above ₹5000
+      // Amount was already deducted when withdrawal request was created
+      // Just update the total withdrawals counter
       vendorWallet.totalWithdrawals += withdrawalRequest.amount;
+      vendorWallet.lastTransactionAt = new Date();
       await vendorWallet.save();
+      
+      logger.info('Withdrawal approved - amount already deducted', {
+        vendorId: withdrawalRequest.vendorId,
+        amount: withdrawalRequest.amount,
+        currentBalance: vendorWallet.currentBalance,
+        requestId: requestId
+      });
     } catch (walletError) {
       logger.error('Error updating vendor wallet:', walletError);
       return res.status(500).json({
@@ -513,38 +532,446 @@ const declineWithdrawalRequest = asyncHandler(async (req, res) => {
     // Decline the request
     await withdrawalRequest.decline(adminId, adminNotes);
 
-    // Update the existing withdrawal request transaction record
+    // Refund the amount back to wallet when withdrawal request is declined
     try {
       // Get vendor wallet
       const vendorWallet = await VendorWallet.findOne({ 
         vendorId: withdrawalRequest.vendorId 
       });
 
-      if (vendorWallet) {
-        // Find and update the existing withdrawal request transaction
-        const transactionIndex = vendorWallet.transactions.findIndex(t => 
-          t.metadata && t.metadata.withdrawalRequestId === requestId
-        );
+      if (!vendorWallet) {
+        logger.error('Vendor wallet not found for refund', {
+          vendorId: withdrawalRequest.vendorId,
+          requestId: requestId
+        });
+        throw new Error('Vendor wallet not found');
+      }
+
+      logger.info('Refunding withdrawal amount to wallet', {
+        vendorId: withdrawalRequest.vendorId,
+        amount: withdrawalRequest.amount,
+        currentBalanceBefore: vendorWallet.currentBalance,
+        requestId: requestId,
+        requestIdType: typeof requestId,
+        requestIdString: String(requestId)
+      });
+      
+      // Convert requestId to string for comparison (metadata might store it as string or ObjectId)
+      const requestIdString = String(requestId);
+      const requestIdObjectId = withdrawalRequest._id.toString();
+      
+      // Find and update the existing withdrawal request transaction
+      // Check both string and ObjectId formats
+      const transactionIndex = vendorWallet.transactions.findIndex(t => {
+        if (!t.metadata || !t.metadata.withdrawalRequestId) return false;
+        const metadataRequestId = String(t.metadata.withdrawalRequestId);
+        return metadataRequestId === requestIdString || 
+               metadataRequestId === requestIdObjectId ||
+               String(t.metadata.withdrawalRequestId) === String(withdrawalRequest._id);
+      });
+      
+      logger.info('Transaction search result', {
+        requestId: requestId,
+        requestIdString: requestIdString,
+        requestIdObjectId: requestIdObjectId,
+        transactionIndex: transactionIndex,
+        totalTransactions: vendorWallet.transactions.length,
+        found: transactionIndex !== -1
+      });
+      
+      // Refund the amount back to wallet
+      const balanceBefore = vendorWallet.currentBalance;
+      vendorWallet.currentBalance += withdrawalRequest.amount;
+      vendorWallet.lastTransactionAt = new Date();
+      
+      // DIRECT UPDATE: Find and update transaction status to 'rejected' immediately
+      let transactionUpdated = false;
+      const requestIdStr = requestId.toString();
+      
+      // Find ALL withdrawal_request transactions and check each one
+      for (let i = 0; i < vendorWallet.transactions.length; i++) {
+        const txn = vendorWallet.transactions[i];
+        if (txn.type !== 'withdrawal_request') continue;
         
-        if (transactionIndex !== -1) {
-          // Update the existing transaction
-          vendorWallet.transactions[transactionIndex].amount = 0; // No amount deducted
-          vendorWallet.transactions[transactionIndex].description = `Withdrawal request declined - Amount above ₹5,000: ₹${withdrawalRequest.amount.toLocaleString()} (Request ID: ${requestId})`;
-          vendorWallet.transactions[transactionIndex].status = 'declined';
-          vendorWallet.transactions[transactionIndex].metadata = {
-            ...vendorWallet.transactions[transactionIndex].metadata,
-            status: 'declined',
-            processedBy: adminId,
-            adminNotes,
-            processedAt: new Date()
+        // Check if this transaction matches the requestId
+        let matches = false;
+        
+        // Check description (most reliable)
+        if (txn.description && (
+          txn.description.includes(requestIdStr) ||
+          txn.description.includes(requestIdString) ||
+          txn.description.includes(requestIdObjectId)
+        )) {
+          matches = true;
+        }
+        
+        // Check metadata
+        if (!matches && txn.metadata?.withdrawalRequestId) {
+          const metadataId = String(txn.metadata.withdrawalRequestId);
+          if (metadataId === requestIdStr || 
+              metadataId === requestIdString ||
+              metadataId === requestIdObjectId) {
+            matches = true;
+          }
+        }
+        
+        if (matches) {
+          // Convert to plain object
+          const plainTxn = txn.toObject ? txn.toObject() : JSON.parse(JSON.stringify(txn));
+          
+          // Update directly - preserve all required fields
+          vendorWallet.transactions[i] = {
+            ...plainTxn,
+            status: 'rejected',
+            description: `Withdrawal request declined - Amount refunded: ₹${withdrawalRequest.amount.toLocaleString()} (Request ID: ${requestId})`,
+            caseId: plainTxn.caseId || `WR-${Date.now()}`, // Preserve caseId (required for withdrawal_request)
+            metadata: {
+              ...plainTxn.metadata,
+              status: 'rejected',
+              processedBy: adminId,
+              adminNotes: adminNotes,
+              processedAt: new Date()
+            }
           };
           
-          await vendorWallet.save();
+          vendorWallet.markModified('transactions');
+          transactionUpdated = true;
+          
+          logger.info('✅ Transaction status updated to rejected', {
+            requestId: requestId,
+            transactionIndex: i,
+            oldStatus: plainTxn.status,
+            newStatus: 'rejected',
+            transactionId: plainTxn.transactionId
+          });
+          
+          break; // Found and updated, exit loop
         }
       }
+      
+      if (!transactionUpdated) {
+        logger.error('❌ Transaction not found for update, trying direct MongoDB update', {
+          requestId: requestIdStr,
+          requestIdString: requestIdString,
+          totalTransactions: vendorWallet.transactions.length,
+          withdrawalRequestTransactions: vendorWallet.transactions
+            .filter(t => t.type === 'withdrawal_request')
+            .map(t => ({
+              transactionId: t.transactionId,
+              status: t.status,
+              description: t.description,
+              metadataRequestId: t.metadata?.withdrawalRequestId
+            }))
+        });
+        
+        // Last resort: Direct MongoDB update by description
+        try {
+          const mongoUpdate = await VendorWallet.updateOne(
+            { vendorId: withdrawalRequest.vendorId },
+            {
+              $set: {
+                'transactions.$[elem].status': 'rejected',
+                'transactions.$[elem].description': `Withdrawal request declined - Amount refunded: ₹${withdrawalRequest.amount.toLocaleString()} (Request ID: ${requestId})`,
+                'transactions.$[elem].metadata.status': 'rejected',
+                'transactions.$[elem].metadata.processedBy': adminId,
+                'transactions.$[elem].metadata.adminNotes': adminNotes,
+                'transactions.$[elem].metadata.processedAt': new Date()
+              }
+            },
+            {
+              arrayFilters: [
+                {
+                  'elem.type': 'withdrawal_request',
+                  'elem.description': { $regex: requestId.toString(), $options: 'i' }
+                }
+              ]
+            }
+          );
+          
+          if (mongoUpdate.modifiedCount > 0) {
+            transactionUpdated = true;
+            logger.info('✅ MongoDB direct update successful', {
+              matchedCount: mongoUpdate.matchedCount,
+              modifiedCount: mongoUpdate.modifiedCount
+            });
+            // Reload wallet after MongoDB update
+            vendorWallet = await VendorWallet.findOne({ vendorId: withdrawalRequest.vendorId });
+          }
+        } catch (mongoErr) {
+          logger.error('MongoDB direct update failed:', mongoErr);
+        }
+      }
+      
+      // Add refund transaction and update balance (if not already done)
+      if (!vendorWallet.transactions.some(t => 
+        t.type === 'refund' && 
+        t.metadata?.withdrawalRequestId === requestIdString
+      )) {
+        const refundTransaction = {
+          transactionId: `REF_${vendorWallet.vendorId}_${Date.now()}`,
+          caseId: `REF-${Date.now()}`, // caseId is required for refund type
+          type: 'refund',
+          amount: withdrawalRequest.amount,
+          description: `Withdrawal request declined - Amount refunded: ₹${withdrawalRequest.amount.toLocaleString()} (Request ID: ${requestId})`,
+          paymentMethod: 'system',
+          billingAmount: withdrawalRequest.amount,
+          calculatedAmount: withdrawalRequest.amount,
+          status: 'completed',
+          processedBy: 'system',
+          metadata: {
+            withdrawalRequestId: requestIdString,
+            refundReason: 'Withdrawal request declined',
+            adminNotes,
+            processedBy: adminId
+          }
+        };
+        
+        vendorWallet.transactions.push(refundTransaction);
+        vendorWallet.totalRefunds += withdrawalRequest.amount;
+      }
+      
+      // FINAL CHECK: If transaction still not updated, try one more time with fresh wallet
+      if (!transactionUpdated) {
+        logger.warn('⚠️ Transaction update failed in all methods, trying final direct update');
+        
+        // Reload wallet to get fresh data
+        const finalWallet = await VendorWallet.findOne({ vendorId: withdrawalRequest.vendorId });
+        if (!finalWallet) {
+          logger.error('Vendor wallet not found for final update attempt');
+        } else {
+          // Log all withdrawal_request transactions for debugging
+          const allWithdrawalTxns = finalWallet.transactions
+            .filter(t => t.type === 'withdrawal_request')
+            .map((t, idx) => ({
+              index: idx,
+              transactionId: t.transactionId,
+              status: t.status,
+              description: t.description,
+              metadataRequestId: t.metadata?.withdrawalRequestId,
+              metadataRequestIdString: String(t.metadata?.withdrawalRequestId || ''),
+              metadataStatus: t.metadata?.status,
+              matchesRequestId: t.description?.includes(requestId.toString()) || 
+                               t.description?.includes(requestIdString) ||
+                               String(t.metadata?.withdrawalRequestId || '') === requestIdString
+            }));
+          
+          logger.info('All withdrawal_request transactions before final update:', {
+            total: allWithdrawalTxns.length,
+            transactions: allWithdrawalTxns,
+            searchingFor: requestIdString
+          });
+          
+          // Find transaction by multiple methods
+          let txnIndex = -1;
+          
+          // Method 1: By metadata.withdrawalRequestId
+          txnIndex = finalWallet.transactions.findIndex(t => {
+            if (t.type !== 'withdrawal_request') return false;
+            if (t.metadata?.withdrawalRequestId) {
+              const metadataId = String(t.metadata.withdrawalRequestId);
+              return metadataId === requestIdString || 
+                     metadataId === requestIdObjectId ||
+                     metadataId === String(withdrawalRequest._id) ||
+                     metadataId === requestId.toString();
+            }
+            return false;
+          });
+          
+          // Method 2: By description containing requestId
+          if (txnIndex === -1) {
+            txnIndex = finalWallet.transactions.findIndex(t => 
+              t.type === 'withdrawal_request' &&
+              t.description && (
+                t.description.includes(requestId.toString()) || 
+                t.description.includes(requestIdString) ||
+                t.description.includes(requestIdObjectId) ||
+                t.description.includes(String(withdrawalRequest._id))
+              )
+            );
+          }
+          
+          if (txnIndex !== -1) {
+            logger.info('✅ Found transaction for final update', {
+              transactionIndex: txnIndex,
+              transactionId: finalWallet.transactions[txnIndex].transactionId,
+              currentStatus: finalWallet.transactions[txnIndex].status,
+              description: finalWallet.transactions[txnIndex].description
+            });
+            
+            // Convert entire transactions array to plain objects
+            const transactionsArray = finalWallet.transactions.map((t, idx) => {
+              if (idx === txnIndex) {
+                // Update the specific transaction
+                const plainTxn = t.toObject ? t.toObject() : JSON.parse(JSON.stringify(t));
+                return {
+                  ...plainTxn,
+                  status: 'rejected',
+                  caseId: plainTxn.caseId || `WR-${Date.now()}`, // Preserve caseId
+                  description: `Withdrawal request declined - Amount refunded: ₹${withdrawalRequest.amount.toLocaleString()} (Request ID: ${requestId})`,
+                  metadata: {
+                    ...plainTxn.metadata,
+                    status: 'rejected',
+                    processedBy: adminId,
+                    adminNotes: adminNotes,
+                    processedAt: new Date()
+                  }
+                };
+              }
+              return t.toObject ? t.toObject() : JSON.parse(JSON.stringify(t));
+            });
+            
+            // Set the entire array back
+            finalWallet.transactions = transactionsArray;
+            finalWallet.markModified('transactions');
+            
+            // Update vendorWallet reference to use the updated wallet (don't save yet - will save at end)
+            vendorWallet = finalWallet;
+            
+            logger.info('✅ Final transaction update successful (in memory)', {
+              requestId: requestId,
+              transactionIndex: txnIndex,
+              newStatus: 'rejected',
+              newDescription: transactionsArray[txnIndex].description
+            });
+            
+            transactionUpdated = true;
+          } else {
+            logger.error('❌ Transaction not found even in final update attempt', {
+              requestId: requestId,
+              requestIdString: requestIdString,
+              totalTransactions: finalWallet.transactions.length,
+              allWithdrawalTxns: allWithdrawalTxns
+            });
+          }
+        }
+      }
+      
+      // NOW save the wallet with ALL updates (transaction status + refund + balance)
+      vendorWallet.markModified('transactions');
+      const savedWallet = await vendorWallet.save();
+      
+      // Verify the transaction was saved with rejected status
+      const savedTxn = savedWallet.transactions.find(t => 
+        t.type === 'withdrawal_request' && 
+        (t.description?.includes(requestId.toString()) || 
+         String(t.metadata?.withdrawalRequestId || '') === requestId.toString())
+      );
+      
+      logger.info('Wallet saved after decline', {
+        vendorId: withdrawalRequest.vendorId,
+        balanceAfter: savedWallet.currentBalance,
+        transactionUpdated: transactionUpdated,
+        totalTransactions: savedWallet.transactions.length,
+        savedTransactionStatus: savedTxn?.status,
+        savedTransactionDescription: savedTxn?.description,
+        withdrawalRequestTransactions: savedWallet.transactions
+          .filter(t => t.type === 'withdrawal_request')
+          .map(t => ({
+            status: t.status,
+            description: t.description,
+            metadataStatus: t.metadata?.status,
+            metadataRequestId: t.metadata?.withdrawalRequestId
+          }))
+      });
+      
+      if (savedTxn && savedTxn.status !== 'rejected') {
+        logger.error('⚠️ WARNING: Transaction status not saved as rejected!', {
+          requestId: requestId,
+          savedStatus: savedTxn.status,
+          savedDescription: savedTxn.description
+        });
+      }
+      
+      // Verify the update was saved by reloading with .lean() for plain object
+      const verifyWallet = await VendorWallet.findOne({ vendorId: withdrawalRequest.vendorId }).lean();
+      if (verifyWallet && verifyWallet.transactions) {
+        // Try multiple ways to find the transaction
+        const updatedTransaction = verifyWallet.transactions.find(t => {
+          if (t.type !== 'withdrawal_request') return false;
+          
+          // Check by metadata
+          if (t.metadata?.withdrawalRequestId) {
+            const metadataId = String(t.metadata.withdrawalRequestId);
+            if (metadataId === requestIdString || 
+                metadataId === requestIdObjectId ||
+                metadataId === String(withdrawalRequest._id)) {
+              return true;
+            }
+          }
+          
+          // Check by description
+          if (t.description && (
+            t.description.includes(requestId) ||
+            t.description.includes(requestIdString) ||
+            t.description.includes(requestIdObjectId) ||
+            t.description.includes(String(withdrawalRequest._id))
+          )) {
+            return true;
+          }
+          
+          return false;
+        });
+        
+        if (updatedTransaction) {
+          logger.info('✅ Transaction status verified after save', {
+            requestId: requestId,
+            status: updatedTransaction.status,
+            metadataStatus: updatedTransaction.metadata?.status,
+            description: updatedTransaction.description,
+            newBalance: verifyWallet.currentBalance,
+            balanceBefore: balanceBefore,
+            transactionFound: true
+          });
+        } else {
+          logger.error('❌ Transaction not found after save - update may have failed', {
+            requestId: requestId,
+            requestIdString: requestIdString,
+            totalTransactions: verifyWallet.transactions.length,
+            allWithdrawalRequests: verifyWallet.transactions
+              .filter(t => t.type === 'withdrawal_request')
+              .map(t => ({
+                status: t.status,
+                description: t.description,
+                metadataRequestId: t.metadata?.withdrawalRequestId
+              }))
+          });
+        }
+      }
+      
+      logger.info('Withdrawal amount refunded to wallet successfully', {
+        vendorId: withdrawalRequest.vendorId,
+        amount: withdrawalRequest.amount,
+        balanceBefore: balanceBefore,
+        balanceAfter: vendorWallet.currentBalance,
+        requestId: requestId,
+        transactionUpdated: transactionUpdated
+      });
     } catch (transactionError) {
-      logger.error('Error updating transaction record for declined request:', transactionError);
-      // Don't fail the decline if transaction record fails
+      logger.error('Error refunding amount for declined request:', {
+        error: transactionError.message,
+        stack: transactionError.stack,
+        vendorId: withdrawalRequest.vendorId,
+        amount: withdrawalRequest.amount,
+        requestId: requestId
+      });
+      // Don't fail the decline if transaction record fails, but log it
+      // However, we should still try to refund the amount
+      try {
+        const fallbackWallet = await VendorWallet.findOne({ 
+          vendorId: withdrawalRequest.vendorId 
+        });
+        if (fallbackWallet) {
+          fallbackWallet.currentBalance += withdrawalRequest.amount;
+          await fallbackWallet.save();
+          logger.info('Amount refunded in fallback attempt', {
+            vendorId: withdrawalRequest.vendorId,
+            newBalance: fallbackWallet.currentBalance
+          });
+        }
+      } catch (fallbackError) {
+        logger.error('Fallback refund also failed:', fallbackError);
+        // Even if fallback fails, we should still proceed with the decline response
+      }
     }
 
     // Send email notification to vendor

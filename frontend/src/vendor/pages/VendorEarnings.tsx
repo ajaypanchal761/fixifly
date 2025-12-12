@@ -405,16 +405,19 @@ const VendorEarnings = () => {
         });
         
         // Special logging for withdrawal requests (both old and new formats)
-        if (transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved')))) {
-          console.log('Found withdrawal request transaction:', {
+        if (transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved') || transaction.description.includes('Withdrawal request declined')))) {
+          console.log('🔍 Found withdrawal request transaction:', {
             id: transaction._id || transaction.id,
             type: transaction.type,
             amount: transaction.amount,
-            metadata: transaction.metadata,
             status: transaction.status,
+            metadataStatus: transaction.metadata?.status,
             description: transaction.description,
-            isPending: transaction.description.includes('Withdrawal request submitted'),
-            isApproved: transaction.description.includes('Withdrawal approved')
+            metadata: transaction.metadata,
+            isPending: transaction.status === 'pending' || transaction.metadata?.status === 'pending',
+            isApproved: transaction.status === 'approved' || transaction.metadata?.status === 'approved',
+            isRejected: transaction.status === 'rejected' || transaction.metadata?.status === 'rejected',
+            isDeclined: transaction.description?.includes('declined') || transaction.description?.includes('Declined')
           });
         }
         
@@ -481,25 +484,66 @@ const VendorEarnings = () => {
         
         // Calculate amount for withdrawal requests (both old and new formats)
         let calculatedAmount = transaction.amount;
-        if (transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved')))) {
-          if (transaction.metadata && transaction.metadata.amountAbove5000) {
-            calculatedAmount = -transaction.metadata.amountAbove5000;
-          } else if (transaction.description) {
-            // Extract amount from description if metadata is not available
-            // Look for the pattern "Amount above ₹5,000: ₹100" and extract the second amount
-            const match = transaction.description.match(/Amount above ₹[\d,]+: ₹(\d+(?:,\d+)*)/);
-            calculatedAmount = match ? -parseInt(match[1].replace(/,/g, '')) : 0;
+        const isWithdrawalRequest = transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved') || transaction.description.includes('Withdrawal request declined') || transaction.description.includes('declined')));
+        
+        if (isWithdrawalRequest) {
+          const isDeclined = transaction.description?.includes('declined') || transaction.status === 'rejected' || transaction.metadata?.status === 'rejected';
+          
+          if (isDeclined) {
+            // For declined requests, extract amount from "Amount refunded: ₹100" or "Amount refunded: ₹100 (Request ID: ...)"
+            if (transaction.description) {
+              // Try multiple patterns to extract amount
+              let match = transaction.description.match(/Amount refunded: ₹(\d+(?:,\d+)*)/);
+              if (!match) {
+                // Try pattern with spaces: "Amount refunded: ₹ 100"
+                match = transaction.description.match(/Amount refunded:\s*₹\s*(\d+(?:,\d+)*)/);
+              }
+              if (!match) {
+                // Try to find any amount after "refunded"
+                match = transaction.description.match(/refunded[^₹]*₹\s*(\d+(?:,\d+)*)/);
+              }
+              if (match) {
+                calculatedAmount = parseInt(match[1].replace(/,/g, ''));
+              } else {
+                // Fallback: use absolute value of transaction amount or try to extract from metadata
+                if (transaction.metadata?.amountAbove5000) {
+                  calculatedAmount = Math.abs(transaction.metadata.amountAbove5000);
+                } else {
+                  calculatedAmount = Math.abs(transaction.amount) || 0;
+                }
+              }
+            } else {
+              // If no description, try metadata or use absolute value
+              if (transaction.metadata?.amountAbove5000) {
+                calculatedAmount = Math.abs(transaction.metadata.amountAbove5000);
+              } else {
+                calculatedAmount = Math.abs(transaction.amount) || 0;
+              }
+            }
+          } else {
+            // For pending/approved requests, use negative amount
+            if (transaction.metadata && transaction.metadata.amountAbove5000) {
+              calculatedAmount = -transaction.metadata.amountAbove5000;
+            } else if (transaction.description) {
+              // Extract amount from description: "Amount above ₹5,000: ₹100"
+              const match = transaction.description.match(/Amount above ₹[\d,]+: ₹(\d+(?:,\d+)*)/);
+              calculatedAmount = match ? -parseInt(match[1].replace(/,/g, '')) : Math.abs(transaction.amount);
+            } else {
+              calculatedAmount = -Math.abs(transaction.amount);
+            }
           }
+          
           console.log('Withdrawal request amount calculation:', {
             originalAmount: transaction.amount,
             metadataAmount: transaction.metadata?.amountAbove5000,
             extractedAmount: transaction.description ? (() => {
-              const match = transaction.description.match(/Amount above ₹[\d,]+: ₹(\d+(?:,\d+)*)/);
+              const match = transaction.description.match(/Amount above ₹[\d,]+: ₹(\d+(?:,\d+)*)/) || transaction.description.match(/Amount refunded: ₹(\d+(?:,\d+)*)/);
               return match ? parseInt(match[1].replace(/,/g, '')) : 0;
             })() : 0,
             finalAmount: calculatedAmount,
-            isPending: transaction.description.includes('Withdrawal request submitted'),
-            isApproved: transaction.description.includes('Withdrawal approved')
+            isPending: transaction.description?.includes('Withdrawal request submitted'),
+            isApproved: transaction.description?.includes('Withdrawal approved'),
+            isDeclined: isDeclined
           });
         }
 
@@ -516,12 +560,18 @@ const VendorEarnings = () => {
                 transaction.type === 'manual_adjustment' ? 'Admin Adjustment' : 'Earning Added',
           amount: transaction.type === 'withdrawal' || transaction.type === 'penalty' || transaction.type === 'task_acceptance_fee' || transaction.type === 'cash_collection' ? 
                   -Math.abs(transaction.amount) : 
-                  transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved'))) ? calculatedAmount :
+                  transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved') || transaction.description.includes('Withdrawal request declined') || transaction.description.includes('declined'))) ? calculatedAmount :
                   transaction.type === 'manual_adjustment' ? transaction.amount : Math.abs(transaction.amount),
           date: transaction.createdAt ? new Date(transaction.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          status: transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved'))) ? 
-            (transaction.metadata && transaction.metadata.status ? transaction.metadata.status : 
-             transaction.description.includes('Withdrawal approved') ? 'approved' : 'pending') :
+          status: transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved') || transaction.description.includes('Withdrawal request declined') || transaction.description.includes('declined'))) ? 
+            (transaction.status === 'rejected' ? 'rejected' :
+             transaction.status === 'approved' ? 'approved' :
+             transaction.metadata?.status === 'rejected' ? 'rejected' :
+             transaction.metadata?.status === 'approved' ? 'approved' :
+             transaction.description?.includes('Withdrawal request declined') ? 'rejected' :
+             transaction.description?.includes('declined') ? 'rejected' :
+             transaction.description?.includes('Withdrawal approved') ? 'approved' :
+             transaction.status === 'pending' ? 'pending' : 'pending') :
             (transaction.status || 'completed'),
           description: (transaction.description || 'Wallet transaction')
             .replace(/10 minutes/g, '25 minutes')
@@ -530,8 +580,19 @@ const VendorEarnings = () => {
       });
       
       // Debug: Log final transformed transactions
-      console.log('Final transformed transactions:', transformedTransactions);
-      console.log('Number of transformed transactions:', transformedTransactions.length);
+      console.log('📊 Final transformed transactions:', transformedTransactions);
+      console.log('📊 Number of transformed transactions:', transformedTransactions.length);
+      
+      // Log withdrawal request transactions specifically
+      const withdrawalTxns = transformedTransactions.filter(t => t.type === 'Withdrawal Request');
+      if (withdrawalTxns.length > 0) {
+        console.log('💰 Withdrawal Request Transactions:', withdrawalTxns.map(t => ({
+          type: t.type,
+          status: t.status,
+          amount: t.amount,
+          description: t.description
+        })));
+      }
       
       setTransactionHistory(transformedTransactions);
     } catch (error) {
@@ -1333,10 +1394,14 @@ const VendorEarnings = () => {
                             <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
                               transaction.status === 'pending' ? 'bg-orange-100 text-orange-800' :
                               transaction.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              transaction.status === 'rejected' ? 'bg-red-100 text-red-800' :
                               transaction.status === 'declined' ? 'bg-red-100 text-red-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
-                              {transaction.status === 'approved' ? 'success' : transaction.status}
+                              {transaction.status === 'approved' ? 'success' : 
+                               transaction.status === 'rejected' ? 'rejected' :
+                               transaction.status === 'declined' ? 'rejected' :
+                               transaction.status}
                             </span>
                           )}
                         </div>

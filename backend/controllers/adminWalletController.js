@@ -128,54 +128,110 @@ const getVendorWalletDetails = asyncHandler(async (req, res) => {
       });
     }
 
-    // Build transaction query
-    const transactionQuery = { vendorId: vendor.vendorId };
+    // Find vendor wallet
+    const vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
     
-    if (type && type !== 'all') {
-      transactionQuery.type = type;
-    }
-    
-    if (status && status !== 'all') {
-      transactionQuery.status = status;
-    }
-    
-    if (startDate || endDate) {
-      transactionQuery.createdAt = {};
-      if (startDate) {
-        transactionQuery.createdAt.$gte = new Date(startDate);
-      }
-      if (endDate) {
-        transactionQuery.createdAt.$lte = new Date(endDate);
-      }
-    }
-
+    // Get transactions from VendorWallet embedded array
+    let transactions = [];
+    let totalTransactionsCount = 0;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     
-    // Get transactions with pagination
-    const transactions = await WalletTransaction.find(transactionQuery)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    const totalTransactions = await WalletTransaction.countDocuments(transactionQuery);
-
-    // Get wallet summary
-    const summary = await WalletTransaction.getVendorSummary(vendor.vendorId);
-
-    // Get transaction statistics
-    const transactionStats = await WalletTransaction.aggregate([
-      { $match: { vendorId: vendor.vendorId } },
-      {
-        $group: {
-          _id: {
-            type: '$type',
-            status: '$status'
-          },
-          count: { $sum: 1 },
-          totalAmount: { $sum: '$amount' }
-        }
+    if (vendorWallet && vendorWallet.transactions && Array.isArray(vendorWallet.transactions)) {
+      transactions = [...vendorWallet.transactions];
+      
+      // Apply filters
+      if (type && type !== 'all') {
+        transactions = transactions.filter(t => t.type === type);
       }
-    ]);
+      
+      if (status && status !== 'all') {
+        transactions = transactions.filter(t => t.status === status);
+      }
+      
+      if (startDate || endDate) {
+        transactions = transactions.filter(t => {
+          const transactionDate = new Date(t.createdAt || t.timestamp || 0);
+          if (startDate && transactionDate < new Date(startDate)) return false;
+          if (endDate && transactionDate > new Date(endDate)) return false;
+          return true;
+        });
+      }
+      
+      // Sort by date (newest first)
+      transactions.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.timestamp || 0);
+        const dateB = new Date(b.createdAt || b.timestamp || 0);
+        return dateB - dateA;
+      });
+      
+      // Store total count before pagination
+      totalTransactionsCount = transactions.length;
+      
+      // Pagination
+      transactions = transactions.slice(skip, skip + parseInt(limit));
+      
+      // Format transactions
+      transactions = transactions.map(txn => ({
+        _id: txn._id || txn.transactionId,
+        transactionId: txn.transactionId,
+        vendorId: vendor.vendorId,
+        amount: txn.amount || 0,
+        type: txn.type || 'unknown',
+        description: txn.description || '',
+        status: txn.status || 'completed',
+        createdAt: txn.createdAt || txn.timestamp || new Date(),
+        caseId: txn.caseId,
+        bookingId: txn.bookingId,
+        metadata: txn.metadata || {}
+      }));
+    }
+
+    // Get wallet summary from VendorWallet
+    let summary = {};
+    try {
+      summary = await VendorWallet.getVendorSummary(vendor.vendorId);
+    } catch (summaryError) {
+      logger.error('Error fetching vendor summary:', summaryError);
+      // Use default summary if there's an error
+      if (vendorWallet) {
+        summary = {
+          currentBalance: vendorWallet.currentBalance || 0,
+          availableBalance: vendorWallet.availableForWithdrawal || 0,
+          totalEarnings: vendorWallet.totalEarnings || 0,
+          totalPenalties: vendorWallet.totalPenalties || 0,
+          totalWithdrawals: vendorWallet.totalWithdrawals || 0,
+          totalDeposits: vendorWallet.totalDeposits || 0,
+          totalTaskAcceptanceFees: vendorWallet.totalTaskAcceptanceFees || 0,
+          totalCashCollections: vendorWallet.totalCashCollections || 0,
+          totalRefunds: vendorWallet.totalRefunds || 0,
+          totalTasksCompleted: vendorWallet.totalTasksCompleted || 0,
+          totalTasksRejected: vendorWallet.totalTasksRejected || 0,
+          totalTasksCancelled: vendorWallet.totalTasksCancelled || 0
+        };
+      }
+    }
+
+    // Get transaction statistics from VendorWallet transactions
+    const transactionStats = [];
+    if (vendorWallet && vendorWallet.transactions && Array.isArray(vendorWallet.transactions)) {
+      const statsMap = {};
+      vendorWallet.transactions.forEach(txn => {
+        const key = `${txn.type || 'unknown'}_${txn.status || 'completed'}`;
+        if (!statsMap[key]) {
+          statsMap[key] = {
+            _id: {
+              type: txn.type || 'unknown',
+              status: txn.status || 'completed'
+            },
+            count: 0,
+            totalAmount: 0
+          };
+        }
+        statsMap[key].count += 1;
+        statsMap[key].totalAmount += Math.abs(txn.amount || 0);
+      });
+      transactionStats.push(...Object.values(statsMap));
+    }
 
     res.json({
       success: true,
@@ -195,9 +251,9 @@ const getVendorWalletDetails = asyncHandler(async (req, res) => {
         transactionStats: transactionStats,
         pagination: {
           currentPage: parseInt(page),
-          totalPages: Math.ceil(totalTransactions / parseInt(limit)),
-          totalTransactions: totalTransactions,
-          hasNextPage: skip + transactions.length < totalTransactions,
+          totalPages: Math.ceil(totalTransactionsCount / parseInt(limit)),
+          totalTransactions: totalTransactionsCount,
+          hasNextPage: skip + transactions.length < totalTransactionsCount,
           hasPrevPage: parseInt(page) > 1
         }
       }

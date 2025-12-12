@@ -11,7 +11,8 @@ import {
   AlertCircle,
   Loader2,
   RefreshCw,
-  Car
+  Car,
+  Wallet
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ interface DashboardData {
     pendingBookings: number;
     activeAMCSubscriptions: number;
     totalAMCAmount: number;
+    pendingWithdrawalRequests: number;
   };
   recentActivity: {
     recentUsers: number;
@@ -77,7 +79,8 @@ const AdminDashboard = () => {
             blockedVendors: Math.max(0, response.data.overview.blockedVendors || 0),
             pendingBookings: Math.max(0, response.data.overview.pendingBookings || 0),
             activeAMCSubscriptions: Math.max(0, response.data.overview.activeAMCSubscriptions || 0),
-            totalAMCAmount: Math.max(0, response.data.overview.totalAMCAmount || 0)
+            totalAMCAmount: Math.max(0, response.data.overview.totalAMCAmount || 0),
+            pendingWithdrawalRequests: Math.max(0, response.data.overview.pendingWithdrawalRequests || 0)
           },
           recentActivity: {
             recentUsers: Math.max(0, response.data.recentActivity.recentUsers || 0),
@@ -271,6 +274,15 @@ const AdminDashboard = () => {
       color: "bg-teal-500",
       bgColor: "bg-teal-50",
       textColor: "text-teal-600"
+    },
+    {
+      title: "Pending Withdrawal Requests",
+      value: dashboardData.overview.pendingWithdrawalRequests.toLocaleString(),
+      change: "Awaiting admin approval",
+      icon: Wallet,
+      color: "bg-amber-500",
+      bgColor: "bg-amber-50",
+      textColor: "text-amber-600"
     }
   ];
 

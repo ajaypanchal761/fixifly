@@ -257,28 +257,44 @@ class AdminApiService {
   async logout(): Promise<{ success: boolean; message: string }> {
     try {
       const refreshToken = this.getRefreshToken();
+      const token = this.getAccessToken();
       
-      const response = await fetch(`${API_BASE_URL}/admin/logout`, {
-        method: 'POST',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify({ refreshToken })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Logout failed');
+      // If no token or refresh token, just clear local data and return success
+      if (!token && !refreshToken) {
+        this.clearAuthData();
+        return { success: true, message: 'Logged out successfully' };
       }
+      
+      // Try to logout on backend if we have tokens
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/logout`, {
+          method: 'POST',
+          headers: this.getAuthHeaders(),
+          body: JSON.stringify({ refreshToken })
+        });
 
-      // Clear auth data after successful logout
-      this.clearAuthData();
+        const data = await response.json();
 
-      return data;
+        if (!response.ok) {
+          // If logout fails (e.g., token expired), still clear local data
+          this.clearAuthData();
+          return { success: true, message: 'Logged out successfully' };
+        }
+
+        // Clear auth data after successful logout
+        this.clearAuthData();
+        return data;
+      } catch (fetchError: any) {
+        // If network error or token is invalid, just clear local data
+        console.warn('Logout API call failed, clearing local auth data:', fetchError.message);
+        this.clearAuthData();
+        return { success: true, message: 'Logged out successfully' };
+      }
     } catch (error: any) {
       console.error('Admin logout error:', error);
       // Clear auth data even if logout fails
       this.clearAuthData();
-      throw new Error(error.message || 'Failed to logout');
+      return { success: true, message: 'Logged out successfully' };
     }
   }
 
@@ -1365,6 +1381,8 @@ class AdminApiService {
         blockedVendors: number;
         pendingBookings: number;
         activeAMCSubscriptions: number;
+        totalAMCAmount: number;
+        pendingWithdrawalRequests: number;
       };
       recentActivity: {
         recentUsers: number;
@@ -1380,12 +1398,6 @@ class AdminApiService {
     };
   }> {
     try {
-      // Check if we have a valid token
-      const token = this.getAccessToken();
-      if (!token) {
-        throw new Error('No valid authentication token found. Please login again.');
-      }
-
       const params = new URLSearchParams();
       if (month) params.append('month', month.toString());
       if (year) params.append('year', year.toString());
@@ -1395,17 +1407,16 @@ class AdminApiService {
       
       console.log('Dashboard stats request to:', url);
 
-      const response = await fetch(url, {
+      // Use makeAuthenticatedRequest which handles token refresh automatically
+      const response = await this.makeAuthenticatedRequest(url, {
         method: 'GET',
-        headers: this.getAuthHeaders(),
       });
 
       console.log('Dashboard stats response status:', response.status);
 
       if (!response.ok) {
         if (response.status === 401) {
-          // Token might be expired, try to clear auth data
-          this.clearAuthData();
+          // Token refresh failed, auth data already cleared by makeAuthenticatedRequest
           throw new Error('Authentication expired. Please login again.');
         }
         
