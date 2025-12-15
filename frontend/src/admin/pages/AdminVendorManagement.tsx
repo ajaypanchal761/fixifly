@@ -668,7 +668,7 @@ const AdminVendorManagement = () => {
 
         {/* Vendor Details Modal */}
         <Dialog open={isVendorDetailsOpen} onOpenChange={setIsVendorDetailsOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto mt-12">
             <DialogHeader>
               <DialogTitle>Vendor Details - {selectedVendor?.name}</DialogTitle>
             </DialogHeader>

@@ -717,6 +717,99 @@ const assignVendor = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update booking details
+// @route   PUT /api/admin/bookings/:id
+// @access  Admin
+const updateBooking = asyncHandler(async (req, res) => {
+  try {
+    const { customer, scheduling, notes } = req.body;
+    
+    const booking = await Booking.findById(req.params.id);
+    
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+
+    const updateData = {
+      'tracking.updatedAt': new Date()
+    };
+
+    // Update customer information if provided
+    if (customer) {
+      if (customer.name) updateData['customer.name'] = customer.name;
+      if (customer.email) updateData['customer.email'] = customer.email;
+      if (customer.phone) updateData['customer.phone'] = customer.phone;
+      if (customer.address) {
+        if (customer.address.street) updateData['customer.address.street'] = customer.address.street;
+        if (customer.address.city) updateData['customer.address.city'] = customer.address.city;
+        if (customer.address.state) updateData['customer.address.state'] = customer.address.state;
+        if (customer.address.pincode) updateData['customer.address.pincode'] = customer.address.pincode;
+      }
+    }
+
+    // Update scheduling if provided
+    if (scheduling) {
+      if (scheduling.scheduledDate) {
+        updateData['scheduling.scheduledDate'] = new Date(scheduling.scheduledDate);
+      }
+      if (scheduling.scheduledTime) {
+        updateData['scheduling.scheduledTime'] = scheduling.scheduledTime;
+      }
+      if (scheduling.preferredDate) {
+        updateData['scheduling.preferredDate'] = new Date(scheduling.preferredDate);
+      }
+      if (scheduling.preferredTimeSlot) {
+        updateData['scheduling.preferredTimeSlot'] = scheduling.preferredTimeSlot;
+      }
+    }
+
+    // Update notes if provided
+    if (notes !== undefined) {
+      updateData.notes = notes;
+    }
+
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).lean();
+
+    // Manually populate vendor data
+    if (updatedBooking && updatedBooking.vendor && updatedBooking.vendor.vendorId) {
+      const vendor = await Vendor.findOne({ vendorId: updatedBooking.vendor.vendorId })
+        .select('firstName lastName email phone');
+      if (vendor) {
+        updatedBooking.vendor.vendorId = vendor;
+      }
+    }
+
+    logger.info(`Admin updated booking: ${updatedBooking.bookingReference}`, {
+      bookingId: updatedBooking._id,
+      adminId: req.admin._id,
+      updates: Object.keys(updateData)
+    });
+
+    res.json({
+      success: true,
+      message: 'Booking updated successfully',
+      data: {
+        booking: updatedBooking,
+        bookingReference: updatedBooking.bookingReference
+      }
+    });
+  } catch (error) {
+    logger.error('Error updating booking:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating booking',
+      error: error.message
+    });
+  }
+});
+
 // @desc    Process refund for booking
 // @route   POST /api/admin/bookings/:id/refund
 // @access  Admin
@@ -948,6 +1041,7 @@ const deleteBooking = asyncHandler(async (req, res) => {
 module.exports = {
   getAllBookings,
   getBookingById,
+  updateBooking,
   updateBookingStatus,
   updateBookingPriority,
   assignVendor,

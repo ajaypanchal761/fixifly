@@ -328,9 +328,28 @@ const getAMCSubscriptions = asyncHandler(async (req, res) => {
   const query = {};
   
   if (search) {
+    // Allow admin to search by multiple fields: subscription ID, plan name,
+    // user name/email/phone, device serial/model, and payment/transaction IDs
     query.$or = [
+      // Subscription & plan identifiers
       { subscriptionId: { $regex: search, $options: 'i' } },
-      { planName: { $regex: search, $options: 'i' } }
+      { planName: { $regex: search, $options: 'i' } },
+
+      // User information (stored redundantly on the subscription)
+      { userName: { $regex: search, $options: 'i' } },
+      { userEmail: { $regex: search, $options: 'i' } },
+      { userPhone: { $regex: search, $options: 'i' } },
+
+      // Device identifiers
+      { 'devices.serialNumber': { $regex: search, $options: 'i' } },
+      { 'devices.modelNumber': { $regex: search, $options: 'i' } },
+      { 'devices.brand': { $regex: search, $options: 'i' } },
+
+      // Payment / transaction identifiers
+      { paymentId: { $regex: search, $options: 'i' } },
+      { razorpayOrderId: { $regex: search, $options: 'i' } },
+      { razorpayPaymentId: { $regex: search, $options: 'i' } },
+      { transactionId: { $regex: search, $options: 'i' } }
     ];
   }
   

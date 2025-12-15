@@ -226,6 +226,8 @@ const AdminAMCManagement = () => {
   // Issue details modal
   const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
   const [selectedClaim, setSelectedClaim] = useState<any>(null);
+  const [isDeviceImageOpen, setIsDeviceImageOpen] = useState(false);
+  const [selectedDeviceImage, setSelectedDeviceImage] = useState<string | null>(null);
 
   // Vendor assignment modal
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
@@ -382,6 +384,13 @@ const AdminAMCManagement = () => {
   const handleViewIssue = (claim: any) => {
     setSelectedClaim(claim);
     setIsIssueModalOpen(true);
+  };
+
+  // Function to view device image
+  const handleDeviceImageClick = (imageUrl: string) => {
+    if (!imageUrl) return;
+    setSelectedDeviceImage(imageUrl);
+    setIsDeviceImageOpen(true);
   };
 
   // Function to fetch warranty claims from backend
@@ -967,11 +976,36 @@ const AdminAMCManagement = () => {
 
   const filteredSubscriptions = userSubscriptions.filter(sub => {
     if (!sub) return false;
-    
-    const matchesSearch = (sub.userName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (sub.userEmail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (sub.planName || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || (sub.status || '').toLowerCase() === statusFilter;
+
+    const normalizedSearch = searchTerm.toLowerCase().trim();
+    if (!normalizedSearch) {
+      // When there's no search term, only apply status filter
+      return statusFilter === 'all' || (sub.status || '').toLowerCase() === statusFilter;
+    }
+
+    const matchesSearch =
+      // User info
+      (sub.userName || '').toLowerCase().includes(normalizedSearch) ||
+      (sub.userEmail || '').toLowerCase().includes(normalizedSearch) ||
+      (sub.userPhone || '').toLowerCase().includes(normalizedSearch) ||
+      // Subscription & plan
+      (sub.subscriptionId || '').toLowerCase().includes(normalizedSearch) ||
+      (sub.planName || '').toLowerCase().includes(normalizedSearch) ||
+      // Device info (first device only for now)
+      (sub.devices && sub.devices.length > 0 && (
+        (sub.devices[0].serialNumber || '').toLowerCase().includes(normalizedSearch) ||
+        (sub.devices[0].modelNumber || '').toLowerCase().includes(normalizedSearch) ||
+        (sub.devices[0].brand || '').toLowerCase().includes(normalizedSearch)
+      )) ||
+      // Payment identifiers
+      (sub.paymentId || '').toLowerCase().includes(normalizedSearch) ||
+      (sub.razorpayOrderId || '').toLowerCase().includes(normalizedSearch) ||
+      (sub.razorpayPaymentId || '').toLowerCase().includes(normalizedSearch) ||
+      (sub.transactionId || '').toLowerCase().includes(normalizedSearch);
+
+    const matchesStatus =
+      statusFilter === 'all' || (sub.status || '').toLowerCase() === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
@@ -1267,19 +1301,17 @@ const AdminAMCManagement = () => {
                 <p className="text-sm text-muted-foreground">Manage user subscriptions and warranty claims</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="text-xs">
-                  <Download className="h-3 w-3 mr-2" />
-                  Export Data
-                </Button>
-                <Button variant="outline" size="sm" onClick={fetchSubscriptions} disabled={subscriptionsLoading} className="text-xs">
-                  <RefreshCw className={`h-3 w-3 mr-2 ${subscriptionsLoading ? 'animate-spin' : ''}`} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchSubscriptions}
+                  disabled={subscriptionsLoading}
+                  className="text-xs"
+                >
+                  <RefreshCw
+                    className={`h-3 w-3 mr-2 ${subscriptionsLoading ? 'animate-spin' : ''}`}
+                  />
                   Refresh
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => {
-                  console.log('Current subscriptions:', userSubscriptions);
-                  console.log('First subscription details:', userSubscriptions[0]?.userDetails);
-                }} className="text-xs">
-                  Debug Data
                 </Button>
               </div>
             </div>
@@ -1371,10 +1403,6 @@ const AdminAMCManagement = () => {
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button variant="outline" size="sm" className="text-xs">
-                      <Filter className="h-3 w-3 mr-2" />
-                      More Filters
-                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -1688,9 +1716,9 @@ const AdminAMCManagement = () => {
 
             {/* View Subscription Details Dialog */}
             <Dialog open={isViewSubscriptionOpen} onOpenChange={setIsViewSubscriptionOpen}>
-              <DialogContent className="max-w-4xl">
+              <DialogContent className="max-w-2xl max-h-[75vh] mt-6 overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle className="flex items-center justify-between">
+                  <DialogTitle className="flex items-center gap-3">
                     <span>Subscription Details</span>
                     {selectedSubscription?.subscriptionId && (
                       <Badge variant="outline">{selectedSubscription.subscriptionId}</Badge>
@@ -1766,34 +1794,75 @@ const AdminAMCManagement = () => {
                     <div className="space-y-3">
                       <h3 className="font-semibold">Devices</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {(Array.isArray(selectedSubscription.devices) ? selectedSubscription.devices : []).map((d: any, idx: number) => (
-                          <div key={d?._id || idx} className="p-4 rounded-md border space-y-2">
-                            <div className="flex items-center justify-between">
-                              <p className="font-medium">Device {idx + 1}</p>
-                              {d?.serialNumberPhoto && (
-                                <img src={d.serialNumberPhoto} alt="Device" className="w-12 h-12 object-cover rounded" />
-                              )}
+                        {(Array.isArray(selectedSubscription.devices) ? selectedSubscription.devices : []).map((d: any, idx: number) => {
+                          const deviceType =
+                            d?.deviceType ||
+                            d?.type ||
+                            d?.deviceName ||
+                            d?.name ||
+                            'N/A';
+
+                          const brand =
+                            d?.brand ||
+                            d?.make ||
+                            d?.manufacturer ||
+                            '—';
+
+                          const serialNumber =
+                            d?.serialNumber ||
+                            d?.serial ||
+                            d?.serialNo ||
+                            d?.serial_number ||
+                            'N/A';
+
+                          const modelNumber =
+                            d?.modelNumber ||
+                            d?.model ||
+                            d?.modelNo ||
+                            d?.model_number ||
+                            'N/A';
+
+                          const imageSrc =
+                            d?.serialNumberPhoto ||
+                            d?.deviceImage ||
+                            d?.image ||
+                            d?.photo ||
+                            null;
+
+                          return (
+                            <div key={d?._id || idx} className="p-4 rounded-md border space-y-2">
+                              <div className="flex items-center justify-between">
+                                <p className="font-medium">Device {idx + 1}</p>
+                                {imageSrc && (
+                                  <img
+                                    src={imageSrc}
+                                    alt="Device"
+                                     className="w-12 h-12 object-cover rounded border cursor-pointer hover:opacity-80"
+                                     onClick={() => handleDeviceImageClick(imageSrc)}
+                                  />
+                                )}
+                              </div>
+                               <div className="grid grid-cols-2 gap-2 text-sm">
+                                 <div className="flex items-center justify-between gap-4">
+                                   <p className="text-xs text-muted-foreground">Type</p>
+                                   <p className="font-medium break-all text-right">{deviceType}</p>
+                                 </div>
+                                 <div className="flex items-center justify-between gap-4">
+                                   <p className="text-xs text-muted-foreground">Brand</p>
+                                   <p className="font-medium break-all text-right">{brand}</p>
+                                 </div>
+                                 <div className="flex items-center justify-between gap-4">
+                                   <p className="text-xs text-muted-foreground">Serial Number</p>
+                                   <p className="font-medium break-all text-right">{serialNumber}</p>
+                                 </div>
+                                 <div className="flex items-center justify-between gap-4">
+                                   <p className="text-xs text-muted-foreground">Model Number</p>
+                                   <p className="font-medium break-all text-right">{modelNumber}</p>
+                                 </div>
+                               </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              <div>
-                                <p className="text-xs text-muted-foreground">Type</p>
-                                <p className="font-medium">{d?.deviceType || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Brand</p>
-                                <p className="font-medium">{d?.brand || '—'}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Serial Number</p>
-                                <p className="font-medium break-all">{d?.serialNumber || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Model Number</p>
-                                <p className="font-medium break-all">{d?.modelNumber || 'N/A'}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                         {(!selectedSubscription.devices || selectedSubscription.devices.length === 0) && (
                           <div className="text-sm text-muted-foreground">No devices added.</div>
                         )}
@@ -1806,6 +1875,24 @@ const AdminAMCManagement = () => {
           </TabsContent>  
         </Tabs>
 
+        {/* Device Image Preview Modal */}
+        <Dialog open={isDeviceImageOpen} onOpenChange={setIsDeviceImageOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Device Image</DialogTitle>
+            </DialogHeader>
+            {selectedDeviceImage && (
+              <div className="flex justify-center">
+                <img
+                  src={selectedDeviceImage}
+                  alt="Device"
+                  className="max-h-[70vh] w-auto rounded-md border object-contain"
+                />
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Edit AMC Plan Modal */}
         <EditAMCPlanModal
           isOpen={isEditPlanOpen}
@@ -1816,7 +1903,7 @@ const AdminAMCManagement = () => {
 
         {/* Edit Subscription Modal */}
         <Dialog open={isEditSubscriptionOpen} onOpenChange={setIsEditSubscriptionOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl mt-10">
             <DialogHeader>
               <DialogTitle>Edit Subscription Usage</DialogTitle>
               <DialogDescription>

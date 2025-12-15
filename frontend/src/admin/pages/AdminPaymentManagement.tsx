@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,7 +39,7 @@ interface PaymentRecord {
   };
   payment: {
     status: 'pending' | 'completed' | 'failed' | 'refunded';
-    method: 'card' | 'upi' | 'netbanking' | 'wallet';
+    method: 'card' | 'upi' | 'netbanking' | 'wallet' | 'cash';
     transactionId: string;
     paidAt: Date;
     razorpayOrderId: string;
@@ -155,26 +155,69 @@ const AdminPaymentManagement = () => {
     }
   };
 
+  // Helper function to determine payment mode from payment data
+  const getPaymentMode = (payment: PaymentRecord): string => {
+    // Get the exact payment ID that's displayed in the table
+    // This matches: payment.payment?.razorpayPaymentId || payment.payment?.transactionId
+    const displayedPaymentId = payment.payment?.razorpayPaymentId || payment.payment?.transactionId || '';
+    
+    // Priority 1: Check if the displayed Payment ID starts with "CASH_" - this is the most reliable indicator
+    // This is the exact same value shown in the Payment ID column
+    if (displayedPaymentId && displayedPaymentId.toString().startsWith('CASH_')) {
+      return 'cash';
+    }
+    
+    // Priority 2: Check payment method
+    if (payment.payment?.method === 'cash') {
+      return 'cash';
+    }
+    
+    // Priority 3: Check completion data payment method
+    if (payment.completionData?.paymentMethod === 'cash') {
+      return 'cash';
+    }
+    
+    // Priority 4: Check if paymentMode is explicitly set (but ignore if it contradicts CASH_ evidence)
+    // If we have CASH_ in the displayed payment ID, always return cash regardless of paymentMode
+    if (displayedPaymentId && displayedPaymentId.toString().startsWith('CASH_')) {
+      return 'cash';
+    }
+    
+    if (payment.paymentMode) {
+      return payment.paymentMode;
+    }
+    
+    // Priority 5: Default to online if razorpayPaymentId exists (and doesn't start with CASH_)
+    const razorpayPaymentId = payment.payment?.razorpayPaymentId || '';
+    if (razorpayPaymentId && razorpayPaymentId.toString().trim() !== '' && !razorpayPaymentId.toString().startsWith('CASH_')) {
+      return 'online';
+    }
+    
+    return '';
+  };
+
   useEffect(() => {
     fetchPayments();
   }, []);
 
   // Filter payments
-  const filteredPayments = payments.filter(payment => {
-    const matchesSearch = 
-      payment.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.bookingReference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.payment?.razorpayPaymentId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.payment?.transactionId?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
-    const matchesPaymentStatus = paymentStatusFilter === 'all' || payment.paymentStatus === paymentStatusFilter;
-    const matchesPaymentMode = paymentModeFilter === 'all' || payment.paymentMode === paymentModeFilter;
-    
-    return matchesSearch && matchesStatus && matchesPaymentStatus && matchesPaymentMode;
-  });
+  const filteredPayments = useMemo(() => {
+    return payments.filter(payment => {
+      const matchesSearch = 
+        payment.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.bookingReference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.payment?.razorpayPaymentId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.payment?.transactionId?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
+      const matchesPaymentStatus = paymentStatusFilter === 'all' || payment.paymentStatus === paymentStatusFilter;
+      const matchesPaymentMode = paymentModeFilter === 'all' || getPaymentMode(payment) === paymentModeFilter;
+      
+      return matchesSearch && matchesStatus && matchesPaymentStatus && matchesPaymentMode;
+    });
+  }, [payments, searchTerm, statusFilter, paymentStatusFilter, paymentModeFilter]);
 
   // Get status badge
   const getStatusBadge = (status: string) => {
@@ -197,7 +240,7 @@ const AdminPaymentManagement = () => {
   };
 
   // Get payment status badge
-  const getPaymentStatusBadge = (status: string, mode: string) => {
+  const getPaymentStatusBadge = (status: string, mode: string, bookingStatus?: string, paymentStatus?: string) => {
     if (mode === 'online') {
       switch (status) {
         case 'payment_done':
@@ -208,12 +251,25 @@ const AdminPaymentManagement = () => {
           return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
       }
     } else if (mode === 'cash') {
+      // For cash payments, check multiple indicators
+      // Priority 1: If booking is completed, payment should be collected
+      if (bookingStatus === 'completed') {
+        return <Badge className="bg-green-100 text-green-800">Collected</Badge>;
+      }
+      
+      // Priority 2: Check if payment.status is completed (set when task is completed with cash)
+      if (paymentStatus === 'completed') {
+        return <Badge className="bg-green-100 text-green-800">Collected</Badge>;
+      }
+      
+      // Priority 3: Check explicit payment status field
       switch (status) {
         case 'collected':
           return <Badge className="bg-green-100 text-green-800">Collected</Badge>;
         case 'not_collected':
           return <Badge className="bg-red-100 text-red-800">Not Collected</Badge>;
         default:
+          // Default to not collected if no indicators found
           return <Badge className="bg-red-100 text-red-800">Not Collected</Badge>;
       }
     } else {
@@ -319,10 +375,10 @@ const AdminPaymentManagement = () => {
             </CardHeader>
             <CardContent className="p-4">
               <div className="text-lg font-bold">
-                {payments.filter(p => p.paymentMode === 'online').length}
+                {payments.filter(p => getPaymentMode(p) === 'online').length}
               </div>
               <p className="text-xs text-muted-foreground">
-                {payments.filter(p => p.paymentMode === 'online' && p.paymentStatus === 'payment_done').length} completed
+                {payments.filter(p => getPaymentMode(p) === 'online' && p.paymentStatus === 'payment_done').length} completed
               </p>
             </CardContent>
           </Card>
@@ -334,10 +390,10 @@ const AdminPaymentManagement = () => {
             </CardHeader>
             <CardContent className="p-4">
               <div className="text-lg font-bold">
-                {payments.filter(p => p.paymentMode === 'cash').length}
+                {payments.filter(p => getPaymentMode(p) === 'cash').length}
               </div>
               <p className="text-xs text-muted-foreground">
-                {payments.filter(p => p.paymentMode === 'cash' && p.paymentStatus === 'collected').length} collected
+                {payments.filter(p => getPaymentMode(p) === 'cash' && p.paymentStatus === 'collected').length} collected
               </p>
             </CardContent>
           </Card>
@@ -498,10 +554,15 @@ const AdminPaymentManagement = () => {
                           ₹{(payment.pricing?.totalAmount || 0) + (parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0)}
                         </TableCell>
                         <TableCell>
-                          {getPaymentModeBadge(payment.paymentMode || '')}
+                          {getPaymentModeBadge(getPaymentMode(payment))}
                         </TableCell>
                         <TableCell>
-                          {getPaymentStatusBadge(payment.paymentStatus || '', payment.paymentMode || '')}
+                          {getPaymentStatusBadge(
+                            payment.paymentStatus || '', 
+                            getPaymentMode(payment),
+                            payment.status,
+                            payment.payment?.status
+                          )}
                         </TableCell>
                         <TableCell className="font-mono text-xs">
                           {payment.payment?.razorpayPaymentId || payment.payment?.transactionId || 'N/A'}
@@ -554,7 +615,7 @@ const AdminPaymentManagement = () => {
                   </div>
                   <div>
                     <Label className="text-xs text-gray-500">Payment Mode</Label>
-                    <div className="mt-0.5">{getPaymentModeBadge(selectedPayment.paymentMode || '')}</div>
+                    <div className="mt-0.5">{getPaymentModeBadge(getPaymentMode(selectedPayment))}</div>
                   </div>
                 </div>
 

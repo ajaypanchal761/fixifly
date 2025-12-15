@@ -1244,17 +1244,24 @@ const Support = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {userAMCSubscriptions.length === 0 ? (
-                              <SelectItem value="" disabled>
+                              <SelectItem value="no-subscriptions" disabled>
                                 No active AMC subscriptions found
                               </SelectItem>
                             ) : (
                               userAMCSubscriptions.map((subscription) => (
-                                <SelectItem key={subscription._id} value={subscription.subscriptionId}>
+                                <SelectItem
+                                  key={subscription._id}
+                                  value={subscription.subscriptionId}
+                                >
                                   <div className="flex flex-col">
                                     <span className="font-medium">{subscription.planName}</span>
                                     <span className="text-xs text-muted-foreground">
-                                      ID: {subscription.subscriptionId} | 
-                                      {subscription.endDate ? ` Expires: ${new Date(subscription.endDate).toLocaleDateString()}` : ' Active'}
+                                      ID: {subscription.subscriptionId} |{' '}
+                                      {subscription.endDate
+                                        ? ` Expires: ${new Date(
+                                            subscription.endDate,
+                                          ).toLocaleDateString()}`
+                                        : ' Active'}
                                     </span>
                                   </div>
                                 </SelectItem>

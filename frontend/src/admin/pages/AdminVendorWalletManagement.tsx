@@ -941,7 +941,7 @@ const AdminVendorWalletManagement = () => {
             setSelectedWallet(null);
           }
         }}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mt-12">
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto mt-10">
             <DialogHeader>
               <DialogTitle className="text-lg">Wallet Details</DialogTitle>
             </DialogHeader>

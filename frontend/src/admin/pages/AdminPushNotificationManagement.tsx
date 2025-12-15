@@ -123,7 +123,8 @@ const AdminPushNotificationManagement = () => {
         page: currentPage,
         limit: 10,
         status: statusFilter === 'all' ? undefined : statusFilter,
-        targetAudience: audienceFilter === 'all' ? undefined : audienceFilter
+        targetAudience: audienceFilter === 'all' ? undefined : audienceFilter,
+        search: searchTerm || undefined
       });
       
       if (response.success) {
@@ -263,6 +264,16 @@ const AdminPushNotificationManagement = () => {
     setSelectedVendorId('');
     setFormData(prev => ({...prev, targetVendors: []}));
   };
+
+  // Client-side filtered notifications (fallback if backend search doesn't filter)
+  const filteredNotifications = notifications.filter((notification) => {
+    if (!searchTerm.trim()) return true;
+    const query = searchTerm.toLowerCase();
+    return (
+      notification.title.toLowerCase().includes(query) ||
+      notification.message.toLowerCase().includes(query)
+    );
+  });
 
   // Load data on component mount
   useEffect(() => {
@@ -450,7 +461,7 @@ const AdminPushNotificationManagement = () => {
         {/* Notifications Table */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Notifications ({totalNotifications})</CardTitle>
+            <CardTitle className="text-lg">Notifications ({filteredNotifications.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -474,7 +485,7 @@ const AdminPushNotificationManagement = () => {
                       <p className="text-gray-500">Loading notifications...</p>
                     </TableCell>
                   </TableRow>
-                ) : notifications.length === 0 ? (
+                ) : filteredNotifications.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8">
                       <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -482,7 +493,7 @@ const AdminPushNotificationManagement = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  notifications.map((notification) => (
+                  filteredNotifications.map((notification) => (
                     <TableRow key={notification._id}>
                       <TableCell>
                         <div>

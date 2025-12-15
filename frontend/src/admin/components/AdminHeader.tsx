@@ -26,7 +26,6 @@ import {
   Bell,
   Search,
   RefreshCw,
-  Calendar as CalendarIcon,
   ChevronDown,
   User,
   Wallet,
@@ -271,23 +270,8 @@ const AdminHeader = () => {
              </Box>
            </Box>
           
-          {/* Right side - Date Filter, Refresh, and User Profile */}
+         {/* Right side - Refresh and User Profile */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button
-              variant="outlined"
-              startIcon={<CalendarIcon size={16} />}
-              sx={{
-                textTransform: 'none',
-                borderColor: 'hsl(var(--border))',
-                color: 'hsl(var(--foreground))',
-                '&:hover': {
-                  borderColor: 'hsl(var(--primary))',
-                  backgroundColor: 'hsl(var(--muted))'
-                }
-              }}
-            >
-              This Month
-            </Button>
             <IconButton
               color="inherit"
               aria-label="refresh"
@@ -295,6 +279,7 @@ const AdminHeader = () => {
                 color: 'hsl(var(--foreground))',
                 '&:hover': { backgroundColor: 'hsl(var(--muted))' }
               }}
+              onClick={() => window.location.reload()}
             >
               <RefreshCw size={20} />
             </IconButton>

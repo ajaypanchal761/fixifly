@@ -125,7 +125,7 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[70vh] mt-8 overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[65vh] mt-10 overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">

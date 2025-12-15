@@ -346,14 +346,20 @@ const VendorHero = () => {
           displayAmount = '₹0';
         }
         
+        const sortTime = new Date(
+          booking.vendor?.assignedAt ||
+          booking.scheduling?.scheduledDate ||
+          booking.createdAt
+        ).getTime();
+        
         return {
-        id: booking._id,
-        caseId: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
-        title: booking.services?.[0]?.serviceName || 'Service Request',
-        customer: booking.customer?.name || 'Unknown Customer',
-        phone: booking.customer?.phone || 'N/A',
-        amount: displayAmount,
-        date: booking.scheduling?.scheduledDate 
+          id: booking._id,
+          caseId: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
+          title: booking.services?.[0]?.serviceName || 'Service Request',
+          customer: booking.customer?.name || 'Unknown Customer',
+          phone: booking.customer?.phone || 'N/A',
+          amount: displayAmount,
+          date: booking.scheduling?.scheduledDate 
           ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
           : booking.scheduling?.preferredDate 
           ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')
@@ -390,24 +396,32 @@ const VendorHero = () => {
           assignmentNotes: booking.assignmentNotes || null,
           payment: booking.payment,
           paymentMode: booking.paymentMode,
-          isSupportTicket: false
+          isSupportTicket: false,
+          sortTime
         };
       });
 
       // Transform support tickets to task format
-      const transformedSupportTickets = supportTickets.map(ticket => ({
-        id: ticket.id,
-        caseId: ticket.id,
-        title: ticket.subject || 'Support Request',
-        customer: ticket.customerName || 'Unknown Customer',
-        phone: ticket.customerPhone || 'N/A',
-        amount: 'Support Ticket',
-        date: ticket.scheduledDate 
+      const transformedSupportTickets = supportTickets.map(ticket => {
+        const sortTime = new Date(
+          ticket.assignedAt ||
+          ticket.scheduledDate ||
+          ticket.created
+        ).getTime();
+
+        return {
+          id: ticket.id,
+          caseId: ticket.id,
+          title: ticket.subject || 'Support Request',
+          customer: ticket.customerName || 'Unknown Customer',
+          phone: ticket.customerPhone || 'N/A',
+          amount: 'Support Ticket',
+          date: ticket.scheduledDate 
           ? new Date(ticket.scheduledDate).toLocaleDateString('en-IN')
           : ticket.created 
           ? new Date(ticket.created).toLocaleDateString('en-IN')
           : new Date().toLocaleDateString('en-IN'),
-        time: ticket.scheduledTime 
+          time: ticket.scheduledTime 
           ? (() => {
               // Convert 24-hour format to 12-hour format with AM/PM
               if (ticket.scheduledTime.includes(':')) {
@@ -420,30 +434,32 @@ const VendorHero = () => {
               return ticket.scheduledTime;
             })()
           : 'Not scheduled',
-        status: ticket.priority === 'High' ? 'High Priority' : 
+          status: ticket.priority === 'High' ? 'High Priority' : 
                ticket.priority === 'Medium' ? 'Normal' : 'Low Priority',
-        address: ticket.address || 'Address not provided',
-        street: ticket.street || ticket.userId?.address?.street || 'Not provided',
-        city: ticket.city || ticket.userId?.address?.city || 'Not provided',
-        state: ticket.state || ticket.userId?.address?.state || 'Not provided',
-        pincode: ticket.pincode || ticket.userId?.address?.pincode || 'Not provided',
-        landmark: ticket.landmark || ticket.userId?.address?.landmark || 'Not provided',
-        userId: ticket.userId, // Include full user object for address access
-        issue: ticket.description || ticket.subject || 'Support request',
-        assignDate: ticket.assignedAt 
+          address: ticket.address || 'Address not provided',
+          street: ticket.street || ticket.userId?.address?.street || 'Not provided',
+          city: ticket.city || ticket.userId?.address?.city || 'Not provided',
+          state: ticket.state || ticket.userId?.address?.state || 'Not provided',
+          pincode: ticket.pincode || ticket.userId?.address?.pincode || 'Not provided',
+          landmark: ticket.landmark || ticket.userId?.address?.landmark || 'Not provided',
+          userId: ticket.userId, // Include full user object for address access
+          issue: ticket.description || ticket.subject || 'Support request',
+          assignDate: ticket.assignedAt 
           ? new Date(ticket.assignedAt).toLocaleDateString('en-IN')
           : new Date().toLocaleDateString('en-IN'),
-        assignTime: ticket.assignedAt 
+          assignTime: ticket.assignedAt 
           ? new Date(ticket.assignedAt).toLocaleTimeString('en-IN', {
               hour: '2-digit',
               minute: '2-digit',
               hour12: true
             })
           : 'Not assigned',
-        priority: ticket.priority?.toLowerCase() || 'medium',
-        vendorStatus: ticket.vendorStatus,
-        isSupportTicket: true
-      }));
+          priority: ticket.priority?.toLowerCase() || 'medium',
+          vendorStatus: ticket.vendorStatus,
+          isSupportTicket: true,
+          sortTime
+        };
+      });
 
       // Combine bookings and support tickets
       const allTasks = [...transformedBookings, ...transformedSupportTickets];
@@ -453,6 +469,11 @@ const VendorHero = () => {
         supportTickets: transformedSupportTickets.length,
         total: allTasks.length
       });
+
+      // Helper to sort tasks so newest (recently assigned/scheduled) appear first
+      const sortTasksByNewest = (tasks: any[]) => {
+        return [...tasks].sort((a, b) => (b.sortTime || 0) - (a.sortTime || 0));
+      };
 
       // Categorize tasks based on status
       const newTasks = allTasks.filter(task => {
@@ -496,11 +517,16 @@ const VendorHero = () => {
         cancelled: cancelledTasks.length
       });
 
+      // Sort each category so latest tasks are shown at the top
+      const sortedNewTasks = sortTasksByNewest(newTasks);
+      const sortedClosedTasks = sortTasksByNewest(closedTasks);
+      const sortedCancelledTasks = sortTasksByNewest(cancelledTasks);
+
       // Update task data immediately - this will show tasks instantly
       const updatedTaskData = {
-        new: newTasks,
-        closed: [...closedTasks, ...completedTasks],
-        cancelled: cancelledTasks
+        new: sortedNewTasks,
+        closed: [...sortedClosedTasks, ...completedTasks],
+        cancelled: sortedCancelledTasks
       };
       
       setTaskData(updatedTaskData);

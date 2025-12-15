@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  Filter, 
-  Eye, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
+import {
+  Search,
+  Filter,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock,
   AlertTriangle,
   DollarSign,
   CreditCard,
@@ -17,10 +17,11 @@ import {
   Wrench,
   Package,
   Image as ImageIcon,
-  MoreVertical
+  MoreVertical,
 } from 'lucide-react';
 import AdminHeader from '../components/AdminHeader';
 import adminBookingApi from '@/services/adminBookingApi';
+import { adminSupportTicketAPI } from '@/services/supportApiService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,9 @@ import { Label } from '@/components/ui/label';
 interface ServiceManagementBooking {
   _id: string;
   bookingReference: string;
+  // When row represents a support ticket instead of a booking
+  isSupportTicket?: boolean;
+  supportTicketId?: string;
   customer: {
     name: string;
     phone: string;
@@ -107,36 +111,128 @@ const AdminServiceManagementDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
 
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const response = await adminBookingApi.getAllBookings();
-      
-      if (response.success && response.data?.bookings) {
-        const transformedBookings = response.data.bookings.map((booking: any) => {
-          // Payment amount is only the service charges (billing amount) paid through "Pay Now"
-          const serviceCharges = parseFloat(booking.completionData?.billingAmount || booking.billingAmount || '0') || 0;
-          
-          console.log('Payment calculation for booking:', booking._id, {
-            serviceCharges,
-            billingAmount: booking.completionData?.billingAmount || booking.billingAmount,
-            pricing: booking.pricing
-          });
-          
-          return {
-            ...booking,
-            bookingReference: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
-            paymentMode: (booking as any).paymentMode || (booking.payment?.razorpayPaymentId ? 'card' : booking.payment?.method) || 'card',
-            paymentStatus: booking.status === 'completed' ? 'completed' : (booking.payment?.status || 'pending'),
-            paymentAmount: serviceCharges
-          };
-        });
-        console.log('Transformed bookings:', transformedBookings);
-        setBookings(transformedBookings);
-      } else {
+
+      // Fetch bookings and support tickets in parallel
+      const [bookingsResponse, supportTicketsResponse] = await Promise.all([
+        adminBookingApi.getAllBookings(),
+        adminSupportTicketAPI.getAllTickets(),
+      ]);
+
+      if (!bookingsResponse.success || !bookingsResponse.data?.bookings) {
         setError('Failed to fetch bookings');
+        setLoading(false);
+        return;
       }
+
+      const rawBookings = bookingsResponse.data.bookings;
+      const supportTickets = supportTicketsResponse?.data?.tickets || [];
+
+      // Transform bookings (service visits)
+      const transformedBookings: ServiceManagementBooking[] = rawBookings.map((booking: any) => {
+        const serviceCharges =
+          parseFloat(booking.completionData?.billingAmount || booking.billingAmount || '0') || 0;
+
+        return {
+          ...booking,
+          bookingReference:
+            booking.bookingReference ||
+            `FIX${booking._id
+              .toString()
+              .substring(booking._id.toString().length - 8)
+              .toUpperCase()}`,
+          paymentMode:
+            (booking as any).paymentMode ||
+            (booking.payment?.razorpayPaymentId ? 'card' : booking.payment?.method) ||
+            'card',
+          paymentStatus:
+            booking.status === 'completed'
+              ? 'completed'
+              : booking.payment?.status || 'pending',
+          paymentAmount: serviceCharges,
+          isSupportTicket: false,
+        };
+      });
+
+      // Transform support tickets into booking-like rows
+      const transformedSupportTickets: ServiceManagementBooking[] = supportTickets.map(
+        (ticket: any) => {
+          const billingAmount =
+            ticket.completionData?.billingAmount ?? ticket.billingAmount ?? 0;
+          const totalAmount = ticket.completionData?.totalAmount ?? billingAmount ?? 0;
+
+          return {
+            _id: ticket.id || ticket.ticketId,
+            supportTicketId: ticket.id || ticket.ticketId,
+            bookingReference: ticket.id || ticket.ticketId,
+            isSupportTicket: true,
+            customer: {
+              name: ticket.customerName || ticket.userName || 'Unknown Customer',
+              phone: ticket.customerPhone || ticket.userPhone || 'N/A',
+              email: ticket.customerEmail || ticket.userEmail || 'N/A',
+              address: ticket.address || null,
+            },
+            services: [
+              {
+                serviceName: ticket.subject || ticket.category || 'Support Ticket',
+              },
+            ],
+            pricing: {
+              subtotal: totalAmount,
+              serviceFee: 0,
+              totalAmount,
+            },
+            scheduling: {
+              scheduledDate: ticket.scheduledDate || '',
+              scheduledTime: ticket.scheduledTime || '',
+            },
+            priority: (ticket.priority || 'medium').toLowerCase(),
+            status: (ticket.status || 'Submitted')
+              .toString()
+              .toLowerCase()
+              .replace(' ', '_'),
+            payment: {
+              status: ticket.paymentStatus || 'pending',
+              method: ticket.paymentMode || ticket.completionData?.paymentMethod || 'cash',
+              transactionId: ticket.paymentDetails?.razorpayPaymentId || undefined,
+              paidAt: ticket.paymentDetails?.paidAt || undefined,
+            },
+            vendor: {
+              vendorId: {
+                firstName: ticket.assignedVendor || '',
+                lastName: '',
+                phone: ticket.customerPhone || ticket.userPhone || '',
+              },
+              assignedAt: ticket.assignedAt || '',
+              response: ticket.vendorStatus || 'Pending',
+            },
+            vendorResponse: ticket.vendorStatus
+              ? { status: ticket.vendorStatus.toLowerCase() }
+              : undefined,
+            completionData: ticket.completionData,
+            billingAmount: billingAmount?.toString?.() ?? String(billingAmount ?? 0),
+            paymentMode: ticket.paymentMode || ticket.completionData?.paymentMethod || 'cash',
+            paymentStatus: ticket.paymentStatus || 'pending',
+            paymentAmount: typeof totalAmount === 'number' ? totalAmount : Number(totalAmount),
+            createdAt: ticket.createdAt || ticket.created || new Date().toISOString(),
+            updatedAt: ticket.updatedAt || ticket.lastUpdate || ticket.createdAt,
+          };
+        },
+      );
+
+      // Combine bookings and tickets and sort so that latest entries appear at the top
+      const combined = [...transformedBookings, ...transformedSupportTickets].sort(
+        (a, b) => {
+          const dateA = new Date(a.createdAt || a.updatedAt || '').getTime();
+          const dateB = new Date(b.createdAt || b.updatedAt || '').getTime();
+          return dateB - dateA; // Newest first
+        }
+      );
+      setBookings(combined);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       setError('Failed to fetch bookings');
@@ -300,6 +396,11 @@ const AdminServiceManagementDashboard = () => {
   const handleViewDetails = (booking: ServiceManagementBooking) => {
     setSelectedBooking(booking);
     setIsModalOpen(true);
+  };
+
+  const handleViewParts = (booking: ServiceManagementBooking) => {
+    setSelectedBooking(booking);
+    setIsPartsModalOpen(true);
   };
 
   const handleImageClick = (imageUrl: string) => {
@@ -529,7 +630,7 @@ const AdminServiceManagementDashboard = () => {
                           </button>
                           {booking.completionData?.spareParts && booking.completionData.spareParts.length > 0 && (
                             <button
-                              onClick={() => handleViewDetails(booking)}
+                              onClick={() => handleViewParts(booking)}
                               className="text-green-600 hover:text-green-900 flex items-center"
                             >
                               <Package className="w-3 h-3 mr-1" />
@@ -557,7 +658,7 @@ const AdminServiceManagementDashboard = () => {
 
       {/* View Details Modal */}
       {isModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center pt-2 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-24 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto p-4">
             <div className="p-1">
               <div className="flex justify-between items-center mb-2">
@@ -767,6 +868,63 @@ const AdminServiceManagementDashboard = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Spare Parts Modal */}
+      {isPartsModalOpen && selectedBooking && selectedBooking.completionData?.spareParts && selectedBooking.completionData.spareParts.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center pt-2 z-50">
+          <div className="bg-white rounded-lg max-w-xl w-full max-h-[70vh] overflow-y-auto p-4">
+            <div className="p-1">
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-base font-bold text-gray-900">Spare Parts Used</h2>
+                <button
+                  onClick={() => setIsPartsModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XCircle className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {selectedBooking.completionData.spareParts.map((part, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="text-xs font-medium text-gray-900">{part.name}</h4>
+                      <span className="text-xs font-medium text-green-600">{part.amount}</span>
+                    </div>
+                    {part.warranty && (
+                      <div className="flex items-center space-x-1 mt-1">
+                        <span className="text-xs text-gray-500">Warranty:</span>
+                        <span className="text-xs font-medium text-blue-600">{part.warranty}</span>
+                      </div>
+                    )}
+                    {part.photo && (
+                      <div className="mt-1">
+                        <img
+                          src={part.photo}
+                          alt={part.name}
+                          className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => handleImageClick(part.photo)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-3 p-2 bg-gray-50 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-medium text-gray-600">Total Spare Parts Amount:</span>
+                  <span className="text-sm font-bold text-green-600">
+                    ₹{selectedBooking.completionData.spareParts.reduce((sum, part) => 
+                      sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
+                    ).toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

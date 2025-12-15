@@ -33,8 +33,6 @@ const VendorTaskDetail = () => {
   // Fetch task details from API
   const fetchTaskDetails = async (showLoading = true) => {
     try {
-      // Track loading start time for minimum 1 second display
-      const loadingStartTime = Date.now();
       if (showLoading) {
         setLoading(true);
       }
@@ -47,29 +45,21 @@ const VendorTaskDetail = () => {
         return;
       }
 
-      // Fetch both bookings and support tickets to find the specific task
-      const [bookingsResponse, supportTicketsResponse] = await Promise.all([
-        vendorApi.getVendorBookings(),
-        vendorApi.getAssignedSupportTickets()
-      ]);
-      
-      // Ensure loading shows for at least 1 second
-      const elapsedTime = Date.now() - loadingStartTime;
-      const remainingTime = Math.max(0, 1000 - elapsedTime);
-      
-      if (remainingTime > 0) {
-        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      if (!taskId) {
+        setError('Task ID not provided');
+        setLoading(false);
+        return;
       }
-      
+
       let foundTask = null;
       let isSupportTicket = false;
 
-      // Check in bookings first
-      if (bookingsResponse.success && bookingsResponse.data?.bookings) {
-        const bookings = bookingsResponse.data.bookings;
-        const bookingTask = bookings.find(booking => booking._id === taskId);
+      // Try to fetch as booking first (most common case)
+      try {
+        const bookingResponse = await vendorApi.getBookingById(taskId);
         
-        if (bookingTask) {
+        if (bookingResponse.success && bookingResponse.data?.booking) {
+          const bookingTask = bookingResponse.data.booking;
           // Calculate amount - payment status messages show pending/completed separately
           const totalAmount = bookingTask.pricing?.totalAmount || 0;
           const displayAmount = totalAmount > 0 ? `₹${totalAmount.toLocaleString('en-IN')}` : '₹0';
@@ -122,17 +112,21 @@ const VendorTaskDetail = () => {
             isSupportTicket: false
           };
         }
+      } catch (bookingError: any) {
+        // If booking fetch fails (404 or other error), try support ticket
+        console.log('Booking not found, trying support ticket:', bookingError);
       }
 
-      // If not found in bookings, check in support tickets
-      if (!foundTask && supportTicketsResponse.success && supportTicketsResponse.data?.tickets) {
-        const supportTickets = supportTicketsResponse.data.tickets;
-        const supportTicket = supportTickets.find(ticket => ticket.id === taskId);
-        
-        if (supportTicket) {
-          isSupportTicket = true;
-          // Transform support ticket data to task format
-          foundTask = {
+      // If not found in bookings, try to fetch as support ticket
+      if (!foundTask) {
+        try {
+          const supportTicketResponse = await vendorApi.getSupportTicketById(taskId);
+          
+          if (supportTicketResponse.success && supportTicketResponse.data?.ticket) {
+            const supportTicket = supportTicketResponse.data.ticket;
+            isSupportTicket = true;
+            // Transform support ticket data to task format
+            foundTask = {
             id: supportTicket.id,
             caseId: supportTicket.id,
             title: supportTicket.subject || 'Support Request',
@@ -181,7 +175,10 @@ const VendorTaskDetail = () => {
             vendorStatus: supportTicket.vendorStatus,
             priority: supportTicket.priority?.toLowerCase() || 'medium',
             isSupportTicket: true
-          };
+            };
+          }
+        } catch (ticketError: any) {
+          console.log('Support ticket not found:', ticketError);
         }
       }
 
@@ -229,6 +226,7 @@ const VendorTaskDetail = () => {
         if (cacheTime && (now - parseInt(cacheTime)) < 2 * 60 * 1000) {
           console.log('✅ Loading cached task details instantly');
           setTask(parsed);
+          setLoading(false);
           hasCache = true;
         }
       }
@@ -236,13 +234,8 @@ const VendorTaskDetail = () => {
       console.error('Error loading cached task:', error);
     }
     
-    // Always fetch fresh data in background, but show cached data immediately
+    // Always fetch fresh data in background
     if (hasCache) {
-      // Show loading for exactly 1 second even with cache
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
       // Fetch fresh data in background without showing loading spinner
       fetchTaskDetails(false);
     } else {

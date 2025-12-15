@@ -317,40 +317,6 @@ const AdminProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Statistics Card */}
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="text-lg">Statistics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Total Logins</span>
-                      <span className="text-sm font-medium">{adminData.stats?.totalLogins || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Total Actions</span>
-                      <span className="text-sm font-medium">{adminData.stats?.totalActions || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Users Managed</span>
-                      <span className="text-sm font-medium">{adminData.stats?.usersManaged || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Vendors Managed</span>
-                      <span className="text-sm font-medium">{adminData.stats?.vendorsManaged || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Bookings Processed</span>
-                      <span className="text-sm font-medium">{adminData.stats?.bookingsProcessed || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Support Tickets</span>
-                      <span className="text-sm font-medium">{adminData.stats?.supportTicketsResolved || 0}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
 
             {/* Profile Settings */}

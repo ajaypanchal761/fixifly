@@ -2,6 +2,7 @@ const express = require('express');
 const {
   getAllBookings,
   getBookingById,
+  updateBooking,
   updateBookingStatus,
   updateBookingPriority,
   assignVendor,
@@ -25,6 +26,7 @@ router.route('/stats')
 
 router.route('/:id')
   .get(getBookingById) // Get single booking
+  .put(updateBooking) // Update booking details
   .delete(deleteBooking); // Delete booking
 
 router.route('/:id/status')

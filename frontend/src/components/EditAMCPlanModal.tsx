@@ -193,7 +193,7 @@ const EditAMCPlanModal: React.FC<EditAMCPlanModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-4xl max-h-[90vh] overflow-y-auto !top-[55%] !translate-y-[-50%]" 
+        className="max-w-3xl max-h-[80vh] overflow-y-auto !top-[55%] !translate-y-[-50%]" 
       >
         <DialogHeader>
           <DialogTitle>Edit AMC Plan: {plan.name}</DialogTitle>

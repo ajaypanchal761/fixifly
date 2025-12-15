@@ -274,6 +274,43 @@ class AdminBookingApi {
     }
   }
 
+  // Update booking details
+  async updateBooking(bookingId: string, bookingData: {
+    customer?: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      address?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        pincode?: string;
+      };
+    };
+    scheduling?: {
+      scheduledDate?: string;
+      scheduledTime?: string;
+      preferredDate?: string;
+      preferredTimeSlot?: string;
+    };
+    notes?: string;
+  }): Promise<ApiResponse<{ booking: Booking; bookingReference: string }>> {
+    try {
+      const response = await this.request<{ booking: Booking; bookingReference: string }>(`/admin/bookings/${bookingId}`, {
+        method: 'PUT',
+        body: JSON.stringify(bookingData)
+      });
+      return response;
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      return {
+        success: false,
+        message: 'Failed to update booking',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
   // Assign vendor to booking
   async assignVendor(bookingId: string, vendorId: string, scheduledDate?: string, scheduledTime?: string, priority?: string, notes?: string): Promise<ApiResponse<{ booking: Booking; bookingReference: string }>> {
     try {

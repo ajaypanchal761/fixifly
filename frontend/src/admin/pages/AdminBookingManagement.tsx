@@ -39,6 +39,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 const AdminBookingManagement = () => {
   const { toast } = useToast();
+  const ITEMS_PER_PAGE = 10;
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
@@ -85,7 +86,7 @@ const AdminBookingManagement = () => {
       setLoading(true);
       const response = await adminBookingApi.getAllBookings({
         page: currentPage,
-        limit: 10,
+        limit: ITEMS_PER_PAGE,
         status: statusFilter === 'all' ? undefined : statusFilter,
         paymentStatus: paymentStatusFilter === 'all' ? undefined : paymentStatusFilter,
         search: searchTerm || undefined,
@@ -1407,6 +1408,43 @@ const AdminBookingManagement = () => {
           </CardContent>
         </Card>
 
+      {/* Pagination controls */}
+      <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p className="text-xs text-gray-600">
+          {totalBookings > 0
+            ? `Showing ${(currentPage - 1) * ITEMS_PER_PAGE + 1}-${Math.min(
+                currentPage * ITEMS_PER_PAGE,
+                totalBookings
+              )} of ${totalBookings} bookings`
+            : 'No bookings found'}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          >
+            Previous
+          </Button>
+          <span className="text-xs text-gray-600">
+            Page {totalPages === 0 ? 0 : currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage >= totalPages || totalPages === 0}
+            onClick={() =>
+              setCurrentPage((prev) =>
+                totalPages > 0 ? Math.min(prev + 1, totalPages) : prev
+              )
+            }
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+
         {/* Engineer Assignment Dialog */}
         <Dialog open={isAssignEngineerOpen} onOpenChange={handleCloseAssignEngineer}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mt-12">
@@ -2197,9 +2235,21 @@ const AdminBookingManagement = () => {
 
         {/* Edit Booking Modal */}
         <Dialog open={isEditBookingOpen} onOpenChange={setIsEditBookingOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-xl mt-6 sm:mt-10">
             <DialogHeader>
-              <DialogTitle>Edit Booking - {editingBooking?._id}</DialogTitle>
+              <DialogTitle>
+                Edit Booking -{" "}
+                {editingBooking &&
+                  (editingBooking.bookingReference ||
+                    (editingBooking._id
+                      ? `FIX${editingBooking._id
+                          .toString()
+                          .substring(
+                            editingBooking._id.toString().length - 8
+                          )
+                          .toUpperCase()}`
+                      : "N/A"))}
+              </DialogTitle>
             </DialogHeader>
             {editingBooking && (
               <div className="space-y-4">
@@ -2314,11 +2364,52 @@ const AdminBookingManagement = () => {
                 </div>
                 <div className="flex gap-2">
                   <Button 
-                    onClick={() => {
-                      setBookings(prev => prev.map(booking => 
-                        booking._id === editingBooking._id ? editingBooking : booking
-                      ));
-                      setIsEditBookingOpen(false);
+                    onClick={async () => {
+                      try {
+                        // Prepare booking data for API
+                        const bookingData = {
+                          customer: {
+                            name: editingBooking.customer.name,
+                            email: editingBooking.customer.email,
+                            phone: editingBooking.customer.phone,
+                            address: editingBooking.customer.address
+                          },
+                          scheduling: {
+                            scheduledDate: editingBooking.scheduling?.scheduledDate,
+                            scheduledTime: editingBooking.scheduling?.scheduledTime,
+                            preferredDate: editingBooking.scheduling?.preferredDate,
+                            preferredTimeSlot: editingBooking.scheduling?.preferredTimeSlot
+                          },
+                          notes: editingBooking.notes
+                        };
+
+                        const response = await adminBookingApi.updateBooking(editingBooking._id, bookingData);
+                        
+                        if (response.success) {
+                          toast({
+                            title: "Success",
+                            description: "Booking updated successfully",
+                            variant: "default"
+                          });
+                          
+                          // Refresh bookings list to show updated data
+                          fetchBookings();
+                          setIsEditBookingOpen(false);
+                        } else {
+                          toast({
+                            title: "Error",
+                            description: response.message || "Failed to update booking",
+                            variant: "destructive"
+                          });
+                        }
+                      } catch (error: any) {
+                        console.error('Error updating booking:', error);
+                        toast({
+                          title: "Error",
+                          description: error.message || "Failed to update booking",
+                          variant: "destructive"
+                        });
+                      }
                     }} 
                     className="flex-1"
                   >

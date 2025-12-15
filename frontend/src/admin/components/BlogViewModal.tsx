@@ -26,7 +26,7 @@ const BlogViewModal: React.FC<BlogViewModalProps> = ({ blog, isOpen, onClose }) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mt-16">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mt-10">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-xl font-bold">Blog Preview</DialogTitle>
         </DialogHeader>
