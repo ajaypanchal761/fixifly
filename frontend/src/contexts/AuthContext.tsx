@@ -34,6 +34,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
+    // During hot reload, context might not be available yet
+    // Return a safe default instead of throwing to prevent app crashes
+    if (import.meta.env.DEV) {
+      console.warn('useAuth called outside AuthProvider - using default values (this may happen during hot reload)');
+      return {
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        login: () => {},
+        logout: () => {},
+        updateUser: () => {},
+        refreshUserData: async () => {},
+        checkTokenValidity: () => false,
+        isLoading: true,
+      } as AuthContextType;
+    }
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
@@ -230,7 +246,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       // Import apiService dynamically to avoid circular dependency
       const { default: apiService } = await import('@/services/api');
-      const response = await apiService.getUserProfile();
+      
+      // Add timeout wrapper to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Refresh timeout: Request took too long')), 30000);
+      });
+      
+      const response = await Promise.race([
+        apiService.getUserProfile(),
+        timeoutPromise
+      ]) as any;
       
       if (response.success && response.data?.user) {
         const freshUserData = response.data.user;
@@ -239,8 +264,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(freshUserData);
         localStorage.setItem('userData', JSON.stringify(freshUserData));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error refreshing user data:', error);
+      
+      // Handle timeout errors specifically
+      if (error?.message?.includes('timeout') || error?.message?.includes('Request timeout')) {
+        console.warn('⚠️ Refresh timeout - request took too long. Using cached data.');
+        // Don't throw - just use existing data
+        return;
+      }
+      
+      // For other errors, log but don't break the app
+      // The app will continue with cached data
     }
   };
 

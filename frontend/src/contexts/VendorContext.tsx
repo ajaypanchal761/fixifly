@@ -233,7 +233,16 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       }
 
       console.log('🔄 VendorContext: Refreshing vendor data from API...');
-      const response = await vendorApiService.getVendorProfile();
+      
+      // Add timeout wrapper to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Refresh timeout: Request took too long')), 30000);
+      });
+      
+      const response = await Promise.race([
+        vendorApiService.getVendorProfile(),
+        timeoutPromise
+      ]) as any;
       
       if (response.success && response.data?.vendor) {
         const updatedVendor = response.data.vendor;
@@ -249,13 +258,20 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
     } catch (error: any) {
       console.error('❌ VendorContext: Failed to refresh vendor data:', error);
       
+      // Handle timeout errors specifically
+      if (error?.message?.includes('timeout') || error?.message?.includes('Request timeout')) {
+        console.warn('⚠️ Refresh timeout - request took too long. Using cached data.');
+        // Don't throw - just use existing data
+        return;
+      }
+      
       // If it's a network error, don't spam the console with repeated errors
       if (error?.isNetworkError) {
-        console.warn('⚠️ Network error detected - backend might be down. Will retry on next interval.');
+        console.warn('⚠️ Network error detected - backend might be down. Using cached data.');
       }
       
       // Don't throw error, just log it - this prevents breaking the app
-      // The periodic refresh will retry automatically
+      // The app will continue with cached data
     }
   };
 

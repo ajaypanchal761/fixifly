@@ -55,6 +55,8 @@ const Footer = () => {
               <img 
                 src="/logofixifly.png" 
                 alt="FixFly Logo" 
+                loading="lazy"
+                decoding="async"
                 className="h-28 w-auto"
               />
             </div>

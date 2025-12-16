@@ -537,7 +537,7 @@ const ServicePage = () => {
 
         {/* Checkout Section */}
         {cartItems.length > 0 && (
-          <div className="fixed bottom-0 left-0 right-0 z-[70] transition-all duration-300 ease-out">
+          <div className="fixed bottom-12 left-0 right-0 z-[70] md:bottom-0 md:z-50 transition-all duration-300 ease-out">
             {/* Backdrop blur effect */}
             <div className="absolute inset-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80"></div>
             

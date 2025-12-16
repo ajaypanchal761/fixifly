@@ -8,6 +8,7 @@ interface ApiResponse<T = any> {
   message: string;
   data?: T;
   error?: string;
+  isMandatoryDepositError?: boolean;
 }
 
 interface ServiceLocation {
@@ -82,9 +83,31 @@ interface VendorAuthResponse {
 // CACHE BUST - UPDATED AT: 2025-10-10 09:38:00
 class VendorApiService {
   private baseURL: string;
+  private readonly REQUEST_TIMEOUT = 30000; // 30 seconds timeout
 
   constructor() {
     this.baseURL = API_BASE_URL;
+  }
+
+  // Helper function to add timeout to fetch requests
+  private async fetchWithTimeout(url: string, config: RequestInit, timeout: number = this.REQUEST_TIMEOUT): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error(`Request timeout: The request took longer than ${timeout / 1000} seconds to complete. Please check your internet connection and try again.`);
+      }
+      throw error;
+    }
   }
 
   private async request<T>(
@@ -122,7 +145,7 @@ class VendorApiService {
       console.log('Endpoint:', endpoint);
       console.log('Token exists:', !!token);
       
-      const response = await fetch(url, config);
+      const response = await this.fetchWithTimeout(url, config);
       console.log('Response status:', response.status);
       console.log('Response status text:', response.statusText);
       console.log('Response headers:', response.headers);
@@ -286,7 +309,7 @@ class VendorApiService {
     
     console.log('Sending registration request to:', url);
     
-    const response = await fetch(url, {
+    const response = await this.fetchWithTimeout(url, {
       method: 'POST',
       body: formData,
       // Don't set Content-Type header, let browser set it with boundary for FormData
@@ -753,7 +776,7 @@ class VendorApiService {
     console.log('Uploading profile image to:', url);
     console.log('Token exists:', !!token);
     
-    const response = await fetch(url, {
+    const response = await this.fetchWithTimeout(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

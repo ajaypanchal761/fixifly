@@ -346,10 +346,10 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:pt-14 lg:pt-24">
+      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 ${showMoreProducts ? 'mt-16 sm:pt-20 lg:pt-28' : 'mt-1 sm:pt-5 lg:pt-10'}`}>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-        <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-80 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 ${showMoreProducts ? 'mt-12 sm:mt-16' : 'mt-4 sm:mt-8'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
+        <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 ${showMoreProducts ? 'mt-6 sm:mt-10' : 'mt-0 sm:mt-0'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
@@ -367,6 +367,8 @@ const Hero = () => {
                         key={index}
                         src={banner} 
                         alt={`Fixfly Banner ${index + 1}`} 
+                        loading={index === 0 ? "eager" : "lazy"}
+                        decoding="async"
                         className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${
                           index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
                         }`}
@@ -524,6 +526,8 @@ const Hero = () => {
                           <img 
                             src={primaryImage || '/placeholder.svg'} 
                             alt={product.name} 
+                            loading="lazy"
+                            decoding="async"
                             className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;

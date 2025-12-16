@@ -39,9 +39,31 @@ interface AuthResponse {
 
 class ApiService {
   private baseURL: string;
+  private readonly REQUEST_TIMEOUT = 30000; // 30 seconds timeout
 
   constructor() {
     this.baseURL = API_BASE_URL;
+  }
+
+  // Helper function to add timeout to fetch requests
+  private async fetchWithTimeout(url: string, config: RequestInit, timeout: number = this.REQUEST_TIMEOUT): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error(`Request timeout: The request took longer than ${timeout / 1000} seconds to complete. Please check your internet connection and try again.`);
+      }
+      throw error;
+    }
   }
 
   private async request<T>(
@@ -78,7 +100,7 @@ class ApiService {
       console.log('Making API request to:', url);
       console.log('Request config:', config);
       
-      const response = await fetch(url, config);
+      const response = await this.fetchWithTimeout(url, config);
       console.log('Response status:', response.status);
       console.log('Response headers:', response.headers);
       
@@ -357,7 +379,7 @@ class ApiService {
     const token = localStorage.getItem('accessToken');
     const url = `${this.baseURL}/users/profile/image`;
     
-    const response = await fetch(url, {
+    const response = await this.fetchWithTimeout(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

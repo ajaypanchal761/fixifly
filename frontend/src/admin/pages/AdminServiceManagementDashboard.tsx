@@ -137,6 +137,119 @@ const AdminServiceManagementDashboard = () => {
         const serviceCharges =
           parseFloat(booking.completionData?.billingAmount || booking.billingAmount || '0') || 0;
 
+        // Payment mode detection - prioritize cash payments
+        // Get all payment-related data with comprehensive checks
+        const rawPaymentMethod = booking.payment?.method || (booking as any).paymentMode || '';
+        const paymentMethod = String(rawPaymentMethod).toLowerCase().trim();
+        const razorpayPaymentId = booking.payment?.razorpayPaymentId;
+        const razorpayOrderId = booking.payment?.razorpayOrderId;
+        // Strict check: only true if Razorpay IDs exist and are non-empty strings
+        const hasRazorpayId = !!(razorpayPaymentId && String(razorpayPaymentId).trim().length > 0);
+        const hasRazorpayOrderId = !!(razorpayOrderId && String(razorpayOrderId).trim().length > 0);
+        const rawPaymentStatus = booking.payment?.status;
+        const paymentStatus = rawPaymentStatus ? String(rawPaymentStatus).toLowerCase().trim() : 'pending';
+        // Check if payment is pending (handle all variations - be very strict)
+        const isPending = !rawPaymentStatus || 
+                         rawPaymentStatus === null ||
+                         rawPaymentStatus === undefined ||
+                         String(rawPaymentStatus).toLowerCase().trim() === 'pending';
+        
+        // Determine payment mode with strict logic - CASH FIRST approach
+        let detectedPaymentMode = 'online'; // default (will be overridden if conditions match)
+        
+        // STEP 1: Check explicit paymentMode field (highest priority - set by backend on task completion)
+        if ((booking as any).paymentMode) {
+          detectedPaymentMode = String((booking as any).paymentMode).toLowerCase().trim();
+          console.log(`✅ STEP 1: Using explicit paymentMode: ${detectedPaymentMode}`, booking.bookingReference);
+        } 
+        // STEP 2: Check if payment method is explicitly 'cash'
+        else if (paymentMethod === 'cash') {
+          detectedPaymentMode = 'cash';
+          console.log(`✅ STEP 2: Payment method is cash: ${detectedPaymentMode}`, booking.bookingReference);
+        } 
+        // STEP 3: CRITICAL FIX - If payment status is 'pending' AND no Razorpay IDs, it MUST be cash
+        // This MUST come before checking Razorpay IDs or payment methods
+        // This handles cash on delivery bookings where payment.method might default to 'card'
+        else if (isPending && !hasRazorpayId && !hasRazorpayOrderId) {
+          detectedPaymentMode = 'cash'; // Cash on delivery - pending payment, no online payment ID
+          console.log(`✅ STEP 3: PENDING + No Razorpay ID = CASH: ${detectedPaymentMode}`, booking.bookingReference);
+        }
+        // STEP 4: If Razorpay payment ID or order ID exists, it's definitely online
+        else if (hasRazorpayId || hasRazorpayOrderId) {
+          detectedPaymentMode = 'online';
+          console.log(`✅ STEP 4: Razorpay ID found: ${detectedPaymentMode}`, booking.bookingReference);
+        }
+        // STEP 5: Check for online payment methods (card, upi, etc.)
+        // BUT: If it's pending and no Razorpay ID, it's still cash (double-check)
+        else if (paymentMethod && ['card', 'upi', 'netbanking', 'wallet', 'online'].includes(paymentMethod)) {
+          // Double-check: if pending and no Razorpay ID, it's cash
+          if (isPending && !hasRazorpayId && !hasRazorpayOrderId) {
+            detectedPaymentMode = 'cash';
+            console.log(`✅ STEP 5: Method is ${paymentMethod} but PENDING + No Razorpay = CASH: ${detectedPaymentMode}`, booking.bookingReference);
+          } else {
+            detectedPaymentMode = 'online';
+            console.log(`✅ STEP 5: Method is ${paymentMethod} and completed/has Razorpay = ONLINE: ${detectedPaymentMode}`, booking.bookingReference);
+          }
+        }
+        // STEP 6: If payment status is completed and no method specified, assume online
+        else if (paymentStatus === 'completed') {
+          detectedPaymentMode = 'online';
+          console.log(`✅ Payment completed = ONLINE: ${detectedPaymentMode}`, booking.bookingReference);
+        }
+        // STEP 7: Use the payment method if available
+        else if (paymentMethod) {
+          detectedPaymentMode = paymentMethod;
+          console.log(`✅ Using payment method: ${detectedPaymentMode}`, booking.bookingReference);
+        }
+        // STEP 8: Final fallback - if pending and no indicators, assume cash
+        else if (paymentStatus === 'pending') {
+          detectedPaymentMode = 'cash';
+          console.log(`✅ Final fallback: PENDING = CASH: ${detectedPaymentMode}`, booking.bookingReference);
+        }
+
+        // ALWAYS log for pending bookings to debug the issue
+        if (isPending || paymentStatus === 'pending' || !rawPaymentStatus) {
+          console.log('🔍🔍🔍 PAYMENT MODE DETECTION (PENDING BOOKING) 🔍🔍🔍', {
+            bookingId: booking._id,
+            bookingReference: booking.bookingReference,
+            '=== RAW DATA ===': {
+              rawPaymentMethod: rawPaymentMethod,
+              paymentMethod: paymentMethod,
+              paymentMode: (booking as any).paymentMode,
+              rawPaymentStatus: rawPaymentStatus,
+              paymentStatus: paymentStatus,
+              razorpayPaymentId: razorpayPaymentId,
+              razorpayOrderId: razorpayOrderId,
+            },
+            '=== COMPUTED VALUES ===': {
+              isPending: isPending,
+              hasRazorpayId: hasRazorpayId,
+              hasRazorpayOrderId: hasRazorpayOrderId,
+            },
+            '=== RESULT ===': {
+              detectedPaymentMode: detectedPaymentMode,
+            },
+            '=== FULL PAYMENT OBJECT ===': booking.payment,
+            '=== FULL BOOKING (for reference) ===': {
+              status: booking.status,
+              payment: booking.payment
+            }
+          });
+        }
+
+        // FINAL SAFETY CHECK: If still showing online but should be cash, force it
+        // This is a last resort to ensure pending bookings without Razorpay are cash
+        if (detectedPaymentMode === 'online' && isPending && !hasRazorpayId && !hasRazorpayOrderId) {
+          console.warn('⚠️ FORCING CASH: Detected online but should be cash!', {
+            bookingReference: booking.bookingReference,
+            detectedPaymentMode,
+            isPending,
+            hasRazorpayId,
+            hasRazorpayOrderId
+          });
+          detectedPaymentMode = 'cash';
+        }
+
         return {
           ...booking,
           bookingReference:
@@ -145,10 +258,7 @@ const AdminServiceManagementDashboard = () => {
               .toString()
               .substring(booking._id.toString().length - 8)
               .toUpperCase()}`,
-          paymentMode:
-            (booking as any).paymentMode ||
-            (booking.payment?.razorpayPaymentId ? 'card' : booking.payment?.method) ||
-            'card',
+          paymentMode: detectedPaymentMode,
           paymentStatus:
             booking.status === 'completed'
               ? 'completed'

@@ -78,8 +78,14 @@ const AdminBlogManagement = () => {
 
   const [newBlog, setNewBlog] = useState({
     title: '',
+    excerpt: '',
     content: '',
     category: '',
+    tags: '',
+    metaTitle: '',
+    metaDescription: '',
+    isFeatured: false,
+    commentsEnabled: true,
     image: null as File | null
   });
 
@@ -222,8 +228,14 @@ const AdminBlogManagement = () => {
         // Reset form
       setNewBlog({
         title: '',
+        excerpt: '',
         content: '',
         category: '',
+        tags: '',
+        metaTitle: '',
+        metaDescription: '',
+        isFeatured: false,
+        commentsEnabled: true,
         image: null
       });
       setIsAddBlogOpen(false);
@@ -263,8 +275,14 @@ const AdminBlogManagement = () => {
     setEditingBlog(blog);
     setNewBlog({
       title: blog.title,
+      excerpt: blog.excerpt || '',
       content: blog.content,
       category: blog.category,
+      tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags || ''),
+      metaTitle: blog.metaTitle || '',
+      metaDescription: blog.metaDescription || '',
+      isFeatured: blog.isFeatured || false,
+      commentsEnabled: true,
       image: null
     });
     setIsAddBlogOpen(true);
@@ -319,8 +337,14 @@ const AdminBlogManagement = () => {
         // Reset form
         setNewBlog({
           title: '',
+          excerpt: '',
           content: '',
           category: '',
+          tags: '',
+          metaTitle: '',
+          metaDescription: '',
+          isFeatured: false,
+          commentsEnabled: true,
           image: null
         });
         setEditingBlog(null);

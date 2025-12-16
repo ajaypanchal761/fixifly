@@ -130,6 +130,8 @@ const BlogDetailModal = ({ isOpen, onClose, blogPost }: BlogDetailModalProps) =>
                 <img 
                   src={blogPost.featuredImage || '/placeholder.svg'} 
                   alt={blogPost.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-40 sm:h-48 md:h-56 object-cover"
                 />
                 <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary/90 text-white text-sm px-2 py-1 rounded-md">

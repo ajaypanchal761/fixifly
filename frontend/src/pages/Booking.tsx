@@ -61,6 +61,7 @@ const Booking = () => {
   const isNewBookingView = newBooking && fromCheckout;
 
   // Update state when location state changes (e.g., after payment success)
+  // Use immediate synchronous update for instant confirmation view
   useEffect(() => {
     if (location.state) {
       console.log('📍 Location state updated:', {
@@ -70,6 +71,7 @@ const Booking = () => {
         hasCartItems: !!location.state.cartItems
       });
       
+      // Update all state synchronously for instant rendering
       if (location.state.booking) {
         setNewBooking(location.state.booking);
         console.log('✅ Booking state set:', location.state.booking.bookingReference || location.state.booking._id);
@@ -90,6 +92,17 @@ const Booking = () => {
       }
     }
   }, [location.state]);
+
+  // Immediate state sync on mount for instant confirmation view
+  useEffect(() => {
+    // If location state has booking data, set it immediately (before other effects)
+    if (location.state?.booking && location.state?.fromCheckout) {
+      setNewBooking(location.state.booking);
+      setBookingReference(location.state.bookingReference || location.state.booking.bookingReference);
+      setFromCheckout(true);
+      console.log('⚡ IMMEDIATE: Confirmation view state set from location.state');
+    }
+  }, []); // Run only once on mount
 
   // Debug confirmation view state
   useEffect(() => {
@@ -1363,8 +1376,13 @@ For support, contact us at info@getfixfly.com
     );
   }
 
-  // New booking success view
-  if (isNewBookingView && newBooking) {
+  // New booking success view - CHECK FIRST for instant rendering
+  // This must be checked before any other rendering logic
+  if ((newBooking && fromCheckout) || (location.state?.booking && location.state?.fromCheckout)) {
+    const displayBooking = newBooking || location.state?.booking;
+    const displayReference = bookingReference || location.state?.bookingReference || displayBooking?.bookingReference;
+    
+    if (displayBooking) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-36 md:pb-0">
         {/* Header */}
@@ -1398,7 +1416,7 @@ For support, contact us at info@getfixfly.com
             </p>
             <div className="bg-white rounded-lg p-2 inline-block shadow-sm">
               <p className="text-xs text-gray-500">Booking Reference</p>
-              <p className="text-base font-bold text-blue-600">{bookingReference}</p>
+              <p className="text-base font-bold text-blue-600">{displayReference}</p>
             </div>
           </div>
 
@@ -1411,17 +1429,17 @@ For support, contact us at info@getfixfly.com
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1 text-xs">Customer Information</h3>
                 <div className="space-y-0.5 text-xs text-gray-600">
-                  <p><strong>Name:</strong> {newBooking.customer.name}</p>
-                  <p><strong>Email:</strong> {newBooking.customer.email}</p>
-                  <p><strong>Phone:</strong> {newBooking.customer.phone}</p>
+                  <p><strong>Name:</strong> {displayBooking.customer.name}</p>
+                  <p><strong>Email:</strong> {displayBooking.customer.email}</p>
+                  <p><strong>Phone:</strong> {displayBooking.customer.phone}</p>
                 </div>
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1 text-xs">Address</h3>
                 <div className="space-y-0.5 text-xs text-gray-600">
-                  <p>{newBooking.customer.address.street}</p>
-                  <p>{newBooking.customer.address.city}, {newBooking.customer.address.state}</p>
-                  <p>PIN: {newBooking.customer.address.pincode}</p>
+                  <p>{displayBooking.customer.address.street}</p>
+                  <p>{displayBooking.customer.address.city}, {displayBooking.customer.address.state}</p>
+                  <p>PIN: {displayBooking.customer.address.pincode}</p>
                 </div>
               </div>
             </div>
@@ -1430,7 +1448,7 @@ For support, contact us at info@getfixfly.com
             <div className="mb-3">
               <h3 className="font-semibold text-gray-900 mb-1 text-xs">Services Booked</h3>
               <div className="space-y-0.5">
-                {newBooking.services.map((service, index) => (
+                {displayBooking.services.map((service, index) => (
                   <div key={index} className="flex justify-between items-center py-0.5 border-b border-gray-100 last:border-b-0">
                     <span className="text-gray-900 text-xs">{service.serviceName}</span>
                     <span className="font-semibold text-gray-900 text-xs">₹{service.price}</span>
@@ -1444,16 +1462,16 @@ For support, contact us at info@getfixfly.com
               <div className="space-y-0.5">
                 <div className="flex justify-between text-gray-600 text-xs">
                   <span>Subtotal</span>
-                  <span>₹{newBooking.pricing.subtotal}</span>
+                  <span>₹{displayBooking.pricing.subtotal}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 text-xs">
                   <span>GST (18%)</span>
-                  <span>₹{newBooking.pricing.gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}</span>
+                  <span>₹{displayBooking.pricing.gstAmount || Math.round((displayBooking.pricing.subtotal * 18) / 100)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-0.5">
                   <div className="flex justify-between text-sm font-bold text-gray-900">
                     <span>Total Amount</span>
-                    <span>₹{newBooking.pricing.totalAmount}</span>
+                    <span>₹{displayBooking.pricing.totalAmount}</span>
                   </div>
                 </div>
               </div>
@@ -1493,6 +1511,7 @@ For support, contact us at info@getfixfly.com
         <MobileBottomNav />
       </div>
     );
+    }
   }
 
   return (

@@ -218,19 +218,22 @@ const Checkout = () => {
         throw new Error(data.message || 'Failed to create booking');
       }
 
-      toast({
-        title: "Booking Created Successfully!",
-        description: `Your booking has been created with reference: ${data.data.booking.bookingReference}. Payment will be collected on delivery.`,
-        variant: "default"
-      });
-
-      // Navigate to booking page with booking data (same as Razorpay)
+      // Navigate IMMEDIATELY to booking page with booking data - don't wait for toast
+      // This ensures instant navigation to confirmation page
       navigate('/booking', { 
+        replace: true, // Replace current history entry to prevent back navigation to checkout
         state: { 
           booking: data.data.booking,
           bookingReference: data.data.booking.bookingReference,
           fromCheckout: true 
         }
+      });
+
+      // Show toast after navigation (non-blocking)
+      toast({
+        title: "Booking Created Successfully!",
+        description: `Your booking has been created with reference: ${data.data.booking.bookingReference}. Payment will be collected on delivery.`,
+        variant: "default"
       });
 
     } catch (error) {
@@ -316,13 +319,8 @@ const Checkout = () => {
 
             const bookingRef = response.bookingReference || response.booking?.bookingReference;
             
-            toast({
-              title: "Payment Successful!",
-              description: `Your booking has been confirmed. Reference: ${bookingRef}`,
-              variant: "default"
-            });
-
-            // Redirect to booking page with booking data - ensure immediate navigation
+            // Navigate IMMEDIATELY to booking page - don't wait for toast
+            // This ensures instant navigation to confirmation page
             navigate('/booking', { 
               replace: true, // Replace current history entry to prevent back navigation to checkout
               state: { 
@@ -330,6 +328,13 @@ const Checkout = () => {
                 bookingReference: bookingRef,
                 fromCheckout: true 
               } 
+            });
+
+            // Show toast after navigation (non-blocking)
+            toast({
+              title: "Payment Successful!",
+              description: `Your booking has been confirmed. Reference: ${bookingRef}`,
+              variant: "default"
             });
           },
           // Failure callback

@@ -680,6 +680,21 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const activeAMCSubscriptions = activeAMCSubscriptionsResult.length > 0 ? activeAMCSubscriptionsResult[0].count : 0;
     const totalAMCAmount = activeAMCSubscriptionsResult.length > 0 ? activeAMCSubscriptionsResult[0].totalAmount : 0;
 
+    // First check what bookings exist
+    const allBookings = await Booking.find({}).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
+    console.log('🔍 ALL BOOKINGS IN DB:', JSON.stringify(allBookings, null, 2));
+    
+    const completedBookings = await Booking.find({
+      status: 'completed'
+    }).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
+    console.log('🔍 COMPLETED BOOKINGS (status=completed):', JSON.stringify(completedBookings, null, 2));
+    
+    const completedWithPayment = await Booking.find({
+      status: 'completed',
+      'payment.status': 'completed'
+    }).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
+    console.log('🔍 COMPLETED BOOKINGS WITH PAYMENT:', JSON.stringify(completedWithPayment, null, 2));
+
     // Get revenue calculations from actual bookings and support tickets including admin commission
     const [monthlyRevenueResult, totalRevenueResult, pendingBookingsResult, monthlySupportTicketRevenueResult, totalSupportTicketRevenueResult] = await Promise.all([
       // Monthly revenue from completed bookings (booking amount + admin commission)
@@ -936,6 +951,26 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const pendingBookings = pendingBookingsResult || 0;
 
     // Log revenue calculation for debugging
+    console.log('🔍 REVENUE CALCULATION DEBUG:', {
+      monthlyRevenue,
+      totalRevenue,
+      monthlyBookingRevenue,
+      totalBookingRevenue,
+      monthlySupportTicketRevenue,
+      totalSupportTicketRevenue,
+      pendingBookings,
+      activeAMCSubscriptions,
+      totalAMCAmount,
+      month: month || new Date().getMonth() + 1,
+      year: year || new Date().getFullYear(),
+      startDate,
+      endDate
+    });
+    
+    // Log detailed aggregation results
+    console.log('🔍 MONTHLY REVENUE RESULT:', monthlyRevenueResult);
+    console.log('🔍 TOTAL REVENUE RESULT:', totalRevenueResult);
+    
     logger.info('Admin dashboard revenue calculation', {
       monthlyRevenue,
       totalRevenue,

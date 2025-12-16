@@ -100,7 +100,6 @@ const AdminServiceManagement = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentView('form')}
-                className={currentView === 'form' ? 'bg-blue-50 border-blue-200' : ''}
               >
                 <Grid3X3 className="w-3 h-3 mr-2" />
                 Add Product

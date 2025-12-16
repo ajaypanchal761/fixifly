@@ -1,11 +1,18 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Calendar, Wrench, Phone } from 'lucide-react';
+import { Home, Calendar, Wrench, Phone, LucideIcon } from 'lucide-react';
+
+interface NavItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  isExternal?: boolean;
+}
 
 const MobileBottomNav = () => {
   const location = useLocation();
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { name: "Home", href: "/", icon: Home },
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },

@@ -36,8 +36,8 @@ interface AdminData {
   department: string;
   designation: string;
   isActive: boolean;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
+  isEmailVerified?: boolean;
+  isPhoneVerified?: boolean;
   createdAt: string;
   stats?: {
     totalLogins: number;
@@ -146,8 +146,13 @@ const AdminProfile = () => {
 
       if (response.success && response.data) {
         // Update local storage with new data
-        localStorage.setItem('adminData', JSON.stringify(response.data.admin));
-        setAdminData(response.data.admin);
+        const adminData: AdminData = {
+          ...response.data.admin,
+          isEmailVerified: (response.data.admin as any).isEmailVerified ?? false,
+          isPhoneVerified: (response.data.admin as any).isPhoneVerified ?? false
+        };
+        localStorage.setItem('adminData', JSON.stringify(adminData));
+        setAdminData(adminData);
 
         toast({
           title: "Profile Updated!",

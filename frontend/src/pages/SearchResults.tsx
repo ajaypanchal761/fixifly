@@ -229,6 +229,8 @@ const SearchResults: React.FC = () => {
                         <img
                           src={primaryImage || '/placeholder.svg'}
                           alt={productName}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;

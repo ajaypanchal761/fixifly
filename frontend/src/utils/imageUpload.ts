@@ -54,6 +54,7 @@ interface UploadOptions {
   transformation?: any[];
   quality?: string;
   fetch_format?: string;
+  type?: string;
 }
 
 /**

@@ -188,6 +188,8 @@ export interface Blog {
   rating: number;
   reviewCount: number;
   isFeatured: boolean;
+  status?: string;
+  isActive?: boolean;
   metaTitle?: string;
   metaDescription?: string;
   createdAt: string;

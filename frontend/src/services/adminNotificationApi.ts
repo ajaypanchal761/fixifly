@@ -94,6 +94,7 @@ class AdminNotificationApi {
     targetAudience?: string;
     sortBy?: string;
     sortOrder?: string;
+    search?: string;
   }): Promise<{ success: boolean; data: { notifications: AdminNotification[]; pagination: any } }> {
     const queryParams = new URLSearchParams();
     if (params) {

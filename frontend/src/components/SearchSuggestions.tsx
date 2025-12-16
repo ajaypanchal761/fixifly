@@ -139,6 +139,8 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
                   <img
                     src={suggestion.primaryImage}
                     alt={suggestion.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-8 h-8 object-contain rounded"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;

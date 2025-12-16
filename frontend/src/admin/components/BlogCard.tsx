@@ -13,34 +13,7 @@ import {
   Tag,
   Heart
 } from 'lucide-react';
-
-export interface Blog {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  author: {
-    id: string;
-    name: string;
-    email?: string;
-  };
-  featuredImage: string;
-  category: string;
-  tags: string[];
-  readTime: string;
-  publishedAt: string;
-  formattedDate: string;
-  views: number;
-  likes: number;
-  rating: number;
-  reviewCount: number;
-  status: string;
-  isFeatured: boolean;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Blog } from '@/services/blogApi';
 
 interface BlogCardProps {
   blog: Blog;
@@ -169,9 +142,9 @@ const BlogCard: React.FC<BlogCardProps> = ({
                 size="sm" 
                 variant="outline" 
                 className="flex-1 text-xs h-7"
-                onClick={() => onToggleStatus(blog.id, blog.status)}
+                onClick={() => onToggleStatus(blog.id, blog.status || 'draft')}
               >
-                {blog.status === 'published' ? 'Unpublish' : 'Publish'}
+                {(blog.status || 'draft') === 'published' ? 'Unpublish' : 'Publish'}
               </Button>
               <Button 
                 size="sm" 

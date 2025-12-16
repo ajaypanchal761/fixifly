@@ -67,50 +67,9 @@ const ProductDetail = () => {
           setReviews(regularResponse.data);
           console.log('Regular reviews set:', regularResponse.data);
         } else {
-          console.log('No reviews available, using mock data for testing');
-          // Mock data for testing UI
-          setReviews([
-            {
-              _id: 'mock1',
-              userId: { _id: 'user1', name: 'Ajay Panchal', profileImage: '' },
-              category: 'Laptop Repair',
-              rating: 5,
-              comment: 'Excellent service! My laptop was repaired quickly and professionally.',
-              likes: 12,
-              likedBy: [],
-              isAnonymous: false,
-              isVerified: true,
-              isFeatured: true,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              userDisplayName: 'Ajay Panchal',
-              userInitials: 'AP',
-              formattedDate: '1 hour ago',
-              ratingText: 'Excellent'
-            },
-            {
-              _id: 'mock2',
-              userId: { _id: 'user2', name: 'Priya Sharma', profileImage: '' },
-              category: 'Mobile Repair',
-              rating: 4,
-              comment: 'Good service, phone working perfectly now.',
-              likes: 8,
-              likedBy: [],
-              isAnonymous: false,
-              isVerified: true,
-              isFeatured: true,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              userDisplayName: 'Priya Sharma',
-              userInitials: 'PS',
-              formattedDate: '2 hours ago',
-              ratingText: 'Good'
-            }
-          ]);
-          setReviewStats({
-            totalReviews: 11,
-            averageRating: 3.3
-          });
+          console.log('No reviews available in database');
+          // Set empty reviews when database is empty
+          setReviews([]);
         }
       }
       
@@ -118,19 +77,29 @@ const ProductDetail = () => {
       const statsResponse = await reviewService.getReviewStats();
       console.log('Review stats response:', statsResponse);
       
-      if (statsResponse.success) {
+      if (statsResponse.success && statsResponse.data?.overview) {
         setReviewStats({
-          totalReviews: statsResponse.data.overview.totalReviews,
-          averageRating: statsResponse.data.overview.averageRating
+          totalReviews: statsResponse.data.overview.totalReviews || 0,
+          averageRating: statsResponse.data.overview.averageRating || 0
         });
         console.log('Review stats set:', statsResponse.data.overview);
       } else {
         console.log('Review stats failed:', statsResponse);
+        // Set default values if stats fetch fails
+        setReviewStats({
+          totalReviews: 0,
+          averageRating: 0
+        });
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
       // Fallback to empty reviews if API fails
       setReviews([]);
+      // Set default review stats on error
+      setReviewStats({
+        totalReviews: 0,
+        averageRating: 0
+      });
     } finally {
       setReviewsLoading(false);
     }
@@ -326,6 +295,8 @@ const ProductDetail = () => {
                          <img 
                            src={product.productImage} 
                            alt={product.productName}
+                           loading="lazy"
+                           decoding="async"
                            className="w-20 h-20 lg:w-32 lg:h-32 object-contain rounded-lg"
                          />
                        </div>
@@ -405,6 +376,8 @@ const ProductDetail = () => {
                       <img 
                         src={service.serviceImage || product.productImage || '/placeholder.svg'} 
                         alt={service.serviceName}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover rounded-xl hover:scale-105 transition-transform duration-200"
                       />
                     </div>
@@ -439,6 +412,8 @@ const ProductDetail = () => {
             <img 
               src="/backimage.jpg" 
               alt="Background Image"
+              loading="lazy"
+              decoding="async"
               className="w-full max-w-4xl h-auto rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
             />
           </div>
@@ -518,7 +493,7 @@ const ProductDetail = () => {
                         <Star 
                           key={star} 
                           className={`h-6 w-6 ${
-                            star <= Math.round(reviewStats.averageRating) 
+                            star <= Math.round(reviewStats.averageRating || 0) 
                               ? 'text-yellow-400 fill-current' 
                               : 'text-gray-300'
                           }`} 
@@ -526,11 +501,11 @@ const ProductDetail = () => {
                       ))}
                     </div>
                     <span className="ml-2 text-2xl font-bold text-gray-900">
-                      {reviewStats.averageRating.toFixed(1)}
+                      {(reviewStats.averageRating || 0).toFixed(1)}
                     </span>
                   </div>
                   <p className="text-gray-600 text-sm">
-                    Based on {reviewStats.totalReviews.toLocaleString()} reviews
+                    Based on {(reviewStats.totalReviews || 0).toLocaleString()} reviews
                   </p>
                 </div>
 
@@ -597,7 +572,7 @@ const ProductDetail = () => {
 
         {/* Checkout Section */}
         {cartItems.length > 0 && (
-          <div className="fixed bottom-20 left-0 right-0 z-[70] md:bottom-0 md:z-50 transition-all duration-300 ease-out">
+          <div className="fixed bottom-12 left-0 right-0 z-[70] md:bottom-0 md:z-50 transition-all duration-300 ease-out">
             {/* Backdrop blur effect */}
             <div className="absolute inset-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80"></div>
             

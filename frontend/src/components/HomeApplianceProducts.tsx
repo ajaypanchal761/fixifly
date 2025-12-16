@@ -136,6 +136,8 @@ const HomeApplianceProducts = () => {
                     <img 
                       src={primaryImage || '/placeholder.svg'} 
                       alt={product.productName} 
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
