@@ -8,11 +8,12 @@ import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import { Menu, X, Home, Users, ShoppingBag, LogOut, User, FileText, Star, Info, Search, Lock, Award, Download, Store, CheckCircle, DollarSign } from 'lucide-react';
-import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, Badge } from '@mui/material';
+import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, Badge, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useVendor } from '@/contexts/VendorContext';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import vendorApiService from '@/services/vendorApi';
 
 const drawerWidth = 240;
 
@@ -77,7 +78,118 @@ const VendorHeader = () => {
   }, [vendor]);
   const [open, setOpen] = React.useState(false);
   const [isCertificateOpen, setIsCertificateOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Helper: Recursively extract all support tickets from any nested response structure
+  const extractTicketsFromResponse = (response: any): any[] => {
+    const tickets: any[] = [];
+
+    const visit = (value: any) => {
+      if (!value) return;
+
+      if (Array.isArray(value)) {
+        value.forEach(visit);
+        return;
+      }
+
+      if (typeof value === 'object') {
+        // If it looks like a ticket (has id / ticketId / caseId), collect it
+        if (value.id || value.ticketId || value.caseId) {
+          tickets.push(value);
+        }
+
+        Object.values(value).forEach(visit);
+      }
+    };
+
+    visit(response);
+    return tickets;
+  };
+
+  // Search for case by last 4 digits
+  const handleSearch = async () => {
+    if (!searchQuery || searchQuery.length < 4) {
+      alert('Please enter at least 4 digits of the case ID');
+      return;
+    }
+    
+    setIsSearching(true);
+    try {
+      // Fetch all vendor bookings and support tickets
+      const [bookingsResponse, supportTicketsResponse] = await Promise.all([
+        vendorApiService.getVendorBookings(),
+        vendorApiService.getAssignedSupportTickets({ limit: 100 })
+      ]);
+      
+      const searchTerm = searchQuery.toUpperCase();
+      
+      console.log('Search term:', searchTerm);
+      console.log('Bookings response:', bookingsResponse);
+      console.log('Support tickets response:', supportTicketsResponse);
+      
+      // Search in bookings
+      const bookings = bookingsResponse?.data?.bookings || [];
+      const foundBooking = bookings.find((booking: any) => {
+        const bookingRef = booking.bookingReference?.toUpperCase() || '';
+        const bookingId = booking._id?.toUpperCase() || '';
+        return bookingRef.includes(searchTerm) || bookingRef.slice(-4) === searchTerm || bookingId.slice(-4).toUpperCase() === searchTerm;
+      });
+      
+      if (foundBooking) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+        navigate(`/vendor/task/${foundBooking._id}`);
+        return;
+      }
+      
+      // Search in support tickets - extract from any nested structure
+      const tickets = extractTicketsFromResponse(supportTicketsResponse);
+      
+      console.log('Tickets extracted for search:', tickets);
+      
+      const foundTicket = tickets.find((ticket: any) => {
+        const rawId = (ticket.id || ticket.ticketId || '').toString().toUpperCase();
+        const rawCaseId = (ticket.caseId || '').toString().toUpperCase();
+        const ticketDbId = (ticket._id || '').toString().toUpperCase();
+
+        // String based matching
+        const matchesId = rawId.includes(searchTerm) || rawId.slice(-4) === searchTerm;
+        const matchesCaseId = rawCaseId.includes(searchTerm) || rawCaseId.slice(-4) === searchTerm;
+        const matchesDbId = ticketDbId.slice(-4) === searchTerm;
+
+        // Numeric-only matching (for last 4 digits like 0004)
+        const numericFromId = rawId.replace(/\D/g, '');
+        const numericFromCaseId = rawCaseId.replace(/\D/g, '');
+        const matchesNumericId = numericFromId.slice(-4) === searchTerm || numericFromId.includes(searchTerm);
+        const matchesNumericCaseId = numericFromCaseId.slice(-4) === searchTerm || numericFromCaseId.includes(searchTerm);
+        
+        const isMatch = matchesId || matchesCaseId || matchesDbId || matchesNumericId || matchesNumericCaseId;
+
+        console.log(`Checking ticket: id=${rawId}, caseId=${rawCaseId}, dbId=${ticketDbId}, isMatch=${isMatch}`);
+        
+        return isMatch;
+      });
+      
+      if (foundTicket) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+        // Navigate to support ticket detail page using ticket id (not Mongo _id)
+        const targetId = (foundTicket.id || foundTicket.ticketId || '').toString();
+        navigate(`/vendor/task/${targetId}`, { state: { isSupportTicket: true } });
+        return;
+      }
+      
+      alert(`No case found with ID containing "${searchQuery}"`);
+    } catch (error) {
+      console.error('Search error:', error);
+      alert('Error searching for case. Please try again.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   // Check if vendor has made the initial deposit - once deposit is made, always show Yes
   const hasInitialDeposit = vendor?.wallet?.hasInitialDeposit || 
@@ -225,9 +337,18 @@ const VendorHeader = () => {
              />
            </Box>
           
-          {/* Right side reserved space - currently no actions */}
+          {/* Right side - Search Icon */}
           {!open && (
-            <Box sx={{ position: 'absolute', right: 16 }} />
+            <Box sx={{ position: 'absolute', right: 8 }}>
+              <IconButton
+                color="inherit"
+                aria-label="search"
+                onClick={() => setIsSearchOpen(true)}
+                sx={{ color: '#3b82f6' }}
+              >
+                <Search size={22} />
+              </IconButton>
+            </Box>
           )}
         </Toolbar>
       </AppBar>
@@ -455,6 +576,72 @@ const VendorHeader = () => {
             >
               Download PDF
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Search Modal */}
+      <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+        <DialogContent className="max-w-md p-4">
+          <DialogTitle className="text-lg font-semibold mb-4">
+            Search Case
+          </DialogTitle>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Enter last 4 digits of Case ID to search
+            </p>
+            <TextField
+              fullWidth
+              placeholder="e.g. 1234"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search size={18} className="text-gray-400" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
+                }
+              }}
+            />
+            <div className="flex gap-2 justify-end">
+              <Button
+                onClick={() => {
+                  setIsSearchOpen(false);
+                  setSearchQuery('');
+                }}
+                sx={{ textTransform: 'none' }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSearch}
+                disabled={isSearching || searchQuery.length < 4}
+                sx={{
+                  textTransform: 'none',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: '#2563eb',
+                  },
+                  '&:disabled': {
+                    backgroundColor: '#9ca3af',
+                    color: 'white',
+                  }
+                }}
+              >
+                {isSearching ? 'Searching...' : 'Search'}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

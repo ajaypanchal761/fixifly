@@ -33,6 +33,7 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 import MobileBottomNav from "./components/MobileBottomNav";
+import FloatingCallButton from "./components/FloatingCallButton";
 import { AuthProvider } from "./contexts/AuthContext";
 import { VendorProvider } from "./contexts/VendorContext";
 import MobileAuthGuard from "./components/MobileAuthGuard";
@@ -216,6 +217,11 @@ const AppContent = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       
+      {/* Desktop-only floating support call button for user site */}
+      {!isAdminRoute && !isVendorRoute && !isAuthPage && (
+        <FloatingCallButton />
+      )}
+
       {!isAdminRoute && !isVendorRoute && !isAuthPage && !isLoginPage && !isSignupPage && <MobileBottomNav />}
     </div>
   );
