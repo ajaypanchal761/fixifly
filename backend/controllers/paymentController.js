@@ -186,8 +186,63 @@ const getPaymentDetails = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get available payment methods
+// @route   GET /api/payment/methods
+// @access  Public
+const getPaymentMethods = asyncHandler(async (req, res) => {
+  try {
+    // Return available payment methods for Razorpay
+    const paymentMethods = {
+      upi: {
+        enabled: true,
+        name: 'UPI',
+        description: 'Pay using UPI apps like Google Pay, PhonePe, Paytm'
+      },
+      card: {
+        enabled: true,
+        name: 'Credit/Debit Card',
+        description: 'Pay using Visa, Mastercard, RuPay cards'
+      },
+      netbanking: {
+        enabled: true,
+        name: 'Net Banking',
+        description: 'Pay using your bank account'
+      },
+      wallet: {
+        enabled: true,
+        name: 'Wallets',
+        description: 'Pay using Paytm, Amazon Pay, etc.'
+      },
+      cash: {
+        enabled: true,
+        name: 'Cash',
+        description: 'Pay in cash to the service engineer'
+      }
+    };
+
+    res.json({
+      success: true,
+      message: 'Payment methods fetched successfully',
+      data: {
+        methods: paymentMethods,
+        currency: 'INR',
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID ? process.env.RAZORPAY_KEY_ID.substring(0, 10) + '...' : null
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching payment methods:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch payment methods',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   createOrder,
   verifyPayment,
-  getPaymentDetails
+  getPaymentDetails,
+  getPaymentMethods
 };

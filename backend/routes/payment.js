@@ -2,7 +2,8 @@ const express = require('express');
 const {
   createOrder,
   verifyPayment,
-  getPaymentDetails
+  getPaymentDetails,
+  getPaymentMethods
 } = require('../controllers/paymentController');
 
 const router = express.Router();
@@ -13,6 +14,9 @@ router.route('/create-order')
 
 router.route('/verify')
   .post(verifyPayment); // Verify payment signature
+
+router.route('/methods')
+  .get(getPaymentMethods); // Get available payment methods
 
 router.route('/:paymentId')
   .get(getPaymentDetails); // Get payment details

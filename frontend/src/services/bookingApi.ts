@@ -1,5 +1,7 @@
 // Booking API service
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { normalizeApiUrl } from '../utils/apiUrl';
+
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
 
 export interface BookingService {
   serviceId: string;

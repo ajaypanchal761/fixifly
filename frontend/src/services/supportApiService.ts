@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { normalizeApiUrl } from '../utils/apiUrl';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
 
 // Create axios instance with default config
 const supportApiService = axios.create({
