@@ -1,5 +1,6 @@
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
+const puppeteer = require('puppeteer');
 
 /**
  * @desc    Generate AMC subscription invoice as PDF
@@ -257,16 +258,58 @@ const generateInvoice = asyncHandler(async (req, res) => {
       </html>
     `;
 
-    // For now, return HTML invoice (we'll add PDF later)
-    res.setHeader('Content-Type', 'text/html');
-    res.setHeader('Content-Disposition', `attachment; filename="AMC-Invoice-${invoiceData.subscriptionId}.html"`);
-    
-    logger.info('AMC invoice generated successfully', {
-      userId: req.user?.userId,
-      subscriptionId: invoiceData.subscriptionId
-    });
+    // Generate PDF from HTML using Puppeteer
+    let browser;
+    try {
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+      
+      const page = await browser.newPage();
+      await page.setContent(invoiceHtml, { waitUntil: 'networkidle0' });
+      
+      // Generate PDF
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '20px',
+          right: '20px',
+          bottom: '20px',
+          left: '20px'
+        }
+      });
+      
+      await browser.close();
+      
+      // Set headers for PDF download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="AMC-Invoice-${invoiceData.subscriptionId}.pdf"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      
+      logger.info('AMC invoice PDF generated successfully', {
+        userId: req.user?.userId,
+        subscriptionId: invoiceData.subscriptionId,
+        pdfSize: pdfBuffer.length
+      });
 
-    res.send(invoiceHtml);
+      res.send(pdfBuffer);
+    } catch (pdfError) {
+      if (browser) {
+        await browser.close();
+      }
+      
+      logger.error('Failed to generate PDF, falling back to HTML', {
+        userId: req.user?.userId,
+        error: pdfError.message
+      });
+      
+      // Fallback to HTML if PDF generation fails
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="AMC-Invoice-${invoiceData.subscriptionId}.html"`);
+      res.send(invoiceHtml);
+    }
 
   } catch (error) {
     logger.error('Failed to generate AMC invoice', {
