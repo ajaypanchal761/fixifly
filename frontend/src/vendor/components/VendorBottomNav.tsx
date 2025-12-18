@@ -40,7 +40,7 @@ const VendorBottomNav = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[9999] md:hidden shadow-lg" style={{ bottom: '12px' }}>
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[9999] md:hidden shadow-lg" style={{ bottom: '0px' }}>
       {/* White space below navigation */}
       <div className="absolute top-full left-0 right-0 h-5 bg-white"></div>
       <div className="flex justify-around items-center py-2">

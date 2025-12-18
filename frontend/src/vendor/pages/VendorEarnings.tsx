@@ -1395,16 +1395,6 @@ const VendorEarnings = () => {
                 >
                   Refresh
                 </button>
-                <button 
-                  className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                  onClick={() => {
-                    // Export transaction history to Excel
-                    exportToExcel();
-                  }}
-                >
-                  <Download className="w-4 h-4" />
-                  Export
-                </button>
               </div>
             </div>
             

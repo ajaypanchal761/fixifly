@@ -57,15 +57,15 @@ const VendorSupport = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Call Support</h3>
-                    <p className="text-sm text-gray-600">Speak directly with our team</p>
+                    <p className="text-sm text-gray-600">Speak directly with team </p>
                     <p className="text-sm font-medium text-gray-800">02269647030</p>
                   </div>
                 </div>
                 <button
                   onClick={handleCall}
-                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
+                  className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center space-x-1 whitespace-nowrap flex-shrink-0"
                 >
-                  <Phone className="h-4 w-4" />
+                  <Phone className="h-3 w-3" />
                   <span>Call Now</span>
                 </button>
               </div>
@@ -86,9 +86,9 @@ const VendorSupport = () => {
                 </div>
                 <button
                   onClick={handleEmail}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
+                  className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-1"
                 >
-                  <Mail className="h-4 w-4" />
+                  <Mail className="h-3 w-3" />
                   <span>Send Email</span>
                 </button>
               </div>

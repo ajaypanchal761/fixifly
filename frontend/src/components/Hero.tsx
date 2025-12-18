@@ -349,7 +349,7 @@ const Hero = () => {
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 ${showMoreProducts ? 'mt-16 sm:pt-20 lg:pt-28' : 'mt-1 sm:pt-5 lg:pt-10'}`}>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-        <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 ${showMoreProducts ? 'mt-6 sm:mt-10' : 'mt-0 sm:mt-0'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
+        <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:absolute lg:right-0 lg:top-48 lg:transform lg:-translate-y-1/2 lg:w-1/2 lg:pr-8 ${showMoreProducts ? 'mt-6 sm:mt-10' : 'mt-4 sm:mt-6'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
