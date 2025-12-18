@@ -695,128 +695,363 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     }).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
     console.log('🔍 COMPLETED BOOKINGS WITH PAYMENT:', JSON.stringify(completedWithPayment, null, 2));
 
-    // Get revenue calculations from actual bookings and support tickets including admin commission
-    const [monthlyRevenueResult, totalRevenueResult, pendingBookingsResult, monthlySupportTicketRevenueResult, totalSupportTicketRevenueResult] = await Promise.all([
-      // Monthly revenue from completed bookings (booking amount + admin commission)
-      Booking.aggregate([
-        {
-          $match: {
-            status: 'completed',
-            'payment.status': 'completed',
-            createdAt: { $gte: startDate, $lte: endDate },
-            'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 }
+    // Reusable expressions for admin commission calculation
+    const bookingMatchBase = {
+      status: 'completed',
+      'payment.status': 'completed',
+      $or: [
+        { 'completionData.billingAmount': { $exists: true, $ne: null, $ne: '', $gt: 0 } },
+        { 'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 } }
+      ]
+    };
+
+    // Helper function to safely convert to double with error handling (v2)
+    const safeToDouble = (field, defaultValue = 0) => ({
+      $convert: {
+        input: field,
+        to: 'double',
+        onError: defaultValue,
+        onNull: defaultValue
+      }
+    });
+
+    // Helper function to safely parse spare part amount (handles null, undefined, and ₹ symbol)
+    const safeSpareAmount = (amountField) => ({
+      $convert: {
+        input: {
+          $replaceAll: {
+            input: { $toString: { $ifNull: [amountField, '0'] } },
+            find: '₹',
+            replacement: ''
           }
         },
-        {
-          $addFields: {
-            // Calculate admin commission from completion data
-            adminCommission: {
-              $cond: {
-                if: { $and: [
-                  { $ne: ['$completionData', null] },
-                  { $ne: ['$completionData.billingAmount', null] }
-                ]},
-                then: {
-                  $let: {
-                    vars: {
-                      billingAmount: { $toDouble: '$completionData.billingAmount' },
-                      spareAmount: {
-                        $sum: {
-                          $map: {
-                            input: { $ifNull: ['$completionData.spareParts', []] },
-                            as: 'part',
-                            in: { $toDouble: { $replaceAll: { input: '$$part.amount', find: '₹', replacement: '' } } }
-                          }
-                        }
-                      },
-                      travellingAmount: { $toDouble: { $ifNull: ['$completionData.travelingAmount', 0] } },
-                      bookingAmount: { $toDouble: { $ifNull: ['$pricing.totalAmount', 0] } }
-                    },
-                    in: {
-                      $cond: {
-                        if: { $lte: ['$$billingAmount', 500] },
-                        then: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] }, // For amounts <= 500, admin gets half of booking amount
-                        else: {
-                          $add: [
-                            { $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$bookingAmount'] }] }, 0.5] },
-                            { $multiply: ['$$bookingAmount', 0.5] } // Admin gets half of booking amount
-                          ]
-                        }
+        to: 'double',
+        onError: 0,
+        onNull: 0
+      }
+    });
+
+    // Stage 1: Calculate adminCommission
+    const bookingCommissionAddFieldsStage1 = {
+      $addFields: {
+        adminCommission: {
+          $cond: {
+            if: {
+              $and: [
+                { $ne: ['$completionData', null] },
+                { $ne: ['$completionData.billingAmount', null] }
+              ]
+            },
+            then: {
+              $let: {
+                vars: {
+                  billingAmount: safeToDouble('$completionData.billingAmount'),
+                  spareAmount: {
+                    $sum: {
+                      $map: {
+                        input: { $ifNull: ['$completionData.spareParts', []] },
+                        as: 'part',
+                        in: safeSpareAmount('$$part.amount')
                       }
                     }
-                  }
+                  },
+                  travellingAmount: safeToDouble({ $ifNull: ['$completionData.travelingAmount', 0] }),
+                  bookingAmount: safeToDouble({ $ifNull: ['$pricing.totalAmount', 0] })
                 },
-                else: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] } // Admin gets half of booking amount
+                in: {
+                  $cond: {
+                    if: { $lte: ['$$billingAmount', 500] },
+                    then: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] },
+                    else: {
+                      $add: [
+                        { $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$bookingAmount'] }] }, 0.5] },
+                        { $multiply: ['$$bookingAmount', 0.5] }
+                      ]
+                    }
+                  }
+                }
               }
-            }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: '$adminCommission' }
+            },
+            else: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] }
           }
         }
+      }
+    };
+    // Stage 2: Calculate adminCommissionWithGST (needs adminCommission from previous stage)
+    const bookingCommissionAddFieldsStage2 = {
+      $addFields: {
+        adminCommissionWithGST: {
+          $add: [
+            '$adminCommission',
+            {
+              $cond: [
+                { $ifNull: ['$completionData.includeGST', false] },
+                safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
+                0
+              ]
+            }
+          ]
+        }
+      }
+    };
+
+    // Stage 1: Calculate adminCommission for support tickets
+    const supportCommissionAddFieldsStage1 = {
+      $addFields: {
+        adminCommission: {
+          $cond: {
+            if: {
+              $and: [
+                { $ne: ['$completionData', null] },
+                { $ne: ['$completionData.billingAmount', null] }
+              ]
+            },
+            then: {
+              $let: {
+                vars: {
+                  billingAmount: safeToDouble('$completionData.billingAmount'),
+                  spareAmount: {
+                    $sum: {
+                      $map: {
+                        input: { $ifNull: ['$completionData.spareParts', []] },
+                        as: 'part',
+                        in: safeSpareAmount('$$part.amount')
+                      }
+                    }
+                  },
+                  travellingAmount: safeToDouble({ $ifNull: ['$completionData.travelingAmount', 0] }),
+                  supportTicketBaseAmount: 0
+                },
+                in: {
+                  $cond: {
+                    if: { $lte: ['$$billingAmount', 500] },
+                    then: 0,
+                    else: {
+                      $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$supportTicketBaseAmount'] }] }, 0.5]
+                    }
+                  }
+                }
+              }
+            },
+            else: 0
+          }
+        }
+      }
+    };
+    // Stage 2: Calculate adminCommissionWithGST for support tickets
+    const supportCommissionAddFieldsStage2 = {
+      $addFields: {
+        adminCommissionWithGST: {
+          $add: [
+            '$adminCommission',
+            {
+              $cond: [
+                { $ifNull: ['$completionData.includeGST', false] },
+                safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
+                0
+              ]
+            }
+          ]
+        }
+      }
+    };
+
+    const buildBookingBreakdownPipeline = (dateRange) => {
+      const matchStage = { ...bookingMatchBase };
+      if (dateRange) {
+        matchStage.createdAt = dateRange;
+      }
+
+      return [
+        { $match: matchStage },
+        bookingCommissionAddFieldsStage1,
+        bookingCommissionAddFieldsStage2,
+        {
+          $lookup: {
+            from: 'vendors',
+            localField: 'vendor.vendorId',
+            foreignField: 'vendorId',
+            as: 'vendorInfo'
+          }
+        },
+        { $unwind: { path: '$vendorInfo', preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            _id: 0,
+            source: { $literal: 'booking' },
+            reference: {
+              $let: {
+                vars: {
+                  idStr: { $toString: '$_id' }
+                },
+                in: {
+                  $concat: [
+                    'FIX',
+                    {
+                      $toUpper: {
+                        $substrBytes: [
+                          '$$idStr',
+                          {
+                            $max: [
+                              { $subtract: [{ $strLenBytes: '$$idStr' }, 8] },
+                              0
+                            ]
+                          },
+                          8
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            vendorId: '$vendor.vendorId',
+            vendorName: {
+              $trim: {
+                input: {
+                  $concat: [
+                    { $ifNull: ['$vendorInfo.firstName', ''] },
+                    ' ',
+                    { $ifNull: ['$vendorInfo.lastName', ''] }
+                  ]
+                }
+              }
+            },
+            paymentMethod: { $ifNull: ['$completionData.paymentMethod', '$payment.method'] },
+            billingAmount: safeToDouble({
+              $ifNull: [
+                '$completionData.billingAmount',
+                { $ifNull: ['$pricing.totalAmount', 0] }
+              ]
+            }),
+            gstAmount: safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
+            includeGST: { $ifNull: ['$completionData.includeGST', false] },
+            effectiveBilling: {
+              $add: [
+                safeToDouble({
+                  $ifNull: [
+                    '$completionData.billingAmount',
+                    { $ifNull: ['$pricing.totalAmount', 0] }
+                  ]
+                }),
+                {
+                  $cond: [
+                    { $ifNull: ['$completionData.includeGST', false] },
+                    safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
+                    0
+                  ]
+                }
+              ]
+            },
+            adminCommission: { $round: ['$adminCommission', 2] },
+            adminCommissionWithGST: { $round: ['$adminCommissionWithGST', 2] },
+            createdAt: '$createdAt'
+          }
+        },
+        { $sort: { createdAt: -1 } }
+      ];
+    };
+
+    const buildSupportBreakdownPipeline = (dateRange) => {
+      const matchStage = {
+        status: 'Resolved',
+        paymentStatus: 'collected',
+        billingAmount: { $exists: true, $ne: null, $gt: 0 }
+      };
+      if (dateRange) {
+        matchStage.createdAt = dateRange;
+      }
+
+      return [
+        { $match: matchStage },
+        supportCommissionAddFieldsStage1,
+        supportCommissionAddFieldsStage2,
+        {
+          $lookup: {
+            from: 'vendors',
+            localField: 'assignedTo',
+            foreignField: '_id',
+            as: 'vendorInfo'
+          }
+        },
+        { $unwind: { path: '$vendorInfo', preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            _id: 0,
+            source: { $literal: 'supportTicket' },
+            reference: '$ticketId',
+            vendorId: { $ifNull: ['$vendorInfo.vendorId', '$assignedTo'] },
+            vendorName: {
+              $trim: {
+                input: {
+                  $concat: [
+                    { $ifNull: ['$vendorInfo.firstName', ''] },
+                    ' ',
+                    { $ifNull: ['$vendorInfo.lastName', ''] }
+                  ]
+                }
+              }
+            },
+            paymentMethod: { $ifNull: ['$completionData.paymentMethod', '$paymentMethod'] },
+            billingAmount: safeToDouble({
+              $ifNull: [
+                '$completionData.billingAmount',
+                { $ifNull: ['$billingAmount', 0] }
+              ]
+            }),
+            gstAmount: safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
+            includeGST: { $ifNull: ['$completionData.includeGST', false] },
+            effectiveBilling: {
+              $add: [
+                safeToDouble({
+                  $ifNull: [
+                    '$completionData.billingAmount',
+                    { $ifNull: ['$billingAmount', 0] }
+                  ]
+                }),
+                {
+                  $cond: [
+                    { $ifNull: ['$completionData.includeGST', false] },
+                    safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
+                    0
+                  ]
+                }
+              ]
+            },
+            adminCommission: { $round: ['$adminCommission', 2] },
+            adminCommissionWithGST: { $round: ['$adminCommissionWithGST', 2] },
+            createdAt: '$createdAt'
+          }
+        },
+        { $sort: { createdAt: -1 } }
+      ];
+    };
+
+    // Get revenue calculations from actual bookings and support tickets including admin commission
+    const [
+      monthlyRevenueResult,
+      totalRevenueResult,
+      pendingBookingsResult,
+      monthlySupportTicketRevenueResult,
+      totalSupportTicketRevenueResult,
+      monthlyBookingBreakdown,
+      totalBookingBreakdown,
+      monthlySupportBreakdown,
+      totalSupportBreakdown
+    ] = await Promise.all([
+      // Monthly revenue from completed bookings (booking amount + admin commission)
+      Booking.aggregate([
+        { $match: { ...bookingMatchBase, createdAt: { $gte: startDate, $lte: endDate } } },
+        bookingCommissionAddFieldsStage1,
+        bookingCommissionAddFieldsStage2,
+        { $group: { _id: null, total: { $sum: '$adminCommissionWithGST' } } }
       ]),
       // Total revenue from all completed bookings (booking amount + admin commission)
       Booking.aggregate([
-        {
-          $match: {
-            status: 'completed',
-            'payment.status': 'completed',
-            'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 }
-          }
-        },
-        {
-          $addFields: {
-            // Calculate admin commission from completion data
-            adminCommission: {
-              $cond: {
-                if: { $and: [
-                  { $ne: ['$completionData', null] },
-                  { $ne: ['$completionData.billingAmount', null] }
-                ]},
-                then: {
-                  $let: {
-                    vars: {
-                      billingAmount: { $toDouble: '$completionData.billingAmount' },
-                      spareAmount: {
-                        $sum: {
-                          $map: {
-                            input: { $ifNull: ['$completionData.spareParts', []] },
-                            as: 'part',
-                            in: { $toDouble: { $replaceAll: { input: '$$part.amount', find: '₹', replacement: '' } } }
-                          }
-                        }
-                      },
-                      travellingAmount: { $toDouble: { $ifNull: ['$completionData.travelingAmount', 0] } },
-                      bookingAmount: { $toDouble: { $ifNull: ['$pricing.totalAmount', 0] } }
-                    },
-                    in: {
-                      $cond: {
-                        if: { $lte: ['$$billingAmount', 500] },
-                        then: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] }, // For amounts <= 500, admin gets half of booking amount
-                        else: {
-                          $add: [
-                            { $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$bookingAmount'] }] }, 0.5] },
-                            { $multiply: ['$$bookingAmount', 0.5] } // Admin gets half of booking amount
-                          ]
-                        }
-                      }
-                    }
-                  }
-                },
-                else: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] } // Admin gets half of booking amount
-              }
-            }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: '$adminCommission' }
-          }
-        }
+        { $match: bookingMatchBase },
+        bookingCommissionAddFieldsStage1,
+        bookingCommissionAddFieldsStage2,
+        { $group: { _id: null, total: { $sum: '$adminCommissionWithGST' } } }
       ]),
       // Pending bookings count (bookings that are pending confirmation)
       Booking.countDocuments({ 
@@ -825,119 +1060,23 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       }),
       // Monthly revenue from completed support tickets (admin commission)
       SupportTicket.aggregate([
-        {
-          $match: {
-            status: 'Resolved',
-            paymentStatus: 'collected',
-            createdAt: { $gte: startDate, $lte: endDate },
-            billingAmount: { $exists: true, $ne: null, $gt: 0 }
-          }
-        },
-        {
-          $addFields: {
-            // Calculate admin commission from support ticket completion data (same logic as bookings)
-            adminCommission: {
-              $cond: {
-                if: { $and: [
-                  { $ne: ['$completionData', null] },
-                  { $ne: ['$completionData.billingAmount', null] }
-                ]},
-                then: {
-                  $let: {
-                    vars: {
-                      billingAmount: { $toDouble: '$completionData.billingAmount' },
-                      spareAmount: {
-                        $sum: {
-                          $map: {
-                            input: { $ifNull: ['$completionData.spareParts', []] },
-                            as: 'part',
-                            in: { $toDouble: { $replaceAll: { input: '$$part.amount', find: '₹', replacement: '' } } }
-                          }
-                        }
-                      },
-                      travellingAmount: { $toDouble: { $ifNull: ['$completionData.travelingAmount', 0] } },
-                      supportTicketBaseAmount: 0 // Support tickets don't have base amount like bookings
-                    },
-                    in: {
-                      $cond: {
-                        if: { $lte: ['$$billingAmount', 500] },
-                        then: 0, // For amounts <= 500, admin gets nothing (no base amount for support tickets)
-                        else: {
-                          $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$supportTicketBaseAmount'] }] }, 0.5]
-                        }
-                      }
-                    }
-                  }
-                },
-                else: 0 // No completion data means no admin commission
-              }
-            }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: '$adminCommission' }
-          }
-        }
+        { $match: { status: 'Resolved', paymentStatus: 'collected', createdAt: { $gte: startDate, $lte: endDate }, billingAmount: { $exists: true, $ne: null, $gt: 0 } } },
+        supportCommissionAddFieldsStage1,
+        supportCommissionAddFieldsStage2,
+        { $group: { _id: null, total: { $sum: '$adminCommissionWithGST' } } }
       ]),
       // Total revenue from all completed support tickets (admin commission)
       SupportTicket.aggregate([
-        {
-          $match: {
-            status: 'Resolved',
-            paymentStatus: 'collected',
-            billingAmount: { $exists: true, $ne: null, $gt: 0 }
-          }
-        },
-        {
-          $addFields: {
-            // Calculate admin commission from support ticket completion data (same logic as bookings)
-            adminCommission: {
-              $cond: {
-                if: { $and: [
-                  { $ne: ['$completionData', null] },
-                  { $ne: ['$completionData.billingAmount', null] }
-                ]},
-                then: {
-                  $let: {
-                    vars: {
-                      billingAmount: { $toDouble: '$completionData.billingAmount' },
-                      spareAmount: {
-                        $sum: {
-                          $map: {
-                            input: { $ifNull: ['$completionData.spareParts', []] },
-                            as: 'part',
-                            in: { $toDouble: { $replaceAll: { input: '$$part.amount', find: '₹', replacement: '' } } }
-                          }
-                        }
-                      },
-                      travellingAmount: { $toDouble: { $ifNull: ['$completionData.travelingAmount', 0] } },
-                      supportTicketBaseAmount: 0 // Support tickets don't have base amount like bookings
-                    },
-                    in: {
-                      $cond: {
-                        if: { $lte: ['$$billingAmount', 500] },
-                        then: 0, // For amounts <= 500, admin gets nothing (no base amount for support tickets)
-                        else: {
-                          $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$supportTicketBaseAmount'] }] }, 0.5]
-                        }
-                      }
-                    }
-                  }
-                },
-                else: 0 // No completion data means no admin commission
-              }
-            }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: '$adminCommission' }
-          }
-        }
-      ])
+        { $match: { status: 'Resolved', paymentStatus: 'collected', billingAmount: { $exists: true, $ne: null, $gt: 0 } } },
+        supportCommissionAddFieldsStage1,
+        supportCommissionAddFieldsStage2,
+        { $group: { _id: null, total: { $sum: '$adminCommissionWithGST' } } }
+      ]),
+      // Detailed breakdowns (monthly & total)
+      Booking.aggregate(buildBookingBreakdownPipeline({ $gte: startDate, $lte: endDate })),
+      Booking.aggregate(buildBookingBreakdownPipeline(undefined)),
+      SupportTicket.aggregate(buildSupportBreakdownPipeline({ $gte: startDate, $lte: endDate })),
+      SupportTicket.aggregate(buildSupportBreakdownPipeline(undefined))
     ]);
 
     const monthlyBookingRevenue = monthlyRevenueResult.length > 0 ? (monthlyRevenueResult[0].total || 0) : 0;
@@ -945,10 +1084,35 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const monthlySupportTicketRevenue = monthlySupportTicketRevenueResult.length > 0 ? (monthlySupportTicketRevenueResult[0].total || 0) : 0;
     const totalSupportTicketRevenue = totalSupportTicketRevenueResult.length > 0 ? (totalSupportTicketRevenueResult[0].total || 0) : 0;
     
+    // Build detailed breakdowns (merged booking + support tickets)
+    const monthlyRevenueBreakdown = [
+      ...(monthlyBookingBreakdown || []),
+      ...(monthlySupportBreakdown || [])
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const totalRevenueBreakdown = [
+      ...(totalBookingBreakdown || []),
+      ...(totalSupportBreakdown || [])
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     // Combine booking and support ticket revenue
-    const monthlyRevenue = monthlyBookingRevenue + monthlySupportTicketRevenue;
-    const totalRevenue = totalBookingRevenue + totalSupportTicketRevenue;
+    let monthlyRevenue = monthlyBookingRevenue + monthlySupportTicketRevenue;
+    let totalRevenue = totalBookingRevenue + totalSupportTicketRevenue;
     const pendingBookings = pendingBookingsResult || 0;
+
+    // Fallback: if aggregation returned 0 but breakdown has entries, derive totals from breakdown (uses GST-inclusive commission when present)
+    if (monthlyRevenue === 0 && Array.isArray(monthlyRevenueBreakdown) && monthlyRevenueBreakdown.length > 0) {
+      monthlyRevenue = monthlyRevenueBreakdown.reduce((sum, item) => {
+        if (item.adminCommissionWithGST !== undefined) return sum + (item.adminCommissionWithGST || 0);
+        return sum + (item.adminCommission || 0);
+      }, 0);
+    }
+    if (totalRevenue === 0 && Array.isArray(totalRevenueBreakdown) && totalRevenueBreakdown.length > 0) {
+      totalRevenue = totalRevenueBreakdown.reduce((sum, item) => {
+        if (item.adminCommissionWithGST !== undefined) return sum + (item.adminCommissionWithGST || 0);
+        return sum + (item.adminCommission || 0);
+      }, 0);
+    }
 
     // Log revenue calculation for debugging
     console.log('🔍 REVENUE CALCULATION DEBUG:', {
@@ -1029,6 +1193,10 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         endDate,
         month: month || new Date().getMonth() + 1,
         year: year || new Date().getFullYear()
+      },
+      revenueBreakdown: {
+        monthly: monthlyRevenueBreakdown,
+        total: totalRevenueBreakdown
       }
     };
 

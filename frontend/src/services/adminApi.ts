@@ -1395,6 +1395,28 @@ class AdminApiService {
         month: number;
         year: number;
       };
+      revenueBreakdown: {
+        monthly: Array<{
+          source: 'booking' | 'supportTicket';
+          reference: string;
+          vendorId?: string;
+          vendorName?: string;
+          paymentMethod?: string;
+          billingAmount?: number;
+          adminCommission: number;
+          createdAt?: string;
+        }>;
+        total: Array<{
+          source: 'booking' | 'supportTicket';
+          reference: string;
+          vendorId?: string;
+          vendorName?: string;
+          paymentMethod?: string;
+          billingAmount?: number;
+          adminCommission: number;
+          createdAt?: string;
+        }>;
+      };
     };
   }> {
     try {

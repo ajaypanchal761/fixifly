@@ -17,6 +17,52 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+// Helper function to format booking ID to FIXB format
+const formatBookingId = (id?: string): string => {
+  if (!id) return '—';
+  
+  // If already in FIX format, return as-is (uppercased)
+  if (id.toUpperCase().startsWith('FIX')) {
+    return id.toUpperCase();
+  }
+  
+  // Remove CASE_ prefix if present
+  const cleanId = id.replace(/^CASE_/i, '');
+  
+  // If it's a MongoDB ObjectId (24 hex chars), format as FIXB + last 8 chars
+  if (/^[a-f0-9]{24}$/i.test(cleanId)) {
+    return `FIXB${cleanId.slice(-8).toUpperCase()}`;
+  }
+  
+  // If it's a shorter hex string (8+ chars), format as FIXB + last 8 chars
+  if (/^[a-f0-9]{8,}$/i.test(cleanId)) {
+    return `FIXB${cleanId.slice(-8).toUpperCase()}`;
+  }
+  
+  // For TXN- or WR- prefixed IDs, return as-is
+  if (id.startsWith('TXN-') || id.startsWith('WR-')) {
+    return id;
+  }
+  
+  // Fallback: return the ID as-is
+  return id;
+};
+
+// Helper function to format description - hide raw ObjectIds and rename labels
+const formatDescription = (description?: string): string => {
+  if (!description) return '';
+  
+  // Replace "Cash collection" with "Collection deducted"
+  let formatted = description.replace(/Cash collection/gi, 'Collection deducted');
+  
+  // Replace raw MongoDB ObjectIds (24 hex chars) with formatted version
+  formatted = formatted.replace(/[a-f0-9]{24}/gi, (match) => {
+    return `FIXB${match.slice(-8).toUpperCase()}`;
+  });
+  
+  return formatted;
+};
+
 const VendorEarnings = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -556,7 +602,7 @@ const VendorEarnings = () => {
                 transaction.type === 'withdrawal_request' || (transaction.type === 'manual_adjustment' && transaction.description && (transaction.description.includes('Withdrawal request submitted') || transaction.description.includes('Withdrawal approved'))) ? 'Withdrawal Request' :
                 transaction.type === 'penalty' ? (transaction.description && transaction.description.includes('Auto-rejection') ? 'Auto-Rejection Penalty' : 'Penalty on Cancellation') : 
                 transaction.type === 'task_acceptance_fee' ? 'Task Fee' :
-                transaction.type === 'cash_collection' ? 'Cash Collection' :
+                transaction.type === 'cash_collection' ? 'Collection Deducted' :
                 transaction.type === 'manual_adjustment' ? 'Admin Adjustment' : 'Earning Added',
           amount: transaction.type === 'withdrawal' || transaction.type === 'penalty' || transaction.type === 'task_acceptance_fee' || transaction.type === 'cash_collection' ? 
                   -Math.abs(transaction.amount) : 
@@ -1380,8 +1426,8 @@ const VendorEarnings = () => {
                   className="p-4 border border-border rounded-lg hover:bg-muted/30 transition-colors cursor-pointer break-words overflow-hidden"
                   onClick={() => {
                     // Show transaction details
-                    const bookingId = (transaction as any).bookingId || transaction.caseId;
-                    alert(`Transaction Details:\n\nID: ${transaction.id}\nBooking ID: ${bookingId}\nType: ${transaction.type}\nAmount: ₹${Math.abs(transaction.amount).toLocaleString()}\nDate: ${transaction.date}\nDescription: ${transaction.description}`);
+                    const bookingId = formatBookingId((transaction as any).bookingId || transaction.caseId);
+                    alert(`Transaction Details:\n\nID: ${transaction.id}\nBooking ID: ${bookingId}\nType: ${transaction.type}\nAmount: ₹${Math.abs(transaction.amount).toLocaleString()}\nDate: ${transaction.date}\nDescription: ${formatDescription(transaction.description)}`);
                   }}
                 >
                   <div className="flex items-center justify-between mb-3 gap-2">
@@ -1406,7 +1452,7 @@ const VendorEarnings = () => {
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground break-words">
-                          Booking ID: {(transaction as any).bookingId || transaction.caseId || 'N/A'}
+                          Booking ID: {formatBookingId((transaction as any).bookingId || transaction.caseId)}
                         </p>
                       </div>
                     </div>
@@ -1417,7 +1463,7 @@ const VendorEarnings = () => {
                       <p className="text-sm text-muted-foreground">{transaction.date}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground break-words">{transaction.description}</p>
+                  <p className="text-sm text-muted-foreground break-words">{formatDescription(transaction.description)}</p>
                 </div>
                   );
                 })

@@ -54,9 +54,78 @@ const VendorTaskDetail = () => {
       let foundTask = null;
       let isSupportTicket = false;
 
-      // Try to fetch as booking first (most common case)
-      try {
-        const bookingResponse = await vendorApi.getBookingById(taskId);
+      // Check if taskId is a support ticket ID (starts with TK)
+      const isSupportTicketId = taskId.toUpperCase().startsWith('TK');
+
+      // If it's a support ticket ID, try support ticket first
+      if (isSupportTicketId) {
+        try {
+          const supportTicketResponse = await vendorApi.getSupportTicketById(taskId);
+          
+          if (supportTicketResponse.success && supportTicketResponse.data?.ticket) {
+            const supportTicket = supportTicketResponse.data.ticket;
+            isSupportTicket = true;
+            // Transform support ticket data to task format
+            foundTask = {
+              id: supportTicket.id,
+              caseId: supportTicket.id,
+              title: supportTicket.subject || 'Support Request',
+              customer: supportTicket.customerName || 'Unknown Customer',
+              phone: supportTicket.customerPhone || 'N/A',
+              amount: 'Support Ticket',
+              date: supportTicket.scheduledDate 
+                ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
+                : supportTicket.created 
+                ? new Date(supportTicket.created).toLocaleDateString('en-IN')
+                : new Date().toLocaleDateString('en-IN'),
+              time: supportTicket.scheduledTime 
+                ? (() => {
+                    // Convert 24-hour format to 12-hour format with AM/PM
+                    if (supportTicket.scheduledTime.includes(':')) {
+                      const [hours, minutes] = supportTicket.scheduledTime.split(':');
+                      const hour24 = parseInt(hours);
+                      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                      const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                      return `${hour12}:${minutes} ${ampm}`;
+                    }
+                    return supportTicket.scheduledTime;
+                  })()
+                : 'Not scheduled',
+              status: supportTicket.priority === 'High' ? 'High Priority' : 
+                     supportTicket.priority === 'Medium' ? 'Normal' : 'Low Priority',
+              address: supportTicket.address || 'Address not provided',
+              street: supportTicket.street || supportTicket.userId?.address?.street || 'Not provided',
+              city: supportTicket.city || supportTicket.userId?.address?.city || 'Not provided',
+              state: supportTicket.state || supportTicket.userId?.address?.state || 'Not provided',
+              pincode: supportTicket.pincode || supportTicket.userId?.address?.pincode || 'Not provided',
+              landmark: supportTicket.landmark || supportTicket.userId?.address?.landmark || 'Not provided',
+              userId: supportTicket.userId, // Include full user object for address access
+              issue: supportTicket.description || supportTicket.subject || 'Support request',
+              assignDate: supportTicket.assignedAt 
+                ? new Date(supportTicket.assignedAt).toLocaleDateString('en-IN')
+                : new Date().toLocaleDateString('en-IN'),
+              assignTime: supportTicket.assignedAt 
+                ? new Date(supportTicket.assignedAt).toLocaleTimeString('en-IN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })
+                : 'Not assigned',
+              taskType: supportTicket.subject || 'Support Request',
+              vendorStatus: supportTicket.vendorStatus,
+              priority: supportTicket.priority?.toLowerCase() || 'medium',
+              isSupportTicket: true
+            };
+          }
+        } catch (supportError: any) {
+          console.log('Support ticket fetch failed:', supportError);
+        }
+      }
+
+      // Try to fetch as booking (if not a TK id or support ticket not found)
+      if (!foundTask) {
+        try {
+          const bookingResponse = await vendorApi.getBookingById(taskId);
         
         if (bookingResponse.success && bookingResponse.data?.booking) {
           const bookingTask = bookingResponse.data.booking;
@@ -113,73 +182,9 @@ const VendorTaskDetail = () => {
           };
         }
       } catch (bookingError: any) {
-        // If booking fetch fails (404 or other error), try support ticket
-        console.log('Booking not found, trying support ticket:', bookingError);
+        // If booking fetch fails (404 or other error), log it
+        console.log('Booking not found:', bookingError);
       }
-
-      // If not found in bookings, try to fetch as support ticket
-      if (!foundTask) {
-        try {
-          const supportTicketResponse = await vendorApi.getSupportTicketById(taskId);
-          
-          if (supportTicketResponse.success && supportTicketResponse.data?.ticket) {
-            const supportTicket = supportTicketResponse.data.ticket;
-            isSupportTicket = true;
-            // Transform support ticket data to task format
-            foundTask = {
-            id: supportTicket.id,
-            caseId: supportTicket.id,
-            title: supportTicket.subject || 'Support Request',
-            customer: supportTicket.customerName || 'Unknown Customer',
-            phone: supportTicket.customerPhone || 'N/A',
-            amount: 'Support Ticket',
-            date: supportTicket.scheduledDate 
-              ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
-              : supportTicket.created 
-              ? new Date(supportTicket.created).toLocaleDateString('en-IN')
-              : new Date().toLocaleDateString('en-IN'),
-            time: supportTicket.scheduledTime 
-              ? (() => {
-                  // Convert 24-hour format to 12-hour format with AM/PM
-                  if (supportTicket.scheduledTime.includes(':')) {
-                    const [hours, minutes] = supportTicket.scheduledTime.split(':');
-                    const hour24 = parseInt(hours);
-                    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-                    const ampm = hour24 >= 12 ? 'PM' : 'AM';
-                    return `${hour12}:${minutes} ${ampm}`;
-                  }
-                  return supportTicket.scheduledTime;
-                })()
-              : 'Not scheduled',
-            status: supportTicket.priority === 'High' ? 'High Priority' : 
-                   supportTicket.priority === 'Medium' ? 'Normal' : 'Low Priority',
-            address: supportTicket.address || 'Address not provided',
-            street: supportTicket.street || supportTicket.userId?.address?.street || 'Not provided',
-            city: supportTicket.city || supportTicket.userId?.address?.city || 'Not provided',
-            state: supportTicket.state || supportTicket.userId?.address?.state || 'Not provided',
-            pincode: supportTicket.pincode || supportTicket.userId?.address?.pincode || 'Not provided',
-            landmark: supportTicket.landmark || supportTicket.userId?.address?.landmark || 'Not provided',
-            userId: supportTicket.userId, // Include full user object for address access
-            issue: supportTicket.description || supportTicket.subject || 'Support request',
-            assignDate: supportTicket.assignedAt 
-              ? new Date(supportTicket.assignedAt).toLocaleDateString('en-IN')
-              : new Date().toLocaleDateString('en-IN'),
-            assignTime: supportTicket.assignedAt 
-              ? new Date(supportTicket.assignedAt).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
-              : 'Not assigned',
-            taskType: supportTicket.subject || 'Support Request',
-            vendorStatus: supportTicket.vendorStatus,
-            priority: supportTicket.priority?.toLowerCase() || 'medium',
-            isSupportTicket: true
-            };
-          }
-        } catch (ticketError: any) {
-          console.log('Support ticket not found:', ticketError);
-        }
       }
 
       if (foundTask) {

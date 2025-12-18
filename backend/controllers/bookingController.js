@@ -985,243 +985,92 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
 
     // First-time user status update removed - feature disabled
 
-    // Send booking confirmation WhatsApp to user
-    try {
-      console.log('📱 Sending booking confirmation WhatsApp to user (ONLINE PAYMENT):', {
-        bookingId: booking._id,
-        bookingReference: booking.bookingReference,
-        customerPhone: booking.customer.phone
-      });
-      
-      const whatsappResult = await botbeeService.sendBookingConfirmationToUser(booking);
-      
-      if (whatsappResult.success) {
-        console.log('✅ Booking confirmation WhatsApp sent to user successfully (ONLINE PAYMENT)');
-        logger.info('Booking confirmation WhatsApp sent to user (ONLINE PAYMENT)', {
-          bookingId: booking._id,
-          customerPhone: booking.customer.phone,
-          data: whatsappResult.data
-        });
-      } else {
-        console.log('⚠️ Failed to send booking confirmation WhatsApp to user (ONLINE PAYMENT):', whatsappResult.error);
-        logger.warn('Failed to send booking confirmation WhatsApp to user (ONLINE PAYMENT)', {
-          bookingId: booking._id,
-          customerPhone: booking.customer.phone,
-          error: whatsappResult.error
-        });
-      }
-    } catch (error) {
-      console.error('❌ Error sending booking confirmation WhatsApp to user (ONLINE PAYMENT):', error);
-      logger.error('Error sending booking confirmation WhatsApp to user (ONLINE PAYMENT)', {
-        error: error.message,
-        bookingId: booking._id,
-        customerPhone: booking.customer.phone
-      });
-      // Don't fail the booking creation if WhatsApp fails
-    }
-
-    // Send WhatsApp notification to admin via Botbee
-    try {
-      console.log('📱 Sending WhatsApp notification to admin via Botbee (ONLINE PAYMENT):', {
-        bookingId: booking._id,
-        bookingReference: booking.bookingReference
-      });
-      
-      const whatsappResult = await botbeeService.sendBookingNotification(booking);
-      
-      if (whatsappResult.success) {
-        console.log('✅ WhatsApp notification sent to admin successfully (ONLINE PAYMENT)');
-        logger.info('WhatsApp notification sent to admin via Botbee (ONLINE PAYMENT)', {
-          bookingId: booking._id,
-          bookingReference: booking.bookingReference,
-          data: whatsappResult.data
-        });
-      } else {
-        console.log('⚠️ Failed to send WhatsApp notification to admin (ONLINE PAYMENT):', whatsappResult.error);
-        logger.warn('Failed to send WhatsApp notification to admin via Botbee (ONLINE PAYMENT)', {
-          bookingId: booking._id,
-          bookingReference: booking.bookingReference,
-          error: whatsappResult.error
-        });
-      }
-    } catch (error) {
-      console.error('❌ Error sending WhatsApp notification to admin (ONLINE PAYMENT):', error);
-      logger.error('Error sending WhatsApp notification to admin via Botbee (ONLINE PAYMENT)', {
-        error: error.message,
-        bookingId: booking._id,
-        bookingReference: booking.bookingReference
-      });
-      // Don't fail the booking creation if WhatsApp fails
-    }
-
-    // Send notification to user about booking confirmation (ONLINE PAYMENT)
-    try {
-      console.log('🔔 === PUSH NOTIFICATION FLOW START (ONLINE) ===');
-      console.log('📋 Booking Details:', {
-        bookingId: booking._id.toString(),
-        bookingReference: booking.bookingReference,
-        customerEmail: booking.customer.email,
-        customerPhone: booking.customer.phone,
-        paymentMethod: booking.payment?.method || 'card',
-        paymentStatus: booking.payment?.status || 'completed',
-        paymentId: paymentData.razorpayPaymentId
-      });
-
-      // Normalize phone number for matching (remove spaces, handle +91 prefix)
-      const normalizePhone = (phone) => {
-        if (!phone) return null;
-        const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
-        // If starts with 91 and has 12 digits, remove 91
-        if (cleaned.length === 12 && cleaned.startsWith('91')) {
-          return cleaned.substring(2);
-        }
-        // If has 10 digits, return as is
-        if (cleaned.length === 10) {
-          return cleaned;
-        }
-        return cleaned;
-      };
-
-      const normalizedBookingPhone = normalizePhone(booking.customer.phone);
-      const normalizedBookingEmail = booking.customer.email?.toLowerCase().trim();
-
-      console.log('🔍 Searching for user with:', {
-        email: normalizedBookingEmail,
-        phone: normalizedBookingPhone,
-        originalPhone: booking.customer.phone
-      });
-
-      // Find user by email or phone (try multiple phone formats)
-      let user = await User.findOne({
-        $or: [
-          { email: normalizedBookingEmail },
-          { phone: booking.customer.phone },
-          ...(normalizedBookingPhone ? [
-            { phone: `+91${normalizedBookingPhone}` },
-            { phone: `91${normalizedBookingPhone}` },
-            { phone: normalizedBookingPhone }
-          ] : [])
-        ]
-      }).select('+fcmTokens +fcmTokenMobile');
-
-      if (!user) {
-        console.log('⚠️ User not found for booking confirmation notification');
-        console.log('🔍 Search criteria used:', {
-          email: normalizedBookingEmail,
-          phoneVariants: [
-            booking.customer.phone,
-            normalizedBookingPhone ? `+91${normalizedBookingPhone}` : null,
-            normalizedBookingPhone ? `91${normalizedBookingPhone}` : null,
-            normalizedBookingPhone
-          ].filter(Boolean)
-        });
-        logger.warn('User not found for booking confirmation notification (ONLINE)', {
-          bookingId: booking._id,
-          customerEmail: booking.customer.email,
-          customerPhone: booking.customer.phone,
-          normalizedPhone: normalizedBookingPhone
-        });
-      } else {
-        console.log('✅ User found:', {
-          userId: user._id.toString(),
-          userName: user.name,
-          userEmail: user.email,
-          userPhone: user.phone,
-          webTokensCount: user.fcmTokens?.length || 0,
-          mobileTokensCount: user.fcmTokenMobile?.length || 0,
-          pushNotificationsEnabled: user.preferences?.notifications?.push !== false
-        });
-
-        const notificationSent = await userNotificationService.sendToUser(
-          user._id,
-          {
-            title: '🎉 Booking Confirmed!',
-            body: `Your booking #${booking.bookingReference} has been confirmed with payment. We'll assign an engineer soon.`
-          },
-          {
-            type: 'booking_confirmation',
-            bookingId: booking._id.toString(),
-            bookingReference: booking.bookingReference,
-            priority: 'high',
-            link: `/booking/${booking._id}` // Link to booking details page
-          }
-        );
-        
-        if (notificationSent) {
-          console.log('✅ User notification sent successfully for booking confirmation (ONLINE)');
-          logger.info('Push notification sent to user for booking confirmation (ONLINE)', {
-            bookingId: booking._id,
-            userId: user._id,
-            userEmail: user.email,
-            userPhone: user.phone,
-            bookingReference: booking.bookingReference,
-            paymentMethod: 'online',
-            paymentId: paymentData.razorpayPaymentId
-          });
+    // Send notifications asynchronously (don't block the response)
+    // WhatsApp to user
+    botbeeService.sendBookingConfirmationToUser(booking)
+      .then(result => {
+        if (result.success) {
+          console.log('✅ Booking confirmation WhatsApp sent to user (ONLINE PAYMENT)');
         } else {
-          console.log('❌ Failed to send user notification for booking confirmation (ONLINE)');
-          logger.warn('Failed to send push notification to user for booking confirmation (ONLINE)', {
-            bookingId: booking._id,
-            userId: user._id,
-            userEmail: user.email,
-            userPhone: user.phone,
-            webTokensCount: user.fcmTokens?.length || 0,
-            mobileTokensCount: user.fcmTokenMobile?.length || 0
-          });
+          console.log('⚠️ Failed to send WhatsApp to user:', result.error);
         }
+      })
+      .catch(err => console.error('❌ WhatsApp to user error:', err.message));
+
+    // WhatsApp to admin
+    botbeeService.sendBookingNotification(booking)
+      .then(result => {
+        if (result.success) {
+          console.log('✅ WhatsApp notification sent to admin (ONLINE PAYMENT)');
+        } else {
+          console.log('⚠️ Failed to send WhatsApp to admin:', result.error);
+        }
+      })
+      .catch(err => console.error('❌ WhatsApp to admin error:', err.message));
+
+    // Send all notifications asynchronously (don't block the response for instant confirmation)
+    // Push notification to user
+    (async () => {
+      try {
+        const normalizePhone = (phone) => {
+          if (!phone) return null;
+          const cleaned = phone.replace(/\D/g, '');
+          if (cleaned.length === 12 && cleaned.startsWith('91')) return cleaned.substring(2);
+          if (cleaned.length === 10) return cleaned;
+          return cleaned;
+        };
+        const normalizedBookingPhone = normalizePhone(booking.customer.phone);
+        const normalizedBookingEmail = booking.customer.email?.toLowerCase().trim();
+
+        const user = await User.findOne({
+          $or: [
+            { email: normalizedBookingEmail },
+            { phone: booking.customer.phone },
+            ...(normalizedBookingPhone ? [
+              { phone: `+91${normalizedBookingPhone}` },
+              { phone: `91${normalizedBookingPhone}` },
+              { phone: normalizedBookingPhone }
+            ] : [])
+          ]
+        }).select('+fcmTokens +fcmTokenMobile');
+
+        if (user) {
+          await userNotificationService.sendToUser(
+            user._id,
+            {
+              title: '🎉 Booking Confirmed!',
+              body: `Your booking #${booking.bookingReference} has been confirmed with payment. We'll assign an engineer soon.`
+            },
+            {
+              type: 'booking_confirmation',
+              bookingId: booking._id.toString(),
+              bookingReference: booking.bookingReference,
+              priority: 'high',
+              link: `/booking/${booking._id}`
+            }
+          );
+          console.log('✅ User push notification sent (ONLINE)');
+        }
+      } catch (err) {
+        console.error('❌ Push notification error:', err.message);
       }
-      console.log('🔔 === PUSH NOTIFICATION FLOW END (ONLINE) ===');
-    } catch (error) {
-      console.error('❌ === ERROR IN PUSH NOTIFICATION (ONLINE) ===');
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-      console.error('Booking ID:', booking._id);
-      console.error('Customer Email:', booking.customer.email);
-      console.error('Customer Phone:', booking.customer.phone);
-      console.error('❌ === END ERROR (ONLINE) ===');
-      logger.error('Failed to send user notification for booking confirmation (ONLINE)', {
-        error: error.message,
-        stack: error.stack,
-        bookingId: booking._id,
-        customerEmail: booking.customer.email,
-        customerPhone: booking.customer.phone
-      });
-      // Don't fail the booking creation if notification fails
-    }
+    })();
 
-    // Send notification to admins about new booking
-    try {
-      console.log('🔔 Attempting to send admin notification for new booking with payment:', {
-        bookingId: booking._id,
-        bookingReference: booking.bookingReference,
-        customerName: booking.customer.name
-      });
-      
-      const notificationResult = await adminNotificationService.sendNewBookingNotification(booking);
-      
-      console.log('📊 Admin notification result (with payment):', {
-        successCount: notificationResult.successCount,
-        failureCount: notificationResult.failureCount,
-        totalResponses: notificationResult.responses ? notificationResult.responses.length : 0
-      });
-      
-      logger.info('Admin notification sent for new booking with payment', {
-        bookingId: booking._id,
-        successCount: notificationResult.successCount,
-        failureCount: notificationResult.failureCount
-      });
+    // Admin notifications (push + email)
+    (async () => {
+      try {
+        await adminNotificationService.sendNewBookingNotification(booking);
+        await notifyAdminsByEmail(
+          '🆕 New Booking (Payment Verified)',
+          buildBookingSummaryLines(booking, { details: `Payment: captured (${paymentData.amount || 0} paisa)` })
+        );
+        console.log('✅ Admin notifications sent (ONLINE)');
+      } catch (err) {
+        console.error('❌ Admin notification error:', err.message);
+      }
+    })();
 
-      // Email admins
-      await notifyAdminsByEmail(
-        '🆕 New Booking (Payment Verified)',
-        buildBookingSummaryLines(booking, { details: `Payment: captured (${paymentData.amount || 0} paisa)` })
-      );
-    } catch (error) {
-      console.error('❌ Failed to send admin notification for new booking with payment:', error);
-      logger.error('Failed to send admin notification for new booking with payment:', error);
-      // Don't fail the booking creation if notification fails
-    }
-
+    // Return response immediately without waiting for notifications
     res.status(201).json({
       success: true,
       message: 'Booking created successfully with payment verification',
@@ -2445,6 +2294,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
       {
         status: 'completed', // Set to completed after spare parts payment
         paymentStatus: 'payment_done',
+        'payment.status': 'completed', // Set payment status to completed for admin revenue calculation
         'payment.razorpayOrderId': razorpayOrderId,
         'payment.razorpayPaymentId': razorpayPaymentId,
         'payment.razorpaySignature': razorpaySignature,

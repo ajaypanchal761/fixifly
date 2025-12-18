@@ -14,11 +14,27 @@ import {
   Car,
   Wallet
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import adminApiService from '@/services/adminApi';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+interface RevenueEntry {
+  source: 'booking' | 'supportTicket';
+  reference: string;
+  vendorId?: string;
+  vendorName?: string;
+  paymentMethod?: string;
+  billingAmount?: number;
+  gstAmount?: number;
+  includeGST?: boolean;
+  effectiveBilling?: number;
+  adminCommission: number;
+  adminCommissionWithGST?: number;
+  createdAt?: string;
+}
 
 interface DashboardData {
   overview: {
@@ -47,6 +63,10 @@ interface DashboardData {
     month: number;
     year: number;
   };
+  revenueBreakdown: {
+    monthly: RevenueEntry[];
+    total: RevenueEntry[];
+  };
 }
 
 const AdminDashboard = () => {
@@ -56,6 +76,9 @@ const AdminDashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [revenueModalOpen, setRevenueModalOpen] = useState(false);
+  const [revenueEntries, setRevenueEntries] = useState<RevenueEntry[]>([]);
+  const [revenueMode, setRevenueMode] = useState<'total' | 'monthly'>('total');
 
   // Fetch dashboard data
   const fetchDashboardData = useCallback(async (month?: number, year?: number) => {
@@ -64,6 +87,20 @@ const AdminDashboard = () => {
       const response = await adminApiService.getDashboardStats(month, year);
       
       if (response.success && response.data) {
+        const breakdown = (response.data as any).revenueBreakdown || { monthly: [], total: [] };
+        // Fallback calculation if API overview totals are zero but breakdown has entries
+        const calcFromBreakdown = (entries: RevenueEntry[]) => {
+          if (!entries || entries.length === 0) return 0;
+          return entries.reduce((sum, item) => {
+            if (typeof item.adminCommissionWithGST === 'number') {
+              return sum + (item.adminCommissionWithGST || 0);
+            }
+            return sum + (item.adminCommission || 0);
+          }, 0);
+        };
+        const fallbackMonthly = calcFromBreakdown(breakdown.monthly);
+        const fallbackTotal = calcFromBreakdown(breakdown.total);
+
         // Validate and sanitize the data
         const validatedData = {
           ...response.data,
@@ -72,8 +109,8 @@ const AdminDashboard = () => {
             totalVendors: Math.max(0, response.data.overview.totalVendors || 0),
             totalServices: Math.max(0, response.data.overview.totalServices || 0),
             totalBookings: Math.max(0, response.data.overview.totalBookings || 0),
-            totalRevenue: Math.max(0, response.data.overview.totalRevenue || 0),
-            monthlyRevenue: Math.max(0, response.data.overview.monthlyRevenue || 0),
+            totalRevenue: Math.max(0, (response.data.overview.totalRevenue || 0) || fallbackTotal),
+            monthlyRevenue: Math.max(0, (response.data.overview.monthlyRevenue || 0) || fallbackMonthly),
             pendingVendors: Math.max(0, response.data.overview.pendingVendors || 0),
             activeVendors: Math.max(0, response.data.overview.activeVendors || 0),
             blockedVendors: Math.max(0, response.data.overview.blockedVendors || 0),
@@ -86,6 +123,10 @@ const AdminDashboard = () => {
             recentUsers: Math.max(0, response.data.recentActivity.recentUsers || 0),
             recentVendors: Math.max(0, response.data.recentActivity.recentVendors || 0),
             recentBookings: Math.max(0, response.data.recentActivity.recentBookings || 0)
+          },
+          revenueBreakdown: {
+            monthly: breakdown.monthly || [],
+            total: breakdown.total || []
           }
         };
         
@@ -116,6 +157,36 @@ const AdminDashboard = () => {
     setSelectedMonth(month);
     setSelectedYear(year);
     fetchDashboardData(month, year);
+  };
+
+  const openRevenueModal = (mode: 'total' | 'monthly') => {
+    if (!dashboardData) return;
+    const entries = mode === 'total' ? dashboardData.revenueBreakdown.total : dashboardData.revenueBreakdown.monthly;
+    setRevenueEntries(entries || []);
+    setRevenueMode(mode);
+    setRevenueModalOpen(true);
+  };
+
+  const formatCurrency = (value: number | undefined) => `₹${(value || 0).toLocaleString()}`;
+  const formatBookingId = (ref?: string) => {
+    if (!ref) return '—';
+    // Show booking reference as-is when it matches expected prefix (e.g., FIXBXXXX)
+    if (/^fixb/i.test(ref)) return ref.toUpperCase();
+    // If it's a Mongo ObjectId, shorten for readability
+    if (ref.length === 24) return `#${ref.slice(0, 4)}...${ref.slice(-4)}`;
+    return ref;
+  };
+  const formatBilling = (item: RevenueEntry) => {
+    const base = typeof item.effectiveBilling === 'number' ? item.effectiveBilling : item.billingAmount || 0;
+    const gst = item.gstAmount || 0;
+    const hasGST = !!gst;
+    return hasGST ? `${formatCurrency(base)} (GST ${formatCurrency(gst)})` : formatCurrency(base);
+  };
+  const formatCommission = (item: RevenueEntry) => {
+    const base = typeof item.adminCommissionWithGST === 'number' ? item.adminCommissionWithGST : item.adminCommission || 0;
+    const gst = item.gstAmount || 0;
+    const hasGST = !!gst;
+    return hasGST ? `${formatCurrency(base)} (incl. GST ${formatCurrency(gst)})` : formatCurrency(base);
   };
 
   // Refresh data
@@ -219,7 +290,8 @@ const AdminDashboard = () => {
       icon: DollarSign,
       color: "bg-emerald-500",
       bgColor: "bg-emerald-50",
-      textColor: "text-emerald-600"
+      textColor: "text-emerald-600",
+      onClick: () => openRevenueModal('total')
     },
     {
       title: "Monthly Revenue",
@@ -228,7 +300,8 @@ const AdminDashboard = () => {
       icon: TrendingUp,
       color: "bg-indigo-500",
       bgColor: "bg-indigo-50",
-      textColor: "text-indigo-600"
+      textColor: "text-indigo-600",
+      onClick: () => openRevenueModal('monthly')
     },
     {
       title: "Pending Verifications",
@@ -358,7 +431,12 @@ const AdminDashboard = () => {
           {kpiCards.map((card, index) => {
             const IconComponent = card.icon;
             return (
-              <Card key={index} className="service-card">
+              <Card 
+                key={index} 
+                className={`service-card ${card.onClick ? 'cursor-pointer hover:shadow-lg transition' : ''}`}
+                onClick={card.onClick}
+                role={card.onClick ? 'button' : undefined}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -375,6 +453,67 @@ const AdminDashboard = () => {
             );
           })}
         </div>
+
+        {/* Revenue Breakdown Modal */}
+        <Dialog open={revenueModalOpen} onOpenChange={setRevenueModalOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>{revenueMode === 'total' ? 'Total Revenue Breakdown' : 'Monthly Revenue Breakdown'}</DialogTitle>
+              <DialogDescription>
+                {revenueMode === 'total' ? 'All time commissions grouped by bookings and support tickets.' : 'Commissions for the selected month/year.'}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-muted-foreground">
+                Entries: {revenueEntries.length}
+              </span>
+              <span className="text-sm font-semibold">
+                Total Commission: {formatCurrency(revenueEntries.reduce((sum, item) => sum + (item.adminCommission || 0), 0))}
+              </span>
+            </div>
+
+            <div className="border rounded-md max-h-[420px] overflow-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="text-left px-3 py-2">Source</th>
+                    <th className="text-left px-3 py-2">Booking ID</th>
+                    <th className="text-left px-3 py-2">Vendor</th>
+                    <th className="text-left px-3 py-2">Payment</th>
+                    <th className="text-left px-3 py-2">Billing</th>
+                    <th className="text-left px-3 py-2">Commission</th>
+                    <th className="text-left px-3 py-2">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {revenueEntries.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="text-center text-muted-foreground py-4">
+                        No revenue records found.
+                      </td>
+                    </tr>
+                  )}
+                  {revenueEntries.map((item, idx) => (
+                    <tr key={`${item.reference}-${idx}`} className="border-t">
+                      <td className="px-3 py-2 capitalize">{item.source === 'supportTicket' ? 'Support Ticket' : 'Booking'}</td>
+                      <td className="px-3 py-2 font-medium">{formatBookingId(item.reference)}</td>
+                      <td className="px-3 py-2">
+                        {item.vendorName?.trim() ? item.vendorName : (item.vendorId || 'N/A')}
+                      </td>
+                      <td className="px-3 py-2 capitalize">{item.paymentMethod || 'N/A'}</td>
+                      <td className="px-3 py-2">{formatBilling(item)}</td>
+                      <td className="px-3 py-2 font-semibold text-emerald-700">{formatCommission(item)}</td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </DialogContent>
+        </Dialog>
 
 
       </main>

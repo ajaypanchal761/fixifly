@@ -617,23 +617,21 @@ const AMC = () => {
 
                   <CardContent className="pt-0 px-2 sm:px-3">
                     {/* Action Buttons */}
-                    <div className="mb-3">
-                      <div className="flex flex-col sm:flex-row gap-1">
+                    <div className="mb-4">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Button 
                           onClick={() => handleDownloadInvoice(plan)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white flex-1 h-7"
-                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white flex-1 h-10 text-sm font-medium"
                         >
-                          <Download className="h-4 w-4 mr-2" />
+                          <Download className="h-5 w-5 mr-2" />
                           Download Invoice
                         </Button>
                         <Button 
                           variant="outline" 
-                          size="sm"
                           onClick={() => handleViewDetails(plan)}
-                          className="flex-1 h-7"
+                          className="flex-1 h-10 text-sm font-medium border-gray-300"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
+                          <Eye className="h-5 w-5 mr-2" />
                           View Details
                         </Button>
                       </div>
