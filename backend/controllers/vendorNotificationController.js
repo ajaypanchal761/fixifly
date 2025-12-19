@@ -674,9 +674,11 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
       }
       
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
+        const customerName = bookingData.customer?.name || 'customer';
+        const bookingRef = bookingData.bookingReference || '';
         const pushNotification = {
-          title: '📅 Booking Assigned',
-          body: `A new service booking for ${bookingData.customer?.name || 'customer'} has been assigned to you. Please review and take action.`,
+          title: '📅 New Booking Assigned',
+          body: `Booking #${bookingRef} for ${customerName} has been assigned to you. Please review and accept or decline.`,
           priority: 'high', // High priority for instant delivery
           requireInteraction: true // Require user interaction for important notifications
         };

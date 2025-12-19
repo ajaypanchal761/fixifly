@@ -293,6 +293,8 @@ const sendPushNotification = async (tokens, payload) => {
       android: {
         priority: 'high',
         notification: {
+          title: payload.title,
+          body: payload.body,
           sound: 'default',
           channelId: 'default',
           // Include image for Android
@@ -313,6 +315,10 @@ const sendPushNotification = async (tokens, payload) => {
       apns: {
         payload: {
           aps: {
+            alert: {
+              title: payload.title,
+              body: payload.body,
+            },
             sound: 'default',
             badge: 1,
             // Use consistent thread-id (similar to tag) to prevent duplicate notifications

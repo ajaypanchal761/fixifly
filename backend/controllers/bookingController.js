@@ -1198,8 +1198,8 @@ const acceptTask = asyncHandler(async (req, res) => {
         await userNotificationService.sendToUser(
           user._id,
           {
-            title: '👨‍🔧 Engineer Accepted!',
-            body: `${vendorName} has accepted your booking #${booking.bookingReference}.`
+            title: '👨‍🔧 Engineer Assigned',
+            body: `Engineer ${vendorName} has been assigned to your booking #${booking.bookingReference}. They will contact you soon.`
           },
           {
             type: 'engineer_assigned',
