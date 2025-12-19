@@ -27,7 +27,8 @@ import {
   User,
   X,
   ShoppingCart,
-  ArrowLeft
+  ArrowLeft,
+  Download
 } from "lucide-react";
 
 const Booking = () => {
@@ -197,7 +198,7 @@ ${newBooking.services.map(service => `${service.serviceName} - ₹${service.pric
 PRICING SUMMARY
 ===============
 Subtotal: ₹${newBooking.pricing.subtotal}
-GST (18%): ₹${newBooking.pricing.gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}
+GST (18%): ₹${(newBooking.pricing as any).gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}
 Total Amount: ₹${newBooking.pricing.totalAmount}
 
 PAYMENT STATUS
@@ -258,7 +259,7 @@ For support, contact us at info@getfixfly.com
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
             <span>GST (18%):</span>
-            <span>₹${newBooking.pricing.gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}</span>
+            <span>₹${(newBooking.pricing as any).gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}</span>
           </div>
           <hr style="border: 1px solid #e5e7eb; margin: 10px 0;">
           <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #2563eb;">
@@ -1032,91 +1033,25 @@ For support, contact us at info@getfixfly.com
     doc.setFontSize(10);
     yPosition += 5;
 
-    yPosition = addText(`Initial Payment: ₹${booking.pricing.totalAmount}`, 20, yPosition);
+    // Clean amount to remove any superscript or formatting characters
+    let initialPayment = String(booking.pricing.totalAmount || 0);
+    initialPayment = initialPayment.replace(/[¹²³⁴⁵⁶⁷⁸⁹⁰]/g, '').replace(/[^\d.]/g, '');
+    if (!initialPayment || initialPayment === '') initialPayment = '0';
+    yPosition = addText(`Initial Payment: ${initialPayment}`, 20, yPosition);
     if (billingAmount > 0) {
-      yPosition = addText(`Service Charges: ₹${billingAmount}`, 20, yPosition);
+      yPosition = addText(`Service Charges: ${billingAmount}`, 20, yPosition);
     }
     if (includeGST && gstAmount > 0) {
       yPosition = addText(`GST (18%): ₹${gstAmount}`, 20, yPosition);
-    }
-    yPosition = addText(`Payment Status: ${booking.payment?.status === 'pending' ? 'Incomplete' : (booking.payment?.status || 'N/A')}`, 20, yPosition);
-    if (booking.payment?.paidAt) {
-      yPosition = addText(`Payment Date: ${new Date(booking.payment.paidAt).toLocaleDateString('en-IN')}`, 20, yPosition);
     }
     if (booking.payment?.method !== 'cash' && booking.payment?.transactionId) {
       yPosition = addText(`Transaction ID: ${booking.payment.transactionId}`, 20, yPosition);
     }
     yPosition += 10;
 
-    // Spare Parts Section (if any)
-    console.log('Spare parts data:', (booking as any).completionData?.spareParts);
-    if ((booking as any).completionData?.spareParts && (booking as any).completionData.spareParts.length > 0) {
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      yPosition = addText('SPARE PARTS DETAILS', 20, yPosition);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      yPosition += 5;
-
-      (booking as any).completionData.spareParts.forEach((part: any, index: number) => {
-        console.log(`Spare part ${index + 1}:`, part);
-        const partName = part.name || 'Unnamed Part';
-        const partAmount = part.amount || '0';
-        const partWarranty = part.warranty || '';
-        yPosition = addText(`${index + 1}. ${partName} - ₹${partAmount}`, 20, yPosition);
-        if (partWarranty) {
-          yPosition = addText(`   Warranty: ${partWarranty}`, 25, yPosition);
-        }
-      });
-      
-      yPosition = addText(`Total Spare Parts Amount: ₹${(booking as any).completionData.totalAmount}`, 20, yPosition);
-      
-      // Show GST details if applicable
-      if (includeGST && gstAmount > 0) {
-        yPosition = addText(`GST (18%): ₹${gstAmount}`, 20, yPosition);
-      }
-      
-      yPosition += 10;
-    } else if ((booking as any).completionData?.totalAmount && (booking as any).completionData.totalAmount > 0) {
-      // Show additional charges if no specific spare parts but there's a total amount
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      yPosition = addText('ADDITIONAL CHARGES', 20, yPosition);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      yPosition += 5;
-
-      yPosition = addText(`Service Charges: ₹${(booking as any).completionData.totalAmount}`, 20, yPosition);
-      
-      // Show GST details if applicable
-      if (includeGST && gstAmount > 0) {
-        yPosition = addText(`GST (18%): ₹${gstAmount}`, 20, yPosition);
-      }
-      
-      yPosition += 10;
-    }
-
-    // Resolution Notes Section (if any)
-    if ((booking as any).completionData?.resolutionNote) {
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      yPosition = addText('RESOLUTION NOTES', 20, yPosition);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      yPosition += 5;
-
-      yPosition = addText((booking as any).completionData.resolutionNote, 20, yPosition, pageWidth - 40);
-      yPosition += 10;
-    }
-
-    // Total Amount Section
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    yPosition = addText('TOTAL AMOUNT', 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    yPosition = addText(`₹${totalAmount}`, 20, yPosition);
-    yPosition += 10;
+    // Spare Parts Section removed - not showing in receipt
+    // Resolution Notes Section removed - not showing in receipt
+    // Total Amount Section removed - not showing in receipt
 
     // Footer
     doc.setFontSize(8);
@@ -1474,7 +1409,7 @@ For support, contact us at info@getfixfly.com
                 </div>
                 <div className="flex justify-between text-gray-600 text-xs">
                   <span>GST (18%)</span>
-                  <span>₹{displayBooking.pricing.gstAmount || Math.round((displayBooking.pricing.subtotal * 18) / 100)}</span>
+                  <span>₹{(displayBooking.pricing as any).gstAmount || Math.round((displayBooking.pricing.subtotal * 18) / 100)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-0.5">
                   <div className="flex justify-between text-sm font-bold text-gray-900">
@@ -1504,13 +1439,6 @@ For support, contact us at info@getfixfly.com
               className="px-4 py-1.5 text-xs"
             >
               View All Bookings
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => downloadBookingReceipt()}
-              className="px-4 py-1.5 text-xs border-green-200 text-green-700 hover:bg-green-50"
-            >
-              Download Booking Receipt
             </Button>
           </div>
         </div>
@@ -2190,7 +2118,18 @@ For support, contact us at info@getfixfly.com
               <div className="space-y-3 md:space-y-4 pb-4">
                 {/* Booking Reference */}
                 <div className="bg-blue-50 rounded-lg p-2.5 md:p-3">
-                  <h3 className="font-bold text-sm md:text-base text-blue-900 mb-1">Booking Reference</h3>
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="font-bold text-sm md:text-base text-blue-900">Booking Reference</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => generateReceiptPDF(bookingDetails)}
+                      className="px-2 py-1 text-xs border-blue-300 text-blue-700 hover:bg-blue-100 h-auto"
+                    >
+                      <Download className="h-3 w-3 mr-1" />
+                      Download Receipt
+                    </Button>
+                  </div>
                   <p className="text-blue-800 font-mono text-sm md:text-base">
                     {bookingDetails.bookingReference || `FIX${bookingDetails._id.toString().substring(bookingDetails._id.toString().length - 8).toUpperCase()}`}
                   </p>
@@ -2370,9 +2309,14 @@ For support, contact us at info@getfixfly.com
           setRatingBooking(null);
         }}
         bookingId={ratingBooking?._id || ''}
-        vendorId={ratingBooking && typeof ratingBooking.vendor?.vendorId === 'object' 
-          ? ratingBooking.vendor.vendorId._id 
-          : ratingBooking?.vendor?.vendorId || ''}
+        vendorId={(() => {
+          const vendorId = ratingBooking?.vendor?.vendorId;
+          if (!vendorId) return '';
+          if (typeof vendorId === 'object' && vendorId !== null && '_id' in vendorId) {
+            return String(vendorId._id);
+          }
+          return String(vendorId);
+        })()}
         vendorName={ratingBooking && typeof ratingBooking.vendor?.vendorId === 'object' 
           ? `${ratingBooking.vendor.vendorId.firstName} ${ratingBooking.vendor.vendorId.lastName}` 
           : 'Service Provider'}
