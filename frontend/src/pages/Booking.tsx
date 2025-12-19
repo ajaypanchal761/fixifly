@@ -908,48 +908,53 @@ For support, contact us at info@getfixfly.com
     try {
       console.log('Generating PDF receipt for booking:', booking._id);
       
-      // Try the simple print method first
-      generateSimpleReceipt(booking);
-      return;
+      const bookingRef = (booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`;
       
-      // Initialize GST variables early
+      // Get GST data if available
       const gstData = getGSTData(booking._id);
+      // Use billing amount instead of spare parts total
+      const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
+      const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
+      const baseAmount = booking.pricing.totalAmount + billingAmount;
+      let totalAmount = baseAmount;
       let includeGST = false;
       let gstAmount = 0;
       
       if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
+        totalAmount = gstData.totalAmount;
         includeGST = gstData.includeGST;
         gstAmount = gstData.gstAmount;
       } else {
         includeGST = (booking as any).includeGST;
         gstAmount = (booking as any).gstAmount || 0;
+        totalAmount = includeGST && gstAmount > 0 ? baseAmount + gstAmount : baseAmount;
       }
       
       const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    let yPosition = 20;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      let yPosition = 20;
 
-    // Helper function to add text with line wrapping
-    const addText = (text: string, x: number, y: number, maxWidth?: number) => {
-      if (maxWidth) {
-        const lines = doc.splitTextToSize(text, maxWidth);
-        doc.text(lines, x, y);
-        return y + (lines.length * 7);
-      } else {
-        doc.text(text, x, y);
-        return y + 7;
-      }
-    };
+      // Helper function to add text with line wrapping
+      const addText = (text: string, x: number, y: number, maxWidth?: number, align: 'left' | 'center' | 'right' = 'left') => {
+        if (maxWidth) {
+          const lines = doc.splitTextToSize(text, maxWidth);
+          doc.text(lines, x, y, { align });
+          return y + (lines.length * 7);
+        } else {
+          doc.text(text, x, y, { align });
+          return y + 7;
+        }
+      };
 
-    // Header
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    yPosition = addText('FIXFLY SERVICE RECEIPT', pageWidth / 2, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    yPosition = addText('Service Completion Receipt', pageWidth / 2, yPosition);
-    yPosition += 10;
+      // Header
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      yPosition = addText('FIXFLY SERVICE RECEIPT', pageWidth / 2, yPosition, undefined, 'center');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      yPosition = addText('Service Completion Receipt', pageWidth / 2, yPosition, undefined, 'center');
+      yPosition += 10;
 
     // Booking Details Section
     doc.setFontSize(14);
@@ -959,7 +964,6 @@ For support, contact us at info@getfixfly.com
     doc.setFontSize(10);
     yPosition += 5;
 
-    const bookingRef = (booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`;
     yPosition = addText(`Booking ID: ${bookingRef}`, 20, yPosition);
     yPosition = addText(`Status: ${booking.status.toUpperCase()}`, 20, yPosition);
     yPosition = addText(`Created Date: ${new Date(booking.createdAt).toLocaleDateString('en-IN')}`, 20, yPosition);
@@ -1029,6 +1033,12 @@ For support, contact us at info@getfixfly.com
     yPosition += 5;
 
     yPosition = addText(`Initial Payment: ₹${booking.pricing.totalAmount}`, 20, yPosition);
+    if (billingAmount > 0) {
+      yPosition = addText(`Service Charges: ₹${billingAmount}`, 20, yPosition);
+    }
+    if (includeGST && gstAmount > 0) {
+      yPosition = addText(`GST (18%): ₹${gstAmount}`, 20, yPosition);
+    }
     yPosition = addText(`Payment Status: ${booking.payment?.status === 'pending' ? 'Incomplete' : (booking.payment?.status || 'N/A')}`, 20, yPosition);
     if (booking.payment?.paidAt) {
       yPosition = addText(`Payment Date: ${new Date(booking.payment.paidAt).toLocaleDateString('en-IN')}`, 20, yPosition);
@@ -1100,8 +1110,6 @@ For support, contact us at info@getfixfly.com
     }
 
     // Total Amount Section
-    const baseAmount = booking.pricing.totalAmount + ((booking as any).completionData?.totalAmount || 0);
-    let totalAmount = includeGST && gstAmount > 0 ? baseAmount + gstAmount : baseAmount;
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     yPosition = addText('TOTAL AMOUNT', 20, yPosition);
@@ -1113,8 +1121,8 @@ For support, contact us at info@getfixfly.com
     // Footer
     doc.setFontSize(8);
     doc.setFont('helvetica', 'italic');
-    yPosition = addText('Thank you for choosing Fixfly for your service needs!', pageWidth / 2, pageHeight - 20);
-    yPosition = addText('For any queries, contact us at info@getfixfly.com', pageWidth / 2, pageHeight - 15);
+    yPosition = addText('Thank you for choosing Fixfly for your service needs!', pageWidth / 2, pageHeight - 20, undefined, 'center');
+    yPosition = addText('For any queries, contact us at info@getfixfly.com', pageWidth / 2, pageHeight - 15, undefined, 'center');
 
     // Save the PDF
     const fileName = `Fixfly_Receipt_${bookingRef}_${new Date().toISOString().split('T')[0]}.pdf`;
