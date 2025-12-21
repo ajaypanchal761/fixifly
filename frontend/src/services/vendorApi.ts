@@ -84,6 +84,7 @@ interface VendorAuthResponse {
 class VendorApiService {
   private baseURL: string;
   private readonly REQUEST_TIMEOUT = 30000; // 30 seconds timeout
+  private readonly LONG_REQUEST_TIMEOUT = 90000; // 90 seconds timeout for operations with file uploads
 
   constructor() {
     this.baseURL = API_BASE_URL;
@@ -112,7 +113,8 @@ class VendorApiService {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    timeout?: number
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
@@ -145,7 +147,7 @@ class VendorApiService {
       console.log('Endpoint:', endpoint);
       console.log('Token exists:', !!token);
       
-      const response = await this.fetchWithTimeout(url, config);
+      const response = await this.fetchWithTimeout(url, config, timeout || this.REQUEST_TIMEOUT);
       console.log('Response status:', response.status);
       console.log('Response status text:', response.statusText);
       console.log('Response headers:', response.headers);
@@ -584,10 +586,11 @@ class VendorApiService {
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
     
     try {
+      // Use longer timeout for complete task as it may include large image data
       const response = await this.request(`/bookings/${bookingId}/complete`, {
         method: 'PATCH',
         body: JSON.stringify(requestBody),
-      });
+      }, this.LONG_REQUEST_TIMEOUT);
       console.log('Complete task response:', response);
       return response;
     } catch (error) {
@@ -701,6 +704,7 @@ class VendorApiService {
     billingAmount?: number;
   }): Promise<ApiResponse<any>> {
     console.log('Completing support ticket:', { ticketId, completionData });
+    // Use longer timeout for complete support ticket as it may include large image data
     const response = await this.request(`/support-tickets/vendor/${ticketId}/complete`, {
       method: 'PUT',
       body: JSON.stringify({ 
@@ -716,7 +720,7 @@ class VendorApiService {
           completedAt: new Date().toISOString()
         }
       }),
-    });
+    }, this.LONG_REQUEST_TIMEOUT);
     console.log('Complete support ticket response:', response);
     return response;
   }

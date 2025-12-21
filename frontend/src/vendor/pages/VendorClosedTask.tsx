@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { 
@@ -58,6 +58,9 @@ const VendorClosedTask = () => {
   const [spareParts, setSpareParts] = useState<SparePart[]>([
     { id: 1, name: "", amount: "", photo: null, warranty: "" }
   ]);
+  
+  // Refs for file inputs - one per spare part for APK compatibility
+  const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
   // Fetch task details from API
   const fetchTaskDetails = async () => {
@@ -358,6 +361,20 @@ const VendorClosedTask = () => {
     ));
   };
 
+  // Detect if running in APK/WebView
+  const isAPKEnvironment = () => {
+    try {
+      if (typeof navigator === 'undefined') return false;
+      const userAgent = navigator.userAgent || '';
+      const isWebView = /wv|WebView/i.test(userAgent);
+      const hasFlutterBridge = typeof (window as any).flutter_inappwebview !== 'undefined' || 
+                                typeof (window as any).Android !== 'undefined';
+      return isWebView || hasFlutterBridge;
+    } catch (error) {
+      return false;
+    }
+  };
+
   const handlePhotoCapture = (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -371,13 +388,42 @@ const VendorClosedTask = () => {
     event.target.value = '';
   };
   
-  // Function to trigger camera directly - opens camera immediately in APK/mobile
+  // Function to trigger camera - works in both web and APK
   const triggerCamera = (partId: number) => {
+    const isAPK = isAPKEnvironment();
+    
+    if (isAPK) {
+      // For APK: Use the ref-based input that's already in DOM
+      const input = fileInputRefs.current[partId];
+      if (input) {
+        // Reset value to allow selecting same file again
+        input.value = '';
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+          input.click();
+        }, 100);
+      } else {
+        console.error('File input ref not found for part:', partId);
+        // Fallback: create input dynamically
+        createDynamicInput(partId);
+      }
+    } else {
+      // For web: Use dynamic input creation (original method)
+      createDynamicInput(partId);
+    }
+  };
+
+  // Fallback method: Create input dynamically (for web or if ref fails)
+  const createDynamicInput = (partId: number) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.capture = 'environment'; // Force back camera
     input.style.display = 'none';
+    input.style.position = 'absolute';
+    input.style.opacity = '0';
+    input.style.width = '1px';
+    input.style.height = '1px';
     
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
@@ -401,8 +447,10 @@ const VendorClosedTask = () => {
     };
     
     document.body.appendChild(input);
-    // Trigger click to open camera directly
-    input.click();
+    // Use setTimeout for better compatibility
+    setTimeout(() => {
+      input.click();
+    }, 50);
   };
 
   const calculateTotal = () => {
@@ -778,14 +826,28 @@ const VendorClosedTask = () => {
                             </button>
                           </div>
                         ) : (
-                          <button
-                            type="button"
-                            onClick={() => triggerCamera(part.id)}
-                            className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-red-300 rounded-md cursor-pointer hover:border-red-400 transition-colors bg-red-50"
-                          >
-                            <Camera className="w-8 h-8 text-red-500 mb-1" />
-                            <span className="text-xs text-red-600 font-medium">Capture</span>
-                          </button>
+                          <div className="relative">
+                            {/* Hidden file input for APK compatibility - always in DOM */}
+                            <input
+                              ref={(el) => {
+                                fileInputRefs.current[part.id] = el;
+                              }}
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              onChange={(e) => handlePhotoCapture(part.id, e)}
+                              className="hidden"
+                              id={`file-input-${part.id}`}
+                            />
+                            {/* Label for APK compatibility - clicking label triggers input */}
+                            <label
+                              htmlFor={`file-input-${part.id}`}
+                              className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-red-300 rounded-md cursor-pointer hover:border-red-400 transition-colors bg-red-50"
+                            >
+                              <Camera className="w-8 h-8 text-red-500 mb-1" />
+                              <span className="text-xs text-red-600 font-medium">Capture</span>
+                            </label>
+                          </div>
                         )}
                         {!part.photo && (
                           <span className="text-xs text-red-600 font-medium">Photo capture required</span>
