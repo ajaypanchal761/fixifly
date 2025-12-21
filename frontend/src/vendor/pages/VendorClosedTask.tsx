@@ -375,17 +375,162 @@ const VendorClosedTask = () => {
     }
   };
 
-  const handlePhotoCapture = (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        updateSparePart(id, 'photo', e.target?.result as string);
+  // Compress image to reduce payload size
+  const compressImage = (base64String: string, maxWidth: number = 800, quality: number = 0.7): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      // Validate input
+      if (!base64String || typeof base64String !== 'string') {
+        reject(new Error('Invalid base64 string'));
+        return;
+      }
+
+      // Add timeout to prevent hanging
+      const timeout = setTimeout(() => {
+        reject(new Error('Image compression timeout'));
+      }, 10000); // 10 seconds timeout
+
+      const img = new Image();
+      
+      img.onload = () => {
+        try {
+          clearTimeout(timeout);
+          
+          // Validate image loaded successfully
+          if (img.width === 0 || img.height === 0) {
+          reject(new Error('Invalid image dimensions'));
+          return;
+        }
+
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions while maintaining aspect ratio
+          if (width > maxWidth) {
+            const ratio = maxWidth / width;
+            height = Math.round(height * ratio);
+            width = maxWidth;
+          }
+
+          // Ensure minimum dimensions (but don't force if image is smaller)
+          if (width < 50) width = 50;
+          if (height < 50) height = 50;
+
+          // Set canvas dimensions
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+
+          // Set image smoothing for better quality
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convert to JPEG with specified quality
+          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          
+          // Validate compressed result
+          if (!compressedBase64 || compressedBase64.length < 100) {
+            reject(new Error('Compression failed - result too small'));
+            return;
+          }
+          
+          // Check if compression actually reduced size
+          const originalSize = base64String.length;
+          const compressedSize = compressedBase64.length;
+          const reductionPercent = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+          
+          console.log(`Image compression: ${(originalSize / 1024).toFixed(2)}KB -> ${(compressedSize / 1024).toFixed(2)}KB (${reductionPercent}% reduction)`);
+          
+          resolve(compressedBase64);
+        } catch (error: any) {
+          clearTimeout(timeout);
+          reject(new Error(`Compression error: ${error.message || 'Unknown error'}`));
+        }
       };
-      reader.readAsDataURL(file);
+      
+      img.onerror = (error) => {
+        clearTimeout(timeout);
+        reject(new Error('Failed to load image for compression'));
+      };
+      
+      // Set image source to trigger loading
+      img.src = base64String;
+    });
+  };
+
+  const handlePhotoCapture = async (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
     }
-    // Reset input to allow capturing same photo again if needed
-    event.target.value = '';
+
+    // Validate file size before processing (max 10MB)
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxFileSize) {
+      alert('Image size is too large. Please capture a smaller image or use better lighting.');
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64String = e.target?.result as string;
+        if (!base64String) {
+          alert('Failed to read image. Please try again.');
+          return;
+        }
+
+        // Compress image before storing
+        try {
+          let compressedImage = await compressImage(base64String, 800, 0.7);
+          
+          // Check if compressed image is still too large (over 500KB base64)
+          const compressedSizeKB = compressedImage.length / 1024;
+          if (compressedSizeKB > 500) {
+            // Try more aggressive compression
+            console.log('Image still large, applying more aggressive compression...');
+            compressedImage = await compressImage(base64String, 600, 0.6);
+          }
+
+          // Final size check
+          const finalSizeKB = compressedImage.length / 1024;
+          if (finalSizeKB > 800) {
+            alert('Image is too large even after compression. Please try capturing again with better lighting.');
+            event.target.value = '';
+            return;
+          }
+
+          updateSparePart(id, 'photo', compressedImage);
+          console.log(`✅ Image captured and compressed: ${finalSizeKB.toFixed(2)}KB`);
+        } catch (compressError) {
+          console.error('Image compression failed:', compressError);
+          // Don't use original if compression fails - it's likely too large
+          alert('Failed to process image. Please try capturing again.');
+          event.target.value = '';
+        }
+      };
+      
+      reader.onerror = () => {
+        console.error('FileReader error');
+        alert('Failed to read image. Please try again.');
+        event.target.value = '';
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      alert('Failed to read image. Please try again.');
+      event.target.value = '';
+    }
   };
   
   // Function to trigger camera - works in both web and APK
@@ -553,6 +698,17 @@ const VendorClosedTask = () => {
             setIsCompleting(false);
             return;
           }
+          
+          // Validate photo size (should be compressed, max 800KB base64)
+          if (part.photo) {
+            const photoSizeKB = part.photo.length / 1024;
+            if (photoSizeKB > 800) {
+              alert(`Image for "${part.name}" is too large (${photoSizeKB.toFixed(2)}KB). Please capture again.`);
+              setIsCompleting(false);
+              return;
+            }
+          }
+          
           if (!part.warranty) {
             alert(`Please select warranty period for spare part: ${part.name || 'Part ' + (spareParts.indexOf(part) + 1)}`);
             setIsCompleting(false);
@@ -583,7 +739,29 @@ const VendorClosedTask = () => {
         travelingAmount: "100"
       };
       
+      // Calculate payload size for debugging and validation
+      const payloadString = JSON.stringify(taskData);
+      const payloadSizeKB = parseFloat((new Blob([payloadString]).size / 1024).toFixed(2));
       console.log('Task data being sent:', taskData);
+      console.log('Payload size:', `${payloadSizeKB} KB`);
+      
+      // Validate payload size before sending (max 1MB to prevent timeout)
+      if (payloadSizeKB > 1000) {
+        alert(`Request size is too large (${payloadSizeKB.toFixed(2)}KB). Please reduce the number of images or try capturing smaller images.`);
+        setIsCompleting(false);
+        return;
+      }
+      
+      // Warn if payload is large (over 500KB)
+      if (payloadSizeKB > 500) {
+        console.warn('⚠️ Large payload detected. This may cause timeout issues.');
+        // Still allow but warn user
+        const proceed = confirm(`Warning: Request size is large (${payloadSizeKB.toFixed(2)}KB). This may take longer. Do you want to continue?`);
+        if (!proceed) {
+          setIsCompleting(false);
+          return;
+        }
+      }
 
       // Call the appropriate complete task API based on task type
       let response;
@@ -688,9 +866,44 @@ const VendorClosedTask = () => {
       } else {
         alert('Failed to complete task. Please try again.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error completing task:', error);
-      alert('An error occurred while completing the task. Please try again.');
+      console.error('Error details:', {
+        name: error?.name,
+        message: error?.message,
+        stack: error?.stack,
+        response: error?.response?.data
+      });
+      
+      // Show more detailed error message
+      let errorMessage = 'An error occurred while completing the task. Please try again.';
+      
+      if (error?.message) {
+        // Check for specific error types
+        if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+          errorMessage = 'Request timeout: The task is taking too long to complete. Please check your internet connection and try again. If the problem persists, try reducing the number of images.';
+        } else if (error.message.includes('Network error') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'Network error: Unable to connect to server. Please check your internet connection and try again.';
+        } else if (error.message.includes('payload') || error.message.includes('too large') || error.message.includes('413')) {
+          errorMessage = 'Request size too large. Please reduce the number of images or try capturing smaller images with better lighting.';
+        } else if (error.message.includes('400') || error.message.includes('Bad Request')) {
+          errorMessage = 'Invalid request data. Please check all fields and try again.';
+        } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+          errorMessage = 'Server error occurred. Please try again in a few moments.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      // Check response data for more details
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+      
+      // Show user-friendly error message
+      alert(errorMessage);
     } finally {
       setIsCompleting(false);
     }
