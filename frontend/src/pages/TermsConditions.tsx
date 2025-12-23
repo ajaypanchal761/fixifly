@@ -54,7 +54,7 @@ const TermsConditions = () => {
 
                 {/* Payment Terms */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">3. Payment Terms</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">1. Payment Terms</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>
                       • Payments can be made online via UPI, credit/debit card, or wallet through secure payment gateways.
@@ -64,7 +64,7 @@ const TermsConditions = () => {
 
                 {/* Cancellations & Refunds */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">4. Cancellations & Refunds</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">2. Cancellations & Refunds</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>
                       • You may cancel your booking anytime before the service visit by contacting support.
@@ -80,7 +80,7 @@ const TermsConditions = () => {
 
                 {/* Service Execution */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">5. Service Execution</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">3. Service Execution</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>
                       • Fixfly assigns technicians based on location and service type.
@@ -99,7 +99,7 @@ const TermsConditions = () => {
 
                 {/* Warranty on Services */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">6. Warranty on Services</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">4. Warranty on Services</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>
                       • Repairs and parts come with a limited service warranty (varies by product and issue).
@@ -115,7 +115,7 @@ const TermsConditions = () => {
 
                 {/* User Responsibilities */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">7. User Responsibilities</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">5. User Responsibilities</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>By using Fixfly services, you agree to:</p>
                     <p>
@@ -132,7 +132,7 @@ const TermsConditions = () => {
 
                 {/* Data Privacy & Security */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">8. Data Privacy & Security</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">6. Data Privacy & Security</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>We value your privacy.</p>
                     <p>
@@ -152,7 +152,7 @@ const TermsConditions = () => {
 
                 {/* Limitation of Liability */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">9. Limitation of Liability</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">7. Limitation of Liability</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>Fixfly is not liable for:</p>
                     <p>
@@ -169,7 +169,7 @@ const TermsConditions = () => {
 
                 {/* Third-Party Services */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">10. Third-Party Services</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">8. Third-Party Services</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>
                       Some services may be fulfilled by independent technicians or partner companies.
@@ -182,7 +182,7 @@ const TermsConditions = () => {
 
                 {/* Changes to Terms */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">11. Changes to Terms</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">9. Changes to Terms</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>
                       Fixfly may modify these Terms periodically to improve user experience or comply with regulations.
@@ -195,7 +195,7 @@ const TermsConditions = () => {
 
                 {/* Contact Us */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-4">12. Contact Us</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">10. Contact Us</h2>
                   <p className="text-gray-600 mb-4">
                     For any queries, complaints, or support requests, please contact:
                   </p>

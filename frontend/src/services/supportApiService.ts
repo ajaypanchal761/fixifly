@@ -52,10 +52,78 @@ export const supportTicketAPI = {
   // Create a new support ticket
   createTicket: async (ticketData) => {
     try {
+      console.log('Creating support ticket with data:', ticketData);
       const response = await supportApiService.post('/support-tickets', ticketData);
+      console.log('Ticket created successfully:', response.data);
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to create support ticket');
+      console.error('Error creating ticket:', error);
+      
+      // Log detailed error information for debugging
+      if (error.response) {
+        console.error('Error response:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+      } else if (error.request) {
+        console.error('Error request:', {
+          url: error.config?.url,
+          method: error.config?.method,
+          baseURL: error.config?.baseURL,
+          timeout: error.config?.timeout
+        });
+      } else {
+        console.error('Error message:', error.message);
+      }
+
+      // Handle network errors (no response received)
+      if (!error.response) {
+        // Check if it's a timeout
+        if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+          throw new Error('Request timeout: The server took too long to respond. Please try again.');
+        }
+        // Check if it's a network error
+        if (error.message?.includes('Network Error') || error.message?.includes('Failed to fetch') || error.request) {
+          throw new Error('Network error: Unable to connect to server. Please check your internet connection and try again.');
+        }
+        throw new Error('Failed to connect to server. Please check your internet connection and try again.');
+      }
+
+      // Handle HTTP errors (response received but with error status)
+      const { status, data } = error.response;
+      
+      // Extract error message from different possible locations
+      let errorMessage = data?.message || data?.error || 'Failed to create support ticket';
+      
+      // Handle validation errors
+      if (status === 400) {
+        if (data?.errors && Array.isArray(data.errors)) {
+          errorMessage = data.errors.join('. ');
+        } else if (data?.message) {
+          errorMessage = data.message;
+        } else {
+          errorMessage = 'Invalid request. Please check your input and try again.';
+        }
+      } else if (status === 401) {
+        errorMessage = 'Authentication failed. Please log in again.';
+      } else if (status === 403) {
+        errorMessage = 'You do not have permission to create support tickets.';
+      } else if (status === 404) {
+        errorMessage = 'Support ticket endpoint not found. Please contact support.';
+      } else if (status === 422) {
+        // Unprocessable Entity - validation errors
+        errorMessage = data?.message || 'Validation error. Please check your input.';
+      } else if (status === 500) {
+        errorMessage = data?.message || 'Server error occurred. Please try again later.';
+      } else if (status >= 400 && status < 500) {
+        errorMessage = errorMessage || `Request failed (${status}). Please check your input.`;
+      } else if (status >= 500) {
+        errorMessage = errorMessage || `Server error (${status}). Please try again later.`;
+      }
+      
+      throw new Error(errorMessage);
     }
   },
 

@@ -560,24 +560,35 @@ SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = 
   const wallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
   
   if (wallet) {
-    console.log('🔧 PENALTY DEBUG: Applying penalty for task rejection', {
-      ticketId: this.ticketId,
-      vendorId: vendor.vendorId,
-      amount: 100
-    });
-    
-    // Add penalty for task rejection
-    await wallet.addPenalty({
-      caseId: this._id,
-      type: 'rejection',
-      amount: 100, // ₹100 penalty for rejecting task
-      description: `Task rejection penalty - ${this.ticketId}`
-    });
-    
-    console.log('🔧 PENALTY DEBUG: Penalty applied successfully', {
-      newBalance: wallet.currentBalance,
-      totalPenalties: wallet.totalPenalties
-    });
+    const penaltyAmount = 100;
+    // Check if wallet has balance > 0 - no penalty if balance is 0
+    if (wallet.currentBalance > 0 && wallet.currentBalance >= penaltyAmount) {
+      console.log('🔧 PENALTY DEBUG: Applying penalty for task rejection', {
+        ticketId: this.ticketId,
+        vendorId: vendor.vendorId,
+        amount: penaltyAmount
+      });
+      
+      // Add penalty for task rejection
+      await wallet.addPenalty({
+        caseId: this._id,
+        type: 'rejection',
+        amount: penaltyAmount, // ₹100 penalty for rejecting task
+        description: `Task rejection penalty - ${this.ticketId}`
+      });
+      
+      console.log('🔧 PENALTY DEBUG: Penalty applied successfully', {
+        newBalance: wallet.currentBalance,
+        totalPenalties: wallet.totalPenalties
+      });
+    } else {
+      console.log('🔧 PENALTY DEBUG: Penalty skipped - balance is 0 or insufficient', {
+        ticketId: this.ticketId,
+        vendorId: vendor.vendorId,
+        currentBalance: wallet.currentBalance,
+        requiredAmount: penaltyAmount
+      });
+    }
   } else {
     console.error('Vendor wallet not found for penalty application:', vendor.vendorId);
   }

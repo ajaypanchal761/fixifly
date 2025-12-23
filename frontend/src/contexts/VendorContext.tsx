@@ -140,11 +140,11 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       }
     };
 
-    // Set a timeout to force loading to stop after 5 seconds (safety net)
+    // Set a timeout to force loading to stop after 2 seconds (safety net for faster loading)
     const timeoutId = setTimeout(() => {
       console.warn('VendorContext: Loading timeout reached, forcing loading to stop');
       setIsLoading(false);
-    }, 5000);
+    }, 2000);
 
     checkAuthStatus();
 
@@ -234,9 +234,9 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
       console.log('🔄 VendorContext: Refreshing vendor data from API...');
       
-      // Add timeout wrapper to prevent hanging
+      // Add timeout wrapper to prevent hanging (reduced to 5 seconds for faster failure)
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Refresh timeout: Request took too long')), 30000);
+        setTimeout(() => reject(new Error('Refresh timeout: Request took too long')), 5000);
       });
       
       const response = await Promise.race([
@@ -283,9 +283,11 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         clearInterval(refreshIntervalRef.current);
       }
 
-      // Refresh immediately on mount
-      refreshVendor();
-      console.log('✅ VendorContext: One-time refresh on mount; periodic refresh disabled to avoid UI jump');
+      // Refresh in background after a short delay to avoid blocking initial render
+      setTimeout(() => {
+        refreshVendor();
+      }, 100); // Small delay to let UI render first
+      console.log('✅ VendorContext: Background refresh scheduled; UI loads instantly from cache');
 
       // Listen for account access granted notifications
       const handleAccountAccessGranted = (event: CustomEvent) => {

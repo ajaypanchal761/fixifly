@@ -1,10 +1,43 @@
 import { Phone } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const FloatingCallButton = () => {
+  const [isMobileWebView, setIsMobileWebView] = useState(false);
+
+  useEffect(() => {
+    // Detect if running in mobile webview/APK
+    try {
+      if (typeof navigator === 'undefined' || typeof window === 'undefined') {
+        setIsMobileWebView(false);
+        return;
+      }
+
+      const userAgent = navigator.userAgent || '';
+      
+      // Check for webview indicators
+      const isWebView = /wv|WebView/i.test(userAgent);
+      
+      // Check for native bridge (Flutter/Android)
+      const hasNativeBridge = typeof (window as any).flutter_inappwebview !== 'undefined' || 
+                             typeof (window as any).Android !== 'undefined';
+      
+      // Only hide if it's a webview, not regular mobile browser
+      setIsMobileWebView(isWebView || hasNativeBridge);
+    } catch (error) {
+      console.error('Error detecting mobile webview:', error);
+      setIsMobileWebView(false);
+    }
+  }, []);
+
   const handleCallClick = () => {
     // Desktop browsers will trigger the default calling app or show options
     window.location.href = "tel:02269647030";
   };
+
+  // Hide button in mobile webview/APK, show on web
+  if (isMobileWebView) {
+    return null;
+  }
 
   return (
     <button

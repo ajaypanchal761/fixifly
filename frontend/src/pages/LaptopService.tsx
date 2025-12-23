@@ -576,8 +576,8 @@ const ServicePage = () => {
                 <Button 
                   className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 md:px-6 lg:px-8 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0"
                   onClick={() => {
-                    // Navigate to checkout or booking page
-                    navigate('/booking', { state: { cartItems, totalPrice } });
+                    // Navigate to checkout page
+                    navigate('/checkout', { state: { cartItems, totalPrice } });
                   }}
                 >
                   <span>Proceed to Checkout</span>

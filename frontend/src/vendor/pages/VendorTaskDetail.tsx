@@ -114,6 +114,7 @@ const VendorTaskDetail = () => {
               taskType: supportTicket.subject || 'Support Request',
               vendorStatus: supportTicket.vendorStatus,
               priority: supportTicket.priority?.toLowerCase() || 'medium',
+              assignmentNotes: supportTicket.scheduleNotes || null, // Map scheduleNotes to assignmentNotes for display
               isSupportTicket: true
             };
           }

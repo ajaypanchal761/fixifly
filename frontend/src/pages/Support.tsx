@@ -59,14 +59,44 @@ const Support = () => {
   const [showAddResponse, setShowAddResponse] = useState(false);
   const [responseText, setResponseText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const { toast } = useToast();
 
-  // Fetch user tickets on component mount
+  // Load cached tickets immediately on mount for instant display
   useEffect(() => {
-    if (user) {
-      fetchUserTickets();
-      fetchUserAMCSubscriptions();
+    if (!user) {
+      return;
     }
+
+    let hasCache = false;
+    try {
+      const userId = user?.email || user?._id || 'default';
+      const cachedTickets = localStorage.getItem(`userSupportTickets_${userId}`);
+      if (cachedTickets) {
+        const parsed = JSON.parse(cachedTickets);
+        const cacheTime = localStorage.getItem(`userSupportTicketsTime_${userId}`);
+        const now = Date.now();
+        // Use cache if less than 2 minutes old
+        if (cacheTime && (now - parseInt(cacheTime)) < 2 * 60 * 1000) {
+          console.log('✅ Loading cached support tickets instantly');
+          setUserTickets(parsed);
+          setLoading(false);
+          hasCache = true;
+          setIsInitialLoad(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cached tickets:', error);
+    }
+
+    // Always fetch fresh data in background
+    if (hasCache) {
+      fetchUserTickets(false); // Fetch without showing loading
+    } else {
+      fetchUserTickets(true); // Fetch with loading
+    }
+    
+    fetchUserAMCSubscriptions();
   }, [user]);
 
   // Fetch user AMC subscriptions
@@ -96,8 +126,11 @@ const Support = () => {
     };
   }, []);
 
-  const fetchUserTickets = async () => {
+  const fetchUserTickets = async (showLoading = true) => {
     try {
+      if (showLoading) {
+        setLoading(true);
+      }
       console.log('Fetching user tickets...');
       const response = await supportTicketAPI.getUserTickets();
       if (response.success) {
@@ -115,6 +148,15 @@ const Support = () => {
         })));
         
         setUserTickets(response.data.tickets);
+        
+        // Cache tickets for instant loading next time
+        try {
+          const userId = user?.email || user?._id || 'default';
+          localStorage.setItem(`userSupportTickets_${userId}`, JSON.stringify(response.data.tickets));
+          localStorage.setItem(`userSupportTicketsTime_${userId}`, Date.now().toString());
+        } catch (error) {
+          console.error('Error caching tickets:', error);
+        }
       }
     } catch (error) {
       console.error('Error fetching user tickets:', error);
@@ -127,6 +169,11 @@ const Support = () => {
       } else {
         alert('Failed to fetch support tickets. Please try again.');
       }
+    } finally {
+      if (showLoading) {
+        setLoading(false);
+      }
+      setIsInitialLoad(false);
     }
   };
 
@@ -167,7 +214,7 @@ const Support = () => {
       }
 
       console.log('Starting payment for ticket:', ticket);
-      console.log('Amount:', ticket.billingAmount || ticket.totalAmount || 0);
+      console.log('Amount:', ticket.totalAmount || ticket.billingAmount || 0);
       console.log('User token exists:', !!userToken);
 
       // Detect mobile webview
@@ -244,7 +291,7 @@ const Support = () => {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         },
         body: JSON.stringify({
-          amount: (ticket.billingAmount || ticket.totalAmount || 0), // Amount in rupees, backend will convert to paise
+          amount: (ticket.totalAmount || ticket.billingAmount || 0), // Amount in rupees (totalAmount includes GST if applicable), backend will convert to paise
           currency: 'INR',
           receipt: `receipt_${ticket.id}_${Date.now()}`,
           notes: {
@@ -391,7 +438,7 @@ const Support = () => {
         ticketId: ticket.id,
         subject: ticket.subject,
         caseId: ticket.caseId,
-        amount: ticket.billingAmount || ticket.totalAmount || 0,
+        amount: ticket.totalAmount || ticket.billingAmount || 0,
         paymentMode: ticket.paymentMode,
         status: ticket.status,
         created: ticket.created,
@@ -1437,7 +1484,7 @@ const Support = () => {
                                   className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
                                   onClick={() => handlePayNow(ticket)}
                                 >
-                                  Pay Now ₹{ticket.billingAmount || ticket.totalAmount || 0}
+                                  Pay Now ₹{ticket.totalAmount || ticket.billingAmount || 0}
                                 </Button>
                               )}
                               {ticket.status === 'Resolved' && ticket.paymentStatus === 'collected' && (
@@ -1712,7 +1759,7 @@ const Support = () => {
                         className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={() => handlePayNow(selectedTicket)}
                       >
-                        Pay Now ₹{selectedTicket.billingAmount || selectedTicket.totalAmount || 0}
+                        Pay Now ₹{selectedTicket.totalAmount || selectedTicket.billingAmount || 0}
                       </Button>
                     </div>
                   </div>

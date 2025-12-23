@@ -228,7 +228,7 @@ const About = () => {
                   <div>
                     <p className="text-gray-600">Address:</p>
                     <p className="text-gray-700">
-                      Shop No 43, -A, F Grd W P, Sion,<br />
+                      Office No 43, -A, F Grd W P, Sion,<br />
                       Mumbai, Maharashtra, India, 400022
                     </p>
                   </div>

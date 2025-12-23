@@ -68,18 +68,29 @@ class AutoRejectService {
       const wallet = await VendorWallet.findOne({ vendorId });
       
       if (wallet) {
-        await wallet.addPenalty({
-          caseId: booking.bookingReference || booking._id.toString(),
-          type: 'auto_rejection',
-          amount: 100, // ₹100 penalty for auto-rejection
-          description: `Auto-rejection penalty - Task not responded within 25 minutes - ${booking.bookingReference || booking._id}`
-        });
+        const penaltyAmount = 100;
+        // Check if wallet has balance > 0 - no penalty if balance is 0
+        if (wallet.currentBalance > 0 && wallet.currentBalance >= penaltyAmount) {
+          await wallet.addPenalty({
+            caseId: booking.bookingReference || booking._id.toString(),
+            type: 'auto_rejection',
+            amount: penaltyAmount, // ₹100 penalty for auto-rejection
+            description: `Auto-rejection penalty - Task not responded within 25 minutes - ${booking.bookingReference || booking._id}`
+          });
 
-        logger.info(`Auto-rejection penalty applied to vendor ${vendorId}`, {
-          vendorId,
-          bookingId: booking._id,
-          penaltyAmount: 100
-        });
+          logger.info(`Auto-rejection penalty applied to vendor ${vendorId}`, {
+            vendorId,
+            bookingId: booking._id,
+            penaltyAmount: penaltyAmount
+          });
+        } else {
+          logger.warn(`Auto-rejection penalty skipped for vendor ${vendorId} - balance is 0 or insufficient`, {
+            vendorId,
+            bookingId: booking._id,
+            currentBalance: wallet.currentBalance,
+            requiredAmount: penaltyAmount
+          });
+        }
       }
 
       // Update booking status

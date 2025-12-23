@@ -1405,6 +1405,8 @@ class AdminApiService {
           vendorName?: string;
           paymentMethod?: string;
           billingAmount?: number;
+        // New: raw booking amount / platform fee to share with admin
+        bookingAmount?: number;
           adminCommission: number;
           createdAt?: string;
         }>;
@@ -1415,6 +1417,7 @@ class AdminApiService {
           vendorName?: string;
           paymentMethod?: string;
           billingAmount?: number;
+        bookingAmount?: number;
           adminCommission: number;
           createdAt?: string;
         }>;

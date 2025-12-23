@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { Booking } = require('../models/Booking');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 
@@ -72,25 +73,66 @@ const getAllUsers = asyncHandler(async (req, res) => {
   const hasNext = parseInt(page) < totalPages;
   const hasPrev = parseInt(page) > 1;
 
-  // Format user data
-  const formattedUsers = users.map(user => ({
-    id: user._id,
-    name: user.name || 'N/A',
-    email: user.email || 'N/A',
-    phone: user.formattedPhone || user.phone,
-    location: user.address ? 
-      `${user.address.city || ''}, ${user.address.state || ''}`.replace(/^,\s*|,\s*$/g, '') || 'N/A' : 'N/A',
-    joinDate: user.createdAt,
-    status: user.isBlocked ? 'blocked' : (user.isActive ? 'active' : 'inactive'),
-    isPhoneVerified: user.isPhoneVerified,
-    isEmailVerified: user.isEmailVerified,
-    totalBookings: user.stats?.totalBookings || 0,
-    completedBookings: user.stats?.completedBookings || 0,
-    totalSpent: user.stats?.totalSpent || 0,
-    lastActive: user.stats?.lastLoginAt || user.updatedAt,
-    profileImage: user.profileImage,
-    address: user.address,
-    preferences: user.preferences
+  // Get bookings count for each user from Booking model
+  const formattedUsers = await Promise.all(users.map(async (user) => {
+    // Normalize phone number for matching (remove spaces, handle +91 prefix)
+    const normalizePhone = (phone) => {
+      if (!phone) return null;
+      const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
+      // If starts with 91 and has 12 digits, remove 91
+      if (cleaned.length === 12 && cleaned.startsWith('91')) {
+        return cleaned.substring(2);
+      }
+      // If has 10 digits, return as is
+      if (cleaned.length === 10) {
+        return cleaned;
+      }
+      return cleaned;
+    };
+
+    const userEmail = user.email?.toLowerCase().trim();
+    const userPhone = normalizePhone(user.phone);
+    
+    // Build query to find bookings by email or phone
+    const bookingQuery = {
+      $or: [
+        { 'customer.email': userEmail },
+        ...(userPhone ? [
+          { 'customer.phone': userPhone },
+          { 'customer.phone': `+91${userPhone}` },
+          { 'customer.phone': `91${userPhone}` }
+        ] : [])
+      ]
+    };
+
+    // Count total bookings and completed bookings
+    const [totalBookingsCount, completedBookingsCount] = await Promise.all([
+      Booking.countDocuments(bookingQuery),
+      Booking.countDocuments({
+        ...bookingQuery,
+        status: 'completed'
+      })
+    ]);
+
+    return {
+      id: user._id,
+      name: user.name || 'N/A',
+      email: user.email || 'N/A',
+      phone: user.formattedPhone || user.phone,
+      location: user.address ? 
+        `${user.address.city || ''}, ${user.address.state || ''}`.replace(/^,\s*|,\s*$/g, '') || 'N/A' : 'N/A',
+      joinDate: user.createdAt,
+      status: user.isBlocked ? 'blocked' : (user.isActive ? 'active' : 'inactive'),
+      isPhoneVerified: user.isPhoneVerified,
+      isEmailVerified: user.isEmailVerified,
+      totalBookings: totalBookingsCount || 0,
+      completedBookings: completedBookingsCount || 0,
+      totalSpent: user.stats?.totalSpent || 0,
+      lastActive: user.stats?.lastLoginAt || user.updatedAt,
+      profileImage: user.profileImage,
+      address: user.address,
+      preferences: user.preferences
+    };
   }));
 
   res.status(200).json({

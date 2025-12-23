@@ -212,50 +212,6 @@ const VendorAbout = () => {
               </ul>
             </CardContent>
           </Card>
-
-          {/* Contact Information */}
-          <Card className="mb-4 shadow-lg border-0 bg-white">
-            <CardHeader className="bg-gradient-to-r from-teal-50 to-cyan-50 border-b py-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-                  <Phone className="w-4 h-4 text-teal-600" />
-                </div>
-                Contact Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">Phone</p>
-                    <p className="text-xs text-gray-600">+91 98765 43210</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Mail className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">Email</p>
-                    <p className="text-xs text-gray-600">info@getfixfly.com</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">Address</p>
-                    <p className="text-xs text-gray-600">Sector 15, Gurgaon, Haryana 122001</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">Support Hours</p>
-                    <p className="text-xs text-gray-600">24/7 Available</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </main>
       <div className="md:hidden">

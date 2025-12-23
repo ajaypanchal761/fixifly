@@ -924,6 +924,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
                 { $ifNull: ['$pricing.totalAmount', 0] }
               ]
             }),
+            // Raw booking amount paid by user (platform fee / booking charge)
+            bookingAmount: safeToDouble({ $ifNull: ['$pricing.totalAmount', 0] }),
             gstAmount: safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
             includeGST: { $ifNull: ['$completionData.includeGST', false] },
             effectiveBilling: {
@@ -1053,10 +1055,9 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         bookingCommissionAddFieldsStage2,
         { $group: { _id: null, total: { $sum: '$adminCommissionWithGST' } } }
       ]),
-      // Pending bookings count (bookings that are pending confirmation)
+      // Pending bookings count (bookings waiting for engineer assignment)
       Booking.countDocuments({ 
-        status: { $in: ['pending', 'confirmed', 'in_progress'] },
-        'payment.status': { $ne: 'completed' }
+        status: 'waiting_for_engineer'
       }),
       // Monthly revenue from completed support tickets (admin commission)
       SupportTicket.aggregate([

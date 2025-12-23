@@ -303,24 +303,13 @@ const VendorHero = () => {
         return;
       }
       
-      // Track loading start time for minimum 1 second display
-      const loadingStartTime = Date.now();
-      
       // Fetch both bookings and support tickets in parallel
       const [bookingsResponse, supportTicketsResponse] = await Promise.all([
         vendorApi.getVendorBookings(),
         vendorApi.getAssignedSupportTickets()
       ]);
       
-      // Ensure loading shows for at least 1 second
-      const elapsedTime = Date.now() - loadingStartTime;
-      const remainingTime = Math.max(0, 1000 - elapsedTime);
-      
-      if (remainingTime > 0) {
-        await new Promise(resolve => setTimeout(resolve, remainingTime));
-      }
-      
-      // Hide loading after minimum 1 second
+      // Hide loading immediately after data is fetched (no artificial delay)
       setLoading(false);
       
       const bookings = bookingsResponse.success ? (bookingsResponse.data?.bookings || []) : [];
@@ -456,6 +445,9 @@ const VendorHero = () => {
           : 'Not assigned',
           priority: ticket.priority?.toLowerCase() || 'medium',
           vendorStatus: ticket.vendorStatus,
+          paymentMode: ticket.paymentMode || null,
+          paymentStatus: ticket.paymentStatus || null,
+          assignmentNotes: ticket.scheduleNotes || null, // Map scheduleNotes to assignmentNotes for display
           isSupportTicket: true,
           sortTime
         };
@@ -479,7 +471,12 @@ const VendorHero = () => {
       const newTasks = allTasks.filter(task => {
         if (task.isSupportTicket) {
           // Support tickets: Pending, Accepted statuses are "new"
-          return task.vendorStatus === 'Pending' || task.vendorStatus === 'Accepted';
+          // Also keep in "new" if Completed but payment is pending (online payment)
+          const isPendingOrAccepted = task.vendorStatus === 'Pending' || task.vendorStatus === 'Accepted';
+          const isCompletedWithPendingPayment = task.vendorStatus === 'Completed' && 
+                                                task.paymentMode === 'online' && 
+                                                task.paymentStatus === 'pending';
+          return isPendingOrAccepted || isCompletedWithPendingPayment;
         } else {
           // Bookings: confirmed, waiting_for_engineer, in_progress are "new" (but not if declined)
           const isDeclined = task.vendorResponse?.status === 'declined';
@@ -493,8 +490,13 @@ const VendorHero = () => {
       
       const closedTasks = allTasks.filter(task => {
         if (task.isSupportTicket) {
-          // Support tickets: Completed status
-          return task.vendorStatus === 'Completed';
+          // Support tickets: Completed status AND payment is collected (or cash payment)
+          // If online payment is pending, it stays in "new" tasks
+          const isCompleted = task.vendorStatus === 'Completed';
+          const isPaymentCollected = task.paymentStatus === 'collected' || 
+                                   task.paymentMode === 'cash' || 
+                                   !task.paymentMode; // No payment mode means cash or no payment required
+          return isCompleted && isPaymentCollected;
         } else {
           // Bookings: completed status
           return task.bookingStatus === 'completed';
@@ -583,12 +585,9 @@ const VendorHero = () => {
         if (cacheTime && (now - parseInt(cacheTime)) < 5 * 60 * 1000) {
           console.log('✅ Loading cached tasks instantly');
           setTaskData(parsed);
-          // Show loading for minimum 1 second even with cache
-          setLoading(true);
-          setTimeout(() => {
-            setLoading(false);
-            setIsInitialLoad(false);
-          }, 1000);
+          // Display cached data instantly, no artificial delay
+          setLoading(false);
+          setIsInitialLoad(false);
         }
       }
     } catch (error) {

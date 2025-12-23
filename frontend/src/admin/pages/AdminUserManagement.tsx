@@ -172,6 +172,7 @@ const AdminUserManagement = () => {
         description: `User ${userName} has been blocked`,
       });
       fetchUsers();
+      fetchUserStats();
     } catch (err: any) {
       toast({
         title: "Error",
@@ -189,6 +190,7 @@ const AdminUserManagement = () => {
         description: `User ${userName} has been unblocked`,
       });
       fetchUsers();
+      fetchUserStats();
     } catch (err: any) {
       toast({
         title: "Error",

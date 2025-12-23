@@ -210,6 +210,7 @@ const VendorClosedTaskDetail = () => {
             totalAmount: `₹${supportTicket.completionData?.totalAmount || supportTicket.billingAmount || 0}`,
             customerRating: 5, // Default rating - can be enhanced later
             customerFeedback: "Support ticket completed successfully.", // Default feedback - can be enhanced later
+            assignmentNotes: supportTicket.scheduleNotes || null, // Map scheduleNotes to assignmentNotes for display
             isSupportTicket: true
           };
         }

@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   '/signup',
   '/profile',
   '/booking',
+  '/checkout',
   '/amc',
   '/terms-conditions',
   '/privacy-policy',

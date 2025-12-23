@@ -71,7 +71,7 @@ const CancellationRefundPolicy = () => {
                     
                     <div className="flex items-center gap-3">
                       <Globe className="w-5 h-5 text-primary" />
-                      <span className="text-gray-600">Registered Address: Shop No. 43-A, F Grd W P, Welfare Centre Hutments, Sion, Mumbai – 400022, Maharashtra</span>
+                      <span className="text-gray-600">Registered Address: Office No. 43-A, F Grd W P, Welfare Centre Hutments, Sion, Mumbai – 400022, Maharashtra</span>
                     </div>
                   </div>
                 </section>

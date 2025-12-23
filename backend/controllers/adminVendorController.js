@@ -77,43 +77,62 @@ const getVendors = asyncHandler(async (req, res) => {
 
   const total = await Vendor.countDocuments(query);
 
-  // Transform vendor data for admin display
-  const transformedVendors = vendors.map(vendor => ({
-    id: vendor._id,
-    vendorId: vendor.vendorId,
-    name: `${vendor.firstName} ${vendor.lastName}`,
-    firstName: vendor.firstName,
-    lastName: vendor.lastName,
-    email: vendor.email,
-    phone: vendor.formattedPhone,
-    alternatePhone: vendor.alternatePhone,
-    fatherName: vendor.fatherName,
-    homePhone: vendor.homePhone,
-    currentAddress: vendor.currentAddress,
-    location: vendor.address ? `${vendor.address.city}, ${vendor.address.state}` : 'Not specified',
-    address: vendor.address,
-    serviceLocations: vendor.serviceLocations,
-    joinDate: vendor.createdAt,
-    status: vendor.isBlocked ? 'blocked' : (vendor.isActive ? 'active' : 'inactive'),
-    verificationStatus: vendor.isApproved ? 'verified' : 'pending',
-    rating: vendor.rating.average || 0,
-    totalReviews: vendor.rating.totalReviews || 0,
-    totalBookings: vendor.stats.totalTasks,
-    completedBookings: vendor.stats.completedTasks,
-    pendingBookings: vendor.stats.totalTasks - vendor.stats.completedTasks,
-    services: vendor.serviceCategories,
-    customServiceCategory: vendor.customServiceCategory,
-    lastActive: vendor.stats.lastLoginAt,
-    profileImage: vendor.profileImage,
-    documents: vendor.documents,
-    isEmailVerified: vendor.isEmailVerified,
-    isPhoneVerified: vendor.isPhoneVerified,
-    isProfileComplete: vendor.isProfileComplete,
-    experience: vendor.experience,
-    specialty: vendor.specialty,
-    bio: vendor.bio,
-    createdAt: vendor.createdAt,
-    updatedAt: vendor.updatedAt
+  // Get bookings count for each vendor from Booking model
+  const { Booking } = require('../models/Booking');
+  const transformedVendors = await Promise.all(vendors.map(async (vendor) => {
+    // Count bookings assigned to this vendor
+    const bookingQuery = { 'vendor.vendorId': vendor.vendorId };
+    
+    // Count total bookings, completed bookings, and pending bookings
+    const [totalBookingsCount, completedBookingsCount, pendingBookingsCount] = await Promise.all([
+      Booking.countDocuments(bookingQuery),
+      Booking.countDocuments({
+        ...bookingQuery,
+        status: 'completed'
+      }),
+      Booking.countDocuments({
+        ...bookingQuery,
+        status: { $in: ['pending', 'waiting_for_engineer', 'confirmed', 'in_progress'] }
+      })
+    ]);
+
+    return {
+      id: vendor._id,
+      vendorId: vendor.vendorId,
+      name: `${vendor.firstName} ${vendor.lastName}`,
+      firstName: vendor.firstName,
+      lastName: vendor.lastName,
+      email: vendor.email,
+      phone: vendor.formattedPhone,
+      alternatePhone: vendor.alternatePhone,
+      fatherName: vendor.fatherName,
+      homePhone: vendor.homePhone,
+      currentAddress: vendor.currentAddress,
+      location: vendor.address ? `${vendor.address.city}, ${vendor.address.state}` : 'Not specified',
+      address: vendor.address,
+      serviceLocations: vendor.serviceLocations,
+      joinDate: vendor.createdAt,
+      status: vendor.isBlocked ? 'blocked' : (vendor.isActive ? 'active' : 'inactive'),
+      verificationStatus: vendor.isApproved ? 'verified' : 'pending',
+      rating: vendor.rating.average || 0,
+      totalReviews: vendor.rating.totalReviews || 0,
+      totalBookings: totalBookingsCount || 0,
+      completedBookings: completedBookingsCount || 0,
+      pendingBookings: pendingBookingsCount || 0,
+      services: vendor.serviceCategories,
+      customServiceCategory: vendor.customServiceCategory,
+      lastActive: vendor.stats.lastLoginAt,
+      profileImage: vendor.profileImage,
+      documents: vendor.documents,
+      isEmailVerified: vendor.isEmailVerified,
+      isPhoneVerified: vendor.isPhoneVerified,
+      isProfileComplete: vendor.isProfileComplete,
+      experience: vendor.experience,
+      specialty: vendor.specialty,
+      bio: vendor.bio,
+      createdAt: vendor.createdAt,
+      updatedAt: vendor.updatedAt
+    };
   }));
 
   res.json({
@@ -204,6 +223,22 @@ const getVendor = asyncHandler(async (req, res) => {
     });
   }
 
+  // Get bookings count from Booking model
+  const { Booking } = require('../models/Booking');
+  const bookingQuery = { 'vendor.vendorId': vendor.vendorId };
+  
+  const [totalBookingsCount, completedBookingsCount, pendingBookingsCount] = await Promise.all([
+    Booking.countDocuments(bookingQuery),
+    Booking.countDocuments({
+      ...bookingQuery,
+      status: 'completed'
+    }),
+    Booking.countDocuments({
+      ...bookingQuery,
+      status: { $in: ['pending', 'waiting_for_engineer', 'confirmed', 'in_progress'] }
+    })
+  ]);
+
   const vendorData = {
     id: vendor._id,
     vendorId: vendor.vendorId,
@@ -224,9 +259,9 @@ const getVendor = asyncHandler(async (req, res) => {
     verificationStatus: vendor.isApproved ? 'verified' : 'pending',
     rating: vendor.rating.average || 0,
     totalReviews: vendor.rating.totalReviews || 0,
-    totalBookings: vendor.stats.totalTasks,
-    completedBookings: vendor.stats.completedTasks,
-    pendingBookings: vendor.stats.totalTasks - vendor.stats.completedTasks,
+    totalBookings: totalBookingsCount || 0,
+    completedBookings: completedBookingsCount || 0,
+    pendingBookings: pendingBookingsCount || 0,
     services: vendor.serviceCategories,
     customServiceCategory: vendor.customServiceCategory,
     lastActive: vendor.stats.lastLoginAt,

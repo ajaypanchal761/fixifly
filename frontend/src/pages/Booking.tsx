@@ -48,6 +48,7 @@ const Booking = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Rating popup state
   const [showRatingPopup, setShowRatingPopup] = useState(false);
@@ -198,8 +199,7 @@ ${newBooking.services.map(service => `${service.serviceName} - ₹${service.pric
 PRICING SUMMARY
 ===============
 Subtotal: ₹${newBooking.pricing.subtotal}
-GST (18%): ₹${(newBooking.pricing as any).gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}
-Total Amount: ₹${newBooking.pricing.totalAmount}
+Total Amount: ₹${newBooking.pricing.subtotal}
 
 PAYMENT STATUS
 ==============
@@ -257,14 +257,10 @@ For support, contact us at info@getfixfly.com
             <span>Subtotal:</span>
             <span>₹${newBooking.pricing.subtotal}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-            <span>GST (18%):</span>
-            <span>₹${(newBooking.pricing as any).gstAmount || Math.round((newBooking.pricing.subtotal * 18) / 100)}</span>
-          </div>
           <hr style="border: 1px solid #e5e7eb; margin: 10px 0;">
           <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #2563eb;">
             <span>Total Amount:</span>
-            <span>₹${newBooking.pricing.totalAmount}</span>
+            <span>₹${newBooking.pricing.subtotal}</span>
           </div>
         </div>
 
@@ -325,14 +321,16 @@ For support, contact us at info@getfixfly.com
   };
 
   // Fetch real bookings from API
-  const fetchBookings = async () => {
+  const fetchBookings = async (showLoading = true) => {
     if (!isAuthenticated || !user?.email) {
       setError('Please login to view your bookings');
       return;
     }
 
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       setError(null);
       
       console.log('Fetching bookings for user:', user.email);
@@ -343,6 +341,14 @@ For support, contact us at info@getfixfly.com
       if (response.success && response.data?.bookings) {
         console.log('Bookings found:', response.data.bookings.length);
         setBookings(response.data.bookings);
+        
+        // Cache bookings for instant loading next time
+        try {
+          localStorage.setItem(`userBookings_${user.email}`, JSON.stringify(response.data.bookings));
+          localStorage.setItem(`userBookingsTime_${user.email}`, Date.now().toString());
+        } catch (error) {
+          console.error('Error caching bookings:', error);
+        }
       } else {
         console.log('No bookings found or API error:', response.message);
         setError(response.message || 'Failed to fetch bookings');
@@ -351,24 +357,51 @@ For support, contact us at info@getfixfly.com
       console.error('Error fetching bookings:', error);
       setError('Failed to load bookings. Please try again.');
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
+      setIsInitialLoad(false);
     }
   };
 
-  // Fetch bookings when component mounts or user changes
-  // Skip fetching if showing confirmation view to ensure instant display
+  // Load cached bookings immediately on mount for instant display
   useEffect(() => {
-    // Don't fetch bookings if we're showing the confirmation page
-    const isShowingConfirmation = (location.state?.booking && location.state?.fromCheckout) || 
-                                  (newBooking && fromCheckout);
-    
-    if (isShowingConfirmation) {
-      console.log('⏭️ Skipping bookings fetch - showing confirmation view');
+    if (!isAuthenticated || !user?.email) {
       return;
     }
-    
-    if (isAuthenticated && user?.email) {
-      fetchBookings();
+
+    // Don't load cache if showing confirmation view
+    const isShowingConfirmation = (location.state?.booking && location.state?.fromCheckout) || 
+                                  (newBooking && fromCheckout);
+    if (isShowingConfirmation) {
+      return;
+    }
+
+    let hasCache = false;
+    try {
+      const cachedBookings = localStorage.getItem(`userBookings_${user.email}`);
+      if (cachedBookings) {
+        const parsed = JSON.parse(cachedBookings);
+        const cacheTime = localStorage.getItem(`userBookingsTime_${user.email}`);
+        const now = Date.now();
+        // Use cache if less than 2 minutes old
+        if (cacheTime && (now - parseInt(cacheTime)) < 2 * 60 * 1000) {
+          console.log('✅ Loading cached bookings instantly');
+          setBookings(parsed);
+          setLoading(false);
+          hasCache = true;
+          setIsInitialLoad(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cached bookings:', error);
+    }
+
+    // Always fetch fresh data in background
+    if (hasCache) {
+      fetchBookings(false); // Fetch without showing loading
+    } else {
+      fetchBookings(true); // Fetch with loading
     }
   }, [isAuthenticated, user?.email, location.state, newBooking, fromCheckout]);
 
@@ -767,19 +800,10 @@ For support, contact us at info@getfixfly.com
       const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
       const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
       const baseAmount = booking.pricing.totalAmount + billingAmount;
+      // For receipts, ignore GST and show only base amount (no GST added)
       let totalAmount = baseAmount;
       let includeGST = false;
       let gstAmount = 0;
-      
-      if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
-        totalAmount = gstData.totalAmount;
-        includeGST = gstData.includeGST;
-        gstAmount = gstData.gstAmount;
-      } else {
-        includeGST = (booking as any).includeGST;
-        gstAmount = (booking as any).gstAmount || 0;
-        totalAmount = includeGST && gstAmount > 0 ? baseAmount + gstAmount : baseAmount;
-      }
 
       const receiptHTML = `
         <!DOCTYPE html>
@@ -851,12 +875,6 @@ For support, contact us at info@getfixfly.com
               <span>₹${billingAmount}</span>
             </div>
             ` : ''}
-            ${includeGST && gstAmount > 0 ? `
-            <div class="row">
-              <span>GST (18%):</span>
-              <span>₹${gstAmount}</span>
-            </div>
-            ` : ''}
             <hr style="border: 1px solid #e5e7eb; margin: 10px 0;">
             <div class="row total">
               <span>TOTAL AMOUNT:</span>
@@ -917,19 +935,10 @@ For support, contact us at info@getfixfly.com
       const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
       const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
       const baseAmount = booking.pricing.totalAmount + billingAmount;
+      // For receipts, ignore GST and show only base amount (no GST added)
       let totalAmount = baseAmount;
       let includeGST = false;
       let gstAmount = 0;
-      
-      if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
-        totalAmount = gstData.totalAmount;
-        includeGST = gstData.includeGST;
-        gstAmount = gstData.gstAmount;
-      } else {
-        includeGST = (booking as any).includeGST;
-        gstAmount = (booking as any).gstAmount || 0;
-        totalAmount = includeGST && gstAmount > 0 ? baseAmount + gstAmount : baseAmount;
-      }
       
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -1041,15 +1050,32 @@ For support, contact us at info@getfixfly.com
     if (billingAmount > 0) {
       yPosition = addText(`Service Charges: ${billingAmount}`, 20, yPosition);
     }
-    if (includeGST && gstAmount > 0) {
-      yPosition = addText(`GST (18%): ₹${gstAmount}`, 20, yPosition);
-    }
+    // GST removed from PDF receipt
     if (booking.payment?.method !== 'cash' && booking.payment?.transactionId) {
       yPosition = addText(`Transaction ID: ${booking.payment.transactionId}`, 20, yPosition);
     }
     yPosition += 10;
 
-    // Spare Parts Section removed - not showing in receipt
+    // Spare Parts Section - show details and warranty, but NOT payment/amount
+    const spareParts = (booking as any).completionData?.spareParts || [];
+    if (spareParts && spareParts.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      yPosition = addText('SPARE PARTS DETAILS', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      yPosition += 5;
+
+      spareParts.forEach((part: any, index: number) => {
+        yPosition = addText(`${index + 1}. ${part.name || 'N/A'}`, 20, yPosition);
+        if (part.warranty) {
+          yPosition = addText(`   Warranty: ${part.warranty}`, 25, yPosition);
+        }
+        yPosition += 3; // Small gap between parts
+      });
+      yPosition += 10;
+    }
+
     // Resolution Notes Section removed - not showing in receipt
     // Total Amount Section removed - not showing in receipt
 
@@ -1407,14 +1433,11 @@ For support, contact us at info@getfixfly.com
                   <span>Subtotal</span>
                   <span>₹{displayBooking.pricing.subtotal}</span>
                 </div>
-                <div className="flex justify-between text-gray-600 text-xs">
-                  <span>GST (18%)</span>
-                  <span>₹{(displayBooking.pricing as any).gstAmount || Math.round((displayBooking.pricing.subtotal * 18) / 100)}</span>
-                </div>
+                {/* GST removed from booking summary UI */}
                 <div className="border-t border-gray-200 pt-0.5">
                   <div className="flex justify-between text-sm font-bold text-gray-900">
                     <span>Total Amount</span>
-                    <span>₹{displayBooking.pricing.totalAmount}</span>
+                    <span>₹{displayBooking.pricing.subtotal}</span>
                   </div>
                 </div>
               </div>
@@ -1429,16 +1452,6 @@ For support, contact us at info@getfixfly.com
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 text-xs"
             >
               Back to Home
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => {
-                setFromCheckout(false);
-                setActiveTab("ongoing");
-              }}
-              className="px-4 py-1.5 text-xs"
-            >
-              View All Bookings
             </Button>
           </div>
         </div>

@@ -28,6 +28,8 @@ interface RevenueEntry {
   vendorName?: string;
   paymentMethod?: string;
   billingAmount?: number;
+  // New: raw booking amount sent from backend (e.g. ₹9, ₹100)
+  bookingAmount?: number;
   gstAmount?: number;
   includeGST?: boolean;
   effectiveBilling?: number;
@@ -88,18 +90,30 @@ const AdminDashboard = () => {
       
       if (response.success && response.data) {
         const breakdown = (response.data as any).revenueBreakdown || { monthly: [], total: [] };
-        // Fallback calculation if API overview totals are zero but breakdown has entries
-        const calcFromBreakdown = (entries: RevenueEntry[]) => {
+        // Calculate revenue as: admin commission + half of raw booking amount (if provided)
+        const calcRevenueFromEntries = (entries: RevenueEntry[]) => {
           if (!entries || entries.length === 0) return 0;
           return entries.reduce((sum, item) => {
-            if (typeof item.adminCommissionWithGST === 'number') {
-              return sum + (item.adminCommissionWithGST || 0);
+            // Base admin commission (with GST if provided)
+            const commission = typeof item.adminCommissionWithGST === 'number'
+              ? (item.adminCommissionWithGST || 0)
+              : (item.adminCommission || 0);
+
+            // For bookings, add half of the raw booking amount to admin revenue
+            let bookingShare = 0;
+            if (item.source === 'booking') {
+              const bookingAmount = typeof item.bookingAmount === 'number'
+                ? item.bookingAmount
+                : 0;
+              bookingShare = bookingAmount / 2;
             }
-            return sum + (item.adminCommission || 0);
+
+            return sum + commission + bookingShare;
           }, 0);
         };
-        const fallbackMonthly = calcFromBreakdown(breakdown.monthly);
-        const fallbackTotal = calcFromBreakdown(breakdown.total);
+
+        const computedMonthlyRevenue = calcRevenueFromEntries(breakdown.monthly || []);
+        const computedTotalRevenue = calcRevenueFromEntries(breakdown.total || []);
 
         // Validate and sanitize the data
         const validatedData = {
@@ -109,8 +123,9 @@ const AdminDashboard = () => {
             totalVendors: Math.max(0, response.data.overview.totalVendors || 0),
             totalServices: Math.max(0, response.data.overview.totalServices || 0),
             totalBookings: Math.max(0, response.data.overview.totalBookings || 0),
-            totalRevenue: Math.max(0, (response.data.overview.totalRevenue || 0) || fallbackTotal),
-            monthlyRevenue: Math.max(0, (response.data.overview.monthlyRevenue || 0) || fallbackMonthly),
+            // Use computed revenue (commission + 50% of booking billing)
+            totalRevenue: Math.max(0, computedTotalRevenue),
+            monthlyRevenue: Math.max(0, computedMonthlyRevenue),
             pendingVendors: Math.max(0, response.data.overview.pendingVendors || 0),
             activeVendors: Math.max(0, response.data.overview.activeVendors || 0),
             blockedVendors: Math.max(0, response.data.overview.blockedVendors || 0),
@@ -182,11 +197,46 @@ const AdminDashboard = () => {
     const hasGST = !!gst;
     return hasGST ? `${formatCurrency(base)} (GST ${formatCurrency(gst)})` : formatCurrency(base);
   };
+
+  // Show commission breakdown like:
+  // "₹350 + ₹50 (booking half)"  OR  "₹350 + ₹180 (GST) + ₹4.5 (booking half)"
   const formatCommission = (item: RevenueEntry) => {
-    const base = typeof item.adminCommissionWithGST === 'number' ? item.adminCommissionWithGST : item.adminCommission || 0;
-    const gst = item.gstAmount || 0;
-    const hasGST = !!gst;
-    return hasGST ? `${formatCurrency(base)} (incl. GST ${formatCurrency(gst)})` : formatCurrency(base);
+    // Base commission without GST
+    const baseCommission = item.adminCommission || 0;
+
+    // GST on commission = (withGST - base), only when provided
+    const commissionWithGST =
+      typeof item.adminCommissionWithGST === 'number'
+        ? item.adminCommissionWithGST || 0
+        : 0;
+    const commissionGST = Math.max(0, commissionWithGST - baseCommission);
+
+    // For bookings, booking share = half of raw booking amount (from backend)
+    let bookingShare = 0;
+    if (item.source === 'booking') {
+      const bookingAmount =
+        typeof item.bookingAmount === 'number' ? item.bookingAmount : 0;
+      bookingShare = bookingAmount / 2;
+    }
+
+    const parts: string[] = [];
+
+    if (baseCommission > 0) {
+      parts.push(formatCurrency(baseCommission));
+    }
+    if (commissionGST > 0) {
+      parts.push(`${formatCurrency(commissionGST)} (GST)`);
+    }
+    if (bookingShare > 0) {
+      parts.push(`${formatCurrency(bookingShare)} (booking half)`);
+    }
+
+    // If for some reason all parts are zero, just show ₹0
+    if (parts.length === 0) {
+      return formatCurrency(0);
+    }
+
+    return parts.join(' + ');
   };
 
   // Refresh data
@@ -333,7 +383,7 @@ const AdminDashboard = () => {
     {
       title: "Pending Bookings",
       value: dashboardData.overview.pendingBookings.toLocaleString(),
-      change: "Awaiting confirmation",
+      change: "Waiting for engineer assignment",
       icon: Clock,
       color: "bg-yellow-500",
       bgColor: "bg-yellow-50",
@@ -469,7 +519,31 @@ const AdminDashboard = () => {
                 Entries: {revenueEntries.length}
               </span>
               <span className="text-sm font-semibold">
-                Total Commission: {formatCurrency(revenueEntries.reduce((sum, item) => sum + (item.adminCommission || 0), 0))}
+                Total Commission: {(() => {
+                  // Total commission should match the per-row display:
+                  // base admin commission (with GST when available) + half of booking amount.
+                  const total = revenueEntries.reduce((sum, item) => {
+                    // Base commission (prefer value with GST if it's provided)
+                    const baseCommission =
+                      typeof item.adminCommissionWithGST === 'number'
+                        ? item.adminCommissionWithGST || 0
+                        : item.adminCommission || 0;
+
+                    // For bookings, add half of the raw booking amount
+                    let bookingShare = 0;
+                    if (item.source === 'booking') {
+                      const bookingAmount =
+                        typeof item.bookingAmount === 'number'
+                          ? item.bookingAmount
+                          : 0;
+                      bookingShare = bookingAmount / 2;
+                    }
+
+                    return sum + baseCommission + bookingShare;
+                  }, 0);
+
+                  return formatCurrency(total);
+                })()}
               </span>
             </div>
 
@@ -482,6 +556,7 @@ const AdminDashboard = () => {
                     <th className="text-left px-3 py-2">Vendor</th>
                     <th className="text-left px-3 py-2">Payment</th>
                     <th className="text-left px-3 py-2">Billing</th>
+                    <th className="text-left px-3 py-2">Booking Amount</th>
                     <th className="text-left px-3 py-2">Commission</th>
                     <th className="text-left px-3 py-2">Date</th>
                   </tr>
@@ -503,6 +578,11 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-3 py-2 capitalize">{item.paymentMethod || 'N/A'}</td>
                       <td className="px-3 py-2">{formatBilling(item)}</td>
+                      <td className="px-3 py-2">
+                        {item.source === 'booking' && typeof item.bookingAmount === 'number'
+                          ? formatCurrency(item.bookingAmount)
+                          : '—'}
+                      </td>
                       <td className="px-3 py-2 font-semibold text-emerald-700">{formatCommission(item)}</td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}

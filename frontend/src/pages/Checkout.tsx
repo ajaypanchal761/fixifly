@@ -154,14 +154,9 @@ const Checkout = () => {
   }
 
   const subtotal = checkoutData.totalPrice;
-  const gstRate = 18; // 18% GST
-  const gstAmount = Math.round((subtotal * gstRate) / 100);
-  const originalTotalAmount = subtotal + gstAmount;
-  
-  // All users pay regular pricing - first-time user free service removed
-  const totalAmount = originalTotalAmount;
+  // GST removed from customer pricing – use subtotal as final payable amount
+  const totalAmount = subtotal;
   const displaySubtotal = subtotal;
-  const displayGstAmount = gstAmount;
 
   const handleCashPayment = async (bookingData: BookingData) => {
     try {
@@ -292,7 +287,7 @@ const Checkout = () => {
         pricing: {
           subtotal: displaySubtotal,
           serviceFee: 0, // Service fee removed
-          gstAmount: displayGstAmount,
+          gstAmount: 0, // GST removed from pricing
           totalAmount: totalAmount
         },
         scheduling: {
@@ -654,15 +649,11 @@ const Checkout = () => {
               ))}
             </div>
 
-            {/* Price Breakdown */}
+            {/* Price Breakdown (GST removed from UI) */}
             <div className="space-y-2">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
                 <span>₹{displaySubtotal}</span>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <span>GST ({gstRate}%)</span>
-                <span>₹{displayGstAmount}</span>
               </div>
               <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between text-lg font-bold text-gray-900">

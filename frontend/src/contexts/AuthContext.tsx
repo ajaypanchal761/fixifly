@@ -107,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
-    // Set a timeout to force loading to stop after 5 seconds (safety net)
+    // Set a timeout to force loading to stop after 2 seconds (safety net for faster loading)
     const timeoutId = setTimeout(() => {
       console.warn('AuthContext: Loading timeout reached, forcing loading to stop');
       setIsLoading(false);
@@ -247,9 +247,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Import apiService dynamically to avoid circular dependency
       const { default: apiService } = await import('@/services/api');
       
-      // Add timeout wrapper to prevent hanging
+      // Add timeout wrapper to prevent hanging (reduced to 5 seconds for faster failure)
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Refresh timeout: Request took too long')), 30000);
+        setTimeout(() => reject(new Error('Refresh timeout: Request took too long')), 5000);
       });
       
       const response = await Promise.race([
