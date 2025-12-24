@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const Vendor = require('../models/Vendor');
 const { asyncHandler } = require('./asyncHandler');
 const { logger } = require('../utils/logger');
@@ -24,10 +25,33 @@ const protectVendor = asyncHandler(async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // Get vendor from token
-      const vendor = await Vendor.findById(decoded.vendorId);
+      let vendor;
+      if (decoded.vendorId) {
+        // Ensure vendorId is a valid MongoDB ObjectId
+        let vendorIdToSearch = decoded.vendorId;
+        
+        // Convert string to ObjectId if needed
+        if (typeof vendorIdToSearch === 'string' && mongoose.Types.ObjectId.isValid(vendorIdToSearch)) {
+          vendorIdToSearch = new mongoose.Types.ObjectId(vendorIdToSearch);
+        }
+        
+        // Try to find vendor by _id (MongoDB ObjectId)
+        vendor = await Vendor.findById(vendorIdToSearch);
+        
+        // If not found by _id and vendorId is a string, try to find by vendorId field
+        if (!vendor && typeof decoded.vendorId === 'string') {
+          vendor = await Vendor.findOne({ vendorId: decoded.vendorId });
+        }
+      }
 
       if (!vendor) {
-        logger.warn('Vendor not found for token', { vendorId: decoded.vendorId });
+        logger.warn('Vendor not found for token', { 
+          vendorId: decoded.vendorId,
+          vendorIdType: typeof decoded.vendorId,
+          isObjectIdValid: decoded.vendorId ? mongoose.Types.ObjectId.isValid(decoded.vendorId) : false,
+          decodedKeys: Object.keys(decoded || {}),
+          endpoint: req.originalUrl
+        });
         return res.status(401).json({
           success: false,
           message: 'Not authorized, vendor not found'

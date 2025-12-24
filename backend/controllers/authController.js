@@ -330,6 +330,18 @@ const verifyOTP = asyncHandler(async (req, res) => {
           }
           
           user.markModified('fcmTokenMobile');
+          
+          // Use updateOne for more reliable persistence of select: false fields
+          await User.updateOne(
+            { _id: user._id },
+            { 
+              $set: { 
+                fcmTokenMobile: user.fcmTokenMobile,
+                updatedAt: new Date()
+              } 
+            }
+          );
+          
           logger.info(`✅ FCM mobile token saved successfully for user ${user._id}`);
         } else {
           // Save to fcmTokens array for web devices
@@ -349,6 +361,18 @@ const verifyOTP = asyncHandler(async (req, res) => {
           }
           
           user.markModified('fcmTokens');
+          
+          // Use updateOne for more reliable persistence of select: false fields
+          await User.updateOne(
+            { _id: user._id },
+            { 
+              $set: { 
+                fcmTokens: user.fcmTokens,
+                updatedAt: new Date()
+              } 
+            }
+          );
+          
           logger.info(`✅ FCM web token saved successfully for user ${user._id}`);
         }
       } catch (error) {
@@ -640,6 +664,18 @@ const login = asyncHandler(async (req, res) => {
           }
           
           user.markModified('fcmTokenMobile');
+          
+          // Use updateOne for more reliable persistence of select: false fields
+          await User.updateOne(
+            { _id: user._id },
+            { 
+              $set: { 
+                fcmTokenMobile: user.fcmTokenMobile,
+                updatedAt: new Date()
+              } 
+            }
+          );
+          
           logger.info(`✅ FCM mobile token saved successfully for user login ${user._id}`);
         } else {
           // Save to fcmTokens array for web devices
@@ -659,6 +695,18 @@ const login = asyncHandler(async (req, res) => {
           }
           
           user.markModified('fcmTokens');
+          
+          // Use updateOne for more reliable persistence of select: false fields
+          await User.updateOne(
+            { _id: user._id },
+            { 
+              $set: { 
+                fcmTokens: user.fcmTokens,
+                updatedAt: new Date()
+              } 
+            }
+          );
+          
           logger.info(`✅ FCM web token saved successfully for user login ${user._id}`);
         }
       } catch (error) {

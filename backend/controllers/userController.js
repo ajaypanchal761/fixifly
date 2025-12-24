@@ -677,7 +677,8 @@ const saveFCMToken = asyncHandler(async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId);
+    // Fetch user with fcmTokens field explicitly selected (CRITICAL for select: false fields)
+    const user = await User.findById(userId).select('+fcmTokens');
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -685,33 +686,68 @@ const saveFCMToken = asyncHandler(async (req, res) => {
       });
     }
 
-    // Add token to fcmTokens array if not already present
-    // Limit to maximum 10 tokens per user
-    const maxTokens = 10;
+    // Ensure fcmTokens field exists
     if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
       user.fcmTokens = [];
     }
 
-    // Remove token if it already exists (to avoid duplicates)
+    // Check if token already exists
+    const tokenExists = user.fcmTokens.some(existingToken => existingToken === token);
+    if (tokenExists) {
+      return res.json({
+        success: true,
+        message: 'Token already exists in database',
+        updated: false,
+        tokenCount: user.fcmTokens.length,
+        tokenInDatabase: true,
+        platform: platform
+      });
+    }
+
+    // Remove token if exists (to avoid duplicates)
     user.fcmTokens = user.fcmTokens.filter(t => t !== token);
     
     // Add new token at the beginning
     user.fcmTokens.unshift(token);
     
-    // Keep only the most recent tokens
+    // Keep only the most recent tokens (max 10)
+    const maxTokens = 10;
     if (user.fcmTokens.length > maxTokens) {
       user.fcmTokens = user.fcmTokens.slice(0, maxTokens);
     }
 
-    await user.save();
+    // Mark fcmTokens as modified to ensure save (CRITICAL for select: false fields)
+    user.markModified('fcmTokens');
+    user.preferences.notifications.push = true;
+    
+    // Use updateOne for more reliable persistence of select: false fields
+    await User.updateOne(
+      { _id: user._id },
+      { 
+        $set: { 
+          fcmTokens: user.fcmTokens,
+          'preferences.notifications.push': true,
+          updatedAt: new Date()
+        } 
+      }
+    );
+    
+    // Also save the document to ensure all changes are persisted
+    await user.save({ validateBeforeSave: false });
 
     logger.info(`FCM token saved for user ${userId} (platform: ${platform || 'web'})`);
+
+    // Verify the save
+    const updatedUser = await User.findById(userId).select('+fcmTokens');
+    const tokenSaved = updatedUser?.fcmTokens?.includes(token) || false;
 
     res.status(200).json({
       success: true,
       message: 'FCM token saved successfully',
       data: {
-        tokenCount: user.fcmTokens.length
+        tokenCount: user.fcmTokens.length,
+        tokenSaved: tokenSaved,
+        platform: platform
       }
     });
   } catch (error) {
