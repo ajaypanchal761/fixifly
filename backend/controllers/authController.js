@@ -341,8 +341,21 @@ const verifyOTP = asyncHandler(async (req, res) => {
               } 
             }
           );
+          // Also save the document to ensure all changes are persisted
+          await user.save({ validateBeforeSave: false });
           
-          logger.info(`✅ FCM mobile token saved successfully for user ${user._id}`);
+          // Verify the save
+          const verifyUser = await User.findById(user._id).select('+fcmTokenMobile');
+          const tokenSaved = verifyUser?.fcmTokenMobile?.includes(fcmToken) || false;
+          
+          if (tokenSaved) {
+            logger.info(`✅ FCM mobile token saved successfully for user ${user._id}`, {
+              tokenCount: verifyUser.fcmTokenMobile.length,
+              tokenExists: true
+            });
+          } else {
+            logger.error(`❌ FCM mobile token NOT saved for user ${user._id} - verification failed`);
+          }
         } else {
           // Save to fcmTokens array for web devices
           if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
@@ -372,8 +385,21 @@ const verifyOTP = asyncHandler(async (req, res) => {
               } 
             }
           );
+          // Also save the document to ensure all changes are persisted
+          await user.save({ validateBeforeSave: false });
           
-          logger.info(`✅ FCM web token saved successfully for user ${user._id}`);
+          // Verify the save
+          const verifyUser = await User.findById(user._id).select('+fcmTokens');
+          const tokenSaved = verifyUser?.fcmTokens?.includes(fcmToken) || false;
+          
+          if (tokenSaved) {
+            logger.info(`✅ FCM web token saved successfully for user ${user._id}`, {
+              tokenCount: verifyUser.fcmTokens.length,
+              tokenExists: true
+            });
+          } else {
+            logger.error(`❌ FCM web token NOT saved for user ${user._id} - verification failed`);
+          }
         }
       } catch (error) {
         logger.error('❌ Error saving FCM token:', error);
@@ -381,9 +407,10 @@ const verifyOTP = asyncHandler(async (req, res) => {
       }
     }
 
-    // Update last login
+    // Update last login (but don't overwrite FCM tokens)
     await user.updateLastLogin();
-    await user.save();
+    // Save without validation to preserve FCM tokens
+    await user.save({ validateBeforeSave: false });
 
     // Generate JWT token
     const token = generateToken(user._id);
@@ -675,8 +702,21 @@ const login = asyncHandler(async (req, res) => {
               } 
             }
           );
+          // Also save the document to ensure all changes are persisted
+          await user.save({ validateBeforeSave: false });
           
-          logger.info(`✅ FCM mobile token saved successfully for user login ${user._id}`);
+          // Verify the save
+          const verifyUser = await User.findById(user._id).select('+fcmTokenMobile');
+          const tokenSaved = verifyUser?.fcmTokenMobile?.includes(fcmToken) || false;
+          
+          if (tokenSaved) {
+            logger.info(`✅ FCM mobile token saved successfully for user login ${user._id}`, {
+              tokenCount: verifyUser.fcmTokenMobile.length,
+              tokenExists: true
+            });
+          } else {
+            logger.error(`❌ FCM mobile token NOT saved for user login ${user._id} - verification failed`);
+          }
         } else {
           // Save to fcmTokens array for web devices
           if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
@@ -706,8 +746,21 @@ const login = asyncHandler(async (req, res) => {
               } 
             }
           );
+          // Also save the document to ensure all changes are persisted
+          await user.save({ validateBeforeSave: false });
           
-          logger.info(`✅ FCM web token saved successfully for user login ${user._id}`);
+          // Verify the save
+          const verifyUser = await User.findById(user._id).select('+fcmTokens');
+          const tokenSaved = verifyUser?.fcmTokens?.includes(fcmToken) || false;
+          
+          if (tokenSaved) {
+            logger.info(`✅ FCM web token saved successfully for user login ${user._id}`, {
+              tokenCount: verifyUser.fcmTokens.length,
+              tokenExists: true
+            });
+          } else {
+            logger.error(`❌ FCM web token NOT saved for user login ${user._id} - verification failed`);
+          }
         }
       } catch (error) {
         logger.error('❌ Error saving FCM token during login:', error);
@@ -715,10 +768,11 @@ const login = asyncHandler(async (req, res) => {
       }
     }
 
-    // Clear OTP and update login info
+    // Clear OTP and update login info (but don't overwrite FCM tokens)
     user.clearOTP();
     await user.updateLastLogin();
-    await user.save();
+    // Save without validation to preserve FCM tokens
+    await user.save({ validateBeforeSave: false });
 
     // Generate JWT token
     const token = generateToken(user._id);

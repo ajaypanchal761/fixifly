@@ -718,6 +718,14 @@ const saveFCMToken = asyncHandler(async (req, res) => {
 
     // Mark fcmTokens as modified to ensure save (CRITICAL for select: false fields)
     user.markModified('fcmTokens');
+    
+    // Ensure preferences exist before setting
+    if (!user.preferences) {
+      user.preferences = { notifications: {} };
+    }
+    if (!user.preferences.notifications) {
+      user.preferences.notifications = {};
+    }
     user.preferences.notifications.push = true;
     
     // Use updateOne for more reliable persistence of select: false fields
@@ -734,18 +742,80 @@ const saveFCMToken = asyncHandler(async (req, res) => {
     
     // Also save the document to ensure all changes are persisted
     await user.save({ validateBeforeSave: false });
+    logger.info('✅ FCM tokens saved successfully');
 
-    logger.info(`FCM token saved for user ${userId} (platform: ${platform || 'web'})`);
-
-    // Verify the save
+    // Verify the save by fetching fresh from database
     const updatedUser = await User.findById(userId).select('+fcmTokens');
+    
+    if (!updatedUser) {
+      logger.error('❌ User not found after save - verification failed');
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to verify token save'
+      });
+    }
+
     const tokenSaved = updatedUser?.fcmTokens?.includes(token) || false;
+    
+    logger.info(`FCM token saved for user ${userId} (platform: ${platform || 'web'})`, {
+      tokenCount: updatedUser.fcmTokens?.length || 0,
+      tokenSaved: tokenSaved,
+      tokenExists: tokenSaved
+    });
+
+    // If verification fails, retry save
+    if (!tokenSaved) {
+      logger.error('❌ Token save verification failed! Token not found in database after save');
+      logger.info('🔄 Retrying save...');
+      
+      // Re-fetch and retry
+      const retryUser = await User.findById(userId).select('+fcmTokens');
+      if (retryUser) {
+        if (!retryUser.fcmTokens || !Array.isArray(retryUser.fcmTokens)) {
+          retryUser.fcmTokens = [];
+        }
+        
+        // Remove if exists
+        retryUser.fcmTokens = retryUser.fcmTokens.filter(t => t !== token);
+        
+        // Add token at beginning
+        retryUser.fcmTokens.unshift(token);
+        
+        // Limit
+        if (retryUser.fcmTokens.length > maxTokens) {
+          retryUser.fcmTokens = retryUser.fcmTokens.slice(0, maxTokens);
+        }
+        
+        retryUser.markModified('fcmTokens');
+        // Use updateOne for more reliable persistence
+        await User.updateOne(
+          { _id: retryUser._id },
+          { 
+            $set: { 
+              fcmTokens: retryUser.fcmTokens,
+              updatedAt: new Date()
+            } 
+          }
+        );
+        await retryUser.save({ validateBeforeSave: false });
+        
+        // Verify again
+        const verifyUser = await User.findById(userId).select('+fcmTokens');
+        if (verifyUser && verifyUser.fcmTokens && verifyUser.fcmTokens.includes(token)) {
+          logger.info('✅ Retry successful - token saved');
+        } else {
+          logger.error('❌ Retry also failed - token still not in database');
+        }
+      }
+    } else {
+      logger.info(`✅ Verified saved tokens: ${updatedUser.fcmTokens.length} tokens`);
+    }
 
     res.status(200).json({
       success: true,
       message: 'FCM token saved successfully',
       data: {
-        tokenCount: user.fcmTokens.length,
+        tokenCount: updatedUser.fcmTokens?.length || 0,
         tokenSaved: tokenSaved,
         platform: platform
       }
