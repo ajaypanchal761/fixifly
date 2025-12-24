@@ -938,12 +938,18 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     // Add new token to fcmTokenMobile
     logger.info('🆕 New mobile token detected, adding to fcmTokenMobile array...');
     
-    if (user.fcmTokenMobile.length >= MAX_TOKENS) {
-      logger.info(`⚠️ Token limit reached (${MAX_TOKENS}), removing oldest token...`);
-      user.fcmTokenMobile.shift();
+    // Remove token if exists to avoid duplicates (safety check - should already be checked above)
+    user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== token);
+    
+    // Add new token at the beginning (most recent first)
+    user.fcmTokenMobile.unshift(token);
+    
+    // Keep only the most recent tokens
+    if (user.fcmTokenMobile.length > MAX_TOKENS) {
+      logger.info(`⚠️ Token limit reached (${MAX_TOKENS}), removing oldest tokens...`);
+      user.fcmTokenMobile = user.fcmTokenMobile.slice(0, MAX_TOKENS);
     }
     
-    user.fcmTokenMobile.push(token);
     logger.info(`📱 Added new mobile token to fcmTokenMobile. Total mobile tokens: ${user.fcmTokenMobile.length}/${MAX_TOKENS}`);
     
     // Mark fcmTokenMobile as modified to ensure save (CRITICAL for select: false fields)
@@ -968,15 +974,43 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     const updatedUser = await User.findById(user._id).select('+fcmTokenMobile');
     logger.info('✅ Verification - fcmTokenMobile in database:', updatedUser.fcmTokenMobile);
     
+    // Remove duplicates before verification
+    if (updatedUser && updatedUser.fcmTokenMobile) {
+      // Remove all duplicates using Set
+      const uniqueTokens = [...new Set(updatedUser.fcmTokenMobile)];
+      if (uniqueTokens.length !== updatedUser.fcmTokenMobile.length) {
+        logger.warn(`⚠️ Found ${updatedUser.fcmTokenMobile.length - uniqueTokens.length} duplicate tokens, removing...`);
+        updatedUser.fcmTokenMobile = uniqueTokens;
+        updatedUser.markModified('fcmTokenMobile');
+        await User.updateOne(
+          { _id: updatedUser._id },
+          { 
+            $set: { 
+              fcmTokenMobile: updatedUser.fcmTokenMobile,
+              updatedAt: new Date()
+            } 
+          }
+        );
+        await updatedUser.save({ validateBeforeSave: false });
+      }
+    }
+
     if (!updatedUser || !updatedUser.fcmTokenMobile || !updatedUser.fcmTokenMobile.includes(token)) {
       logger.error('❌ Token save verification failed! Token not found in database after save');
       // Retry save with updateOne for reliability
       if (updatedUser && updatedUser.fcmTokenMobile) {
         if (!updatedUser.fcmTokenMobile.includes(token)) {
-          if (updatedUser.fcmTokenMobile.length >= MAX_TOKENS) {
-            updatedUser.fcmTokenMobile.shift();
+          // Remove token if exists to avoid duplicates
+          updatedUser.fcmTokenMobile = updatedUser.fcmTokenMobile.filter(t => t !== token);
+          
+          // Add new token at the beginning (not push)
+          updatedUser.fcmTokenMobile.unshift(token);
+          
+          // Keep only the most recent tokens
+          if (updatedUser.fcmTokenMobile.length > MAX_TOKENS) {
+            updatedUser.fcmTokenMobile = updatedUser.fcmTokenMobile.slice(0, MAX_TOKENS);
           }
-          updatedUser.fcmTokenMobile.push(token);
+          
           updatedUser.markModified('fcmTokenMobile');
           // Use updateOne for more reliable persistence
           await User.updateOne(
