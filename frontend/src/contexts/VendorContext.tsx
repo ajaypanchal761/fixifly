@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import vendorApiService from '@/services/vendorApi';
+import { registerFCMToken, saveMobileFCMToken } from '@/services/pushNotificationService';
 
 interface ServiceLocation {
   _id: string;
@@ -185,8 +186,86 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
     setVendor(vendorWithWallet);
     console.log('✅ VendorContext: Vendor state updated, vendorId:', vendorWithWallet.vendorId);
 
-    // Vendor notifications will be handled via email/SMS only
-    console.log('✅ VendorContext: Login completed - notifications via email/SMS only');
+    // Register FCM token after successful login
+    setTimeout(() => {
+      const isWebView = (() => {
+        try {
+          return /wv|WebView/.test(navigator.userAgent) || 
+                 window.matchMedia('(display-mode: standalone)').matches ||
+                 (typeof window !== 'undefined' && (window as any).flutter_inappwebview !== undefined) ||
+                 (typeof window !== 'undefined' && (window as any).Android !== undefined);
+        } catch (error) {
+          console.error('Error detecting webview:', error);
+          return false;
+        }
+      })();
+      
+      if (isWebView) {
+        // For webview/APK: Get FCM token from Flutter bridge and save using mobile endpoint
+        console.log('📱 Detected webview/APK environment for vendor, using mobile FCM token endpoint');
+        
+        // Try to get FCM token from Flutter bridge
+        const getFCMTokenFromFlutter = (): Promise<string | null> => {
+          return new Promise((resolve) => {
+            try {
+              // Check if Flutter bridge is available
+              if (typeof (window as any).flutter_inappwebview !== 'undefined') {
+                // Flutter InAppWebView
+                (window as any).flutter_inappwebview.callHandler('getFCMToken').then((token: string) => {
+                  resolve(token);
+                }).catch(() => {
+                  resolve(null);
+                });
+              } else if (typeof (window as any).Android !== 'undefined') {
+                // Android WebView
+                const token = (window as any).Android.getFCMToken();
+                resolve(token || null);
+              } else {
+                // Try to get from localStorage (if Flutter saved it)
+                const savedToken = localStorage.getItem('fcmToken');
+                if (savedToken) {
+                  resolve(savedToken);
+                } else {
+                  // Listen for token from Flutter
+                  window.addEventListener('message', function(event) {
+                    if (event.data && event.data.type === 'FCM_TOKEN') {
+                      resolve(event.data.token);
+                    }
+                  });
+                  // Timeout after 3 seconds
+                  setTimeout(() => resolve(null), 3000);
+                }
+              }
+            } catch (error) {
+              console.error('Error getting FCM token from Flutter:', error);
+              resolve(null);
+            }
+          });
+        };
+        
+        getFCMTokenFromFlutter().then((fcmToken) => {
+          if (fcmToken && vendorWithWallet.email) {
+            saveMobileFCMToken(fcmToken, '', vendorWithWallet.email).then((success) => {
+              if (success) {
+                console.log('✅ Vendor mobile FCM token saved after login');
+              } else {
+                console.warn('⚠️ Failed to save vendor mobile FCM token after login');
+              }
+            }).catch((error) => {
+              console.error('❌ Error saving vendor mobile FCM token after login:', error);
+            });
+          } else {
+            console.warn('⚠️ FCM token or email not available for vendor mobile save');
+          }
+        });
+      } else {
+        // For web: Use web FCM token endpoint
+        console.log('🌐 Detected web environment for vendor, using web FCM token endpoint');
+        registerFCMToken(true).catch((error) => {
+          console.error('Failed to register vendor FCM token after login:', error);
+        });
+      }
+    }, 2000); // Wait 2 seconds for Flutter bridge to be ready
     
     // In APK, ensure state is fully updated before resolving
     const isAPK = /wv|WebView/.test(navigator.userAgent) || 

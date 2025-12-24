@@ -280,17 +280,24 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
 
     console.log('✅ FCM Token generated:', currentToken.substring(0, 20) + '...');
 
-    // Get auth token from localStorage
-    const authToken = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    // Check if user is a vendor or regular user
+    const vendorToken = localStorage.getItem('vendorToken');
+    const userToken = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    const authToken = vendorToken || userToken;
+    const isVendor = !!vendorToken;
     
     if (!authToken) {
       console.warn('⚠️ User not logged in, skipping token registration');
       return currentToken;
     }
 
-    // Save token to backend
+    // Save token to backend - use vendor endpoint if vendor, user endpoint otherwise
     try {
-      const response = await fetch(`${API_BASE_URL}/users/save-fcm-token`, {
+      const endpoint = isVendor 
+        ? `${API_BASE_URL}/vendors/save-fcm-token`
+        : `${API_BASE_URL}/users/save-fcm-token`;
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -305,12 +312,12 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
       const data = await response.json();
 
       if (response.ok && data.success) {
-        console.log('✅ FCM token saved to backend successfully');
+        console.log(`✅ FCM token saved to backend successfully (${isVendor ? 'vendor' : 'user'})`);
       } else {
-        console.warn('⚠️ Failed to save FCM token to backend:', data.message);
+        console.warn(`⚠️ Failed to save FCM token to backend (${isVendor ? 'vendor' : 'user'}):`, data.message);
       }
     } catch (error) {
-      console.error('❌ Error saving FCM token to backend:', error);
+      console.error(`❌ Error saving FCM token to backend (${isVendor ? 'vendor' : 'user'}):`, error);
     }
 
     return currentToken;
@@ -412,17 +419,27 @@ export const setupForegroundNotificationHandler = (
 
 /**
  * Remove FCM token from backend
+ * Supports both users and vendors
  */
 export const removeFCMToken = async (token: string): Promise<boolean> => {
   try {
-    const authToken = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    // Check if user is a vendor or regular user
+    const vendorToken = localStorage.getItem('vendorToken');
+    const userToken = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    const authToken = vendorToken || userToken;
+    const isVendor = !!vendorToken;
     
     if (!authToken) {
       console.warn('⚠️ User not logged in');
       return false;
     }
 
-    const response = await fetch(`${API_BASE_URL}/users/remove-fcm-token`, {
+    // Use vendor endpoint if vendor, user endpoint otherwise
+    const endpoint = isVendor 
+      ? `${API_BASE_URL}/vendors/remove-fcm-token`
+      : `${API_BASE_URL}/users/remove-fcm-token`;
+
+    const response = await fetch(endpoint, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -437,10 +454,10 @@ export const removeFCMToken = async (token: string): Promise<boolean> => {
     const data = await response.json();
 
     if (response.ok && data.success) {
-      console.log('✅ FCM token removed from backend');
+      console.log(`✅ FCM token removed from backend (${isVendor ? 'vendor' : 'user'})`);
       return true;
     } else {
-      console.warn('⚠️ Failed to remove FCM token:', data.message);
+      console.warn(`⚠️ Failed to remove FCM token (${isVendor ? 'vendor' : 'user'}):`, data.message);
       return false;
     }
   } catch (error) {
@@ -451,28 +468,67 @@ export const removeFCMToken = async (token: string): Promise<boolean> => {
 
 /**
  * Save mobile FCM token (for mobile apps/APK)
+ * Supports both users and vendors
  */
-export const saveMobileFCMToken = async (token: string, phone: string): Promise<boolean> => {
+export const saveMobileFCMToken = async (token: string, phone: string, email?: string): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/users/save-fcm-token-mobile`, {
+    // Check if user is a vendor or regular user
+    const vendorToken = localStorage.getItem('vendorToken');
+    const vendorData = localStorage.getItem('vendorData');
+    const isVendor = !!vendorToken;
+    
+    // For vendors, use email instead of phone
+    let requestBody: any;
+    let endpoint: string;
+    
+    if (isVendor) {
+      // Vendor endpoint uses email
+      let vendorEmail = email;
+      if (!vendorEmail && vendorData) {
+        try {
+          const parsed = JSON.parse(vendorData);
+          vendorEmail = parsed.email;
+        } catch (e) {
+          console.error('Error parsing vendor data:', e);
+        }
+      }
+      
+      if (!vendorEmail) {
+        console.error('❌ Vendor email is required for saving mobile FCM token');
+        return false;
+      }
+      
+      endpoint = `${API_BASE_URL}/vendors/save-fcm-token-mobile`;
+      requestBody = {
+        token: token,
+        email: vendorEmail,
+        platform: 'mobile',
+      };
+    } else {
+      // User endpoint uses phone
+      endpoint = `${API_BASE_URL}/users/save-fcm-token-mobile`;
+      requestBody = {
+        token: token,
+        phone: phone,
+        platform: 'mobile',
+      };
+    }
+    
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        token: token,
-        phone: phone,
-        platform: 'mobile',
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     const data = await response.json();
 
     if (response.ok && data.success) {
-      console.log('✅ Mobile FCM token saved to backend');
+      console.log(`✅ Mobile FCM token saved to backend (${isVendor ? 'vendor' : 'user'})`);
       return true;
     } else {
-      console.warn('⚠️ Failed to save mobile FCM token:', data.message);
+      console.warn(`⚠️ Failed to save mobile FCM token (${isVendor ? 'vendor' : 'user'}):`, data.message);
       return false;
     }
   } catch (error) {

@@ -1731,14 +1731,101 @@ const removeFCMToken = asyncHandler(async (req, res) => {
   }
 });
 
-// DEPRECATED: Web FCM token endpoint removed - use save-fcm-token-mobile instead
-// This endpoint is kept for backward compatibility but returns error
+// @desc    Save FCM token for web push notifications
+// @route   POST /api/vendors/save-fcm-token
+// @access  Private
 const saveFCMToken = asyncHandler(async (req, res) => {
-  return res.status(410).json({
-    success: false,
-    message: 'Web FCM token endpoint has been removed. Please use /api/vendors/save-fcm-token-mobile for mobile/webview devices only.',
-    deprecated: true
-  });
+  const vendorId = req.vendor._id;
+  const { token, platform = 'web' } = req.body;
+
+  if (!token || typeof token !== 'string' || token.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'FCM token is required'
+    });
+  }
+
+  try {
+    // Fetch vendor with fcmTokens field explicitly selected
+    const vendor = await Vendor.findById(vendorId).select('+fcmTokens');
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vendor not found'
+      });
+    }
+
+    // Ensure fcmTokens field exists
+    if (!vendor.fcmTokens || !Array.isArray(vendor.fcmTokens)) {
+      vendor.fcmTokens = [];
+    }
+
+    // Check if token already exists
+    const tokenExists = vendor.fcmTokens.some(existingToken => existingToken === token);
+    if (tokenExists) {
+      return res.json({
+        success: true,
+        message: 'Token already exists in database',
+        updated: false,
+        tokenCount: vendor.fcmTokens.length,
+        tokenInDatabase: true,
+        platform: platform
+      });
+    }
+
+    // Remove token if exists (to avoid duplicates)
+    vendor.fcmTokens = vendor.fcmTokens.filter(t => t !== token);
+    
+    // Add new token at the beginning
+    vendor.fcmTokens.unshift(token);
+    
+    // Keep only the most recent tokens (max 10)
+    const maxTokens = 10;
+    if (vendor.fcmTokens.length > maxTokens) {
+      vendor.fcmTokens = vendor.fcmTokens.slice(0, maxTokens);
+    }
+
+    // Mark fcmTokens as modified to ensure save (CRITICAL for select: false fields)
+    vendor.markModified('fcmTokens');
+    vendor.notificationSettings.pushNotifications = true;
+    
+    // Use updateOne for more reliable persistence of select: false fields
+    await Vendor.updateOne(
+      { _id: vendor._id },
+      { 
+        $set: { 
+          fcmTokens: vendor.fcmTokens,
+          'notificationSettings.pushNotifications': true,
+          updatedAt: new Date()
+        } 
+      }
+    );
+    
+    // Also save the document to ensure all changes are persisted
+    await vendor.save({ validateBeforeSave: false });
+
+    logger.info(`FCM token saved for vendor ${vendorId} (platform: ${platform || 'web'})`);
+
+    // Verify the save
+    const updatedVendor = await Vendor.findById(vendorId).select('+fcmTokens');
+    const tokenSaved = updatedVendor?.fcmTokens?.includes(token) || false;
+
+    res.status(200).json({
+      success: true,
+      message: 'FCM token saved successfully',
+      data: {
+        tokenCount: vendor.fcmTokens.length,
+        tokenSaved: tokenSaved,
+        platform: platform
+      }
+    });
+  } catch (error) {
+    logger.error('Error saving FCM token:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save FCM token. Please try again.'
+    });
+  }
 });
 
 // @desc    Save FCM token for mobile/APK push notifications
@@ -2031,6 +2118,7 @@ module.exports = {
   generateOneSignalIdentityToken,
   createVerificationPayment,
   verifyVerificationPayment,
+  saveFCMToken,
   saveFCMTokenMobile,
   removeFCMToken
 };

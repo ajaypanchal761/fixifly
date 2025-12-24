@@ -229,7 +229,12 @@ router.post('/verification-payment', protectVendor, createVerificationPayment);
 // @access  Private
 router.post('/verify-verification-payment', protectVendor, verifyVerificationPayment);
 
-// FCM Token routes (Mobile/WebView only)
+// FCM Token routes
+// @route   POST /api/vendors/save-fcm-token
+// @desc    Save FCM token for web push notifications
+// @access  Private
+router.post('/save-fcm-token', protectVendor, saveFCMToken);
+
 // @route   DELETE /api/vendors/remove-fcm-token
 // @desc    Remove FCM token
 // @access  Private
