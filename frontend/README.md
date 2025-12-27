@@ -1,6 +1,6 @@
 # Welcome to your FixFly project
 
-## Project info
+## Project infos
 
 
 ## How can I edit this code?
