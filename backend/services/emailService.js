@@ -13,13 +13,17 @@ class EmailService {
    */
   initializeTransporter() {
     try {
+      // Trim whitespace from credentials
+      const smtpUser = process.env.SMTP_USER ? process.env.SMTP_USER.trim() : null;
+      const smtpPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.trim() : null;
+      
       const smtpConfig = {
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: parseInt(process.env.SMTP_PORT) || 587,
         secure: process.env.SMTP_SECURE === 'true' || false,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
+          user: smtpUser,
+          pass: smtpPass
         },
         tls: {
           rejectUnauthorized: false
@@ -28,9 +32,23 @@ class EmailService {
 
       // Validate configuration
       if (!smtpConfig.auth.user || !smtpConfig.auth.pass) {
-        logger.warn('SMTP not configured. Email functionality will be disabled.');
+        logger.warn('SMTP not configured. Email functionality will be disabled.', {
+          hasUser: !!smtpConfig.auth.user,
+          hasPass: !!smtpConfig.auth.pass,
+          userLength: smtpConfig.auth.user ? smtpConfig.auth.user.length : 0,
+          passLength: smtpConfig.auth.pass ? smtpConfig.auth.pass.length : 0
+        });
         return;
       }
+      
+      // Log configuration (without exposing password)
+      logger.info('SMTP Configuration loaded', {
+        host: smtpConfig.host,
+        port: smtpConfig.port,
+        user: smtpConfig.auth.user,
+        passLength: smtpConfig.auth.pass.length,
+        passHasSpaces: smtpConfig.auth.pass.includes(' ')
+      });
 
       this.transporter = nodemailer.createTransport(smtpConfig);
       this.isConfigured = true;
@@ -61,7 +79,19 @@ class EmailService {
       logger.info('SMTP connection verified successfully');
       return true;
     } catch (error) {
-      logger.error('SMTP connection verification failed:', error);
+      logger.error('SMTP connection verification failed', {
+        error: error.message,
+        code: error.code,
+        responseCode: error.responseCode,
+        command: error.command,
+        response: error.response
+      });
+      
+      // Don't log the full error stack in production
+      if (process.env.NODE_ENV === 'development') {
+        logger.error('SMTP verification error details:', error);
+      }
+      
       return false;
     }
   }
@@ -118,10 +148,13 @@ class EmailService {
         attachments: attachments
       };
 
-      logger.info('Sending email', {
+      logger.info('Sending email from admin SMTP', {
         to: mailOptions.to,
         subject: mailOptions.subject,
-        from: mailOptions.from
+        from: mailOptions.from,
+        smtpUser: process.env.SMTP_USER || 'fixfly.in@gmail.com',
+        smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
+        sendingFromAdmin: mailOptions.from.includes(process.env.SMTP_USER || 'fixfly.in@gmail.com')
       });
 
       const result = await this.transporter.sendMail(mailOptions);
@@ -139,11 +172,52 @@ class EmailService {
       };
 
     } catch (error) {
-      logger.error('Failed to send email:', error);
+      logger.error('Failed to send email:', {
+        error: error.message,
+        stack: error.stack,
+        code: error.code,
+        command: error.command,
+        response: error.response,
+        responseCode: error.responseCode
+      });
+      
+      // Provide more detailed error message
+      let errorMessage = 'Failed to send email';
+      const errorResponse = error.response || error.message || '';
+      const errorResponseLower = errorResponse.toLowerCase();
+      const isGmailQuotaError = errorResponse.includes('550-5.4.5') || 
+                                errorResponse.includes('Daily user sending') ||
+                                errorResponse.includes('quota') ||
+                                errorResponse.includes('rate limit');
+      
+      // Check for authentication/credential errors
+      const isAuthError = error.code === 'EAUTH' || 
+                         error.responseCode === 535 ||
+                         errorResponseLower.includes('badcredentials') ||
+                         errorResponseLower.includes('username and password not accepted') ||
+                         errorResponseLower.includes('invalid login') ||
+                         errorResponseLower.includes('authentication failed');
+      
+      if (isAuthError) {
+        errorMessage = 'Incorrect email password. Please check SMTP credentials in server configuration.';
+      } else if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
+        errorMessage = 'Email service connection failed. Please check SMTP configuration.';
+      } else if (isGmailQuotaError) {
+        errorMessage = 'Daily email sending limit exceeded. Please try again tomorrow or contact support.';
+      } else if (error.responseCode === 550 || errorResponse.includes('550')) {
+        errorMessage = 'Email sending failed. Please contact support or try again later.';
+      } else if (error.responseCode) {
+        errorMessage = `Email service error: ${error.responseCode} - ${error.response || error.message}`;
+      } else {
+        errorMessage = error.message || 'Failed to send email';
+      }
+      
       return {
         success: false,
-        message: 'Failed to send email',
-        error: error.message
+        message: errorMessage,
+        error: error.message,
+        code: error.code,
+        responseCode: error.responseCode
       };
     }
   }
@@ -1519,6 +1593,266 @@ class EmailService {
       return {
         success: false,
         message: 'Failed to send booking confirmation email',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Send forgot password OTP to vendor email
+   */
+  async sendForgotPasswordOTP(email, otp, vendorName) {
+    try {
+      // Validate inputs
+      if (!email || !otp) {
+        logger.error('Missing required parameters for forgot password OTP email', {
+          hasEmail: !!email,
+          hasOTP: !!otp
+        });
+        return {
+          success: false,
+          message: 'Missing required parameters for email',
+          error: 'Email and OTP are required'
+        };
+      }
+
+      const subject = 'Password Reset OTP - Fixfly Vendor Portal';
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password Reset OTP</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #3B82F6; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+          .otp-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+          .otp-code { font-size: 32px; font-weight: bold; color: #3B82F6; letter-spacing: 8px; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          .warning { background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0; border-radius: 4px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🔐 Password Reset Request</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${vendorName},</h2>
+            <p>We received a request to reset your password for your Fixfly Vendor Portal account.</p>
+            
+            <div class="otp-box">
+              <p style="margin-bottom: 10px;">Your OTP for password reset is:</p>
+              <div class="otp-code">${otp}</div>
+            </div>
+            
+            <div class="warning">
+              <strong>⚠️ Important:</strong>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>This OTP is valid for 10 minutes only</li>
+                <li>Do not share this OTP with anyone</li>
+                <li>If you didn't request this, please ignore this email</li>
+              </ul>
+            </div>
+            
+            <p>If you didn't request a password reset, please contact our support team immediately.</p>
+            
+            <div class="footer">
+              <p>Best regards,<br>The Fixfly Team</p>
+              <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                Email: info@fixfly.in<br>
+                WhatsApp: +91-99313-54354
+              </p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      Password Reset OTP - Fixfly Vendor Portal
+      
+      Hello ${vendorName},
+      
+      We received a request to reset your password for your Fixfly Vendor Portal account.
+      
+      Your OTP for password reset is: ${otp}
+      
+      This OTP is valid for 10 minutes only.
+      Do not share this OTP with anyone.
+      
+      If you didn't request a password reset, please contact our support team immediately.
+      
+      Best regards,
+      The Fixfly Team
+      
+      Email: info@fixfly.in
+      WhatsApp: +91-99313-54354
+    `;
+
+      logger.info('Sending forgot password OTP email', {
+        to: email,
+        vendorName: vendorName || 'Vendor'
+      });
+
+      const result = await this.sendEmail({
+        to: email,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+      if (!result.success) {
+        logger.error('Failed to send forgot password OTP email', {
+          email: email,
+          error: result.error || result.message
+        });
+      }
+
+      return result;
+    } catch (error) {
+      logger.error('Exception in sendForgotPasswordOTP', {
+        error: error.message,
+        stack: error.stack,
+        email: email
+      });
+      return {
+        success: false,
+        message: 'Failed to send forgot password OTP email',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Send forgot password OTP to user email
+   */
+  async sendUserForgotPasswordOTP(email, otp, userName) {
+    try {
+      // Validate inputs
+      if (!email || !otp) {
+        logger.error('Missing required parameters for user forgot password OTP email', {
+          hasEmail: !!email,
+          hasOTP: !!otp
+        });
+        return {
+          success: false,
+          message: 'Missing required parameters for email',
+          error: 'Email and OTP are required'
+        };
+      }
+
+      const subject = 'Password Reset OTP - Fixfly';
+      const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password Reset OTP</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #3B82F6; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+          .otp-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+          .otp-code { font-size: 32px; font-weight: bold; color: #3B82F6; letter-spacing: 8px; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          .warning { background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0; border-radius: 4px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🔐 Password Reset Request</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${userName || 'User'},</h2>
+            <p>We received a request to reset your password for your Fixfly account.</p>
+            
+            <div class="otp-box">
+              <p style="margin-bottom: 10px;">Your OTP for password reset is:</p>
+              <div class="otp-code">${otp}</div>
+            </div>
+            
+            <div class="warning">
+              <strong>⚠️ Important:</strong>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>This OTP is valid for 10 minutes only</li>
+                <li>Do not share this OTP with anyone</li>
+                <li>If you didn't request this, please ignore this email</li>
+              </ul>
+            </div>
+            
+            <p>If you didn't request a password reset, please contact our support team immediately.</p>
+            
+            <div class="footer">
+              <p>Best regards,<br>The Fixfly Team</p>
+              <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                Email: info@fixfly.in<br>
+                WhatsApp: +91-99313-54354
+              </p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      Password Reset OTP - Fixfly
+      
+      Hello ${userName || 'User'},
+      
+      We received a request to reset your password for your Fixfly account.
+      
+      Your OTP for password reset is: ${otp}
+      
+      This OTP is valid for 10 minutes only.
+      Do not share this OTP with anyone.
+      
+      If you didn't request a password reset, please contact our support team immediately.
+      
+      Best regards,
+      The Fixfly Team
+      
+      Email: info@fixfly.in
+      WhatsApp: +91-99313-54354
+    `;
+
+      logger.info('Sending user forgot password OTP email', {
+        to: email,
+        userName: userName || 'User'
+      });
+
+      const result = await this.sendEmail({
+        to: email,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+      if (!result.success) {
+        logger.error('Failed to send user forgot password OTP email', {
+          email: email,
+          error: result.error || result.message
+        });
+      }
+
+      return result;
+    } catch (error) {
+      logger.error('Exception in sendUserForgotPasswordOTP', {
+        error: error.message,
+        stack: error.stack,
+        email: email
+      });
+      return {
+        success: false,
+        message: 'Failed to send forgot password OTP email',
         error: error.message
       };
     }

@@ -300,6 +300,28 @@ class ApiService {
     });
   }
 
+  // Forgot Password API methods
+  async sendForgotPasswordOTP(email: string): Promise<ApiResponse> {
+    return this.request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async verifyForgotPasswordOTP(email: string, otp: string): Promise<ApiResponse> {
+    return this.request('/auth/verify-forgot-password-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    });
+  }
+
+  async resetPassword(email: string, otp: string, newPassword: string): Promise<ApiResponse> {
+    return this.request('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp, newPassword }),
+    });
+  }
+
   async login(phone: string, otp: string): Promise<ApiResponse<AuthResponse>> {
     // FCM token generation disabled
     const fcmToken = null;

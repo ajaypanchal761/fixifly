@@ -19,15 +19,16 @@ const {
   checkFirstTimeUser
 } = require('../controllers/bookingController');
 const { protectVendor, optionalVendorAuth } = require('../middleware/vendorAuth');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Public booking routes (no authentication required for now)
+// Protected booking routes (authentication required)
 router.route('/')
-  .post(createBooking); // Create new booking
+  .post(protect, createBooking); // Create new booking (requires login)
 
 router.route('/with-payment')
-  .post(createBookingWithPayment); // Create booking with payment verification
+  .post(protect, createBookingWithPayment); // Create booking with payment verification (requires login)
 
 router.route('/stats')
   .get(getBookingStats); // Get booking statistics

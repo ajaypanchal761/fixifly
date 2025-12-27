@@ -20,7 +20,10 @@ const {
   verifyVerificationPayment,
   saveFCMToken,
   saveFCMTokenMobile,
-  removeFCMToken
+  removeFCMToken,
+  sendForgotPasswordOTP,
+  verifyForgotPasswordOTP,
+  resetPassword
 } = require('../controllers/vendorController');
 const {
   getVendorNotifications,
@@ -55,6 +58,21 @@ router.post('/register', uploadMiddleware.vendorRegistrationFiles(), registerVen
 // @desc    Login vendor
 // @access  Public
 router.post('/login', loginVendor);
+
+// @route   POST /api/vendors/forgot-password
+// @desc    Send forgot password OTP to vendor email
+// @access  Public
+router.post('/forgot-password', sendForgotPasswordOTP);
+
+// @route   POST /api/vendors/verify-forgot-password-otp
+// @desc    Verify forgot password OTP
+// @access  Public
+router.post('/verify-forgot-password-otp', verifyForgotPasswordOTP);
+
+// @route   POST /api/vendors/reset-password
+// @desc    Reset password after OTP verification
+// @access  Public
+router.post('/reset-password', resetPassword);
 
 // Public route - Save FCM token for mobile (no auth required)
 // @route   POST /api/vendors/save-fcm-token-mobile

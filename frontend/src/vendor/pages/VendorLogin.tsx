@@ -20,6 +20,19 @@ const VendorLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Forgot password state
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordStep, setForgotPasswordStep] = useState<'email' | 'otp' | 'newPassword'>('email');
+  const [forgotPasswordData, setForgotPasswordData] = useState({
+    email: '',
+    otp: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordError, setForgotPasswordError] = useState('');
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState('');
 
   // Carousel data
   const carouselSlides = [
@@ -61,7 +74,7 @@ const VendorLogin = () => {
   };
 
   // Redirect if already authenticated
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate('/vendor');
     }
@@ -310,6 +323,17 @@ const VendorLogin = () => {
               </Button>
             </div>
 
+            {/* Forgot Password Link */}
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                className="text-sm text-blue-600 hover:underline font-medium"
+              >
+                Forgot Password?
+              </button>
+            </div>
+
             {/* Sign In Button */}
             <Button
               type="submit"
@@ -334,6 +358,381 @@ const VendorLogin = () => {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {forgotPasswordStep === 'email' && 'Forgot Password'}
+                {forgotPasswordStep === 'otp' && 'Enter OTP'}
+                {forgotPasswordStep === 'newPassword' && 'Set New Password'}
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowForgotPassword(false);
+                  setForgotPasswordStep('email');
+                  setForgotPasswordData({ email: '', otp: '', newPassword: '', confirmPassword: '' });
+                  setForgotPasswordError('');
+                  setForgotPasswordSuccess('');
+                }}
+                className="h-8 w-8 p-0"
+              >
+                <span className="text-2xl">×</span>
+              </Button>
+            </div>
+
+            {forgotPasswordError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription className="space-y-2">
+                  <div>{forgotPasswordError}</div>
+                  {(forgotPasswordError.includes('Daily email sending limit') || 
+                    forgotPasswordError.includes('limit exceeded') || 
+                    forgotPasswordError.includes('limit reached')) && (
+                    <div className="mt-2 pt-2 border-t border-red-200">
+                      <p className="text-sm font-medium mb-1">Need immediate help?</p>
+                      <div className="text-sm space-y-1">
+                        <p>📧 Email: <a href="mailto:info@fixfly.in" className="underline">info@fixfly.in</a></p>
+                        <p>📱 WhatsApp: <a href="https://wa.me/919931354354" target="_blank" rel="noopener noreferrer" className="underline">+91-99313-54354</a></p>
+                      </div>
+                    </div>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {forgotPasswordSuccess && (
+              <Alert className="mb-4 border-green-200 bg-green-50">
+                <AlertDescription className="text-green-800">{forgotPasswordSuccess}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Step 1: Email Input */}
+            {forgotPasswordStep === 'email' && (
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  // Trigger send OTP on form submit
+                  if (forgotPasswordData.email && !forgotPasswordLoading) {
+                    document.getElementById('send-otp-btn')?.click();
+                  }
+                }}
+                className="space-y-4"
+              >
+                <p className="text-gray-600">Enter your vendor email address to receive an OTP for password reset.</p>
+                <Input
+                  type="email"
+                  placeholder="Vendor Email"
+                  value={forgotPasswordData.email}
+                  onChange={(e) => {
+                    setForgotPasswordData({ ...forgotPasswordData, email: e.target.value });
+                    setForgotPasswordError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (forgotPasswordData.email && !forgotPasswordLoading) {
+                        document.getElementById('send-otp-btn')?.click();
+                      }
+                    }
+                  }}
+                  className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+                />
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setForgotPasswordStep('email');
+                      setForgotPasswordData({ email: '', otp: '', newPassword: '', confirmPassword: '' });
+                      setForgotPasswordError('');
+                      setForgotPasswordSuccess('');
+                    }}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    id="send-otp-btn"
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      if (!forgotPasswordData.email) {
+                        setForgotPasswordError('Please enter your email address');
+                        return;
+                      }
+
+                      setForgotPasswordLoading(true);
+                      setForgotPasswordError('');
+                      setForgotPasswordSuccess('');
+
+                      try {
+                        const response = await vendorApiService.sendForgotPasswordOTP(forgotPasswordData.email);
+                        
+                        if (response.success) {
+                          setForgotPasswordSuccess('OTP has been sent to your email. Please check your inbox.');
+                          setForgotPasswordStep('otp');
+                        } else {
+                          // Check for Gmail daily limit error
+                          const errorMsg = response.message || 'Failed to send OTP. Please try again.';
+                          if (errorMsg.includes('Daily email sending limit') || errorMsg.includes('limit exceeded') || errorMsg.includes('limit reached')) {
+                            setForgotPasswordError(
+                              'Email service daily limit reached. Please contact support at info@fixfly.in or WhatsApp: +91-99313-54354 for immediate assistance. You can also try again tomorrow.'
+                            );
+                          } else {
+                            setForgotPasswordError(errorMsg);
+                          }
+                        }
+                      } catch (err: any) {
+                        const errorMsg = err.message || 'Failed to send OTP. Please try again.';
+                        if (errorMsg.includes('Daily email sending limit') || errorMsg.includes('limit exceeded') || errorMsg.includes('limit reached')) {
+                          setForgotPasswordError(
+                            'Email service daily limit reached. Please contact support at info@fixfly.in or WhatsApp: +91-99313-54354 for immediate assistance. You can also try again tomorrow.'
+                          );
+                        } else {
+                          setForgotPasswordError(errorMsg);
+                        }
+                      } finally {
+                        setForgotPasswordLoading(false);
+                      }
+                    }}
+                    disabled={forgotPasswordLoading}
+                    className="flex-1 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                  >
+                    {forgotPasswordLoading ? 'Sending...' : 'Send OTP'}
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {/* Step 2: OTP Input */}
+            {forgotPasswordStep === 'otp' && (
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (forgotPasswordData.otp && forgotPasswordData.otp.length === 6 && !forgotPasswordLoading) {
+                    document.getElementById('verify-otp-btn')?.click();
+                  }
+                }}
+                className="space-y-4"
+              >
+                <p className="text-gray-600">Enter the 6-digit OTP sent to your email.</p>
+                <Input
+                  type="text"
+                  placeholder="Enter OTP"
+                  maxLength={6}
+                  value={forgotPasswordData.otp}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ''); // Only numbers
+                    setForgotPasswordData({ ...forgotPasswordData, otp: value });
+                    setForgotPasswordError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (forgotPasswordData.otp && forgotPasswordData.otp.length === 6 && !forgotPasswordLoading) {
+                        document.getElementById('verify-otp-btn')?.click();
+                      }
+                    }
+                  }}
+                  className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0 text-center text-2xl tracking-widest"
+                />
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setForgotPasswordStep('email');
+                      setForgotPasswordData({ ...forgotPasswordData, otp: '' });
+                      setForgotPasswordError('');
+                      setForgotPasswordSuccess('');
+                    }}
+                    className="flex-1"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    id="verify-otp-btn"
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      if (!forgotPasswordData.otp || forgotPasswordData.otp.length !== 6) {
+                        setForgotPasswordError('Please enter a valid 6-digit OTP');
+                        return;
+                      }
+
+                      setForgotPasswordLoading(true);
+                      setForgotPasswordError('');
+                      setForgotPasswordSuccess('');
+
+                      try {
+                        const response = await vendorApiService.verifyForgotPasswordOTP(
+                          forgotPasswordData.email,
+                          forgotPasswordData.otp
+                        );
+                        
+                        if (response.success) {
+                          setForgotPasswordSuccess('OTP verified successfully!');
+                          setForgotPasswordStep('newPassword');
+                        } else {
+                          setForgotPasswordError(response.message || 'Invalid or expired OTP. Please try again.');
+                        }
+                      } catch (err: any) {
+                        setForgotPasswordError(err.message || 'Failed to verify OTP. Please try again.');
+                      } finally {
+                        setForgotPasswordLoading(false);
+                      }
+                    }}
+                    disabled={forgotPasswordLoading}
+                    className="flex-1 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                  >
+                    {forgotPasswordLoading ? 'Verifying...' : 'Verify OTP'}
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {/* Step 3: New Password Input */}
+            {forgotPasswordStep === 'newPassword' && (
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (forgotPasswordData.newPassword && 
+                      forgotPasswordData.newPassword.length >= 6 && 
+                      forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                      !forgotPasswordLoading) {
+                    document.getElementById('reset-password-btn')?.click();
+                  }
+                }}
+                className="space-y-4"
+              >
+                <p className="text-gray-600">Enter your new password.</p>
+                <Input
+                  type="password"
+                  placeholder="New Password"
+                  value={forgotPasswordData.newPassword}
+                  onChange={(e) => {
+                    setForgotPasswordData({ ...forgotPasswordData, newPassword: e.target.value });
+                    setForgotPasswordError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (forgotPasswordData.newPassword && 
+                          forgotPasswordData.newPassword.length >= 6 && 
+                          forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                          !forgotPasswordLoading) {
+                        document.getElementById('reset-password-btn')?.click();
+                      }
+                    }
+                  }}
+                  className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+                />
+                <Input
+                  type="password"
+                  placeholder="Confirm New Password"
+                  value={forgotPasswordData.confirmPassword}
+                  onChange={(e) => {
+                    setForgotPasswordData({ ...forgotPasswordData, confirmPassword: e.target.value });
+                    setForgotPasswordError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (forgotPasswordData.newPassword && 
+                          forgotPasswordData.newPassword.length >= 6 && 
+                          forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                          !forgotPasswordLoading) {
+                        document.getElementById('reset-password-btn')?.click();
+                      }
+                    }
+                  }}
+                  className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+                />
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setForgotPasswordStep('otp');
+                      setForgotPasswordData({ ...forgotPasswordData, newPassword: '', confirmPassword: '' });
+                      setForgotPasswordError('');
+                      setForgotPasswordSuccess('');
+                    }}
+                    className="flex-1"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    id="reset-password-btn"
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      if (!forgotPasswordData.newPassword || forgotPasswordData.newPassword.length < 6) {
+                        setForgotPasswordError('Password must be at least 6 characters long');
+                        return;
+                      }
+
+                      if (forgotPasswordData.newPassword !== forgotPasswordData.confirmPassword) {
+                        setForgotPasswordError('Passwords do not match');
+                        return;
+                      }
+
+                      setForgotPasswordLoading(true);
+                      setForgotPasswordError('');
+                      setForgotPasswordSuccess('');
+
+                      try {
+                        const response = await vendorApiService.resetPassword(
+                          forgotPasswordData.email,
+                          forgotPasswordData.otp,
+                          forgotPasswordData.newPassword
+                        );
+                        
+                        if (response.success) {
+                          setForgotPasswordSuccess('Password reset successfully! Redirecting to login...');
+                          setTimeout(() => {
+                            setShowForgotPassword(false);
+                            setForgotPasswordStep('email');
+                            setForgotPasswordData({ email: '', otp: '', newPassword: '', confirmPassword: '' });
+                            setForgotPasswordError('');
+                            setForgotPasswordSuccess('');
+                            toast({
+                              title: "Password Reset Successful!",
+                              description: "Please login with your new password.",
+                            });
+                          }, 2000);
+                        } else {
+                          setForgotPasswordError(response.message || 'Failed to reset password. Please try again.');
+                        }
+                      } catch (err: any) {
+                        setForgotPasswordError(err.message || 'Failed to reset password. Please try again.');
+                      } finally {
+                        setForgotPasswordLoading(false);
+                      }
+                    }}
+                    disabled={forgotPasswordLoading}
+                    className="flex-1 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                  >
+                    {forgotPasswordLoading ? 'Resetting...' : 'Reset Password'}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

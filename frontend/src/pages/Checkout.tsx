@@ -129,6 +129,17 @@ const Checkout = () => {
   };
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast({
+        title: "Login Required",
+        description: "Please login to proceed with checkout",
+        variant: "destructive"
+      });
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+
     if (location.state?.cartItems && location.state?.totalPrice) {
       setCheckoutData({
         cartItems: location.state.cartItems,
@@ -138,7 +149,7 @@ const Checkout = () => {
       // Redirect to home if no cart data
       navigate('/');
     }
-  }, [location.state, navigate]);
+  }, [location.state, navigate, isAuthenticated, toast]);
 
   // First-time user check removed - all users pay regular pricing
 
@@ -186,11 +197,20 @@ const Checkout = () => {
         isValidDate: !isNaN(new Date(customerData.scheduledDate).getTime())
       });
 
+      // Get authentication token
+      const token = localStorage.getItem('accessToken');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(requestData),
       });
 

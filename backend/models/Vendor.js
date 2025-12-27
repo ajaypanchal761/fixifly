@@ -123,6 +123,18 @@ const vendorSchema = new mongoose.Schema({
     select: false // Don't include password in queries by default
   },
   
+  // OTP for forgot password
+  forgotPasswordOTP: {
+    code: {
+      type: String,
+      default: null
+    },
+    expiresAt: {
+      type: Date,
+      default: null
+    }
+  },
+  
   role: {
     type: String,
     enum: ['vendor'],
@@ -582,6 +594,37 @@ vendorSchema.pre('save', async function(next) {
 // Instance method to check password
 vendorSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Method to generate OTP for forgot password
+vendorSchema.methods.generateForgotPasswordOTP = function() {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.forgotPasswordOTP = {
+    code: otp,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+  };
+  return otp;
+};
+
+// Method to verify OTP for forgot password
+vendorSchema.methods.verifyForgotPasswordOTP = function(otpCode) {
+  if (!this.forgotPasswordOTP || !this.forgotPasswordOTP.code || !this.forgotPasswordOTP.expiresAt) {
+    return false;
+  }
+  
+  if (new Date() > this.forgotPasswordOTP.expiresAt) {
+    return false; // OTP expired
+  }
+  
+  return this.forgotPasswordOTP.code === otpCode;
+};
+
+// Method to clear OTP for forgot password
+vendorSchema.methods.clearForgotPasswordOTP = function() {
+  this.forgotPasswordOTP = {
+    code: null,
+    expiresAt: null
+  };
 };
 
 // Instance method to update last login

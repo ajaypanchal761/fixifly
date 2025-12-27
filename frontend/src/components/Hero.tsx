@@ -334,7 +334,7 @@ const Hero = () => {
 
 
   return (
-    <section className="relative flex items-center justify-center min-h-[96vh] sm:min-h-[106vh]">
+    <section className={`relative flex items-center justify-center ${showMoreProducts ? 'min-h-[100vh] sm:min-h-[110vh] md:min-h-[120vh]' : 'min-h-[96vh] sm:min-h-[100vh] md:min-h-[106vh]'}`}>
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
       
@@ -346,22 +346,22 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 ${showMoreProducts ? 'mt-16 sm:pt-20 lg:pt-28' : 'mt-1 sm:pt-5 lg:pt-10'}`}>
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 ${showMoreProducts ? 'mt-8 sm:pt-12 md:pt-14 lg:pt-10' : 'pt-0 sm:pt-4 md:pt-6 lg:pt-10'}`}>
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-        <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:justify-end lg:w-full lg:pr-8 ${showMoreProducts ? 'mt-6 sm:mt-10' : 'mt-4 sm:mt-6'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
-            <div className="relative">
+        <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:flex-col lg:justify-start lg:items-end lg:w-full lg:pr-8 ${showMoreProducts ? 'mt-8 sm:mt-10 md:mt-10' : 'mt-0 sm:mt-2 md:mt-3'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
+            <div className="relative w-full lg:w-auto">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
                 {bannersLoading ? (
-                  <div className="w-full h-44 sm:h-56 md:h-64 lg:h-72 xl:h-80 bg-gray-200 rounded-3xl flex items-center justify-center">
+                  <div className="w-full h-44 sm:h-56 md:h-72 lg:h-80 xl:h-96 bg-gray-200 rounded-3xl flex items-center justify-center">
                     <div className="text-center">
                       <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
                       <p className="text-sm text-gray-500">Loading banners...</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="relative w-full h-44 sm:h-56 md:h-64 lg:h-72 xl:h-80">
+                  <div className="relative w-full flex items-center justify-center rounded-3xl overflow-hidden">
                     {banners.map((banner, index) => (
                       <img 
                         key={index}
@@ -369,14 +369,12 @@ const Hero = () => {
                         alt={`Fixfly Banner ${index + 1}`} 
                         loading={index === 0 ? "eager" : "lazy"}
                         decoding="async"
-                        className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${
-                          index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
+                        className={`w-full h-auto object-contain rounded-3xl shadow-2xl transition-opacity duration-1000 ${
+                          index === currentBanner ? 'opacity-100 relative' : 'opacity-0 absolute top-0 left-0'
                         }`}
-                        onLoad={(e) => {
-                          const img = e.target as HTMLImageElement;
-                          // Ensure image fills container properly
-                          img.style.minHeight = '100%';
-                          img.style.minWidth = '100%';
+                        style={{
+                          maxHeight: '100%',
+                          display: 'block'
                         }}
                         onError={(e) => {
                           console.error('Banner image failed to load:', banner);
@@ -403,42 +401,40 @@ const Hero = () => {
                 )}
               </div>
             </div>
-          </div>
-
-          {/* User Reviews Display - Desktop Only, Show when More Services is expanded */}
-          {showMoreProducts && (
-            <div className="hidden lg:block absolute bottom-16 right-14 w-full max-w-2xl">
-              <div className="flex justify-end items-end">
+            
+            {/* User Reviews Display - Desktop Only, Show when More Services is expanded - Positioned below banner */}
+            {showMoreProducts && (
+              <div className="hidden lg:block mt-6 w-full max-w-xl">
                 <div className="w-full max-w-xl h-64 bg-white rounded-lg shadow-lg p-4">
                   <ReviewsCarousel />
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Text Content - Shows second on mobile, first on desktop */}
-          <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-8 lg:mt-0 lg:w-full lg:pr-8" data-aos="fade-right" data-aos-delay="100">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+          <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-4 sm:-mt-3 md:-mt-2 lg:mt-0 lg:w-full lg:pr-8" data-aos="fade-right" data-aos-delay="100">
+            <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-5 md:mb-6">
               All <span className="text-gradient">IT Needs</span> is Here at <span className="text-gradient">your DoorStep </span>
             </h1>
-            <p className="hidden sm:block text-lg sm:text-xl text-muted-foreground mb-4 sm:mb-8 max-w-2xl">
+            <p className="hidden sm:block text-lg sm:text-xl md:text-xl text-muted-foreground mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto lg:mx-0">
               Professional Laptop, Desktop, Electronics repair services at Door Step. 
               Certified technicians and lightning-fast turnaround times.
             </p>
 
             {/* Top 3 Featured Product Cards */}
-            <div className="flex flex-row gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="300">
+            <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-7 md:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="300">
               {productsLoading ? (
                 // Loading state
                 Array.from({ length: 3 }).map((_, index) => (
                   <div 
                     key={index}
-                    className="bg-white rounded-xl p-2 sm:p-4 shadow-lg flex-1 flex items-center justify-center" 
+                    className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg flex-1 flex items-center justify-center" 
                     style={{backgroundColor: '#ffffff'}}
                   >
                     <div className="text-center">
-                      <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 animate-spin text-gray-400" />
-                      <h3 className="text-xs sm:text-sm font-bold text-gray-400 leading-tight">Loading...</h3>
+                      <Loader2 className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 animate-spin text-gray-400" />
+                      <h3 className="text-xs sm:text-sm md:text-sm font-bold text-gray-400 leading-tight">Loading...</h3>
                     </div>
                   </div>
                 ))
@@ -454,7 +450,7 @@ const Hero = () => {
                     return (
                       <div 
                         key={product._id}
-                        className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
+                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
                         style={{backgroundColor: '#ffffff'}}
                         onClick={() => handleProductClick(product)}
                       >
@@ -462,13 +458,13 @@ const Hero = () => {
                           <img 
                             src={primaryImage || '/placeholder.svg'} 
                             alt={product.name} 
-                            className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
+                            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 object-contain rounded-lg"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.src = '/placeholder.svg';
                             }}
                           />
-                          <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">{product.name}</h3>
+                          <h3 className="text-xs sm:text-sm md:text-sm font-bold text-gray-800 leading-tight">{product.name}</h3>
                         </div>
                       </div>
                     );
@@ -477,14 +473,14 @@ const Hero = () => {
                     return (
                       <div 
                         key={`placeholder-${index}`}
-                        className="bg-white rounded-xl p-2 sm:p-4 shadow-lg flex-1 flex items-center justify-center" 
+                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg flex-1 flex items-center justify-center" 
                         style={{backgroundColor: '#ffffff'}}
                       >
                         <div className="text-center">
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 bg-gray-200 rounded-lg flex items-center justify-center">
+                          <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 bg-gray-200 rounded-lg flex items-center justify-center">
                             <span className="text-gray-500 text-xs">No Product</span>
                           </div>
-                          <h3 className="text-xs sm:text-sm font-bold text-gray-400 leading-tight">Coming Soon</h3>
+                          <h3 className="text-xs sm:text-sm md:text-sm font-bold text-gray-400 leading-tight">Coming Soon</h3>
                         </div>
                       </div>
                     );
@@ -494,10 +490,10 @@ const Hero = () => {
             </div>
 
             {/* More Services Button */}
-            <div className="flex justify-center mb-6 sm:mb-8" data-aos="fade-up" data-aos-delay="400">
+            <div className="flex justify-center mb-6 sm:mb-7 md:mb-8" data-aos="fade-up" data-aos-delay="400">
               <button
                 onClick={toggleMoreProducts}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 sm:py-3 md:py-3 px-5 sm:px-6 md:px-6 text-sm sm:text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 {showMoreProducts ? 'Show Less' : 'More Services'}
               </button>
@@ -505,7 +501,7 @@ const Hero = () => {
 
             {/* Additional Products (Toggle) - Non-featured products */}
             {showMoreProducts && allProducts.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:flex lg:flex-row lg:overflow-x-auto mb-6 sm:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="500">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:flex lg:flex-row lg:overflow-x-auto mb-6 sm:mb-7 md:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="500">
                 {allProducts
                   .filter(product => {
                     // Show products that are not in the featured products list
@@ -518,7 +514,7 @@ const Hero = () => {
                     return (
                       <div 
                         key={product._id}
-                        className="bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer lg:flex-shrink-0 lg:min-w-[120px]" 
+                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer lg:flex-shrink-0 lg:min-w-[120px]" 
                         style={{backgroundColor: '#ffffff'}}
                         onClick={() => handleProductClick(product)}
                       >
@@ -528,13 +524,13 @@ const Hero = () => {
                             alt={product.name} 
                             loading="lazy"
                             decoding="async"
-                            className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 object-contain rounded-lg"
+                            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 object-contain rounded-lg"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.src = '/placeholder.svg';
                             }}
                           />
-                          <h3 className="text-xs sm:text-sm font-bold text-gray-800 leading-tight">{product.name}</h3>
+                          <h3 className="text-xs sm:text-sm md:text-sm font-bold text-gray-800 leading-tight">{product.name}</h3>
                         </div>
                       </div>
                     );
@@ -544,26 +540,26 @@ const Hero = () => {
 
 
             {/* Company Trust Indicators */}
-            <div className="grid grid-cols-3 gap-2 max-w-md mx-auto lg:mx-0 lg:ml-16 mb-8" data-aos="fade-up" data-aos-delay="600">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 max-w-md mx-auto lg:mx-0 lg:ml-16 mb-6 sm:mb-7 md:mb-8" data-aos="fade-up" data-aos-delay="600">
               <div className="text-center">
-                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
-                  <Building2 className="h-6 w-6 text-white" />
+                <div className="bg-gradient-tech p-2.5 sm:p-2.5 md:p-3 rounded-xl w-fit mx-auto mb-1.5 sm:mb-2 md:mb-2">
+                  <Building2 className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" />
                 </div>
-                <p className="text-sm font-semibold">Private Limited</p>
+                <p className="text-xs sm:text-sm md:text-sm font-semibold">Private Limited</p>
                 <p className="text-xs text-muted-foreground">Company</p>
               </div>
               <div className="text-center">
-                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
-                  <Award className="h-6 w-6 text-white" />
+                <div className="bg-gradient-tech p-2.5 sm:p-2.5 md:p-3 rounded-xl w-fit mx-auto mb-1.5 sm:mb-2 md:mb-2">
+                  <Award className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" />
                 </div>
-                <p className="text-sm font-semibold">ISO 9001:2015</p>
+                <p className="text-xs sm:text-sm md:text-sm font-semibold">ISO 9001:2015</p>
                 <p className="text-xs text-muted-foreground">Certified</p>
               </div>
               <div className="text-center">
-                <div className="bg-gradient-tech p-3 rounded-xl w-fit mx-auto mb-2">
-                  <Star className="h-6 w-6 text-white" />
+                <div className="bg-gradient-tech p-2.5 sm:p-2.5 md:p-3 rounded-xl w-fit mx-auto mb-1.5 sm:mb-2 md:mb-2">
+                  <Star className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" />
                 </div>
-                <p className="text-sm font-semibold">Positive Rating</p>
+                <p className="text-xs sm:text-sm md:text-sm font-semibold">Positive Rating</p>
                 <p className="text-xs text-muted-foreground">Trusted Service</p>
               </div>
             </div>

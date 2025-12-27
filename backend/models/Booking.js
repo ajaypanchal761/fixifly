@@ -19,6 +19,12 @@ const bookingServiceSchema = new mongoose.Schema({
 
 // Main booking schema
 const bookingSchema = new mongoose.Schema({
+  // User reference (for authenticated users)
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false // Optional for backward compatibility
+  },
   // Customer Information
   customer: {
     name: {
@@ -423,6 +429,7 @@ bookingSchema.pre('save', function(next) {
 });
 
 // Indexes for better performance
+bookingSchema.index({ user: 1 });
 bookingSchema.index({ 'customer.email': 1 });
 bookingSchema.index({ 'customer.phone': 1 });
 bookingSchema.index({ status: 1 });

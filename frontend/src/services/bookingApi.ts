@@ -97,12 +97,21 @@ class BookingApi {
     console.log('Base URL:', this.baseURL);
     console.log('API_BASE_URL:', API_BASE_URL);
     
+    // Get authentication token from localStorage
+    const token = localStorage.getItem('accessToken');
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    
+    // Add authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const config: RequestInit = {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
     };
 
     try {

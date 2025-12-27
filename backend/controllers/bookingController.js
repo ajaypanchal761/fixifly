@@ -95,11 +95,20 @@ const isFirstTimeUser = async (customerEmail, customerPhone) => {
 
 // @desc    Create a new booking
 // @route   POST /api/bookings
-// @access  Public
+// @access  Private (requires authentication)
 const createBooking = asyncHandler(async (req, res) => {
   try {
     console.log('=== BOOKING CREATION REQUEST ===');
     console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('Authenticated user:', req.user?.userId);
+    
+    // Check if user is authenticated
+    if (!req.user || !req.user.userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required. Please login to create a booking.'
+      });
+    }
     
     const {
       customer,
@@ -146,6 +155,7 @@ const createBooking = asyncHandler(async (req, res) => {
 
     // Create booking data
     const bookingData = {
+      user: req.user.userId, // Link booking to authenticated user
       customer: {
         name: customer.name,
         email: customer.email,
@@ -862,9 +872,20 @@ const getBookingStats = asyncHandler(async (req, res) => {
 
 // @desc    Create booking with payment verification
 // @route   POST /api/bookings/with-payment
-// @access  Public
+// @access  Private (requires authentication)
 const createBookingWithPayment = asyncHandler(async (req, res) => {
   try {
+    console.log('=== BOOKING WITH PAYMENT REQUEST ===');
+    console.log('Authenticated user:', req.user?.userId);
+    
+    // Check if user is authenticated
+    if (!req.user || !req.user.userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required. Please login to create a booking.'
+      });
+    }
+    
     const {
       customer,
       services,
@@ -917,6 +938,7 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
 
     // Create booking data
     const bookingData = {
+      user: req.user.userId, // Link booking to authenticated user
       customer: {
         name: customer.name,
         email: customer.email,

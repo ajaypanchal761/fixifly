@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Phone, MessageCircle, Star, Shield, Clock, Check, Home, ShoppingCart, Loader2, ChevronDown, ChevronUp, ShoppingBag, ArrowRight } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import publicProductApi, { PublicProduct } from '@/services/publicProductApi';
 import reviewService, { Review } from '@/services/reviewService';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -35,6 +37,8 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { productId } = useParams();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [product, setProduct] = useState<ProductDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("");
@@ -611,6 +615,16 @@ const ProductDetail = () => {
                 <Button 
                   className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 md:px-6 lg:px-8 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0"
                   onClick={() => {
+                    // Check if user is authenticated before proceeding to checkout
+                    if (!isAuthenticated) {
+                      toast({
+                        title: "Login Required",
+                        description: "Please login to proceed with checkout",
+                        variant: "destructive"
+                      });
+                      navigate('/login', { state: { from: { pathname: '/checkout', state: { cartItems, totalPrice } } } });
+                      return;
+                    }
                     // Navigate to checkout page
                     navigate('/checkout', { state: { cartItems, totalPrice } });
                   }}

@@ -27,6 +27,11 @@ const userSchema = new mongoose.Schema({
   },
   
   // Authentication
+  password: {
+    type: String,
+    select: false // Don't include in default queries for security
+  },
+  
   role: {
     type: String,
     enum: ['user', 'vendor', 'admin'],
@@ -91,6 +96,18 @@ const userSchema = new mongoose.Schema({
   
   // OTP and Verification
   otp: {
+    code: {
+      type: String,
+      default: null
+    },
+    expiresAt: {
+      type: Date,
+      default: null
+    }
+  },
+  
+  // OTP for forgot password (via email)
+  forgotPasswordOTP: {
     code: {
       type: String,
       default: null
@@ -226,6 +243,29 @@ userSchema.pre('save', function(next) {
   next();
 });
 
+// Pre-save middleware to hash password
+userSchema.pre('save', async function(next) {
+  // Only hash the password if it has been modified (or is new)
+  if (!this.isModified('password')) return next();
+  
+  try {
+    // Hash password with cost of 12
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Instance method to check password
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password) {
+    return false;
+  }
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
 // Method to generate OTP
 userSchema.methods.generateOTP = function() {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -252,6 +292,37 @@ userSchema.methods.verifyOTP = function(otpCode) {
 // Method to clear OTP
 userSchema.methods.clearOTP = function() {
   this.otp = {
+    code: null,
+    expiresAt: null
+  };
+};
+
+// Method to generate OTP for forgot password
+userSchema.methods.generateForgotPasswordOTP = function() {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.forgotPasswordOTP = {
+    code: otp,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+  };
+  return otp;
+};
+
+// Method to verify OTP for forgot password
+userSchema.methods.verifyForgotPasswordOTP = function(otpCode) {
+  if (!this.forgotPasswordOTP || !this.forgotPasswordOTP.code || !this.forgotPasswordOTP.expiresAt) {
+    return false;
+  }
+  
+  if (new Date() > this.forgotPasswordOTP.expiresAt) {
+    return false; // OTP expired
+  }
+  
+  return this.forgotPasswordOTP.code === otpCode;
+};
+
+// Method to clear OTP for forgot password
+userSchema.methods.clearForgotPasswordOTP = function() {
+  this.forgotPasswordOTP = {
     code: null,
     expiresAt: null
   };

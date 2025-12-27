@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const smsService = require('../services/smsService');
+const emailService = require('../services/emailService');
 const { logger } = require('../utils/logger');
 
 // Generate JWT Token
@@ -972,6 +973,354 @@ const updateProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Send OTP for user forgot password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  // Validate email
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email is required'
+    });
+  }
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      // Don't reveal if user exists or not for security
+      return res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email, an OTP has been sent.'
+      });
+    }
+
+    // Check if user is active
+    if (!user.isActive || user.isBlocked) {
+      return res.status(400).json({
+        success: false,
+        message: 'Account is deactivated or blocked. Please contact support.'
+      });
+    }
+
+    // Check if user has email
+    if (!user.email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email not found for this account.'
+      });
+    }
+
+    // Generate OTP
+    const otp = user.generateForgotPasswordOTP();
+    await user.save();
+
+    logger.info('OTP generated for user forgot password', {
+      email: user.email,
+      userId: user._id
+    });
+
+    // Check if email service is configured
+    if (!emailService.isEmailConfigured()) {
+      logger.error('Email service not configured for forgot password OTP', {
+        email: user.email
+      });
+      
+      // Clear OTP if email service is not configured
+      user.clearForgotPasswordOTP();
+      await user.save();
+
+      return res.status(500).json({
+        success: false,
+        message: 'Email service is not configured. Please contact support.'
+      });
+    }
+
+    // Send OTP via email
+    try {
+      logger.info('Attempting to send forgot password OTP email', {
+        email: user.email,
+        userName: user.name
+      });
+
+      const emailResult = await emailService.sendUserForgotPasswordOTP(user.email, otp, user.name || 'User');
+      
+      logger.info('Email service response for forgot password OTP', {
+        email: user.email,
+        success: emailResult?.success,
+        message: emailResult?.message,
+        error: emailResult?.error
+      });
+      
+      // Check if email was sent successfully
+      if (!emailResult || !emailResult.success) {
+        const errorMessage = emailResult?.message || emailResult?.error || 'Unknown error';
+        const rawError = emailResult?.error || '';
+        
+        logger.error('Failed to send forgot password OTP email', {
+          emailResult: emailResult,
+          email: user.email,
+          userId: user._id,
+          error: errorMessage,
+          rawError: rawError
+        });
+
+        // Clear OTP if email failed
+        user.clearForgotPasswordOTP();
+        await user.save();
+
+        // Return more specific error message - check both message and error fields
+        let userMessage = emailResult?.message || 'Failed to send OTP email. Please try again later.';
+        
+        // Check raw error for specific patterns if message doesn't already contain them
+        if (!userMessage.includes('Daily email sending limit') && !userMessage.includes('limit reached') && !userMessage.includes('Incorrect email password')) {
+          const combinedError = (rawError + ' ' + errorMessage).toLowerCase();
+          
+          // Check for authentication/credential errors first
+          if (combinedError.includes('incorrect email password') || 
+              combinedError.includes('badcredentials') ||
+              combinedError.includes('username and password not accepted') ||
+              combinedError.includes('invalid login') ||
+              combinedError.includes('authentication failed') ||
+              combinedError.includes('eauth') ||
+              errorMessage.includes('Incorrect email password')) {
+            userMessage = 'Incorrect email password. Please contact administrator to fix SMTP configuration.';
+          } else if (combinedError.includes('not configured') || combinedError.includes('smtp')) {
+            userMessage = 'Email service is temporarily unavailable. Please contact support.';
+          } else if (combinedError.includes('connection') || combinedError.includes('timeout')) {
+            userMessage = 'Email service connection failed. Please try again later.';
+          } else if (combinedError.includes('550-5.4.5') || combinedError.includes('daily user sending') || 
+                     combinedError.includes('quota') || combinedError.includes('rate limit')) {
+            userMessage = 'Daily email sending limit exceeded. Please try again tomorrow or contact support at info@fixfly.in';
+          } else if (combinedError.includes('550')) {
+            userMessage = 'Email sending limit reached. Please contact support at info@fixfly.in or try again later.';
+          }
+        }
+
+        return res.status(500).json({
+          success: false,
+          message: userMessage,
+          error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        });
+      }
+      
+      logger.info('Forgot password OTP sent to user successfully', {
+        email: user.email,
+        userId: user._id,
+        messageId: emailResult.messageId
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'OTP has been sent to your email address'
+      });
+    } catch (emailError) {
+      logger.error('Exception while sending forgot password OTP email', {
+        error: emailError.message,
+        stack: emailError.stack,
+        email: user.email
+      });
+
+      // Clear OTP if email failed
+      user.clearForgotPasswordOTP();
+      await user.save();
+
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send OTP. Please try again later.'
+      });
+    }
+
+  } catch (error) {
+    logger.error('Send forgot password OTP failed', {
+      error: error.message,
+      email: email
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process request. Please try again.'
+    });
+  }
+});
+
+// @desc    Verify forgot password OTP
+// @route   POST /api/auth/verify-forgot-password-otp
+// @access  Public
+const verifyForgotPasswordOTP = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  // Validate inputs
+  if (!email || !otp) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email and OTP are required'
+    });
+  }
+
+  // Validate OTP format
+  if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please enter a valid 6-digit OTP'
+    });
+  }
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Verify OTP
+    const isValidOTP = user.verifyForgotPasswordOTP(otp);
+
+    if (!isValidOTP) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP. Please try again.'
+      });
+    }
+
+    logger.info('Forgot password OTP verified successfully', {
+      email: user.email,
+      userId: user._id
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP verified successfully. You can now reset your password.'
+    });
+
+  } catch (error) {
+    logger.error('Verify forgot password OTP failed', {
+      error: error.message,
+      email: email
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to verify OTP. Please try again.'
+    });
+  }
+});
+
+// @desc    Reset password after OTP verification
+// @route   POST /api/auth/reset-password
+// @access  Public
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  // Validate inputs
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email, OTP, and new password are required'
+    });
+  }
+
+  // Validate password
+  if (newPassword.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: 'Password must be at least 6 characters long'
+    });
+  }
+
+  // Validate OTP format
+  if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please enter a valid 6-digit OTP'
+    });
+  }
+
+  try {
+    // Find user by email and include password
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Verify OTP
+    const isValidOTP = user.verifyForgotPasswordOTP(otp);
+
+    if (!isValidOTP) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP. Please try again.'
+      });
+    }
+
+    // Update password - explicitly mark as modified to ensure hashing
+    user.password = newPassword;
+    user.markModified('password'); // Explicitly mark password as modified
+    user.clearForgotPasswordOTP(); // Clear OTP after successful password reset
+    
+    // Save user - pre-save middleware will hash the password
+    await user.save();
+
+    // Verify password was saved correctly
+    const verifyUser = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    if (verifyUser && verifyUser.password) {
+      const isPasswordValid = await verifyUser.comparePassword(newPassword);
+      if (!isPasswordValid) {
+        logger.error('Password verification failed after reset', {
+          email: user.email,
+          userId: user._id
+        });
+        return res.status(500).json({
+          success: false,
+          message: 'Password reset failed. Please try again.'
+        });
+      }
+    }
+
+    logger.info('User password reset successfully and verified', {
+      email: user.email,
+      userId: user._id
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully. Please login with your new password.'
+    });
+
+  } catch (error) {
+    logger.error('Reset password failed', {
+      error: error.message,
+      email: email
+    });
+
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reset password. Please try again.'
+    });
+  }
+});
+
 module.exports = {
   sendOTP,
   verifyOTP,
@@ -979,5 +1328,8 @@ module.exports = {
   login,
   logout,
   getMe,
-  updateProfile
+  updateProfile,
+  sendForgotPasswordOTP,
+  verifyForgotPasswordOTP,
+  resetPassword
 };

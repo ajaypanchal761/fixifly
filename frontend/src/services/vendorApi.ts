@@ -431,6 +431,30 @@ class VendorApiService {
     });
   }
 
+  // Forgot Password - Send OTP
+  async sendForgotPasswordOTP(email: string): Promise<ApiResponse> {
+    return this.request('/vendors/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  // Verify Forgot Password OTP
+  async verifyForgotPasswordOTP(email: string, otp: string): Promise<ApiResponse> {
+    return this.request('/vendors/verify-forgot-password-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    });
+  }
+
+  // Reset Password
+  async resetPassword(email: string, otp: string, newPassword: string): Promise<ApiResponse> {
+    return this.request('/vendors/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp, newPassword }),
+    });
+  }
+
   // Get Vendor Statistics
   async getVendorStats(): Promise<ApiResponse<{ stats: any; rating: any }>> {
     return this.request('/vendors/stats', {
