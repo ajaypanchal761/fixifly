@@ -608,6 +608,7 @@ class RazorpayService {
                 instruments: [
                   {
                     method: "upi",
+                    flows: ["intent"],
                   },
                 ],
               },

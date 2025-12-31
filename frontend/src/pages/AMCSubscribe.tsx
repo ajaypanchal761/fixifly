@@ -539,6 +539,7 @@ const AMCSubscribe = () => {
                 instruments: [
                   {
                     method: "upi",
+                    flows: ["intent"],
                   },
                 ],
               },

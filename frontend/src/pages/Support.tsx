@@ -423,6 +423,7 @@ const Support = () => {
                 instruments: [
                   {
                     method: "upi",
+                    flows: ["intent"],
                   },
                 ],
               },

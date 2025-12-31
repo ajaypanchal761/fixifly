@@ -205,6 +205,7 @@ const Payment = () => {
                 instruments: [
                   {
                     method: "upi",
+                    flows: ["intent"],
                   },
                 ],
               },
