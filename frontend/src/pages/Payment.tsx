@@ -187,6 +187,26 @@ const Payment = () => {
         },
         // UPI app detection and QR code configuration for mobile APK
         // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
+        // Custom configuration to show only Recommended (UPI) and hide other options
+        config: {
+          display: {
+            blocks: {
+              recommended: {
+                name: "Recommended",
+                instruments: [
+                  {
+                    method: "upi",
+                    flows: isMobile ? ["intent"] : ["qr", "intent"],
+                  },
+                ],
+              },
+            },
+            sequence: ["block.recommended"],
+            preferences: {
+              show_default_blocks: false,
+            },
+          },
+        },
       };
 
       // Check if Razorpay is available
@@ -262,8 +282,8 @@ const Payment = () => {
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Complete Payment</CardTitle>
               <CardDescription>
-                Secure payment powered by Razorpay (v1.5)
-                {isMobileWebView() ? <span className="text-xs text-green-600 block">Mobile Detected (Default Flow)</span> : <span className="text-xs text-amber-600 block">Desktop Mode</span>}
+                Secure payment powered by Razorpay (v1.6)
+                {isMobileWebView() ? <span className="text-xs text-green-600 block">Mobile Detected (Focused View)</span> : <span className="text-xs text-amber-600 block">Desktop Mode</span>}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
