@@ -514,7 +514,37 @@ const AMCSubscribe = () => {
             console.log('Payment modal dismissed');
             toast.info("Payment cancelled");
           }
-        }
+        },
+        // UPI app detection and QR code configuration for mobile APK
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: "All payment methods",
+                instruments: [
+                  {
+                    method: "card",
+                  },
+                  {
+                    method: "upi",
+                    flows: ["collect", "intent"],
+                    readonly: false, // Enable UPI app detection (PhonePe, Google Pay, Paytm, etc.)
+                  },
+                  {
+                    method: "netbanking",
+                  },
+                  {
+                    method: "wallet",
+                  },
+                ],
+              },
+            },
+            sequence: ["block.banks"],
+            preferences: {
+              show_default_blocks: true,
+            },
+          },
+        },
       };
 
       console.log('Razorpay options:', options);

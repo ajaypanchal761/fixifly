@@ -180,7 +180,37 @@ const Payment = () => {
           ondismiss: function() {
             setLoading(false);
           }
-        }
+        },
+        // UPI app detection and QR code configuration for mobile APK
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: "All payment methods",
+                instruments: [
+                  {
+                    method: "card",
+                  },
+                  {
+                    method: "upi",
+                    flows: ["collect", "intent"],
+                    readonly: false, // Enable UPI app detection (PhonePe, Google Pay, Paytm, etc.)
+                  },
+                  {
+                    method: "netbanking",
+                  },
+                  {
+                    method: "wallet",
+                  },
+                ],
+              },
+            },
+            sequence: ["block.banks"],
+            preferences: {
+              show_default_blocks: true,
+            },
+          },
+        },
       };
 
       // Check if Razorpay is available

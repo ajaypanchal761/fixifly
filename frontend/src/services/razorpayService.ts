@@ -29,6 +29,24 @@ interface RazorpayOptions {
   modal?: {
     ondismiss: () => void;
   };
+  config?: {
+    display: {
+      blocks: {
+        banks: {
+          name: string;
+          instruments: Array<{
+            method: string;
+            flows?: string[];
+            readonly?: boolean;
+          }>;
+        };
+      };
+      sequence: string[];
+      preferences: {
+        show_default_blocks: boolean;
+      };
+    };
+  };
 }
 
 interface PaymentResponse {
@@ -326,36 +344,36 @@ class RazorpayService {
             paymentData.onError(new Error('PAYMENT_CANCELLED'));
           },
         },
-        // Mobile-specific options
-        ...(isMobile && {
-          config: {
-            display: {
-              blocks: {
-                banks: {
-                  name: "All payment methods",
-                  instruments: [
-                    {
-                      method: "card",
-                    },
-                    {
-                      method: "upi",
-                    },
-                    {
-                      method: "netbanking",
-                    },
-                    {
-                      method: "wallet",
-                    },
-                  ],
-                },
-              },
-              sequence: ["block.banks"],
-              preferences: {
-                show_default_blocks: true,
+        // UPI app detection and QR code configuration for mobile APK
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: "All payment methods",
+                instruments: [
+                  {
+                    method: "card",
+                  },
+                  {
+                    method: "upi",
+                    flows: ["collect", "intent"],
+                    readonly: false, // Enable UPI app detection (PhonePe, Google Pay, Paytm, etc.)
+                  },
+                  {
+                    method: "netbanking",
+                  },
+                  {
+                    method: "wallet",
+                  },
+                ],
               },
             },
+            sequence: ["block.banks"],
+            preferences: {
+              show_default_blocks: true,
+            },
           },
-        }),
+        },
       };
 
       console.log('💳 Opening Razorpay checkout with options:', {
@@ -542,36 +560,36 @@ class RazorpayService {
             onClose();
           },
         },
-        // Mobile-specific options
-        ...(isMobile && {
-          config: {
-            display: {
-              blocks: {
-                banks: {
-                  name: "All payment methods",
-                  instruments: [
-                    {
-                      method: "card",
-                    },
-                    {
-                      method: "upi",
-                    },
-                    {
-                      method: "netbanking",
-                    },
-                    {
-                      method: "wallet",
-                    },
-                  ],
-                },
-              },
-              sequence: ["block.banks"],
-              preferences: {
-                show_default_blocks: true,
+        // UPI app detection and QR code configuration for mobile APK
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: "All payment methods",
+                instruments: [
+                  {
+                    method: "card",
+                  },
+                  {
+                    method: "upi",
+                    flows: ["collect", "intent"],
+                    readonly: false, // Enable UPI app detection (PhonePe, Google Pay, Paytm, etc.)
+                  },
+                  {
+                    method: "netbanking",
+                  },
+                  {
+                    method: "wallet",
+                  },
+                ],
               },
             },
+            sequence: ["block.banks"],
+            preferences: {
+              show_default_blocks: true,
+            },
           },
-        }),
+        },
       };
 
       console.log('💳 Opening Razorpay checkout for booking');
@@ -884,6 +902,36 @@ class RazorpayService {
           },
           theme: {
             color: '#3399cc',
+          },
+          // UPI app detection and QR code configuration for mobile APK
+          config: {
+            display: {
+              blocks: {
+                banks: {
+                  name: "All payment methods",
+                  instruments: [
+                    {
+                      method: "card",
+                    },
+                    {
+                      method: "upi",
+                      flows: ["collect", "intent"],
+                      readonly: false, // Enable UPI app detection (PhonePe, Google Pay, Paytm, etc.)
+                    },
+                    {
+                      method: "netbanking",
+                    },
+                    {
+                      method: "wallet",
+                    },
+                  ],
+                },
+              },
+              sequence: ["block.banks"],
+              preferences: {
+                show_default_blocks: true,
+              },
+            },
           },
         };
 
