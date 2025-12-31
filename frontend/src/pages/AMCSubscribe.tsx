@@ -526,7 +526,7 @@ const AMCSubscribe = () => {
           display: {
             blocks: {
               upi: {
-                name: "Pay via UPI",
+                name: "Instant UPI",
                 instruments: [
                   {
                     method: "upi",
