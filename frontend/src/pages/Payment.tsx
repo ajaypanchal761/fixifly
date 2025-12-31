@@ -188,15 +188,15 @@ const Payment = () => {
         },
         // UPI app detection and QR code configuration for mobile APK
         // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
-        config: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? undefined : {
+        config: {
           display: {
             blocks: {
               upi: {
-                name: "UPI",
+                name: "Pay via UPI",
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["qr", "intent"],
+                    flows: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? ["intent"] : ["qr", "intent"],
                   },
                 ],
               },
