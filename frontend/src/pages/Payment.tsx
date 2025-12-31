@@ -180,8 +180,6 @@ const Payment = () => {
         retry: {
           enabled: false,
         },
-        // @ts-ignore
-        webview_intent: true,
         modal: {
           ondismiss: function () {
             setLoading(false);
@@ -301,7 +299,7 @@ const Payment = () => {
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Complete Payment</CardTitle>
               <CardDescription>
-                Secure payment powered by Razorpay (v1.3)
+                Secure payment powered by Razorpay (v1.4)
                 {isMobileWebView() ? <span className="text-xs text-green-600 block">Mobile Detected (Intent Flow)</span> : <span className="text-xs text-amber-600 block">Desktop Mode (QR Flow)</span>}
               </CardDescription>
             </CardHeader>
