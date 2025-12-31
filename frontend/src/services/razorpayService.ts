@@ -315,10 +315,6 @@ class RazorpayService {
         theme: {
           color: '#3B82F6',
         },
-        // Force intent flow for webview
-        retry: {
-          enabled: true,
-        },
         // @ts-ignore
         webview_intent: true,
         handler: (response: PaymentResponse) => {
@@ -367,7 +363,6 @@ class RazorpayService {
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["intent"],
                   },
                 ],
               },
@@ -559,10 +554,6 @@ class RazorpayService {
         theme: {
           color: '#3B82F6',
         },
-        // Force intent flow for webview
-        retry: {
-          enabled: true,
-        },
         // @ts-ignore
         webview_intent: true,
         handler: async (response: PaymentResponse) => {
@@ -609,6 +600,14 @@ class RazorpayService {
                   {
                     method: "upi",
                     flows: ["qr"],
+                  },
+                ],
+              },
+              upi_apps: {
+                name: "UPI Apps",
+                instruments: [
+                  {
+                    method: "upi",
                   },
                 ],
               },
