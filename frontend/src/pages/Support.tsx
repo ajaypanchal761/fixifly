@@ -395,7 +395,7 @@ const Support = () => {
           color: '#3B82F6'
         },
         retry: {
-          enabled: true,
+          enabled: false,
         },
         // @ts-ignore
         webview_intent: true,
@@ -409,22 +409,12 @@ const Support = () => {
         config: {
           display: {
             blocks: {
-              qr: {
-                name: "UPI QR",
+              upi: {
+                name: "UPI",
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["qr"],
-                  },
-                ],
-              },
-              upi_apps: {
-                name: "UPI Apps",
-                instruments: [
-                  {
-                    method: "upi",
-                    flows: ["intent"],
-                    apps: ["google_pay", "phonepe", "paytm", "bhim", "cred"],
+                    flows: ["qr", "intent"],
                   },
                 ],
               },
@@ -447,7 +437,7 @@ const Support = () => {
                 ],
               },
             },
-            sequence: ["block.qr", "block.upi_apps", "block.banks"],
+            sequence: ["block.upi", "block.banks"],
             preferences: {
               show_default_blocks: false,
             },
