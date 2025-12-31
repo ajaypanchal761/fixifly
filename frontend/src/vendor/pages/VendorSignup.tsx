@@ -157,8 +157,8 @@ const VendorSignup = () => {
   };
 
   const validateStep1 = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || 
-        !formData.alternatePhone || !formData.fatherName || !formData.homePhone || !formData.currentAddress) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone ||
+      !formData.alternatePhone || !formData.fatherName || !formData.homePhone || !formData.currentAddress) {
       setError('Please fill in all required fields');
       return false;
     }
@@ -242,7 +242,7 @@ const VendorSignup = () => {
     try {
       // Prepare FormData for file uploads
       const formDataToSend = new FormData();
-      
+
       // Normalize phone numbers before sending
       const normalizePhone = (phone) => {
         const digits = phone.replace(/\D/g, '');
@@ -263,10 +263,10 @@ const VendorSignup = () => {
       formDataToSend.append('currentAddress', formData.currentAddress.trim());
       formDataToSend.append('password', formData.password);
       formDataToSend.append('experience', formData.experience);
-      
+
       // Add service categories as JSON string
       formDataToSend.append('serviceCategories', JSON.stringify(formData.serviceCategories));
-      
+
       // Add files
       if (uploadedFiles.aadhaarFront) {
         formDataToSend.append('aadhaarFront', uploadedFiles.aadhaarFront);
@@ -316,21 +316,21 @@ const VendorSignup = () => {
       }
     } catch (err: any) {
       console.error('Vendor Registration Error:', err);
-      
+
       // Extract more detailed error information
       let errorMessage = 'Registration failed. Please try again.';
-      
+
       if (err.message) {
         errorMessage = err.message;
       } else if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err.response?.data?.errors) {
         // Handle validation errors
-        errorMessage = Array.isArray(err.response.data.errors) 
+        errorMessage = Array.isArray(err.response.data.errors)
           ? err.response.data.errors.join('. ')
           : 'Validation failed. Please check your inputs.';
       }
-      
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -556,8 +556,8 @@ const VendorSignup = () => {
                 onCheckedChange={(checked) => handleCategoryChange(category, checked as boolean)}
                 className="border-yellow-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
               />
-              <Label 
-                htmlFor={category} 
+              <Label
+                htmlFor={category}
                 className="text-sm font-normal cursor-pointer flex-1 text-gray-700"
               >
                 {category}
@@ -592,13 +592,13 @@ const VendorSignup = () => {
       {/* File Uploads */}
       <div className="space-y-4">
         <Label className="text-lg font-semibold">Required Documents *</Label>
-        
+
         {/* Aadhaar Front */}
         <div className="space-y-2">
           <Label>Aadhaar Front Photo *</Label>
-          <div className="border-2 border-dashed border-yellow-400 rounded-xl p-4 bg-gradient-to-r from-blue-50 to-blue-100">
+          <div className="border-2 border-dashed border-yellow-400 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100">
             {uploadedFiles.aadhaarFront ? (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-2">
                   <Upload className="h-4 w-4 text-green-600" />
                   <span className="text-sm text-green-600">{uploadedFiles.aadhaarFront.name}</span>
@@ -614,19 +614,21 @@ const VendorSignup = () => {
                 </Button>
               </div>
             ) : (
-              <div className="text-center">
-                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarFront', e.target.files[0])}
-                  className="hidden"
-                  id="aadhaarFront"
-                />
-                <label htmlFor="aadhaarFront" className="cursor-pointer text-sm text-gray-600">
-                  Click to upload Aadhaar front photo
-                </label>
-              </div>
+              <label htmlFor="aadhaarFront" className="cursor-pointer block p-4">
+                <div className="text-center">
+                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarFront', e.target.files[0])}
+                    className="hidden"
+                    id="aadhaarFront"
+                  />
+                  <span className="text-sm text-gray-600">
+                    Click to upload Aadhaar front photo
+                  </span>
+                </div>
+              </label>
             )}
           </div>
         </div>
@@ -634,9 +636,9 @@ const VendorSignup = () => {
         {/* Aadhaar Back */}
         <div className="space-y-2">
           <Label>Aadhaar Back Photo *</Label>
-          <div className="border-2 border-dashed border-yellow-400 rounded-xl p-4 bg-gradient-to-r from-blue-50 to-blue-100">
+          <div className="border-2 border-dashed border-yellow-400 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100">
             {uploadedFiles.aadhaarBack ? (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-2">
                   <Upload className="h-4 w-4 text-green-600" />
                   <span className="text-sm text-green-600">{uploadedFiles.aadhaarBack.name}</span>
@@ -652,29 +654,31 @@ const VendorSignup = () => {
                 </Button>
               </div>
             ) : (
-              <div className="text-center">
-                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarBack', e.target.files[0])}
-                  className="hidden"
-                  id="aadhaarBack"
-                />
-                <label htmlFor="aadhaarBack" className="cursor-pointer text-sm text-gray-600">
-                  Click to upload Aadhaar back photo
-                </label>
-              </div>
+              <label htmlFor="aadhaarBack" className="cursor-pointer block p-4">
+                <div className="text-center">
+                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarBack', e.target.files[0])}
+                    className="hidden"
+                    id="aadhaarBack"
+                  />
+                  <span className="text-sm text-gray-600">
+                    Click to upload Aadhaar back photo
+                  </span>
+                </div>
+              </label>
             )}
           </div>
         </div>
 
         {/* Profile Photo */}
-      <div className="space-y-2">
+        <div className="space-y-2">
           <Label>Profile Photo *</Label>
-          <div className="border-2 border-dashed border-yellow-400 rounded-xl p-4 bg-gradient-to-r from-blue-50 to-blue-100">
+          <div className="border-2 border-dashed border-yellow-400 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100">
             {uploadedFiles.profilePhoto ? (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-2">
                   <Upload className="h-4 w-4 text-green-600" />
                   <span className="text-sm text-green-600">{uploadedFiles.profilePhoto.name}</span>
@@ -690,19 +694,21 @@ const VendorSignup = () => {
                 </Button>
               </div>
             ) : (
-              <div className="text-center">
-                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload('profilePhoto', e.target.files[0])}
-                  className="hidden"
-                  id="profilePhoto"
-                />
-                <label htmlFor="profilePhoto" className="cursor-pointer text-sm text-gray-600">
-                  Click to upload profile photo
-                </label>
-              </div>
+              <label htmlFor="profilePhoto" className="cursor-pointer block p-4">
+                <div className="text-center">
+                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleFileUpload('profilePhoto', e.target.files[0])}
+                    className="hidden"
+                    id="profilePhoto"
+                  />
+                  <span className="text-sm text-gray-600">
+                    Click to upload profile photo
+                  </span>
+                </div>
+              </label>
             )}
           </div>
         </div>
@@ -718,11 +724,11 @@ const VendorSignup = () => {
         <div className="text-center mb-8">
           {/* Welcome Title - Fixed above all slides */}
           <h1 className="text-2xl font-bold text-blue-600 mb-6">Welcome To Fixfly</h1>
-          
+
           {/* Carousel Container */}
           <div className="relative mb-6">
             <div className="overflow-hidden">
-              <div 
+              <div
                 className="flex transition-transform duration-500 ease-in-out"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
@@ -731,13 +737,13 @@ const VendorSignup = () => {
                     <div className="flex flex-col items-center">
                       {/* Image */}
                       <div className="mb-4">
-                        <img 
-                          src={slide.image} 
-                          alt={slide.alt} 
+                        <img
+                          src={slide.image}
+                          alt={slide.alt}
                           className="w-48 h-auto mx-auto"
                         />
                       </div>
-                      
+
                       {/* Subtitle only - title is now fixed above */}
                       <div className="text-center">
                         <div className="text-center">
@@ -763,7 +769,7 @@ const VendorSignup = () => {
                   </div>
                 ))}
               </div>
-        </div>
+            </div>
 
             {/* Navigation Arrows */}
             <Button
@@ -775,7 +781,7 @@ const VendorSignup = () => {
             >
               <ChevronLeft className="h-4 w-4 text-gray-600" />
             </Button>
-            
+
             <Button
               type="button"
               variant="ghost"
@@ -786,16 +792,15 @@ const VendorSignup = () => {
               <ChevronRight className="h-4 w-4 text-gray-600" />
             </Button>
           </div>
-          
+
           {/* Page Indicators */}
           <div className="flex justify-center mt-4 space-x-2">
             {carouselSlides.map((_, index) => (
               <button
                 key={index}
                 type="button"
-                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                  index === currentSlide ? 'bg-orange-500' : 'bg-gray-400'
-                }`}
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === currentSlide ? 'bg-orange-500' : 'bg-gray-400'
+                  }`}
                 onClick={() => setCurrentSlide(index)}
               />
             ))}
@@ -804,14 +809,14 @@ const VendorSignup = () => {
 
         {/* Registration Form */}
         <div className="w-full max-w-2xl">
-            {/* Progress Bar */}
+          {/* Progress Bar */}
           <div className="mb-6">
             <div className="flex justify-between text-sm text-gray-600 mb-2">
               <span>Step {currentStep} of 3</span>
               <span>{currentStep === 1 ? 'Personal Information' : currentStep === 2 ? 'Security' : 'Service Details'}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${(currentStep / 3) * 100}%` }}
               ></div>
@@ -819,71 +824,71 @@ const VendorSignup = () => {
           </div>
 
           <form onSubmit={currentStep === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }} className="space-y-6">
-              {error && (
+            {error && (
               <Alert variant="destructive" className="border-red-200 bg-red-50">
                 <AlertDescription className="text-red-800">{error}</AlertDescription>
-                </Alert>
-              )}
+              </Alert>
+            )}
 
-              {currentStep === 1 && renderStep1()}
-              {currentStep === 2 && renderStep2()}
-              {currentStep === 3 && renderStep3()}
+            {currentStep === 1 && renderStep1()}
+            {currentStep === 2 && renderStep2()}
+            {currentStep === 3 && renderStep3()}
 
             {/* Navigation Buttons */}
             <div className="flex justify-between mt-8">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handlePrevious}
-                  disabled={currentStep === 1}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 1}
                 className="h-12 px-6 border-2 border-yellow-400 text-gray-700 hover:bg-yellow-50"
-                >
-                  Previous
-                </Button>
-                
-                {currentStep < 3 ? (
-                <Button 
+              >
+                Previous
+              </Button>
+
+              {currentStep < 3 ? (
+                <Button
                   type="submit"
                   className="h-12 px-6 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg"
                 >
-                    Next
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isLoading}
                   className="h-12 px-6 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg"
-                  >
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
-                  </Button>
-                )}
-              </div>
-            </form>
+                >
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                </Button>
+              )}
+            </div>
+          </form>
 
           {/* Sign In Link */}
           <div className="text-center mt-6">
             <p className="text-gray-700">
-                Already have an account?{' '}
-                <Link
-                  to="/vendor/login"
+              Already have an account?{' '}
+              <Link
+                to="/vendor/login"
                 className="text-blue-600 font-medium hover:underline"
-                >
-                  Sign in here
-                </Link>
-              </p>
-            </div>
+              >
+                Sign in here
+              </Link>
+            </p>
+          </div>
 
-            {/* Account Creation Information */}
+          {/* Account Creation Information */}
           <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
-              <div className="flex items-center gap-2 text-green-800 mb-2">
-                <Clock className="h-4 w-4" />
-                <p className="text-sm font-medium">Instant Account Creation</p>
-              </div>
-              <p className="text-xs text-green-700">
-                Your vendor account will be created instantly! You can login immediately after registration 
-                and start accessing all features. No admin approval required.
-              </p>
+            <div className="flex items-center gap-2 text-green-800 mb-2">
+              <Clock className="h-4 w-4" />
+              <p className="text-sm font-medium">Instant Account Creation</p>
             </div>
+            <p className="text-xs text-green-700">
+              Your vendor account will be created instantly! You can login immediately after registration
+              and start accessing all features. No admin approval required.
+            </p>
+          </div>
         </div>
       </div>
     </div>
