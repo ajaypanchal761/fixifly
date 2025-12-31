@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Plus, 
-  MessageSquare, 
-  Clock, 
+import {
+  Plus,
+  MessageSquare,
+  Clock,
   CheckCircle,
   Phone,
   Mail,
@@ -95,7 +95,7 @@ const Support = () => {
     } else {
       fetchUserTickets(true); // Fetch with loading
     }
-    
+
     fetchUserAMCSubscriptions();
   }, [user]);
 
@@ -120,7 +120,7 @@ const Support = () => {
     };
 
     window.addEventListener('supportTicketUpdated', handleSupportTicketUpdate);
-    
+
     return () => {
       window.removeEventListener('supportTicketUpdated', handleSupportTicketUpdate);
     };
@@ -141,14 +141,14 @@ const Support = () => {
           paymentMode: ticket.paymentMode,
           paymentStatus: ticket.paymentStatus,
           billingAmount: ticket.billingAmount,
-          hasPendingPayment: ticket.status === 'Resolved' && 
-                           ticket.paymentMode === 'online' && 
-                           ticket.paymentStatus === 'pending' &&
-                           ticket.billingAmount > 0
+          hasPendingPayment: ticket.status === 'Resolved' &&
+            ticket.paymentMode === 'online' &&
+            ticket.paymentStatus === 'pending' &&
+            ticket.billingAmount > 0
         })));
-        
+
         setUserTickets(response.data.tickets);
-        
+
         // Cache tickets for instant loading next time
         try {
           const userId = user?.email || user?._id || 'default';
@@ -160,7 +160,7 @@ const Support = () => {
       }
     } catch (error) {
       console.error('Error fetching user tickets:', error);
-      
+
       if (error.message.includes('Authentication failed')) {
         alert('Your session has expired. Please login again.');
         // Redirect to login or refresh token
@@ -181,23 +181,23 @@ const Support = () => {
   const hasPendingPayment = (ticket) => {
     console.log('=== PAYMENT CHECK DEBUG ===');
     console.log('Ticket:', ticket);
-      console.log('Status check:', {
-        status: ticket.status,
-        isInProgress: ticket.status === 'In Progress',
-        paymentMode: ticket.paymentMode,
-        isOnline: ticket.paymentMode === 'online',
-        paymentStatus: ticket.paymentStatus,
-        isPending: ticket.paymentStatus === 'pending',
-        billingAmount: ticket.billingAmount,
-        totalAmount: ticket.totalAmount,
-        hasAmount: (ticket.billingAmount > 0 || ticket.totalAmount > 0)
-      });
-    
-    const hasPayment = ticket.status === 'In Progress' && 
-           ticket.paymentMode === 'online' && 
-           ticket.paymentStatus === 'pending' &&
-           (ticket.billingAmount > 0 || ticket.totalAmount > 0);
-           
+    console.log('Status check:', {
+      status: ticket.status,
+      isInProgress: ticket.status === 'In Progress',
+      paymentMode: ticket.paymentMode,
+      isOnline: ticket.paymentMode === 'online',
+      paymentStatus: ticket.paymentStatus,
+      isPending: ticket.paymentStatus === 'pending',
+      billingAmount: ticket.billingAmount,
+      totalAmount: ticket.totalAmount,
+      hasAmount: (ticket.billingAmount > 0 || ticket.totalAmount > 0)
+    });
+
+    const hasPayment = ticket.status === 'In Progress' &&
+      ticket.paymentMode === 'online' &&
+      ticket.paymentStatus === 'pending' &&
+      (ticket.billingAmount > 0 || ticket.totalAmount > 0);
+
     console.log('Final result - Has pending payment:', hasPayment);
     console.log('=== END PAYMENT CHECK ===');
     return hasPayment;
@@ -258,7 +258,7 @@ const Support = () => {
             console.error('❌ Failed to load Razorpay script');
             resolve(false);
           };
-          
+
           if (document.head) {
             document.head.appendChild(script);
           } else if (document.body) {
@@ -276,7 +276,7 @@ const Support = () => {
         await new Promise(r => setTimeout(r, 1000));
         res = await loadRazorpayScript();
       }
-      
+
       if (!res || !window.Razorpay) {
         alert('Razorpay payment gateway failed to load. Please check your internet connection and try again.');
         return;
@@ -304,7 +304,7 @@ const Support = () => {
 
       console.log('Order response status:', orderResponse.status);
       console.log('Order response headers:', orderResponse.headers);
-      
+
       if (!orderResponse.ok) {
         const errorText = await orderResponse.text();
         console.error('Order creation failed:', errorText);
@@ -313,7 +313,7 @@ const Support = () => {
 
       const orderData = await orderResponse.json();
       console.log('Order data:', orderData);
-      
+
       if (!orderData.success) {
         throw new Error(orderData.message || 'Failed to create order');
       }
@@ -337,7 +337,7 @@ const Support = () => {
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
             });
-            
+
             const verifyResponse = await fetch(`${API_BASE_URL}/support-tickets/payment/verify`, {
               method: 'POST',
               headers: {
@@ -353,7 +353,7 @@ const Support = () => {
             });
 
             console.log('Verify response status:', verifyResponse.status);
-            
+
             if (!verifyResponse.ok) {
               const errorText = await verifyResponse.text();
               console.error('Payment verification failed:', errorText);
@@ -362,7 +362,7 @@ const Support = () => {
 
             const verifyData = await verifyResponse.json();
             console.log('Verify data:', verifyData);
-            
+
             if (verifyData.success) {
               // Payment successful
               alert('Payment successful! Your ticket has been resolved.');
@@ -378,7 +378,7 @@ const Support = () => {
               message: error.message,
               stack: error.stack
             });
-            
+
             if (error.message.includes('Failed to fetch')) {
               alert('Network error: Cannot connect to payment server. Please check your internet connection and try again.');
             } else {
@@ -395,7 +395,7 @@ const Support = () => {
           color: '#3B82F6'
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             console.log('Payment modal dismissed');
           }
         },
@@ -409,7 +409,7 @@ const Support = () => {
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["collect", "intent"], // intent = UPI apps detection, collect = QR code
+                    flows: ["qr", "intent", "collect"], // qr = scan code, intent = UPI apps detection, collect = VPA
                   },
                   {
                     method: "card",
@@ -439,7 +439,7 @@ const Support = () => {
 
       try {
         const rzp = new window.Razorpay(options);
-        
+
         // Add error handler
         if (rzp.on) {
           rzp.on('payment.failed', function (response) {
@@ -447,7 +447,7 @@ const Support = () => {
             alert('Payment failed. Please try again.');
           });
         }
-        
+
         rzp.open();
         console.log('✅ Razorpay checkout opened');
       } catch (error) {
@@ -477,81 +477,81 @@ const Support = () => {
         customerEmail: user?.email || '',
         customerPhone: user?.phone || ''
       };
-      
+
       // Create PDF using jsPDF
       const doc = new jsPDF();
-      
+
       // Set font
       doc.setFont('helvetica');
-      
+
       // Add header
       doc.setFontSize(24);
       doc.setTextColor(40, 40, 40);
       doc.text('FIXFLY', 20, 30);
-      
+
       doc.setFontSize(16);
       doc.setTextColor(100, 100, 100);
       doc.text('INVOICE', 20, 40);
-      
+
       // Add invoice details
       doc.setFontSize(12);
       doc.setTextColor(40, 40, 40);
       doc.text(`Invoice No: INV-${invoiceData.ticketId}`, 20, 60);
       doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 70);
-      
+
       // Add customer details
       doc.setFontSize(14);
       doc.setTextColor(40, 40, 40);
       doc.text('BILL TO:', 20, 90);
-      
+
       doc.setFontSize(12);
       doc.text(invoiceData.customerName, 20, 100);
       doc.text(invoiceData.customerEmail, 20, 110);
       doc.text(invoiceData.customerPhone, 20, 120);
-      
+
       // Add service details
       doc.setFontSize(14);
       doc.text('SERVICE DETAILS:', 20, 140);
-      
+
       doc.setFontSize(12);
       doc.text(`Ticket ID: ${invoiceData.ticketId}`, 20, 150);
       doc.text(`Case ID: ${invoiceData.caseId}`, 20, 160);
       doc.text(`Subject: ${invoiceData.subject}`, 20, 170);
       doc.text(`Service Date: ${invoiceData.created}`, 20, 180);
       doc.text(`Completion Date: ${invoiceData.resolved}`, 20, 190);
-      
+
       // Add payment details
       doc.setFontSize(14);
       doc.text('PAYMENT DETAILS:', 20, 210);
-      
+
       doc.setFontSize(12);
       doc.text(`Payment Mode: ${invoiceData.paymentMode}`, 20, 220);
       doc.text(`Status: ${invoiceData.status}`, 20, 230);
-      
+
       // Add amount section
       doc.setFontSize(14);
       doc.text('AMOUNT:', 20, 250);
-      
+
       doc.setFontSize(12);
       doc.text(`Service Amount: ₹${invoiceData.amount}`, 20, 260);
-      
+
       // Add total amount
       doc.setFontSize(16);
       doc.setTextColor(40, 40, 40);
       doc.text(`TOTAL AMOUNT: ₹${invoiceData.amount}`, 20, 280);
-      
+
       // Add footer
       doc.setFontSize(10);
       doc.setTextColor(100, 100, 100);
       doc.text('Thank you for using FixFly services!', 20, 300);
       doc.text('For any queries, contact us at info@getfixfly.com', 20, 310);
-      
+
       // Save the PDF
       doc.save(`FixFly_Invoice_${invoiceData.ticketId}.pdf`);
-      
+
       // Send email notification
       await sendInvoiceEmail(invoiceData);
-      
+
     } catch (error) {
       console.error('Error downloading invoice:', error);
       alert('Failed to download invoice. Please try again.');
@@ -593,19 +593,19 @@ const Support = () => {
       id: "TK001",
       subject: "MacBook Screen Flickering Issue",
       category: "Hardware",
-      priority: "High", 
+      priority: "High",
       status: "In Progress",
       created: "Dec 12, 2024",
       lastUpdate: "2 hours ago",
       responses: 3
     },
     {
-      id: "TK002", 
+      id: "TK002",
       subject: "Software Installation Help",
       category: "Software",
       priority: "Medium",
       status: "Waiting for Response",
-      created: "Dec 10, 2024", 
+      created: "Dec 10, 2024",
       lastUpdate: "1 day ago",
       responses: 1
     }
@@ -627,7 +627,7 @@ const Support = () => {
       id: "TK004",
       subject: "Printer Connection Issues",
       category: "Technical",
-      priority: "Medium", 
+      priority: "Medium",
       status: "Resolved",
       created: "Dec 5, 2024",
       resolved: "Dec 6, 2024",
@@ -720,7 +720,7 @@ const Support = () => {
 
   const filteredFaqs = faqs.map(category => ({
     ...category,
-    questions: category.questions.filter(faq => 
+    questions: category.questions.filter(faq =>
       faq.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
       faq.a.toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -739,9 +739,9 @@ const Support = () => {
   // Helper function to check for native bridge
   const hasNativeBridge = () => {
     try {
-      return typeof (window as any).Android !== 'undefined' || 
-             typeof (window as any).webkit !== 'undefined' ||
-             typeof (window as any).flutter_inappwebview !== 'undefined';
+      return typeof (window as any).Android !== 'undefined' ||
+        typeof (window as any).webkit !== 'undefined' ||
+        typeof (window as any).flutter_inappwebview !== 'undefined';
     } catch {
       return false;
     }
@@ -754,7 +754,7 @@ const Support = () => {
       const isAndroid = /Android/i.test(userAgent);
       const isWebView = /wv|WebView/i.test(userAgent);
       const hasBridge = hasNativeBridge();
-      
+
       // Method 1: Try native bridge if available
       if (hasBridge) {
         try {
@@ -770,7 +770,7 @@ const Support = () => {
           console.log('Native bridge failed:', e);
         }
       }
-      
+
       // Method 2: For Android WebView, ALWAYS use Intent URLs (never use window.location.href)
       if (isAndroid && isWebView && (scheme === 'tel' || scheme === 'mailto')) {
         if (scheme === 'tel') {
@@ -778,10 +778,10 @@ const Support = () => {
           // Use Intent URL format for Android - multiple formats to try
           const intentUrl1 = `intent://${phoneNumber}#Intent;scheme=tel;end`;
           const intentUrl2 = `intent://tel:${phoneNumber}#Intent;scheme=tel;end`;
-          
+
           // Try multiple methods
           let success = false;
-          
+
           // Method 2a: window.open without target
           try {
             window.open(intentUrl1);
@@ -789,7 +789,7 @@ const Support = () => {
           } catch (e) {
             console.log('window.open without target failed:', e);
           }
-          
+
           // Method 2b: window.open with _blank
           if (!success) {
             try {
@@ -799,7 +799,7 @@ const Support = () => {
               console.log('window.open with _blank failed:', e);
             }
           }
-          
+
           // Method 2c: Try alternative Intent format
           if (!success) {
             try {
@@ -809,7 +809,7 @@ const Support = () => {
               console.log('Alternative intent format failed:', e);
             }
           }
-          
+
           // Method 2d: Form submission
           if (!success) {
             try {
@@ -830,7 +830,7 @@ const Support = () => {
               console.log('Form submission failed:', e);
             }
           }
-          
+
           if (!success) {
             // Show user message
             toast({
@@ -841,7 +841,7 @@ const Support = () => {
             });
           }
           return;
-          
+
         } else if (scheme === 'mailto') {
           // Extract email and params
           const mailtoMatch = url.match(/mailto:([^?]+)(\?.*)?/);
@@ -850,9 +850,9 @@ const Support = () => {
             const params = mailtoMatch[2] || '';
             // Use Intent URL for mailto
             const intentUrl = `intent:${email}${params}#Intent;scheme=mailto;end`;
-            
+
             let success = false;
-            
+
             // Try window.open
             try {
               window.open(intentUrl);
@@ -860,7 +860,7 @@ const Support = () => {
             } catch (e) {
               console.log('Mailto window.open failed:', e);
             }
-            
+
             // Try form if window.open failed
             if (!success) {
               try {
@@ -881,7 +881,7 @@ const Support = () => {
                 console.log('Mailto form failed:', e);
               }
             }
-            
+
             if (!success) {
               toast({
                 title: "Email not available",
@@ -894,7 +894,7 @@ const Support = () => {
           }
         }
       }
-      
+
       // Method 3: For non-WebView or regular browsers, use standard methods
       if (!isWebView) {
         // Use anchor element for regular browsers
@@ -903,14 +903,14 @@ const Support = () => {
         anchor.style.display = 'none';
         anchor.target = '_self';
         document.body.appendChild(anchor);
-        
+
         setTimeout(() => {
           try {
             anchor.click();
           } catch (e) {
             console.log('Anchor click failed:', e);
           }
-          
+
           setTimeout(() => {
             if (document.body.contains(anchor)) {
               document.body.removeChild(anchor);
@@ -919,7 +919,7 @@ const Support = () => {
         }, 10);
         return;
       }
-      
+
       // Method 4: Last resort for WebView - show user message
       if (isWebView && (scheme === 'tel' || scheme === 'mailto')) {
         if (scheme === 'tel') {
@@ -941,12 +941,12 @@ const Support = () => {
         }
         return;
       }
-      
+
       // For HTTP URLs, use standard method
       if (scheme === 'http') {
         window.open(url, '_blank');
       }
-      
+
     } catch (error) {
       console.error('Error opening URL scheme:', error);
       toast({
@@ -1061,14 +1061,14 @@ const Support = () => {
       };
 
       const response = await supportTicketAPI.createTicket(ticketData);
-      
+
       if (response.success) {
         // Refresh user tickets
         await fetchUserTickets();
-        
+
         // Show thank you message
         setShowThankYou(true);
-        
+
         // Reset form
         setSupportType("");
         setCaseId("");
@@ -1090,7 +1090,7 @@ const Support = () => {
       }
     } catch (error) {
       console.error('Error creating ticket:', error);
-      
+
       // Check if it's an authentication error
       if (error.message?.includes('401') || error.message?.includes('unauthorized')) {
         toast({
@@ -1161,11 +1161,11 @@ const Support = () => {
 
     try {
       const response = await supportTicketAPI.addResponse(selectedTicket.id, responseText.trim());
-      
+
       if (response.success) {
         // Refresh user tickets
         await fetchUserTickets();
-        
+
         // Close modal and show success
         setShowAddResponse(false);
         setResponseText("");
@@ -1250,7 +1250,7 @@ const Support = () => {
                         </p>
                       </div>
                       <div className="space-y-3">
-                        <Button 
+                        <Button
                           onClick={() => window.location.href = '/login'}
                           className="bg-primary hover:bg-primary/90 w-full md:w-auto"
                         >
@@ -1296,8 +1296,8 @@ const Support = () => {
                     {showCaseIdField && (
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Case ID *</label>
-                        <Input 
-                          placeholder="Enter your Case ID" 
+                        <Input
+                          placeholder="Enter your Case ID"
                           className="w-full"
                           value={caseId}
                           onChange={(e) => setCaseId(e.target.value)}
@@ -1312,8 +1312,8 @@ const Support = () => {
                     {showSubscriptionField && (
                       <div className="space-y-2">
                         <label className="text-sm font-medium">AMC Subscription *</label>
-                        <Select 
-                          value={selectedSubscriptionId} 
+                        <Select
+                          value={selectedSubscriptionId}
                           onValueChange={setSelectedSubscriptionId}
                         >
                           <SelectTrigger className="w-full">
@@ -1336,8 +1336,8 @@ const Support = () => {
                                       ID: {subscription.subscriptionId} |{' '}
                                       {subscription.endDate
                                         ? ` Expires: ${new Date(
-                                            subscription.endDate,
-                                          ).toLocaleDateString()}`
+                                          subscription.endDate,
+                                        ).toLocaleDateString()}`
                                         : ' Active'}
                                     </span>
                                   </div>
@@ -1355,27 +1355,27 @@ const Support = () => {
                     {/* Subject */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Subject *</label>
-                      <Input 
-                        placeholder="Brief description of your issue" 
+                      <Input
+                        placeholder="Brief description of your issue"
                         className="w-full"
                         value={ticketForm.subject}
-                        onChange={(e) => setTicketForm({...ticketForm, subject: e.target.value})}
+                        onChange={(e) => setTicketForm({ ...ticketForm, subject: e.target.value })}
                       />
                     </div>
 
                     {/* Description */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Issue Description *</label>
-                      <Textarea 
+                      <Textarea
                         placeholder="Please provide detailed information about your issue, including steps to reproduce, error messages, and any relevant details..."
                         className="min-h-[100px] md:min-h-[120px] w-full"
                         value={ticketForm.description}
-                        onChange={(e) => setTicketForm({...ticketForm, description: e.target.value})}
+                        onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
                       />
                     </div>
 
                     <div className="flex justify-center md:justify-end">
-                      <Button 
+                      <Button
                         className="bg-primary hover:bg-primary/90 w-full md:w-auto"
                         onClick={handleSubmitTicket}
                         disabled={loading}
@@ -1404,8 +1404,8 @@ const Support = () => {
                         <p className="text-sm text-muted-foreground">
                           A WhatsApp message has been sent to our support team with your ticket details.
                         </p>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           onClick={() => setShowThankYou(false)}
                           className="w-full md:w-auto"
                         >
@@ -1435,7 +1435,7 @@ const Support = () => {
                         </p>
                       </div>
                       <div className="space-y-3">
-                        <Button 
+                        <Button
                           onClick={() => window.location.href = '/login'}
                           className="bg-primary hover:bg-primary/90 w-full md:w-auto"
                         >
@@ -1469,7 +1469,7 @@ const Support = () => {
                         <p className="text-muted-foreground mb-4">
                           You haven't submitted any support tickets yet.
                         </p>
-                        <Button 
+                        <Button
                           onClick={() => setActiveTab("new-ticket")}
                           className="bg-primary hover:bg-primary/90"
                         >
@@ -1478,64 +1478,64 @@ const Support = () => {
                         </Button>
                       </div>
                     ) : (
-                    <div className="space-y-3 md:space-y-4">
-                      {userTickets.map((ticket) => (
-                        <div key={ticket.id} className="border rounded-lg p-3 md:p-4 hover:bg-muted/50 transition-colors">
-                          <div className="flex flex-col gap-3 md:gap-4">
-                            <div className="flex-1">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                                <h3 className="font-semibold text-sm md:text-base">{ticket.subject}</h3>
-                                <div className="flex flex-wrap gap-1">
-                                  <Badge className={`${getStatusColor(ticket.status)} text-xs`}>
-                                    {ticket.status}
-                                  </Badge>
+                      <div className="space-y-3 md:space-y-4">
+                        {userTickets.map((ticket) => (
+                          <div key={ticket.id} className="border rounded-lg p-3 md:p-4 hover:bg-muted/50 transition-colors">
+                            <div className="flex flex-col gap-3 md:gap-4">
+                              <div className="flex-1">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                                  <h3 className="font-semibold text-sm md:text-base">{ticket.subject}</h3>
+                                  <div className="flex flex-wrap gap-1">
+                                    <Badge className={`${getStatusColor(ticket.status)} text-xs`}>
+                                      {ticket.status}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs md:text-sm text-muted-foreground">
+                                  <span>ID: {ticket.id}</span>
+                                  <span>Type: {ticket.type}</span>
+                                  {ticket.caseId && <span>Case ID: {ticket.caseId}</span>}
+                                  <span>Created: {ticket.created}</span>
+                                  <span>Last Update: {ticket.lastUpdate}</span>
                                 </div>
                               </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs md:text-sm text-muted-foreground">
-                                <span>ID: {ticket.id}</span>
-                                <span>Type: {ticket.type}</span>
-                                {ticket.caseId && <span>Case ID: {ticket.caseId}</span>}
-                                <span>Created: {ticket.created}</span>
-                                <span>Last Update: {ticket.lastUpdate}</span>
+                              <div className="flex justify-center md:justify-start gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full sm:w-auto"
+                                  onClick={() => handleViewDetails(ticket)}
+                                >
+                                  View Details
+                                </Button>
+                                {hasPendingPayment(ticket) && (
+                                  <Button
+                                    size="sm"
+                                    className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
+                                    onClick={() => handlePayNow(ticket)}
+                                  >
+                                    Pay Now ₹{ticket.totalAmount || ticket.billingAmount || 0}
+                                  </Button>
+                                )}
+                                {ticket.status === 'Resolved' && ticket.paymentStatus === 'collected' && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full sm:w-auto"
+                                    onClick={() => handleDownloadInvoice(ticket)}
+                                  >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Download Invoice
+                                  </Button>
+                                )}
                               </div>
                             </div>
-                            <div className="flex justify-center md:justify-start gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full sm:w-auto"
-                                onClick={() => handleViewDetails(ticket)}
-                              >
-                                View Details
-                              </Button>
-                              {hasPendingPayment(ticket) && (
-                                <Button 
-                                  size="sm" 
-                                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
-                                  onClick={() => handlePayNow(ticket)}
-                                >
-                                  Pay Now ₹{ticket.totalAmount || ticket.billingAmount || 0}
-                                </Button>
-                              )}
-                              {ticket.status === 'Resolved' && ticket.paymentStatus === 'collected' && (
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="w-full sm:w-auto"
-                                  onClick={() => handleDownloadInvoice(ticket)}
-                                >
-                                  <Download className="w-4 h-4 mr-2" />
-                                  Download Invoice
-                                </Button>
-                              )}
-                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               )}
             </TabsContent>
 
@@ -1626,8 +1626,8 @@ const Support = () => {
                   <Copy className="h-2 w-2" />
                 </Button>
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 className="flex bg-primary hover:bg-primary/90 text-white text-xs px-2 py-1 w-full"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1658,8 +1658,8 @@ const Support = () => {
                   <Copy className="h-2 w-2" />
                 </Button>
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 className="flex bg-primary hover:bg-primary/90 text-white text-xs px-2 py-1 w-full"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1690,8 +1690,8 @@ const Support = () => {
                   <Copy className="h-2 w-2" />
                 </Button>
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 className="flex bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 w-full"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1765,12 +1765,12 @@ const Support = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div>
                   <label className="text-xs md:text-sm font-medium text-muted-foreground">Subject</label>
                   <p className="font-semibold mt-1 text-sm md:text-base">{selectedTicket.subject}</p>
                 </div>
-                
+
                 <div>
                   <label className="text-xs md:text-sm font-medium text-muted-foreground">Description</label>
                   <p className="mt-1 text-xs md:text-sm leading-relaxed">{selectedTicket.description}</p>
@@ -1784,8 +1784,8 @@ const Support = () => {
                         <h3 className="text-sm font-semibold text-green-800 mb-1">Payment Required</h3>
                         <p className="text-xs text-green-600">Complete your payment to finalize this support ticket</p>
                       </div>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={() => handlePayNow(selectedTicket)}
                       >
@@ -1803,8 +1803,8 @@ const Support = () => {
                         <h3 className="text-sm font-semibold text-blue-800 mb-1">Invoice Available</h3>
                         <p className="text-xs text-blue-600">Download your invoice for this completed ticket</p>
                       </div>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         className="border-blue-300 text-blue-700 hover:bg-blue-100"
                         onClick={() => handleDownloadInvoice(selectedTicket)}
@@ -1815,7 +1815,7 @@ const Support = () => {
                     </div>
                   </div>
                 )}
-                
+
               </CardContent>
             </Card>
           </div>
@@ -1842,23 +1842,23 @@ const Support = () => {
               <CardContent className="space-y-4">
                 <div>
                   <label className="text-sm font-medium">Your Response *</label>
-                  <Textarea 
+                  <Textarea
                     placeholder="Type your response here..."
                     className="min-h-[120px] w-full mt-2"
                     value={responseText}
                     onChange={(e) => setResponseText(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={handleCloseResponse}
                     className="w-full sm:w-auto"
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleSubmitResponse}
                     className="w-full sm:w-auto bg-primary hover:bg-primary/90"
                   >
@@ -1871,7 +1871,7 @@ const Support = () => {
           </div>
         )}
       </div>
-      
+
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
     </div>

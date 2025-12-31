@@ -354,7 +354,7 @@ class RazorpayService {
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["collect", "intent"], // intent = UPI apps detection, collect = QR code
+                    flows: ["qr", "intent", "collect"], // qr = scan code, intent = UPI apps detection, collect = VPA
                   },
                   {
                     method: "card",
@@ -580,7 +580,7 @@ class RazorpayService {
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["collect", "intent"], // intent = UPI apps detection, collect = QR code
+                    flows: ["qr", "intent", "collect"], // qr = scan code, intent = UPI apps detection, collect = VPA
                   },
                   {
                     method: "card",

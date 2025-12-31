@@ -71,7 +71,7 @@ const Payment = () => {
         console.error('❌ Failed to load Razorpay script');
         resolve(false);
       };
-      
+
       if (document.head) {
         document.head.appendChild(script);
       } else if (document.body) {
@@ -100,7 +100,7 @@ const Payment = () => {
         await new Promise(r => setTimeout(r, 1000));
         res = await loadRazorpayScript();
       }
-      
+
       if (!res || !window.Razorpay) {
         throw new Error('Razorpay payment gateway failed to load. Please check your internet connection and try again.');
       }
@@ -177,7 +177,7 @@ const Payment = () => {
           color: '#3B82F6'
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setLoading(false);
           }
         },
@@ -191,7 +191,7 @@ const Payment = () => {
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["collect", "intent"], // intent = UPI apps detection, collect = QR code
+                    flows: ["qr", "intent", "collect"], // qr = scan code, intent = UPI apps detection, collect = VPA
                   },
                   {
                     method: "card",
@@ -220,7 +220,7 @@ const Payment = () => {
 
       try {
         const rzp = new window.Razorpay(options);
-        
+
         // Add error handler for mobile
         if (rzp.on) {
           rzp.on('payment.failed', function (response: any) {
@@ -228,7 +228,7 @@ const Payment = () => {
             setError('Payment failed. Please try again.');
           });
         }
-        
+
         rzp.open();
         console.log('✅ Razorpay checkout opened');
       } catch (openError) {
@@ -336,7 +336,7 @@ const Payment = () => {
               )}
 
               {/* Payment Button */}
-              <Button 
+              <Button
                 onClick={handlePayment}
                 disabled={loading}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"

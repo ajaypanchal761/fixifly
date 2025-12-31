@@ -6,12 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Upload, 
-  X, 
-  Laptop, 
-  Monitor, 
-  Printer, 
+import {
+  Upload,
+  X,
+  Laptop,
+  Monitor,
+  Printer,
   Check,
   Shield,
   CheckCircle,
@@ -43,7 +43,7 @@ const AMCSubscribe = () => {
   const { planId } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  
+
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +80,7 @@ const AMCSubscribe = () => {
     try {
       setLoading(true);
       const response = await getAMCPlan(planId);
-      
+
       if (response.success && response.data) {
         setPlan(response.data.plan);
         setError(null);
@@ -112,7 +112,7 @@ const AMCSubscribe = () => {
       const newQuantity = value as number;
       const currentDevices = formData.devices;
       let newDevices = [...currentDevices];
-      
+
       // Add or remove devices based on quantity change
       if (newQuantity > currentDevices.length) {
         // Add new devices
@@ -129,11 +129,11 @@ const AMCSubscribe = () => {
         // Remove devices
         newDevices = newDevices.slice(0, newQuantity);
       }
-      
+
       setFormData(prev => ({ ...prev, quantity: newQuantity, devices: newDevices }));
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
-      
+
       // Update device type for all devices
       if (field === 'deviceType') {
         setFormData(prev => ({
@@ -145,7 +145,7 @@ const AMCSubscribe = () => {
         }));
       }
     }
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -158,9 +158,9 @@ const AMCSubscribe = () => {
       ...newDevices[deviceIndex],
       [field]: value
     };
-    
+
     setFormData(prev => ({ ...prev, devices: newDevices }));
-    
+
     // Clear error when user starts typing
     const errorKey = `device_${deviceIndex}_${field}`;
     if (errors[errorKey]) {
@@ -199,12 +199,12 @@ const AMCSubscribe = () => {
   // Calculate GST details
   const calculateGSTDetails = () => {
     if (!plan) return null;
-    
+
     const baseAmount = plan.price * formData.devices.length;
     const gstRate = 0.18; // 18% GST
     const gstAmount = baseAmount * gstRate;
     const totalAmount = baseAmount + gstAmount;
-    
+
     return {
       baseAmount,
       gstAmount,
@@ -215,14 +215,14 @@ const AMCSubscribe = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Check if backend server is running (normalize in case VITE_API_URL includes /api)
       try {
@@ -246,7 +246,7 @@ const AMCSubscribe = () => {
       const devicesWithUploadedImages = await Promise.all(
         formData.devices.map(async (device) => {
           let uploadedImageUrl = null;
-          
+
           if (device.serialNumberPhoto) {
             try {
               console.log('Uploading image for device:', device.deviceType);
@@ -267,7 +267,7 @@ const AMCSubscribe = () => {
               uploadedImageUrl = null;
             }
           }
-          
+
           return {
             deviceType: device.deviceType,
             serialNumber: device.serialNumber,
@@ -286,14 +286,14 @@ const AMCSubscribe = () => {
       };
 
       console.log('Submitting subscription data with uploaded images:', subscriptionData);
-      
+
       const response = await createAMCSubscription(subscriptionData);
-      
+
       if (response.success) {
         console.log('Subscription created successfully:', response.data.subscription);
         setSubscriptionId(response.data.subscription._id);
         console.log('Set subscription ID:', response.data.subscription._id);
-        
+
         if (response.data.payment) {
           setPaymentData(response.data.payment);
           setShowPayment(true);
@@ -315,7 +315,7 @@ const AMCSubscribe = () => {
 
   const handlePaymentSuccess = async (paymentResponse: any) => {
     console.log('✅ Payment successful:', paymentResponse);
-    
+
     // Flutter bridge call for WebView integration
     if ((window as any).flutter_inappwebview) {
       try {
@@ -325,12 +325,12 @@ const AMCSubscribe = () => {
         console.error('❌ Error calling Flutter bridge:', error);
       }
     }
-    
+
     // Show success alert for WebView
     if (isMobileWebView()) {
       alert("Payment Success!");
     }
-    
+
     if (!subscriptionId) {
       console.error('No subscription ID available for payment verification');
       return;
@@ -345,13 +345,13 @@ const AMCSubscribe = () => {
 
       console.log('Verifying payment for subscription ID:', subscriptionId);
       console.log('Payment verification data:', verificationData);
-      
+
       // Debug: Check if subscription exists before verification
       try {
         const token = localStorage.getItem('accessToken');
         console.log('Debug - Token available:', !!token);
         console.log('Debug - Subscription ID:', subscriptionId);
-        
+
         const debugResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/amc/subscriptions/${subscriptionId}/debug`, {
           method: 'GET',
           headers: {
@@ -359,24 +359,24 @@ const AMCSubscribe = () => {
             'Content-Type': 'application/json'
           }
         });
-        
+
         console.log('Debug response status:', debugResponse.status);
         console.log('Debug response headers:', debugResponse.headers);
-        
+
         if (!debugResponse.ok) {
           const errorText = await debugResponse.text();
           console.error('Debug response error:', errorText);
           return;
         }
-        
+
         const debugData = await debugResponse.json();
         console.log('Debug subscription data:', debugData);
       } catch (debugError) {
         console.error('Debug subscription failed:', debugError);
       }
-      
+
       const response = await verifyAMCSubscriptionPayment(subscriptionId, verificationData);
-      
+
       if (response.success) {
         toast.success("Payment verified! Your AMC subscription is now active.");
         navigate('/amc');
@@ -392,9 +392,9 @@ const AMCSubscribe = () => {
   const handlePaymentError = (error: any) => {
     console.error('Payment error:', error);
     console.error('Payment error details:', JSON.stringify(error, null, 2));
-    
+
     const errorMessage = error.error?.description || error.error?.reason || error.description || error.message || 'Payment failed. Please try another payment method.';
-    
+
     // Flutter bridge call for error
     if ((window as any).flutter_inappwebview) {
       try {
@@ -407,12 +407,12 @@ const AMCSubscribe = () => {
         console.error('❌ Error calling Flutter bridge for error:', bridgeError);
       }
     }
-    
+
     // Show error alert for WebView
     if (isMobileWebView()) {
       alert(`Payment Failed: ${errorMessage}`);
     }
-    
+
     toast.error(`Payment failed: ${errorMessage}`);
   };
 
@@ -453,7 +453,7 @@ const AMCSubscribe = () => {
         console.error('❌ Failed to load Razorpay script');
         resolve(false);
       };
-      
+
       if (document.head) {
         document.head.appendChild(script);
       } else if (document.body) {
@@ -483,7 +483,7 @@ const AMCSubscribe = () => {
         await new Promise(r => setTimeout(r, 1000));
         res = await loadRazorpayScript();
       }
-      
+
       if (!res || !window.Razorpay) {
         toast.error("Razorpay payment gateway failed to load. Please check your internet connection and try again.");
         return;
@@ -525,7 +525,7 @@ const AMCSubscribe = () => {
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["collect", "intent"], // intent = UPI apps detection, collect = QR code
+                    flows: ["qr", "intent", "collect"], // qr = scan code, intent = UPI apps detection, collect = VPA
                   },
                   {
                     method: "card",
@@ -557,19 +557,19 @@ const AMCSubscribe = () => {
 
       try {
         const paymentObject = new (window as any).Razorpay(options);
-        
+
         // Add error handlers for WebView/Flutter
         if (paymentObject.on) {
           // Payment failed handler
           paymentObject.on('payment.failed', handlePaymentError);
-          
+
           // Payment method selection failed handler
           paymentObject.on('payment.method_selection_failed', (error: any) => {
             console.error('❌ Payment method selection failed:', error);
             console.error('❌ Payment method error details:', error);
-            
+
             const errorMessage = error.error?.description || error.description || 'Please use another payment method';
-            
+
             // Flutter bridge call for error
             if ((window as any).flutter_inappwebview) {
               try {
@@ -581,16 +581,16 @@ const AMCSubscribe = () => {
                 console.error('❌ Error calling Flutter bridge:', bridgeError);
               }
             }
-            
+
             // Show error alert
             if (isMobileWebView()) {
               alert(`Payment Error: ${errorMessage}`);
             }
-            
+
             handlePaymentError(error);
           });
         }
-        
+
         paymentObject.open();
         console.log('✅ Razorpay checkout opened');
       } catch (openError) {
@@ -649,7 +649,7 @@ const AMCSubscribe = () => {
               <p className="text-2xl font-bold text-blue-600">₹{plan.price}</p>
               <p className="text-sm text-gray-600">per {plan.period === 'yearly' ? 'year' : 'month'}</p>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span>Base Amount ({formData.quantity} device{formData.quantity > 1 ? 's' : ''}):</span>
@@ -666,7 +666,7 @@ const AMCSubscribe = () => {
               </div>
             </div>
 
-            <Button 
+            <Button
               onClick={openRazorpayPayment}
               className="w-full bg-blue-600 hover:bg-blue-700"
               size="lg"
@@ -675,7 +675,7 @@ const AMCSubscribe = () => {
               Pay ₹{((plan.price * formData.quantity) * 1.18).toFixed(2)}
             </Button>
 
-            <Button 
+            <Button
               onClick={() => setShowPayment(false)}
               variant="outline"
               className="w-full"
@@ -697,9 +697,9 @@ const AMCSubscribe = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-              <Button 
-                onClick={() => navigate(`/amc/plan/${planId}`)} 
-                variant="ghost" 
+              <Button
+                onClick={() => navigate(`/amc/plan/${planId}`)}
+                variant="ghost"
                 size="sm"
                 className="text-gray-600 hover:text-gray-900 mb-2 sm:mb-0"
               >
@@ -738,8 +738,8 @@ const AMCSubscribe = () => {
                   {/* Device Type Selection */}
                   <div className="space-y-2">
                     <Label htmlFor="deviceType">Device Type *</Label>
-                    <Select 
-                      value={formData.deviceType} 
+                    <Select
+                      value={formData.deviceType}
                       onValueChange={(value) => handleInputChange('deviceType', value)}
                     >
                       <SelectTrigger className={errors.deviceType ? 'border-red-500' : ''}>
@@ -767,7 +767,7 @@ const AMCSubscribe = () => {
                   {/* Number of Devices (fixed to 1) */}
                   <div className="space-y-2">
                     <Label htmlFor="quantity">Number of Devices *</Label>
-                    <Select 
+                    <Select
                       value={"1"}
                       disabled
                     >
@@ -896,8 +896,8 @@ const AMCSubscribe = () => {
                     </Card>
                   )}
 
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold whitespace-nowrap overflow-visible mb-4"
                     disabled={isSubmitting}
                   >
