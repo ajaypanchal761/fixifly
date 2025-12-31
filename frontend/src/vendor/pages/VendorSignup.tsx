@@ -102,6 +102,16 @@ const VendorSignup = () => {
   };
 
   const handleFileUpload = (field: keyof typeof uploadedFiles, file: File) => {
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please select an image smaller than 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setUploadedFiles(prev => ({
       ...prev,
       [field]: file

@@ -94,7 +94,7 @@ class VendorApiService {
   private async fetchWithTimeout(url: string, config: RequestInit, timeout: number = this.REQUEST_TIMEOUT): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
+
     try {
       const response = await fetch(url, {
         ...config,
@@ -117,7 +117,7 @@ class VendorApiService {
     timeout?: number
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -146,13 +146,13 @@ class VendorApiService {
       console.log('API_BASE_URL:', API_BASE_URL);
       console.log('Endpoint:', endpoint);
       console.log('Token exists:', !!token);
-      
+
       const response = await this.fetchWithTimeout(url, config, timeout || this.REQUEST_TIMEOUT);
       console.log('Response status:', response.status);
       console.log('Response status text:', response.statusText);
       console.log('Response headers:', response.headers);
       console.log('Response ok:', response.ok);
-      
+
       const data = await response.json();
       console.log('Response data:', data);
 
@@ -164,11 +164,11 @@ class VendorApiService {
         console.error('URL:', url);
         console.error('Config:', config);
         console.error('=== END API ERROR RESPONSE ===');
-        
+
         // Handle authentication errors
         if (response.status === 401) {
           console.error('Authentication failed:', data);
-          
+
           // Check if vendor is blocked
           if (data.message && data.message.includes('blocked by admin')) {
             console.error('Vendor account is blocked by admin');
@@ -190,7 +190,7 @@ class VendorApiService {
         if (data.error === 'MANDATORY_DEPOSIT_REQUIRED') {
           console.log('🚨🚨🚨 MANDATORY DEPOSIT ERROR DETECTED IN REQUEST METHOD 🚨🚨🚨');
           alert('🚨 MANDATORY DEPOSIT REQUIRED 🚨\n\n₹2000 deposit needed to accept tasks.\n\nPlease make a deposit first in your earnings page.');
-          
+
           // Return the error data instead of throwing
           return {
             success: false,
@@ -199,7 +199,7 @@ class VendorApiService {
             isMandatoryDepositError: true
           };
         }
-        
+
         // Create error with full response data for other errors
         const error = new Error(data.message || `HTTP error! status: ${response.status}`);
         (error as any).response = { data };
@@ -215,19 +215,19 @@ class VendorApiService {
         stack: error.stack,
         response: error.response?.data
       });
-      
+
       // Handle Network errors  
-      if (error.code === 'NETWORK_ERROR' || 
-          error.message.includes('fetch') || 
-          error.message.includes('Failed to fetch') ||
-          error.name === 'TypeError' ||
-          (error.name === 'TypeError' && error.message === 'Failed to fetch')) {
+      if (error.code === 'NETWORK_ERROR' ||
+        error.message.includes('fetch') ||
+        error.message.includes('Failed to fetch') ||
+        error.name === 'TypeError' ||
+        (error.name === 'TypeError' && error.message === 'Failed to fetch')) {
         console.error('Network error - backend might be down or CORS issue');
         console.error('Backend URL:', url);
         console.error('Base URL:', this.baseURL);
         console.error('API_BASE_URL:', API_BASE_URL);
         console.error('Check if backend is running on:', this.baseURL);
-        
+
         // Provide more helpful error message
         const networkError = new Error(
           `Network error: Unable to connect to backend server.\n` +
@@ -240,7 +240,7 @@ class VendorApiService {
         (networkError as any).isNetworkError = true;
         throw networkError;
       }
-      
+
       // Handle HTTP errors with more details
       if (error.response) {
         const { status, data } = error.response;
@@ -260,7 +260,7 @@ class VendorApiService {
           throw serverError;
         }
       }
-      
+
       throw error;
     }
   }
@@ -308,38 +308,64 @@ class VendorApiService {
   // Vendor Registration with Files
   async registerWithFiles(formData: FormData): Promise<ApiResponse<VendorAuthResponse>> {
     const url = `${this.baseURL}/vendors/register`;
-    
+
     console.log('Sending registration request to:', url);
-    
-    const response = await this.fetchWithTimeout(url, {
-      method: 'POST',
-      body: formData,
-      // Don't set Content-Type header, let browser set it with boundary for FormData
-    });
 
-    console.log('Registration response status:', response.status);
-    console.log('Registration response headers:', Object.fromEntries(response.headers.entries()));
+    try {
+      const response = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        body: formData,
+        // Don't set Content-Type header, let browser set it with boundary for FormData
+      });
 
-    if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-        console.log('Registration error response:', errorData);
-        
-        // If there are validation errors, show them
-        if (errorData.errors && Array.isArray(errorData.errors)) {
-          throw new Error(`Validation failed: ${errorData.errors.join(', ')}`);
+      console.log('Registration response status:', response.status);
+      console.log('Registration response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.log('Registration error response:', errorData);
+
+          // If there are validation errors, show them
+          if (errorData.errors && Array.isArray(errorData.errors)) {
+            throw new Error(`Validation failed: ${errorData.errors.join(', ')}`);
+          }
+        } catch (e) {
+          console.log('Failed to parse error response as JSON');
+          // Check if response is HTML (often happens with 500 errors or large payloads)
+          try {
+            const text = await response.text();
+            console.log('Response text preview:', text.substring(0, 200));
+          } catch (textError) {
+            // Ignore
+          }
+          errorData = { message: `HTTP error! status: ${response.status}` };
         }
-      } catch (e) {
-        console.log('Failed to parse error response as JSON');
-        errorData = { message: `HTTP error! status: ${response.status}` };
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
 
-    const result = await response.json();
-    console.log('Registration success response:', result);
-    return result;
+      const result = await response.json();
+      console.log('Registration success response:', result);
+      return result;
+    } catch (error: any) {
+      console.error('Vendor Registration failed:', error);
+
+      // Handle Network errors similar to request method
+      if (error.message === 'Failed to fetch' ||
+        error.message.includes('NetworkError') ||
+        error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        console.error('Network error - backend might be down or CORS issue');
+        console.error('Backend URL:', url);
+
+        const networkError = new Error(
+          `Network error: Unable to connect to backend server. Please check your internet connection.`
+        );
+        throw networkError;
+      }
+
+      throw error;
+    }
   }
 
   // Create verification payment
@@ -400,10 +426,10 @@ class VendorApiService {
 
     return this.request('/vendors/login', {
       method: 'POST',
-      body: JSON.stringify({ 
-        email, 
-        password, 
-        deviceToken 
+      body: JSON.stringify({
+        email,
+        password,
+        deviceToken
       }),
     });
   }
@@ -502,9 +528,9 @@ class VendorApiService {
     console.log('Updating booking status:', { bookingId, status, completionData });
     const response = await this.request(`/bookings/${bookingId}/status`, {
       method: 'PATCH',
-      body: JSON.stringify({ 
-        status, 
-        completionData: completionData || null 
+      body: JSON.stringify({
+        status,
+        completionData: completionData || null
       }),
     });
     console.log('Update booking status response:', response);
@@ -514,12 +540,12 @@ class VendorApiService {
   // Accept Task - FIXED VERSION
   async acceptTask(bookingId: string): Promise<ApiResponse<any>> {
     console.log('Accepting task:', { bookingId });
-    
+
     // DIRECT FIX - Handle mandatory deposit error before making request
     try {
       const response = await this.request(`/bookings/${bookingId}/accept`, {
         method: 'PATCH',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           vendorResponse: {
             status: 'accepted',
             respondedAt: new Date().toISOString()
@@ -530,14 +556,14 @@ class VendorApiService {
       return response;
     } catch (error: any) {
       console.log('ERROR CAUGHT IN acceptTask:', error);
-      
+
       // DIRECT MANDATORY DEPOSIT HANDLING
-      if (error?.response?.data?.error === 'MANDATORY_DEPOSIT_REQUIRED' || 
-          error?.message?.includes('Mandatory deposit')) {
-        
+      if (error?.response?.data?.error === 'MANDATORY_DEPOSIT_REQUIRED' ||
+        error?.message?.includes('Mandatory deposit')) {
+
         console.log('🚨🚨🚨 MANDATORY DEPOSIT ERROR DETECTED 🚨🚨🚨');
         alert('🚨 MANDATORY DEPOSIT REQUIRED 🚨\n\n₹2000 deposit needed to accept tasks.\n\nPlease make a deposit first in your earnings page.');
-        
+
         // Return success response to prevent further error handling
         return {
           success: false,
@@ -546,7 +572,7 @@ class VendorApiService {
           isMandatoryDepositError: true
         };
       }
-      
+
       // For other errors, throw normally
       throw error;
     }
@@ -557,7 +583,7 @@ class VendorApiService {
     console.log('Declining task:', { bookingId, reason, options });
     const response = await this.request(`/bookings/${bookingId}/decline`, {
       method: 'PATCH',
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         vendorResponse: {
           status: 'declined',
           respondedAt: new Date().toISOString(),
@@ -592,8 +618,8 @@ class VendorApiService {
     console.log('Completion data:', completionData);
     console.log('API Base URL:', this.baseURL);
     console.log('Full endpoint:', `${this.baseURL}/bookings/${bookingId}/complete`);
-    
-    const requestBody = { 
+
+    const requestBody = {
       completionData: {
         resolutionNote: completionData.resolutionNote,
         billingAmount: completionData.billingAmount,
@@ -606,9 +632,9 @@ class VendorApiService {
         completedAt: new Date().toISOString()
       }
     };
-    
+
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
-    
+
     try {
       // Use longer timeout for complete task as it may include large image data
       const response = await this.request(`/bookings/${bookingId}/complete`, {
@@ -665,7 +691,7 @@ class VendorApiService {
         queryParams.append(key, value.toString());
       }
     });
-    
+
     const response = await this.request(`/support-tickets/vendor/assigned?${queryParams}`, {
       method: 'GET',
     });
@@ -731,7 +757,7 @@ class VendorApiService {
     // Use longer timeout for complete support ticket as it may include large image data
     const response = await this.request(`/support-tickets/vendor/${ticketId}/complete`, {
       method: 'PUT',
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         completionData: {
           resolutionNote: completionData.resolutionNote,
           spareParts: completionData.spareParts || [],
@@ -796,14 +822,14 @@ class VendorApiService {
   async uploadProfileImage(formData: FormData): Promise<ApiResponse<{ profileImage: string; imageUrl: string }>> {
     const token = localStorage.getItem('vendorToken');
     const url = `${this.baseURL}/vendors/profile/image`;
-    
+
     if (!token) {
       throw new Error('No authentication token found. Please login as a vendor first.');
     }
-    
+
     console.log('Uploading profile image to:', url);
     console.log('Token exists:', !!token);
-    
+
     const response = await this.fetchWithTimeout(url, {
       method: 'POST',
       headers: {
@@ -814,7 +840,7 @@ class VendorApiService {
 
     const data = await response.json();
     console.log('Vendor API: Image upload response:', data);
-    
+
     if (!response.ok) {
       // Handle authentication errors
       if (response.status === 401) {
