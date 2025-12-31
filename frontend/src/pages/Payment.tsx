@@ -196,7 +196,7 @@ const Payment = () => {
                 instruments: [
                   {
                     method: "upi",
-                    flows: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? ["intent"] : ["qr", "intent"],
+                    flows: isMobile ? ["intent"] : ["qr", "intent"],
                   },
                 ],
               },

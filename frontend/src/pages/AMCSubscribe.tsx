@@ -526,11 +526,11 @@ const AMCSubscribe = () => {
           display: {
             blocks: {
               upi: {
-                name: "UPI",
+                name: "Pay via UPI",
                 instruments: [
                   {
                     method: "upi",
-                    flows: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? ["intent"] : ["qr", "intent"],
+                    flows: isMobile ? ["intent"] : ["qr", "intent"],
                   },
                 ],
               },
