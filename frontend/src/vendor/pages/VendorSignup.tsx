@@ -614,21 +614,23 @@ const VendorSignup = () => {
                 </Button>
               </div>
             ) : (
-              <label htmlFor="aadhaarFront" className="cursor-pointer block p-4">
-                <div className="text-center">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarFront', e.target.files[0])}
-                    className="hidden"
-                    id="aadhaarFront"
-                  />
-                  <span className="text-sm text-gray-600">
-                    Click to upload Aadhaar front photo
-                  </span>
-                </div>
-              </label>
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarFront', e.target.files[0])}
+                  className="hidden"
+                  id="aadhaarFront"
+                />
+                <label htmlFor="aadhaarFront" className="cursor-pointer block p-4">
+                  <div className="text-center">
+                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <span className="text-sm text-gray-600">
+                      Click to upload Aadhaar front photo
+                    </span>
+                  </div>
+                </label>
+              </>
             )}
           </div>
         </div>
@@ -654,21 +656,23 @@ const VendorSignup = () => {
                 </Button>
               </div>
             ) : (
-              <label htmlFor="aadhaarBack" className="cursor-pointer block p-4">
-                <div className="text-center">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarBack', e.target.files[0])}
-                    className="hidden"
-                    id="aadhaarBack"
-                  />
-                  <span className="text-sm text-gray-600">
-                    Click to upload Aadhaar back photo
-                  </span>
-                </div>
-              </label>
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarBack', e.target.files[0])}
+                  className="hidden"
+                  id="aadhaarBack"
+                />
+                <label htmlFor="aadhaarBack" className="cursor-pointer block p-4">
+                  <div className="text-center">
+                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <span className="text-sm text-gray-600">
+                      Click to upload Aadhaar back photo
+                    </span>
+                  </div>
+                </label>
+              </>
             )}
           </div>
         </div>
@@ -694,21 +698,23 @@ const VendorSignup = () => {
                 </Button>
               </div>
             ) : (
-              <label htmlFor="profilePhoto" className="cursor-pointer block p-4">
-                <div className="text-center">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => e.target.files?.[0] && handleFileUpload('profilePhoto', e.target.files[0])}
-                    className="hidden"
-                    id="profilePhoto"
-                  />
-                  <span className="text-sm text-gray-600">
-                    Click to upload profile photo
-                  </span>
-                </div>
-              </label>
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload('profilePhoto', e.target.files[0])}
+                  className="hidden"
+                  id="profilePhoto"
+                />
+                <label htmlFor="profilePhoto" className="cursor-pointer block p-4">
+                  <div className="text-center">
+                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <span className="text-sm text-gray-600">
+                      Click to upload profile photo
+                    </span>
+                  </div>
+                </label>
+              </>
             )}
           </div>
         </div>
