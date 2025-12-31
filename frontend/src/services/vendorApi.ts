@@ -316,7 +316,7 @@ class VendorApiService {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header, let browser set it with boundary for FormData
-      });
+      }, this.LONG_REQUEST_TIMEOUT);
 
       console.log('Registration response status:', response.status);
       console.log('Registration response headers:', Object.fromEntries(response.headers.entries()));
