@@ -187,43 +187,6 @@ const Payment = () => {
         },
         // UPI app detection and QR code configuration for mobile APK
         // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
-        config: {
-          display: {
-            blocks: {
-              upi: {
-                name: "Instant UPI",
-                instruments: [
-                  {
-                    method: "upi",
-                    flows: isMobile ? ["intent"] : ["qr", "intent"],
-                  },
-                ],
-              },
-              banks: {
-                name: "Other Payment Methods",
-                instruments: [
-                  {
-                    method: "upi",
-                    flows: ["collect"],
-                  },
-                  {
-                    method: "card",
-                  },
-                  {
-                    method: "netbanking",
-                  },
-                  {
-                    method: "wallet",
-                  },
-                ],
-              },
-            },
-            sequence: ["block.upi", "block.banks"],
-            preferences: {
-              show_default_blocks: false,
-            },
-          },
-        },
       };
 
       // Check if Razorpay is available
@@ -299,8 +262,8 @@ const Payment = () => {
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Complete Payment</CardTitle>
               <CardDescription>
-                Secure payment powered by Razorpay (v1.4)
-                {isMobileWebView() ? <span className="text-xs text-green-600 block">Mobile Detected (Intent Flow)</span> : <span className="text-xs text-amber-600 block">Desktop Mode (QR Flow)</span>}
+                Secure payment powered by Razorpay (v1.5)
+                {isMobileWebView() ? <span className="text-xs text-green-600 block">Mobile Detected (Default Flow)</span> : <span className="text-xs text-amber-600 block">Desktop Mode</span>}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
