@@ -42,9 +42,10 @@ const Payment = () => {
       const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
       const isIOSStandalone = (window.navigator as any).standalone === true;
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-      return isWebView || isStandalone || isIOSStandalone || isMobileDevice;
+      const isSmallScreen = window.innerWidth <= 768; // Fallback detection for mobile screens
+      return isWebView || isStandalone || isIOSStandalone || isMobileDevice || isSmallScreen;
     } catch {
-      return false;
+      return (window.innerWidth <= 768);
     }
   };
 
@@ -300,7 +301,8 @@ const Payment = () => {
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Complete Payment</CardTitle>
               <CardDescription>
-                Secure payment powered by Razorpay
+                Secure payment powered by Razorpay (v1.3)
+                {isMobileWebView() ? <span className="text-xs text-green-600 block">Mobile Detected (Intent Flow)</span> : <span className="text-xs text-amber-600 block">Desktop Mode (QR Flow)</span>}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
