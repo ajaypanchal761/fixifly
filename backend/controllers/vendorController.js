@@ -82,8 +82,8 @@ const registerVendor = asyncHandler(async (req, res) => {
     if (existingVendor) {
       return res.status(400).json({
         success: false,
-        message: existingVendor.email === email 
-          ? 'Email is already registered' 
+        message: existingVendor.email === email
+          ? 'Email is already registered'
           : 'Phone number is already registered'
       });
     }
@@ -427,7 +427,7 @@ const loginVendor = asyncHandler(async (req, res) => {
 
   try {
     logger.info('Vendor login attempt', { email, hasPassword: !!password, hasDeviceToken: !!deviceToken });
-    
+
     // Check if vendor exists and include password
     const vendor = await Vendor.findOne({ email }).select('+password');
 
@@ -439,11 +439,11 @@ const loginVendor = asyncHandler(async (req, res) => {
       });
     }
 
-    logger.info('Vendor found for login', { 
-      email: vendor.email, 
-      isActive: vendor.isActive, 
-      isApproved: vendor.isApproved, 
-      isBlocked: vendor.isBlocked 
+    logger.info('Vendor found for login', {
+      email: vendor.email,
+      isActive: vendor.isActive,
+      isApproved: vendor.isApproved,
+      isBlocked: vendor.isBlocked
     });
 
     // Allow vendors to login without admin approval
@@ -484,30 +484,30 @@ const loginVendor = asyncHandler(async (req, res) => {
     if (deviceToken) {
       try {
         logger.info(`🔔 Saving FCM token for vendor ${vendor._id} (mobile/webview only)`);
-        
+
         // Fetch vendor with fcmTokenMobile field explicitly selected
         const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
-        
+
         // Save to fcmTokenMobile array (mobile/webview only, no web tokens)
         if (!vendorWithTokens.fcmTokenMobile || !Array.isArray(vendorWithTokens.fcmTokenMobile)) {
           vendorWithTokens.fcmTokenMobile = [];
         }
-        
+
         // Remove token if already exists to avoid duplicates
         vendorWithTokens.fcmTokenMobile = vendorWithTokens.fcmTokenMobile.filter(t => t !== deviceToken);
-        
+
         // Add new token at the beginning
         vendorWithTokens.fcmTokenMobile.unshift(deviceToken);
-        
+
         // Keep only the most recent 10 tokens
         if (vendorWithTokens.fcmTokenMobile.length > 10) {
           vendorWithTokens.fcmTokenMobile = vendorWithTokens.fcmTokenMobile.slice(0, 10);
         }
-        
+
         vendorWithTokens.markModified('fcmTokenMobile');
         vendorWithTokens.notificationSettings.pushNotifications = true;
         await vendorWithTokens.save({ validateBeforeSave: false });
-        
+
         // Verify save
         const verifyVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
         logger.info(`✅ FCM mobile/webview token saved successfully for vendor ${vendor._id}`, {
@@ -547,9 +547,9 @@ const loginVendor = asyncHandler(async (req, res) => {
     }
 
     // Check hasInitialDeposit from vendor model first, then fallback to wallet calculation
-    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
-                             (vendorWallet.currentBalance >= 3999) ||
-                             (vendorWallet.totalDeposits >= 3999);
+    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
+      (vendorWallet.currentBalance >= 3999) ||
+      (vendorWallet.totalDeposits >= 3999);
 
     // Prepare vendor data for response
     const vendorData = {
@@ -642,9 +642,9 @@ const getVendorProfile = asyncHandler(async (req, res) => {
     }
 
     // Check hasInitialDeposit from vendor model first, then fallback to wallet calculation
-    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
-                             (vendorWallet.currentBalance >= 3999) ||
-                             (vendorWallet.totalDeposits >= 3999);
+    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
+      (vendorWallet.currentBalance >= 3999) ||
+      (vendorWallet.totalDeposits >= 3999);
 
     const vendorData = {
       id: vendor._id,
@@ -727,7 +727,7 @@ const updateVendorProfile = asyncHandler(async (req, res) => {
     // Update allowed fields
     const allowedUpdates = [
       'firstName', 'lastName', 'phone', 'alternatePhone', 'fatherName', 'homePhone', 'currentAddress',
-      'serviceCategories', 'customServiceCategory', 'experience', 'address', 'specialty', 
+      'serviceCategories', 'customServiceCategory', 'experience', 'address', 'specialty',
       'bio', 'preferences', 'serviceLocations'
     ];
 
@@ -964,7 +964,7 @@ const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
       logger.error('Email service not configured for forgot password OTP', {
         email: vendor.email
       });
-      
+
       // Clear OTP if email service is not configured
       vendor.clearForgotPasswordOTP();
       await vendor.save();
@@ -983,19 +983,19 @@ const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
       });
 
       const emailResult = await emailService.sendForgotPasswordOTP(vendor.email, otp, vendor.firstName);
-      
+
       logger.info('Email service response for forgot password OTP', {
         email: vendor.email,
         success: emailResult?.success,
         message: emailResult?.message,
         error: emailResult?.error
       });
-      
+
       // Check if email was sent successfully
       if (!emailResult || !emailResult.success) {
         const errorMessage = emailResult?.message || emailResult?.error || 'Unknown error';
         const rawError = emailResult?.error || '';
-        
+
         logger.error('Failed to send forgot password OTP email', {
           emailResult: emailResult,
           email: vendor.email,
@@ -1010,26 +1010,26 @@ const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
 
         // Return more specific error message - check both message and error fields
         let userMessage = emailResult?.message || 'Failed to send OTP email. Please try again later.';
-        
+
         // Check raw error for specific patterns if message doesn't already contain them
         if (!userMessage.includes('Daily email sending limit') && !userMessage.includes('limit reached') && !userMessage.includes('Incorrect email password')) {
           const combinedError = (rawError + ' ' + errorMessage).toLowerCase();
-          
+
           // Check for authentication/credential errors first
-          if (combinedError.includes('incorrect email password') || 
-              combinedError.includes('badcredentials') ||
-              combinedError.includes('username and password not accepted') ||
-              combinedError.includes('invalid login') ||
-              combinedError.includes('authentication failed') ||
-              combinedError.includes('eauth') ||
-              errorMessage.includes('Incorrect email password')) {
+          if (combinedError.includes('incorrect email password') ||
+            combinedError.includes('badcredentials') ||
+            combinedError.includes('username and password not accepted') ||
+            combinedError.includes('invalid login') ||
+            combinedError.includes('authentication failed') ||
+            combinedError.includes('eauth') ||
+            errorMessage.includes('Incorrect email password')) {
             userMessage = 'Incorrect email password. Please contact administrator to fix SMTP configuration.';
           } else if (combinedError.includes('not configured') || combinedError.includes('smtp')) {
             userMessage = 'Email service is temporarily unavailable. Please contact support.';
           } else if (combinedError.includes('connection') || combinedError.includes('timeout')) {
             userMessage = 'Email service connection failed. Please try again later.';
-          } else if (combinedError.includes('550-5.4.5') || combinedError.includes('daily user sending') || 
-                     combinedError.includes('quota') || combinedError.includes('rate limit')) {
+          } else if (combinedError.includes('550-5.4.5') || combinedError.includes('daily user sending') ||
+            combinedError.includes('quota') || combinedError.includes('rate limit')) {
             userMessage = 'Daily email sending limit exceeded. Please try again tomorrow or contact support at info@fixfly.in';
           } else if (combinedError.includes('550')) {
             userMessage = 'Email sending limit reached. Please contact support at info@fixfly.in or try again later.';
@@ -1042,7 +1042,7 @@ const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
           error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
         });
       }
-      
+
       logger.info('Forgot password OTP sent to vendor successfully', {
         email: vendor.email,
         vendorId: vendor._id,
@@ -1200,7 +1200,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     vendor.password = newPassword;
     vendor.markModified('password'); // Explicitly mark password as modified
     vendor.clearForgotPasswordOTP(); // Clear OTP after successful password reset
-    
+
     // Save vendor - pre-save middleware will hash the password
     await vendor.save();
 
@@ -1354,13 +1354,13 @@ const uploadVendorProfileImage = asyncHandler(async (req, res) => {
       fileName: req.file.originalname,
       fileSize: req.file.size
     });
-    
+
     const uploadResult = await imageUploadService.uploadProfileImage(req.file, vendor._id.toString());
     logger.info('Image upload result', { uploadResult });
-    
+
     // Extract just the URL string from the upload result
     const imageUrl = uploadResult.data.secureUrl;
-    
+
     // Update vendor profile image with just the URL string
     vendor.profileImage = imageUrl;
     await vendor.save();
@@ -1455,7 +1455,7 @@ const createDepositOrder = asyncHandler(async (req, res) => {
 
     // Check if this is the initial deposit (minimum ₹3,999 required for first deposit)
     const isInitialDeposit = !vendor.wallet.hasInitialDeposit;
-    
+
     // Validate amount based on deposit type
     if (!amount || amount <= 0) {
       return res.status(400).json({
@@ -1463,7 +1463,7 @@ const createDepositOrder = asyncHandler(async (req, res) => {
         message: 'Please enter a valid deposit amount'
       });
     }
-    
+
     if (isInitialDeposit && amount < 3999) {
       return res.status(400).json({
         success: false,
@@ -1577,7 +1577,7 @@ const verifyDepositPayment = asyncHandler(async (req, res) => {
     // Verify payment with Razorpay
     const crypto = require('crypto');
     const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
-    
+
     if (!razorpaySecret) {
       logger.error('Razorpay secret key not configured');
       return res.status(500).json({
@@ -1585,7 +1585,7 @@ const verifyDepositPayment = asyncHandler(async (req, res) => {
         message: 'Payment verification service not configured'
       });
     }
-    
+
     const body = razorpayOrderId + "|" + razorpayPaymentId;
     const expectedSignature = crypto
       .createHmac('sha256', razorpaySecret)
@@ -1620,7 +1620,7 @@ const verifyDepositPayment = asyncHandler(async (req, res) => {
       amount: pendingTransaction.amount,
       currentBalance: vendor.wallet.currentBalance
     });
-    
+
     // Use the addDeposit method from Vendor model to properly handle the transaction
     await vendor.addDeposit(
       pendingTransaction.amount,
@@ -1629,7 +1629,7 @@ const verifyDepositPayment = asyncHandler(async (req, res) => {
       razorpayPaymentId,
       razorpaySignature
     );
-    
+
     logger.info('Vendor wallet updated after deposit', {
       vendorId: vendor.vendorId,
       newBalance: vendor.wallet.currentBalance,
@@ -1749,7 +1749,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
   try {
     const vendorId = req.vendor._id;
     const { page = 1, limit = 20 } = req.query;
-    
+
     const vendor = await Vendor.findById(vendorId).select('vendorId');
     const vendorWalletId = vendor?.vendorId;
 
@@ -1763,7 +1763,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
     // Get wallet data from VendorWallet model
     const VendorWallet = require('../models/VendorWallet');
     let wallet = await VendorWallet.findOne({ vendorId: vendorWalletId });
-    
+
     // Create wallet if it doesn't exist
     if (!wallet) {
       wallet = new VendorWallet({
@@ -1778,7 +1778,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
     // Safely get summary and transactions with error handling
     let summary;
     let recentTransactions = [];
-    
+
     try {
       summary = await VendorWallet.getVendorSummary(vendorWalletId);
     } catch (summaryError) {
@@ -2112,10 +2112,10 @@ const saveFCMToken = asyncHandler(async (req, res) => {
 
     // Remove token if exists (to avoid duplicates)
     vendor.fcmTokens = vendor.fcmTokens.filter(t => t !== token);
-    
+
     // Add new token at the beginning
     vendor.fcmTokens.unshift(token);
-    
+
     // Keep only the most recent tokens (max 10)
     const maxTokens = 10;
     if (vendor.fcmTokens.length > maxTokens) {
@@ -2125,19 +2125,19 @@ const saveFCMToken = asyncHandler(async (req, res) => {
     // Mark fcmTokens as modified to ensure save (CRITICAL for select: false fields)
     vendor.markModified('fcmTokens');
     vendor.notificationSettings.pushNotifications = true;
-    
+
     // Use updateOne for more reliable persistence of select: false fields
     await Vendor.updateOne(
       { _id: vendor._id },
-      { 
-        $set: { 
+      {
+        $set: {
           fcmTokens: vendor.fcmTokens,
           'notificationSettings.pushNotifications': true,
           updatedAt: new Date()
-        } 
+        }
       }
     );
-    
+
     // Also save the document to ensure all changes are persisted
     await vendor.save({ validateBeforeSave: false });
 
@@ -2180,7 +2180,7 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     'origin': req.headers['origin'],
     'referer': req.headers['referer']
   });
-  
+
   // Check MongoDB connection before proceeding
   const mongoose = require('mongoose');
   if (mongoose.connection.readyState !== 1) {
@@ -2195,8 +2195,8 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
   try {
     logger.info('Request body:', { ...req.body, token: req.body.token ? req.body.token.substring(0, 30) + '...' : 'missing' });
     logger.info('User Agent:', req.headers['user-agent'] || 'Unknown');
-    
-    const { token, email, platform = 'mobile' } = req.body;
+
+    const { token, email, phone, platform = 'mobile' } = req.body;
 
     // Validate token
     if (!token || typeof token !== 'string' || token.trim().length === 0) {
@@ -2206,57 +2206,75 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
       });
     }
 
-    // Validate email
-    if (!email) {
+    // Validate identifier (email or phone)
+    if (!email && !phone) {
       return res.status(400).json({
         success: false,
-        message: 'Email is required'
+        message: 'Email or Phone is required'
       });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const normalizedEmail = email.toLowerCase().trim();
-    
-    if (!emailRegex.test(normalizedEmail)) {
-      logger.error('Invalid email format', {
-        email: email,
-        normalizedEmail: normalizedEmail
-      });
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide a valid email address'
-      });
+    let query = {};
+
+    if (email) {
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const normalizedEmail = email.toLowerCase().trim();
+
+      if (!emailRegex.test(normalizedEmail)) {
+        logger.error('Invalid email format', { email });
+        return res.status(400).json({
+          success: false,
+          message: 'Please provide a valid email address'
+        });
+      }
+      query.email = normalizedEmail;
+    } else if (phone) {
+      // Normalize phone number
+      const normalizedPhone = phone.replace(/\D/g, '');
+      // Handle 10-12 digit formats simply for lookup
+      if (normalizedPhone.length < 10) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid phone number format'
+        });
+      }
+
+      // If client sends 10 digits, we might need to be careful if DB has other formats, 
+      // but usually vendors are stored with 10 digits in 'phone' field based on schema.
+      // We'll search by the exact phone first. 
+      // NOTE: Vendor schema has 'phone' as String, usually 10 digits.
+      // We will try to match the last 10 digits if the input is longer.
+      const searchPhone = normalizedPhone.slice(-10);
+
+      // We used to query exact phone. Let's try flexible search or just assume standard 10 digit.
+      // Schema validation enforces 10 digits. So we query with 10 digits.
+      query.phone = searchPhone;
     }
 
-    logger.info('Email validation', {
-      originalEmail: email,
-      normalizedEmail: normalizedEmail
-    });
+    logger.info('Vendor lookup query', query);
 
-    // Find vendor by email - explicitly select fcmTokenMobile field
-    const vendor = await Vendor.findOne({ email: normalizedEmail }).select('+fcmTokenMobile');
-    
+    // Find vendor by email or phone - explicitly select fcmTokenMobile field
+    const vendor = await Vendor.findOne(query).select('+fcmTokenMobile');
+
     logger.info('Vendor lookup attempt', {
-      email: normalizedEmail,
+      query,
       found: !!vendor,
       vendorId: vendor?.vendorId || 'not found'
     });
-    
+
     if (!vendor) {
-      logger.error('Vendor not found with email', {
-        email: normalizedEmail
-      });
+      logger.error('Vendor not found', query);
       return res.status(404).json({
         success: false,
-        message: 'Vendor not found with this email. Please register first.',
+        message: 'Vendor not found. Please register first.',
         debug: {
-          email: normalizedEmail,
-          hint: 'Make sure the email matches the one used during registration'
+          query,
+          hint: 'Make sure the email/phone matches the one used during registration'
         }
       });
     }
-    
+
     logger.info('✅ Vendor found for FCM token save', {
       vendorId: vendor._id.toString(),
       vendorIdString: vendor.vendorId,
@@ -2278,10 +2296,10 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
 
     const oldTokens = [...vendor.fcmTokenMobile];
     const MAX_TOKENS = 10;
-    
+
     // Check if token already exists in fcmTokenMobile (case-sensitive exact match)
     const tokenExists = vendor.fcmTokenMobile.some(existingToken => existingToken === token);
-    
+
     if (tokenExists) {
       logger.info('ℹ️ FCM token already exists in fcmTokenMobile database');
       logger.info('📊 Current fcmTokenMobile array:', vendor.fcmTokenMobile);
@@ -2299,25 +2317,25 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
 
     // Add new token to fcmTokenMobile
     logger.info('🆕 New mobile token detected, adding to fcmTokenMobile array...');
-    
+
     // Remove token if exists (shouldn't happen but safety check)
     vendor.fcmTokenMobile = vendor.fcmTokenMobile.filter(t => t !== token);
-    
+
     // Add new token at the beginning (most recent first)
     vendor.fcmTokenMobile.unshift(token);
-    
+
     // Keep only the most recent tokens
     if (vendor.fcmTokenMobile.length > MAX_TOKENS) {
       logger.info(`⚠️ Token limit reached (${MAX_TOKENS}), removing oldest tokens...`);
       vendor.fcmTokenMobile = vendor.fcmTokenMobile.slice(0, MAX_TOKENS);
     }
-    
+
     logger.info(`📱 Added new mobile token to fcmTokenMobile. Total mobile tokens: ${vendor.fcmTokenMobile.length}/${MAX_TOKENS}`);
     logger.info(`📋 Token array preview: ${vendor.fcmTokenMobile.slice(0, 3).map(t => t.substring(0, 20) + '...').join(', ')}`);
-    
+
     // Mark fcmTokenMobile as modified to ensure save (CRITICAL for select: false fields)
     vendor.markModified('fcmTokenMobile');
-    
+
     logger.info('💾 Saving FCM tokens to database...', {
       vendorId: vendor._id.toString(),
       vendorIdString: vendor.vendorId,
@@ -2326,24 +2344,24 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
       tokensAfterSave: vendor.fcmTokenMobile.length,
       newToken: token.substring(0, 30) + '...'
     });
-    
+
     // Use updateOne for more reliable persistence of select: false fields
     await Vendor.updateOne(
       { _id: vendor._id },
-      { 
-        $set: { 
+      {
+        $set: {
           fcmTokenMobile: vendor.fcmTokenMobile,
           updatedAt: new Date()
-        } 
+        }
       }
     );
     // Also save the document to ensure all changes are persisted
     await vendor.save({ validateBeforeSave: false });
     logger.info('✅ FCM tokens saved successfully');
-    
+
     // Verify the save by fetching fresh from database
     const updatedVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
-    
+
     if (!updatedVendor) {
       logger.error('❌ Vendor not found after save - verification failed');
       return res.status(500).json({
@@ -2351,50 +2369,50 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
         message: 'Failed to verify token save'
       });
     }
-    
+
     logger.info('✅ Verification - fcmTokenMobile in database:', {
       vendorId: updatedVendor._id.toString(),
       tokenCount: updatedVendor.fcmTokenMobile?.length || 0,
       tokenExists: updatedVendor.fcmTokenMobile?.includes(token) || false,
       tokensArray: updatedVendor.fcmTokenMobile?.map(t => t.substring(0, 20) + '...') || []
     });
-    
+
     // If verification fails, retry save
     if (!updatedVendor.fcmTokenMobile || !updatedVendor.fcmTokenMobile.includes(token)) {
       logger.error('❌ Token save verification failed! Token not found in database after save');
       logger.info('🔄 Retrying save...');
-      
+
       // Re-fetch and retry
       const retryVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
       if (retryVendor) {
         if (!retryVendor.fcmTokenMobile || !Array.isArray(retryVendor.fcmTokenMobile)) {
           retryVendor.fcmTokenMobile = [];
         }
-        
+
         // Remove if exists
         retryVendor.fcmTokenMobile = retryVendor.fcmTokenMobile.filter(t => t !== token);
-        
+
         // Add token at beginning
         retryVendor.fcmTokenMobile.unshift(token);
-        
+
         // Limit
         if (retryVendor.fcmTokenMobile.length > MAX_TOKENS) {
           retryVendor.fcmTokenMobile = retryVendor.fcmTokenMobile.slice(0, MAX_TOKENS);
         }
-        
+
         retryVendor.markModified('fcmTokenMobile');
         // Use updateOne for more reliable persistence
         await Vendor.updateOne(
           { _id: retryVendor._id },
-          { 
-            $set: { 
+          {
+            $set: {
               fcmTokenMobile: retryVendor.fcmTokenMobile,
               updatedAt: new Date()
-            } 
+            }
           }
         );
         await retryVendor.save({ validateBeforeSave: false });
-        
+
         // Verify again
         const verifyVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
         if (verifyVendor && verifyVendor.fcmTokenMobile && verifyVendor.fcmTokenMobile.includes(token)) {
