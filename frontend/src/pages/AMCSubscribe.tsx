@@ -550,7 +550,7 @@ const AMCSubscribe = () => {
             },
             sequence: ["block.qr", "block.banks"],
             preferences: {
-              show_default_blocks: true,
+              show_default_blocks: false,
             },
           },
         },
