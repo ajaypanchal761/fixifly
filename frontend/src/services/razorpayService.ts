@@ -315,6 +315,9 @@ class RazorpayService {
         theme: {
           color: '#3B82F6',
         },
+        retry: {
+          enabled: false,
+        },
         // @ts-ignore
         webview_intent: true,
         handler: (response: PaymentResponse) => {
@@ -554,6 +557,9 @@ class RazorpayService {
         theme: {
           color: '#3B82F6',
         },
+        retry: {
+          enabled: false,
+        },
         // @ts-ignore
         webview_intent: true,
         handler: async (response: PaymentResponse) => {
@@ -609,6 +615,7 @@ class RazorpayService {
                   {
                     method: "upi",
                     flows: ["intent"],
+                    apps: ["google_pay", "phonepe", "paytm", "bhim", "cred"],
                   },
                 ],
               },

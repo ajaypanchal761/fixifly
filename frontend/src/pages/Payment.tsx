@@ -206,6 +206,7 @@ const Payment = () => {
                   {
                     method: "upi",
                     flows: ["intent"],
+                    apps: ["google_pay", "phonepe", "paytm", "bhim", "cred"],
                   },
                 ],
               },
