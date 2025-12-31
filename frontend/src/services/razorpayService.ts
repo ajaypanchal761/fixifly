@@ -357,7 +357,7 @@ class RazorpayService {
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["qr", "intent"],
+                    flows: isMobile ? ["intent"] : ["qr", "intent"],
                   },
                 ],
               },
