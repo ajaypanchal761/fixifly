@@ -315,6 +315,12 @@ class RazorpayService {
         theme: {
           color: '#3B82F6',
         },
+        // Force intent flow for webview
+        retry: {
+          enabled: true,
+        },
+        // @ts-ignore
+        webview_intent: true,
         handler: (response: PaymentResponse) => {
           console.log('✅ Payment successful:', response);
 
@@ -553,6 +559,12 @@ class RazorpayService {
         theme: {
           color: '#3B82F6',
         },
+        // Force intent flow for webview
+        retry: {
+          enabled: true,
+        },
+        // @ts-ignore
+        webview_intent: true,
         handler: async (response: PaymentResponse) => {
           try {
             console.log('✅ Payment successful:', response);

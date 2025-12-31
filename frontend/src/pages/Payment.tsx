@@ -176,6 +176,11 @@ const Payment = () => {
         theme: {
           color: '#3B82F6'
         },
+        retry: {
+          enabled: true,
+        },
+        // @ts-ignore
+        webview_intent: true,
         modal: {
           ondismiss: function () {
             setLoading(false);

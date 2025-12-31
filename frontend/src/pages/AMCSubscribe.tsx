@@ -509,6 +509,11 @@ const AMCSubscribe = () => {
         theme: {
           color: '#2563eb'
         },
+        retry: {
+          enabled: true,
+        },
+        // @ts-ignore
+        webview_intent: true,
         modal: {
           ondismiss: () => {
             console.log('Payment modal dismissed');
