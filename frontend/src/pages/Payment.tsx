@@ -195,12 +195,21 @@ const Payment = () => {
                   },
                 ],
               },
+              upi_apps: {
+                name: "UPI Apps",
+                instruments: [
+                  {
+                    method: "upi",
+                    flows: ["intent"],
+                  },
+                ],
+              },
               banks: {
                 name: "Other Payment Methods",
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["intent", "collect"],
+                    flows: ["collect"],
                   },
                   {
                     method: "card",
@@ -214,7 +223,7 @@ const Payment = () => {
                 ],
               },
             },
-            sequence: ["block.qr", "block.banks"],
+            sequence: ["block.qr", "block.upi_apps", "block.banks"],
             preferences: {
               show_default_blocks: false,
             },
