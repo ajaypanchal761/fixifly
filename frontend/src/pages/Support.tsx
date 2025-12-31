@@ -404,12 +404,21 @@ const Support = () => {
         config: {
           display: {
             blocks: {
-              banks: {
-                name: "All payment methods",
+              qr: {
+                name: "UPI QR",
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["qr", "intent", "collect"], // qr = scan code, intent = UPI apps detection, collect = VPA
+                    flows: ["qr"],
+                  },
+                ],
+              },
+              banks: {
+                name: "Other Payment Methods",
+                instruments: [
+                  {
+                    method: "upi",
+                    flows: ["intent", "collect"],
                   },
                   {
                     method: "card",
@@ -423,7 +432,7 @@ const Support = () => {
                 ],
               },
             },
-            sequence: ["block.banks"],
+            sequence: ["block.qr", "block.banks"],
             preferences: {
               show_default_blocks: true,
             },
