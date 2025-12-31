@@ -7,10 +7,10 @@ require('dotenv').config({ path: './config/production.env' });
 
 // Set Razorpay environment variables if not set (Live Credentials)
 if (!process.env.RAZORPAY_KEY_ID) {
-  process.env.RAZORPAY_KEY_ID = 'rzp_live_RmLDP4W1dPgg6J';
+  process.env.RAZORPAY_KEY_ID = 'rzp_live_RyCVwnDNEvO2uL';
 }
 if (!process.env.RAZORPAY_KEY_SECRET) {
-  process.env.RAZORPAY_KEY_SECRET = '5Nq5LsWFtRT7ysftCpqdrZn5';
+  process.env.RAZORPAY_KEY_SECRET = 'jhc3nFz1B10oWNZZBP1ChVRO';
 }
 
 // Import database connection
@@ -144,7 +144,7 @@ app.post('/debug-formdata', (req, res) => {
   console.log('Body content:', req.body);
   console.log('Files:', req.files);
   console.log('================================');
-  
+
   res.json({
     success: true,
     message: 'Debug endpoint hit',
@@ -184,29 +184,29 @@ app.get('/admin/auto-reject/status', (req, res) => {
 // SMS Test endpoint for debugging
 app.get('/test-sms', async (req, res) => {
   const smsService = require('./services/smsService');
-  
+
   const credentials = {
     apiKey: process.env.SMS_INDIA_HUB_API_KEY,
     senderId: process.env.SMS_INDIA_HUB_SENDER_ID,
     isConfigured: !!(process.env.SMS_INDIA_HUB_API_KEY && process.env.SMS_INDIA_HUB_SENDER_ID)
   };
-  
+
   // Test SMS India Hub connection with dummy OTP
   let testResult = { status: 'not_tested' };
-  
+
   if (credentials.isConfigured) {
     try {
       testResult = await smsService.sendOTP('9999999999', '123456');
       testResult.status = testResult.success ? 'working' : 'template_approval_needed';
     } catch (error) {
-      testResult = { 
-        status: 'error', 
+      testResult = {
+        status: 'error',
         error: error.message,
         note: 'SMS India Hub connection error or template approval needed'
       };
     }
   }
-  
+
   res.status(200).json({
     success: true,
     message: 'SMS India Hub Service Status',
@@ -260,23 +260,23 @@ app.get('/', (req, res) => {
     success: true,
     message: 'Welcome to Fixfly Backend API',
     version: '1.0.0',
-      endpoints: {
-        auth: '/api/auth',
-        users: '/api/users',
-        vendors: '/api/vendors',
-        admin: '/api/admin',
-        cards: '/api/cards',
-        blogs: '/api/blogs',
-        adminBlogs: '/api/admin/blogs',
-        products: '/api/admin/products',
-        publicProducts: '/api/public/products',
-        bookings: '/api/bookings',
-        payment: '/api/payment',
-        adminBookings: '/api/admin/bookings',
-        amc: '/api/amc',
-        reviews: '/api/reviews',
-        health: '/health'
-      }
+    endpoints: {
+      auth: '/api/auth',
+      users: '/api/users',
+      vendors: '/api/vendors',
+      admin: '/api/admin',
+      cards: '/api/cards',
+      blogs: '/api/blogs',
+      adminBlogs: '/api/admin/blogs',
+      products: '/api/admin/products',
+      publicProducts: '/api/public/products',
+      bookings: '/api/bookings',
+      payment: '/api/payment',
+      adminBookings: '/api/admin/bookings',
+      amc: '/api/amc',
+      reviews: '/api/reviews',
+      health: '/health'
+    }
   });
 });
 
@@ -292,7 +292,7 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Global Error Handler:', err);
-  
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal Server Error',
@@ -305,13 +305,13 @@ const startServer = async () => {
   try {
     // Connect to MongoDB Atlas first
     await connectDB();
-    
+
     const PORT = process.env.PORT || 5000;
-    
+
     app.listen(PORT, () => {
       // Start auto-reject service
       autoRejectService.start();
-      
+
       console.log(`
 🚀 Fixfly Backend Server Started!
 📡 Server running on port: ${PORT}
