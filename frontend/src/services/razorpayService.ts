@@ -349,7 +349,10 @@ class RazorpayService {
         },
         // UPI app detection and QR code configuration for mobile APK
         // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
-        config: {
+        // UPI app detection and QR code configuration for mobile APK
+        // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
+        // Use standard config for mobile to avoid SVG click issues, custom blocks for desktop
+        config: isMobile ? undefined : {
           display: {
             blocks: {
               upi: {
@@ -357,7 +360,7 @@ class RazorpayService {
                 instruments: [
                   {
                     method: "upi",
-                    flows: isMobile ? ["intent"] : ["qr", "intent"],
+                    flows: ["qr", "intent"],
                   },
                 ],
               },
@@ -589,7 +592,7 @@ class RazorpayService {
         },
         // UPI app detection and QR code configuration for mobile APK
         // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
-        config: {
+        config: isMobile ? undefined : {
           display: {
             blocks: {
               upi: {
@@ -597,7 +600,7 @@ class RazorpayService {
                 instruments: [
                   {
                     method: "upi",
-                    flows: isMobile ? ["intent"] : ["qr", "intent"],
+                    flows: ["qr", "intent"],
                   },
                 ],
               },
