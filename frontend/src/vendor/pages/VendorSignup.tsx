@@ -628,7 +628,12 @@ const VendorSignup = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarFront', e.target.files[0])}
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleFileUpload('aadhaarFront', e.target.files[0]);
+                      e.target.value = ''; // Reset input so same file can be selected again
+                    }
+                  }}
                   className="hidden"
                   id="aadhaarFront"
                 />
@@ -670,7 +675,12 @@ const VendorSignup = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload('aadhaarBack', e.target.files[0])}
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleFileUpload('aadhaarBack', e.target.files[0]);
+                      e.target.value = ''; // Reset input so same file can be selected again
+                    }
+                  }}
                   className="hidden"
                   id="aadhaarBack"
                 />
@@ -712,7 +722,12 @@ const VendorSignup = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload('profilePhoto', e.target.files[0])}
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleFileUpload('profilePhoto', e.target.files[0]);
+                      e.target.value = ''; // Reset input so same file can be selected again
+                    }
+                  }}
                   className="hidden"
                   id="profilePhoto"
                 />
