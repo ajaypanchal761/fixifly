@@ -345,6 +345,7 @@ class RazorpayService {
           },
         },
         // UPI app detection and QR code configuration for mobile APK
+        // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
         config: {
           display: {
             blocks: {
@@ -352,12 +353,11 @@ class RazorpayService {
                 name: "All payment methods",
                 instruments: [
                   {
-                    method: "card",
+                    method: "upi",
+                    flows: ["collect", "intent"], // intent = UPI apps detection, collect = QR code
                   },
                   {
-                    method: "upi",
-                    flows: ["collect", "intent"],
-                    readonly: false, // Enable UPI app detection (PhonePe, Google Pay, Paytm, etc.)
+                    method: "card",
                   },
                   {
                     method: "netbanking",
@@ -380,10 +380,20 @@ class RazorpayService {
         ...options,
         key: '***hidden***',
       });
+      console.log('📱 UPI Config:', JSON.stringify(options.config, null, 2));
+      console.log('📱 Is Mobile WebView:', isMobile);
+      console.log('📱 UPI Flows:', options.config?.display?.blocks?.banks?.instruments?.find(i => i.method === 'upi')?.flows);
 
       // Open Razorpay checkout
       try {
         const razorpay = new window.Razorpay(options);
+        
+        // Log UPI detection info for debugging
+        if (isMobile) {
+          console.log('📱 Mobile detected - UPI apps should be auto-detected if installed on device');
+          console.log('📱 Ensure PhonePe, Google Pay, Paytm are installed on device');
+          console.log('📱 Ensure Razorpay dashboard has UPI enabled');
+        }
         
         // Add error handlers for mobile and WebView
         if (razorpay.on) {
@@ -561,6 +571,7 @@ class RazorpayService {
           },
         },
         // UPI app detection and QR code configuration for mobile APK
+        // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
         config: {
           display: {
             blocks: {
@@ -568,12 +579,11 @@ class RazorpayService {
                 name: "All payment methods",
                 instruments: [
                   {
-                    method: "card",
+                    method: "upi",
+                    flows: ["collect", "intent"], // intent = UPI apps detection, collect = QR code
                   },
                   {
-                    method: "upi",
-                    flows: ["collect", "intent"],
-                    readonly: false, // Enable UPI app detection (PhonePe, Google Pay, Paytm, etc.)
+                    method: "card",
                   },
                   {
                     method: "netbanking",
@@ -593,6 +603,7 @@ class RazorpayService {
       };
 
       console.log('💳 Opening Razorpay checkout for booking');
+      console.log('📱 UPI Config:', JSON.stringify(options.config, null, 2));
 
       // Open Razorpay checkout
       try {
@@ -904,6 +915,7 @@ class RazorpayService {
             color: '#3399cc',
           },
           // UPI app detection and QR code configuration for mobile APK
+          // For Android WebView/APK, UPI apps (PhonePe, Google Pay, Paytm) are auto-detected
           config: {
             display: {
               blocks: {
@@ -911,12 +923,11 @@ class RazorpayService {
                   name: "All payment methods",
                   instruments: [
                     {
-                      method: "card",
+                      method: "upi",
+                      flows: ["collect", "intent"], // intent = UPI apps detection, collect = QR code
                     },
                     {
-                      method: "upi",
-                      flows: ["collect", "intent"],
-                      readonly: false, // Enable UPI app detection (PhonePe, Google Pay, Paytm, etc.)
+                      method: "card",
                     },
                     {
                       method: "netbanking",
@@ -935,6 +946,7 @@ class RazorpayService {
           },
         };
 
+        console.log('📱 UPI Config for WebView:', JSON.stringify(options.config, null, 2));
         const rzp = new window.Razorpay(options);
         
         // Add error handlers for WebView
