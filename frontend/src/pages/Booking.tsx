@@ -2123,7 +2123,7 @@ For support, contact us at info@getfixfly.com
         <style>{`
           [data-radix-dialog-content] > button.absolute {
             position: fixed !important;
-            top: 5.5rem !important;
+            top: 6.5rem !important;
             right: 1rem !important;
             z-index: 10001 !important;
             background-color: white !important;
@@ -2142,21 +2142,21 @@ For support, contact us at info@getfixfly.com
             }
           }
         `}</style>
-        <DialogContent className="w-[95vw] max-w-md md:max-w-2xl mx-auto rounded-xl max-h-[90vh] md:max-h-[85vh] p-0 mt-8 md:mt-8 flex flex-col">
+        <DialogContent className="w-[95vw] max-w-md md:max-w-2xl mx-auto rounded-xl max-h-[85vh] md:max-h-[85vh] p-0 mt-20 md:mt-24 flex flex-col">
           <DialogHeader className="pb-2 px-4 pt-4 flex-shrink-0">
             <DialogTitle className="text-center text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">
               Booking Details
             </DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto px-4 pb-4 min-h-0">
+          <div className="flex-1 overflow-y-auto px-4 pb-6 md:pb-8 min-h-0">
             {loadingDetails ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading booking details...</p>
               </div>
             ) : bookingDetails ? (
-              <div className="space-y-3 md:space-y-4 pb-8 md:pb-6">
+              <div className="space-y-3 md:space-y-4 pb-12 md:pb-8">
                 {/* Booking Reference */}
                 <div className="bg-blue-50 rounded-lg p-2.5 md:p-3">
                   <div className="flex items-center justify-between mb-1">
