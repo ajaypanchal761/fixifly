@@ -2121,17 +2121,16 @@ For support, contact us at info@getfixfly.com
       {/* View Details Modal */}
       <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
         <style>{`
-          [data-radix-dialog-overlay] {
-            z-index: 9999 !important;
-          }
-          [data-radix-dialog-content] {
-            z-index: 10000 !important;
-          }
-          [data-radix-dialog-content] button[aria-label="Close"] {
-            position: absolute !important;
+          [data-radix-dialog-content] button[aria-label="Close"],
+          [data-radix-dialog-content] > button:last-child {
+            position: fixed !important;
             top: 1rem !important;
             right: 1rem !important;
             z-index: 10001 !important;
+            background-color: white !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
           }
         `}</style>
         <DialogContent className="w-[95vw] max-w-md md:max-w-2xl mx-auto rounded-xl max-h-[90vh] md:max-h-[85vh] p-0 mt-8 md:mt-8 flex flex-col">
