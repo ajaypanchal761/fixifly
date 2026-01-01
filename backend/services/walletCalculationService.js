@@ -103,9 +103,10 @@ class WalletCalculationService {
 
     let calculatedAmount = 0;
 
-    // Cash collection: (GST-excluded - Spare - Travel - Booking) * 50%
+    // Cash collection: (GST-excluded - Spare - Travel - Booking) * 50% + Booking Amount
+    // Booking amount is fully deducted because customer already paid it separately
     const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
-    calculatedAmount = baseAmount * 0.5;
+    calculatedAmount = (baseAmount * 0.5) + bookingAmount;
 
     return {
       billingAmount,

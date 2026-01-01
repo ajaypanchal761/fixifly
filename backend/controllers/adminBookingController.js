@@ -5,6 +5,7 @@ const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
 const userNotificationService = require('../services/userNotificationService');
+const emailService = require('../services/emailService');
 
 // @desc    Get all bookings for admin
 // @route   GET /api/admin/bookings
@@ -524,6 +525,56 @@ const assignVendor = asyncHandler(async (req, res) => {
         bookingId: booking._id,
         bookingReference: booking.bookingReference
       });
+
+      // Send email to vendor
+      try {
+        const vendor = await Vendor.findById(vendorId).select('firstName lastName email');
+        
+        if (vendor && vendor.email) {
+          console.log('📧 Sending booking assignment email to vendor:', {
+            vendorId: vendor._id,
+            vendorEmail: vendor.email,
+            bookingReference: booking.bookingReference
+          });
+          
+          const emailResult = await emailService.sendVendorBookingAssignmentEmail(vendor, booking);
+          
+          if (emailResult.success) {
+            console.log('✅ Booking assignment email sent to vendor successfully');
+            logger.info('Booking assignment email sent to vendor', {
+              vendorId: vendor._id,
+              vendorEmail: vendor.email,
+              bookingId: booking._id,
+              bookingReference: booking.bookingReference,
+              messageId: emailResult.messageId
+            });
+          } else {
+            console.log('⚠️ Failed to send booking assignment email to vendor:', emailResult.message || emailResult.error);
+            logger.warn('Failed to send booking assignment email to vendor', {
+              vendorId: vendor._id,
+              vendorEmail: vendor.email,
+              bookingId: booking._id,
+              bookingReference: booking.bookingReference,
+              error: emailResult.message || emailResult.error
+            });
+          }
+        } else {
+          console.log('⚠️ Vendor not found or email not available for booking assignment email');
+          logger.warn('Vendor not found or email not available for booking assignment email', {
+            vendorId,
+            bookingId: booking._id
+          });
+        }
+      } catch (emailError) {
+        console.error('❌ Error sending booking assignment email to vendor:', emailError);
+        logger.error('Error sending booking assignment email to vendor', {
+          error: emailError.message,
+          vendorId,
+          bookingId: booking._id,
+          bookingReference: booking.bookingReference
+        });
+        // Don't fail the assignment if email fails
+      }
     } catch (notificationError) {
       console.error('❌ === VENDOR NOTIFICATION ERROR ===');
       console.error('Error:', notificationError);

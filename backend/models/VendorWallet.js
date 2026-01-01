@@ -387,9 +387,10 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
     gstAmount = billingAmount * 0.18; // GST amount
   }
 
-  // Cash collection: (GST-excluded - Spare - Travel - Booking) * 50%
+  // Cash collection: (GST-excluded - Spare - Travel - Booking) * 50% + Booking Amount
+  // Booking amount is fully deducted because customer already paid it separately
   const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
-  calculatedAmount = baseAmount * 0.5;
+  calculatedAmount = (baseAmount * 0.5) + bookingAmount;
 
   const transaction = {
     transactionId: `CASH_${this.vendorId}_${Date.now()}`,

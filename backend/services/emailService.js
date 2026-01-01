@@ -1599,6 +1599,301 @@ class EmailService {
   }
 
   /**
+   * Send booking assignment email to vendor
+   * @param {Object} vendor - Vendor object with firstName, lastName, email
+   * @param {Object} booking - Booking object
+   * @returns {Promise<Object>} - Response object
+   */
+  async sendVendorBookingAssignmentEmail(vendor, booking) {
+    if (!this.isEmailConfigured()) {
+      logger.warn('Email service not configured. Skipping vendor booking assignment email.');
+      return {
+        success: false,
+        message: 'Email service not configured'
+      };
+    }
+
+    try {
+      const bookingReference = booking.bookingReference || `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
+      const vendorName = `${vendor.firstName || ''} ${vendor.lastName || ''}`.trim() || 'Vendor';
+      const customerName = booking.customer?.name || 'Customer';
+      const customerEmail = booking.customer?.email || 'N/A';
+      const customerPhone = booking.customer?.phone || 'N/A';
+      const customerAddress = booking.customer?.address 
+        ? `${booking.customer.address.street || ''}, ${booking.customer.address.city || ''}, ${booking.customer.address.state || ''} - ${booking.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
+        : 'N/A';
+      
+      const scheduledDate = booking.scheduling?.scheduledDate 
+        ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })
+        : 'Not set';
+      const scheduledTime = booking.scheduling?.scheduledTime || 'Not set';
+      const preferredDate = booking.scheduling?.preferredDate 
+        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })
+        : 'Not set';
+      const preferredTime = booking.scheduling?.preferredTimeSlot || 'Not set';
+      
+      const services = booking.services || [];
+      const servicesList = services.map(s => `<li>${s.serviceName} - ₹${s.price?.toLocaleString() || '0'}</li>`).join('');
+      const totalAmount = booking.pricing?.totalAmount ? `₹${booking.pricing.totalAmount.toLocaleString()}` : '₹0';
+      const priority = booking.priority || 'normal';
+      const notes = booking.notes || 'No additional notes';
+      const bookingDate = new Date(booking.createdAt || new Date()).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const subject = `New Service Booking Assigned - ${bookingReference} | Fixfly`;
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Service Booking Assigned</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              line-height: 1.6; 
+              color: #333; 
+              margin: 0; 
+              padding: 0; 
+              background-color: #f5f5f5;
+            }
+            .container { 
+              max-width: 600px; 
+              margin: 0 auto; 
+              background-color: #ffffff;
+            }
+            .header { 
+              background: linear-gradient(135deg, #059669, #047857); 
+              color: white; 
+              padding: 30px 20px; 
+              text-align: center; 
+            }
+            .header h1 { 
+              margin: 0; 
+              font-size: 28px; 
+            }
+            .header p { 
+              margin: 10px 0 0 0; 
+              font-size: 16px; 
+              opacity: 0.9;
+            }
+            .content { 
+              padding: 30px 20px; 
+            }
+            .booking-info { 
+              background: #f9fafb; 
+              padding: 20px; 
+              border-radius: 8px; 
+              margin: 20px 0; 
+              border-left: 4px solid #059669;
+            }
+            .booking-info h3 {
+              margin-top: 0;
+              color: #059669;
+            }
+            .info-box { 
+              background: #e0f2fe; 
+              padding: 20px; 
+              border-radius: 8px; 
+              margin: 20px 0; 
+              border-left: 4px solid #0284c7;
+            }
+            .info-box h3 {
+              margin-top: 0;
+              color: #0284c7;
+            }
+            .cta-button { 
+              display: inline-block; 
+              background: #059669; 
+              color: white; 
+              padding: 12px 24px; 
+              text-decoration: none; 
+              border-radius: 6px; 
+              margin: 20px 0;
+              font-weight: bold;
+            }
+            .footer { 
+              text-align: center; 
+              margin-top: 30px; 
+              color: #666; 
+              font-size: 14px;
+              padding: 20px;
+              background: #f9fafb;
+            }
+            .priority-badge {
+              display: inline-block;
+              padding: 4px 12px;
+              border-radius: 12px;
+              font-size: 12px;
+              font-weight: bold;
+              margin-left: 10px;
+            }
+            .priority-urgent { background: #fee2e2; color: #991b1b; }
+            .priority-high { background: #fef3c7; color: #92400e; }
+            .priority-normal { background: #dbeafe; color: #1e40af; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🔧 New Service Booking Assigned</h1>
+              <p>A new service booking has been assigned to you</p>
+            </div>
+            <div class="content">
+              <h2>Hello ${vendorName},</h2>
+              <p>A new service booking has been assigned to you. Please review the details below and take appropriate action.</p>
+              
+              <div class="booking-info">
+                <h3>📋 Booking Information</h3>
+                <p><strong>Booking Reference:</strong> ${bookingReference}</p>
+                <p><strong>Booking ID:</strong> ${booking._id}</p>
+                <p><strong>Priority:</strong> ${priority.toUpperCase()} <span class="priority-badge priority-${priority}">${priority}</span></p>
+                <p><strong>Assigned Date:</strong> ${bookingDate}</p>
+              </div>
+
+              <div class="booking-info">
+                <h3>👤 Customer Information</h3>
+                <p><strong>Name:</strong> ${customerName}</p>
+                <p><strong>Email:</strong> ${customerEmail}</p>
+                <p><strong>Phone:</strong> ${customerPhone}</p>
+                <p><strong>Address:</strong> ${customerAddress}</p>
+              </div>
+
+              <div class="booking-info">
+                <h3>🛠️ Service Details</h3>
+                <ul style="margin: 0; padding-left: 20px;">
+                  ${servicesList || '<li>No services specified</li>'}
+                </ul>
+                <p style="margin-top: 15px;"><strong>Total Amount:</strong> ${totalAmount}</p>
+              </div>
+
+              <div class="booking-info">
+                <h3>📅 Scheduling</h3>
+                <p><strong>Scheduled Date:</strong> ${scheduledDate}</p>
+                <p><strong>Scheduled Time:</strong> ${scheduledTime}</p>
+                <p><strong>Preferred Date:</strong> ${preferredDate}</p>
+                <p><strong>Preferred Time:</strong> ${preferredTime}</p>
+              </div>
+
+              ${notes && notes !== 'No additional notes' ? `
+              <div class="booking-info">
+                <h3>📝 Additional Notes</h3>
+                <p>${notes}</p>
+              </div>
+              ` : ''}
+
+              <div class="info-box">
+                <h3>⚡ Action Required</h3>
+                <ul style="margin: 0; padding-left: 20px;">
+                  <li>Review the booking details carefully</li>
+                  <li>Contact the customer within 24 hours to confirm</li>
+                  <li>Prepare necessary tools and parts</li>
+                  <li>Arrive on time for the scheduled service</li>
+                  <li>Update the booking status as you progress</li>
+                  <li>Accept or decline the booking in your dashboard</li>
+                </ul>
+              </div>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard" class="cta-button">
+                  View in Dashboard
+                </a>
+              </div>
+            </div>
+            <div class="footer">
+              <p><strong>Best regards,<br>The Fixfly Support Team</strong></p>
+              <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
+                This is an automated assignment notification. Please do not reply to this email.<br>
+                For support, contact us at info@fixfly.in
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const text = `
+        New Service Booking Assigned - ${bookingReference} | Fixfly
+        
+        Hello ${vendorName},
+        
+        A new service booking has been assigned to you. Please review the details below and take appropriate action.
+        
+        BOOKING INFORMATION:
+        - Booking Reference: ${bookingReference}
+        - Booking ID: ${booking._id}
+        - Priority: ${priority.toUpperCase()}
+        - Assigned Date: ${bookingDate}
+        
+        CUSTOMER INFORMATION:
+        - Name: ${customerName}
+        - Email: ${customerEmail}
+        - Phone: ${customerPhone}
+        - Address: ${customerAddress}
+        
+        SERVICE DETAILS:
+        ${services.map(s => `- ${s.serviceName} - ₹${s.price?.toLocaleString() || '0'}`).join('\n')}
+        - Total Amount: ${totalAmount}
+        
+        SCHEDULING:
+        - Scheduled Date: ${scheduledDate}
+        - Scheduled Time: ${scheduledTime}
+        - Preferred Date: ${preferredDate}
+        - Preferred Time: ${preferredTime}
+        
+        ${notes && notes !== 'No additional notes' ? `ADDITIONAL NOTES:\n${notes}\n` : ''}
+        
+        ACTION REQUIRED:
+        - Review the booking details carefully
+        - Contact the customer within 24 hours to confirm
+        - Prepare necessary tools and parts
+        - Arrive on time for the scheduled service
+        - Update the booking status as you progress
+        - Accept or decline the booking in your dashboard
+        
+        View in Dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard
+        
+        Best regards,
+        The Fixfly Support Team
+        
+        This is an automated assignment notification. Please do not reply to this email.
+        For support, contact us at info@fixfly.in
+      `;
+
+      return await this.sendEmail({
+        to: vendor.email,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+    } catch (error) {
+      logger.error('Failed to send vendor booking assignment email:', error);
+      return {
+        success: false,
+        message: 'Failed to send vendor booking assignment email',
+        error: error.message
+      };
+    }
+  }
+
+  /**
    * Send forgot password OTP to vendor email
    */
   async sendForgotPasswordOTP(email, otp, vendorName) {

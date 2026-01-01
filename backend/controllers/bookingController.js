@@ -245,6 +245,41 @@ const createBooking = asyncHandler(async (req, res) => {
       // Don't fail the booking creation if WhatsApp fails
     }
 
+    // Send booking confirmation email to user
+    try {
+      console.log('📧 Sending booking confirmation email to user:', {
+        bookingId: booking._id,
+        bookingReference: booking.bookingReference,
+        customerEmail: booking.customer.email
+      });
+      
+      const emailResult = await emailService.sendBookingConfirmationEmail(booking);
+      
+      if (emailResult.success) {
+        console.log('✅ Booking confirmation email sent to user successfully');
+        logger.info('Booking confirmation email sent to user', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          messageId: emailResult.messageId
+        });
+      } else {
+        console.log('⚠️ Failed to send booking confirmation email to user:', emailResult.message || emailResult.error);
+        logger.warn('Failed to send booking confirmation email to user', {
+          bookingId: booking._id,
+          customerEmail: booking.customer.email,
+          error: emailResult.message || emailResult.error
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error sending booking confirmation email to user:', error);
+      logger.error('Error sending booking confirmation email to user', {
+        error: error.message,
+        bookingId: booking._id,
+        customerEmail: booking.customer.email
+      });
+      // Don't fail the booking creation if email fails
+    }
+
     // Send WhatsApp notification to admin via Botbee
     try {
       console.log('📱 Sending WhatsApp notification to admin via Botbee:', {
@@ -1052,6 +1087,34 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         }
       })
       .catch(err => console.error('❌ WhatsApp to user error:', err.message));
+
+    // Email to user (booking confirmation)
+    emailService.sendBookingConfirmationEmail(booking)
+      .then(result => {
+        if (result.success) {
+          console.log('✅ Booking confirmation email sent to user (ONLINE PAYMENT)');
+          logger.info('Booking confirmation email sent to user', {
+            bookingId: booking._id,
+            customerEmail: booking.customer.email,
+            messageId: result.messageId
+          });
+        } else {
+          console.log('⚠️ Failed to send booking confirmation email to user:', result.message || result.error);
+          logger.warn('Failed to send booking confirmation email to user', {
+            bookingId: booking._id,
+            customerEmail: booking.customer.email,
+            error: result.message || result.error
+          });
+        }
+      })
+      .catch(err => {
+        console.error('❌ Booking confirmation email error:', err.message);
+        logger.error('Error sending booking confirmation email to user', {
+          error: err.message,
+          bookingId: booking._id,
+          customerEmail: booking.customer.email
+        });
+      });
 
     // WhatsApp to admin
     botbeeService.sendBookingNotification(booking)
