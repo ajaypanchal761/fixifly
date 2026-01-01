@@ -102,19 +102,31 @@ const BlogDetailModal = ({ isOpen, onClose, blogPost }: BlogDetailModalProps) =>
         [data-radix-dialog-content] {
           z-index: 10000 !important;
         }
-        [data-radix-dialog-content] button[aria-label="Close"] {
+        [data-radix-dialog-content] button[aria-label="Close"],
+        [data-radix-dialog-content] > button.absolute {
           position: fixed !important;
-          top: 1rem !important;
+          top: 6.5rem !important;
           right: 1rem !important;
           z-index: 10001 !important;
           background-color: white !important;
           border-radius: 0.5rem !important;
           padding: 0.5rem !important;
+          width: 2.5rem !important;
+          height: 2.5rem !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+        }
+        @media (min-width: 768px) {
+          [data-radix-dialog-content] button[aria-label="Close"],
+          [data-radix-dialog-content] > button.absolute {
+            top: 1.5rem !important;
+          }
         }
       `}</style>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-lg sm:max-w-2xl md:max-w-4xl max-h-[90vh] mx-auto mt-16 sm:mt-20 rounded-xl p-0 flex flex-col">
+        <DialogContent className="max-w-lg sm:max-w-2xl md:max-w-4xl max-h-[85vh] md:max-h-[85vh] mx-auto mt-20 sm:mt-24 rounded-xl p-0 flex flex-col">
           <DialogHeader className="relative pb-3 px-6 pt-6 flex-shrink-0">
             {/* Back Button - Desktop Only */}
             <div className="hidden md:block mb-3">
@@ -133,8 +145,8 @@ const BlogDetailModal = ({ isOpen, onClose, blogPost }: BlogDetailModalProps) =>
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 min-h-0">
-            <div className="space-y-3 sm:space-y-4 pb-24">
+          <div className="flex-1 overflow-y-auto px-6 pb-8 md:pb-10 min-h-0">
+            <div className="space-y-3 sm:space-y-4 pb-20 md:pb-16">
               {/* Blog Image */}
               <div className="relative bg-gray-50 rounded-lg overflow-hidden">
                 <img 
