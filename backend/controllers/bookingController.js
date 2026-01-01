@@ -526,12 +526,34 @@ const getBookingById = asyncHandler(async (req, res) => {
       }
     }
 
-    // Manually populate vendor data
+    // Manually populate vendor data - only if vendor has accepted the task
     if (booking && booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
-        .select('firstName lastName email phone');
-      if (vendor) {
-        booking.vendor.vendorId = vendor;
+      // Check if vendor has accepted the task
+      const isAccepted = booking.vendorResponse?.status === 'accepted' || 
+                        booking.status === 'in_progress' || 
+                        booking.status === 'completed';
+      
+      if (isAccepted) {
+        // Vendor has accepted - populate vendor details
+        const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+          .select('firstName lastName email phone');
+        if (vendor) {
+          booking.vendor.vendorId = vendor;
+        }
+      } else {
+        // Vendor hasn't accepted yet - completely remove vendor object for users
+        // But keep it for vendors themselves (they can see their assignment)
+        if (!req.vendor) {
+          // User is viewing - completely remove vendor object
+          booking.vendor = null;
+        } else {
+          // Vendor is viewing their own assignment - populate it so they can see it
+          const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+            .select('firstName lastName email phone');
+          if (vendor) {
+            booking.vendor.vendorId = vendor;
+          }
+        }
       }
     }
 
@@ -589,19 +611,31 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
     const bookings = await Booking.find({ 
       'customer.email': email
     })
-      .select('customer services pricing scheduling status priority vendor notes assignmentNotes completionData paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
+      .select('customer services pricing scheduling status priority vendor vendorResponse notes assignmentNotes completionData paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit))
       .lean();
 
-    // Manually populate vendor data
+    // Manually populate vendor data - only if vendor has accepted the task
     for (const booking of bookings) {
       if (booking.vendor && booking.vendor.vendorId) {
-        const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
-          .select('firstName lastName email phone');
-        if (vendor) {
-          booking.vendor.vendorId = vendor;
+        // Check if vendor has accepted the task
+        const isAccepted = booking.vendorResponse?.status === 'accepted' || 
+                          booking.status === 'in_progress' || 
+                          booking.status === 'completed';
+        
+        if (isAccepted) {
+          // Vendor has accepted - populate vendor details
+          const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+            .select('firstName lastName email phone');
+          if (vendor) {
+            booking.vendor.vendorId = vendor;
+          }
+        } else {
+          // Vendor hasn't accepted yet - completely remove vendor object for users
+          // This ensures vendor details are not exposed before acceptance
+          booking.vendor = null;
         }
       }
     }
