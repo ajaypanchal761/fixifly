@@ -790,10 +790,7 @@ const AdminVendorWalletManagement = () => {
                                 <Button
                                   size="sm"
                                   onClick={() => {
-                                    const notes = prompt('Add admin notes (optional):');
-                                    if (notes !== null) {
-                                      approveWithdrawalRequest(request._id, notes);
-                                    }
+                                    approveWithdrawalRequest(request._id, '');
                                   }}
                                   className="bg-green-600 hover:bg-green-700 text-white"
                                 >

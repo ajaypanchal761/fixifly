@@ -67,6 +67,11 @@ export interface Booking {
     };
     assignedAt: string;
   };
+  vendorResponse?: {
+    status: 'pending' | 'accepted' | 'declined';
+    respondedAt?: string;
+    responseNote?: string;
+  };
   notes?: string;
   assignmentNotes?: string;
   createdAt: string;

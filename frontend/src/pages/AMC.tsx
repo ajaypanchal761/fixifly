@@ -726,22 +726,12 @@ const AMC = () => {
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
                     {userSubscriptions.length > 0 ? 'No Active AMC Subscriptions' : 'No AMC Subscriptions'}
                   </h3>
-                  <p className="text-gray-600 text-sm mb-4">
+                  <p className="text-gray-600 text-sm">
                     {userSubscriptions.length > 0 
                       ? 'All your AMC subscriptions have expired. Choose a new plan to continue with comprehensive device protection.'
                       : 'You don\'t have any AMC subscriptions yet. Choose a plan to get started with comprehensive device protection.'
                     }
                   </p>
-                  <Button 
-                    onClick={() => {
-                      // Switch to plans tab
-                      const plansTab = document.querySelector('[value="plans"]') as HTMLElement;
-                      if (plansTab) plansTab.click();
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    {userSubscriptions.length > 0 ? 'Renew AMC Plan' : 'Browse AMC Plans'}
-                  </Button>
                 </div>
               </div>
             )}

@@ -1313,46 +1313,52 @@ const declineTask = asyncHandler(async (req, res) => {
       });
     }
 
-    // Check wallet balance before applying penalty
+    // Check wallet balance BEFORE allowing decline
     const wallet = await VendorWallet.findOne({ vendorId });
+    const penaltyAmount = 100;
     
-    if (wallet) {
-      // Check if wallet has balance > 0 - no penalty if balance is 0
-      const penaltyAmount = 100;
-      if (wallet.currentBalance > 0 && wallet.currentBalance >= penaltyAmount) {
-        // Add penalty for task rejection
-        await wallet.addPenalty({
-          caseId: bookingId,
-          type: 'rejection',
-          amount: penaltyAmount, // ₹100 penalty for rejecting task
-          description: `Task rejection penalty - ${booking.bookingReference || bookingId}`
-        });
-
-        logger.info(`Penalty applied for task rejection`, {
-          vendorId,
-          bookingId,
-          penaltyAmount: penaltyAmount,
-          balanceAfter: wallet.currentBalance
-        });
-      } else {
-        logger.warn(`Task rejection penalty skipped for vendor ${vendorId} - balance is 0 or insufficient`, {
-          vendorId,
-          bookingId,
-          requiredAmount: penaltyAmount,
-          currentBalance: wallet.currentBalance
-        });
-        
-        return res.status(400).json({
-          success: false,
-          message: wallet.currentBalance === 0 
-            ? `Cannot decline task. Wallet balance is ₹0. Penalty cannot be applied.`
-            : `Insufficient wallet balance. You need at least ₹${penaltyAmount} to decline this task. Current balance: ₹${wallet.currentBalance.toLocaleString()}`,
-          error: 'INSUFFICIENT_WALLET_BALANCE',
-          currentBalance: wallet.currentBalance,
-          requiredAmount: penaltyAmount
-        });
-      }
+    if (!wallet) {
+      return res.status(400).json({
+        success: false,
+        message: 'Wallet not found. Please contact support.',
+        error: 'WALLET_NOT_FOUND'
+      });
     }
+    
+    // Check if wallet has sufficient balance - prevent decline if balance < 100
+    if (wallet.currentBalance < penaltyAmount) {
+      logger.warn(`Task decline blocked for vendor ${vendorId} - insufficient wallet balance`, {
+        vendorId,
+        bookingId,
+        requiredAmount: penaltyAmount,
+        currentBalance: wallet.currentBalance
+      });
+      
+      return res.status(400).json({
+        success: false,
+        message: wallet.currentBalance === 0 
+          ? 'Cannot decline task. Wallet balance is ₹0. Please add amount to your wallet first.'
+          : `Cannot decline task. Insufficient wallet balance. You need at least ₹${penaltyAmount} to decline this task. Current balance: ₹${wallet.currentBalance.toLocaleString()}. Please add amount to your wallet first.`,
+        error: 'INSUFFICIENT_WALLET_BALANCE',
+        currentBalance: wallet.currentBalance,
+        requiredAmount: penaltyAmount
+      });
+    }
+    
+    // Apply penalty for task rejection (balance is sufficient)
+    await wallet.addPenalty({
+      caseId: bookingId,
+      type: 'rejection',
+      amount: penaltyAmount, // ₹100 penalty for rejecting task
+      description: `Task rejection penalty - ${booking.bookingReference || bookingId}`
+    });
+
+    logger.info(`Penalty applied for task rejection`, {
+      vendorId,
+      bookingId,
+      penaltyAmount: penaltyAmount,
+      balanceAfter: wallet.currentBalance
+    });
 
     // Update booking with vendor response
     // Keep booking status as 'pending' so user doesn't see it as declined
@@ -1813,47 +1819,53 @@ const cancelBooking = asyncHandler(async (req, res) => {
       }
     }
 
-    // Apply penalty for task cancellation
+    // Check wallet balance BEFORE allowing cancellation
     if (vendorId) {
       const wallet = await VendorWallet.findOne({ vendorId });
+      const penaltyAmount = 100;
       
-      if (wallet) {
-        // Check if wallet has balance > 0 - no penalty if balance is 0
-        const penaltyAmount = 100;
-        if (wallet.currentBalance > 0 && wallet.currentBalance >= penaltyAmount) {
-          // Add penalty for task cancellation
-          await wallet.addPenalty({
-            caseId: booking.bookingReference || req.params.id,
-            type: 'cancellation',
-            amount: penaltyAmount, // ₹100 penalty for cancelling task
-            description: `Task cancellation penalty - ${booking.bookingReference || req.params.id}`
-          });
-
-          logger.info(`Penalty applied for task cancellation`, {
-            vendorId,
-            bookingId: req.params.id,
-            penaltyAmount: penaltyAmount,
-            balanceAfter: wallet.currentBalance
-          });
-        } else {
-          logger.warn(`Task cancellation penalty skipped for vendor ${vendorId} - balance is 0 or insufficient`, {
-            vendorId,
-            bookingId: req.params.id,
-            requiredAmount: penaltyAmount,
-            currentBalance: wallet.currentBalance
-          });
-          
-          return res.status(400).json({
-            success: false,
-            message: wallet.currentBalance === 0 
-              ? `Cannot cancel task. Wallet balance is ₹0. Penalty cannot be applied.`
-              : `Insufficient wallet balance. You need at least ₹${penaltyAmount} to cancel this task. Current balance: ₹${wallet.currentBalance.toLocaleString()}`,
-            error: 'INSUFFICIENT_WALLET_BALANCE',
-            currentBalance: wallet.currentBalance,
-            requiredAmount: penaltyAmount
-          });
-        }
+      if (!wallet) {
+        return res.status(400).json({
+          success: false,
+          message: 'Wallet not found. Please contact support.',
+          error: 'WALLET_NOT_FOUND'
+        });
       }
+      
+      // Check if wallet has sufficient balance - prevent cancellation if balance < 100
+      if (wallet.currentBalance < penaltyAmount) {
+        logger.warn(`Task cancellation blocked for vendor ${vendorId} - insufficient wallet balance`, {
+          vendorId,
+          bookingId: req.params.id,
+          requiredAmount: penaltyAmount,
+          currentBalance: wallet.currentBalance
+        });
+        
+        return res.status(400).json({
+          success: false,
+          message: wallet.currentBalance === 0 
+            ? 'Cannot cancel task. Wallet balance is ₹0. Please add amount to your wallet first.'
+            : `Cannot cancel task. Insufficient wallet balance. You need at least ₹${penaltyAmount} to cancel this task. Current balance: ₹${wallet.currentBalance.toLocaleString()}. Please add amount to your wallet first.`,
+          error: 'INSUFFICIENT_WALLET_BALANCE',
+          currentBalance: wallet.currentBalance,
+          requiredAmount: penaltyAmount
+        });
+      }
+      
+      // Apply penalty for task cancellation (balance is sufficient)
+      await wallet.addPenalty({
+        caseId: booking.bookingReference || req.params.id,
+        type: 'cancellation',
+        amount: penaltyAmount, // ₹100 penalty for cancelling task
+        description: `Task cancellation penalty - ${booking.bookingReference || req.params.id}`
+      });
+
+      logger.info(`Penalty applied for task cancellation`, {
+        vendorId,
+        bookingId: req.params.id,
+        penaltyAmount: penaltyAmount,
+        balanceAfter: wallet.currentBalance
+      });
     }
 
     // Update booking with cancellation data

@@ -297,7 +297,7 @@ const getSupportTicket = asyncHandler(async (req, res) => {
   const ticket = await SupportTicket.findOne({ 
     ticketId: id, 
     userId 
-  }).populate('assignedTo', 'name email')
+  }).populate('assignedTo', 'firstName lastName email phone')
     .populate('userId', 'name email phone address');
 
   if (!ticket) {
@@ -305,6 +305,16 @@ const getSupportTicket = asyncHandler(async (req, res) => {
       success: false,
       message: 'Support ticket not found'
     });
+  }
+
+  // Only return assigned vendor details if vendor has accepted
+  let assignedToInfo = null;
+  if (ticket.assignedTo && ticket.vendorStatus === 'Accepted') {
+    assignedToInfo = {
+      name: `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}`,
+      email: ticket.assignedTo.email,
+      phone: ticket.assignedTo.phone
+    };
   }
 
   res.json({
@@ -323,7 +333,8 @@ const getSupportTicket = asyncHandler(async (req, res) => {
         description: ticket.description,
         address: ticket.userId?.address?.street || ticket.userId?.address || 'Not provided',
         pincode: ticket.userId?.address?.pincode || 'Not provided',
-        assignedTo: ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned',
+        assignedTo: assignedToInfo,
+        vendorStatus: ticket.vendorStatus || 'Pending',
         resolution: ticket.resolution,
         responses: ticket.responses.map(response => ({
           message: response.message,
@@ -1936,7 +1947,50 @@ const declineSupportTicket = asyncHandler(async (req, res) => {
     });
   }
 
-  // Use the new declineByVendor method (includes penalty application)
+  // Check wallet balance BEFORE allowing decline
+  const VendorWallet = require('../models/VendorWallet');
+  const Vendor = require('../models/Vendor');
+  const vendor = await Vendor.findById(vendorId);
+  
+  if (!vendor) {
+    return res.status(404).json({
+      success: false,
+      message: 'Vendor not found'
+    });
+  }
+  
+  const wallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
+  const penaltyAmount = 100;
+  
+  if (!wallet) {
+    return res.status(400).json({
+      success: false,
+      message: 'Wallet not found. Please contact support.',
+      error: 'WALLET_NOT_FOUND'
+    });
+  }
+  
+  // Check if wallet has sufficient balance - prevent decline if balance < 100
+  if (wallet.currentBalance < penaltyAmount) {
+    logger.warn(`Support ticket decline blocked for vendor ${vendorId} - insufficient wallet balance`, {
+      vendorId,
+      ticketId: ticket.ticketId,
+      requiredAmount: penaltyAmount,
+      currentBalance: wallet.currentBalance
+    });
+    
+    return res.status(400).json({
+      success: false,
+      message: wallet.currentBalance === 0 
+        ? 'Cannot decline ticket. Wallet balance is ₹0. Please add amount to your wallet first.'
+        : `Cannot decline ticket. Insufficient wallet balance. You need at least ₹${penaltyAmount} to decline this ticket. Current balance: ₹${wallet.currentBalance.toLocaleString()}. Please add amount to your wallet first.`,
+      error: 'INSUFFICIENT_WALLET_BALANCE',
+      currentBalance: wallet.currentBalance,
+      requiredAmount: penaltyAmount
+    });
+  }
+
+  // Use the new declineByVendor method (penalty will be applied since balance is sufficient)
   await ticket.declineByVendor(vendorId, reason || '');
 
   res.json({

@@ -212,7 +212,7 @@ const Blog = () => {
                   alt={post.title}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-24 sm:h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-24 sm:h-32 object-contain bg-gray-50 group-hover:scale-105 transition-transform duration-300"
                 />
                 <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-primary/90 text-white text-xs px-1 py-0.5 sm:px-2 sm:py-1">
                   {post.category}

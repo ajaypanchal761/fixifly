@@ -255,11 +255,23 @@ const VendorCancelTaskDetail = () => {
         // Navigate back to vendor dashboard with cancelled tab active
         navigate('/vendor?tab=cancelled');
       } else {
-        throw new Error(response.message || "Failed to cancel task");
+        // Check if error is due to insufficient wallet balance
+        const errorMessage = response.message || "Failed to cancel task";
+        alert(errorMessage);
+        return;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error cancelling task:", error);
-      alert(`Failed to cancel task: ${error.message || "Please try again."}`);
+      
+      // Handle insufficient wallet balance error
+      let errorMessage = "An error occurred while cancelling the task. Please try again.";
+      if (error?.error === 'INSUFFICIENT_WALLET_BALANCE' || error?.message?.includes('wallet balance') || error?.message?.includes('add amount')) {
+        errorMessage = error.message || 'Cannot cancel task. Insufficient wallet balance. Please add amount to your wallet first.';
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

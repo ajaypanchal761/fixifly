@@ -413,15 +413,24 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
           }));
         }
       } else {
+        // Check if error is due to insufficient wallet balance
+        const errorMessage = response.message || "Failed to decline task";
         toast({
           title: "Error",
-          description: response.message || "Failed to decline task",
+          description: errorMessage,
           variant: "destructive"
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('handleWalletCheckProceed: Error declining task:', error);
-      console.error('handleWalletCheckProceed: Error message:', error.message);
+      
+      // Handle insufficient wallet balance error
+      let errorMessage = "An error occurred while declining the task. Please try again.";
+      if (error?.error === 'INSUFFICIENT_WALLET_BALANCE' || error?.message?.includes('wallet balance') || error?.message?.includes('add amount')) {
+        errorMessage = error.message || 'Cannot decline task. Insufficient wallet balance. Please add amount to your wallet first.';
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
       
       // Check if task was already declined
       if (error.message && error.message.includes('already been declined')) {
@@ -438,10 +447,9 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         setIsDeclineModalOpen(false);
         setDeclineReason('');
       } else {
-        console.log('handleWalletCheckProceed: Other error occurred');
         toast({
           title: "Error",
-          description: "Failed to decline task. Please try again.",
+          description: errorMessage,
           variant: "destructive"
         });
       }

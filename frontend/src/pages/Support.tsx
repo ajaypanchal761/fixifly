@@ -320,7 +320,7 @@ const Support = () => {
 
       // Razorpay options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_RyCVwnDNEvO2uL', // Use environment variable or fallback to live key
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_8sYbzHWidwe5Zw', // Use environment variable or fallback to test key
         amount: orderData.data.amount, // Use amount from order response (already in paise)
         currency: 'INR',
         name: 'FixFly',
@@ -1805,6 +1805,36 @@ const Support = () => {
                       >
                         Pay Now ₹{selectedTicket.totalAmount || selectedTicket.billingAmount || 0}
                       </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Engineer Information - Show only when vendor has accepted */}
+                {selectedTicket.assignedTo && selectedTicket.vendorStatus === 'Accepted' && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 md:p-3">
+                    <h3 className="font-bold text-sm md:text-base text-green-900 mb-1.5 md:mb-2 flex items-center">
+                      <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
+                      Assigned Engineer
+                    </h3>
+                    <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                      <div>
+                        <p className="text-xs md:text-sm text-green-600 md:text-green-700">Name</p>
+                        <p className="font-medium text-xs md:text-sm text-green-900">
+                          {selectedTicket.assignedTo.name}
+                        </p>
+                      </div>
+                      {selectedTicket.assignedTo.phone && (
+                        <div>
+                          <p className="text-xs md:text-sm text-green-600 md:text-green-700">Phone</p>
+                          <p className="font-medium text-xs md:text-sm text-green-900">{selectedTicket.assignedTo.phone}</p>
+                        </div>
+                      )}
+                      {selectedTicket.assignedTo.email && (
+                        <div>
+                          <p className="text-xs md:text-sm text-green-600 md:text-green-700">Email</p>
+                          <p className="font-medium text-xs md:text-sm text-green-900 break-all">{selectedTicket.assignedTo.email}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

@@ -102,9 +102,19 @@ const BlogDetailModal = ({ isOpen, onClose, blogPost }: BlogDetailModalProps) =>
         [data-radix-dialog-content] {
           z-index: 10000 !important;
         }
+        [data-radix-dialog-content] button[aria-label="Close"] {
+          position: fixed !important;
+          top: 1rem !important;
+          right: 1rem !important;
+          z-index: 10001 !important;
+          background-color: white !important;
+          border-radius: 0.5rem !important;
+          padding: 0.5rem !important;
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+        }
       `}</style>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-lg sm:max-w-2xl md:max-w-4xl max-h-[90vh] mx-auto mt-6 sm:mt-12 rounded-xl p-0 flex flex-col">
+        <DialogContent className="max-w-lg sm:max-w-2xl md:max-w-4xl max-h-[90vh] mx-auto mt-16 sm:mt-20 rounded-xl p-0 flex flex-col">
           <DialogHeader className="relative pb-3 px-6 pt-6 flex-shrink-0">
             {/* Back Button - Desktop Only */}
             <div className="hidden md:block mb-3">
@@ -132,7 +142,7 @@ const BlogDetailModal = ({ isOpen, onClose, blogPost }: BlogDetailModalProps) =>
                   alt={blogPost.title}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-40 sm:h-48 md:h-56 object-cover"
+                  className="w-full h-40 sm:h-48 md:h-56 object-contain bg-white"
                 />
                 <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary/90 text-white text-sm px-2 py-1 rounded-md">
                   {blogPost.category}

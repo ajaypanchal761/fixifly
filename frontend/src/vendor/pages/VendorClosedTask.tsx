@@ -239,6 +239,13 @@ const VendorClosedTask = () => {
     }
   }, [taskId]);
 
+  // Automatically uncheck GST when cash payment is selected
+  useEffect(() => {
+    if (paymentMethod === 'cash') {
+      setIncludeGST(false);
+    }
+  }, [paymentMethod]);
+
   // Calculate GST amount (18% of billing amount)
   const calculateGSTAmount = () => {
     const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
@@ -623,6 +630,7 @@ const VendorClosedTask = () => {
 
   const handleCashWarningConfirm = () => {
     setPaymentMethod('cash');
+    setIncludeGST(false); // Disable GST for cash payment
     setShowCashWarning(false);
     // Check wallet balance before proceeding with cash task completion
     setIsWalletCheckOpen(true);
@@ -1192,16 +1200,20 @@ const VendorClosedTask = () => {
                   </label>
                 </div>
                 
-                {/* GST Option - show for both online and cash payment */}
+                {/* GST Option - only enabled for online payment */}
                 <div className="ml-11 flex items-center space-x-3">
                   <input
                     type="checkbox"
                     id="includeGST"
                     checked={includeGST}
                     onChange={(e) => setIncludeGST(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    disabled={paymentMethod === 'cash'}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                   />
-                  <label htmlFor="includeGST" className="flex items-center space-x-2 cursor-pointer">
+                  <label 
+                    htmlFor="includeGST" 
+                    className={`flex items-center space-x-2 ${paymentMethod === 'cash' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                  >
                     <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
                       <span className="text-orange-600 text-xs font-bold">📋</span>
                     </div>
@@ -1210,6 +1222,8 @@ const VendorClosedTask = () => {
                       <p className="text-xs text-gray-500">
                         {paymentMethod === 'online' 
                           ? 'Billing amount is GST-inclusive. Vendor gets: (GST-excluded - spare - travel) × 50% + spare + travel'
+                          : paymentMethod === 'cash'
+                          ? 'GST bill option is not available for cash payments'
                           : 'Billing amount is GST-inclusive. Wallet deduction: (GST-excluded - spare - travel) × 50% + 18% GST'
                         }
                       </p>

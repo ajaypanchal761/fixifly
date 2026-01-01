@@ -836,7 +836,9 @@ For support, contact us at info@getfixfly.com
               ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
               : new Date(booking.updatedAt).toLocaleDateString('en-IN')
             }</p>
-            ${booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName ? 
+            ${booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && 
+              (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') &&
+              booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName ? 
               `<p><strong>Assigned Engineer:</strong> ${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}</p>` : ''
             }
           </div>
@@ -981,7 +983,8 @@ For support, contact us at info@getfixfly.com
       ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
       : new Date(booking.updatedAt).toLocaleDateString('en-IN')
     }`, 20, yPosition);
-    if (booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object') {
+    if (booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && 
+        (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed')) {
       const vendor = booking.vendor.vendorId as { firstName: string; lastName: string };
       if (vendor.firstName && vendor.lastName) {
         yPosition = addText(`Assigned Engineer: ${vendor.firstName} ${vendor.lastName}`, 20, yPosition);
@@ -1624,8 +1627,9 @@ For support, contact us at info@getfixfly.com
                       </div>
                     </div>
 
-                    {/* Engineer Details - Show when vendor is assigned */}
-                    {booking.vendor && booking.vendor.vendorId && typeof booking.vendor.vendorId === 'object' ? (
+                    {/* Engineer Details - Show only when vendor has accepted the task */}
+                    {booking.vendor && booking.vendor.vendorId && typeof booking.vendor.vendorId === 'object' && 
+                     (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') ? (
                       <div className="bg-green-50 rounded-lg p-1.5 mb-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
@@ -1899,9 +1903,11 @@ For support, contact us at info@getfixfly.com
                         <div className="text-xs">
                           <span className="text-gray-600">Assigned Engineer</span>
                           <div className="font-medium text-sm">
-                            {booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName 
+                            {booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && 
+                             (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') &&
+                             booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName 
                               ? `${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}`
-                              : 'Engineer Assigned'
+                              : 'Not Assigned Yet'
                             }
                           </div>
                         </div>
@@ -2222,8 +2228,9 @@ For support, contact us at info@getfixfly.com
                   </div>
                 </div>
 
-                {/* Engineer Information */}
-                {bookingDetails.vendor && bookingDetails.vendor.vendorId && typeof bookingDetails.vendor.vendorId === 'object' && (
+                {/* Engineer Information - Show only when vendor has accepted */}
+                {bookingDetails.vendor && bookingDetails.vendor.vendorId && typeof bookingDetails.vendor.vendorId === 'object' && 
+                 (bookingDetails.vendorResponse?.status === 'accepted' || bookingDetails.status === 'in_progress' || bookingDetails.status === 'completed') && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 md:p-3">
                     <h3 className="font-bold text-sm md:text-base text-green-900 mb-1.5 md:mb-2 flex items-center">
                       <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />

@@ -107,11 +107,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
-    // Set a timeout to force loading to stop after 2 seconds (safety net for faster loading)
+    // Set a timeout to force loading to stop after 2 seconds (safety net for localStorage read)
+    // localStorage reads are instant, but timeout ensures app loads even if something goes wrong
     const timeoutId = setTimeout(() => {
       console.warn('AuthContext: Loading timeout reached, forcing loading to stop');
       setIsLoading(false);
-    }, 5000);
+    }, 2000);
 
     checkAuthStatus();
 
@@ -247,15 +248,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Import apiService dynamically to avoid circular dependency
       const { default: apiService } = await import('@/services/api');
       
-      // Add timeout wrapper to prevent hanging (reduced to 5 seconds for faster failure)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Refresh timeout: Request took too long')), 5000);
-      });
-      
-      const response = await Promise.race([
-        apiService.getUserProfile(),
-        timeoutPromise
-      ]) as any;
+      // Use API service directly - it has built-in timeout with AbortController
+      const response = await apiService.getUserProfile();
       
       if (response.success && response.data?.user) {
         const freshUserData = response.data.user;
@@ -267,10 +261,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error: any) {
       console.error('Error refreshing user data:', error);
       
-      // Handle timeout errors specifically
-      if (error?.message?.includes('timeout') || error?.message?.includes('Request timeout')) {
-        console.warn('⚠️ Refresh timeout - request took too long. Using cached data.');
-        // Don't throw - just use existing data
+      // Handle timeout and network errors - use cached data silently
+      if (error?.message?.includes('timeout') || 
+          error?.message?.includes('Request timeout') ||
+          error?.message?.includes('Network error') ||
+          error?.message?.includes('Failed to fetch')) {
+        console.warn('⚠️ Refresh failed - using cached data:', error.message);
+        // Don't throw - just use existing cached data
         return;
       }
       

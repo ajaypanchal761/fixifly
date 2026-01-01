@@ -248,15 +248,18 @@ class VendorApiService {
           // Validation errors
           const validationError = new Error(data.errors.join('. '));
           (validationError as any).response = error.response;
+          (validationError as any).error = data.error;
           throw validationError;
         } else if (data.message) {
           // Custom server messages
           const messageError = new Error(data.message);
           (messageError as any).response = error.response;
+          (messageError as any).error = data.error;
           throw messageError;
         } else {
           const serverError = new Error(`Server error (${status}). Please try again.`);
           (serverError as any).response = error.response;
+          (serverError as any).error = data.error;
           throw serverError;
         }
       }

@@ -87,6 +87,20 @@ const VendorContext = createContext<VendorContextType | undefined>(undefined);
 export const useVendor = () => {
   const context = useContext(VendorContext);
   if (context === undefined) {
+    // During hot reload, context might not be available yet
+    // Return a safe default instead of throwing to prevent app crashes
+    if (import.meta.env.DEV) {
+      console.warn('useVendor called outside VendorProvider - using default values (this may happen during hot reload)');
+      return {
+        vendor: null,
+        isAuthenticated: false,
+        login: async () => {},
+        logout: async () => {},
+        updateVendor: async () => {},
+        refreshVendor: async () => {},
+        isLoading: true,
+      } as VendorContextType;
+    }
     throw new Error('useVendor must be used within a VendorProvider');
   }
   return context;
@@ -141,7 +155,8 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       }
     };
 
-    // Set a timeout to force loading to stop after 2 seconds (safety net for faster loading)
+    // Set a timeout to force loading to stop after 2 seconds (safety net for localStorage read)
+    // localStorage reads are instant, but timeout ensures app loads even if something goes wrong
     const timeoutId = setTimeout(() => {
       console.warn('VendorContext: Loading timeout reached, forcing loading to stop');
       setIsLoading(false);
@@ -313,15 +328,8 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
       console.log('🔄 VendorContext: Refreshing vendor data from API...');
       
-      // Add timeout wrapper to prevent hanging (reduced to 5 seconds for faster failure)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Refresh timeout: Request took too long')), 5000);
-      });
-      
-      const response = await Promise.race([
-        vendorApiService.getVendorProfile(),
-        timeoutPromise
-      ]) as any;
+      // Use API service directly - it has built-in timeout with AbortController
+      const response = await vendorApiService.getVendorProfile();
       
       if (response.success && response.data?.vendor) {
         const updatedVendor = response.data.vendor;
@@ -337,16 +345,15 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
     } catch (error: any) {
       console.error('❌ VendorContext: Failed to refresh vendor data:', error);
       
-      // Handle timeout errors specifically
-      if (error?.message?.includes('timeout') || error?.message?.includes('Request timeout')) {
-        console.warn('⚠️ Refresh timeout - request took too long. Using cached data.');
-        // Don't throw - just use existing data
+      // Handle timeout and network errors - use cached data silently
+      if (error?.message?.includes('timeout') || 
+          error?.message?.includes('Request timeout') ||
+          error?.message?.includes('Network error') ||
+          error?.message?.includes('Failed to fetch') ||
+          error?.isNetworkError) {
+        console.warn('⚠️ Refresh failed - using cached data:', error.message);
+        // Don't throw - just use existing cached data
         return;
-      }
-      
-      // If it's a network error, don't spam the console with repeated errors
-      if (error?.isNetworkError) {
-        console.warn('⚠️ Network error detected - backend might be down. Using cached data.');
       }
       
       // Don't throw error, just log it - this prevents breaking the app
@@ -356,41 +363,40 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
   // Set up refresh when vendor is logged in (single refresh on mount + on notifications)
   useEffect(() => {
-    if (vendor) {
-      // Clear any existing interval
-      if (refreshIntervalRef.current) {
-        clearInterval(refreshIntervalRef.current);
-      }
-
-      // Refresh in background after a short delay to avoid blocking initial render
-      setTimeout(() => {
-        refreshVendor();
-      }, 100); // Small delay to let UI render first
-      console.log('✅ VendorContext: Background refresh scheduled; UI loads instantly from cache');
-
-      // Listen for account access granted notifications
-      const handleAccountAccessGranted = (event: CustomEvent) => {
-        console.log('🔄 VendorContext: Account access granted notification received');
-        // Refresh vendor data immediately
-        refreshVendor();
-      };
-
-      // Listen for custom event
-      window.addEventListener('accountAccessGranted' as any, handleAccountAccessGranted as EventListener);
-
-      return () => {
-        window.removeEventListener('accountAccessGranted' as any, handleAccountAccessGranted as EventListener);
-      };
-    } else {
+    if (!vendor) {
       // Clear interval when vendor logs out
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
         refreshIntervalRef.current = null;
       }
+      return;
     }
 
-    // Cleanup on unmount
+    // Clear any existing interval
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+    }
+
+    // Refresh in background after a short delay to avoid blocking initial render
+    const refreshTimeoutId = setTimeout(() => {
+      refreshVendor();
+    }, 100); // Small delay to let UI render first
+    console.log('✅ VendorContext: Background refresh scheduled; UI loads instantly from cache');
+
+    // Listen for account access granted notifications
+    const handleAccountAccessGranted = (event: CustomEvent) => {
+      console.log('🔄 VendorContext: Account access granted notification received');
+      // Refresh vendor data immediately
+      refreshVendor();
+    };
+
+    // Listen for custom event
+    window.addEventListener('accountAccessGranted' as any, handleAccountAccessGranted as EventListener);
+
+    // Cleanup function
     return () => {
+      clearTimeout(refreshTimeoutId);
+      window.removeEventListener('accountAccessGranted' as any, handleAccountAccessGranted as EventListener);
     };
   }, [vendor?.id]); // Only depend on vendor ID to avoid infinite loops
 
