@@ -2120,6 +2120,20 @@ For support, contact us at info@getfixfly.com
 
       {/* View Details Modal */}
       <Dialog open={isViewDetailsOpen} onOpenChange={setIsViewDetailsOpen}>
+        <style>{`
+          [data-radix-dialog-overlay] {
+            z-index: 9999 !important;
+          }
+          [data-radix-dialog-content] {
+            z-index: 10000 !important;
+          }
+          [data-radix-dialog-content] button[aria-label="Close"] {
+            position: absolute !important;
+            top: 1rem !important;
+            right: 1rem !important;
+            z-index: 10001 !important;
+          }
+        `}</style>
         <DialogContent className="w-[95vw] max-w-md md:max-w-2xl mx-auto rounded-xl max-h-[90vh] md:max-h-[85vh] p-0 mt-8 md:mt-8 flex flex-col">
           <DialogHeader className="pb-2 px-4 pt-4 flex-shrink-0">
             <DialogTitle className="text-center text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">
