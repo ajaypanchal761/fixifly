@@ -2149,14 +2149,14 @@ For support, contact us at info@getfixfly.com
             </DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto px-4 pb-6 md:pb-8 min-h-0">
+          <div className="flex-1 overflow-y-auto px-4 pb-12 md:pb-14 min-h-0">
             {loadingDetails ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading booking details...</p>
               </div>
             ) : bookingDetails ? (
-              <div className="space-y-3 md:space-y-4 pb-12 md:pb-8">
+              <div className="space-y-3 md:space-y-4 pb-20 md:pb-16">
                 {/* Booking Reference */}
                 <div className="bg-blue-50 rounded-lg p-2.5 md:p-3">
                   <div className="flex items-center justify-between mb-1">
