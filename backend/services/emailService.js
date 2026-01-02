@@ -16,7 +16,7 @@ class EmailService {
       // Trim whitespace from credentials
       const smtpUser = process.env.SMTP_USER ? process.env.SMTP_USER.trim() : null;
       const smtpPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.trim() : null;
-      
+
       const smtpConfig = {
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: parseInt(process.env.SMTP_PORT) || 587,
@@ -40,7 +40,7 @@ class EmailService {
         });
         return;
       }
-      
+
       // Log configuration (without exposing password)
       logger.info('SMTP Configuration loaded', {
         host: smtpConfig.host,
@@ -86,12 +86,12 @@ class EmailService {
         command: error.command,
         response: error.response
       });
-      
+
       // Don't log the full error stack in production
       if (process.env.NODE_ENV === 'development') {
         logger.error('SMTP verification error details:', error);
       }
-      
+
       return false;
     }
   }
@@ -152,9 +152,9 @@ class EmailService {
         to: mailOptions.to,
         subject: mailOptions.subject,
         from: mailOptions.from,
-        smtpUser: process.env.SMTP_USER || 'fixfly.in@gmail.com',
+        smtpUser: process.env.SMTP_USER || 'Getfixfly@gmail.com',
         smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
-        sendingFromAdmin: mailOptions.from.includes(process.env.SMTP_USER || 'fixfly.in@gmail.com')
+        sendingFromAdmin: mailOptions.from.includes(process.env.SMTP_USER || 'Getfixfly@gmail.com')
       });
 
       const result = await this.transporter.sendMail(mailOptions);
@@ -180,24 +180,24 @@ class EmailService {
         response: error.response,
         responseCode: error.responseCode
       });
-      
+
       // Provide more detailed error message
       let errorMessage = 'Failed to send email';
       const errorResponse = error.response || error.message || '';
       const errorResponseLower = errorResponse.toLowerCase();
-      const isGmailQuotaError = errorResponse.includes('550-5.4.5') || 
-                                errorResponse.includes('Daily user sending') ||
-                                errorResponse.includes('quota') ||
-                                errorResponse.includes('rate limit');
-      
+      const isGmailQuotaError = errorResponse.includes('550-5.4.5') ||
+        errorResponse.includes('Daily user sending') ||
+        errorResponse.includes('quota') ||
+        errorResponse.includes('rate limit');
+
       // Check for authentication/credential errors
-      const isAuthError = error.code === 'EAUTH' || 
-                         error.responseCode === 535 ||
-                         errorResponseLower.includes('badcredentials') ||
-                         errorResponseLower.includes('username and password not accepted') ||
-                         errorResponseLower.includes('invalid login') ||
-                         errorResponseLower.includes('authentication failed');
-      
+      const isAuthError = error.code === 'EAUTH' ||
+        error.responseCode === 535 ||
+        errorResponseLower.includes('badcredentials') ||
+        errorResponseLower.includes('username and password not accepted') ||
+        errorResponseLower.includes('invalid login') ||
+        errorResponseLower.includes('authentication failed');
+
       if (isAuthError) {
         errorMessage = 'Incorrect email password. Please check SMTP credentials in server configuration.';
       } else if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
@@ -211,7 +211,7 @@ class EmailService {
       } else {
         errorMessage = error.message || 'Failed to send email';
       }
-      
+
       return {
         success: false,
         message: errorMessage,
@@ -312,11 +312,11 @@ class EmailService {
       planData,
       userData
     });
-    
+
     const { subscriptionId, amount, baseAmount, gstAmount, gstRate, startDate, endDate, devices } = subscriptionData;
     const { name: planName, benefits, features } = planData;
     const { name: userName, email } = userData;
-    
+
     // Validate required fields
     if (!email || !userName || !subscriptionId || !planName) {
       console.error('Missing required fields for AMC email:', {
@@ -332,10 +332,10 @@ class EmailService {
     }
 
     const subject = `AMC Purchase Confirmation - ${planName} | Fixfly`;
-    
+
     // Generate benefits HTML
     const benefitsHtml = this.generateBenefitsHtml(benefits, features);
-    
+
     // Generate devices HTML
     const devicesHtml = devices.map(device => `
       <tr>
@@ -521,7 +521,7 @@ class EmailService {
    */
   generateBenefitsHtml(benefits, features) {
     let html = '<div class="benefits-grid">';
-    
+
     // Add features
     if (features && features.length > 0) {
       features.forEach(feature => {
@@ -533,7 +533,7 @@ class EmailService {
         `;
       });
     }
-    
+
     // Add specific benefits
     if (benefits) {
       if (benefits.callSupport === 'unlimited') {
@@ -544,7 +544,7 @@ class EmailService {
           </div>
         `;
       }
-      
+
       if (benefits.remoteSupport === 'unlimited') {
         html += `
           <div class="benefit-item">
@@ -553,7 +553,7 @@ class EmailService {
           </div>
         `;
       }
-      
+
       if (benefits.homeVisits && benefits.homeVisits.count > 0) {
         html += `
           <div class="benefit-item">
@@ -562,7 +562,7 @@ class EmailService {
           </div>
         `;
       }
-      
+
       if (benefits.antivirus && benefits.antivirus.included) {
         html += `
           <div class="benefit-item">
@@ -571,7 +571,7 @@ class EmailService {
           </div>
         `;
       }
-      
+
       if (benefits.softwareInstallation && benefits.softwareInstallation.included) {
         html += `
           <div class="benefit-item">
@@ -580,7 +580,7 @@ class EmailService {
           </div>
         `;
       }
-      
+
       if (benefits.sparePartsDiscount && benefits.sparePartsDiscount.percentage > 0) {
         html += `
           <div class="benefit-item">
@@ -590,7 +590,7 @@ class EmailService {
         `;
       }
     }
-    
+
     html += '</div>';
     return html;
   }
@@ -600,41 +600,41 @@ class EmailService {
    */
   generateBenefitsText(benefits, features) {
     let text = '';
-    
+
     // Add features
     if (features && features.length > 0) {
       features.forEach(feature => {
         text += `- ${feature.title}: ${feature.description}\n`;
       });
     }
-    
+
     // Add specific benefits
     if (benefits) {
       if (benefits.callSupport === 'unlimited') {
         text += '- Unlimited Call Support: 24/7 phone support for all your technical queries\n';
       }
-      
+
       if (benefits.remoteSupport === 'unlimited') {
         text += '- Unlimited Remote Support: Unlimited remote assistance sessions\n';
       }
-      
+
       if (benefits.homeVisits && benefits.homeVisits.count > 0) {
         text += `- ${benefits.homeVisits.count} Free Home Visits: ${benefits.homeVisits.description || 'Complimentary home visits for service'}\n`;
       }
-      
+
       if (benefits.antivirus && benefits.antivirus.included) {
         text += `- Free Antivirus: ${benefits.antivirus.name || 'Premium antivirus'} included\n`;
       }
-      
+
       if (benefits.softwareInstallation && benefits.softwareInstallation.included) {
         text += '- Software Installation: Free software installation and driver updates\n';
       }
-      
+
       if (benefits.sparePartsDiscount && benefits.sparePartsDiscount.percentage > 0) {
         text += `- Spare Parts Discount: Up to ${benefits.sparePartsDiscount.percentage}% off on all spare parts\n`;
       }
     }
-    
+
     return text;
   }
 
@@ -1007,9 +1007,9 @@ class EmailService {
 
       const result = await this.transporter.sendMail(mailOptions);
       logger.info(`Invoice email sent successfully to ${to}`, { messageId: result.messageId });
-      
+
       return { success: true, messageId: result.messageId };
-      
+
     } catch (error) {
       logger.error('Error sending invoice email:', error);
       return { success: false, error: error.message };
@@ -1222,20 +1222,20 @@ class EmailService {
       const customerName = booking.customer?.name || 'Customer';
       const customerEmail = booking.customer?.email;
       const customerPhone = booking.customer?.phone || 'N/A';
-      const customerAddress = booking.customer?.address 
+      const customerAddress = booking.customer?.address
         ? `${booking.customer.address.street}, ${booking.customer.address.city}, ${booking.customer.address.state} - ${booking.customer.address.pincode}`
         : 'N/A';
-      
-      const preferredDate = booking.scheduling?.preferredDate 
-        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })
+
+      const preferredDate = booking.scheduling?.preferredDate
+        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
         : 'N/A';
       const preferredTime = booking.scheduling?.preferredTimeSlot || 'N/A';
-      
+
       const services = booking.services || [];
       const servicesList = services.map(s => `<li>${s.serviceName} - ₹${s.price.toLocaleString()}</li>`).join('');
       const totalAmount = booking.pricing?.totalAmount ? `₹${booking.pricing.totalAmount.toLocaleString()}` : '₹0';
@@ -1619,29 +1619,29 @@ class EmailService {
       const customerName = booking.customer?.name || 'Customer';
       const customerEmail = booking.customer?.email || 'N/A';
       const customerPhone = booking.customer?.phone || 'N/A';
-      const customerAddress = booking.customer?.address 
+      const customerAddress = booking.customer?.address
         ? `${booking.customer.address.street || ''}, ${booking.customer.address.city || ''}, ${booking.customer.address.state || ''} - ${booking.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
         : 'N/A';
-      
-      const scheduledDate = booking.scheduling?.scheduledDate 
-        ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })
+
+      const scheduledDate = booking.scheduling?.scheduledDate
+        ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
         : 'Not set';
       const scheduledTime = booking.scheduling?.scheduledTime || 'Not set';
-      const preferredDate = booking.scheduling?.preferredDate 
-        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })
+      const preferredDate = booking.scheduling?.preferredDate
+        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
         : 'Not set';
       const preferredTime = booking.scheduling?.preferredTimeSlot || 'Not set';
-      
+
       const services = booking.services || [];
       const servicesList = services.map(s => `<li>${s.serviceName} - ₹${s.price?.toLocaleString() || '0'}</li>`).join('');
       const totalAmount = booking.pricing?.totalAmount ? `₹${booking.pricing.totalAmount.toLocaleString()}` : '₹0';
@@ -1912,7 +1912,7 @@ class EmailService {
       }
 
       const subject = 'Password Reset OTP - Fixfly Vendor Portal';
-    const html = `
+      const html = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1968,7 +1968,7 @@ class EmailService {
       </html>
     `;
 
-    const text = `
+      const text = `
       Password Reset OTP - Fixfly Vendor Portal
       
       Hello ${vendorName},
@@ -2098,7 +2098,7 @@ class EmailService {
       </html>
     `;
 
-    const text = `
+      const text = `
       Password Reset OTP - Fixfly
       
       Hello ${userName || 'User'},

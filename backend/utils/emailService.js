@@ -7,11 +7,11 @@ const createTransporter = () => {
   const transporter = nodemailer.createTransporter({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER || 'fixfly.service@gmail.com',
-      pass: process.env.EMAIL_PASS || 'your-app-password'
+      user: process.env.EMAIL_USER || 'Getfixfly@gmail.com',
+      pass: process.env.EMAIL_PASS || 'jfcc mxvu qnjp bssj'
     }
   });
-  
+
   return transporter;
 };
 
@@ -19,9 +19,9 @@ const createTransporter = () => {
 const sendInvoiceEmail = async (to, subject, content, ticketId) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'fixfly.service@gmail.com',
+      from: process.env.EMAIL_USER || 'Getfixfly@gmail.com',
       to: to,
       subject: subject,
       text: content,
@@ -49,11 +49,11 @@ const sendInvoiceEmail = async (to, subject, content, ticketId) => {
         </div>
       `
     };
-    
+
     const result = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', result.messageId);
     return { success: true, messageId: result.messageId };
-    
+
   } catch (error) {
     console.error('Error sending email:', error);
     return { success: false, error: error.message };
@@ -64,9 +64,9 @@ const sendInvoiceEmail = async (to, subject, content, ticketId) => {
 const sendNotificationEmail = async (to, subject, message) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'fixfly.service@gmail.com',
+      from: process.env.EMAIL_USER || 'Getfixfly@gmail.com',
       to: to,
       subject: subject,
       text: message,
@@ -87,11 +87,11 @@ const sendNotificationEmail = async (to, subject, message) => {
         </div>
       `
     };
-    
+
     const result = await transporter.sendMail(mailOptions);
     console.log('Notification email sent successfully:', result.messageId);
     return { success: true, messageId: result.messageId };
-    
+
   } catch (error) {
     console.error('Error sending notification email:', error);
     return { success: false, error: error.message };
