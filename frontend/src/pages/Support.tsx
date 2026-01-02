@@ -785,127 +785,13 @@ const Support = () => {
         }
       }
 
-      // Method 2: For Android WebView, ALWAYS use Intent URLs (never use window.location.href)
+      // Method 2: For Android WebView, use local href for tel and mailto
       if (isAndroid && isWebView && (scheme === 'tel' || scheme === 'mailto')) {
-        if (scheme === 'tel') {
-          const phoneNumber = url.replace('tel:', '').replace(/[^0-9+]/g, '');
-          // Use Intent URL format for Android - multiple formats to try
-          const intentUrl1 = `intent://${phoneNumber}#Intent;scheme=tel;end`;
-          const intentUrl2 = `intent://tel:${phoneNumber}#Intent;scheme=tel;end`;
-
-          // Try multiple methods
-          let success = false;
-
-          // Method 2a: window.open without target
-          try {
-            window.open(intentUrl1);
-            success = true;
-          } catch (e) {
-            console.log('window.open without target failed:', e);
-          }
-
-          // Method 2b: window.open with _blank
-          if (!success) {
-            try {
-              const opened = window.open(intentUrl1, '_blank');
-              if (opened) success = true;
-            } catch (e) {
-              console.log('window.open with _blank failed:', e);
-            }
-          }
-
-          // Method 2c: Try alternative Intent format
-          if (!success) {
-            try {
-              window.open(intentUrl2);
-              success = true;
-            } catch (e) {
-              console.log('Alternative intent format failed:', e);
-            }
-          }
-
-          // Method 2d: Form submission
-          if (!success) {
-            try {
-              const form = document.createElement('form');
-              form.method = 'GET';
-              form.action = intentUrl1;
-              form.target = '_self';
-              form.style.display = 'none';
-              document.body.appendChild(form);
-              form.submit();
-              setTimeout(() => {
-                if (document.body.contains(form)) {
-                  document.body.removeChild(form);
-                }
-              }, 100);
-              success = true;
-            } catch (e) {
-              console.log('Form submission failed:', e);
-            }
-          }
-
-          if (!success) {
-            // Show user message
-            toast({
-              title: "Phone call not available",
-              description: `Please dial manually: ${phoneNumber}`,
-              variant: "destructive",
-              duration: 4000,
-            });
-          }
+        try {
+          window.location.href = url;
           return;
-
-        } else if (scheme === 'mailto') {
-          // Extract email and params
-          const mailtoMatch = url.match(/mailto:([^?]+)(\?.*)?/);
-          if (mailtoMatch) {
-            const email = mailtoMatch[1];
-            const params = mailtoMatch[2] || '';
-            // Use Intent URL for mailto
-            const intentUrl = `intent:${email}${params}#Intent;scheme=mailto;end`;
-
-            let success = false;
-
-            // Try window.open
-            try {
-              window.open(intentUrl);
-              success = true;
-            } catch (e) {
-              console.log('Mailto window.open failed:', e);
-            }
-
-            // Try form if window.open failed
-            if (!success) {
-              try {
-                const form = document.createElement('form');
-                form.method = 'GET';
-                form.action = intentUrl;
-                form.target = '_self';
-                form.style.display = 'none';
-                document.body.appendChild(form);
-                form.submit();
-                setTimeout(() => {
-                  if (document.body.contains(form)) {
-                    document.body.removeChild(form);
-                  }
-                }, 100);
-                success = true;
-              } catch (e) {
-                console.log('Mailto form failed:', e);
-              }
-            }
-
-            if (!success) {
-              toast({
-                title: "Email not available",
-                description: `Please copy the email: ${email}`,
-                variant: "destructive",
-                duration: 3000,
-              });
-            }
-            return;
-          }
+        } catch (e) {
+          console.error('Direct location set failed', e);
         }
       }
 

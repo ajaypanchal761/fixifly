@@ -57,15 +57,15 @@ const sendNotification = asyncHandler(async (req, res) => {
     if (isScheduled && scheduledAt) {
       const scheduledDate = new Date(scheduledAt);
       if (scheduledDate <= new Date()) {
-      return res.status(400).json({
-        success: false,
+        return res.status(400).json({
+          success: false,
           message: 'Scheduled time must be in the future'
         });
       }
-      
+
       adminNotificationData.status = 'scheduled';
       const adminNotification = await AdminNotification.create(adminNotificationData);
-      
+
       return res.status(200).json({
         success: true,
         message: 'Notification scheduled successfully',
@@ -81,7 +81,7 @@ const sendNotification = asyncHandler(async (req, res) => {
     // Get target users and vendors based on audience
     let targetUserIds = [];
     let targetVendorIds = [];
-    
+
     if (targetAudience === 'all') {
       // Get all users (only regular users, not vendors)
       console.log('🔍 === Searching for users with targetAudience: all ===');
@@ -89,9 +89,9 @@ const sendNotification = asyncHandler(async (req, res) => {
         isActive: true,
         isBlocked: false
       }).select('+fcmTokens +fcmTokenMobile _id name email phone preferences');
-      
+
       console.log(`📊 Found ${users.length} total users in database`);
-      
+
       // Filter users with FCM tokens (web or mobile)
       const usersWithFcmTokens = users.filter(user => {
         const hasWebTokens = user.fcmTokens && Array.isArray(user.fcmTokens) && user.fcmTokens.length > 0;
@@ -99,18 +99,18 @@ const sendNotification = asyncHandler(async (req, res) => {
         const pushEnabled = user.preferences?.notifications?.push !== false;
         return (hasWebTokens || hasMobileTokens) && pushEnabled;
       });
-      
+
       console.log(`📱 Found ${usersWithFcmTokens.length} users with FCM tokens (web or mobile)`);
-      
+
       // Log some user details for debugging
       usersWithFcmTokens.slice(0, 5).forEach((user, index) => {
         const webTokens = user.fcmTokens?.length || 0;
         const mobileTokens = user.fcmTokenMobile?.length || 0;
         console.log(`   User ${index + 1}: ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}`);
       });
-      
+
       targetUserIds = users.map(user => user._id);
-      logger.info('Found users for "all" audience', { 
+      logger.info('Found users for "all" audience', {
         totalUsers: users.length,
         usersWithFcmTokens: usersWithFcmTokens.length,
         targetUserIds: targetUserIds.length
@@ -124,9 +124,9 @@ const sendNotification = asyncHandler(async (req, res) => {
         isActive: true,
         isBlocked: false
       }).select('+fcmTokens +fcmTokenMobile _id name email phone preferences');
-      
+
       console.log(`📊 Found ${users.length} specific users`);
-      
+
       // Filter users with FCM tokens (web or mobile)
       const usersWithFcmTokens = users.filter(user => {
         const hasWebTokens = user.fcmTokens && Array.isArray(user.fcmTokens) && user.fcmTokens.length > 0;
@@ -134,18 +134,18 @@ const sendNotification = asyncHandler(async (req, res) => {
         const pushEnabled = user.preferences?.notifications?.push !== false;
         return (hasWebTokens || hasMobileTokens) && pushEnabled;
       });
-      
+
       console.log(`📱 Found ${usersWithFcmTokens.length} specific users with FCM tokens`);
-      
+
       // Log user details for debugging
       usersWithFcmTokens.slice(0, 5).forEach((user, index) => {
         const webTokens = user.fcmTokens?.length || 0;
         const mobileTokens = user.fcmTokenMobile?.length || 0;
         console.log(`   User ${index + 1}: ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}`);
       });
-      
+
       targetUserIds = users.map(user => user._id);
-      logger.info('Found specific users', { 
+      logger.info('Found specific users', {
         totalUsers: users.length,
         usersWithFcmTokens: usersWithFcmTokens.length,
         targetUserIds: targetUserIds.length,
@@ -179,8 +179,8 @@ const sendNotification = asyncHandler(async (req, res) => {
     });
 
     if (targetUserIds.length === 0 && targetVendorIds.length === 0) {
-        return res.status(400).json({
-          success: false,
+      return res.status(400).json({
+        success: false,
         message: 'No target users or vendors found'
       });
     }
@@ -196,7 +196,7 @@ const sendNotification = asyncHandler(async (req, res) => {
         console.log(`📤 Target user IDs: ${targetUserIds.length} users`);
         console.log(`📝 Notification title: "${title}"`);
         console.log(`📝 Notification message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`);
-        
+
         // Extract image URL properly
         let imageUrl = null;
         if (image) {
@@ -211,7 +211,7 @@ const sendNotification = asyncHandler(async (req, res) => {
         } else {
           console.log(`🖼️ Image: Not provided`);
         }
-        
+
         userPushResult = await userNotificationService.sendToMultipleUsers(
           targetUserIds,
           {
@@ -227,7 +227,7 @@ const sendNotification = asyncHandler(async (req, res) => {
             ...(imageUrl && { image: imageUrl })
           }
         );
-        
+
         console.log('✅ === User notifications sent ===');
         console.log('Results:', {
           successCount: userPushResult.successCount,
@@ -235,7 +235,7 @@ const sendNotification = asyncHandler(async (req, res) => {
           totalTargetUsers: targetUserIds.length,
           successRate: targetUserIds.length > 0 ? `${((userPushResult.successCount / targetUserIds.length) * 100).toFixed(1)}%` : '0%'
         });
-        
+
         if (userPushResult.successCount === 0 && userPushResult.failureCount === 0) {
           console.log('⚠️ No notifications were sent - this might indicate:');
           console.log('   1. Users have no FCM tokens (web or mobile)');
@@ -245,7 +245,7 @@ const sendNotification = asyncHandler(async (req, res) => {
           console.log(`⚠️ ${userPushResult.failureCount} notifications failed to send`);
           console.log('   This might indicate invalid FCM tokens that need cleanup');
         }
-        
+
       } catch (error) {
         console.error('❌ === ERROR sending user notifications ===');
         console.error('Error message:', error.message);
@@ -370,7 +370,7 @@ const sendNotification = asyncHandler(async (req, res) => {
       totalFailedCount: totalPushResult.failureCount
     });
 
-    const responseMessage = totalPushResult.successCount > 0 
+    const responseMessage = totalPushResult.successCount > 0
       ? 'Notification sent successfully'
       : 'Notification saved successfully (no push notifications sent - no FCM tokens found)';
 
@@ -498,7 +498,7 @@ const deleteNotification = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const notification = await AdminNotification.findById(id);
-    
+
     if (!notification) {
       return res.status(404).json({
         success: false,
