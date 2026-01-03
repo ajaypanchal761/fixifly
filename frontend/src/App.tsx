@@ -100,122 +100,124 @@ const AppContent = () => {
     <div className="min-h-screen bg-background">
       {!isAdminRoute && !isVendorRoute && !isAuthPage && <Header />}
 
-      <Routes>
-        {/* ================== PUBLIC ROUTES ================== */}
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/product/:productId" element={<ProductDetail />} />
-        <Route path="/laptop-service" element={<LaptopService />} />
-        <Route path="/service/:serviceType" element={<LaptopService />} />
-        <Route path="/search" element={<SearchResults />} />
+      <main className={!isAdminRoute && !isVendorRoute && !isAuthPage ? "pt-[76px] pb-[80px] md:pb-0" : ""}>
+        <Routes>
+          {/* ================== PUBLIC ROUTES ================== */}
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/product/:productId" element={<ProductDetail />} />
+          <Route path="/laptop-service" element={<LaptopService />} />
+          <Route path="/service/:serviceType" element={<LaptopService />} />
+          <Route path="/search" element={<SearchResults />} />
 
-        {/* ================== ADMIN AUTH ROUTES ================== */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/signup" element={<AdminSignup />} />
+          {/* ================== ADMIN AUTH ROUTES ================== */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/signup" element={<AdminSignup />} />
 
-        {/* ================== VENDOR AUTH ROUTES ================== */}
-        <Route path="/vendor/login" element={<VendorLogin />} />
-        <Route path="/vendor/signup" element={<VendorSignup />} />
-        <Route path="/vendor/verification" element={<VendorVerification />} />
-        <Route path="/vendor/verified" element={<VendorVerified />} />
-        <Route path="/vendor/benefits" element={<VendorBenefits />} />
+          {/* ================== VENDOR AUTH ROUTES ================== */}
+          <Route path="/vendor/login" element={<VendorLogin />} />
+          <Route path="/vendor/signup" element={<VendorSignup />} />
+          <Route path="/vendor/verification" element={<VendorVerification />} />
+          <Route path="/vendor/verified" element={<VendorVerified />} />
+          <Route path="/vendor/benefits" element={<VendorBenefits />} />
 
-        {/* ================== PROTECTED USER ROUTES ================== */}
-        <Route path="/booking" element={<MobileAuthGuard><Booking /></MobileAuthGuard>} />
-        <Route path="/checkout" element={<MobileAuthGuard><Checkout /></MobileAuthGuard>} />
-        <Route path="/reschedule/:id" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
-        <Route path="/reschedule" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
+          {/* ================== PROTECTED USER ROUTES ================== */}
+          <Route path="/booking" element={<MobileAuthGuard><Booking /></MobileAuthGuard>} />
+          <Route path="/checkout" element={<MobileAuthGuard><Checkout /></MobileAuthGuard>} />
+          <Route path="/reschedule/:id" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
+          <Route path="/reschedule" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
 
-        {/* AMC Routes */}
-        <Route path="/amc" element={<MobileAuthGuard><AMC /></MobileAuthGuard>} />
-        <Route path="/amc/plan/:planId" element={<MobileAuthGuard><AMCPlanDetails /></MobileAuthGuard>} />
-        <Route path="/amc/subscribe/:planId" element={<MobileAuthGuard><AMCSubscribe /></MobileAuthGuard>} />
+          {/* AMC Routes */}
+          <Route path="/amc" element={<MobileAuthGuard><AMC /></MobileAuthGuard>} />
+          <Route path="/amc/plan/:planId" element={<MobileAuthGuard><AMCPlanDetails /></MobileAuthGuard>} />
+          <Route path="/amc/subscribe/:planId" element={<MobileAuthGuard><AMCSubscribe /></MobileAuthGuard>} />
 
-        {/* Support Routes */}
-        <Route path="/support" element={<MobileAuthGuard><Support /></MobileAuthGuard>} />
-        <Route path="/payment" element={<MobileAuthGuard><Payment /></MobileAuthGuard>} />
+          {/* Support Routes */}
+          <Route path="/support" element={<MobileAuthGuard><Support /></MobileAuthGuard>} />
+          <Route path="/payment" element={<MobileAuthGuard><Payment /></MobileAuthGuard>} />
 
-        {/* Profile & Settings Routes */}
-        <Route path="/profile" element={<MobileAuthGuard><Profile /></MobileAuthGuard>} />
-        <Route path="/notifications" element={<MobileAuthGuard><Notifications /></MobileAuthGuard>} />
+          {/* Profile & Settings Routes */}
+          <Route path="/profile" element={<MobileAuthGuard><Profile /></MobileAuthGuard>} />
+          <Route path="/notifications" element={<MobileAuthGuard><Notifications /></MobileAuthGuard>} />
 
-        {/* Information Pages Routes */}
-        <Route path="/tips-tricks" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
-        <Route path="/tips" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
-        <Route path="/terms-conditions" element={<MobileAuthGuard><TermsConditions /></MobileAuthGuard>} />
-        <Route path="/privacy-policy" element={<MobileAuthGuard><PrivacyPolicy /></MobileAuthGuard>} />
-        <Route path="/cancellation-refund-policy" element={<MobileAuthGuard><CancellationRefundPolicy /></MobileAuthGuard>} />
-        <Route path="/about" element={<MobileAuthGuard><About /></MobileAuthGuard>} />
-        <Route path="/rate-us" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
-        <Route path="/rate" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
-        <Route path="/shop" element={<MobileAuthGuard><Shop /></MobileAuthGuard>} />
+          {/* Information Pages Routes */}
+          <Route path="/tips-tricks" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
+          <Route path="/tips" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
+          <Route path="/terms-conditions" element={<MobileAuthGuard><TermsConditions /></MobileAuthGuard>} />
+          <Route path="/privacy-policy" element={<MobileAuthGuard><PrivacyPolicy /></MobileAuthGuard>} />
+          <Route path="/cancellation-refund-policy" element={<MobileAuthGuard><CancellationRefundPolicy /></MobileAuthGuard>} />
+          <Route path="/about" element={<MobileAuthGuard><About /></MobileAuthGuard>} />
+          <Route path="/rate-us" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
+          <Route path="/rate" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
+          <Route path="/shop" element={<MobileAuthGuard><Shop /></MobileAuthGuard>} />
 
-        {/* ================== ADMIN PROTECTED ROUTES ================== */}
-        <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
-        <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
-        <Route path="/admin/profile" element={<AdminProtectedRoute><AdminProfile /></AdminProtectedRoute>} />
+          {/* ================== ADMIN PROTECTED ROUTES ================== */}
+          <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+          <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+          <Route path="/admin/profile" element={<AdminProtectedRoute><AdminProfile /></AdminProtectedRoute>} />
 
-        {/* User Management */}
-        <Route path="/admin/users" element={<AdminProtectedRoute><AdminUserManagement /></AdminProtectedRoute>} />
+          {/* User Management */}
+          <Route path="/admin/users" element={<AdminProtectedRoute><AdminUserManagement /></AdminProtectedRoute>} />
 
-        {/* Vendor Management */}
-        <Route path="/admin/vendors" element={<AdminProtectedRoute><AdminVendorManagement /></AdminProtectedRoute>} />
-        <Route path="/admin/vendor-wallet" element={<AdminProtectedRoute><AdminVendorWalletManagement /></AdminProtectedRoute>} />
+          {/* Vendor Management */}
+          <Route path="/admin/vendors" element={<AdminProtectedRoute><AdminVendorManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/vendor-wallet" element={<AdminProtectedRoute><AdminVendorWalletManagement /></AdminProtectedRoute>} />
 
-        {/* Service Management */}
-        <Route path="/admin/service-management" element={<AdminProtectedRoute><AdminServiceManagementDashboard /></AdminProtectedRoute>} />
-        <Route path="/admin/products" element={<AdminProtectedRoute><AdminServiceManagement /></AdminProtectedRoute>} />
-        <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookingManagement /></AdminProtectedRoute>} />
+          {/* Service Management */}
+          <Route path="/admin/service-management" element={<AdminProtectedRoute><AdminServiceManagementDashboard /></AdminProtectedRoute>} />
+          <Route path="/admin/products" element={<AdminProtectedRoute><AdminServiceManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookingManagement /></AdminProtectedRoute>} />
 
-        {/* Financial Management */}
-        <Route path="/admin/payment-management" element={<AdminProtectedRoute><AdminPaymentManagement /></AdminProtectedRoute>} />
-        <Route path="/admin/wallets" element={<AdminProtectedRoute><AdminVendorWalletManagement /></AdminProtectedRoute>} />
+          {/* Financial Management */}
+          <Route path="/admin/payment-management" element={<AdminProtectedRoute><AdminPaymentManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/wallets" element={<AdminProtectedRoute><AdminVendorWalletManagement /></AdminProtectedRoute>} />
 
-        {/* Content Management */}
-        <Route path="/admin/blogs" element={<AdminProtectedRoute><AdminBlogManagement /></AdminProtectedRoute>} />
-        <Route path="/admin/banners" element={<AdminProtectedRoute><AdminBannerManagement /></AdminProtectedRoute>} />
-        <Route path="/admin/cards" element={<AdminProtectedRoute><AdminCardManagement /></AdminProtectedRoute>} />
+          {/* Content Management */}
+          <Route path="/admin/blogs" element={<AdminProtectedRoute><AdminBlogManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/banners" element={<AdminProtectedRoute><AdminBannerManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/cards" element={<AdminProtectedRoute><AdminCardManagement /></AdminProtectedRoute>} />
 
-        {/* Location & Products */}
-        <Route path="/admin/cities" element={<AdminProtectedRoute><AdminCityManagement /></AdminProtectedRoute>} />
+          {/* Location & Products */}
+          <Route path="/admin/cities" element={<AdminProtectedRoute><AdminCityManagement /></AdminProtectedRoute>} />
 
-        {/* AMC Management */}
-        <Route path="/admin/amc" element={<AdminProtectedRoute><AdminAMCManagement /></AdminProtectedRoute>} />
+          {/* AMC Management */}
+          <Route path="/admin/amc" element={<AdminProtectedRoute><AdminAMCManagement /></AdminProtectedRoute>} />
 
-        {/* Support Management */}
-        <Route path="/admin/support" element={<AdminProtectedRoute><AdminSupportManagement /></AdminProtectedRoute>} />
+          {/* Support Management */}
+          <Route path="/admin/support" element={<AdminProtectedRoute><AdminSupportManagement /></AdminProtectedRoute>} />
 
-        {/* Communication */}
-        <Route path="/admin/push-notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
-        <Route path="/admin/notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
+          {/* Communication */}
+          <Route path="/admin/push-notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
 
-        {/* ================== VENDOR PROTECTED ROUTES ================== */}
-        <Route path="/vendor" element={<ErrorBoundary><VendorProtectedRoute><VendorDashboard /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/dashboard" element={<ErrorBoundary><VendorProtectedRoute><VendorDashboard /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/profile" element={<ErrorBoundary><VendorProtectedRoute><VendorProfile /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/earnings" element={<ErrorBoundary><VendorProtectedRoute><VendorEarnings /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/notifications" element={<ErrorBoundary><VendorProtectedRoute><VendorNotifications /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/support" element={<ErrorBoundary><VendorProtectedRoute><VendorSupport /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/shop" element={<ErrorBoundary><VendorProtectedRoute><VendorShop /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/privacy" element={<ErrorBoundary><VendorProtectedRoute><VendorPrivacy /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/terms" element={<ErrorBoundary><VendorProtectedRoute><VendorTermsConditions /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/deposit-penalty" element={<ErrorBoundary><VendorProtectedRoute><VendorDepositPenalty /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/about" element={<ErrorBoundary><VendorProtectedRoute><VendorAbout /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/penalty" element={<ErrorBoundary><VendorProtectedRoute><VendorPenaltyCharges /></VendorProtectedRoute></ErrorBoundary>} />
+          {/* ================== VENDOR PROTECTED ROUTES ================== */}
+          <Route path="/vendor" element={<ErrorBoundary><VendorProtectedRoute><VendorDashboard /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/dashboard" element={<ErrorBoundary><VendorProtectedRoute><VendorDashboard /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/profile" element={<ErrorBoundary><VendorProtectedRoute><VendorProfile /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/earnings" element={<ErrorBoundary><VendorProtectedRoute><VendorEarnings /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/notifications" element={<ErrorBoundary><VendorProtectedRoute><VendorNotifications /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/support" element={<ErrorBoundary><VendorProtectedRoute><VendorSupport /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/shop" element={<ErrorBoundary><VendorProtectedRoute><VendorShop /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/privacy" element={<ErrorBoundary><VendorProtectedRoute><VendorPrivacy /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/terms" element={<ErrorBoundary><VendorProtectedRoute><VendorTermsConditions /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/deposit-penalty" element={<ErrorBoundary><VendorProtectedRoute><VendorDepositPenalty /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/about" element={<ErrorBoundary><VendorProtectedRoute><VendorAbout /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/penalty" element={<ErrorBoundary><VendorProtectedRoute><VendorPenaltyCharges /></VendorProtectedRoute></ErrorBoundary>} />
 
-        {/* Vendor Task Routes */}
-        <Route path="/vendor/task/:taskId" element={<ErrorBoundary><VendorProtectedRoute><VendorTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/task/:taskId/preview" element={<ErrorBoundary><VendorProtectedRoute><VendorTaskPreview /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/task/:taskId/reschedule" element={<ErrorBoundary><VendorProtectedRoute><VendorRescheduleTask /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/task/:taskId/cancel" element={<ErrorBoundary><VendorProtectedRoute><VendorCancelTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/task/:taskId/cancelled" element={<ErrorBoundary><VendorProtectedRoute><VendorCancelledTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/task/:taskId/close" element={<ErrorBoundary><VendorProtectedRoute><VendorClosedTask /></VendorProtectedRoute></ErrorBoundary>} />
-        <Route path="/vendor/task/:taskId/closed" element={<ErrorBoundary><VendorProtectedRoute><VendorClosedTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
+          {/* Vendor Task Routes */}
+          <Route path="/vendor/task/:taskId" element={<ErrorBoundary><VendorProtectedRoute><VendorTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/task/:taskId/preview" element={<ErrorBoundary><VendorProtectedRoute><VendorTaskPreview /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/task/:taskId/reschedule" element={<ErrorBoundary><VendorProtectedRoute><VendorRescheduleTask /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/task/:taskId/cancel" element={<ErrorBoundary><VendorProtectedRoute><VendorCancelTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/task/:taskId/cancelled" element={<ErrorBoundary><VendorProtectedRoute><VendorCancelledTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/task/:taskId/close" element={<ErrorBoundary><VendorProtectedRoute><VendorClosedTask /></VendorProtectedRoute></ErrorBoundary>} />
+          <Route path="/vendor/task/:taskId/closed" element={<ErrorBoundary><VendorProtectedRoute><VendorClosedTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
 
-        {/* ================== 404 ROUTE ================== */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* ================== 404 ROUTE ================== */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
 
       {/* Desktop-only floating support call button for user site */}
       {!isAdminRoute && !isVendorRoute && !isAuthPage && (
