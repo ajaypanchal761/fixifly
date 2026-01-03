@@ -12,36 +12,38 @@ const emailService = require('../services/emailService');
 // @access  Admin
 const getAllBookings = asyncHandler(async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      status, 
-      paymentStatus, 
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      paymentStatus,
       search,
       sortBy = 'createdAt',
       sortOrder = 'desc'
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     // Build filter object
     const filter = {};
-    
+
     if (status) {
       filter.status = status;
     }
-    
+
     if (paymentStatus) {
       filter['payment.status'] = paymentStatus;
     }
-    
+
     if (search) {
       filter.$or = [
         { 'customer.name': { $regex: search, $options: 'i' } },
         { 'customer.email': { $regex: search, $options: 'i' } },
         { 'customer.phone': { $regex: search, $options: 'i' } },
         { 'payment.razorpayPaymentId': { $regex: search, $options: 'i' } },
-        { 'payment.razorpayOrderId': { $regex: search, $options: 'i' } }
+        { 'payment.razorpayOrderId': { $regex: search, $options: 'i' } },
+        { 'payment.transactionId': { $regex: search, $options: 'i' } },
+        { $expr: { $regexMatch: { input: { $toString: "$_id" }, regex: search, options: "i" } } }
       ];
     }
 
@@ -64,13 +66,13 @@ const getAllBookings = asyncHandler(async (req, res) => {
           booking.vendor.vendorId = vendor;
         }
       }
-      
+
       // Get review data for this booking
       const Review = require('../models/Review');
       const review = await Review.findOne({ bookingId: booking._id })
         .select('rating comment createdAt')
         .lean();
-      
+
       if (review) {
         booking.review = {
           rating: review.rating,
@@ -186,7 +188,7 @@ const getBookingById = asyncHandler(async (req, res) => {
       const review = await Review.findOne({ bookingId: booking._id })
         .populate('userId', 'name email')
         .lean();
-      
+
       if (review) {
         booking.review = {
           rating: review.rating,
@@ -236,7 +238,7 @@ const getBookingById = asyncHandler(async (req, res) => {
 const updateBookingStatus = asyncHandler(async (req, res) => {
   try {
     const { status } = req.body;
-    
+
     if (!['pending', 'waiting_for_engineer', 'confirmed', 'in_progress', 'completed', 'cancelled'].includes(status)) {
       return res.status(400).json({
         success: false,
@@ -246,7 +248,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { 
+      {
         status,
         'tracking.updatedAt': new Date(),
         ...(status === 'completed' && { 'tracking.completedAt': new Date() })
@@ -305,7 +307,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
           booking,
           status
         );
-        
+
         if (notificationSent) {
           logger.info('Push notification sent to user for booking status update', {
             bookingId: booking._id,
@@ -357,7 +359,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 const updateBookingPriority = asyncHandler(async (req, res) => {
   try {
     const { priority } = req.body;
-    
+
     if (!['low', 'medium', 'high', 'urgent'].includes(priority)) {
       return res.status(400).json({
         success: false,
@@ -428,6 +430,44 @@ const assignVendor = asyncHandler(async (req, res) => {
       });
     }
 
+    // Validation: Check if vendor already has a task for the same date and time
+    if (scheduledDate && scheduledTime) {
+      const scheduledDateObj = new Date(scheduledDate);
+
+      // Check for conflicting active bookings (not cancelled or declined)
+      // Note: We exclude the current booking being assigned if it's a re-assignment
+      const conflictingBooking = await Booking.findOne({
+        _id: { $ne: req.params.id },
+        'vendor.vendorId': vendorId,
+        'scheduling.scheduledDate': scheduledDateObj,
+        'scheduling.scheduledTime': scheduledTime,
+        status: { $nin: ['cancelled', 'declined'] }
+      }).select('bookingReference');
+
+      if (conflictingBooking) {
+        return res.status(400).json({
+          success: false,
+          message: 'Vendor is not available'
+        });
+      }
+
+      // Check for conflicting warranty claims
+      const WarrantyClaim = require('../models/WarrantyClaim');
+      const conflictingClaim = await WarrantyClaim.findOne({
+        assignedVendor: vendorId,
+        scheduledDate: scheduledDateObj,
+        scheduledTime: scheduledTime,
+        status: { $nin: ['cancelled', 'rejected', 'completed'] }
+      });
+
+      if (conflictingClaim) {
+        return res.status(400).json({
+          success: false,
+          message: 'Vendor is not available'
+        });
+      }
+    }
+
     const updateData = {
       'vendor.vendorId': vendorId,
       'vendor.assignedAt': new Date(),
@@ -470,7 +510,7 @@ const assignVendor = asyncHandler(async (req, res) => {
         .select('firstName lastName email phone address');
       if (vendor) {
         booking.vendor.vendorId = vendor;
-        
+
         // Mark first task assignment for mandatory deposit requirement
         await vendor.markFirstTaskAssignment();
       }
@@ -494,7 +534,7 @@ const assignVendor = asyncHandler(async (req, res) => {
       console.log('Vendor ID:', vendorId);
       console.log('Booking ID:', booking._id);
       console.log('Booking Reference:', booking.bookingReference);
-      
+
       logger.info('🔔 Attempting to send vendor push notification for booking assignment', {
         vendorId,
         bookingId: booking._id,
@@ -503,11 +543,11 @@ const assignVendor = asyncHandler(async (req, res) => {
         customerName: booking.customer?.name,
         customerEmail: booking.customer?.email
       });
-      
+
       console.log('📦 Importing vendorNotificationController...');
       const vendorNotificationController = require('./vendorNotificationController');
       console.log('✅ Controller imported:', Object.keys(vendorNotificationController));
-      
+
       const { createBookingAssignmentNotification } = vendorNotificationController;
       console.log('✅ Function extracted:', typeof createBookingAssignmentNotification);
       console.log('📞 Calling createBookingAssignmentNotification with:', {
@@ -515,10 +555,10 @@ const assignVendor = asyncHandler(async (req, res) => {
         bookingId: booking._id,
         bookingRef: booking.bookingReference
       });
-      
+
       const notificationResult = await createBookingAssignmentNotification(vendorId, booking);
       console.log('✅ Notification function returned:', notificationResult ? 'Success' : 'No result');
-      
+
       console.log('✅ Vendor notification function completed');
       logger.info('✅ Vendor notification created and sent successfully for booking assignment', {
         vendorId,
@@ -529,16 +569,16 @@ const assignVendor = asyncHandler(async (req, res) => {
       // Send email to vendor
       try {
         const vendor = await Vendor.findById(vendorId).select('firstName lastName email');
-        
+
         if (vendor && vendor.email) {
           console.log('📧 Sending booking assignment email to vendor:', {
             vendorId: vendor._id,
             vendorEmail: vendor.email,
             bookingReference: booking.bookingReference
           });
-          
+
           const emailResult = await emailService.sendVendorBookingAssignmentEmail(vendor, booking);
-          
+
           if (emailResult.success) {
             console.log('✅ Booking assignment email sent to vendor successfully');
             logger.info('Booking assignment email sent to vendor', {
@@ -580,7 +620,7 @@ const assignVendor = asyncHandler(async (req, res) => {
       console.error('Error:', notificationError);
       console.error('Error message:', notificationError?.message);
       console.error('Error stack:', notificationError?.stack);
-      
+
       logger.error('❌ Error creating vendor notification for booking assignment:', {
         error: notificationError.message,
         stack: notificationError.stack,
@@ -593,149 +633,149 @@ const assignVendor = asyncHandler(async (req, res) => {
 
     // Send notification to user about vendor assignment (ENGINEER ASSIGNED) only after vendor accepts
     if (booking.vendorResponse?.status === 'accepted') {
-    try {
-      console.log('🔔 === PUSH NOTIFICATION FLOW START (ENGINEER ASSIGNED) ===');
-      console.log('📋 Booking Details:', {
-        bookingId: booking._id.toString(),
-        bookingReference: booking.bookingReference,
-        customerEmail: booking.customer.email,
-        customerPhone: booking.customer.phone,
-        vendorId: vendorId,
-        status: booking.status
-      });
-
-      // Normalize phone number for matching (remove spaces, handle +91 prefix)
-      const normalizePhone = (phone) => {
-        if (!phone) return null;
-        const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
-        // If starts with 91 and has 12 digits, remove 91
-        if (cleaned.length === 12 && cleaned.startsWith('91')) {
-          return cleaned.substring(2);
-        }
-        // If has 10 digits, return as is
-        if (cleaned.length === 10) {
-          return cleaned;
-        }
-        return cleaned;
-      };
-
-      const normalizedBookingPhone = normalizePhone(booking.customer.phone);
-      const normalizedBookingEmail = booking.customer.email?.toLowerCase().trim();
-
-      console.log('🔍 Searching for user with:', {
-        email: normalizedBookingEmail,
-        phone: normalizedBookingPhone,
-        originalPhone: booking.customer.phone
-      });
-
-      // Find user by email or phone (try multiple phone formats)
-      let user = await User.findOne({
-        $or: [
-          { email: normalizedBookingEmail },
-          { phone: booking.customer.phone },
-          ...(normalizedBookingPhone ? [
-            { phone: `+91${normalizedBookingPhone}` },
-            { phone: `91${normalizedBookingPhone}` },
-            { phone: normalizedBookingPhone }
-          ] : [])
-        ]
-      }).select('+fcmTokens +fcmTokenMobile');
-
-      if (!user) {
-        console.log('⚠️ User not found for engineer assignment notification');
-        console.log('🔍 Search criteria used:', {
-          email: normalizedBookingEmail,
-          phoneVariants: [
-            booking.customer.phone,
-            normalizedBookingPhone ? `+91${normalizedBookingPhone}` : null,
-            normalizedBookingPhone ? `91${normalizedBookingPhone}` : null,
-            normalizedBookingPhone
-          ].filter(Boolean)
+      try {
+        console.log('🔔 === PUSH NOTIFICATION FLOW START (ENGINEER ASSIGNED) ===');
+        console.log('📋 Booking Details:', {
+          bookingId: booking._id.toString(),
+          bookingReference: booking.bookingReference,
+          customerEmail: booking.customer.email,
+          customerPhone: booking.customer.phone,
+          vendorId: vendorId,
+          status: booking.status
         });
-        logger.warn('User not found for vendor assignment notification', {
+
+        // Normalize phone number for matching (remove spaces, handle +91 prefix)
+        const normalizePhone = (phone) => {
+          if (!phone) return null;
+          const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
+          // If starts with 91 and has 12 digits, remove 91
+          if (cleaned.length === 12 && cleaned.startsWith('91')) {
+            return cleaned.substring(2);
+          }
+          // If has 10 digits, return as is
+          if (cleaned.length === 10) {
+            return cleaned;
+          }
+          return cleaned;
+        };
+
+        const normalizedBookingPhone = normalizePhone(booking.customer.phone);
+        const normalizedBookingEmail = booking.customer.email?.toLowerCase().trim();
+
+        console.log('🔍 Searching for user with:', {
+          email: normalizedBookingEmail,
+          phone: normalizedBookingPhone,
+          originalPhone: booking.customer.phone
+        });
+
+        // Find user by email or phone (try multiple phone formats)
+        let user = await User.findOne({
+          $or: [
+            { email: normalizedBookingEmail },
+            { phone: booking.customer.phone },
+            ...(normalizedBookingPhone ? [
+              { phone: `+91${normalizedBookingPhone}` },
+              { phone: `91${normalizedBookingPhone}` },
+              { phone: normalizedBookingPhone }
+            ] : [])
+          ]
+        }).select('+fcmTokens +fcmTokenMobile');
+
+        if (!user) {
+          console.log('⚠️ User not found for engineer assignment notification');
+          console.log('🔍 Search criteria used:', {
+            email: normalizedBookingEmail,
+            phoneVariants: [
+              booking.customer.phone,
+              normalizedBookingPhone ? `+91${normalizedBookingPhone}` : null,
+              normalizedBookingPhone ? `91${normalizedBookingPhone}` : null,
+              normalizedBookingPhone
+            ].filter(Boolean)
+          });
+          logger.warn('User not found for vendor assignment notification', {
+            bookingId: booking._id,
+            customerEmail: booking.customer.email,
+            customerPhone: booking.customer.phone,
+            normalizedPhone: normalizedBookingPhone,
+            vendorId
+          });
+        } else {
+          console.log('✅ User found:', {
+            userId: user._id.toString(),
+            userName: user.name,
+            userEmail: user.email,
+            userPhone: user.phone,
+            webTokensCount: user.fcmTokens?.length || 0,
+            mobileTokensCount: user.fcmTokenMobile?.length || 0,
+            pushNotificationsEnabled: user.preferences?.notifications?.push !== false
+          });
+
+          // Get vendor name for notification
+          const vendor = await Vendor.findOne({ vendorId: vendorId })
+            .select('firstName lastName');
+          const vendorName = vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Engineer';
+
+          const userNotificationSent = await userNotificationService.sendToUser(
+            user._id,
+            {
+              title: '👨‍🔧 Engineer Assigned!',
+              body: `Great news! ${vendorName} has been assigned to your booking #${booking.bookingReference}. They will contact you soon to schedule the service.`
+            },
+            {
+              type: 'engineer_assigned',
+              bookingId: booking._id.toString(),
+              bookingReference: booking.bookingReference,
+              vendorId: vendorId,
+              vendorName: vendorName,
+              priority: 'high',
+              link: `/booking/${booking._id}`
+            }
+          );
+
+          if (userNotificationSent) {
+            console.log('✅ User notification sent successfully for engineer assignment');
+            logger.info('User notification sent successfully for vendor assignment', {
+              userId: user._id,
+              userEmail: user.email,
+              userPhone: user.phone,
+              bookingId: booking._id,
+              bookingReference: booking.bookingReference,
+              vendorId,
+              vendorName
+            });
+          } else {
+            console.log('❌ Failed to send user notification for engineer assignment');
+            logger.warn('Failed to send user notification for vendor assignment', {
+              userId: user._id,
+              userEmail: user.email,
+              userPhone: user.phone,
+              bookingId: booking._id,
+              vendorId,
+              webTokensCount: user.fcmTokens?.length || 0,
+              mobileTokensCount: user.fcmTokenMobile?.length || 0
+            });
+          }
+        }
+        console.log('🔔 === PUSH NOTIFICATION FLOW END (ENGINEER ASSIGNED) ===');
+      } catch (userNotificationError) {
+        console.error('❌ === ERROR IN PUSH NOTIFICATION (ENGINEER ASSIGNED) ===');
+        console.error('Error message:', userNotificationError.message);
+        console.error('Error stack:', userNotificationError.stack);
+        console.error('Booking ID:', booking._id);
+        console.error('Customer Email:', booking.customer.email);
+        console.error('Customer Phone:', booking.customer.phone);
+        console.error('Vendor ID:', vendorId);
+        console.error('❌ === END ERROR (ENGINEER ASSIGNED) ===');
+        logger.error('Error creating user notification for vendor assignment', {
+          error: userNotificationError.message,
+          stack: userNotificationError.stack,
           bookingId: booking._id,
           customerEmail: booking.customer.email,
           customerPhone: booking.customer.phone,
-          normalizedPhone: normalizedBookingPhone,
           vendorId
         });
-      } else {
-        console.log('✅ User found:', {
-          userId: user._id.toString(),
-          userName: user.name,
-          userEmail: user.email,
-          userPhone: user.phone,
-          webTokensCount: user.fcmTokens?.length || 0,
-          mobileTokensCount: user.fcmTokenMobile?.length || 0,
-          pushNotificationsEnabled: user.preferences?.notifications?.push !== false
-        });
-
-        // Get vendor name for notification
-        const vendor = await Vendor.findOne({ vendorId: vendorId })
-          .select('firstName lastName');
-        const vendorName = vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Engineer';
-
-        const userNotificationSent = await userNotificationService.sendToUser(
-          user._id,
-          {
-            title: '👨‍🔧 Engineer Assigned!',
-            body: `Great news! ${vendorName} has been assigned to your booking #${booking.bookingReference}. They will contact you soon to schedule the service.`
-          },
-          {
-            type: 'engineer_assigned',
-            bookingId: booking._id.toString(),
-            bookingReference: booking.bookingReference,
-            vendorId: vendorId,
-            vendorName: vendorName,
-            priority: 'high',
-            link: `/booking/${booking._id}`
-          }
-        );
-        
-        if (userNotificationSent) {
-          console.log('✅ User notification sent successfully for engineer assignment');
-          logger.info('User notification sent successfully for vendor assignment', {
-            userId: user._id,
-            userEmail: user.email,
-            userPhone: user.phone,
-            bookingId: booking._id,
-            bookingReference: booking.bookingReference,
-            vendorId,
-            vendorName
-          });
-        } else {
-          console.log('❌ Failed to send user notification for engineer assignment');
-          logger.warn('Failed to send user notification for vendor assignment', {
-            userId: user._id,
-            userEmail: user.email,
-            userPhone: user.phone,
-            bookingId: booking._id,
-            vendorId,
-            webTokensCount: user.fcmTokens?.length || 0,
-            mobileTokensCount: user.fcmTokenMobile?.length || 0
-          });
-        }
+        // Don't fail the assignment if notification fails
       }
-      console.log('🔔 === PUSH NOTIFICATION FLOW END (ENGINEER ASSIGNED) ===');
-    } catch (userNotificationError) {
-      console.error('❌ === ERROR IN PUSH NOTIFICATION (ENGINEER ASSIGNED) ===');
-      console.error('Error message:', userNotificationError.message);
-      console.error('Error stack:', userNotificationError.stack);
-      console.error('Booking ID:', booking._id);
-      console.error('Customer Email:', booking.customer.email);
-      console.error('Customer Phone:', booking.customer.phone);
-      console.error('Vendor ID:', vendorId);
-      console.error('❌ === END ERROR (ENGINEER ASSIGNED) ===');
-      logger.error('Error creating user notification for vendor assignment', {
-        error: userNotificationError.message,
-        stack: userNotificationError.stack,
-        bookingId: booking._id,
-        customerEmail: booking.customer.email,
-        customerPhone: booking.customer.phone,
-        vendorId
-      });
-      // Don't fail the assignment if notification fails
-    }
     } else {
       logger.info('User notification deferred: vendor has not accepted yet', {
         bookingId: booking._id,
@@ -774,9 +814,9 @@ const assignVendor = asyncHandler(async (req, res) => {
 const updateBooking = asyncHandler(async (req, res) => {
   try {
     const { customer, scheduling, notes } = req.body;
-    
+
     const booking = await Booking.findById(req.params.id);
-    
+
     if (!booking) {
       return res.status(404).json({
         success: false,
@@ -803,6 +843,44 @@ const updateBooking = asyncHandler(async (req, res) => {
 
     // Update scheduling if provided
     if (scheduling) {
+      const newScheduledDate = scheduling.scheduledDate ? new Date(scheduling.scheduledDate) : booking.scheduling?.scheduledDate;
+      const newScheduledTime = scheduling.scheduledTime || booking.scheduling?.scheduledTime;
+      const vendorId = booking.vendor?.vendorId;
+
+      if (vendorId && (scheduling.scheduledDate || scheduling.scheduledTime) && newScheduledDate && newScheduledTime) {
+        // Check for conflicting active bookings
+        const conflictingBooking = await Booking.findOne({
+          _id: { $ne: req.params.id },
+          'vendor.vendorId': vendorId,
+          'scheduling.scheduledDate': newScheduledDate,
+          'scheduling.scheduledTime': newScheduledTime,
+          status: { $nin: ['cancelled', 'declined'] }
+        });
+
+        if (conflictingBooking) {
+          return res.status(400).json({
+            success: false,
+            message: 'Vendor is not available'
+          });
+        }
+
+        // Check for conflicting warranty claims
+        const WarrantyClaim = require('../models/WarrantyClaim');
+        const conflictingClaim = await WarrantyClaim.findOne({
+          assignedVendor: vendorId,
+          scheduledDate: newScheduledDate,
+          scheduledTime: newScheduledTime,
+          status: { $nin: ['cancelled', 'rejected', 'completed'] }
+        });
+
+        if (conflictingClaim) {
+          return res.status(400).json({
+            success: false,
+            message: 'Vendor is not available'
+          });
+        }
+      }
+
       if (scheduling.scheduledDate) {
         updateData['scheduling.scheduledDate'] = new Date(scheduling.scheduledDate);
       }
@@ -943,10 +1021,10 @@ const processRefund = asyncHandler(async (req, res) => {
 const getBookingStats = asyncHandler(async (req, res) => {
   try {
     const { period = '30d' } = req.query;
-    
+
     let dateFilter = {};
     const now = new Date();
-    
+
     switch (period) {
       case '7d':
         dateFilter = { createdAt: { $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) } };

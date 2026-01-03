@@ -95,11 +95,11 @@ const AppContent = () => {
   const isLoginPage = location.pathname === '/login';
   const isSignupPage = location.pathname === '/signup';
   const isAuthPage = isLoginPage || isSignupPage;
-  
+
   return (
     <div className="min-h-screen bg-background">
       {!isAdminRoute && !isVendorRoute && !isAuthPage && <Header />}
-      
+
       <Routes>
         {/* ================== PUBLIC ROUTES ================== */}
         <Route path="/" element={<Index />} />
@@ -109,11 +109,11 @@ const AppContent = () => {
         <Route path="/laptop-service" element={<LaptopService />} />
         <Route path="/service/:serviceType" element={<LaptopService />} />
         <Route path="/search" element={<SearchResults />} />
-        
+
         {/* ================== ADMIN AUTH ROUTES ================== */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/signup" element={<AdminSignup />} />
-        
+
         {/* ================== VENDOR AUTH ROUTES ================== */}
         <Route path="/vendor/login" element={<VendorLogin />} />
         <Route path="/vendor/signup" element={<VendorSignup />} />
@@ -126,20 +126,20 @@ const AppContent = () => {
         <Route path="/checkout" element={<MobileAuthGuard><Checkout /></MobileAuthGuard>} />
         <Route path="/reschedule/:id" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
         <Route path="/reschedule" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
-        
+
         {/* AMC Routes */}
         <Route path="/amc" element={<MobileAuthGuard><AMC /></MobileAuthGuard>} />
         <Route path="/amc/plan/:planId" element={<MobileAuthGuard><AMCPlanDetails /></MobileAuthGuard>} />
         <Route path="/amc/subscribe/:planId" element={<MobileAuthGuard><AMCSubscribe /></MobileAuthGuard>} />
-        
+
         {/* Support Routes */}
         <Route path="/support" element={<MobileAuthGuard><Support /></MobileAuthGuard>} />
         <Route path="/payment" element={<MobileAuthGuard><Payment /></MobileAuthGuard>} />
-        
+
         {/* Profile & Settings Routes */}
         <Route path="/profile" element={<MobileAuthGuard><Profile /></MobileAuthGuard>} />
         <Route path="/notifications" element={<MobileAuthGuard><Notifications /></MobileAuthGuard>} />
-        
+
         {/* Information Pages Routes */}
         <Route path="/tips-tricks" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
         <Route path="/tips" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
@@ -155,37 +155,37 @@ const AppContent = () => {
         <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
         <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
         <Route path="/admin/profile" element={<AdminProtectedRoute><AdminProfile /></AdminProtectedRoute>} />
-        
+
         {/* User Management */}
         <Route path="/admin/users" element={<AdminProtectedRoute><AdminUserManagement /></AdminProtectedRoute>} />
-        
+
         {/* Vendor Management */}
         <Route path="/admin/vendors" element={<AdminProtectedRoute><AdminVendorManagement /></AdminProtectedRoute>} />
         <Route path="/admin/vendor-wallet" element={<AdminProtectedRoute><AdminVendorWalletManagement /></AdminProtectedRoute>} />
-        
+
         {/* Service Management */}
         <Route path="/admin/service-management" element={<AdminProtectedRoute><AdminServiceManagementDashboard /></AdminProtectedRoute>} />
         <Route path="/admin/products" element={<AdminProtectedRoute><AdminServiceManagement /></AdminProtectedRoute>} />
         <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookingManagement /></AdminProtectedRoute>} />
-        
+
         {/* Financial Management */}
         <Route path="/admin/payment-management" element={<AdminProtectedRoute><AdminPaymentManagement /></AdminProtectedRoute>} />
         <Route path="/admin/wallets" element={<AdminProtectedRoute><AdminVendorWalletManagement /></AdminProtectedRoute>} />
-        
+
         {/* Content Management */}
         <Route path="/admin/blogs" element={<AdminProtectedRoute><AdminBlogManagement /></AdminProtectedRoute>} />
         <Route path="/admin/banners" element={<AdminProtectedRoute><AdminBannerManagement /></AdminProtectedRoute>} />
         <Route path="/admin/cards" element={<AdminProtectedRoute><AdminCardManagement /></AdminProtectedRoute>} />
-        
+
         {/* Location & Products */}
         <Route path="/admin/cities" element={<AdminProtectedRoute><AdminCityManagement /></AdminProtectedRoute>} />
-        
+
         {/* AMC Management */}
         <Route path="/admin/amc" element={<AdminProtectedRoute><AdminAMCManagement /></AdminProtectedRoute>} />
-        
+
         {/* Support Management */}
         <Route path="/admin/support" element={<AdminProtectedRoute><AdminSupportManagement /></AdminProtectedRoute>} />
-        
+
         {/* Communication */}
         <Route path="/admin/push-notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
         <Route path="/admin/notifications" element={<AdminProtectedRoute><AdminPushNotificationManagement /></AdminProtectedRoute>} />
@@ -203,7 +203,7 @@ const AppContent = () => {
         <Route path="/vendor/deposit-penalty" element={<ErrorBoundary><VendorProtectedRoute><VendorDepositPenalty /></VendorProtectedRoute></ErrorBoundary>} />
         <Route path="/vendor/about" element={<ErrorBoundary><VendorProtectedRoute><VendorAbout /></VendorProtectedRoute></ErrorBoundary>} />
         <Route path="/vendor/penalty" element={<ErrorBoundary><VendorProtectedRoute><VendorPenaltyCharges /></VendorProtectedRoute></ErrorBoundary>} />
-        
+
         {/* Vendor Task Routes */}
         <Route path="/vendor/task/:taskId" element={<ErrorBoundary><VendorProtectedRoute><VendorTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
         <Route path="/vendor/task/:taskId/preview" element={<ErrorBoundary><VendorProtectedRoute><VendorTaskPreview /></VendorProtectedRoute></ErrorBoundary>} />
@@ -212,11 +212,11 @@ const AppContent = () => {
         <Route path="/vendor/task/:taskId/cancelled" element={<ErrorBoundary><VendorProtectedRoute><VendorCancelledTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
         <Route path="/vendor/task/:taskId/close" element={<ErrorBoundary><VendorProtectedRoute><VendorClosedTask /></VendorProtectedRoute></ErrorBoundary>} />
         <Route path="/vendor/task/:taskId/closed" element={<ErrorBoundary><VendorProtectedRoute><VendorClosedTaskDetail /></VendorProtectedRoute></ErrorBoundary>} />
-        
+
         {/* ================== 404 ROUTE ================== */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-      
+
       {/* Desktop-only floating support call button for user site */}
       {!isAdminRoute && !isVendorRoute && !isAuthPage && (
         <FloatingCallButton />
@@ -232,16 +232,16 @@ const App = () => {
     // App initialized - push notifications enabled
     console.log('✅ App initialized - push notifications enabled');
     console.log('🔍 Checking for TooltipProvider issues...');
-    
+
     // Initialize push notifications
     initializePushNotifications().catch((error) => {
       console.error('❌ Failed to initialize push notifications:', error);
     });
-    
+
     // Setup foreground notification handler
     const unsubscribe = setupForegroundNotificationHandler((payload) => {
       console.log('📬 Notification received in foreground:', payload);
-      
+
       // Handle account access granted notification
       if (payload.data?.type === 'account_access_granted') {
         console.log('✅ Account access granted notification received');
@@ -251,19 +251,21 @@ const App = () => {
         });
         window.dispatchEvent(event);
       }
-      
+
       // Handle booking assignment notification
       if (payload.data?.type === 'booking_assignment') {
         console.log('📅 Booking assignment notification received');
         console.log('📅 Booking assignment data:', payload.data);
-        
+
         // Dispatch custom event to trigger vendor dashboard refresh
         const event = new CustomEvent('bookingAssigned', {
           detail: payload.data
         });
         window.dispatchEvent(event);
-        
+
         // Show browser notification if permission granted
+        // COMMENTED OUT: Redundant - handled by pushNotificationService.ts and causes duplicates
+        /*
         if ('Notification' in window && Notification.permission === 'granted') {
           const notificationData = payload.data || {};
           const taskLink = notificationData.link || 
@@ -298,9 +300,10 @@ const App = () => {
             notification.close();
           };
         }
+        */
       }
     });
-    
+
     // Register service worker for PWA functionality - COMMENTED OUT FOR WEBVIEW TESTING
     // if ('serviceWorker' in navigator) {
     //   import('./serviceWorkerRegistration').then(({ register }) => {
@@ -309,7 +312,7 @@ const App = () => {
     //     console.error('❌ Service Worker registration failed:', error);
     //   });
     // }
-    
+
     // Force PWA installation prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       console.log('📱 PWA install prompt available');
@@ -317,21 +320,21 @@ const App = () => {
       // Store the event for later use
       (window as any).deferredPrompt = e;
     });
-    
+
     // Debug mobile webview detection
     const isMobileWebView = /wv|WebView/.test(navigator.userAgent);
     const isPWA = window.matchMedia('(display-mode: standalone)').matches;
     console.log('📱 Mobile WebView detected:', isMobileWebView);
     console.log('📱 PWA mode detected:', isPWA);
     console.log('🌐 User Agent:', navigator.userAgent);
-    
+
     // Listen for messages from service worker (notification clicks)
     const handleServiceWorkerMessage = (event: MessageEvent) => {
       console.log('📬 Message received from service worker:', event.data);
       if (event.data && event.data.type === 'NOTIFICATION_CLICK') {
         const { link, data } = event.data;
         console.log('📅 Notification click message received, navigating to:', link);
-        
+
         // Navigate to the task page
         if (link && link.startsWith('/vendor/task/')) {
           window.location.href = link;
@@ -340,9 +343,9 @@ const App = () => {
         }
       }
     };
-    
+
     navigator.serviceWorker?.addEventListener('message', handleServiceWorkerMessage);
-    
+
     // Cleanup function
     return () => {
       if (unsubscribe) {

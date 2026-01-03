@@ -16,20 +16,20 @@ const VendorDashboard = () => {
   // APK-safe mobile detection - hooks must be at top level
   const muiIsMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [isAPK, setIsAPK] = useState(false);
-  
+
   // Check if running in APK/webview
   useEffect(() => {
     try {
-      const isAPKDetected = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) || 
-                    (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-                    (typeof window !== 'undefined' && window.navigator && window.navigator.standalone === true);
+      const isAPKDetected = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) ||
+        (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        (typeof window !== 'undefined' && window.navigator && (window.navigator as any).standalone === true);
       setIsAPK(isAPKDetected);
     } catch (error) {
       console.error('Error detecting APK mode:', error);
       setIsAPK(false);
     }
   }, []);
-  
+
   // Force mobile mode in APK, otherwise use Material-UI detection
   const isMobile = isAPK || muiIsMobile;
 
@@ -46,25 +46,27 @@ const VendorDashboard = () => {
   // Redirect to earnings page if vendor doesn't have initial deposit
   useEffect(() => {
     console.log('🔄 VendorDashboard useEffect: isLoading:', isLoading, 'vendor:', vendor?.vendorId);
-    
+
     // Wait for loading to complete and vendor to be available
     if (isLoading) {
       return;
     }
-    
+
     if (!vendor) {
       console.log('⚠️ VendorDashboard: No vendor data found');
       return;
     }
-    
+
+    const securityDeposit = vendor.wallet?.securityDeposit || 3999;
+
     // Check if vendor has initial deposit
-    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
-                             (vendor.wallet?.currentBalance >= 3999) ||
-                             (vendor.wallet?.totalDeposits > 0);
-    
+    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
+      (vendor.wallet?.currentBalance >= securityDeposit) ||
+      (vendor.wallet?.totalDeposits > 0);
+
     console.log('🔄 VendorDashboard: hasInitialDeposit:', hasInitialDeposit);
     console.log('🔄 VendorDashboard: wallet data:', vendor.wallet);
-    
+
     // Only redirect if currently on /vendor or /vendor/dashboard
     let currentPath = '';
     try {
@@ -102,7 +104,7 @@ const VendorDashboard = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600 mb-4">Please log in to continue</p>
-          <button 
+          <button
             onClick={() => navigate('/vendor/login')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
@@ -121,22 +123,22 @@ const VendorDashboard = () => {
       <main className="flex-1 pb-36 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
         <VendorHero />
         <div className="container mx-auto px-4 py-8">
-        {!isMobile && (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              Welcome to Vendor Dashboard
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Welcome to your vendor dashboard! Manage your tasks and earnings from here.
-            </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">📱 Mobile Optimized</h3>
-              <p className="text-blue-600">
-                For the best experience, please access the vendor dashboard from your mobile device.
+          {!isMobile && (
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Welcome to Vendor Dashboard
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Welcome to your vendor dashboard! Manage your tasks and earnings from here.
               </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
+                <h3 className="text-lg font-semibold text-blue-800 mb-2">📱 Mobile Optimized</h3>
+                <p className="text-blue-600">
+                  For the best experience, please access the vendor dashboard from your mobile device.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         </div>
       </main>
       <div className="md:hidden">

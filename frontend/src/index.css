@@ -281,8 +281,30 @@
   will-change: transform;
   backface-visibility: hidden;
   perspective: 1000px;
-  width: max-content;
+}
+
+/* Ticker Scroll Area - Updated for manual scroll support */
+.ticker-scroll-area {
+  width: 100%;
+  overflow-x: auto; /* Allow manual scrolling */
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.ticker-scroll-area::-webkit-scrollbar {
+  display: none; /* Hide scrollbar Chrome/Safari */
+}
+
+.scroll-container.animate-ticker-scroll {
+  animation: ticker-scroll 20s linear infinite;
   display: flex;
+  width: max-content;
+}
+
+/* Pause animation on hover or touch to allow manual scrolling easily */
+.ticker-scroll-area:hover .scroll-container,
+.ticker-scroll-area:active .scroll-container {
+  animation-play-state: paused;
 }
 
 /* Mobile-specific faster animation */

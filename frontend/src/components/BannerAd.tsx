@@ -52,13 +52,13 @@ const BannerAd = () => {
 
   return (
     <section className="py-8 bg-white relative overflow-hidden" data-aos="fade-up" data-aos-delay="100">
-      <div className="ticker-scroll-area w-full overflow-hidden">
+      <div className="ticker-scroll-area w-full">
         <div className="scroll-container items-center animate-ticker-scroll">
           {/* First set of logos */}
           {logos.map((logo, index) => (
             <div key={`first-${index}`} className="logo-wrap flex-shrink-0 flex items-center justify-center px-4 md:px-8">
-              <img 
-                src={logo.src} 
+              <img
+                src={logo.src}
                 alt={logo.alt}
                 className="h-6 md:h-8 w-auto opacity-60 hover:opacity-100 transition-all duration-300 grayscale hover:grayscale-0 max-h-6 md:max-h-8"
                 loading="lazy"
@@ -68,8 +68,8 @@ const BannerAd = () => {
           {/* Duplicate set for seamless loop */}
           {logos.map((logo, index) => (
             <div key={`second-${index}`} className="logo-wrap flex-shrink-0 flex items-center justify-center px-4 md:px-8">
-              <img 
-                src={logo.src} 
+              <img
+                src={logo.src}
                 alt={logo.alt}
                 className="h-6 md:h-8 w-auto opacity-60 hover:opacity-100 transition-all duration-300 grayscale hover:grayscale-0 max-h-6 md:max-h-8"
                 loading="lazy"
@@ -79,8 +79,8 @@ const BannerAd = () => {
           {/* Third set for extra smoothness */}
           {logos.map((logo, index) => (
             <div key={`third-${index}`} className="logo-wrap flex-shrink-0 flex items-center justify-center px-4 md:px-8">
-              <img 
-                src={logo.src} 
+              <img
+                src={logo.src}
                 alt={logo.alt}
                 className="h-6 md:h-8 w-auto opacity-60 hover:opacity-100 transition-all duration-300 grayscale hover:grayscale-0 max-h-6 md:max-h-8"
                 loading="lazy"

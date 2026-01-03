@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import adminApiService from '@/services/adminApi';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  UserCheck, 
-  Search, 
-  Filter, 
-  MoreVertical, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  CheckCircle, 
+import {
+  UserCheck,
+  Search,
+  Filter,
+  MoreVertical,
+  Eye,
+  Edit,
+  Trash2,
+  CheckCircle,
   XCircle,
   Clock,
   Mail,
@@ -145,7 +145,7 @@ const AdminVendorManagement = () => {
       };
 
       const response = await adminApiService.getVendors(params);
-      
+
       if (response.success && response.data) {
         setVendors(response.data.vendors);
         setPagination(response.data.pagination);
@@ -321,7 +321,7 @@ const AdminVendorManagement = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
-      
+
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
         <div className="mb-6">
@@ -587,7 +587,7 @@ const AdminVendorManagement = () => {
                                 </DropdownMenuItem>
                               )}
                               {vendor.status !== 'blocked' && (
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   className="text-red-600"
                                   onClick={() => handleVendorStatusUpdate(vendor.id, 'block')}
                                 >
@@ -596,7 +596,7 @@ const AdminVendorManagement = () => {
                                 </DropdownMenuItem>
                               )}
                               {vendor.status === 'blocked' && (
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   className="text-green-600"
                                   onClick={() => handleVendorStatusUpdate(vendor.id, 'unblock')}
                                 >
@@ -611,14 +611,16 @@ const AdminVendorManagement = () => {
                                 <Mail className="w-4 h-4 mr-2" />
                                 Send Email
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="text-green-600"
-                                onClick={() => handleGrantAccountAccess(vendor.id)}
-                              >
-                                <Key className="w-4 h-4 mr-2" />
-                                Account Access
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
+                              {vendor.verificationStatus !== 'verified' && (
+                                <DropdownMenuItem
+                                  className="text-green-600"
+                                  onClick={() => handleGrantAccountAccess(vendor.id)}
+                                >
+                                  <Key className="w-4 h-4 mr-2" />
+                                  Account Access
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem
                                 className="text-red-600"
                                 onClick={() => handleDeleteVendor(vendor.id)}
                               >
@@ -632,7 +634,7 @@ const AdminVendorManagement = () => {
                     ))}
                   </TableBody>
                 </Table>
-                
+
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
                   <div className="flex items-center justify-between mt-4">
@@ -740,8 +742,8 @@ const AdminVendorManagement = () => {
                   <div className="flex flex-wrap gap-2 mt-2">
                     {selectedVendor.services.map((service, index) => (
                       <Badge key={index} variant="secondary" className="text-xs">
-                        {service === 'Other' && selectedVendor.customServiceCategory 
-                          ? selectedVendor.customServiceCategory 
+                        {service === 'Other' && selectedVendor.customServiceCategory
+                          ? selectedVendor.customServiceCategory
                           : service}
                       </Badge>
                     ))}
@@ -768,9 +770,9 @@ const AdminVendorManagement = () => {
                       {selectedVendor.documents.aadhaarFront && (
                         <div className="border rounded-lg p-4">
                           <label className="text-sm font-medium text-gray-600 mb-2 block">Aadhaar Front</label>
-                          <img 
-                            src={selectedVendor.documents.aadhaarFront} 
-                            alt="Aadhaar Front" 
+                          <img
+                            src={selectedVendor.documents.aadhaarFront}
+                            alt="Aadhaar Front"
                             className="w-full h-48 object-cover rounded-lg border"
                             onClick={() => window.open(selectedVendor.documents.aadhaarFront, '_blank')}
                             style={{ cursor: 'pointer' }}
@@ -780,9 +782,9 @@ const AdminVendorManagement = () => {
                       {selectedVendor.documents.aadhaarBack && (
                         <div className="border rounded-lg p-4">
                           <label className="text-sm font-medium text-gray-600 mb-2 block">Aadhaar Back</label>
-                          <img 
-                            src={selectedVendor.documents.aadhaarBack} 
-                            alt="Aadhaar Back" 
+                          <img
+                            src={selectedVendor.documents.aadhaarBack}
+                            alt="Aadhaar Back"
                             className="w-full h-48 object-cover rounded-lg border"
                             onClick={() => window.open(selectedVendor.documents.aadhaarBack, '_blank')}
                             style={{ cursor: 'pointer' }}
@@ -792,9 +794,9 @@ const AdminVendorManagement = () => {
                       {selectedVendor.documents.panCard && (
                         <div className="border rounded-lg p-4">
                           <label className="text-sm font-medium text-gray-600 mb-2 block">PAN Card</label>
-                          <img 
-                            src={selectedVendor.documents.panCard} 
-                            alt="PAN Card" 
+                          <img
+                            src={selectedVendor.documents.panCard}
+                            alt="PAN Card"
                             className="w-full h-48 object-cover rounded-lg border"
                             onClick={() => window.open(selectedVendor.documents.panCard, '_blank')}
                             style={{ cursor: 'pointer' }}
@@ -835,14 +837,13 @@ const AdminVendorManagement = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-500">Account Status</label>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge 
-                        className={`px-2 py-1 text-xs ${
-                          selectedVendor.status === 'active' 
-                            ? 'bg-green-100 text-green-800 border-green-200' 
+                      <Badge
+                        className={`px-2 py-1 text-xs ${selectedVendor.status === 'active'
+                            ? 'bg-green-100 text-green-800 border-green-200'
                             : selectedVendor.status === 'blocked'
-                            ? 'bg-red-100 text-red-800 border-red-200'
-                            : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                        }`}
+                              ? 'bg-red-100 text-red-800 border-red-200'
+                              : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                          }`}
                       >
                         {selectedVendor.status.charAt(0).toUpperCase() + selectedVendor.status.slice(1)}
                       </Badge>
@@ -851,14 +852,13 @@ const AdminVendorManagement = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-500">Verification Status</label>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge 
-                        className={`px-2 py-1 text-xs ${
-                          selectedVendor.verificationStatus === 'verified' 
-                            ? 'bg-green-100 text-green-800 border-green-200' 
+                      <Badge
+                        className={`px-2 py-1 text-xs ${selectedVendor.verificationStatus === 'verified'
+                            ? 'bg-green-100 text-green-800 border-green-200'
                             : selectedVendor.verificationStatus === 'rejected'
-                            ? 'bg-red-100 text-red-800 border-red-200'
-                            : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                        }`}
+                              ? 'bg-red-100 text-red-800 border-red-200'
+                              : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                          }`}
                       >
                         {selectedVendor.verificationStatus.charAt(0).toUpperCase() + selectedVendor.verificationStatus.slice(1)}
                       </Badge>
@@ -869,7 +869,7 @@ const AdminVendorManagement = () => {
                     <div className="flex items-center gap-2 mt-1">
                       <MapPin className="w-4 h-4 text-blue-600" />
                       <span className="text-sm">
-                        {selectedVendor.serviceLocations && selectedVendor.serviceLocations.length > 0 
+                        {selectedVendor.serviceLocations && selectedVendor.serviceLocations.length > 0
                           ? `${selectedVendor.serviceLocations.length} routes configured`
                           : 'No service routes configured'
                         }
@@ -989,7 +989,7 @@ const AdminVendorManagement = () => {
                   To add a new vendor, please direct them to the vendor registration page where they can create their own account.
                 </p>
                 <div className="space-y-3">
-                  <Button 
+                  <Button
                     className="w-full bg-blue-600 hover:bg-blue-700"
                     onClick={() => {
                       // Open vendor registration page in new tab
@@ -999,8 +999,8 @@ const AdminVendorManagement = () => {
                     <UserCheck className="w-4 h-4 mr-2" />
                     Open Vendor Registration Page
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full"
                     onClick={() => setIsAddVendorModalOpen(false)}
                   >

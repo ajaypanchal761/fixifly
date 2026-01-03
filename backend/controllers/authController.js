@@ -29,7 +29,7 @@ const sendOTP = asyncHandler(async (req, res) => {
   // Validate Indian phone number format
   const phoneRegex = /^[6-9]\d{9}$/;
   const cleanPhone = phone.replace(/\D/g, '');
-  
+
   if (!phoneRegex.test(cleanPhone)) {
     return res.status(400).json({
       success: false,
@@ -39,10 +39,10 @@ const sendOTP = asyncHandler(async (req, res) => {
 
   try {
     logger.info('Starting OTP send process', { phone: cleanPhone });
-    
+
     // Check if user exists
     let user = await User.findByPhoneOrEmail(cleanPhone);
-    
+
     if (!user) {
       logger.info('User not found for OTP', { phone: cleanPhone });
       return res.status(404).json({
@@ -50,7 +50,7 @@ const sendOTP = asyncHandler(async (req, res) => {
         message: 'User not found. Please sign up first.'
       });
     }
-    
+
     // Check if user has completed signup (has name and email)
     if (!user.name || !user.email) {
       logger.info('User has not completed signup', { userId: user._id, phone: cleanPhone });
@@ -59,7 +59,7 @@ const sendOTP = asyncHandler(async (req, res) => {
         message: 'Please complete your signup first. Name and email are required.'
       });
     }
-    
+
     logger.info('Existing user found with completed signup', { userId: user._id, phone: cleanPhone });
 
     const isDefaultTestNumber = cleanPhone === '7610416911';
@@ -178,15 +178,15 @@ const sendOTP = asyncHandler(async (req, res) => {
 
   } catch (error) {
     logger.error('Send OTP Error:', error);
-    
+
     // Check if it's a template approval issue
     if (error.message && error.message.includes('Template needs approval')) {
       // Generate and store OTP anyway for testing purposes
       logger.warn('SMS template approval needed, proceeding with fallback OTP');
-      
+
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const cleanPhone = req.body.phone.replace(/\D/g, '');
-      
+
       try {
         // Find user - don't create if doesn't exist
         let user = await User.findByPhoneOrEmail(cleanPhone);
@@ -197,7 +197,7 @@ const sendOTP = asyncHandler(async (req, res) => {
             message: 'User not found. Please sign up first.'
           });
         }
-        
+
         // Check if user has completed signup
         if (!user.name || !user.email) {
           logger.error('User has not completed signup in fallback handler', { userId: user._id, phone: cleanPhone });
@@ -206,15 +206,15 @@ const sendOTP = asyncHandler(async (req, res) => {
             message: 'Please complete your signup first. Name and email are required.'
           });
         }
-        
+
         user.otp = {
           code: otp,
           expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
         };
         await user.save();
-        
+
         console.log(`🔧 Fallback OTP Generated - Phone: ${cleanPhone}, OTP: ${otp}`);
-        
+
         res.status(200).json({
           success: true,
           message: `OTP generated for ${user.formattedPhone}. SMS template approval pending with SMS India Hub.`,
@@ -234,7 +234,7 @@ const sendOTP = asyncHandler(async (req, res) => {
         logger.error('Database error during fallback OTP generation:', dbError);
       }
     }
-    
+
     // Generic error response for other issues
     res.status(500).json({
       success: false,
@@ -292,7 +292,7 @@ const verifyOTP = asyncHandler(async (req, res) => {
 
     // Verify OTP
     const isValidOTP = user.verifyOTP(otp);
-    
+
     if (!isValidOTP) {
       return res.status(400).json({
         success: false,
@@ -310,45 +310,45 @@ const verifyOTP = asyncHandler(async (req, res) => {
         // Detect platform from user-agent or request body
         const userAgent = req.headers['user-agent'] || '';
         const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
-        
+
         logger.info(`🔔 Saving FCM token for user ${user._id} (platform: ${platform})`);
-        
+
         if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
           // Save to fcmTokenMobile array for mobile devices
           if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
             user.fcmTokenMobile = [];
           }
-          
+
           // Remove token if already exists to avoid duplicates
           user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== fcmToken);
-          
+
           // Add new token at the beginning
           user.fcmTokenMobile.unshift(fcmToken);
-          
+
           // Keep only the most recent 10 tokens
           if (user.fcmTokenMobile.length > 10) {
             user.fcmTokenMobile = user.fcmTokenMobile.slice(0, 10);
           }
-          
+
           user.markModified('fcmTokenMobile');
-          
+
           // Use updateOne for more reliable persistence of select: false fields
           await User.updateOne(
             { _id: user._id },
-            { 
-              $set: { 
+            {
+              $set: {
                 fcmTokenMobile: user.fcmTokenMobile,
                 updatedAt: new Date()
-              } 
+              }
             }
           );
           // Also save the document to ensure all changes are persisted
           await user.save({ validateBeforeSave: false });
-          
+
           // Verify the save
           const verifyUser = await User.findById(user._id).select('+fcmTokenMobile');
           const tokenSaved = verifyUser?.fcmTokenMobile?.includes(fcmToken) || false;
-          
+
           if (tokenSaved) {
             logger.info(`✅ FCM mobile token saved successfully for user ${user._id}`, {
               tokenCount: verifyUser.fcmTokenMobile.length,
@@ -362,37 +362,37 @@ const verifyOTP = asyncHandler(async (req, res) => {
           if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
             user.fcmTokens = [];
           }
-          
+
           // Remove token if already exists to avoid duplicates
           user.fcmTokens = user.fcmTokens.filter(t => t !== fcmToken);
-          
+
           // Add new token at the beginning
           user.fcmTokens.unshift(fcmToken);
-          
+
           // Keep only the most recent 10 tokens
           if (user.fcmTokens.length > 10) {
             user.fcmTokens = user.fcmTokens.slice(0, 10);
           }
-          
+
           user.markModified('fcmTokens');
-          
+
           // Use updateOne for more reliable persistence of select: false fields
           await User.updateOne(
             { _id: user._id },
-            { 
-              $set: { 
+            {
+              $set: {
                 fcmTokens: user.fcmTokens,
                 updatedAt: new Date()
-              } 
+              }
             }
           );
           // Also save the document to ensure all changes are persisted
           await user.save({ validateBeforeSave: false });
-          
+
           // Verify the save
           const verifyUser = await User.findById(user._id).select('+fcmTokens');
           const tokenSaved = verifyUser?.fcmTokens?.includes(fcmToken) || false;
-          
+
           if (tokenSaved) {
             logger.info(`✅ FCM web token saved successfully for user ${user._id}`, {
               tokenCount: verifyUser.fcmTokens.length,
@@ -476,7 +476,7 @@ const register = asyncHandler(async (req, res) => {
   // Validate phone number
   const phoneRegex = /^[6-9]\d{9}$/;
   const cleanPhone = phone.replace(/\D/g, '');
-  
+
   if (!phoneRegex.test(cleanPhone)) {
     return res.status(400).json({
       success: false,
@@ -494,35 +494,59 @@ const register = asyncHandler(async (req, res) => {
     });
 
     if (existingUser) {
-      const field = existingUser.email === email.toLowerCase() ? 'email' : 'phone';
-      return res.status(400).json({
-        success: false,
-        message: `User with this ${field} already exists`
-      });
-    }
+      // If user is already verified, block registration
+      if (existingUser.isPhoneVerified) {
+        const field = existingUser.email === email.toLowerCase() ? 'email' : 'phone';
+        return res.status(400).json({
+          success: false,
+          message: `User with this ${field} already exists`
+        });
+      }
 
-    // Create new user with complete data
-    const userData = {
-      name: name.trim(),
-      email: email.toLowerCase(),
-      phone: cleanPhone,
-      role: 'user',
-      isPhoneVerified: false,
-      isEmailVerified: false
-    };
+      // If user is NOT verified, we'll update the existing record and send a new OTP
+      logger.info('Updating unverified user for re-registration', { userId: existingUser._id, phone: cleanPhone });
 
-    // Add address if provided
-    if (address) {
-      userData.address = {
-        street: address.street || '',
-        city: address.city || '',
-        state: address.state || '',
-        pincode: address.pincode || '',
-        landmark: address.landmark || ''
+      existingUser.name = name.trim();
+      existingUser.email = email.toLowerCase();
+      existingUser.phone = cleanPhone;
+
+      if (address) {
+        existingUser.address = {
+          street: address.street || '',
+          city: address.city || '',
+          state: address.state || '',
+          pincode: address.pincode || '',
+          landmark: address.landmark || ''
+        };
+      }
+
+      // We'll proceed with this user
+      var user = existingUser;
+    } else {
+      // Create new user with complete data
+      const userData = {
+        name: name.trim(),
+        email: email.toLowerCase(),
+        phone: cleanPhone,
+        role: 'user',
+        isPhoneVerified: false,
+        isEmailVerified: false
       };
+
+      // Add address if provided
+      if (address) {
+        userData.address = {
+          street: address.street || '',
+          city: address.city || '',
+          state: address.state || '',
+          pincode: address.pincode || '',
+          landmark: address.landmark || ''
+        };
+      }
+
+      var user = new User(userData);
     }
 
-    const user = new User(userData);
     await user.save();
 
     // Check for default test number
@@ -537,14 +561,14 @@ const register = asyncHandler(async (req, res) => {
         expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
       };
       await user.save();
-      
+
       // Don't send actual SMS for test number
       smsResult = {
         success: true,
         messageId: 'test-' + Date.now(),
         message: 'Default OTP set for test number'
       };
-      
+
       console.log(`🧪 Test Mode - Default Registration OTP for ${cleanPhone}: ${otp}`);
     } else {
       // Generate OTP for real numbers
@@ -553,7 +577,7 @@ const register = asyncHandler(async (req, res) => {
 
       // Send OTP via SMS India Hub
       smsResult = await smsService.sendOTP(cleanPhone, otp);
-      
+
       if (!smsResult.success) {
         console.error('SMS sending failed:', smsResult.error);
         // Still return success but log the error
@@ -583,7 +607,7 @@ const register = asyncHandler(async (req, res) => {
 
   } catch (error) {
     console.error('Registration Error:', error);
-    
+
     // Handle validation errors
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map(err => err.message);
@@ -657,7 +681,7 @@ const login = asyncHandler(async (req, res) => {
 
     // Verify OTP
     const isValidOTP = user.verifyOTP(otp);
-    
+
     if (!isValidOTP) {
       return res.status(400).json({
         success: false,
@@ -671,45 +695,45 @@ const login = asyncHandler(async (req, res) => {
         // Detect platform from user-agent or request body
         const userAgent = req.headers['user-agent'] || '';
         const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
-        
+
         logger.info(`🔔 Saving FCM token for user login ${user._id} (platform: ${platform})`);
-        
+
         if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
           // Save to fcmTokenMobile array for mobile devices
           if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
             user.fcmTokenMobile = [];
           }
-          
+
           // Remove token if already exists to avoid duplicates
           user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== fcmToken);
-          
+
           // Add new token at the beginning
           user.fcmTokenMobile.unshift(fcmToken);
-          
+
           // Keep only the most recent 10 tokens
           if (user.fcmTokenMobile.length > 10) {
             user.fcmTokenMobile = user.fcmTokenMobile.slice(0, 10);
           }
-          
+
           user.markModified('fcmTokenMobile');
-          
+
           // Use updateOne for more reliable persistence of select: false fields
           await User.updateOne(
             { _id: user._id },
-            { 
-              $set: { 
+            {
+              $set: {
                 fcmTokenMobile: user.fcmTokenMobile,
                 updatedAt: new Date()
-              } 
+              }
             }
           );
           // Also save the document to ensure all changes are persisted
           await user.save({ validateBeforeSave: false });
-          
+
           // Verify the save
           const verifyUser = await User.findById(user._id).select('+fcmTokenMobile');
           const tokenSaved = verifyUser?.fcmTokenMobile?.includes(fcmToken) || false;
-          
+
           if (tokenSaved) {
             logger.info(`✅ FCM mobile token saved successfully for user login ${user._id}`, {
               tokenCount: verifyUser.fcmTokenMobile.length,
@@ -723,37 +747,37 @@ const login = asyncHandler(async (req, res) => {
           if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
             user.fcmTokens = [];
           }
-          
+
           // Remove token if already exists to avoid duplicates
           user.fcmTokens = user.fcmTokens.filter(t => t !== fcmToken);
-          
+
           // Add new token at the beginning
           user.fcmTokens.unshift(fcmToken);
-          
+
           // Keep only the most recent 10 tokens
           if (user.fcmTokens.length > 10) {
             user.fcmTokens = user.fcmTokens.slice(0, 10);
           }
-          
+
           user.markModified('fcmTokens');
-          
+
           // Use updateOne for more reliable persistence of select: false fields
           await User.updateOne(
             { _id: user._id },
-            { 
-              $set: { 
+            {
+              $set: {
                 fcmTokens: user.fcmTokens,
                 updatedAt: new Date()
-              } 
+              }
             }
           );
           // Also save the document to ensure all changes are persisted
           await user.save({ validateBeforeSave: false });
-          
+
           // Verify the save
           const verifyUser = await User.findById(user._id).select('+fcmTokens');
           const tokenSaved = verifyUser?.fcmTokens?.includes(fcmToken) || false;
-          
+
           if (tokenSaved) {
             logger.info(`✅ FCM web token saved successfully for user login ${user._id}`, {
               tokenCount: verifyUser.fcmTokens.length,
@@ -893,11 +917,11 @@ const updateProfile = asyncHandler(async (req, res) => {
       }
 
       // Check if email is already taken by another user
-      const existingUser = await User.findOne({ 
+      const existingUser = await User.findOne({
         email: email.toLowerCase(),
         _id: { $ne: userId }
       });
-      
+
       if (existingUser) {
         return res.status(400).json({
           success: false,
@@ -956,7 +980,7 @@ const updateProfile = asyncHandler(async (req, res) => {
 
   } catch (error) {
     console.error('Update Profile Error:', error);
-    
+
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({
@@ -1029,7 +1053,7 @@ const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
       logger.error('Email service not configured for forgot password OTP', {
         email: user.email
       });
-      
+
       // Clear OTP if email service is not configured
       user.clearForgotPasswordOTP();
       await user.save();
@@ -1048,19 +1072,19 @@ const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
       });
 
       const emailResult = await emailService.sendUserForgotPasswordOTP(user.email, otp, user.name || 'User');
-      
+
       logger.info('Email service response for forgot password OTP', {
         email: user.email,
         success: emailResult?.success,
         message: emailResult?.message,
         error: emailResult?.error
       });
-      
+
       // Check if email was sent successfully
       if (!emailResult || !emailResult.success) {
         const errorMessage = emailResult?.message || emailResult?.error || 'Unknown error';
         const rawError = emailResult?.error || '';
-        
+
         logger.error('Failed to send forgot password OTP email', {
           emailResult: emailResult,
           email: user.email,
@@ -1075,26 +1099,26 @@ const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
 
         // Return more specific error message - check both message and error fields
         let userMessage = emailResult?.message || 'Failed to send OTP email. Please try again later.';
-        
+
         // Check raw error for specific patterns if message doesn't already contain them
         if (!userMessage.includes('Daily email sending limit') && !userMessage.includes('limit reached') && !userMessage.includes('Incorrect email password')) {
           const combinedError = (rawError + ' ' + errorMessage).toLowerCase();
-          
+
           // Check for authentication/credential errors first
-          if (combinedError.includes('incorrect email password') || 
-              combinedError.includes('badcredentials') ||
-              combinedError.includes('username and password not accepted') ||
-              combinedError.includes('invalid login') ||
-              combinedError.includes('authentication failed') ||
-              combinedError.includes('eauth') ||
-              errorMessage.includes('Incorrect email password')) {
+          if (combinedError.includes('incorrect email password') ||
+            combinedError.includes('badcredentials') ||
+            combinedError.includes('username and password not accepted') ||
+            combinedError.includes('invalid login') ||
+            combinedError.includes('authentication failed') ||
+            combinedError.includes('eauth') ||
+            errorMessage.includes('Incorrect email password')) {
             userMessage = 'Incorrect email password. Please contact administrator to fix SMTP configuration.';
           } else if (combinedError.includes('not configured') || combinedError.includes('smtp')) {
             userMessage = 'Email service is temporarily unavailable. Please contact support.';
           } else if (combinedError.includes('connection') || combinedError.includes('timeout')) {
             userMessage = 'Email service connection failed. Please try again later.';
-          } else if (combinedError.includes('550-5.4.5') || combinedError.includes('daily user sending') || 
-                     combinedError.includes('quota') || combinedError.includes('rate limit')) {
+          } else if (combinedError.includes('550-5.4.5') || combinedError.includes('daily user sending') ||
+            combinedError.includes('quota') || combinedError.includes('rate limit')) {
             userMessage = 'Daily email sending limit exceeded. Please try again tomorrow or contact support at info@fixfly.in';
           } else if (combinedError.includes('550')) {
             userMessage = 'Email sending limit reached. Please contact support at info@fixfly.in or try again later.';
@@ -1107,7 +1131,7 @@ const sendForgotPasswordOTP = asyncHandler(async (req, res) => {
           error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
         });
       }
-      
+
       logger.info('Forgot password OTP sent to user successfully', {
         email: user.email,
         userId: user._id,
@@ -1269,7 +1293,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     user.password = newPassword;
     user.markModified('password'); // Explicitly mark password as modified
     user.clearForgotPasswordOTP(); // Clear OTP after successful password reset
-    
+
     // Save user - pre-save middleware will hash the password
     await user.save();
 

@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import AdminHeader from '../components/AdminHeader';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-import { 
-  Shield, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import {
+  Shield,
+  Plus,
+  Edit,
+  Trash2,
   Eye,
-  Search, 
+  Search,
   Filter,
   Star,
   Clock,
@@ -97,14 +97,14 @@ const EditSubscriptionForm = ({ subscription, onSave, onCancel }: any) => {
                 type="number"
                 min="0"
                 value={formData.remoteSupportUsed}
-                onChange={(e) => setFormData({...formData, remoteSupportUsed: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, remoteSupportUsed: e.target.value })}
               />
             </div>
             <div>
               <Label htmlFor="remoteSupportLimit">Limit</Label>
               <Select
                 value={formData.remoteSupportLimit}
-                onValueChange={(value) => setFormData({...formData, remoteSupportLimit: value})}
+                onValueChange={(value) => setFormData({ ...formData, remoteSupportLimit: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -136,7 +136,7 @@ const EditSubscriptionForm = ({ subscription, onSave, onCancel }: any) => {
                 type="number"
                 min="0"
                 value={formData.homeVisitsUsed}
-                onChange={(e) => setFormData({...formData, homeVisitsUsed: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, homeVisitsUsed: e.target.value })}
               />
             </div>
             <div>
@@ -146,7 +146,7 @@ const EditSubscriptionForm = ({ subscription, onSave, onCancel }: any) => {
                 type="number"
                 min="1"
                 value={formData.homeVisitsLimit}
-                onChange={(e) => setFormData({...formData, homeVisitsLimit: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, homeVisitsLimit: e.target.value })}
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ const EditSubscriptionForm = ({ subscription, onSave, onCancel }: any) => {
                 type="number"
                 min="0"
                 value={formData.warrantyClaimsUsed}
-                onChange={(e) => setFormData({...formData, warrantyClaimsUsed: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, warrantyClaimsUsed: e.target.value })}
               />
             </div>
             <div>
@@ -176,7 +176,7 @@ const EditSubscriptionForm = ({ subscription, onSave, onCancel }: any) => {
                 type="number"
                 min="0"
                 value={formData.warrantyClaimsLimit}
-                onChange={(e) => setFormData({...formData, warrantyClaimsLimit: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, warrantyClaimsLimit: e.target.value })}
               />
             </div>
           </div>
@@ -222,7 +222,7 @@ const AdminAMCManagement = () => {
   const [warrantyClaims, setWarrantyClaims] = useState([]);
   const [warrantyClaimsLoading, setWarrantyClaimsLoading] = useState(false);
   const [warrantyClaimsError, setWarrantyClaimsError] = useState(null);
-  
+
   // Issue details modal
   const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
   const [selectedClaim, setSelectedClaim] = useState<any>(null);
@@ -234,6 +234,8 @@ const AdminAMCManagement = () => {
   const [selectedClaimForVendor, setSelectedClaimForVendor] = useState<any>(null);
   const [vendors, setVendors] = useState<any[]>([]);
   const [selectedVendorId, setSelectedVendorId] = useState('');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
 
   // Function to approve warranty claim
   const handleApproveWarrantyClaim = async (claimId: string) => {
@@ -247,7 +249,7 @@ const AdminAMCManagement = () => {
       });
 
       const responseData = await response.json();
-      
+
       if (responseData.success) {
         // Refresh warranty claims
         await fetchWarrantyClaims();
@@ -272,7 +274,7 @@ const AdminAMCManagement = () => {
       });
 
       const responseData = await response.json();
-      
+
       if (responseData.success) {
         // Refresh warranty claims
         await fetchWarrantyClaims();
@@ -290,7 +292,7 @@ const AdminAMCManagement = () => {
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       console.log('Fetching vendors from:', `${API_BASE_URL}/admin/vendors`);
-      
+
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/vendors`, {
         method: 'GET'
       });
@@ -298,7 +300,7 @@ const AdminAMCManagement = () => {
       console.log('Vendors API response status:', response.status);
       const responseData = await response.json();
       console.log('Vendors API response data:', responseData);
-      
+
       if (responseData.success && responseData.data && Array.isArray(responseData.data.vendors)) {
         console.log('Vendors fetched successfully:', responseData.data.vendors.length, 'vendors');
         setVendors(responseData.data.vendors);
@@ -312,10 +314,23 @@ const AdminAMCManagement = () => {
     }
   };
 
-  // Function to handle vendor assignment
   const handleAssignVendor = async () => {
     if (!selectedVendorId || !selectedClaimForVendor) {
       console.error('Vendor ID or claim not selected');
+      return;
+    }
+
+    if (!scheduledDate || !scheduledTime) {
+      alert('Please select both scheduled date and time.');
+      return;
+    }
+
+    // Validate scheduled date and time is not in the past
+    const now = new Date();
+    const selectedDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+
+    if (selectedDateTime < now) {
+      alert("You cannot schedule a task for a past time. Please select a future date and time.");
       return;
     }
 
@@ -324,12 +339,14 @@ const AdminAMCManagement = () => {
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/warranty-claims/${selectedClaimForVendor._id}/assign-vendor`, {
         method: 'PUT',
         body: JSON.stringify({
-          vendorId: selectedVendorId
+          vendorId: selectedVendorId,
+          scheduledDate,
+          scheduledTime
         })
       });
 
       const responseData = await response.json();
-      
+
       if (responseData.success) {
         // Refresh warranty claims
         await fetchWarrantyClaims();
@@ -337,6 +354,8 @@ const AdminAMCManagement = () => {
         setIsVendorModalOpen(false);
         setSelectedClaimForVendor(null);
         setSelectedVendorId('');
+        setScheduledDate('');
+        setScheduledTime('');
         console.log('Vendor assigned successfully and notification sent');
         // You can add a toast notification here if you have a toast system
         alert('Vendor assigned successfully! Notification sent to vendor.');
@@ -367,7 +386,7 @@ const AdminAMCManagement = () => {
       });
 
       const responseData = await response.json();
-      
+
       if (responseData.success) {
         // Refresh warranty claims
         await fetchWarrantyClaims();
@@ -398,14 +417,14 @@ const AdminAMCManagement = () => {
     try {
       setWarrantyClaimsLoading(true);
       setWarrantyClaimsError(null);
-      
+
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/warranty-claims`, {
         method: 'GET'
       });
 
       const responseData = await response.json();
-      
+
       if (responseData.success) {
         const claims = responseData.data?.claims || responseData.data || [];
         setWarrantyClaims(Array.isArray(claims) ? claims : []);
@@ -427,21 +446,21 @@ const AdminAMCManagement = () => {
     try {
       setSubscriptionsLoading(true);
       setSubscriptionsError(null);
-      
+
       const response = await getAdminAMCSubscriptions({
         status: statusFilter === 'all' ? undefined : statusFilter,
         search: searchTerm || undefined
       });
-      
+
       if (response.success) {
         // Handle different possible response structures
         const subscriptions = response.data?.subscriptions || response.data || response.subscriptions || [];
         const subscriptionsArray = Array.isArray(subscriptions) ? subscriptions : [];
-        
+
         console.log('Raw API response:', response);
         console.log('Extracted subscriptions:', subscriptionsArray);
         console.log('First subscription sample:', subscriptionsArray[0]);
-        
+
         // Fetch user details for each subscription
         setUserDetailsLoading(true);
         const subscriptionsWithUserDetails = await Promise.all(
@@ -466,11 +485,11 @@ const AdminAMCManagement = () => {
               // Check for different possible user ID field names (string IDs)
               const userId = (
                 typeof subscription.userId === 'string' ? subscription.userId :
-                subscription.user || 
-                subscription.user_id || 
-                subscription.customerId ||
-                subscription.customer_id ||
-                subscription.customer
+                  subscription.user ||
+                  subscription.user_id ||
+                  subscription.customerId ||
+                  subscription.customer_id ||
+                  subscription.customer
               );
 
               if (userId && typeof userId === 'string') {
@@ -494,10 +513,10 @@ const AdminAMCManagement = () => {
                   profileImage: null
                 },
                 // Set remote support limits based on plan type
-                remoteSupportLimit: subscription.planName === 'TRY PLAN' ? 3 : 
-                                  subscription.planName === 'CARE PLAN' ? 'unlimited' : 
-                                  subscription.planName === 'RELAX PLAN' ? 'unlimited' : 
-                                  subscription.usage?.remoteSupport?.limit || 'unlimited',
+                remoteSupportLimit: subscription.planName === 'TRY PLAN' ? 3 :
+                  subscription.planName === 'CARE PLAN' ? 'unlimited' :
+                    subscription.planName === 'RELAX PLAN' ? 'unlimited' :
+                      subscription.usage?.remoteSupport?.limit || 'unlimited',
                 remoteSupportUsed: subscription.usage?.remoteSupport?.used || 0
               };
             } catch (error) {
@@ -506,9 +525,9 @@ const AdminAMCManagement = () => {
             }
           })
         );
-        
+
         setUserDetailsLoading(false);
-        
+
         // Apply remote support limits to all subscriptions
         const subscriptionsWithLimits = subscriptionsWithUserDetails.map(subscription => {
           console.log('Processing subscription for limits:', {
@@ -520,24 +539,24 @@ const AdminAMCManagement = () => {
             userDetails: subscription.userDetails,
             allKeys: Object.keys(subscription)
           });
-          
+
           return {
             ...subscription,
             // Set remote support limits based on plan type
-            remoteSupportLimit: subscription.planName === 'TRY PLAN' ? 3 : 
-                              subscription.planName === 'CARE PLAN' ? 'unlimited' : 
-                              subscription.planName === 'RELAX PLAN' ? 'unlimited' : 
-                              subscription.usage?.remoteSupport?.limit || 'unlimited',
+            remoteSupportLimit: subscription.planName === 'TRY PLAN' ? 3 :
+              subscription.planName === 'CARE PLAN' ? 'unlimited' :
+                subscription.planName === 'RELAX PLAN' ? 'unlimited' :
+                  subscription.usage?.remoteSupport?.limit || 'unlimited',
             remoteSupportUsed: subscription.usage?.remoteSupport?.used || 0,
             // Set home visits limits based on plan type
-            homeVisitsLimit: subscription.planName === 'TRY PLAN' ? 1 : 
-                            subscription.planName === 'CARE PLAN' ? 6 : 
-                            subscription.planName === 'RELAX PLAN' ? 12 : 
-                            subscription.usage?.homeVisits?.limit || 0,
+            homeVisitsLimit: subscription.planName === 'TRY PLAN' ? 1 :
+              subscription.planName === 'CARE PLAN' ? 6 :
+                subscription.planName === 'RELAX PLAN' ? 12 :
+                  subscription.usage?.homeVisits?.limit || 0,
             homeVisitsUsed: subscription.usage?.homeVisits?.used || 0
           };
         });
-        
+
         // If no subscriptions found, create some test data for demonstration
         if (subscriptionsWithLimits.length === 0) {
           console.log('No subscriptions found, creating test data...');
@@ -648,7 +667,7 @@ const AdminAMCManagement = () => {
   const createMissingPlans = async () => {
     try {
       console.log('Creating missing plans in database...');
-      
+
       // Create CARE PLAN
       const carePlanData = {
         name: 'CARE PLAN',
@@ -740,20 +759,20 @@ const AdminAMCManagement = () => {
     const fetchPlans = async () => {
       try {
         setLoading(true);
-        
+
         // Try public API first (no authentication required)
         let response = await getAMCPlans();
-        
+
         if (response.success && response.data && response.data.plans.length > 0) {
           console.log('Fetched plans from public API:', response.data.plans.length);
-          
+
           // If we only have 1 plan, try to create missing plans and add them locally
           if (response.data.plans.length === 1) {
             console.log('Only 1 plan found, creating missing plans...');
-            
+
             // Try to create missing plans in database
             await createMissingPlans();
-            
+
             // Add missing plans locally
             const existingPlan = response.data.plans[0];
             const allPlans = [
@@ -831,7 +850,7 @@ const AdminAMCManagement = () => {
           // Fallback to admin API if public API fails
           console.log('Public API failed, trying admin API...');
           response = await getAdminAMCPlans();
-          
+
           if (response.success && response.data && response.data.plans.length > 0) {
             console.log('Fetched plans from admin API:', response.data.plans.length);
             setAmcPlans(response.data.plans);
@@ -969,7 +988,7 @@ const AdminAMCManagement = () => {
   // Filter plans based on search and status
   const filteredPlans = amcPlans.filter(plan => {
     const matchesSearch = plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         plan.description.toLowerCase().includes(searchTerm.toLowerCase());
+      plan.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || plan.status.toLowerCase() === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -1061,7 +1080,7 @@ const AdminAMCManagement = () => {
       validityPeriod: plan.validityPeriod || 365,
       tags: plan.tags || []
     };
-    
+
     setEditingPlan(completePlan);
     setIsEditPlanOpen(true);
   };
@@ -1069,11 +1088,11 @@ const AdminAMCManagement = () => {
   const handleSavePlan = async (planData: any) => {
     try {
       console.log('Saving plan:', planData);
-      
+
       // Check if this is a temporary plan (not in database)
       if (planData.id.startsWith('temp-')) {
         console.log('This is a temporary plan, creating it in database...');
-        
+
         // Create the plan in database
         const planToCreate = {
           name: planData.name,
@@ -1088,42 +1107,42 @@ const AdminAMCManagement = () => {
           validityPeriod: planData.validityPeriod,
           tags: planData.tags
         };
-        
+
         try {
           const createResponse = await createAdminAMCPlan(planToCreate);
-          
+
           if (createResponse.success) {
             console.log('Temporary plan created in database successfully:', createResponse.data);
-            
+
             // Refresh the plans from the database
             const fetchResponse = await getAMCPlans();
             if (fetchResponse.success && fetchResponse.data) {
               setAmcPlans(fetchResponse.data.plans);
             }
-            
+
             alert('Plan created and saved to database successfully! Changes will be reflected on user pages.');
           } else {
             throw new Error(createResponse.message || 'Failed to create plan in database');
           }
         } catch (createError: any) {
           console.error('Error creating plan in database:', createError);
-          
+
           // If creation fails, fallback to local state update
           console.log('Falling back to local state update...');
-          setAmcPlans(prev => prev.map(plan => 
-            plan._id === planData.id || plan.id === planData.id 
-              ? { ...plan, ...planData } 
+          setAmcPlans(prev => prev.map(plan =>
+            plan._id === planData.id || plan.id === planData.id
+              ? { ...plan, ...planData }
               : plan
           ));
-          
+
           alert(`Plan updated locally. Database creation failed: ${createError.message}`);
         }
         return;
       }
-      
+
       // For real database plans, use the API
       const response = await updateAdminAMCPlan(planData.id, planData);
-      
+
       if (response.success) {
         console.log('Plan updated successfully:', response.data);
         // Refresh the plans from the database using public API
@@ -1144,8 +1163,8 @@ const AdminAMCManagement = () => {
 
   const handleUpdatePlan = () => {
     if (editingPlan && newPlan.name && newPlan.price && newPlan.description) {
-      setAmcPlans(prev => prev.map(plan => 
-        plan.id === editingPlan.id 
+      setAmcPlans(prev => prev.map(plan =>
+        plan.id === editingPlan.id
           ? { ...plan, ...newPlan, price: parseInt(newPlan.price) }
           : plan
       ));
@@ -1166,12 +1185,12 @@ const AdminAMCManagement = () => {
   const handleUpdateSubscriptionStatus = async (subscriptionId: string, status: string) => {
     try {
       const response = await updateAdminAMCSubscriptionStatus(subscriptionId, status, 'Status updated by admin');
-      
+
       if (response.success) {
         // Update local state
-    setUserSubscriptions(prev => prev.map(sub => 
-      sub.id === subscriptionId ? { ...sub, status } : sub
-    ));
+        setUserSubscriptions(prev => prev.map(sub =>
+          sub.id === subscriptionId ? { ...sub, status } : sub
+        ));
       } else {
         console.error('Failed to update subscription status:', response.message);
       }
@@ -1189,7 +1208,7 @@ const AdminAMCManagement = () => {
     try {
       const subscriptionId = editingSubscription._id || editingSubscription.id;
       const url = `${API_BASE_URL}/amc/admin/subscriptions/${subscriptionId}/usage`;
-      
+
       const response = await adminApiService.makeAuthenticatedRequest(url, {
         method: 'PUT',
         body: JSON.stringify({
@@ -1203,7 +1222,7 @@ const AdminAMCManagement = () => {
         // Close modal and refresh data
         setIsEditSubscriptionOpen(false);
         await fetchSubscriptions();
-        
+
         // Show success message
         console.log('Subscription updated successfully');
       } else {
@@ -1219,7 +1238,7 @@ const AdminAMCManagement = () => {
   return (
     <div className="min-h-screen bg-background">
       <AdminHeader />
-      
+
       <main className="ml-72 pt-32 p-6 pb-16">
         {/* Page Header */}
         <div className="mb-4">
@@ -1229,6 +1248,40 @@ const AdminAMCManagement = () => {
                 AMC <span className="text-gradient">Management</span>
               </h1>
               <p className="text-sm text-muted-foreground">Manage AMC plans and user subscriptions</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  setEditingPlan({
+                    id: `temp-${Date.now()}`,
+                    name: '',
+                    price: 0,
+                    period: 'yearly',
+                    description: '',
+                    shortDescription: '',
+                    features: [],
+                    benefits: {
+                      callSupport: 'unlimited',
+                      remoteSupport: 'unlimited',
+                      homeVisits: { count: 0, description: '' },
+                      antivirus: { included: false },
+                      softwareInstallation: { included: false },
+                      sparePartsDiscount: { percentage: 0 },
+                      freeSpareParts: { amount: 0 },
+                      laborCost: { included: false }
+                    },
+                    status: 'active',
+                    isPopular: false,
+                    validityPeriod: 365,
+                    tags: []
+                  });
+                  setIsEditPlanOpen(true);
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Plan
+              </Button>
             </div>
           </div>
         </div>
@@ -1260,7 +1313,7 @@ const AdminAMCManagement = () => {
                       <span className="text-sm text-gray-500">/{plan.period}</span>
                     </div>
                   </CardHeader>
-                
+
                   <CardContent className="flex flex-col flex-grow p-4">
                     <div className="space-y-2 flex-grow">
                       {plan.features && plan.features.map((feature, featureIndex) => (
@@ -1272,14 +1325,14 @@ const AdminAMCManagement = () => {
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="pt-3 mt-auto space-y-2">
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs" size="sm">
                         Subscribe to {plan.name}
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         className="w-full text-xs"
                         onClick={() => handleEditPlan(plan)}
                       >
@@ -1331,7 +1384,7 @@ const AdminAMCManagement = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
@@ -1345,7 +1398,7 @@ const AdminAMCManagement = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
@@ -1359,7 +1412,7 @@ const AdminAMCManagement = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
@@ -1415,9 +1468,9 @@ const AdminAMCManagement = () => {
                   <div className="flex items-center gap-2 text-red-800">
                     <AlertTriangle className="h-4 w-4" />
                     <span className="text-sm">{subscriptionsError}</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={fetchSubscriptions}
                       className="ml-auto text-xs"
                     >
@@ -1460,256 +1513,256 @@ const AdminAMCManagement = () => {
                 ) : (
                   <div className="overflow-x-auto">
                     <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>User Name</TableHead>
-                        <TableHead>Subscription ID</TableHead>
-                        <TableHead>Plan</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Brand(s)</TableHead>
-                        <TableHead>Device Serial Number</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Start Date</TableHead>
-                        <TableHead>End Date</TableHead>
-                        <TableHead>Warranty Claim</TableHead>
-                        <TableHead>Number</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Remote Support</TableHead>
-                        <TableHead>Home Visits</TableHead>
-                        <TableHead>Software Installation</TableHead>
-                        <TableHead>Antivirus</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredSubscriptions.length === 0 ? (
+                      <TableHeader>
                         <TableRow>
-                          <TableCell colSpan={17} className="text-center py-8 text-muted-foreground">
-                            <div className="flex flex-col items-center gap-2">
-                              <Users className="h-12 w-12 opacity-50" />
-                              <p>No subscriptions found</p>
-                              <p className="text-sm">Try adjusting your search or filter criteria</p>
-                            </div>
-                          </TableCell>
+                          <TableHead>User Name</TableHead>
+                          <TableHead>Subscription ID</TableHead>
+                          <TableHead>Plan</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Brand(s)</TableHead>
+                          <TableHead>Device Serial Number</TableHead>
+                          <TableHead>Quantity</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Start Date</TableHead>
+                          <TableHead>End Date</TableHead>
+                          <TableHead>Warranty Claim</TableHead>
+                          <TableHead>Number</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Remote Support</TableHead>
+                          <TableHead>Home Visits</TableHead>
+                          <TableHead>Software Installation</TableHead>
+                          <TableHead>Antivirus</TableHead>
+                          <TableHead>Actions</TableHead>
                         </TableRow>
-                      ) : (
-                        filteredSubscriptions.map((subscription) => (
-                        <TableRow key={subscription.id || subscription._id}>
-                          {/* User Name */}
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="font-medium">
-                                {subscription.userDetails?.name || 
-                                 subscription.userName || 
-                                 subscription.name || 
-                                 subscription.customerName ||
-                                 'Unknown User'}
-                              </span>
-                              {subscription.userDetails?.profileImage && (
-                                <img 
-                                  src={subscription.userDetails.profileImage} 
-                                  alt="Profile" 
-                                  className="w-6 h-6 rounded-full mt-1"
-                                />
-                              )}
-                            </div>
-                          </TableCell>
-                          
-                          {/* Subscription ID */}
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="font-mono text-sm font-medium">
-                                {subscription.subscriptionId || subscription._id || subscription.id || 'N/A'}
-                              </span>
-                            </div>
-                          </TableCell>
-                          
-                          {/* Plan */}
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{subscription.planName || 'N/A'}</span>                            </div>
-                          </TableCell>
-                          
-                          {/* Amount */}
-                          <TableCell className="font-medium">
-                            <div className="text-sm">
-                              <div>Base: ₹{subscription.baseAmount || subscription.amount || 0}</div>
-                              {subscription.gstAmount && (
-                                <div className="text-xs text-gray-600">GST: ₹{subscription.gstAmount}</div>
-                              )}
-                              <div className="font-semibold">Total: ₹{subscription.amount || 0}</div>
-                            </div>
-                          </TableCell>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredSubscriptions.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={17} className="text-center py-8 text-muted-foreground">
+                              <div className="flex flex-col items-center gap-2">
+                                <Users className="h-12 w-12 opacity-50" />
+                                <p>No subscriptions found</p>
+                                <p className="text-sm">Try adjusting your search or filter criteria</p>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredSubscriptions.map((subscription) => (
+                            <TableRow key={subscription.id || subscription._id}>
+                              {/* User Name */}
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">
+                                    {subscription.userDetails?.name ||
+                                      subscription.userName ||
+                                      subscription.name ||
+                                      subscription.customerName ||
+                                      'Unknown User'}
+                                  </span>
+                                  {subscription.userDetails?.profileImage && (
+                                    <img
+                                      src={subscription.userDetails.profileImage}
+                                      alt="Profile"
+                                      className="w-6 h-6 rounded-full mt-1"
+                                    />
+                                  )}
+                                </div>
+                              </TableCell>
 
-                          {/* Brands */}
-                          <TableCell>
-                            {(() => {
-                              try {
-                                const brands = Array.isArray(subscription.devices)
-                                  ? Array.from(new Set(
-                                      subscription.devices
-                                        .map((d: any) => (d?.brand || '').toString().trim())
-                                        .filter((b: string) => !!b)
-                                    ))
-                                  : [];
-                                return brands.length > 0 ? brands.join(', ') : '—';
-                              } catch {
-                                return '—';
-                              }
-                            })()}
-                          </TableCell>
-                          
-                          {/* Device Serial Number */}
-                          <TableCell>
-                            {(() => {
-                              try {
-                                const serialNumbers = Array.isArray(subscription.devices)
-                                  ? subscription.devices
-                                      .map((d: any) => (d?.serialNumber || d?.deviceSerialNumber || '').toString().trim())
-                                      .filter((s: string) => !!s)
-                                  : [];
-                                return serialNumbers.length > 0 ? serialNumbers.join(', ') : '—';
-                              } catch {
-                                return '—';
-                              }
-                            })()}
-                          </TableCell>
-                          
-                          {/* Quantity */}
-                          <TableCell>
-                            <span className="font-medium">{subscription.quantity || 1}</span>
-                          </TableCell>
-                          
-                          {/* Status */}
-                          <TableCell>
-                            <Badge 
-                              variant={subscription.status === 'Active' ? 'default' : 'secondary'}
-                              className={subscription.status === 'Active' ? 'bg-green-100 text-green-800' : ''}
-                            >
-                              {subscription.status || 'Unknown'}
-                            </Badge>
-                          </TableCell>
-                          
-                          {/* Start Date */}
-                          <TableCell>
-                            {subscription.startDate ? new Date(subscription.startDate).toLocaleDateString() : 'N/A'}
-                          </TableCell>
-                          
-                          {/* End Date */}
-                          <TableCell>
-                            {subscription.endDate ? new Date(subscription.endDate).toLocaleDateString() : 'N/A'}
-                          </TableCell>
-                          
-                          {/* Warranty Claim */}
-                          <TableCell>
-                            {subscription.warrantyClaimed ? (
-                              <Badge variant="destructive" className="bg-orange-100 text-orange-800">
-                                Claimed
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline">Available</Badge>
-                            )}
-                          </TableCell>
-                          
-                          {/* Number */}
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">
-                                {subscription.userDetails?.phone || 
-                                 subscription.userPhone ||
-                                 subscription.phoneNumber || 
-                                 subscription.number || 
-                                 subscription.phone ||
-                                 subscription.customerPhone ||
-                                 subscription.mobile ||
-                                 'N/A'}
-                              </span>
-                              {subscription.userDetails?.isPhoneVerified && (
-                                <Badge variant="outline" className="text-xs w-fit">
-                                  Verified
+                              {/* Subscription ID */}
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="font-mono text-sm font-medium">
+                                    {subscription.subscriptionId || subscription._id || subscription.id || 'N/A'}
+                                  </span>
+                                </div>
+                              </TableCell>
+
+                              {/* Plan */}
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{subscription.planName || 'N/A'}</span>                            </div>
+                              </TableCell>
+
+                              {/* Amount */}
+                              <TableCell className="font-medium">
+                                <div className="text-sm">
+                                  <div>Base: ₹{subscription.baseAmount || subscription.amount || 0}</div>
+                                  {subscription.gstAmount && (
+                                    <div className="text-xs text-gray-600">GST: ₹{subscription.gstAmount}</div>
+                                  )}
+                                  <div className="font-semibold">Total: ₹{subscription.amount || 0}</div>
+                                </div>
+                              </TableCell>
+
+                              {/* Brands */}
+                              <TableCell>
+                                {(() => {
+                                  try {
+                                    const brands = Array.isArray(subscription.devices)
+                                      ? Array.from(new Set(
+                                        subscription.devices
+                                          .map((d: any) => (d?.brand || '').toString().trim())
+                                          .filter((b: string) => !!b)
+                                      ))
+                                      : [];
+                                    return brands.length > 0 ? brands.join(', ') : '—';
+                                  } catch {
+                                    return '—';
+                                  }
+                                })()}
+                              </TableCell>
+
+                              {/* Device Serial Number */}
+                              <TableCell>
+                                {(() => {
+                                  try {
+                                    const serialNumbers = Array.isArray(subscription.devices)
+                                      ? subscription.devices
+                                        .map((d: any) => (d?.serialNumber || d?.deviceSerialNumber || '').toString().trim())
+                                        .filter((s: string) => !!s)
+                                      : [];
+                                    return serialNumbers.length > 0 ? serialNumbers.join(', ') : '—';
+                                  } catch {
+                                    return '—';
+                                  }
+                                })()}
+                              </TableCell>
+
+                              {/* Quantity */}
+                              <TableCell>
+                                <span className="font-medium">{subscription.quantity || 1}</span>
+                              </TableCell>
+
+                              {/* Status */}
+                              <TableCell>
+                                <Badge
+                                  variant={subscription.status === 'Active' ? 'default' : 'secondary'}
+                                  className={subscription.status === 'Active' ? 'bg-green-100 text-green-800' : ''}
+                                >
+                                  {subscription.status || 'Unknown'}
                                 </Badge>
-                              )}
-                            </div>
-                          </TableCell>
-                          
-                          {/* Email */}
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-sm text-muted-foreground">
-                                {subscription.userDetails?.email || 
-                                 subscription.userEmail || 
-                                 subscription.email ||
-                                 subscription.customerEmail ||
-                                 'N/A'}
-                              </span>
-                              {subscription.userDetails?.isEmailVerified && (
-                                <Badge variant="outline" className="text-xs w-fit">
-                                  Verified
+                              </TableCell>
+
+                              {/* Start Date */}
+                              <TableCell>
+                                {subscription.startDate ? new Date(subscription.startDate).toLocaleDateString() : 'N/A'}
+                              </TableCell>
+
+                              {/* End Date */}
+                              <TableCell>
+                                {subscription.endDate ? new Date(subscription.endDate).toLocaleDateString() : 'N/A'}
+                              </TableCell>
+
+                              {/* Warranty Claim */}
+                              <TableCell>
+                                {subscription.warrantyClaimed ? (
+                                  <Badge variant="destructive" className="bg-orange-100 text-orange-800">
+                                    Claimed
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline">Available</Badge>
+                                )}
+                              </TableCell>
+
+                              {/* Number */}
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-medium">
+                                    {subscription.userDetails?.phone ||
+                                      subscription.userPhone ||
+                                      subscription.phoneNumber ||
+                                      subscription.number ||
+                                      subscription.phone ||
+                                      subscription.customerPhone ||
+                                      subscription.mobile ||
+                                      'N/A'}
+                                  </span>
+                                  {subscription.userDetails?.isPhoneVerified && (
+                                    <Badge variant="outline" className="text-xs w-fit">
+                                      Verified
+                                    </Badge>
+                                  )}
+                                </div>
+                              </TableCell>
+
+                              {/* Email */}
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="text-sm text-muted-foreground">
+                                    {subscription.userDetails?.email ||
+                                      subscription.userEmail ||
+                                      subscription.email ||
+                                      subscription.customerEmail ||
+                                      'N/A'}
+                                  </span>
+                                  {subscription.userDetails?.isEmailVerified && (
+                                    <Badge variant="outline" className="text-xs w-fit">
+                                      Verified
+                                    </Badge>
+                                  )}
+                                </div>
+                              </TableCell>
+
+                              {/* Remote Support */}
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-medium">
+                                    {subscription.remoteSupportUsed || 0} / {subscription.remoteSupportLimit || '∞'}
+                                  </span>
+                                </div>
+                              </TableCell>
+
+                              {/* Home Visits */}
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-medium">
+                                    {subscription.homeVisitsUsed || 0} / {subscription.homeVisitsLimit || 0}
+                                  </span>
+                                </div>
+                              </TableCell>
+
+                              {/* Software Installation */}
+                              <TableCell>
+                                <Badge variant={(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? 'default' : (subscription.softwareInstallation ? 'default' : 'secondary')}>
+                                  {(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? '1 year' : (subscription.softwareInstallation ? 'Yes' : 'No')}
                                 </Badge>
-                              )}
-                            </div>
-                          </TableCell>
-                          
-                          {/* Remote Support */}
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">
-                                {subscription.remoteSupportUsed || 0} / {subscription.remoteSupportLimit || '∞'}
-                              </span>
-                            </div>
-                          </TableCell>
-                          
-                          {/* Home Visits */}
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">
-                                {subscription.homeVisitsUsed || 0} / {subscription.homeVisitsLimit || 0}
-                              </span>
-                            </div>
-                          </TableCell>
-                          
-                          {/* Software Installation */}
-                          <TableCell>
-                            <Badge variant={(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? 'default' : (subscription.softwareInstallation ? 'default' : 'secondary')}>
-                              {(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? '1 year' : (subscription.softwareInstallation ? 'Yes' : 'No')}
-                            </Badge>
-                          </TableCell>
-                          
-                          {/* Antivirus */}
-                          <TableCell>
-                            <Badge variant={(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? 'default' : (subscription.antivirus ? 'default' : 'secondary')}>
-                              {(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? '1 year' : (subscription.antivirus ? 'Yes' : 'No')}
-                            </Badge>
-                          </TableCell>
-                          
-                          {/* Actions */}
-                          <TableCell>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleViewSubscription(subscription)}
-                                title="View Details"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditSubscription(subscription)}
-                                title="Edit Subscription"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                              </TableCell>
+
+                              {/* Antivirus */}
+                              <TableCell>
+                                <Badge variant={(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? 'default' : (subscription.antivirus ? 'default' : 'secondary')}>
+                                  {(subscription.planName === 'CARE PLAN' || subscription.planName === 'RELAX PLAN') ? '1 year' : (subscription.antivirus ? 'Yes' : 'No')}
+                                </Badge>
+                              </TableCell>
+
+                              {/* Actions */}
+                              <TableCell>
+                                <div className="flex gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleViewSubscription(subscription)}
+                                    title="View Details"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEditSubscription(subscription)}
+                                    title="Edit Subscription"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
                   </div>
-                          </TableCell>
-                        </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
                 )}
               </CardContent>
             </Card>
@@ -1837,29 +1890,29 @@ const AdminAMCManagement = () => {
                                   <img
                                     src={imageSrc}
                                     alt="Device"
-                                     className="w-12 h-12 object-cover rounded border cursor-pointer hover:opacity-80"
-                                     onClick={() => handleDeviceImageClick(imageSrc)}
+                                    className="w-12 h-12 object-cover rounded border cursor-pointer hover:opacity-80"
+                                    onClick={() => handleDeviceImageClick(imageSrc)}
                                   />
                                 )}
                               </div>
-                               <div className="grid grid-cols-2 gap-2 text-sm">
-                                 <div className="flex items-center justify-between gap-4">
-                                   <p className="text-xs text-muted-foreground">Type</p>
-                                   <p className="font-medium break-all text-right">{deviceType}</p>
-                                 </div>
-                                 <div className="flex items-center justify-between gap-4">
-                                   <p className="text-xs text-muted-foreground">Brand</p>
-                                   <p className="font-medium break-all text-right">{brand}</p>
-                                 </div>
-                                 <div className="flex items-center justify-between gap-4">
-                                   <p className="text-xs text-muted-foreground">Serial Number</p>
-                                   <p className="font-medium break-all text-right">{serialNumber}</p>
-                                 </div>
-                                 <div className="flex items-center justify-between gap-4">
-                                   <p className="text-xs text-muted-foreground">Model Number</p>
-                                   <p className="font-medium break-all text-right">{modelNumber}</p>
-                                 </div>
-                               </div>
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="flex items-center justify-between gap-4">
+                                  <p className="text-xs text-muted-foreground">Type</p>
+                                  <p className="font-medium break-all text-right">{deviceType}</p>
+                                </div>
+                                <div className="flex items-center justify-between gap-4">
+                                  <p className="text-xs text-muted-foreground">Brand</p>
+                                  <p className="font-medium break-all text-right">{brand}</p>
+                                </div>
+                                <div className="flex items-center justify-between gap-4">
+                                  <p className="text-xs text-muted-foreground">Serial Number</p>
+                                  <p className="font-medium break-all text-right">{serialNumber}</p>
+                                </div>
+                                <div className="flex items-center justify-between gap-4">
+                                  <p className="text-xs text-muted-foreground">Model Number</p>
+                                  <p className="font-medium break-all text-right">{modelNumber}</p>
+                                </div>
+                              </div>
                             </div>
                           );
                         })}
@@ -1872,7 +1925,7 @@ const AdminAMCManagement = () => {
                 )}
               </DialogContent>
             </Dialog>
-          </TabsContent>  
+          </TabsContent>
         </Tabs>
 
         {/* Device Image Preview Modal */}
@@ -1946,12 +1999,12 @@ const AdminAMCManagement = () => {
                   <div>
                     <Label className="text-xs font-medium text-muted-foreground">Status</Label>
                     <div className="mt-1">
-                      <Badge 
+                      <Badge
                         variant={
                           selectedClaim.status === 'pending' ? 'default' :
-                          selectedClaim.status === 'approved' ? 'secondary' :
-                          selectedClaim.status === 'rejected' ? 'destructive' :
-                          selectedClaim.status === 'completed' ? 'outline' : 'default'
+                            selectedClaim.status === 'approved' ? 'secondary' :
+                              selectedClaim.status === 'rejected' ? 'destructive' :
+                                selectedClaim.status === 'completed' ? 'outline' : 'default'
                         }
                         className="text-xs"
                       >
@@ -2093,6 +2146,40 @@ const AdminAMCManagement = () => {
                   </select>
                 </div>
 
+                {/* Scheduling Section */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs font-medium text-muted-foreground">Scheduled Date *</Label>
+                    <Input
+                      type="date"
+                      value={scheduledDate}
+                      onChange={(e) => setScheduledDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-medium text-muted-foreground">Scheduled Time *</Label>
+                    <select
+                      value={scheduledTime}
+                      onChange={(e) => setScheduledTime(e.target.value)}
+                      className="w-full p-2 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select time...</option>
+                      <option value="09:00">09:00 AM</option>
+                      <option value="10:00">10:00 AM</option>
+                      <option value="11:00">11:00 AM</option>
+                      <option value="12:00">12:00 PM</option>
+                      <option value="13:00">01:00 PM</option>
+                      <option value="14:00">02:00 PM</option>
+                      <option value="15:00">03:00 PM</option>
+                      <option value="16:00">04:00 PM</option>
+                      <option value="17:00">05:00 PM</option>
+                      <option value="18:00">06:00 PM</option>
+                    </select>
+                  </div>
+                </div>
+
                 {/* Selected Vendor Details */}
                 {selectedVendorId && (
                   <div className="p-2 bg-blue-50 rounded-md border">
@@ -2123,12 +2210,14 @@ const AdminAMCManagement = () => {
                     setIsVendorModalOpen(false);
                     setSelectedClaimForVendor(null);
                     setSelectedVendorId('');
+                    setScheduledDate('');
+                    setScheduledTime('');
                   }}>
                     Cancel
                   </Button>
-                  <Button 
-                    size="sm" 
-                    className="bg-blue-600 hover:bg-blue-700" 
+                  <Button
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700"
                     onClick={handleAssignVendor}
                     disabled={!selectedVendorId}
                   >

@@ -20,7 +20,7 @@ const VendorLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
-  
+
   // Forgot password state
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordStep, setForgotPasswordStep] = useState<'email' | 'otp' | 'newPassword'>('email');
@@ -64,6 +64,16 @@ const VendorLogin = () => {
 
     return () => clearInterval(interval);
   }, [carouselSlides.length]);
+
+  // Clear validation error after 3 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
@@ -114,14 +124,14 @@ const VendorLogin = () => {
 
       if (response.success && response.data) {
         const vendor = response.data.vendor;
-        
+
         // Admin approval is no longer required for login
-        
+
         if (!vendor.isActive) {
           setError('Your account is currently inactive. Please contact support for assistance.');
           return;
         }
-        
+
         if (vendor.isBlocked) {
           setError('You are blocked by admin. Please contact support for assistance.');
           return;
@@ -142,25 +152,25 @@ const VendorLogin = () => {
 
         // Redirect to vendor earnings page for mandatory deposit
         console.log('🚀 VendorLogin: Navigating to /vendor/earnings');
-        
+
         // APK-safe navigation - use setTimeout to ensure state is updated
         let isAPK = false;
         try {
-          isAPK = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) || 
-                  (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+          isAPK = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) ||
+            (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
         } catch (error) {
           console.error('Error detecting APK mode:', error);
           isAPK = false;
         }
-        
+
         if (isAPK) {
           // In APK, wait a bit longer for context to sync
           setTimeout(() => {
             console.log('📱 APK: Navigating after delay');
-            navigate('/vendor/earnings', { replace: true });
+            navigate('/vendor/tasks', { replace: true });
           }, 300);
         } else {
-          navigate('/vendor/earnings', { replace: true });
+          navigate('/vendor/tasks', { replace: true });
         }
         console.log('✅ VendorLogin: Navigate called');
       } else {
@@ -182,11 +192,11 @@ const VendorLogin = () => {
         <div className="text-center mb-8">
           {/* Welcome Title - Fixed above all slides */}
           <h1 className="text-2xl font-bold text-blue-600 mb-6">Welcome To Fixfly</h1>
-          
+
           {/* Carousel Container */}
           <div className="relative mb-6">
             <div className="overflow-hidden">
-              <div 
+              <div
                 className="flex transition-transform duration-500 ease-in-out"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
@@ -195,13 +205,13 @@ const VendorLogin = () => {
                     <div className="flex flex-col items-center">
                       {/* Image */}
                       <div className="mb-4">
-                        <img 
-                          src={slide.image} 
-                          alt={slide.alt} 
+                        <img
+                          src={slide.image}
+                          alt={slide.alt}
                           className="w-48 h-auto mx-auto"
                         />
                       </div>
-                      
+
                       {/* Subtitle only - title is now fixed above */}
                       <div className="text-center">
                         <div className="text-center">
@@ -228,7 +238,7 @@ const VendorLogin = () => {
                 ))}
               </div>
             </div>
-            
+
             {/* Navigation Arrows */}
             <Button
               type="button"
@@ -239,7 +249,7 @@ const VendorLogin = () => {
             >
               <ChevronLeft className="h-4 w-4 text-gray-600" />
             </Button>
-            
+
             <Button
               type="button"
               variant="ghost"
@@ -250,16 +260,15 @@ const VendorLogin = () => {
               <ChevronRight className="h-4 w-4 text-gray-600" />
             </Button>
           </div>
-          
+
           {/* Page Indicators */}
           <div className="flex justify-center mt-4 space-x-2">
             {carouselSlides.map((_, index) => (
               <button
                 key={index}
                 type="button"
-                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                  index === currentSlide ? 'bg-orange-500' : 'bg-gray-400'
-                }`}
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === currentSlide ? 'bg-orange-500' : 'bg-gray-400'
+                  }`}
                 onClick={() => setCurrentSlide(index)}
               />
             ))}
@@ -289,6 +298,7 @@ const VendorLogin = () => {
                 name="email"
                 type="email"
                 placeholder="Email"
+                autoComplete="email"
                 value={formData.email}
                 onChange={handleInputChange}
                 className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
@@ -303,6 +313,7 @@ const VendorLogin = () => {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
+                autoComplete="current-password"
                 value={formData.password}
                 onChange={handleInputChange}
                 className="h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0 pr-12"
@@ -390,17 +401,17 @@ const VendorLogin = () => {
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription className="space-y-2">
                   <div>{forgotPasswordError}</div>
-                  {(forgotPasswordError.includes('Daily email sending limit') || 
-                    forgotPasswordError.includes('limit exceeded') || 
+                  {(forgotPasswordError.includes('Daily email sending limit') ||
+                    forgotPasswordError.includes('limit exceeded') ||
                     forgotPasswordError.includes('limit reached')) && (
-                    <div className="mt-2 pt-2 border-t border-red-200">
-                      <p className="text-sm font-medium mb-1">Need immediate help?</p>
-                      <div className="text-sm space-y-1">
-                        <p>📧 Email: <a href="mailto:info@fixfly.in" className="underline">info@fixfly.in</a></p>
-                        <p>📱 WhatsApp: <a href="https://wa.me/919931354354" target="_blank" rel="noopener noreferrer" className="underline">+91-99313-54354</a></p>
+                      <div className="mt-2 pt-2 border-t border-red-200">
+                        <p className="text-sm font-medium mb-1">Need immediate help?</p>
+                        <div className="text-sm space-y-1">
+                          <p>📧 Email: <a href="mailto:info@fixfly.in" className="underline">info@fixfly.in</a></p>
+                          <p>📱 WhatsApp: <a href="https://wa.me/919931354354" target="_blank" rel="noopener noreferrer" className="underline">+91-99313-54354</a></p>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </AlertDescription>
               </Alert>
             )}
@@ -413,7 +424,7 @@ const VendorLogin = () => {
 
             {/* Step 1: Email Input */}
             {forgotPasswordStep === 'email' && (
-              <form 
+              <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   // Trigger send OTP on form submit
@@ -463,7 +474,7 @@ const VendorLogin = () => {
                     onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      
+
                       if (!forgotPasswordData.email) {
                         setForgotPasswordError('Please enter your email address');
                         return;
@@ -475,7 +486,7 @@ const VendorLogin = () => {
 
                       try {
                         const response = await vendorApiService.sendForgotPasswordOTP(forgotPasswordData.email);
-                        
+
                         if (response.success) {
                           setForgotPasswordSuccess('OTP has been sent to your email. Please check your inbox.');
                           setForgotPasswordStep('otp');
@@ -514,7 +525,7 @@ const VendorLogin = () => {
 
             {/* Step 2: OTP Input */}
             {forgotPasswordStep === 'otp' && (
-              <form 
+              <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (forgotPasswordData.otp && forgotPasswordData.otp.length === 6 && !forgotPasswordLoading) {
@@ -564,7 +575,7 @@ const VendorLogin = () => {
                     onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      
+
                       if (!forgotPasswordData.otp || forgotPasswordData.otp.length !== 6) {
                         setForgotPasswordError('Please enter a valid 6-digit OTP');
                         return;
@@ -579,7 +590,7 @@ const VendorLogin = () => {
                           forgotPasswordData.email,
                           forgotPasswordData.otp
                         );
-                        
+
                         if (response.success) {
                           setForgotPasswordSuccess('OTP verified successfully!');
                           setForgotPasswordStep('newPassword');
@@ -603,13 +614,13 @@ const VendorLogin = () => {
 
             {/* Step 3: New Password Input */}
             {forgotPasswordStep === 'newPassword' && (
-              <form 
+              <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (forgotPasswordData.newPassword && 
-                      forgotPasswordData.newPassword.length >= 6 && 
-                      forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
-                      !forgotPasswordLoading) {
+                  if (forgotPasswordData.newPassword &&
+                    forgotPasswordData.newPassword.length >= 6 &&
+                    forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                    !forgotPasswordLoading) {
                     document.getElementById('reset-password-btn')?.click();
                   }
                 }}
@@ -627,10 +638,10 @@ const VendorLogin = () => {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      if (forgotPasswordData.newPassword && 
-                          forgotPasswordData.newPassword.length >= 6 && 
-                          forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
-                          !forgotPasswordLoading) {
+                      if (forgotPasswordData.newPassword &&
+                        forgotPasswordData.newPassword.length >= 6 &&
+                        forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                        !forgotPasswordLoading) {
                         document.getElementById('reset-password-btn')?.click();
                       }
                     }
@@ -648,10 +659,10 @@ const VendorLogin = () => {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      if (forgotPasswordData.newPassword && 
-                          forgotPasswordData.newPassword.length >= 6 && 
-                          forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
-                          !forgotPasswordLoading) {
+                      if (forgotPasswordData.newPassword &&
+                        forgotPasswordData.newPassword.length >= 6 &&
+                        forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                        !forgotPasswordLoading) {
                         document.getElementById('reset-password-btn')?.click();
                       }
                     }
@@ -678,7 +689,7 @@ const VendorLogin = () => {
                     onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      
+
                       if (!forgotPasswordData.newPassword || forgotPasswordData.newPassword.length < 6) {
                         setForgotPasswordError('Password must be at least 6 characters long');
                         return;
@@ -699,7 +710,7 @@ const VendorLogin = () => {
                           forgotPasswordData.otp,
                           forgotPasswordData.newPassword
                         );
-                        
+
                         if (response.success) {
                           setForgotPasswordSuccess('Password reset successfully! Redirecting to login...');
                           setTimeout(() => {

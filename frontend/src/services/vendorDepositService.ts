@@ -31,6 +31,7 @@ interface WalletResponse {
       initialDepositAmount: number;
       totalDeposits: number;
       totalWithdrawals: number;
+      securityDeposit: number;
       depositHistory: Array<{
         amount: number;
         type: string;
@@ -50,7 +51,7 @@ class VendorDepositService {
 
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = localStorage.getItem('vendorToken');
-    
+
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
       headers: {
@@ -119,7 +120,7 @@ class VendorDepositService {
     try {
       // Create deposit order
       const orderResponse = await this.createDepositOrder(amount);
-      
+
       if (!orderResponse.success) {
         throw new Error(orderResponse.message);
       }

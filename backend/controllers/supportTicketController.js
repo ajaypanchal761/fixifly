@@ -135,7 +135,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
                 <p><strong>Status:</strong> <span class="status-badge">${supportTicket.status}</span></p>
                 <p><strong>Priority:</strong> <span class="priority-badge priority-${supportTicket.priority.toLowerCase()}">${supportTicket.priority}</span></p>
                 ${supportTicket.caseId ? `<p><strong>Case ID:</strong> ${supportTicket.caseId}</p>` : ''}
-                <p><strong>Submitted:</strong> ${new Date(supportTicket.createdAt).toLocaleDateString('en-IN')} at ${new Date(supportTicket.createdAt).toLocaleTimeString('en-IN')}</p>
+                <p><strong>Submitted:</strong> ${new Date(supportTicket.createdAt).toLocaleDateString('en-IN')} at ${new Date(supportTicket.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
               </div>
 
               <div class="ticket-description">
@@ -155,7 +155,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
 
               <p><strong>Need immediate assistance?</strong> For urgent matters, please call our customer support hotline.</p>
               
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/support" class="cta-button">
+              <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support" class="cta-button">
                 View Your Tickets
               </a>
             </div>
@@ -182,7 +182,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
         - Status: ${supportTicket.status}
         - Priority: ${supportTicket.priority}
         ${supportTicket.caseId ? `- Case ID: ${supportTicket.caseId}` : ''}
-        - Submitted: ${new Date(supportTicket.createdAt).toLocaleDateString('en-IN')} at ${new Date(supportTicket.createdAt).toLocaleTimeString('en-IN')}
+        - Submitted: ${new Date(supportTicket.createdAt).toLocaleDateString('en-IN')} at ${new Date(supportTicket.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
         
         Your Message:
         ${supportTicket.description}
@@ -195,7 +195,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
         
         Need immediate assistance? For urgent matters, please call our customer support hotline.
         
-        View your tickets: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/support
+        View your tickets: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support
         
         Best regards,
         The Fixfly Support Team
@@ -205,7 +205,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
     };
 
     const emailResult = await emailService.sendEmail(emailData);
-    
+
     if (emailResult.success) {
       logger.info(`Ticket submission confirmation email sent: ${supportTicket.ticketId}`, {
         ticketId: supportTicket.ticketId,
@@ -294,9 +294,9 @@ const getSupportTicket = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const userId = req.user.userId || req.user._id;
 
-  const ticket = await SupportTicket.findOne({ 
-    ticketId: id, 
-    userId 
+  const ticket = await SupportTicket.findOne({
+    ticketId: id,
+    userId
   }).populate('assignedTo', 'firstName lastName email phone')
     .populate('userId', 'name email phone address');
 
@@ -363,9 +363,9 @@ const addTicketResponse = asyncHandler(async (req, res) => {
     });
   }
 
-  const ticket = await SupportTicket.findOne({ 
-    ticketId: id, 
-    userId 
+  const ticket = await SupportTicket.findOne({
+    ticketId: id,
+    userId
   });
 
   if (!ticket) {
@@ -423,11 +423,11 @@ const getAllSupportTickets = asyncHandler(async (req, res) => {
 
   // Build filter object
   const filter = {};
-  
+
   if (status && status !== 'all') {
     filter.status = status;
   }
-  
+
   if (priority && priority !== 'all') {
     filter.priority = priority;
   }
@@ -646,7 +646,7 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
 
     // Update additional fields if provided
     const updateData = {};
-    
+
     if (scheduledDate) {
       updateData.scheduledDate = new Date(scheduledDate);
       console.log('Setting scheduledDate:', {
@@ -695,7 +695,7 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
 
     // Create notification for vendor
     const { createSupportTicketAssignmentNotification } = require('./vendorNotificationController');
-    
+
     try {
       await createSupportTicketAssignmentNotification(vendorId, {
         ticketId: ticket.ticketId,
@@ -822,7 +822,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
     ticket.scheduledDate = new Date(newDate);
     ticket.scheduledTime = newTime;
     ticket.scheduleNotes = reason || 'Rescheduled by vendor';
-    
+
     // Update status to Rescheduled
     ticket.status = 'Rescheduled';
 
@@ -844,13 +844,13 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
     try {
       const Admin = require('../models/Admin');
       const Vendor = require('../models/Vendor');
-      
+
       // Get vendor details
       const vendor = await Vendor.findById(vendorId).select('firstName lastName email');
-      
+
       // Get all admins to notify them
       const admins = await Admin.find({ isActive: true }).select('name email');
-      
+
       // Create notification for each admin
       for (const admin of admins) {
         try {
@@ -901,17 +901,17 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
                     <div class="reschedule-info">
                       <h3>🔄 Reschedule Details</h3>
                       <p><strong>Rescheduled by:</strong> ${vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Vendor'}</p>
-                      <p><strong>Original Date:</strong> ${originalDate ? new Date(originalDate).toLocaleDateString('en-GB', { 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric' 
-                      }) : 'Not set'}</p>
+                      <p><strong>Original Date:</strong> ${originalDate ? new Date(originalDate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            }) : 'Not set'}</p>
                       <p><strong>Original Time:</strong> ${originalTime || 'Not set'}</p>
-                      <p><strong>New Date:</strong> ${new Date(newDate).toLocaleDateString('en-GB', { 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric' 
-                      })}</p>
+                      <p><strong>New Date:</strong> ${new Date(newDate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            })}</p>
                       <p><strong>New Time:</strong> ${newTime}</p>
                       <p><strong>Reason:</strong> ${reason || 'No reason provided'}</p>
                       <p><strong>Rescheduled At:</strong> ${new Date().toLocaleString('en-GB')}</p>
@@ -933,7 +933,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
           };
 
           const emailResult = await emailService.sendEmail(emailData);
-          
+
           if (emailResult.success) {
             logger.info(`Admin notification sent for rescheduled ticket: ${ticket.ticketId}`, {
               ticketId: ticket.ticketId,
@@ -1001,21 +1001,21 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
     if (subject) {
       ticket.subject = subject;
     }
-    
+
     if (status) {
       ticket.status = status;
-      
+
       // Set resolvedAt if status is Resolved
       if (status === 'Resolved' && !ticket.resolvedAt) {
         ticket.resolvedAt = new Date();
         ticket.resolvedBy = adminId;
       }
     }
-    
+
     if (priority) {
       ticket.priority = priority;
     }
-    
+
     if (assignedTo !== undefined) {
       console.log('Processing vendor assignment:', {
         assignedTo,
@@ -1024,7 +1024,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
         adminId,
         scheduleNotes
       });
-      
+
       // Use the new assignVendor method for better tracking
       if (assignedTo) {
         console.log('Assigning vendor to ticket...');
@@ -1038,23 +1038,23 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
         ticket.vendorStatus = 'Pending';
       }
     }
-    
+
     if (estimatedResolution) {
       ticket.estimatedResolution = new Date(estimatedResolution);
     }
-    
+
     if (tags) {
       ticket.tags = tags;
     }
-    
+
     if (scheduledDate) {
       ticket.scheduledDate = new Date(scheduledDate);
     }
-    
+
     if (scheduledTime) {
       ticket.scheduledTime = scheduledTime;
     }
-    
+
     if (scheduleNotes) {
       ticket.scheduleNotes = scheduleNotes;
     }
@@ -1079,7 +1079,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
       originalAssignedTo,
       vendorId: assignedTo
     });
-    
+
     // Send push notification to vendor
     try {
       const { createSupportTicketAssignmentNotification } = require('./vendorNotificationController');
@@ -1106,14 +1106,14 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
       });
       // Don't fail the update if notification fails
     }
-    
+
     // Send email notification to vendor
     try {
       const Vendor = require('../models/Vendor');
       const vendor = await Vendor.findById(assignedTo).select('firstName lastName email');
-      
+
       console.log('Vendor found:', vendor);
-      
+
       if (vendor) {
         const emailData = {
           to: vendor.email,
@@ -1197,7 +1197,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
                   </div>
                   ` : ''}
                   
-                  <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard" class="cta-button">
+                  <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard" class="cta-button">
                     View in Dashboard
                   </a>
                 </div>
@@ -1253,7 +1253,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
             ${scheduleNotes ? `Schedule Notes: ${scheduleNotes}` : ''}
             ` : ''}
             
-            View in Dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard
+            View in Dashboard: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard
             
             Best regards,
             The Fixfly Support Team
@@ -1263,9 +1263,9 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
         };
 
         const emailResult = await emailService.sendEmail(emailData);
-        
+
         console.log('Email result:', emailResult);
-        
+
         if (emailResult.success) {
           logger.info(`Vendor assignment notification sent: ${ticket.ticketId}`, {
             ticketId: ticket.ticketId,
@@ -1411,8 +1411,8 @@ const addAdminResponse = asyncHandler(async (req, res) => {
                   <h3>Our Response:</h3>
                   <div style="white-space: pre-wrap; background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 3px solid #3B82F6;">${message.trim()}</div>
                   <p style="margin-top: 15px; font-size: 14px; color: #6b7280;">
-                    <strong>Responded by:</strong> ${admin.name} (Fixfly Support Team)<br>
-                    <strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN')}
+                    <strong>Responded by:</strong> Fixfly Support Team<br>
+                    <strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
                   </p>
                 </div>
 
@@ -1423,7 +1423,7 @@ const addAdminResponse = asyncHandler(async (req, res) => {
               <div class="footer">
                 <p>Best regards,<br>The Fixfly Support Team</p>
                 <p>This is an automated message. Please do not reply directly to this email.</p>
-                <p>To view your ticket or submit a new one, please visit: <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/support">Fixfly Support</a></p>
+                <p>To view your ticket or submit a new one, please visit: <a href="https://getfixfly.com/support">Fixfly Support</a></p>
               </div>
             </div>
           </body>
@@ -1447,21 +1447,21 @@ const addAdminResponse = asyncHandler(async (req, res) => {
           Our Response:
           ${message.trim()}
           
-          Responded by: ${admin.name} (Fixfly Support Team)
-          Date: ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN')}
+          Responded by: Fixfly Support Team
+          Date: ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
           
           If you need further assistance, please reply to this ticket through your Fixfly account.
           
           Best regards,
           The Fixfly Support Team
           
-          To view your ticket: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/support
+          To view your ticket: https://getfixfly.com/support
         `
       };
 
       const emailResult = await emailService.sendEmail(emailData);
       console.log('Email sending result:', emailResult);
-      
+
       if (emailResult.success) {
         logger.info(`Email notification sent for ticket response: ${ticket.ticketId}`, {
           ticketId: ticket.ticketId,
@@ -1549,19 +1549,19 @@ const resolveSupportTicket = asyncHandler(async (req, res) => {
 // @access  Private (Admin)
 const getSupportTicketStats = asyncHandler(async (req, res) => {
   const totalTickets = await SupportTicket.countDocuments();
-  const openTickets = await SupportTicket.countDocuments({ 
-    status: { $nin: ['Resolved', 'Closed'] } 
+  const openTickets = await SupportTicket.countDocuments({
+    status: { $nin: ['Resolved', 'Closed'] }
   });
-  const resolvedTickets = await SupportTicket.countDocuments({ 
-    status: 'Resolved' 
+  const resolvedTickets = await SupportTicket.countDocuments({
+    status: 'Resolved'
   });
-  const closedTickets = await SupportTicket.countDocuments({ 
-    status: 'Closed' 
+  const closedTickets = await SupportTicket.countDocuments({
+    status: 'Closed'
   });
 
   // Calculate average response time (simplified)
-  const ticketsWithResponses = await SupportTicket.find({ 
-    responseCount: { $gt: 0 } 
+  const ticketsWithResponses = await SupportTicket.find({
+    responseCount: { $gt: 0 }
   }).select('createdAt lastResponseAt');
 
   let avgResponseTime = 0;
@@ -1593,7 +1593,7 @@ const getSupportTicketStats = asyncHandler(async (req, res) => {
 const getVendorSupportTickets = asyncHandler(async (req, res) => {
   const vendorId = req.vendor._id;
   console.log('Fetching support tickets for vendor:', vendorId);
-  
+
   const {
     page = 1,
     limit = 10,
@@ -1606,13 +1606,13 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
 
   // Build filter object
   const filter = { assignedTo: vendorId };
-  
+
   console.log('Filter for vendor support tickets:', filter);
-  
+
   if (status && status !== 'all') {
     filter.status = status;
   }
-  
+
   if (priority && priority !== 'all') {
     filter.priority = priority;
   }
@@ -1644,7 +1644,7 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
     .limit(parseInt(limit));
 
   const totalTickets = await SupportTicket.countDocuments(filter);
-  
+
   console.log('Found support tickets for vendor:', {
     vendorId,
     ticketsFound: tickets.length,
@@ -1823,19 +1823,19 @@ const acceptSupportTicket = asyncHandler(async (req, res) => {
     });
   }
 
-    const canAccept = await vendor.canAcceptNewTasks();
-    if (!canAccept) {
-      return res.status(400).json({
-        success: false,
-        message: 'Mandatory deposit of ₹2000 required to accept tasks',
-        error: 'MANDATORY_DEPOSIT_REQUIRED',
-        details: {
-          requiredAmount: 2000,
-          hasFirstTaskAssigned: !!vendor.wallet.firstTaskAssignedAt,
-          hasMandatoryDeposit: vendor.wallet.hasMandatoryDeposit
-        }
-      });
-    }
+  const canAccept = await vendor.canAcceptNewTasks();
+  if (!canAccept) {
+    return res.status(400).json({
+      success: false,
+      message: 'Mandatory deposit of ₹2000 required to accept tasks',
+      error: 'MANDATORY_DEPOSIT_REQUIRED',
+      details: {
+        requiredAmount: 2000,
+        hasFirstTaskAssigned: !!vendor.wallet.firstTaskAssignedAt,
+        hasMandatoryDeposit: vendor.wallet.hasMandatoryDeposit
+      }
+    });
+  }
 
   // Use the new acceptByVendor method
   await ticket.acceptByVendor(vendorId);
@@ -1846,7 +1846,7 @@ const acceptSupportTicket = asyncHandler(async (req, res) => {
   try {
     const User = require('../models/User');
     const userNotificationService = require('../services/userNotificationService');
-    
+
     const normalizePhone = (phone) => {
       if (!phone) return null;
       const cleaned = phone.replace(/\D/g, '');
@@ -1888,7 +1888,7 @@ const acceptSupportTicket = asyncHandler(async (req, res) => {
           link: `/support-tickets/${ticket.ticketId}`
         }
       );
-      
+
       logger.info('User notification sent for support ticket after vendor acceptance', {
         userId: user._id,
         ticketId: ticket.ticketId,
@@ -1951,17 +1951,17 @@ const declineSupportTicket = asyncHandler(async (req, res) => {
   const VendorWallet = require('../models/VendorWallet');
   const Vendor = require('../models/Vendor');
   const vendor = await Vendor.findById(vendorId);
-  
+
   if (!vendor) {
     return res.status(404).json({
       success: false,
       message: 'Vendor not found'
     });
   }
-  
+
   const wallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
   const penaltyAmount = 100;
-  
+
   if (!wallet) {
     return res.status(400).json({
       success: false,
@@ -1969,7 +1969,7 @@ const declineSupportTicket = asyncHandler(async (req, res) => {
       error: 'WALLET_NOT_FOUND'
     });
   }
-  
+
   // Check if wallet has sufficient balance - prevent decline if balance < 100
   if (wallet.currentBalance < penaltyAmount) {
     logger.warn(`Support ticket decline blocked for vendor ${vendorId} - insufficient wallet balance`, {
@@ -1978,10 +1978,10 @@ const declineSupportTicket = asyncHandler(async (req, res) => {
       requiredAmount: penaltyAmount,
       currentBalance: wallet.currentBalance
     });
-    
+
     return res.status(400).json({
       success: false,
-      message: wallet.currentBalance === 0 
+      message: wallet.currentBalance === 0
         ? 'Cannot decline ticket. Wallet balance is ₹0. Please add amount to your wallet first.'
         : `Cannot decline ticket. Insufficient wallet balance. You need at least ₹${penaltyAmount} to decline this ticket. Current balance: ₹${wallet.currentBalance.toLocaleString()}. Please add amount to your wallet first.`,
       error: 'INSUFFICIENT_WALLET_BALANCE',
@@ -2071,28 +2071,28 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
     console.log('🔧 WALLET DEBUG: Billing amount:', billingAmount);
     console.log('🔧 WALLET DEBUG: Spare parts:', spareParts);
     console.log('🔧 WALLET DEBUG: GST included:', includeGST);
-    
+
     const VendorWallet = require('../models/VendorWallet');
     const WalletCalculationService = require('../services/walletCalculationService');
-    
+
     const parsedBillingAmount = parseFloat(billingAmount) || 0;
     const spareAmount = spareParts?.reduce((sum, part) => {
       return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
     }, 0) || 0;
     const travellingAmount = parseFloat(completionData?.travelingAmount || completionData?.travellingAmount || '0') || 0;
-    
+
     console.log('🔧 WALLET DEBUG: Calculated amounts:', {
       billingAmount: parsedBillingAmount,
       spareAmount,
       travellingAmount
     });
-    
-  const vendorWallet = await VendorWallet.findOne({ vendorId: req.vendor.vendorId });
-  console.log('🔧 WALLET DEBUG: Vendor wallet found:', !!vendorWallet);
-  console.log('🔧 WALLET DEBUG: Current balance:', vendorWallet?.currentBalance);
-  console.log('🔧 WALLET DEBUG: Vendor ID:', req.vendor.vendorId);
-  console.log('🔧 WALLET DEBUG: Vendor ID type:', typeof req.vendor.vendorId);
-    
+
+    const vendorWallet = await VendorWallet.findOne({ vendorId: req.vendor.vendorId });
+    console.log('🔧 WALLET DEBUG: Vendor wallet found:', !!vendorWallet);
+    console.log('🔧 WALLET DEBUG: Current balance:', vendorWallet?.currentBalance);
+    console.log('🔧 WALLET DEBUG: Vendor ID:', req.vendor.vendorId);
+    console.log('🔧 WALLET DEBUG: Vendor ID type:', typeof req.vendor.vendorId);
+
     if (vendorWallet) {
       if (paymentMethod === 'cash') {
         // Handle cash collection deduction
@@ -2102,7 +2102,7 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
           travellingAmount,
           gstIncluded: includeGST || false
         });
-        
+
         // Check if vendor has sufficient balance for cash collection deduction
         if (vendorWallet.currentBalance < calculation.calculatedAmount) {
           return res.status(400).json({
@@ -2113,7 +2113,7 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
             requiredAmount: calculation.calculatedAmount
           });
         }
-        
+
         console.log('🔧 WALLET DEBUG: About to call addCashCollectionDeduction with:', {
           caseId: ticket.ticketId,
           billingAmount: parsedBillingAmount,
@@ -2121,7 +2121,7 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
           travellingAmount,
           gstIncluded: includeGST || false
         });
-        
+
         const deductionResult = await vendorWallet.addCashCollectionDeduction({
           caseId: ticket.ticketId,
           billingAmount: parsedBillingAmount,
@@ -2130,9 +2130,9 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
           gstIncluded: includeGST || false,
           description: `Support ticket cash collection - ${ticket.ticketId}`
         });
-        
+
         console.log('🔧 WALLET DEBUG: Cash collection deduction result:', deductionResult);
-        
+
         logger.info('Support ticket cash collection deducted from vendor wallet', {
           vendorId: vendorId,
           ticketId: ticket.ticketId,
@@ -2161,7 +2161,7 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
       spareAmount,
       travellingAmount
     });
-    
+
     // Return error response if wallet update fails for cash payments
     if (paymentMethod === 'cash') {
       return res.status(500).json({
@@ -2213,7 +2213,7 @@ const verifySupportTicketPayment = asyncHandler(async (req, res) => {
     // Verify payment with Razorpay
     const crypto = require('crypto');
     const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
-    
+
     if (!razorpaySecret) {
       logger.error('Razorpay secret key not configured');
       return res.status(500).json({
@@ -2221,7 +2221,7 @@ const verifySupportTicketPayment = asyncHandler(async (req, res) => {
         message: 'Payment verification service not configured'
       });
     }
-    
+
     const body = razorpayOrderId + "|" + razorpayPaymentId;
     const expectedSignature = crypto
       .createHmac('sha256', razorpaySecret)
@@ -2278,14 +2278,14 @@ const verifySupportTicketPayment = asyncHandler(async (req, res) => {
           logger.error('Vendor not found for ticket assignment:', ticket.assignedTo);
           return;
         }
-        
+
         const vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
-        
+
         if (vendorWallet && ticket.completionData) {
           // Check if earning already exists for this ticket
-          const existingEarning = vendorWallet.transactions.find(t => 
-            t.caseId === ticket.ticketId && 
-            t.type === 'earning' && 
+          const existingEarning = vendorWallet.transactions.find(t =>
+            t.caseId === ticket.ticketId &&
+            t.type === 'earning' &&
             t.paymentMethod === 'online'
           );
 
@@ -2303,7 +2303,7 @@ const verifySupportTicketPayment = asyncHandler(async (req, res) => {
             return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
           }, 0) || 0;
           const travellingAmount = parseFloat(completionData.travelingAmount || completionData.travellingAmount || '0') || 0;
-          
+
           console.log('🔧 PAYMENT VERIFICATION: Crediting vendor wallet after payment verification', {
             ticketId,
             vendorId: ticket.assignedTo,
@@ -2311,7 +2311,7 @@ const verifySupportTicketPayment = asyncHandler(async (req, res) => {
             spareAmount,
             travellingAmount
           });
-          
+
           const earningResult = await vendorWallet.addEarning({
             caseId: ticket.ticketId,
             billingAmount,
@@ -2322,14 +2322,14 @@ const verifySupportTicketPayment = asyncHandler(async (req, res) => {
             gstIncluded: completionData.includeGST || false,
             description: `Support ticket payment verified earning - ${ticket.ticketId}`
           });
-          
+
           console.log('🔧 PAYMENT VERIFICATION: Vendor earning added to wallet', {
             ticketId,
             vendorId: ticket.assignedTo,
             earningAmount: earningResult.amount,
             newBalance: vendorWallet.currentBalance
           });
-          
+
           logger.info('Support ticket vendor earning added to wallet after payment verification', {
             ticketId,
             vendorId: ticket.assignedTo,
@@ -2428,7 +2428,7 @@ const cancelSupportTicket = asyncHandler(async (req, res) => {
 
   // Use the new cancelByVendor method
   await ticket.cancelByVendor(vendorId, reason.trim());
-  
+
   // Update cancellation data with vendor name
   ticket.cancellationData.cancelledByVendor.vendorName = vendorName;
   await ticket.save();
@@ -2511,7 +2511,7 @@ const sendInvoiceEmail = asyncHandler(async (req, res) => {
         invoiceContent,
         ticketId
       );
-      
+
       if (emailResult.success) {
         console.log('Invoice email sent successfully:', emailResult.messageId);
       } else {

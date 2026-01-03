@@ -11,14 +11,14 @@ const VendorTermsConditions = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  
+
   // Show 404 error on desktop - must be before any other hooks
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
 
-  
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -104,7 +104,7 @@ const VendorTermsConditions = () => {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>
-                  <span>A refundable security deposit of ₹2000 is required before activation.</span>
+                  <span>A refundable security deposit of ₹3999 is required before activation.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>

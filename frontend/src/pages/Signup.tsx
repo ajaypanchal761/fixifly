@@ -196,11 +196,7 @@ const Signup = () => {
 
 
           <CardContent className="px-6 pb-8">
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -309,6 +305,12 @@ const Signup = () => {
                   </div>
                 )}
               </div>
+
+              {error && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
 
               <Button

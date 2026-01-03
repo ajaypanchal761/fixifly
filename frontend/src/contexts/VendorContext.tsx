@@ -50,12 +50,13 @@ interface Vendor {
     lastLoginAt?: string;
     joinedDate: string;
   };
-  wallet: {
+  wallet?: {
     currentBalance: number;
     hasInitialDeposit: boolean;
     initialDepositAmount: number;
     totalDeposits: number;
     totalWithdrawals: number;
+    securityDeposit: number;
   };
   preferences?: {
     notifications: {
@@ -94,10 +95,10 @@ export const useVendor = () => {
       return {
         vendor: null,
         isAuthenticated: false,
-        login: async () => {},
-        logout: async () => {},
-        updateVendor: async () => {},
-        refreshVendor: async () => {},
+        login: async () => { },
+        logout: async () => { },
+        updateVendor: async () => { },
+        refreshVendor: async () => { },
         isLoading: true,
       } as VendorContextType;
     }
@@ -137,7 +138,8 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
               hasInitialDeposit: false,
               initialDepositAmount: 0,
               totalDeposits: 0,
-              totalWithdrawals: 0
+              totalWithdrawals: 0,
+              securityDeposit: 3999
             }
           };
           setVendor(vendorWithWallet);
@@ -172,7 +174,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
   const login = async (vendorData: Vendor, token: string) => {
     console.log('🔄 VendorContext: Login function called');
-    
+
     // Ensure vendor has wallet data, set defaults if missing
     const vendorWithWallet = {
       ...vendorData,
@@ -181,12 +183,13 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         hasInitialDeposit: false,
         initialDepositAmount: 0,
         totalDeposits: 0,
-        totalWithdrawals: 0
+        totalWithdrawals: 0,
+        securityDeposit: 3999
       }
     };
-    
+
     console.log('🔄 VendorContext: Setting vendor token and data...');
-    
+
     // APK-safe localStorage access
     try {
       localStorage.setItem('vendorToken', token);
@@ -196,7 +199,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       console.error('❌ VendorContext: localStorage failed:', error);
       // Continue anyway - state will be updated
     }
-    
+
     console.log('🔄 VendorContext: Updating vendor state...');
     setVendor(vendorWithWallet);
     console.log('✅ VendorContext: Vendor state updated, vendorId:', vendorWithWallet.vendorId);
@@ -205,20 +208,20 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
     setTimeout(() => {
       const isWebView = (() => {
         try {
-          return /wv|WebView/.test(navigator.userAgent) || 
-                 window.matchMedia('(display-mode: standalone)').matches ||
-                 (typeof window !== 'undefined' && (window as any).flutter_inappwebview !== undefined) ||
-                 (typeof window !== 'undefined' && (window as any).Android !== undefined);
+          return /wv|WebView/.test(navigator.userAgent) ||
+            window.matchMedia('(display-mode: standalone)').matches ||
+            (typeof window !== 'undefined' && (window as any).flutter_inappwebview !== undefined) ||
+            (typeof window !== 'undefined' && (window as any).Android !== undefined);
         } catch (error) {
           console.error('Error detecting webview:', error);
           return false;
         }
       })();
-      
+
       if (isWebView) {
         // For webview/APK: Get FCM token from Flutter bridge and save using mobile endpoint
         console.log('📱 Detected webview/APK environment for vendor, using mobile FCM token endpoint');
-        
+
         // Try to get FCM token from Flutter bridge
         const getFCMTokenFromFlutter = (): Promise<string | null> => {
           return new Promise((resolve) => {
@@ -242,7 +245,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
                   resolve(savedToken);
                 } else {
                   // Listen for token from Flutter
-                  window.addEventListener('message', function(event) {
+                  window.addEventListener('message', function (event) {
                     if (event.data && event.data.type === 'FCM_TOKEN') {
                       resolve(event.data.token);
                     }
@@ -257,7 +260,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
             }
           });
         };
-        
+
         getFCMTokenFromFlutter().then((fcmToken) => {
           if (fcmToken && vendorWithWallet.email) {
             saveMobileFCMToken(fcmToken, '', vendorWithWallet.email).then((success) => {
@@ -281,17 +284,17 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         });
       }
     }, 2000); // Wait 2 seconds for Flutter bridge to be ready
-    
+
     // In APK, ensure state is fully updated before resolving
-    const isAPK = /wv|WebView/.test(navigator.userAgent) || 
-                  window.matchMedia('(display-mode: standalone)').matches;
-    
+    const isAPK = /wv|WebView/.test(navigator.userAgent) ||
+      window.matchMedia('(display-mode: standalone)').matches;
+
     if (isAPK) {
       // Give APK webview time to sync state
       await new Promise(resolve => setTimeout(resolve, 200));
       console.log('📱 APK: State sync delay completed');
     }
-    
+
     // Return a promise that resolves immediately (for await support)
     return Promise.resolve();
   };
@@ -327,35 +330,35 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       }
 
       console.log('🔄 VendorContext: Refreshing vendor data from API...');
-      
+
       // Use API service directly - it has built-in timeout with AbortController
       const response = await vendorApiService.getVendorProfile();
-      
+
       if (response.success && response.data?.vendor) {
         const updatedVendor = response.data.vendor;
         console.log('✅ VendorContext: Vendor data refreshed from API');
         console.log('Updated wallet data:', updatedVendor.wallet);
-        
+
         // Update localStorage and state
         localStorage.setItem('vendorData', JSON.stringify(updatedVendor));
         setVendor(updatedVendor);
-        
+
         return Promise.resolve();
       }
     } catch (error: any) {
       console.error('❌ VendorContext: Failed to refresh vendor data:', error);
-      
+
       // Handle timeout and network errors - use cached data silently
-      if (error?.message?.includes('timeout') || 
-          error?.message?.includes('Request timeout') ||
-          error?.message?.includes('Network error') ||
-          error?.message?.includes('Failed to fetch') ||
-          error?.isNetworkError) {
+      if (error?.message?.includes('timeout') ||
+        error?.message?.includes('Request timeout') ||
+        error?.message?.includes('Network error') ||
+        error?.message?.includes('Failed to fetch') ||
+        error?.isNetworkError) {
         console.warn('⚠️ Refresh failed - using cached data:', error.message);
         // Don't throw - just use existing cached data
         return;
       }
-      
+
       // Don't throw error, just log it - this prevents breaking the app
       // The app will continue with cached data
     }

@@ -71,6 +71,12 @@ const warrantyClaimSchema = new mongoose.Schema({
   assignedAt: {
     type: Date
   },
+  scheduledDate: {
+    type: Date
+  },
+  scheduledTime: {
+    type: String
+  },
 
   // Service details
   serviceDetails: {

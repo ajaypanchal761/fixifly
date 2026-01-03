@@ -4,13 +4,13 @@ import AdminHeader from '../components/AdminHeader';
 import { adminSupportTicketAPI } from '@/services/supportApiService';
 import adminApiService from '@/services/adminApi';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  MessageSquare, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import {
+  MessageSquare,
+  Plus,
+  Edit,
+  Trash2,
   Eye,
-  Search, 
+  Search,
   Filter,
   Clock,
   CheckCircle,
@@ -112,7 +112,7 @@ const AdminSupportManagement = () => {
     };
 
     window.addEventListener('supportTicketUpdated', handleSupportTicketUpdate);
-    
+
     return () => {
       window.removeEventListener('supportTicketUpdated', handleSupportTicketUpdate);
     };
@@ -128,7 +128,7 @@ const AdminSupportManagement = () => {
         priority: priorityFilter,
         search: searchTerm
       });
-      
+
       if (response.success) {
         setSupportTickets(response.data.tickets);
       }
@@ -153,11 +153,11 @@ const AdminSupportManagement = () => {
 
   const filteredTickets = supportTickets.filter(ticket => {
     const matchesSearch = ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ticket.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ticket.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (ticket.caseId && ticket.caseId.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                         (ticket.subscriptionId && ticket.subscriptionId.toLowerCase().includes(searchTerm.toLowerCase()));
+      ticket.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (ticket.caseId && ticket.caseId.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (ticket.subscriptionId && ticket.subscriptionId.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || ticket.status.toLowerCase() === statusFilter.toLowerCase();
     const matchesPriority = priorityFilter === 'all' || ticket.priority.toLowerCase() === priorityFilter.toLowerCase();
     return matchesSearch && matchesStatus && matchesPriority;
@@ -200,7 +200,7 @@ const AdminSupportManagement = () => {
   const handleViewTicket = async (ticket: any) => {
     try {
       const response = await adminSupportTicketAPI.getTicket(ticket.id);
-      
+
       if (response.success) {
         setSelectedTicket(response.data.ticket);
         setIsViewTicketOpen(true);
@@ -224,7 +224,7 @@ const AdminSupportManagement = () => {
   const handleViewTicketDetails = async (ticket: any) => {
     try {
       const response = await adminSupportTicketAPI.getTicket(ticket.id);
-      
+
       if (response.success) {
         setSelectedTicket(response.data.ticket);
         setIsViewTicketDetailsOpen(true);
@@ -274,12 +274,19 @@ const AdminSupportManagement = () => {
 
       // Add response to ticket
       const response = await adminSupportTicketAPI.addResponse(selectedTicket.id, replyText.trim());
-      
+
       if (response.success) {
+        toast({
+          title: "Success",
+          description: "Response Sent Successfully",
+        });
+
         // Refresh tickets
         await fetchSupportTickets();
-        
+
         setIsReplyTicketOpen(false);
+        setIsViewTicketDetailsOpen(false);
+        setIsViewTicketOpen(false);
         setReplyText('');
         setSelectedTicket(null);
       }
@@ -305,10 +312,10 @@ const AdminSupportManagement = () => {
       // Update ticket if any fields changed
       if (Object.keys(updateData).length > 0) {
         await adminSupportTicketAPI.updateTicket(selectedTicket.id, updateData);
-        
+
         // Refresh tickets
         await fetchSupportTickets();
-        
+
         setIsReplyTicketOpen(false);
         setSelectedTicket(null);
       }
@@ -320,7 +327,7 @@ const AdminSupportManagement = () => {
   const handleTicketStatusChange = async (ticketId: string, newStatus: string) => {
     try {
       const response = await adminSupportTicketAPI.updateTicket(ticketId, { status: newStatus });
-      
+
       if (response.success) {
         // Refresh tickets
         await fetchSupportTickets();
@@ -333,7 +340,7 @@ const AdminSupportManagement = () => {
   const handleTicketPriorityChange = async (ticketId: string, newPriority: string) => {
     try {
       const response = await adminSupportTicketAPI.updateTicket(ticketId, { priority: newPriority });
-      
+
       if (response.success) {
         // Refresh tickets
         await fetchSupportTickets();
@@ -358,7 +365,7 @@ const AdminSupportManagement = () => {
         limit: 100,
         status: 'active'
       });
-      
+
       if (response.success) {
         setVendors(response.data.vendors);
       }
@@ -421,22 +428,22 @@ const AdminSupportManagement = () => {
         undefined, // priority - can be added later if needed
         scheduleNotes || undefined
       );
-      
+
       console.log('🔧 DEBUG: Assignment response received:', response);
 
       if (response.success) {
         console.log('✅ DEBUG: Vendor assigned successfully');
-        
+
         // Show success message
         toast({
           title: "Vendor Assigned Successfully",
           description: `Vendor ${selectedVendor?.firstName || ''} ${selectedVendor?.lastName || ''} has been assigned to ticket ${selectedTicket.id}`,
           variant: "default"
         });
-        
+
         // Refresh tickets
         await fetchSupportTickets();
-        
+
         // Close modal and reset state
         setIsAssignVendorOpen(false);
         setSelectedVendor(null);
@@ -476,7 +483,7 @@ const AdminSupportManagement = () => {
   return (
     <div className="min-h-screen bg-background">
       <AdminHeader />
-      
+
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
         <div className="mb-4">
@@ -580,8 +587,8 @@ const AdminSupportManagement = () => {
                       <SelectItem key="low" value="low">Low</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={fetchSupportTickets}
                     disabled={loading}
                     className="w-full md:w-auto text-xs"
@@ -601,9 +608,9 @@ const AdminSupportManagement = () => {
               </CardHeader>
               <CardContent className="p-4">
                 <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
                         <TableHead>Ticket ID</TableHead>
                         <TableHead>Customer</TableHead>
                         <TableHead>Service Type</TableHead>
@@ -614,186 +621,186 @@ const AdminSupportManagement = () => {
                         <TableHead>Priority</TableHead>
                         <TableHead>Created</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredTickets.map((ticket) => (
-                      <TableRow key={ticket.id}>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{safeRender(ticket.id)}</p>
-                            <p className="text-xs text-gray-500">
-                              {ticket.caseId || <span className="text-muted-foreground">-</span>}
-                            </p>
-                            {ticket.subscriptionId && (
-                              <p className="text-xs text-blue-600 font-medium">
-                                AMC: {ticket.subscriptionId}
-                              </p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{safeRender(ticket.customerName)}</p>
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              <Phone className="w-3 h-3" />
-                              <span>{ticket.customerPhone}</span>
-                            </div>
-                            <p className="text-xs text-gray-500">{safeRender(ticket.customerEmail)}</p>
-                            {ticket.rescheduleInfo && (
-                              <div className="mt-1">
-                                <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
-                                  <Clock className="w-3 h-3 mr-1" />
-                                  Rescheduled
-                                </Badge>
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{safeRender(ticket.category)}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {ticket.assignedVendor || <span className="text-muted-foreground">Not Assigned</span>}
-                            </p>
-                            {ticket.assignedAt && (
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredTickets.map((ticket) => (
+                        <TableRow key={ticket.id}>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{safeRender(ticket.id)}</p>
                               <p className="text-xs text-gray-500">
-                                Assigned: {new Date(ticket.assignedAt).toLocaleDateString()}
+                                {ticket.caseId || <span className="text-muted-foreground">-</span>}
                               </p>
-                            )}
-                            {ticket.rescheduleInfo && (
-                              <p className="text-xs text-orange-600">
-                                Rescheduled: {new Date(ticket.rescheduleInfo?.rescheduledAt).toLocaleDateString()}
-                              </p>
-                            )}
-                            {ticket.vendorDeclinedAt && (
-                              <p className="text-xs text-red-600">
-                                Declined: {new Date(ticket.vendorDeclinedAt).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <Badge 
-                              variant={ticket.vendorStatus === 'Completed' ? 'default' : 
-                                      ticket.vendorStatus === 'Accepted' ? 'secondary' : 
-                                      ticket.vendorStatus === 'Declined' ? 'destructive' : 'outline'}
-                              className="text-xs"
-                            >
-                              {ticket.vendorStatus || 'Pending'}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{safeRender(ticket.subject)}</p>
-                            <p className="text-xs text-gray-500 max-w-xs truncate">
-                              {ticket.description || 'No description provided'}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              variant={ticket.status === 'Resolved' ? 'default' : 
-                                      ticket.status === 'In Progress' ? 'secondary' : 
-                                      ticket.status === 'Closed' ? 'outline' : 'destructive'}
-                              className="text-xs"
-                            >
-                              {ticket.status}
-                            </Badge>
-                           
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              variant={ticket.priority === 'High' ? 'destructive' : 
-                                      ticket.priority === 'Medium' ? 'default' : 'secondary'}
-                              className="text-xs"
-                            >
-                              {ticket.priority}
-                            </Badge>
-                            
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            {ticket.status === 'Rescheduled' && ticket.scheduledDate ? (
-                              <div>
-                                <p className="text-xs font-medium text-orange-600">
-                                  Scheduled: {new Date(ticket.scheduledDate).toLocaleDateString('en-GB', { 
-                                    day: '2-digit', 
-                                    month: 'short', 
-                                    year: 'numeric'
-                                  })} at {ticket.scheduledTime}
+                              {ticket.subscriptionId && (
+                                <p className="text-xs text-blue-600 font-medium">
+                                  AMC: {ticket.subscriptionId}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                  Created: {safeRender(ticket.created)}
-                                </p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{safeRender(ticket.customerName)}</p>
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <Phone className="w-3 h-3" />
+                                <span>{ticket.customerPhone}</span>
                               </div>
-                            ) : (
-                              <p className="text-xs">{safeRender(ticket.created)}</p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
+                              <p className="text-xs text-gray-500">{safeRender(ticket.customerEmail)}</p>
+                              {ticket.rescheduleInfo && (
+                                <div className="mt-1">
+                                  <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                                    <Clock className="w-3 h-3 mr-1" />
+                                    Rescheduled
+                                  </Badge>
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{safeRender(ticket.category)}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                {ticket.assignedVendor || <span className="text-muted-foreground">Not Assigned</span>}
+                              </p>
+                              {ticket.assignedAt && (
+                                <p className="text-xs text-gray-500">
+                                  Assigned: {new Date(ticket.assignedAt).toLocaleDateString()}
+                                </p>
+                              )}
+                              {ticket.rescheduleInfo && (
+                                <p className="text-xs text-orange-600">
+                                  Rescheduled: {new Date(ticket.rescheduleInfo?.rescheduledAt).toLocaleDateString()}
+                                </p>
+                              )}
+                              {ticket.vendorDeclinedAt && (
+                                <p className="text-xs text-red-600">
+                                  Declined: {new Date(ticket.vendorDeclinedAt).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <Badge
+                                variant={ticket.vendorStatus === 'Completed' ? 'default' :
+                                  ticket.vendorStatus === 'Accepted' ? 'secondary' :
+                                    ticket.vendorStatus === 'Declined' ? 'destructive' : 'outline'}
+                                className="text-xs"
+                              >
+                                {ticket.vendorStatus || 'Pending'}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{safeRender(ticket.subject)}</p>
+                              <p className="text-xs text-gray-500 max-w-xs truncate">
+                                {ticket.description || 'No description provided'}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={ticket.status === 'Resolved' ? 'default' :
+                                  ticket.status === 'In Progress' ? 'secondary' :
+                                    ticket.status === 'Closed' ? 'outline' : 'destructive'}
+                                className="text-xs"
+                              >
+                                {ticket.status}
+                              </Badge>
+
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={ticket.priority === 'High' ? 'destructive' :
+                                  ticket.priority === 'Medium' ? 'default' : 'secondary'}
+                                className="text-xs"
+                              >
+                                {ticket.priority}
+                              </Badge>
+
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              {ticket.status === 'Rescheduled' && ticket.scheduledDate ? (
+                                <div>
+                                  <p className="text-xs font-medium text-orange-600">
+                                    Scheduled: {new Date(ticket.scheduledDate).toLocaleDateString('en-GB', {
+                                      day: '2-digit',
+                                      month: 'short',
+                                      year: 'numeric'
+                                    })} at {ticket.scheduledTime}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    Created: {safeRender(ticket.created)}
+                                  </p>
+                                </div>
+                              ) : (
+                                <p className="text-xs">{safeRender(ticket.created)}</p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
                             <div className="flex items-center gap-1 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewTicket(ticket)}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleViewTicket(ticket)}
                                 className="h-7 w-7 p-0"
                                 title="View Full Details"
-                            >
+                              >
                                 <Eye className="w-3 h-3" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleReplyTicket(ticket)}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleReplyTicket(ticket)}
                                 className="h-7 w-7 p-0"
                                 title="Reply to Ticket"
-                            >
+                              >
                                 <Reply className="w-3 h-3" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleAssignVendor(ticket)}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleAssignVendor(ticket)}
                                 className="h-7 w-7 p-0"
                                 title="Assign Vendor"
-                            >
+                              >
                                 <UserPlus className="w-3 h-3" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewTicketDetails(ticket)}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleViewTicketDetails(ticket)}
                                 className="h-7 w-7 p-0"
                                 title="View Complete Details"
-                            >
+                              >
                                 <Info className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
-                
+
                 {filteredTickets.length === 0 && (
                   <div className="text-center py-6">
                     <MessageSquare className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
                     <h3 className="text-sm font-semibold mb-1">No Tickets Found</h3>
                     <p className="text-xs text-muted-foreground">
-                      {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all' 
+                      {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all'
                         ? 'Try adjusting your filters to see more tickets.'
                         : 'No support tickets have been submitted yet.'
                       }
@@ -820,7 +827,7 @@ const AdminSupportManagement = () => {
                 {/* Header with Status and Priority */}
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-3">
-                <div>
+                    <div>
                       <Label className="text-xs font-medium text-muted-foreground">Status</Label>
                       <Badge className={`${getStatusColor(selectedTicket.status)} text-xs px-2 py-1`}>
                         {selectedTicket.status}
@@ -855,31 +862,31 @@ const AdminSupportManagement = () => {
                   </CardHeader>
                   <CardContent className="p-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <div>
-                      <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">Name</Label>
                         <p className="text-xs font-medium">{safeRender(selectedTicket.customerName)}</p>
-                    </div>
-                    <div>
-                      <Label className="text-xs font-medium text-muted-foreground">Email</Label>
-                      <p className="text-xs">{safeRender(selectedTicket.customerEmail)}</p>
-                    </div>
-                    <div>
-                      <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
-                      <p className="text-xs">{safeRender(selectedTicket.customerPhone)}</p>
-                    </div>
-                    {selectedTicket.caseId && (
+                      </div>
                       <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Case ID</Label>
+                        <Label className="text-xs font-medium text-muted-foreground">Email</Label>
+                        <p className="text-xs">{safeRender(selectedTicket.customerEmail)}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
+                        <p className="text-xs">{safeRender(selectedTicket.customerPhone)}</p>
+                      </div>
+                      {selectedTicket.caseId && (
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Case ID</Label>
                           <p className="text-xs font-medium">{safeRender(selectedTicket.caseId)}</p>
-                      </div>
-                    )}
-                    {selectedTicket.subscriptionId && (
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">AMC Subscription ID</Label>
+                        </div>
+                      )}
+                      {selectedTicket.subscriptionId && (
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">AMC Subscription ID</Label>
                           <p className="text-xs font-medium text-blue-600">{safeRender(selectedTicket.subscriptionId)}</p>
-                      </div>
-                    )}
-                  </div>
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -896,35 +903,35 @@ const AdminSupportManagement = () => {
                       <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
                       <p className="text-xs font-medium mt-1">{safeRender(selectedTicket.subject)}</p>
                     </div>
-                    
+
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Issue Description</Label>
                       <div className="mt-1 p-2 bg-muted rounded-lg">
                         <p className="text-xs leading-relaxed">{safeRender(selectedTicket.description)}</p>
-                    </div>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <Label className="text-xs font-medium text-muted-foreground">Assigned To</Label>
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">Assigned To</Label>
                         <p className="text-xs">
-                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null 
+                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null
                             ? selectedTicket.assignedTo.name || selectedTicket.assignedVendor || 'Unassigned'
                             : selectedTicket.assignedVendor || 'Unassigned'
                           }
                         </p>
-                    </div>
+                      </div>
                       {selectedTicket.estimatedResolution && (
-                    <div>
-                      <Label className="text-xs font-medium text-muted-foreground">Estimated Resolution</Label>
-                      <p className="text-xs">{new Date(selectedTicket.estimatedResolution).toLocaleDateString('en-GB', { 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric'
-                      })}</p>
-                    </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Estimated Resolution</Label>
+                          <p className="text-xs">{new Date(selectedTicket.estimatedResolution).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                          })}</p>
+                        </div>
                       )}
-                  </div>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -939,12 +946,12 @@ const AdminSupportManagement = () => {
                     </CardHeader>
                     <CardContent className="p-3">
                       <div className="flex flex-wrap gap-1">
-                    {selectedTicket.tags.map((tag, index) => (
+                        {selectedTicket.tags.map((tag, index) => (
                           <Badge key={index} variant="outline" className="text-xs px-2 py-1">
                             {tag}
                           </Badge>
-                    ))}
-                  </div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
                 )}
@@ -963,14 +970,14 @@ const AdminSupportManagement = () => {
                         <p className="text-xs leading-relaxed">{safeRender(selectedTicket.resolution)}</p>
                         {selectedTicket.resolvedAt && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            Resolved on: {new Date(selectedTicket.resolvedAt).toLocaleDateString('en-GB', { 
-                              day: '2-digit', 
-                              month: 'short', 
+                            Resolved on: {new Date(selectedTicket.resolvedAt).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: 'short',
                               year: 'numeric'
                             })}
                           </p>
                         )}
-                  </div>
+                      </div>
                     </CardContent>
                   </Card>
                 )}
@@ -987,11 +994,10 @@ const AdminSupportManagement = () => {
                     <CardContent className="p-3">
                       <div className="space-y-2 max-h-60 overflow-y-auto">
                         {selectedTicket.responses.map((response, index) => (
-                          <div key={index} className={`p-2 rounded-lg ${
-                            response.sender === 'admin' 
-                              ? 'bg-blue-50 border border-blue-200' 
-                              : 'bg-gray-50 border border-gray-200'
-                          }`}>
+                          <div key={index} className={`p-2 rounded-lg ${response.sender === 'admin'
+                            ? 'bg-blue-50 border border-blue-200'
+                            : 'bg-gray-50 border border-gray-200'
+                            }`}>
                             <div className="flex items-center justify-between mb-1">
                               <div className="flex items-center gap-2">
                                 <Badge variant={response.sender === 'admin' ? 'default' : 'secondary'} className="text-xs">
@@ -1000,9 +1006,9 @@ const AdminSupportManagement = () => {
                                 <span className="text-xs font-medium">{response.senderName}</span>
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {new Date(response.createdAt).toLocaleDateString('en-GB', { 
-                                  day: '2-digit', 
-                                  month: 'short', 
+                                {new Date(response.createdAt).toLocaleDateString('en-GB', {
+                                  day: '2-digit',
+                                  month: 'short',
                                   year: 'numeric',
                                   hour: '2-digit',
                                   minute: '2-digit'
@@ -1019,16 +1025,16 @@ const AdminSupportManagement = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-3 border-t">
-                  <Button 
-                    onClick={() => handleReplyTicket(selectedTicket)} 
+                  <Button
+                    onClick={() => handleReplyTicket(selectedTicket)}
                     className="flex-1 text-xs"
                     size="sm"
                   >
                     <Reply className="w-3 h-3 mr-2" />
                     Reply to Ticket
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       setIsViewTicketOpen(false);
                       setIsReplyTicketOpen(true);
@@ -1061,10 +1067,10 @@ const AdminSupportManagement = () => {
                 {/* Ticket Info */}
                 <div className="p-2 bg-muted rounded-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
-                  <p className="text-xs font-medium">{safeRender(selectedTicket.subject)}</p>
-                </div>
+                    <div>
+                      <Label className="text-xs font-medium text-muted-foreground">Subject</Label>
+                      <p className="text-xs font-medium">{safeRender(selectedTicket.subject)}</p>
+                    </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Customer</Label>
                       <p className="text-xs">{safeRender(selectedTicket.customerName)}</p>
@@ -1087,7 +1093,7 @@ const AdminSupportManagement = () => {
                         <Input
                           id="subjectInput"
                           value={selectedTicket.subject}
-                          onChange={(e) => setSelectedTicket({...selectedTicket, subject: e.target.value})}
+                          onChange={(e) => setSelectedTicket({ ...selectedTicket, subject: e.target.value })}
                           placeholder="Enter ticket subject..."
                           className="text-xs"
                         />
@@ -1097,7 +1103,7 @@ const AdminSupportManagement = () => {
                           <Label htmlFor="statusSelect" className="text-xs">Status</Label>
                           <Select
                             value={selectedTicket.status}
-                            onValueChange={(value) => setSelectedTicket({...selectedTicket, status: value})}
+                            onValueChange={(value) => setSelectedTicket({ ...selectedTicket, status: value })}
                           >
                             <SelectTrigger className="text-xs">
                               <SelectValue />
@@ -1115,7 +1121,7 @@ const AdminSupportManagement = () => {
                           <Label htmlFor="prioritySelect" className="text-xs">Priority</Label>
                           <Select
                             value={selectedTicket.priority}
-                            onValueChange={(value) => setSelectedTicket({...selectedTicket, priority: value})}
+                            onValueChange={(value) => setSelectedTicket({ ...selectedTicket, priority: value })}
                           >
                             <SelectTrigger className="text-xs">
                               <SelectValue />
@@ -1142,25 +1148,25 @@ const AdminSupportManagement = () => {
                   </CardHeader>
                   <CardContent className="p-3">
                     <div className="space-y-2">
-                <div>
-                  <Label htmlFor="replyText" className="text-xs">Your Reply</Label>
-                  <Textarea
-                    id="replyText"
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Type your reply here..."
+                      <div>
+                        <Label htmlFor="replyText" className="text-xs">Your Reply</Label>
+                        <Textarea
+                          id="replyText"
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          placeholder="Type your reply here..."
                           rows={4}
                           className="text-xs"
-                  />
-                </div>
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-3">
-                  <Button 
-                    onClick={handleUpdateProgress} 
+                  <Button
+                    onClick={handleUpdateProgress}
                     variant="outline"
                     className="flex-1 text-xs"
                     size="sm"
@@ -1168,8 +1174,8 @@ const AdminSupportManagement = () => {
                     <Edit className="w-3 h-3 mr-2" />
                     Update Progress
                   </Button>
-                  <Button 
-                    onClick={handleSubmitReply} 
+                  <Button
+                    onClick={handleSubmitReply}
                     className="flex-1 text-xs"
                     disabled={!replyText.trim()}
                     size="sm"
@@ -1226,7 +1232,7 @@ const AdminSupportManagement = () => {
                             const state = address?.state || selectedTicket.state;
                             const pincode = address?.pincode || selectedTicket.pincode;
                             const landmark = address?.landmark || selectedTicket.landmark;
-                            
+
                             if (street || city || state || pincode) {
                               return (
                                 <div className="text-sm">
@@ -1284,9 +1290,9 @@ const AdminSupportManagement = () => {
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Priority</Label>
-                        <Badge 
-                          variant={selectedTicket.priority === 'High' ? 'destructive' : 
-                                  selectedTicket.priority === 'Medium' ? 'default' : 'secondary'}
+                        <Badge
+                          variant={selectedTicket.priority === 'High' ? 'destructive' :
+                            selectedTicket.priority === 'Medium' ? 'default' : 'secondary'}
                           className="text-xs"
                         >
                           {selectedTicket.priority}
@@ -1294,17 +1300,17 @@ const AdminSupportManagement = () => {
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Status</Label>
-                        <Badge 
-                          variant={selectedTicket.status === 'Resolved' ? 'default' : 
-                                  selectedTicket.status === 'In Progress' ? 'secondary' : 
-                                  selectedTicket.status === 'Closed' ? 'outline' : 'destructive'}
+                        <Badge
+                          variant={selectedTicket.status === 'Resolved' ? 'default' :
+                            selectedTicket.status === 'In Progress' ? 'secondary' :
+                              selectedTicket.status === 'Closed' ? 'outline' : 'destructive'}
                           className="text-xs"
                         >
                           {selectedTicket.status}
                         </Badge>
                       </div>
                     </div>
-                    
+
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Issue Description</Label>
                       <div className="mt-1 p-3 bg-muted rounded-md">
@@ -1463,8 +1469,8 @@ const AdminSupportManagement = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4 border-t">
-                  <Button 
-                    onClick={handleAssignVendorToTicket} 
+                  <Button
+                    onClick={handleAssignVendorToTicket}
                     className="flex-1"
                     disabled={!selectedVendor}
                   >
@@ -1507,10 +1513,10 @@ const AdminSupportManagement = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                      <Badge 
-                        variant={selectedTicket.status === 'Open' ? 'default' : 
-                                selectedTicket.status === 'In Progress' ? 'secondary' :
-                                selectedTicket.status === 'Resolved' ? 'outline' : 'destructive'}
+                      <Badge
+                        variant={selectedTicket.status === 'Open' ? 'default' :
+                          selectedTicket.status === 'In Progress' ? 'secondary' :
+                            selectedTicket.status === 'Resolved' ? 'outline' : 'destructive'}
                         className="text-sm px-3 py-1"
                       >
                         {selectedTicket.status}
@@ -1518,9 +1524,9 @@ const AdminSupportManagement = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
-                      <Badge 
-                        variant={selectedTicket.priority === 'High' ? 'destructive' : 
-                                selectedTicket.priority === 'Medium' ? 'default' : 'secondary'}
+                      <Badge
+                        variant={selectedTicket.priority === 'High' ? 'destructive' :
+                          selectedTicket.priority === 'Medium' ? 'default' : 'secondary'}
                         className="text-sm px-3 py-1"
                       >
                         {selectedTicket.priority}
@@ -1565,7 +1571,7 @@ const AdminSupportManagement = () => {
                           const state = address?.state || selectedTicket.state;
                           const pincode = address?.pincode || selectedTicket.pincode;
                           const landmark = address?.landmark || selectedTicket.landmark;
-                          
+
                           if (street || city || state || pincode) {
                             return (
                               <div className="text-sm">
@@ -1611,8 +1617,8 @@ const AdminSupportManagement = () => {
                             {/* Spare Part Image */}
                             <div className="flex-shrink-0">
                               {part.photo ? (
-                                <img 
-                                  src={part.photo} 
+                                <img
+                                  src={part.photo}
                                   alt={part.name}
                                   className="w-12 h-12 object-cover rounded-lg border"
                                   onError={(e) => {
@@ -1624,14 +1630,14 @@ const AdminSupportManagement = () => {
                                   }}
                                 />
                               ) : null}
-                              <div 
+                              <div
                                 className="w-12 h-12 bg-gray-200 rounded-lg border flex items-center justify-center text-gray-500 text-xs"
                                 style={{ display: part.photo ? 'none' : 'flex' }}
                               >
                                 No Image
                               </div>
                             </div>
-                            
+
                             {/* Spare Part Details */}
                             <div className="flex-1">
                               <div className="flex items-start justify-between">
@@ -1646,7 +1652,7 @@ const AdminSupportManagement = () => {
                             </div>
                           </div>
                         ))}
-                        
+
                         {/* Spare Parts Total */}
                         <div className="border-t pt-4">
                           <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg">
@@ -1671,7 +1677,7 @@ const AdminSupportManagement = () => {
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Vendor Name</Label>
                         <p className="font-medium">
-                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null 
+                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null
                             ? selectedTicket.assignedTo.name || selectedTicket.assignedVendor || 'N/A'
                             : selectedTicket.assignedVendor || 'N/A'
                           }
@@ -1680,7 +1686,7 @@ const AdminSupportManagement = () => {
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Vendor ID</Label>
                         <p className="font-medium">
-                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null 
+                          {typeof selectedTicket.assignedTo === 'object' && selectedTicket.assignedTo !== null
                             ? selectedTicket.assignedTo.id || selectedTicket.assignedTo._id || 'N/A'
                             : 'N/A'
                           }
@@ -1694,9 +1700,9 @@ const AdminSupportManagement = () => {
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Assigned Date</Label>
-                        <p className="font-medium">{selectedTicket.assignedAt ? new Date(selectedTicket.assignedAt).toLocaleDateString('en-GB', { 
-                          day: '2-digit', 
-                          month: 'short', 
+                        <p className="font-medium">{selectedTicket.assignedAt ? new Date(selectedTicket.assignedAt).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
                           year: 'numeric'
                         }) : 'N/A'}</p>
                       </div>
@@ -1712,9 +1718,9 @@ const AdminSupportManagement = () => {
                         <>
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Declined Date</Label>
-                            <p className="font-medium text-red-600">{new Date(selectedTicket.vendorDeclinedAt).toLocaleDateString('en-GB', { 
-                              day: '2-digit', 
-                              month: 'short', 
+                            <p className="font-medium text-red-600">{new Date(selectedTicket.vendorDeclinedAt).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: 'short',
                               year: 'numeric'
                             })}</p>
                           </div>
@@ -1740,9 +1746,9 @@ const AdminSupportManagement = () => {
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">New Date</Label>
-                            <p className="font-medium text-green-600">{selectedTicket.scheduledDate ? new Date(selectedTicket.scheduledDate).toLocaleDateString('en-GB', { 
-                              day: '2-digit', 
-                              month: 'short', 
+                            <p className="font-medium text-green-600">{selectedTicket.scheduledDate ? new Date(selectedTicket.scheduledDate).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: 'short',
                               year: 'numeric'
                             }) : 'N/A'}</p>
                           </div>
@@ -1752,9 +1758,9 @@ const AdminSupportManagement = () => {
                           </div>
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Rescheduled At</Label>
-                            <p className="font-medium">{selectedTicket.rescheduleInfo?.rescheduledAt ? new Date(selectedTicket.rescheduleInfo.rescheduledAt).toLocaleDateString('en-GB', { 
-                              day: '2-digit', 
-                              month: 'short', 
+                            <p className="font-medium">{selectedTicket.rescheduleInfo?.rescheduledAt ? new Date(selectedTicket.rescheduleInfo.rescheduledAt).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: 'short',
                               year: 'numeric',
                               hour: '2-digit',
                               minute: '2-digit'
@@ -1764,15 +1770,15 @@ const AdminSupportManagement = () => {
                       )}
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Completed Date</Label>
-                        <p className="font-medium">{selectedTicket.vendorCompletedAt ? new Date(selectedTicket.vendorCompletedAt).toLocaleDateString('en-GB', { 
-                          day: '2-digit', 
-                          month: 'short', 
+                        <p className="font-medium">{selectedTicket.vendorCompletedAt ? new Date(selectedTicket.vendorCompletedAt).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
                           year: 'numeric'
                         }) : 'Not completed'}</p>
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Schedule Notes</Label>
-                        <p className="font-medium">{selectedTicket.scheduleNotes || 'No notes'}</p>
+                        <p className="font-medium whitespace-pre-wrap break-words">{selectedTicket.scheduleNotes || 'No notes'}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -1817,9 +1823,9 @@ const AdminSupportManagement = () => {
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-muted-foreground">Payment Completed At</Label>
-                        <p className="font-medium">{selectedTicket.paymentCompletedAt ? new Date(selectedTicket.paymentCompletedAt).toLocaleDateString('en-GB', { 
-                          day: '2-digit', 
-                          month: 'short', 
+                        <p className="font-medium">{selectedTicket.paymentCompletedAt ? new Date(selectedTicket.paymentCompletedAt).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
                           year: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'

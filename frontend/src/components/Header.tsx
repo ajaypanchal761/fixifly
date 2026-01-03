@@ -7,7 +7,7 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { Menu, X, Home, Calendar, Wrench, Phone, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield, ShieldCheck, RefreshCw, Download, Handshake, ExternalLink } from 'lucide-react';
+import { Menu, X, Home, Calendar, Wrench, Phone, User, FileText, Star, Info, LogOut, Store, Search, LogIn, Shield, ShieldCheck, RefreshCw, Download, Handshake, ExternalLink, Bell } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -168,8 +168,8 @@ const Header = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar 
-        position="fixed" 
+      <AppBar
+        position="fixed"
         open={open}
         sx={{
           backgroundColor: 'white',
@@ -181,28 +181,28 @@ const Header = () => {
           marginBottom: '0px',
         }}
       >
-         <Toolbar sx={{ minHeight: '76px !important', justifyContent: 'center', position: 'relative', paddingTop: '8px !important', paddingBottom: '4px !important' }}>
-           {/* Left side - Menu Icon and Logo */}
-           <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', left: 0 }}>
-             <IconButton
-               color="inherit"
-               aria-label="open drawer"
-               onClick={handleDrawerOpen}
-               edge="start"
-               sx={[
-                 {
-                   mr: 2,
-                   ml: 1,
-                   color: 'black',
-                 },
-                 open && { display: 'none' },
-               ]}
-             >
-               <Menu />
-             </IconButton>
-            <img 
-              src={logoFixifly} 
-              alt="Fixfly Logo" 
+        <Toolbar sx={{ minHeight: '76px !important', justifyContent: 'center', position: 'relative', paddingTop: '8px !important', paddingBottom: '4px !important' }}>
+          {/* Left side - Menu Icon and Logo */}
+          <Box sx={{ display: 'flex', alignItems: 'center', position: 'absolute', left: 0 }}>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={[
+                {
+                  mr: 2,
+                  ml: 1,
+                  color: 'black',
+                },
+                open && { display: 'none' },
+              ]}
+            >
+              <Menu />
+            </IconButton>
+            <img
+              src={logoFixifly}
+              alt="Fixfly Logo"
               onClick={handleLogoClick}
               style={{
                 height: isMobile ? '50px' : '60px',
@@ -218,8 +218,8 @@ const Header = () => {
                 e.currentTarget.style.opacity = '1';
               }}
             />
-           </Box>
-          
+          </Box>
+
           {/* Center - Desktop Navigation Links */}
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -330,12 +330,12 @@ const Header = () => {
 
           {/* Mobile Search Bar - Shows when search icon is clicked and sidebar is closed */}
           {isMobile && showMobileSearch && !open && (
-            <Box className="mobile-search-container" sx={{ 
-              position: 'absolute', 
-              top: 'calc(100% - 20px)', 
-              left: 0, 
-              right: 0, 
-              backgroundColor: 'white', 
+            <Box className="mobile-search-container" sx={{
+              position: 'absolute',
+              top: 'calc(100% - 20px)',
+              left: 0,
+              right: 0,
+              backgroundColor: 'white',
               boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
               zIndex: 1000,
               padding: '12px 16px'
@@ -413,16 +413,16 @@ const Header = () => {
       >
         {/* Close Button for Desktop - Top Right Corner */}
         {!isMobile && (
-          <MuiBox sx={{ 
-            display: 'flex', 
-            justifyContent: 'flex-end', 
+          <MuiBox sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
             padding: 1,
             position: 'absolute',
             top: 0,
             right: 0,
             zIndex: 1
           }}>
-            <IconButton 
+            <IconButton
               onClick={handleDrawerClose}
               sx={{
                 color: '#6b7280',
@@ -438,10 +438,10 @@ const Header = () => {
         )}
 
         {/* User Profile Section - Fixed at top */}
-        <MuiBox sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
+        <MuiBox sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           padding: isMobile ? 1.5 : 2,
           backgroundColor: '#f8f9fa',
           flexShrink: 0
@@ -458,27 +458,27 @@ const Header = () => {
           >
             {isAuthenticated && user && user.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </Avatar>
-          <Typography variant="subtitle1" sx={{ 
-            fontWeight: 'bold', 
-            marginBottom: 0.25, 
+          <Typography variant="subtitle1" sx={{
+            fontWeight: 'bold',
+            marginBottom: 0.25,
             color: '#1f2937',
             fontSize: isMobile ? '0.9rem' : '1rem'
           }}>
             {isAuthenticated && user && user.name ? user.name : 'Guest User'}
           </Typography>
-          <Typography variant="body2" sx={{ 
-            color: '#6b7280', 
+          <Typography variant="body2" sx={{
+            color: '#6b7280',
             marginBottom: isMobile ? 0.5 : 1,
             fontSize: isMobile ? '0.75rem' : '0.875rem'
           }}>
             {isAuthenticated && user ? user.phone : 'Not logged in'}
           </Typography>
         </MuiBox>
-        
+
         <Divider />
-        
+
         {/* Menu Options - Scrollable */}
-        <MuiBox sx={{ 
+        <MuiBox sx={{
           padding: isMobile ? 0.5 : 1,
           flex: 1,
           overflowY: 'auto',
@@ -489,6 +489,7 @@ const Header = () => {
         }}>
           {[
             { name: "Profile", icon: User, href: "/profile" },
+            { name: "Notifications", icon: Bell, href: "/notifications" },
             { name: "Booking", icon: Calendar, href: "/booking" },
             { name: "AMC Plan", icon: Wrench, href: "/amc" },
             { name: "Services Booking T&C", icon: FileText, href: "/terms-conditions" },
@@ -526,10 +527,10 @@ const Header = () => {
               </Button>
             );
           })}
-          
+
           {/* Authentication Buttons */}
           <Divider sx={{ margin: isMobile ? '8px 0' : '-2px 0' }} />
-          
+
           {isAuthenticated ? (
             // Show Logout button if user is authenticated
             <Button
@@ -588,7 +589,7 @@ const Header = () => {
           {isMobile && (
             <>
               <Divider sx={{ margin: '12px 0' }} />
-              
+
               {/* Download Fixfly App Button */}
               <Button
                 onClick={() => {

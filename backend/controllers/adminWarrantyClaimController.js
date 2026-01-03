@@ -9,22 +9,22 @@ const { logger } = require('../utils/logger');
 // @route   GET /api/admin/warranty-claims
 // @access  Private (Admin with amcManagement permission)
 const getWarrantyClaims = asyncHandler(async (req, res) => {
-  const { 
-    page = 1, 
-    limit = 20, 
-    status, 
+  const {
+    page = 1,
+    limit = 20,
+    status,
     search,
-    sortBy = 'createdAt', 
-    sortOrder = 'desc' 
+    sortBy = 'createdAt',
+    sortOrder = 'desc'
   } = req.query;
 
   // Build query
   const query = {};
-  
+
   if (status && status !== 'all') {
     query.status = status;
   }
-  
+
   if (search) {
     query.$or = [
       { item: { $regex: search, $options: 'i' } },
@@ -39,7 +39,7 @@ const getWarrantyClaims = asyncHandler(async (req, res) => {
 
   // Execute query with pagination
   const skip = (page - 1) * limit;
-  
+
   const [claims, totalClaims] = await Promise.all([
     WarrantyClaim.find(query)
       .sort(sort)
@@ -171,9 +171,9 @@ const approveWarrantyClaim = asyncHandler(async (req, res) => {
         subscription.usage.homeVisits.remaining = Math.max(0, subscription.usage.homeVisits.limit - subscription.usage.homeVisits.used);
       }
     }
-    
+
     await subscription.save();
-    
+
     logger.info('Updated subscription usage after approval', {
       subscriptionId: claim.subscriptionId,
       serviceType: claim.item,
@@ -280,13 +280,50 @@ const rejectWarrantyClaim = asyncHandler(async (req, res) => {
 // @route   PUT /api/admin/warranty-claims/:id/assign-vendor
 // @access  Private (Admin with amcManagement permission)
 const assignVendorToClaim = asyncHandler(async (req, res) => {
-  const { vendorId } = req.body;
+  const { vendorId, scheduledDate, scheduledTime } = req.body;
 
   if (!vendorId) {
     return res.status(400).json({
       success: false,
       message: 'Vendor ID is required'
     });
+  }
+
+  // Validation: Check if vendor already has a task for the same date and time
+  if (scheduledDate && scheduledTime) {
+    const scheduledDateObj = new Date(scheduledDate);
+    const { Booking } = require('../models/Booking');
+
+    // Check conflicts in Bookings
+    const conflictingBooking = await Booking.findOne({
+      'vendor.vendorId': vendorId,
+      'scheduling.scheduledDate': scheduledDateObj,
+      'scheduling.scheduledTime': scheduledTime,
+      status: { $nin: ['cancelled', 'declined'] }
+    });
+
+    if (conflictingBooking) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vendor is not available'
+      });
+    }
+
+    // Check conflicts in other Warranty Claims
+    const conflictingClaim = await WarrantyClaim.findOne({
+      _id: { $ne: req.params.id },
+      assignedVendor: vendorId,
+      scheduledDate: scheduledDateObj,
+      scheduledTime: scheduledTime,
+      status: { $nin: ['cancelled', 'rejected', 'completed'] }
+    });
+
+    if (conflictingClaim) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vendor is not available'
+      });
+    }
   }
 
   const claim = await WarrantyClaim.findById(req.params.id);
@@ -310,6 +347,13 @@ const assignVendorToClaim = asyncHandler(async (req, res) => {
   claim.assignedBy = req.admin._id;
   claim.assignedAt = new Date();
   claim.status = 'in_progress';
+
+  if (scheduledDate) {
+    claim.scheduledDate = new Date(scheduledDate);
+  }
+  if (scheduledTime) {
+    claim.scheduledTime = scheduledTime;
+  }
 
   await claim.save();
 

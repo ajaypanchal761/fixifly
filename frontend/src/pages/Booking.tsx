@@ -7,16 +7,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import bookingApi, { type Booking} from "@/services/bookingApi";
+import bookingApi, { type Booking } from "@/services/bookingApi";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import RatingPopup from "@/components/RatingPopup";
 import jsPDF from 'jspdf';
-import { 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  Laptop, 
-  Monitor, 
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
+  Laptop,
+  Monitor,
   Apple,
   Star,
   MapPin,
@@ -37,13 +37,13 @@ const Booking = () => {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("ongoing");
-  const [cartItems, setCartItems] = useState<{id: number, title: string, price: number, image: string}[]>(location.state?.cartItems || []);
+  const [cartItems, setCartItems] = useState<{ id: number, title: string, price: number, image: string }[]>(location.state?.cartItems || []);
   const [totalPrice, setTotalPrice] = useState(location.state?.totalPrice || 0);
   const [showThankYou, setShowThankYou] = useState(false);
   const [newBooking, setNewBooking] = useState<Booking | null>(location.state?.booking || null);
   const [bookingReference, setBookingReference] = useState<string | null>(location.state?.bookingReference || null);
   const [fromCheckout, setFromCheckout] = useState<boolean>(location.state?.fromCheckout || false);
-  
+
   // Real bookings state
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ const Booking = () => {
 
   // If coming from service page with cart items, show checkout view
   const isCheckoutView = cartItems && cartItems.length > 0;
-  
+
   // If coming from checkout with new booking, show success view
   const isNewBookingView = newBooking && fromCheckout;
 
@@ -72,7 +72,7 @@ const Booking = () => {
         fromCheckout: location.state.fromCheckout,
         hasCartItems: !!location.state.cartItems
       });
-      
+
       // Update all state synchronously for instant rendering
       if (location.state.booking) {
         setNewBooking(location.state.booking);
@@ -299,7 +299,7 @@ For support, contact us at info@getfixfly.com
       `);
       printWindow.document.close();
       printWindow.focus();
-      
+
       // Wait for content to load, then trigger print
       setTimeout(() => {
         printWindow.print();
@@ -332,16 +332,16 @@ For support, contact us at info@getfixfly.com
         setLoading(true);
       }
       setError(null);
-      
+
       console.log('Fetching bookings for user:', user.email);
       const response = await bookingApi.getBookingsByCustomer(user.email);
-      
+
       console.log('Bookings API response:', response);
-      
+
       if (response.success && response.data?.bookings) {
         console.log('Bookings found:', response.data.bookings.length);
         setBookings(response.data.bookings);
-        
+
         // Cache bookings for instant loading next time
         try {
           localStorage.setItem(`userBookings_${user.email}`, JSON.stringify(response.data.bookings));
@@ -371,8 +371,8 @@ For support, contact us at info@getfixfly.com
     }
 
     // Don't load cache if showing confirmation view
-    const isShowingConfirmation = (location.state?.booking && location.state?.fromCheckout) || 
-                                  (newBooking && fromCheckout);
+    const isShowingConfirmation = (location.state?.booking && location.state?.fromCheckout) ||
+      (newBooking && fromCheckout);
     if (isShowingConfirmation) {
       return;
     }
@@ -410,26 +410,26 @@ For support, contact us at info@getfixfly.com
     const handleBookingUpdate = async (event: CustomEvent) => {
       console.log('=== BOOKING UPDATE EVENT RECEIVED ===');
       console.log('Event detail:', event.detail);
-      
+
       const { taskId, status, paymentMode, paymentStatus } = event.detail;
-      
+
       console.log('Parsed event data:', { taskId, status, paymentMode, paymentStatus });
-      
+
       // If task is completed with cash payment, show rating popup
       if (status === 'completed' && paymentMode === 'cash' && paymentStatus === 'collected') {
         console.log('=== CASH PAYMENT COMPLETION DETECTED ===');
         console.log('Looking for booking with ID:', taskId);
         console.log('Current bookings:', bookings.length);
-        
+
         // Find the booking and check for existing review
         const completedBooking = bookings.find(booking => booking._id === taskId);
         if (completedBooking) {
           console.log('Found completed booking:', completedBooking._id);
           console.log('Checking for existing review...');
-          
+
           const hasExistingReview = await checkExistingReview(completedBooking._id);
           console.log('Has existing review:', hasExistingReview);
-          
+
           if (!hasExistingReview) {
             console.log('No existing review found, showing rating popup');
             setRatingBooking(completedBooking);
@@ -443,14 +443,14 @@ For support, contact us at info@getfixfly.com
       } else {
         console.log('Event does not match cash payment completion criteria');
       }
-      
+
       // Refresh bookings to get updated data
       console.log('Refreshing bookings...');
       fetchBookings();
     };
 
     window.addEventListener('bookingUpdated', handleBookingUpdate as EventListener);
-    
+
     return () => {
       window.removeEventListener('bookingUpdated', handleBookingUpdate as EventListener);
     };
@@ -497,14 +497,14 @@ For support, contact us at info@getfixfly.com
       console.log(`Booking ${booking._id} status: ${booking.status}, isOngoing: ${isOngoing}`);
       return isOngoing;
     }),
-    completed: bookings.filter(booking => 
+    completed: bookings.filter(booking =>
       booking.status === 'completed'
     ),
-    cancelled: bookings.filter(booking => 
+    cancelled: bookings.filter(booking =>
       booking.status === 'cancelled'
     )
   };
-  
+
   console.log('Processed bookings:', {
     total: bookings.length,
     ongoing: processedBookings.ongoing.length,
@@ -517,7 +517,7 @@ For support, contact us at info@getfixfly.com
     if (booking && booking.vendorResponse && booking.vendorResponse.status === 'declined') {
       return <XCircle className="h-4 w-4 text-red-500" />;
     }
-    
+
     switch (status) {
       case "pending":
       case "waiting_for_engineer":
@@ -539,12 +539,12 @@ For support, contact us at info@getfixfly.com
     if (booking && booking.vendorResponse && booking.vendorResponse.status === 'declined') {
       return "Declined by Vendor";
     }
-    
+
     // If vendor is assigned, show "assigned" regardless of status
     if (booking && booking.vendor && booking.vendor.vendorId && typeof booking.vendor.vendorId === 'object') {
       return "Assigned";
     }
-    
+
     switch (status) {
       case "pending":
         return "Pending";
@@ -582,7 +582,7 @@ For support, contact us at info@getfixfly.com
     if (booking && booking.vendorResponse && booking.vendorResponse.status === 'declined') {
       return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
     }
-    
+
     switch (status) {
       case "pending":
       case "waiting_for_engineer":
@@ -619,16 +619,16 @@ For support, contact us at info@getfixfly.com
     if (phoneNumber && phoneNumber !== 'Phone not available') {
       // Remove any non-digit characters and ensure it starts with country code
       let cleanPhone = phoneNumber.replace(/[^\d]/g, '');
-      
+
       // If phone doesn't start with country code, add India's +91
       if (!cleanPhone.startsWith('91') && cleanPhone.length === 10) {
         cleanPhone = '91' + cleanPhone;
       }
-      
+
       // Create WhatsApp message
       const message = `Hello ${engineerName}, I have a question about my service booking.`;
       const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-      
+
       window.open(whatsappUrl, '_blank');
     } else {
       toast({
@@ -645,7 +645,7 @@ For support, contact us at info@getfixfly.com
       // Try completionData first, then root level billingAmount
       const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
       const baseAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
-      
+
       // If billing amount is missing, show error (vendor should have entered this)
       if (baseAmount === 0) {
         toast({
@@ -655,11 +655,11 @@ For support, contact us at info@getfixfly.com
         });
         return;
       }
-      
+
       // Check for GST data in localStorage first
       const gstData = getGSTData(booking._id);
       let totalAmount = baseAmount;
-      
+
       if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
         totalAmount = gstData.totalAmount;
       } else {
@@ -668,7 +668,7 @@ For support, contact us at info@getfixfly.com
         const gstAmount = (booking as any).gstAmount || 0;
         totalAmount = includeGST && gstAmount > 0 ? baseAmount + gstAmount : baseAmount;
       }
-      
+
       console.log('Payment request data:', {
         bookingId: booking._id,
         amount: totalAmount,
@@ -680,7 +680,7 @@ For support, contact us at info@getfixfly.com
           completionData: (booking as any).completionData
         }
       });
-      
+
       // Create payment order
       const response = await bookingApi.createPaymentOrder({
         bookingId: booking._id,
@@ -691,7 +691,7 @@ For support, contact us at info@getfixfly.com
       if (response.success && response.data) {
         // Import Razorpay service
         const razorpayService = (await import('@/services/razorpayService')).default;
-        
+
         // Process payment with Razorpay
         await razorpayService.processPayment({
           orderId: response.data.orderId,
@@ -718,22 +718,22 @@ For support, contact us at info@getfixfly.com
                   description: `Payment of ₹${totalAmount.toLocaleString()} completed successfully. Your service is now completed.`,
                   variant: "default"
                 });
-                
+
                 // Trigger refresh events for admin service management
-                window.dispatchEvent(new CustomEvent('bookingUpdated', { 
-                  detail: { bookingId: booking._id, status: 'completed', paymentStatus: 'payment_done' } 
+                window.dispatchEvent(new CustomEvent('bookingUpdated', {
+                  detail: { bookingId: booking._id, status: 'completed', paymentStatus: 'payment_done' }
                 }));
-                
+
                 // Trigger vendor dashboard refresh
-                window.dispatchEvent(new CustomEvent('taskCompleted', { 
-                  detail: { taskId: booking._id, status: 'completed', paymentStatus: 'payment_done' } 
+                window.dispatchEvent(new CustomEvent('taskCompleted', {
+                  detail: { taskId: booking._id, status: 'completed', paymentStatus: 'payment_done' }
                 }));
-                
+
                 // Check if review already exists before showing popup
                 console.log('Payment successful, checking for existing review for booking:', booking._id);
                 const hasExistingReview = await checkExistingReview(booking._id);
                 console.log('Has existing review:', hasExistingReview);
-                
+
                 if (!hasExistingReview) {
                   console.log('No existing review found, showing rating popup');
                   console.log('Setting rating booking:', booking);
@@ -743,7 +743,7 @@ For support, contact us at info@getfixfly.com
                 } else {
                   console.log('Review already exists for booking:', booking._id);
                 }
-                
+
                 // Refresh bookings
                 fetchBookings();
               } else {
@@ -771,7 +771,7 @@ For support, contact us at info@getfixfly.com
             });
           }
         });
-        
+
       } else {
         toast({
           title: "Payment Failed",
@@ -793,7 +793,7 @@ For support, contact us at info@getfixfly.com
   const generateSimpleReceipt = (booking: Booking) => {
     try {
       const bookingRef = (booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`;
-      
+
       // Get GST data if available
       const gstData = getGSTData(booking._id);
       // Use billing amount instead of spare parts total
@@ -832,15 +832,15 @@ For support, contact us at info@getfixfly.com
             <p><strong>Booking ID:</strong> ${bookingRef}</p>
             <p><strong>Status:</strong> ${booking.status.toUpperCase()}</p>
             <p><strong>Created Date:</strong> ${new Date(booking.createdAt).toLocaleDateString('en-IN')}</p>
-            <p><strong>Completed Date:</strong> ${booking.scheduling?.scheduledDate 
-              ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
-              : new Date(booking.updatedAt).toLocaleDateString('en-IN')
-            }</p>
-            ${booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && 
-              (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') &&
-              booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName ? 
-              `<p><strong>Assigned Engineer:</strong> ${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}</p>` : ''
-            }
+            <p><strong>Completed Date:</strong> ${booking.scheduling?.scheduledDate
+          ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
+          : new Date(booking.updatedAt).toLocaleDateString('en-IN')
+        }</p>
+            ${booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' &&
+          (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') &&
+          booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName ?
+          `<p><strong>Assigned Engineer:</strong> ${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}</p>` : ''
+        }
           </div>
 
           <div class="section">
@@ -900,7 +900,7 @@ For support, contact us at info@getfixfly.com
         printWindow.document.write(receiptHTML);
         printWindow.document.close();
         printWindow.focus();
-        
+
         // Wait for content to load, then trigger print
         setTimeout(() => {
           printWindow.print();
@@ -928,9 +928,9 @@ For support, contact us at info@getfixfly.com
   const generateReceiptPDF = (booking: Booking) => {
     try {
       console.log('Generating PDF receipt for booking:', booking._id);
-      
+
       const bookingRef = (booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`;
-      
+
       // Get GST data if available
       const gstData = getGSTData(booking._id);
       // Use billing amount instead of spare parts total
@@ -941,7 +941,7 @@ For support, contact us at info@getfixfly.com
       let totalAmount = baseAmount;
       let includeGST = false;
       let gstAmount = 0;
-      
+
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
@@ -968,136 +968,136 @@ For support, contact us at info@getfixfly.com
       yPosition = addText('Service Completion Receipt', pageWidth / 2, yPosition, undefined, 'center');
       yPosition += 10;
 
-    // Booking Details Section
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    yPosition = addText('BOOKING DETAILS', 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    yPosition += 5;
-
-    yPosition = addText(`Booking ID: ${bookingRef}`, 20, yPosition);
-    yPosition = addText(`Status: ${booking.status.toUpperCase()}`, 20, yPosition);
-    yPosition = addText(`Created Date: ${new Date(booking.createdAt).toLocaleDateString('en-IN')}`, 20, yPosition);
-    yPosition = addText(`Completed Date: ${booking.scheduling?.scheduledDate 
-      ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
-      : new Date(booking.updatedAt).toLocaleDateString('en-IN')
-    }`, 20, yPosition);
-    if (booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && 
-        (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed')) {
-      const vendor = booking.vendor.vendorId as { firstName: string; lastName: string };
-      if (vendor.firstName && vendor.lastName) {
-        yPosition = addText(`Assigned Engineer: ${vendor.firstName} ${vendor.lastName}`, 20, yPosition);
-      }
-    }
-    yPosition += 10;
-
-    // Customer Details Section
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    yPosition = addText('CUSTOMER DETAILS', 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    yPosition += 5;
-
-    yPosition = addText(`Name: ${booking.customer.name}`, 20, yPosition);
-    yPosition = addText(`Email: ${booking.customer.email}`, 20, yPosition);
-    yPosition = addText(`Phone: ${booking.customer.phone}`, 20, yPosition);
-    yPosition = addText(`Address: ${booking.customer.address.street}, ${booking.customer.address.city}, ${booking.customer.address.state} - ${booking.customer.address.pincode}`, 20, yPosition, pageWidth - 40);
-    yPosition += 10;
-
-    // Service Details Section
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    yPosition = addText('SERVICE DETAILS', 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    yPosition += 5;
-
-    booking.services.forEach((service, index) => {
-      yPosition = addText(`${index + 1}. ${service.serviceName}`, 20, yPosition);
-    });
-    yPosition += 10;
-
-    // Scheduling Details Section
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    yPosition = addText('SCHEDULING DETAILS', 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    yPosition += 5;
-
-    yPosition = addText(`Preferred Date: ${new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')}`, 20, yPosition);
-    yPosition = addText(`Preferred Time: ${booking.scheduling.preferredTimeSlot}`, 20, yPosition);
-    if (booking.scheduling.scheduledDate) {
-      yPosition = addText(`Scheduled Date: ${new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')}`, 20, yPosition);
-    }
-    if (booking.scheduling.scheduledTime) {
-      yPosition = addText(`Scheduled Time: ${booking.scheduling.scheduledTime}`, 20, yPosition);
-    }
-    yPosition += 10;
-
-    // Payment Details Section
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    yPosition = addText('PAYMENT DETAILS', 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    yPosition += 5;
-
-    // Clean amount to remove any superscript or formatting characters
-    let initialPayment = String(booking.pricing.totalAmount || 0);
-    initialPayment = initialPayment.replace(/[¹²³⁴⁵⁶⁷⁸⁹⁰]/g, '').replace(/[^\d.]/g, '');
-    if (!initialPayment || initialPayment === '') initialPayment = '0';
-    yPosition = addText(`Initial Payment: ${initialPayment}`, 20, yPosition);
-    if (billingAmount > 0) {
-      yPosition = addText(`Service Charges: ${billingAmount}`, 20, yPosition);
-    }
-    // GST removed from PDF receipt
-    if (booking.payment?.method !== 'cash' && booking.payment?.transactionId) {
-      yPosition = addText(`Transaction ID: ${booking.payment.transactionId}`, 20, yPosition);
-    }
-    yPosition += 10;
-
-    // Spare Parts Section - show details and warranty, but NOT payment/amount
-    const spareParts = (booking as any).completionData?.spareParts || [];
-    if (spareParts && spareParts.length > 0) {
+      // Booking Details Section
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      yPosition = addText('SPARE PARTS DETAILS', 20, yPosition);
+      yPosition = addText('BOOKING DETAILS', 20, yPosition);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       yPosition += 5;
 
-      spareParts.forEach((part: any, index: number) => {
-        yPosition = addText(`${index + 1}. ${part.name || 'N/A'}`, 20, yPosition);
-        if (part.warranty) {
-          yPosition = addText(`   Warranty: ${part.warranty}`, 25, yPosition);
+      yPosition = addText(`Booking ID: ${bookingRef}`, 20, yPosition);
+      yPosition = addText(`Status: ${booking.status.toUpperCase()}`, 20, yPosition);
+      yPosition = addText(`Created Date: ${new Date(booking.createdAt).toLocaleDateString('en-IN')}`, 20, yPosition);
+      yPosition = addText(`Completed Date: ${booking.scheduling?.scheduledDate
+        ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
+        : new Date(booking.updatedAt).toLocaleDateString('en-IN')
+        }`, 20, yPosition);
+      if (booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' &&
+        (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed')) {
+        const vendor = booking.vendor.vendorId as { firstName: string; lastName: string };
+        if (vendor.firstName && vendor.lastName) {
+          yPosition = addText(`Assigned Engineer: ${vendor.firstName} ${vendor.lastName}`, 20, yPosition);
         }
-        yPosition += 3; // Small gap between parts
+      }
+      yPosition += 10;
+
+      // Customer Details Section
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      yPosition = addText('CUSTOMER DETAILS', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      yPosition += 5;
+
+      yPosition = addText(`Name: ${booking.customer.name}`, 20, yPosition);
+      yPosition = addText(`Email: ${booking.customer.email}`, 20, yPosition);
+      yPosition = addText(`Phone: ${booking.customer.phone}`, 20, yPosition);
+      yPosition = addText(`Address: ${booking.customer.address.street}, ${booking.customer.address.city}, ${booking.customer.address.state} - ${booking.customer.address.pincode}`, 20, yPosition, pageWidth - 40);
+      yPosition += 10;
+
+      // Service Details Section
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      yPosition = addText('SERVICE DETAILS', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      yPosition += 5;
+
+      booking.services.forEach((service, index) => {
+        yPosition = addText(`${index + 1}. ${service.serviceName}`, 20, yPosition);
       });
       yPosition += 10;
-    }
 
-    // Resolution Notes Section removed - not showing in receipt
-    // Total Amount Section removed - not showing in receipt
+      // Scheduling Details Section
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      yPosition = addText('SCHEDULING DETAILS', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      yPosition += 5;
 
-    // Footer
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    yPosition = addText('Thank you for choosing Fixfly for your service needs!', pageWidth / 2, pageHeight - 20, undefined, 'center');
-    yPosition = addText('For any queries, contact us at info@getfixfly.com', pageWidth / 2, pageHeight - 15, undefined, 'center');
+      yPosition = addText(`Preferred Date: ${new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')}`, 20, yPosition);
+      yPosition = addText(`Preferred Time: ${booking.scheduling.preferredTimeSlot}`, 20, yPosition);
+      if (booking.scheduling.scheduledDate) {
+        yPosition = addText(`Scheduled Date: ${new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')}`, 20, yPosition);
+      }
+      if (booking.scheduling.scheduledTime) {
+        yPosition = addText(`Scheduled Time: ${booking.scheduling.scheduledTime}`, 20, yPosition);
+      }
+      yPosition += 10;
 
-    // Save the PDF
-    const fileName = `Fixfly_Receipt_${bookingRef}_${new Date().toISOString().split('T')[0]}.pdf`;
-    doc.save(fileName);
-    
-    toast({
-      title: "Receipt Downloaded",
-      description: `Receipt for ${bookingRef} has been downloaded successfully.`,
-      variant: "default"
-    });
-    
+      // Payment Details Section
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      yPosition = addText('PAYMENT DETAILS', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      yPosition += 5;
+
+      // Clean amount to remove any superscript or formatting characters
+      let initialPayment = String(booking.pricing.totalAmount || 0);
+      initialPayment = initialPayment.replace(/[¹²³⁴⁵⁶⁷⁸⁹⁰]/g, '').replace(/[^\d.]/g, '');
+      if (!initialPayment || initialPayment === '') initialPayment = '0';
+      yPosition = addText(`Initial Payment: ${initialPayment}`, 20, yPosition);
+      if (billingAmount > 0) {
+        yPosition = addText(`Service Charges: ${billingAmount}`, 20, yPosition);
+      }
+      // GST removed from PDF receipt
+      if (booking.payment?.method !== 'cash' && booking.payment?.transactionId) {
+        yPosition = addText(`Transaction ID: ${booking.payment.transactionId}`, 20, yPosition);
+      }
+      yPosition += 10;
+
+      // Spare Parts Section - show details and warranty, but NOT payment/amount
+      const spareParts = (booking as any).completionData?.spareParts || [];
+      if (spareParts && spareParts.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        yPosition = addText('SPARE PARTS DETAILS', 20, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        yPosition += 5;
+
+        spareParts.forEach((part: any, index: number) => {
+          yPosition = addText(`${index + 1}. ${part.name || 'N/A'}`, 20, yPosition);
+          if (part.warranty) {
+            yPosition = addText(`   Warranty: ${part.warranty}`, 25, yPosition);
+          }
+          yPosition += 3; // Small gap between parts
+        });
+        yPosition += 10;
+      }
+
+      // Resolution Notes Section removed - not showing in receipt
+      // Total Amount Section removed - not showing in receipt
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      yPosition = addText('Thank you for choosing Fixfly for your service needs!', pageWidth / 2, pageHeight - 20, undefined, 'center');
+      yPosition = addText('For any queries, contact us at info@getfixfly.com', pageWidth / 2, pageHeight - 15, undefined, 'center');
+
+      // Save the PDF
+      const fileName = `Fixfly_Receipt_${bookingRef}_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+
+      toast({
+        title: "Receipt Downloaded",
+        description: `Receipt for ${bookingRef} has been downloaded successfully.`,
+        variant: "default"
+      });
+
     } catch (error) {
       console.error('Error generating PDF receipt:', error);
       toast({
@@ -1110,7 +1110,7 @@ For support, contact us at info@getfixfly.com
 
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
-  
+
   // View Details Modal State
   const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -1127,7 +1127,7 @@ For support, contact us at info@getfixfly.com
 
     try {
       const response = await bookingApi.cancelBookingByUser(bookingToCancel._id, 'Cancelled by user');
-      
+
       if (response.success) {
         toast({
           title: "Booking Cancelled",
@@ -1165,7 +1165,7 @@ For support, contact us at info@getfixfly.com
     setSelectedBooking(booking);
     setIsViewDetailsOpen(true);
     setLoadingDetails(true);
-    
+
     try {
       const response = await bookingApi.getBookingById(booking._id);
       if (response.success && response.data?.booking) {
@@ -1198,8 +1198,8 @@ For support, contact us at info@getfixfly.com
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   onClick={() => navigate(-1)}
                   className="p-3 rounded-full hover:bg-blue-50 transition-all duration-200"
@@ -1222,8 +1222,8 @@ For support, contact us at info@getfixfly.com
         <div className="container mx-auto px-4 py-8 max-w-4xl pb-32 md:pb-24">
           {/* Back Button */}
           <div className="mb-8">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => navigate(-1)}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 px-4 py-2 rounded-full transition-all duration-200"
@@ -1250,8 +1250,8 @@ For support, contact us at info@getfixfly.com
                   <div className="flex items-center space-x-4 md:space-x-6">
                     <div className="relative">
                       <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-md">
-                        <img 
-                          src={item.image} 
+                        <img
+                          src={item.image}
                           alt={item.title}
                           className="w-full h-full object-cover rounded-2xl"
                         />
@@ -1331,14 +1331,14 @@ For support, contact us at info@getfixfly.com
                   <p className="text-sm text-gray-600">Total Amount</p>
                   <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">₹{totalPrice}</p>
                 </div>
-                <Button 
+                <Button
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => {
                     // Show thank you popup
                     setShowThankYou(true);
                   }}
                 >
-                 Book Now
+                  Book Now
                 </Button>
               </div>
             </div>
@@ -1353,116 +1353,116 @@ For support, contact us at info@getfixfly.com
   if ((newBooking && fromCheckout) || (location.state?.booking && location.state?.fromCheckout)) {
     const displayBooking = newBooking || location.state?.booking;
     const displayReference = bookingReference || location.state?.bookingReference || displayBooking?.bookingReference;
-    
+
     if (displayBooking) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-36 md:pb-0">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => navigate('/')}
-                  className="p-2"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <h1 className="text-lg font-semibold">Booking Confirmed</h1>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="container mx-auto px-4 py-2 max-w-2xl mt-8 pb-20">
-          {/* Success Message */}
-          <div className="text-center mb-3">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-1">Booking Confirmed!</h1>
-            <p className="text-sm text-gray-600 mb-2">
-              Your booking has been successfully created and payment has been processed.
-            </p>
-            <div className="bg-white rounded-lg p-2 inline-block shadow-sm">
-              <p className="text-xs text-gray-500">Booking Reference</p>
-              <p className="text-base font-bold text-blue-600">{displayReference}</p>
-            </div>
-          </div>
-
-          {/* Booking Details */}
-          <div className="bg-white rounded-lg shadow-sm border p-3 mb-3">
-            <h2 className="text-base font-bold text-gray-900 mb-2">Booking Details</h2>
-            
-            {/* Customer Info */}
-            <div className="grid md:grid-cols-2 gap-3 mb-3">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-1 text-xs">Customer Information</h3>
-                <div className="space-y-0.5 text-xs text-gray-600">
-                  <p><strong>Name:</strong> {displayBooking.customer.name}</p>
-                  <p><strong>Email:</strong> {displayBooking.customer.email}</p>
-                  <p><strong>Phone:</strong> {displayBooking.customer.phone}</p>
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-1 text-xs">Address</h3>
-                <div className="space-y-0.5 text-xs text-gray-600">
-                  <p>{displayBooking.customer.address.street}</p>
-                  <p>{displayBooking.customer.address.city}, {displayBooking.customer.address.state}</p>
-                  <p>PIN: {displayBooking.customer.address.pincode}</p>
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-36 md:pb-0">
+          {/* Header */}
+          <div className="bg-white shadow-sm border-b sticky top-0 z-50">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/')}
+                    className="p-2"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                  <h1 className="text-lg font-semibold">Booking Confirmed</h1>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Services */}
-            <div className="mb-3">
-              <h3 className="font-semibold text-gray-900 mb-1 text-xs">Services Booked</h3>
-              <div className="space-y-0.5">
-                {displayBooking.services.map((service, index) => (
-                  <div key={index} className="flex justify-between items-center py-0.5 border-b border-gray-100 last:border-b-0">
-                    <span className="text-gray-900 text-xs">{service.serviceName}</span>
-                    <span className="font-semibold text-gray-900 text-xs">₹{service.price}</span>
+          <div className="container mx-auto px-4 py-2 max-w-2xl mt-8 pb-20">
+            {/* Success Message */}
+            <div className="text-center mb-3">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900 mb-1">Booking Confirmed!</h1>
+              <p className="text-sm text-gray-600 mb-2">
+                Your booking has been successfully created and payment has been processed.
+              </p>
+              <div className="bg-white rounded-lg p-2 inline-block shadow-sm">
+                <p className="text-xs text-gray-500">Booking Reference</p>
+                <p className="text-base font-bold text-blue-600">{displayReference}</p>
+              </div>
+            </div>
+
+            {/* Booking Details */}
+            <div className="bg-white rounded-lg shadow-sm border p-3 mb-3">
+              <h2 className="text-base font-bold text-gray-900 mb-2">Booking Details</h2>
+
+              {/* Customer Info */}
+              <div className="grid md:grid-cols-2 gap-3 mb-3">
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1 text-xs">Customer Information</h3>
+                  <div className="space-y-0.5 text-xs text-gray-600">
+                    <p><strong>Name:</strong> {displayBooking.customer.name}</p>
+                    <p><strong>Email:</strong> {displayBooking.customer.email}</p>
+                    <p><strong>Phone:</strong> {displayBooking.customer.phone}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Pricing */}
-            <div className="bg-gray-50 rounded p-2">
-              <div className="space-y-0.5">
-                <div className="flex justify-between text-gray-600 text-xs">
-                  <span>Subtotal</span>
-                  <span>₹{displayBooking.pricing.subtotal}</span>
                 </div>
-                {/* GST removed from booking summary UI */}
-                <div className="border-t border-gray-200 pt-0.5">
-                  <div className="flex justify-between text-sm font-bold text-gray-900">
-                    <span>Total Amount</span>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1 text-xs">Address</h3>
+                  <div className="space-y-0.5 text-xs text-gray-600">
+                    <p>{displayBooking.customer.address.street}</p>
+                    <p>{displayBooking.customer.address.city}, {displayBooking.customer.address.state}</p>
+                    <p>PIN: {displayBooking.customer.address.pincode}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Services */}
+              <div className="mb-3">
+                <h3 className="font-semibold text-gray-900 mb-1 text-xs">Services Booked</h3>
+                <div className="space-y-0.5">
+                  {displayBooking.services.map((service, index) => (
+                    <div key={index} className="flex justify-between items-center py-0.5 border-b border-gray-100 last:border-b-0">
+                      <span className="text-gray-900 text-xs">{service.serviceName}</span>
+                      <span className="font-semibold text-gray-900 text-xs">₹{service.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pricing */}
+              <div className="bg-gray-50 rounded p-2">
+                <div className="space-y-0.5">
+                  <div className="flex justify-between text-gray-600 text-xs">
+                    <span>Subtotal</span>
                     <span>₹{displayBooking.pricing.subtotal}</span>
                   </div>
+                  {/* GST removed from booking summary UI */}
+                  <div className="border-t border-gray-200 pt-0.5">
+                    <div className="flex justify-between text-sm font-bold text-gray-900">
+                      <span>Total Amount</span>
+                      <span>₹{displayBooking.pricing.subtotal}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <Button 
-              onClick={() => navigate('/')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 text-xs"
-            >
-              Back to Home
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Button
+                onClick={() => navigate('/')}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 text-xs"
+              >
+                Back to Home
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile Bottom Navigation */}
+          <MobileBottomNav />
         </div>
-        
-        {/* Mobile Bottom Navigation */}
-        <MobileBottomNav />
-      </div>
-    );
+      );
     }
   }
 
@@ -1473,24 +1473,24 @@ For support, contact us at info@getfixfly.com
         <div className="container px-2 py-24">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-0 pt-0">
             <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-0 h-auto rounded-lg">
-              <TabsTrigger 
-                value="ongoing" 
+              <TabsTrigger
+                value="ongoing"
                 className="text-base font-medium py-6 px-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all"
               >
                 <div className="flex items-center space-x-2">
                   <span>Ongoing</span>
                 </div>
               </TabsTrigger>
-              <TabsTrigger 
-                value="completed" 
+              <TabsTrigger
+                value="completed"
                 className="text-base font-medium py-3 px-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all"
               >
                 <div className="flex items-center space-x-2">
                   <span>Completed</span>
                 </div>
               </TabsTrigger>
-              <TabsTrigger 
-                value="cancelled" 
+              <TabsTrigger
+                value="cancelled"
                 className="text-base font-medium py-3 px-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-md transition-all"
               >
                 <div className="flex items-center space-x-2">
@@ -1513,7 +1513,7 @@ For support, contact us at info@getfixfly.com
                   <User className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Login Required</h3>
                   <p className="text-gray-600 mb-4">Please login to view your bookings</p>
-                  <Button 
+                  <Button
                     onClick={() => navigate('/login')}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
@@ -1532,7 +1532,7 @@ For support, contact us at info@getfixfly.com
                   <XCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Bookings</h3>
                   <p className="text-gray-600 mb-4">{error}</p>
-                  <Button 
+                  <Button
                     onClick={fetchBookings}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
@@ -1546,7 +1546,7 @@ For support, contact us at info@getfixfly.com
                   <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No Ongoing Bookings</h3>
                   <p className="text-gray-600 mb-4">You don't have any ongoing bookings at the moment</p>
-                  <Button 
+                  <Button
                     onClick={() => navigate('/')}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
@@ -1555,279 +1555,279 @@ For support, contact us at info@getfixfly.com
                 </div>
               </div>
             ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-              {processedBookings.ongoing.map((booking) => {
-                const IconComponent = Wrench; // Default icon for services
-                return (
-                  <Card key={booking._id} className="bg-white shadow-lg rounded-xl overflow-hidden h-fit">
-                    <CardContent className="p-2 lg:p-3">
-                    {/* Case ID */}
-                    <div className="mb-1">
-                      <span className="font-bold text-gray-800 text-xs">
-                        Case ID: {(booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
-                        {(booking as any).completionData?.spareParts && (booking as any).completionData.spareParts.length > 0 && (
-                          <span className="text-green-600 ml-1">(spare)</span>
-                        )}
-                      </span>
-                    </div>
-
-                    {/* Service Details */}
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="bg-blue-100 p-1.5 rounded-full">
-                        <IconComponent className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-sm text-gray-800">
-                          {booking.services.map(s => s.serviceName).join(', ')}
-                        </h3>
-                        <p className="text-gray-600 text-xs">{getStatusText(booking.status, booking)}</p>
-                        {/* Show completion status if task is completed */}
-                        {booking.status === 'in_progress' && (booking as any).completionData && (booking as any).completionData.resolutionNote && (
-                          <div className="mt-1">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                              ✓ Task Completed - Payment Pending
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Dates and Price */}
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="space-y-1">
-                        <div className="text-xs">
-                          <span className="text-gray-600">Booking Date</span>
-                          <div className="font-medium text-sm">{formatDate(booking.createdAt)}</div>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+                {processedBookings.ongoing.map((booking) => {
+                  const IconComponent = Wrench; // Default icon for services
+                  return (
+                    <Card key={booking._id} className="bg-white shadow-lg rounded-xl overflow-hidden h-fit">
+                      <CardContent className="p-2 lg:p-3">
+                        {/* Case ID */}
+                        <div className="mb-1">
+                          <span className="font-bold text-gray-800 text-xs">
+                            Case ID: {(booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
+                            {(booking as any).completionData?.spareParts && (booking as any).completionData.spareParts.length > 0 && (
+                              <span className="text-green-600 ml-1">(spare)</span>
+                            )}
+                          </span>
                         </div>
-                        {booking.vendor && booking.vendor.vendorId && typeof booking.vendor.vendorId === 'object' ? (
-                          <div className="text-xs">
-                            <span className="text-gray-600">Appointment Date</span>
-                            <div className="font-medium text-sm">
-                              {formatDate((booking.scheduling as any).scheduledDate || booking.scheduling.preferredDate)}
-                              {(booking.scheduling as any).scheduledTime && (
-                                <span className="text-gray-500 ml-1">
-                                  {new Date(`2000-01-01T${(booking.scheduling as any).scheduledTime}`).toLocaleTimeString('en-IN', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true
-                                  })}
+
+                        {/* Service Details */}
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="bg-blue-100 p-1.5 rounded-full">
+                            <IconComponent className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-bold text-sm text-gray-800">
+                              {booking.services.map(s => s.serviceName).join(', ')}
+                            </h3>
+                            <p className="text-gray-600 text-xs">{getStatusText(booking.status, booking)}</p>
+                            {/* Show completion status if task is completed */}
+                            {booking.status === 'in_progress' && (booking as any).completionData && (booking as any).completionData.resolutionNote && (
+                              <div className="mt-1">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                  ✓ Task Completed - Payment Pending
                                 </span>
-                              )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Dates and Price */}
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="space-y-1">
+                            <div className="text-xs">
+                              <span className="text-gray-600">Booking Date</span>
+                              <div className="font-medium text-sm">{formatDate(booking.createdAt)}</div>
                             </div>
+                            {booking.vendor && booking.vendor.vendorId && typeof booking.vendor.vendorId === 'object' ? (
+                              <div className="text-xs">
+                                <span className="text-gray-600">Appointment Date</span>
+                                <div className="font-medium text-sm">
+                                  {formatDate((booking.scheduling as any).scheduledDate || booking.scheduling.preferredDate)}
+                                  {(booking.scheduling as any).scheduledTime && (
+                                    <span className="text-gray-500 ml-1">
+                                      {new Date(`2000-01-01T${(booking.scheduling as any).scheduledTime}`).toLocaleTimeString('en-IN', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: true
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-xs">
+                                <span className="text-gray-600">Appointment Date</span>
+                                <div className="font-medium text-sm text-gray-400">To be assigned</div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-semibold text-sm">
+                            {formatPrice(booking.pricing.totalAmount)}
+                          </div>
+                        </div>
+
+                        {/* Engineer Details - Show only when vendor has accepted the task */}
+                        {booking.vendor && booking.vendor.vendorId && typeof booking.vendor.vendorId === 'object' &&
+                          (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') ? (
+                          <div className="bg-green-50 rounded-lg p-1.5 mb-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <div className="bg-green-100 p-1 rounded-full">
+                                  <Wrench className="h-3 w-3 text-green-600" />
+                                </div>
+                                <div>
+                                  <div className="font-bold text-gray-800 text-xs">Engineer Assigned</div>
+                                  <div className="text-gray-600 text-xs">
+                                    {(() => {
+                                      const vendor = booking.vendor.vendorId as any;
+                                      if (typeof vendor === 'object' && vendor !== null) {
+                                        return vendor.firstName && vendor.lastName
+                                          ? `${vendor.firstName} ${vendor.lastName}`
+                                          : 'Engineer Name';
+                                      }
+                                      return 'Engineer Name';
+                                    })()}
+                                  </div>
+                                  <div className="text-gray-600 text-xs">
+                                    {(() => {
+                                      const vendor = booking.vendor.vendorId as any;
+                                      if (typeof vendor === 'object' && vendor !== null) {
+                                        return vendor.phone || 'Phone not available';
+                                      }
+                                      return 'Phone not available';
+                                    })()}
+                                  </div>
+                                  <div className="text-gray-600 text-xs">
+                                    {(() => {
+                                      const vendor = booking.vendor.vendorId as any;
+                                      if (typeof vendor === 'object' && vendor !== null) {
+                                        return vendor.email || 'Email not available';
+                                      }
+                                      return 'Email not available';
+                                    })()}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex space-x-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="p-1 hover:bg-green-50"
+                                  onClick={() => {
+                                    const vendor = booking.vendor.vendorId as any;
+                                    const phone = vendor?.phone || 'Phone not available';
+                                    handlePhoneCall(phone);
+                                  }}
+                                  title="Call Engineer"
+                                >
+                                  <Phone className="h-3 w-3 text-green-600" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="p-1 hover:bg-green-50"
+                                  onClick={() => {
+                                    const vendor = booking.vendor.vendorId as any;
+                                    const phone = vendor?.phone || 'Phone not available';
+                                    const name = vendor?.firstName && vendor?.lastName
+                                      ? `${vendor.firstName} ${vendor.lastName}`
+                                      : 'Engineer';
+                                    handleMessage(phone, name);
+                                  }}
+                                  title="Message Engineer on WhatsApp"
+                                >
+                                  <MessageCircle className="h-3 w-3 text-green-600" />
+                                </Button>
+                              </div>
+                            </div>
+
                           </div>
                         ) : (
-                          <div className="text-xs">
-                            <span className="text-gray-600">Appointment Date</span>
-                            <div className="font-medium text-sm text-gray-400">To be assigned</div>
+                          <div className="bg-gray-50 rounded-lg p-1.5 mb-2">
+                            <div className="flex items-center justify-center">
+                              <div className="text-center">
+                                <div className="text-gray-500 text-xs">Waiting for engineer assignment</div>
+                              </div>
+                            </div>
                           </div>
                         )}
-                      </div>
-                      <div className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-semibold text-sm">
-                        {formatPrice(booking.pricing.totalAmount)}
-                      </div>
-                    </div>
 
-                    {/* Engineer Details - Show only when vendor has accepted the task */}
-                    {booking.vendor && booking.vendor.vendorId && typeof booking.vendor.vendorId === 'object' && 
-                     (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') ? (
-                      <div className="bg-green-50 rounded-lg p-1.5 mb-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <div className="bg-green-100 p-1 rounded-full">
-                              <Wrench className="h-3 w-3 text-green-600" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-gray-800 text-xs">Engineer Assigned</div>
-                              <div className="text-gray-600 text-xs">
-                                {(() => {
-                                  const vendor = booking.vendor.vendorId as any;
-                                  if (typeof vendor === 'object' && vendor !== null) {
-                                    return vendor.firstName && vendor.lastName 
-                                      ? `${vendor.firstName} ${vendor.lastName}` 
-                                      : 'Engineer Name';
-                                  }
-                                  return 'Engineer Name';
-                                })()}
-                              </div>
-                              <div className="text-gray-600 text-xs">
-                                {(() => {
-                                  const vendor = booking.vendor.vendorId as any;
-                                  if (typeof vendor === 'object' && vendor !== null) {
-                                    return vendor.phone || 'Phone not available';
-                                  }
-                                  return 'Phone not available';
-                                })()}
-                              </div>
-                              <div className="text-gray-600 text-xs">
-                                {(() => {
-                                  const vendor = booking.vendor.vendorId as any;
-                                  if (typeof vendor === 'object' && vendor !== null) {
-                                    return vendor.email || 'Email not available';
-                                  }
-                                  return 'Email not available';
-                                })()}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex space-x-1">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="p-1 hover:bg-green-50"
-                              onClick={() => {
-                                const vendor = booking.vendor.vendorId as any;
-                                const phone = vendor?.phone || 'Phone not available';
-                                handlePhoneCall(phone);
-                              }}
-                              title="Call Engineer"
-                            >
-                              <Phone className="h-3 w-3 text-green-600" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="p-1 hover:bg-green-50"
-                              onClick={() => {
-                                const vendor = booking.vendor.vendorId as any;
-                                const phone = vendor?.phone || 'Phone not available';
-                                const name = vendor?.firstName && vendor?.lastName 
-                                  ? `${vendor.firstName} ${vendor.lastName}` 
-                                  : 'Engineer';
-                                handleMessage(phone, name);
-                              }}
-                              title="Message Engineer on WhatsApp"
-                            >
-                              <MessageCircle className="h-3 w-3 text-green-600" />
-                            </Button>
-                          </div>
-                        </div>
-                        
-                      </div>
-                    ) : (
-                      <div className="bg-gray-50 rounded-lg p-1.5 mb-2">
-                        <div className="flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-gray-500 text-xs">Waiting for engineer assignment</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="flex space-x-1 mb-1">
-                      {/* Debug: Log booking data */}
-                      {(() => {
-                        console.log('Booking Debug:', {
-                          id: booking._id,
-                          status: booking.status,
-                          completionData: (booking as any).completionData,
-                          paymentMode: (booking as any).paymentMode,
-                          paymentStatus: (booking as any).paymentStatus,
-                          payment: (booking as any).payment
-                        });
-                        return null;
-                      })()}
-                      
-                      {/* Show Pay Now button - check multiple conditions */}
-                      {(() => {
-                        // Check localStorage for payment data
-                        const paymentData = localStorage.getItem(`payment_${booking._id}`);
-                        const gstData = localStorage.getItem(`gst_${booking._id}`);
-                        
-                        // Check if booking has completion data
-                        const hasCompletionData = (booking as any).completionData && (booking as any).completionData.resolutionNote;
-                        
-                        // Check if payment mode is online
-                        const isOnlinePayment = (booking as any).paymentMode === 'online' || 
-                                             (booking as any).payment?.method === 'online' ||
-                                             (paymentData && JSON.parse(paymentData).paymentMethod === 'online');
-                        
-                        // Check if payment status is pending
-                        const isPaymentPending = (booking as any).paymentStatus === 'pending' || 
-                                               (booking as any).payment?.status === 'pending';
-                        
-                        // Show Pay Now button if any of these conditions are met
-                        const shouldShowPayNow = booking.status === 'in_progress' && 
-                                               (hasCompletionData || paymentData || gstData) &&
-                                               (isOnlinePayment || paymentData) &&
-                                               (isPaymentPending || !(booking as any).payment?.status);
-                        
-                        console.log('Pay Now Button Debug:', {
-                          bookingId: booking._id,
-                          status: booking.status,
-                          hasCompletionData,
-                          isOnlinePayment,
-                          isPaymentPending,
-                          paymentData: !!paymentData,
-                          gstData: !!gstData,
-                          shouldShowPayNow
-                        });
-                        
-                        return shouldShowPayNow;
-                      })() ? (
-                        <Button 
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs py-1.5"
-                          onClick={() => handlePayNow(booking)}
-                        >
-                          Pay Now - ₹{(() => {
-                            // Use billingAmount (vendor's service charge) - this is what customer needs to pay
-                            // Try completionData first, then root level billingAmount
-                            const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
-                            const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
-                            
-                            // If billing amount is missing, show 0 (vendor should have entered this)
-                            if (billingAmount === 0) {
-                              return '0';
-                            }
-                            
-                            // Check for GST data in localStorage
-                            const gstData = getGSTData(booking._id);
-                            if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
-                              return gstData.totalAmount.toLocaleString();
-                            }
-                            
-                            // Fallback to booking data
-                            const includeGST = (booking as any).includeGST;
-                            const gstAmount = (booking as any).gstAmount || 0;
-                            
-                            if (includeGST && gstAmount > 0) {
-                              return (billingAmount + gstAmount).toLocaleString();
-                            }
-                            return billingAmount.toLocaleString();
+                        {/* Action Buttons */}
+                        <div className="flex space-x-1 mb-1">
+                          {/* Debug: Log booking data */}
+                          {(() => {
+                            console.log('Booking Debug:', {
+                              id: booking._id,
+                              status: booking.status,
+                              completionData: (booking as any).completionData,
+                              paymentMode: (booking as any).paymentMode,
+                              paymentStatus: (booking as any).paymentStatus,
+                              payment: (booking as any).payment
+                            });
+                            return null;
                           })()}
-                        </Button>
-                      ) : (
-                        <>
-                          <Button 
-                            className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs py-1.5"
-                            onClick={() => handleCancelBooking(booking)}
+
+                          {/* Show Pay Now button - check multiple conditions */}
+                          {(() => {
+                            // Check localStorage for payment data
+                            const paymentData = localStorage.getItem(`payment_${booking._id}`);
+                            const gstData = localStorage.getItem(`gst_${booking._id}`);
+
+                            // Check if booking has completion data
+                            const hasCompletionData = (booking as any).completionData && (booking as any).completionData.resolutionNote;
+
+                            // Check if payment mode is online
+                            const isOnlinePayment = (booking as any).paymentMode === 'online' ||
+                              (booking as any).payment?.method === 'online' ||
+                              (paymentData && JSON.parse(paymentData).paymentMethod === 'online');
+
+                            // Check if payment status is pending
+                            const isPaymentPending = (booking as any).paymentStatus === 'pending' ||
+                              (booking as any).payment?.status === 'pending';
+
+                            // Show Pay Now button if any of these conditions are met
+                            const shouldShowPayNow = booking.status === 'in_progress' &&
+                              (hasCompletionData || paymentData || gstData) &&
+                              (isOnlinePayment || paymentData) &&
+                              (isPaymentPending || !(booking as any).payment?.status);
+
+                            console.log('Pay Now Button Debug:', {
+                              bookingId: booking._id,
+                              status: booking.status,
+                              hasCompletionData,
+                              isOnlinePayment,
+                              isPaymentPending,
+                              paymentData: !!paymentData,
+                              gstData: !!gstData,
+                              shouldShowPayNow
+                            });
+
+                            return shouldShowPayNow;
+                          })() ? (
+                            <Button
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs py-1.5"
+                              onClick={() => handlePayNow(booking)}
+                            >
+                              Pay Now - ₹{(() => {
+                                // Use billingAmount (vendor's service charge) - this is what customer needs to pay
+                                // Try completionData first, then root level billingAmount
+                                const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
+                                const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
+
+                                // If billing amount is missing, show 0 (vendor should have entered this)
+                                if (billingAmount === 0) {
+                                  return '0';
+                                }
+
+                                // Check for GST data in localStorage
+                                const gstData = getGSTData(booking._id);
+                                if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
+                                  return gstData.totalAmount.toLocaleString();
+                                }
+
+                                // Fallback to booking data
+                                const includeGST = (booking as any).includeGST;
+                                const gstAmount = (booking as any).gstAmount || 0;
+
+                                if (includeGST && gstAmount > 0) {
+                                  return (billingAmount + gstAmount).toLocaleString();
+                                }
+                                return billingAmount.toLocaleString();
+                              })()}
+                            </Button>
+                          ) : (
+                            <>
+                              <Button
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs py-1.5"
+                                onClick={() => handleCancelBooking(booking)}
+                              >
+                                Cancel Booking
+                              </Button>
+                              <Button
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5"
+                                onClick={() => handleReschedule(booking)}
+                              >
+                                Reschedule
+                              </Button>
+                            </>
+                          )}
+                        </div>
+
+                        {/* View Details Button */}
+                        <div className="mb-1">
+                          <Button
+                            className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
+                            onClick={() => handleViewDetails(booking)}
                           >
-                            Cancel Booking
+                            View Details
                           </Button>
-                          <Button 
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5"
-                            onClick={() => handleReschedule(booking)}
-                          >
-                            Reschedule
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                    
-                    {/* View Details Button */}
-                    <div className="mb-1">
-                      <Button 
-                        className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
-                        onClick={() => handleViewDetails(booking)}
-                      >
-                        View Details
-                      </Button>
-                    </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
           </TabsContent>
 
@@ -1839,7 +1839,7 @@ For support, contact us at info@getfixfly.com
                   <User className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Login Required</h3>
                   <p className="text-gray-600 mb-4">Please login to view your bookings</p>
-                  <Button 
+                  <Button
                     onClick={() => navigate('/login')}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
@@ -1853,7 +1853,7 @@ For support, contact us at info@getfixfly.com
                   <CheckCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No Completed Bookings</h3>
                   <p className="text-gray-600 mb-4">You don't have any completed bookings yet</p>
-                  <Button 
+                  <Button
                     onClick={() => navigate('/')}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
@@ -1862,85 +1862,85 @@ For support, contact us at info@getfixfly.com
                 </div>
               </div>
             ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-              {processedBookings.completed.map((booking) => {
-                const IconComponent = Wrench; // Default icon for services
-                return (
-                  <Card key={booking._id} className="bg-white shadow-lg rounded-xl overflow-hidden h-fit">
-                  <CardContent className="p-3 lg:p-4">
-                    {/* Case ID */}
-                    <div className="mb-1">
-                      <span className="font-bold text-gray-800 text-xs">
-                        Case ID: {(booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
-                      </span>
-                    </div>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+                {processedBookings.completed.map((booking) => {
+                  const IconComponent = Wrench; // Default icon for services
+                  return (
+                    <Card key={booking._id} className="bg-white shadow-lg rounded-xl overflow-hidden h-fit">
+                      <CardContent className="p-3 lg:p-4">
+                        {/* Case ID */}
+                        <div className="mb-1">
+                          <span className="font-bold text-gray-800 text-xs">
+                            Case ID: {(booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
+                          </span>
+                        </div>
 
-                    {/* Service Details */}
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="bg-green-100 p-1.5 rounded-full">
-                        <IconComponent className="h-4 w-4 text-green-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-sm text-gray-800">
-                          {booking.services.map(s => s.serviceName).join(', ')}
-                        </h3>
-                        <p className="text-gray-600 text-xs">{getStatusText(booking.status, booking)}</p>
-                      </div>
-                    </div>
-
-                    {/* Dates */}
-                    <div className="mb-2">
-                      <div className="space-y-1">
-                        <div className="text-xs">
-                          <span className="text-gray-600">Completed Date</span>
-                          <div className="font-medium text-sm">
-                            {booking.scheduling?.scheduledDate 
-                              ? formatDate(booking.scheduling.scheduledDate)
-                              : formatDate(booking.updatedAt)
-                            }
+                        {/* Service Details */}
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="bg-green-100 p-1.5 rounded-full">
+                            <IconComponent className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-bold text-sm text-gray-800">
+                              {booking.services.map(s => s.serviceName).join(', ')}
+                            </h3>
+                            <p className="text-gray-600 text-xs">{getStatusText(booking.status, booking)}</p>
                           </div>
                         </div>
-                        <div className="text-xs">
-                          <span className="text-gray-600">Assigned Engineer</span>
-                          <div className="font-medium text-sm">
-                            {booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' && 
-                             (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') &&
-                             booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName 
-                              ? `${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}`
-                              : 'Not Assigned Yet'
-                            }
+
+                        {/* Dates */}
+                        <div className="mb-2">
+                          <div className="space-y-1">
+                            <div className="text-xs">
+                              <span className="text-gray-600">Completed Date</span>
+                              <div className="font-medium text-sm">
+                                {booking.scheduling?.scheduledDate
+                                  ? formatDate(booking.scheduling.scheduledDate)
+                                  : formatDate(booking.updatedAt)
+                                }
+                              </div>
+                            </div>
+                            <div className="text-xs">
+                              <span className="text-gray-600">Assigned Engineer</span>
+                              <div className="font-medium text-sm">
+                                {booking.vendor?.vendorId && typeof booking.vendor.vendorId === 'object' &&
+                                  (booking.vendorResponse?.status === 'accepted' || booking.status === 'in_progress' || booking.status === 'completed') &&
+                                  booking.vendor.vendorId.firstName && booking.vendor.vendorId.lastName
+                                  ? `${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}`
+                                  : 'Not Assigned Yet'
+                                }
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
 
-                    {/* Action Buttons */}
-                    <div className="space-y-1 mb-1">
-                      <Button 
-                        className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
-                        onClick={() => generateReceiptPDF(booking)}
-                      >
-                        Download Receipt
-                      </Button>
-                      <Button 
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5"
-                        onClick={() => handleViewDetails(booking)}
-                      >
-                        View Details
-                      </Button>
-                    </div>
+                        {/* Action Buttons */}
+                        <div className="space-y-1 mb-1">
+                          <Button
+                            className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
+                            onClick={() => generateReceiptPDF(booking)}
+                          >
+                            Download Receipt
+                          </Button>
+                          <Button
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5"
+                            onClick={() => handleViewDetails(booking)}
+                          >
+                            View Details
+                          </Button>
+                        </div>
 
-                      {/* Status Tag */}
-                      <div className="text-center">
-                        <Badge className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">
-                          {booking.status}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+                        {/* Status Tag */}
+                        <div className="text-center">
+                          <Badge className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">
+                            {booking.status}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
           </TabsContent>
 
@@ -1952,7 +1952,7 @@ For support, contact us at info@getfixfly.com
                   <User className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Login Required</h3>
                   <p className="text-gray-600 mb-4">Please login to view your bookings</p>
-                  <Button 
+                  <Button
                     onClick={() => navigate('/login')}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
@@ -1966,7 +1966,7 @@ For support, contact us at info@getfixfly.com
                   <XCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No Cancelled Bookings</h3>
                   <p className="text-gray-600 mb-4">You don't have any cancelled bookings</p>
-                  <Button 
+                  <Button
                     onClick={() => navigate('/')}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
@@ -1975,68 +1975,68 @@ For support, contact us at info@getfixfly.com
                 </div>
               </div>
             ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-              {processedBookings.cancelled.map((booking) => {
-                const IconComponent = Wrench; // Default icon for services
-                return (
-                  <Card key={booking._id} className="bg-white shadow-lg rounded-xl overflow-hidden opacity-75 h-fit">
-                  <CardContent className="p-4">
-                    {/* Case ID */}
-                    <div className="mb-1">
-                      <span className="font-bold text-gray-800 text-xs">Case ID: {(booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}</span>
-                    </div>
-
-                    {/* Service Details */}
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="bg-gray-100 p-1.5 rounded-full">
-                        <IconComponent className="h-4 w-4 text-gray-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-sm text-gray-800">
-                          {booking.services.map(s => s.serviceName).join(', ')}
-                        </h3>
-                        <p className="text-gray-600 text-xs">{getStatusText(booking.status, booking)}</p>
-                      </div>
-                    </div>
-
-                    {/* Dates and Price */}
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="space-y-1">
-                        <div className="text-xs">
-                          <span className="text-gray-600">Cancelled Date</span>
-                          <div className="font-medium text-sm">{formatDate(booking.updatedAt)}</div>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+                {processedBookings.cancelled.map((booking) => {
+                  const IconComponent = Wrench; // Default icon for services
+                  return (
+                    <Card key={booking._id} className="bg-white shadow-lg rounded-xl overflow-hidden opacity-75 h-fit">
+                      <CardContent className="p-4">
+                        {/* Case ID */}
+                        <div className="mb-1">
+                          <span className="font-bold text-gray-800 text-xs">Case ID: {(booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}</span>
                         </div>
-                        <div className="text-xs">
-                          <span className="text-gray-600">Booking Date</span>
-                          <div className="font-medium text-sm">{formatDate(booking.createdAt)}</div>
+
+                        {/* Service Details */}
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="bg-gray-100 p-1.5 rounded-full">
+                            <IconComponent className="h-4 w-4 text-gray-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-bold text-sm text-gray-800">
+                              {booking.services.map(s => s.serviceName).join(', ')}
+                            </h3>
+                            <p className="text-gray-600 text-xs">{getStatusText(booking.status, booking)}</p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-semibold text-sm">
-                        {formatPrice(booking.pricing.totalAmount)}
-                      </div>
-                    </div>
 
-                    {/* Action Buttons */}
-                    <div className="space-y-1 mb-1">
-                      <Button 
-                        className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
-                        onClick={() => handleViewDetails(booking)}
-                      >
-                        View Details
-                      </Button>
-                    </div>
+                        {/* Dates and Price */}
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="space-y-1">
+                            <div className="text-xs">
+                              <span className="text-gray-600">Cancelled Date</span>
+                              <div className="font-medium text-sm">{formatDate(booking.updatedAt)}</div>
+                            </div>
+                            <div className="text-xs">
+                              <span className="text-gray-600">Booking Date</span>
+                              <div className="font-medium text-sm">{formatDate(booking.createdAt)}</div>
+                            </div>
+                          </div>
+                          <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-semibold text-sm">
+                            {formatPrice(booking.pricing.totalAmount)}
+                          </div>
+                        </div>
 
-                      {/* Status Tag */}
-                      <div className="text-center">
-                        <Badge className="px-3 py-1 rounded-full text-xs bg-red-100 text-red-700">
-                          Cancelled
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+                        {/* Action Buttons */}
+                        <div className="space-y-1 mb-1">
+                          <Button
+                            className="w-full bg-gray-600 hover:bg-gray-700 text-white text-xs py-1.5"
+                            onClick={() => handleViewDetails(booking)}
+                          >
+                            View Details
+                          </Button>
+                        </div>
+
+                        {/* Status Tag */}
+                        <div className="text-center">
+                          <Badge className="px-3 py-1 rounded-full text-xs bg-red-100 text-red-700">
+                            Cancelled
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
           </TabsContent>
         </Tabs>
@@ -2071,7 +2071,7 @@ For support, contact us at info@getfixfly.com
               </div>
             )}
             <div className="flex space-x-3 justify-center">
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => {
                   setIsCancelDialogOpen(false);
@@ -2081,7 +2081,7 @@ For support, contact us at info@getfixfly.com
               >
                 Keep Booking
               </Button>
-              <Button 
+              <Button
                 onClick={confirmCancelBooking}
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-2"
               >
@@ -2105,7 +2105,7 @@ For support, contact us at info@getfixfly.com
             <p className="text-gray-600 mb-6">
               Your service booking has been confirmed. Our technician will contact you soon to schedule the visit.
             </p>
-            <Button 
+            <Button
               onClick={() => {
                 setShowThankYou(false);
                 navigate('/');
@@ -2148,7 +2148,7 @@ For support, contact us at info@getfixfly.com
               Booking Details
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-y-auto px-4 pb-12 md:pb-14 min-h-0">
             {loadingDetails ? (
               <div className="text-center py-8">
@@ -2158,23 +2158,25 @@ For support, contact us at info@getfixfly.com
             ) : bookingDetails ? (
               <div className="space-y-3 md:space-y-4 pb-20 md:pb-16">
                 {/* Booking Reference */}
-                <div className="bg-blue-50 rounded-lg p-2.5 md:p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-bold text-sm md:text-base text-blue-900">Booking Reference</h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => generateReceiptPDF(bookingDetails)}
-                      className="px-2 py-1 text-xs border-blue-300 text-blue-700 hover:bg-blue-100 h-auto"
-                    >
-                      <Download className="h-3 w-3 mr-1" />
-                      Download Receipt
-                    </Button>
+                {bookingDetails.status !== 'cancelled' && (
+                  <div className="bg-blue-50 rounded-lg p-2.5 md:p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-bold text-sm md:text-base text-blue-900">Booking Reference</h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => generateReceiptPDF(bookingDetails)}
+                        className="px-2 py-1 text-xs border-blue-300 text-blue-700 hover:bg-blue-100 h-auto"
+                      >
+                        <Download className="h-3 w-3 mr-1" />
+                        Download Receipt
+                      </Button>
+                    </div>
+                    <p className="text-blue-800 font-mono text-sm md:text-base">
+                      {bookingDetails.bookingReference || `FIX${bookingDetails._id.toString().substring(bookingDetails._id.toString().length - 8).toUpperCase()}`}
+                    </p>
                   </div>
-                  <p className="text-blue-800 font-mono text-sm md:text-base">
-                    {bookingDetails.bookingReference || `FIX${bookingDetails._id.toString().substring(bookingDetails._id.toString().length - 8).toUpperCase()}`}
-                  </p>
-                </div>
+                )}
 
                 {/* Customer Information */}
                 <div className="bg-white border rounded-lg p-2.5 md:p-3">
@@ -2251,41 +2253,41 @@ For support, contact us at info@getfixfly.com
                 </div>
 
                 {/* Engineer Information - Show only when vendor has accepted */}
-                {bookingDetails.vendor && bookingDetails.vendor.vendorId && typeof bookingDetails.vendor.vendorId === 'object' && 
-                 (bookingDetails.vendorResponse?.status === 'accepted' || bookingDetails.status === 'in_progress' || bookingDetails.status === 'completed') && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 md:p-3">
-                    <h3 className="font-bold text-sm md:text-base text-green-900 mb-1.5 md:mb-2 flex items-center">
-                      <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
-                      Assigned Engineer
-                    </h3>
-                    <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
-                      <div>
-                        <p className="text-xs md:text-sm text-green-600 md:text-green-700">Name</p>
-                        <p className="font-medium text-xs md:text-sm text-green-900">
-                          {bookingDetails.vendor.vendorId.firstName} {bookingDetails.vendor.vendorId.lastName}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs md:text-sm text-green-600 md:text-green-700">Phone</p>
-                        <p className="font-medium text-xs md:text-sm text-green-900">{bookingDetails.vendor.vendorId.phone}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs md:text-sm text-green-600 md:text-green-700">Email</p>
-                        <p className="font-medium text-xs md:text-sm text-green-900 break-all">{bookingDetails.vendor.vendorId.email}</p>
+                {bookingDetails.vendor && bookingDetails.vendor.vendorId && typeof bookingDetails.vendor.vendorId === 'object' &&
+                  (bookingDetails.vendorResponse?.status === 'accepted' || bookingDetails.status === 'in_progress' || bookingDetails.status === 'completed') && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 md:p-3">
+                      <h3 className="font-bold text-sm md:text-base text-green-900 mb-1.5 md:mb-2 flex items-center">
+                        <User className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
+                        Assigned Engineer
+                      </h3>
+                      <div className="space-y-1.5 md:space-y-2 md:grid md:grid-cols-2 md:gap-4">
+                        <div>
+                          <p className="text-xs md:text-sm text-green-600 md:text-green-700">Name</p>
+                          <p className="font-medium text-xs md:text-sm text-green-900">
+                            {bookingDetails.vendor.vendorId.firstName} {bookingDetails.vendor.vendorId.lastName}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs md:text-sm text-green-600 md:text-green-700">Phone</p>
+                          <p className="font-medium text-xs md:text-sm text-green-900">{bookingDetails.vendor.vendorId.phone}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs md:text-sm text-green-600 md:text-green-700">Email</p>
+                          <p className="font-medium text-xs md:text-sm text-green-900 break-all">{bookingDetails.vendor.vendorId.email}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
 
                 {/* Completion Data (if available) */}
-                {bookingDetails.completionData && (
+                {bookingDetails.completionData && bookingDetails.status !== 'cancelled' && (
                   <div className="bg-white border rounded-lg p-2.5 md:p-3">
                     <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1.5 md:mb-2 flex items-center">
                       <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2 text-green-600" />
                       Service Completion Details
                     </h3>
-                    
+
                     {bookingDetails.completionData.resolutionNote && (
                       <div className="mb-2 md:mb-3">
                         <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Resolution Note</p>
@@ -2339,7 +2341,7 @@ For support, contact us at info@getfixfly.com
           </div>
         </DialogContent>
       </Dialog>
-      
+
 
       {/* Rating Popup */}
       <RatingPopup
@@ -2359,8 +2361,8 @@ For support, contact us at info@getfixfly.com
           }
           return String(vendorId);
         })()}
-        vendorName={ratingBooking && typeof ratingBooking.vendor?.vendorId === 'object' 
-          ? `${ratingBooking.vendor.vendorId.firstName} ${ratingBooking.vendor.vendorId.lastName}` 
+        vendorName={ratingBooking && typeof ratingBooking.vendor?.vendorId === 'object'
+          ? `${ratingBooking.vendor.vendorId.firstName} ${ratingBooking.vendor.vendorId.lastName}`
           : 'Service Provider'}
         serviceName={ratingBooking?.services?.map(s => s.serviceName).join(', ') || 'Service'}
         onRatingSubmitted={() => {

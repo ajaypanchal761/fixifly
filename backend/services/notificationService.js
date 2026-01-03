@@ -25,13 +25,13 @@ class NotificationService {
         taskType,
         taskId: taskData.ticketId || taskData._id
       });
-      
+
       return { success: true, message: 'Email/SMS notifications disabled - using Firebase notifications' };
 
       // Import Vendor model to get vendor details
       const Vendor = require('../models/Vendor');
       const vendor = await Vendor.findById(vendorId);
-      
+
       if (!vendor) {
         logger.warn('Vendor not found for notification', { vendorId });
         return { success: false, error: 'Vendor not found' };
@@ -63,7 +63,7 @@ class NotificationService {
         };
 
         const emailResult = await emailService.sendEmail(emailData);
-        
+
         if (emailResult.success) {
           logger.info('Task assignment email sent successfully', {
             vendorId,
@@ -155,15 +155,15 @@ class NotificationService {
       // Import Vendor model to get vendor details
       const Vendor = require('../models/Vendor');
       const vendor = await Vendor.findById(vendorId);
-      
+
       if (!vendor) {
         logger.warn('Vendor not found for urgent notification', { vendorId });
         return { success: false, error: 'Vendor not found' };
       }
 
       const title = '🚨 URGENT: Immediate Action Required';
-      const message = taskType === 'support_ticket' 
-        ? `Urgent ticket: ${taskData.subject}` 
+      const message = taskType === 'support_ticket'
+        ? `Urgent ticket: ${taskData.subject}`
         : `Urgent booking for ${taskData.customer?.name}`;
 
       const emailSubject = `🚨 URGENT: ${title}`;
@@ -180,7 +180,7 @@ class NotificationService {
         };
 
         const emailResult = await emailService.sendEmail(emailData);
-        
+
         if (emailResult.success) {
           logger.info('Urgent task email sent successfully', {
             vendorId,
@@ -271,7 +271,7 @@ class NotificationService {
       // Import Vendor model to get vendor details
       const Vendor = require('../models/Vendor');
       const vendor = await Vendor.findById(vendorId);
-      
+
       if (!vendor) {
         logger.warn('Vendor not found for custom notification', { vendorId });
         return { success: false, error: 'Vendor not found' };
@@ -291,7 +291,7 @@ class NotificationService {
         };
 
         const emailResult = await emailService.sendEmail(emailData);
-        
+
         if (emailResult.success) {
           logger.info('Custom notification email sent successfully', {
             vendorId,
@@ -417,7 +417,7 @@ class NotificationService {
               </ul>
             </div>
 
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard" class="cta-button">
+            <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard" class="cta-button">
               View in Dashboard
             </a>
           </div>
@@ -485,7 +485,7 @@ class NotificationService {
               </ul>
             </div>
 
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard" class="cta-button">
+            <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard" class="cta-button">
               View in Dashboard
             </a>
           </div>
@@ -504,7 +504,7 @@ class NotificationService {
    */
   _generateUrgentTaskEmail(vendor, taskData, taskType) {
     const title = taskType === 'support_ticket' ? 'URGENT Support Ticket' : 'URGENT Service Booking';
-    const taskInfo = taskType === 'support_ticket' 
+    const taskInfo = taskType === 'support_ticket'
       ? `<p><strong>Ticket ID:</strong> ${taskData.ticketId}</p><p><strong>Subject:</strong> ${taskData.subject}</p>`
       : `<p><strong>Booking ID:</strong> ${taskData._id}</p><p><strong>Customer:</strong> ${taskData.customer?.name}</p>`;
 
@@ -553,7 +553,7 @@ class NotificationService {
               </ul>
             </div>
 
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard" class="cta-button">
+            <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard" class="cta-button">
               VIEW URGENT TASK NOW
             </a>
           </div>
@@ -645,7 +645,7 @@ Action Required:
 - Update the ticket status as you progress
 - Communicate with the customer throughout the process
 
-View in Dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard
+View in Dashboard: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard
 
 Best regards,
 The Fixfly Support Team
@@ -675,7 +675,7 @@ Action Required:
 - Arrive on time for the scheduled service
 - Update the booking status as you progress
 
-View in Dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard
+View in Dashboard: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard
 
 Best regards,
 The Fixfly Support Team
@@ -687,7 +687,7 @@ The Fixfly Support Team
    * Generate plain text urgent email content
    */
   _generatePlainTextUrgentEmail(vendor, taskData, taskType) {
-    const taskInfo = taskType === 'support_ticket' 
+    const taskInfo = taskType === 'support_ticket'
       ? `Ticket ID: ${taskData.ticketId}\nSubject: ${taskData.subject}`
       : `Booking ID: ${taskData._id}\nCustomer: ${taskData.customer?.name}`;
 
@@ -710,7 +710,7 @@ IMMEDIATE ACTION REQUIRED:
 - Keep admin team informed of progress
 - Escalate if additional support is needed
 
-View Urgent Task: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard
+View Urgent Task: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard
 
 Best regards,
 The Fixfly Support Team

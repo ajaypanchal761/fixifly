@@ -46,14 +46,14 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
         const wallet = response.data.wallet;
         const currentBalance = wallet.currentBalance || 0;
         const totalDeposits = wallet.totalDeposits || 0;
-        
+
         // Calculate display balance: show current balance minus security deposit
-        const securityDeposit = 3999;
+        const securityDeposit = wallet.securityDeposit || 3999;
         let displayBalance = 0;
         if (currentBalance > securityDeposit) {
           displayBalance = currentBalance - securityDeposit;
         }
-        
+
         setWalletBalance(displayBalance);
       }
     } catch (error) {
@@ -110,7 +110,7 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
               {getActionTitle()}
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             {/* Current Balance Display */}
             <div className="bg-gray-50 p-4 rounded-lg border">
@@ -132,7 +132,7 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
                       <strong>Insufficient Balance:</strong> You need at least ₹{requiredAmount} to {getActionText()}.
                     </p>
                     <p>
-                      Your current balance is ₹{walletBalance.toLocaleString()}. 
+                      Your current balance is ₹{walletBalance.toLocaleString()}.
                       You need to add ₹{shortfall.toLocaleString()} more.
                     </p>
                     {action === 'close_cash_task' && (
@@ -174,7 +174,7 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
                   Add Funds
                 </Button>
               )}
-              
+
               <Button
                 variant="outline"
                 onClick={onClose}
@@ -184,19 +184,19 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
               </Button>
             </div>
 
-                   {/* Additional Info */}
-                   <div className="text-xs text-gray-500 text-center">
-                     {action === 'decline' && (
-                       <p>Declining tasks incurs a ₹100 penalty from your wallet balance.</p>
-                     )}
-                     {action === 'close_cash_task' && (
-                       <div className="space-y-1">
-                         <p>Closing cash tasks requires sufficient wallet balance for processing.</p>
-                         <p><strong>Required Amount:</strong> ₹{requiredAmount.toLocaleString()}</p>
-                         <p className="text-orange-600">This amount will be deducted from your wallet.</p>
-                       </div>
-                     )}
-                   </div>
+            {/* Additional Info */}
+            <div className="text-xs text-gray-500 text-center">
+              {action === 'decline' && (
+                <p>Declining tasks incurs a ₹100 penalty from your wallet balance.</p>
+              )}
+              {action === 'close_cash_task' && (
+                <div className="space-y-1">
+                  <p>Closing cash tasks requires sufficient wallet balance for processing.</p>
+                  <p><strong>Required Amount:</strong> ₹{requiredAmount.toLocaleString()}</p>
+                  <p className="text-orange-600">This amount will be deducted from your wallet.</p>
+                </div>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -245,7 +245,7 @@ const DepositModal: React.FC<{
     }
 
     setProcessing(true);
-    
+
     try {
       await vendorDepositService.processDepositPayment(
         depositAmount,
@@ -259,7 +259,7 @@ const DepositModal: React.FC<{
             description: `₹${depositAmount.toLocaleString()} has been added to your wallet.`,
             variant: "default"
           });
-          
+
           setProcessing(false);
           onSuccess();
         },

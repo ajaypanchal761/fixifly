@@ -72,6 +72,14 @@ interface Vendor {
     };
     workingDays: string[];
   };
+  wallet?: {
+    currentBalance: number;
+    hasInitialDeposit: boolean;
+    initialDepositAmount: number;
+    totalDeposits: number;
+    totalWithdrawals: number;
+    securityDeposit: number;
+  };
 }
 
 interface VendorAuthResponse {
@@ -189,13 +197,13 @@ class VendorApiService {
         // Handle mandatory deposit error directly in request method
         if (data.error === 'MANDATORY_DEPOSIT_REQUIRED') {
           console.log('🚨🚨🚨 MANDATORY DEPOSIT ERROR DETECTED IN REQUEST METHOD 🚨🚨🚨');
-          alert('🚨 MANDATORY DEPOSIT REQUIRED 🚨\n\n₹2000 deposit needed to accept tasks.\n\nPlease make a deposit first in your earnings page.');
+          alert('🚨 MANDATORY DEPOSIT REQUIRED 🚨\n\n₹3999 deposit needed to accept tasks.\n\nPlease make a deposit first in your earnings page.');
 
           // Return the error data instead of throwing
           return {
             success: false,
             error: 'MANDATORY_DEPOSIT_REQUIRED',
-            message: 'Mandatory deposit of ₹2000 required to accept tasks',
+            message: 'Mandatory deposit of ₹3999 required to accept tasks',
             isMandatoryDepositError: true
           };
         }
@@ -565,13 +573,13 @@ class VendorApiService {
         error?.message?.includes('Mandatory deposit')) {
 
         console.log('🚨🚨🚨 MANDATORY DEPOSIT ERROR DETECTED 🚨🚨🚨');
-        alert('🚨 MANDATORY DEPOSIT REQUIRED 🚨\n\n₹2000 deposit needed to accept tasks.\n\nPlease make a deposit first in your earnings page.');
+        alert('🚨 MANDATORY DEPOSIT REQUIRED 🚨\n\n₹3999 deposit needed to accept tasks.\n\nPlease make a deposit first in your earnings page.');
 
         // Return success response to prevent further error handling
         return {
           success: false,
           error: 'MANDATORY_DEPOSIT_REQUIRED',
-          message: 'Mandatory deposit of ₹2000 required to accept tasks',
+          message: 'Mandatory deposit of ₹3999 required to accept tasks',
           isMandatoryDepositError: true
         };
       }
@@ -716,12 +724,12 @@ class VendorApiService {
       if (error?.response?.data?.error === 'MANDATORY_DEPOSIT_REQUIRED') {
         error.isMandatoryDepositError = true;
         console.log('🚨 MANDATORY DEPOSIT ERROR DETECTED IN API (Support Ticket)');
-        alert('MANDATORY DEPOSIT REQUIRED: ₹2000 deposit needed to accept tasks. Please make a deposit first.');
+        alert('MANDATORY DEPOSIT REQUIRED: ₹3999 deposit needed to accept tasks. Please make a deposit first.');
         // Don't throw the error, return a special response instead
         return {
           success: false,
           error: 'MANDATORY_DEPOSIT_REQUIRED',
-          message: 'Mandatory deposit of ₹2000 required to accept tasks',
+          message: 'Mandatory deposit of ₹3999 required to accept tasks',
           isMandatoryDepositError: true
         };
       }

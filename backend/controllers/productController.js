@@ -64,7 +64,7 @@ const createProduct = asyncHandler(async (req, res) => {
 
     const { productName, serviceType, categories, categoryNames } = productData;
     let productImage = productData.productImage; // Default to URL if provided
-    
+
     // Validate required fields
     if (!productName || !serviceType) {
       return res.status(400).json({
@@ -72,7 +72,7 @@ const createProduct = asyncHandler(async (req, res) => {
         message: 'Product name and service type are required'
       });
     }
-    
+
     // Check if product already exists
     const existingProduct = await Product.findOne({ productName });
     if (existingProduct) {
@@ -83,16 +83,18 @@ const createProduct = asyncHandler(async (req, res) => {
     }
 
     // Handle image upload if file is provided
-    if (req.file) {
+    const productImgFile = (req.files && req.files.productImage && req.files.productImage[0]) || req.file;
+
+    if (productImgFile) {
       try {
         logger.info('Uploading product image to Cloudinary', {
           productName: productName,
-          fileSize: req.file.size,
-          mimetype: req.file.mimetype
+          fileSize: productImgFile.size,
+          mimetype: productImgFile.mimetype
         });
 
         const uploadResult = await cloudinaryService.uploadProductImage(
-          req.file.buffer,
+          productImgFile.buffer,
           productName
         );
 
@@ -107,14 +109,14 @@ const createProduct = asyncHandler(async (req, res) => {
           productName: productName,
           error: uploadError.message
         });
-        
+
         // Don't fail the entire product creation if image upload fails
         // Just log the error and continue without image
         logger.warn('Continuing product creation without image due to upload failure', {
           productName: productName,
           error: uploadError.message
         });
-        
+
         // Set productImage to null so the product can still be created
         productImage = null;
       }
@@ -123,19 +125,19 @@ const createProduct = asyncHandler(async (req, res) => {
     // Handle service images upload
     const serviceImageUrls = {};
     if (req.files && req.files.serviceImages) {
-      const serviceImageKeys = req.body.serviceImageKeys ? 
+      const serviceImageKeys = req.body.serviceImageKeys ?
         (Array.isArray(req.body.serviceImageKeys) ? req.body.serviceImageKeys : [req.body.serviceImageKeys]) : [];
-      
+
       logger.info('Processing service images', {
         filesCount: req.files.serviceImages.length,
         keysCount: serviceImageKeys.length,
         keys: serviceImageKeys
       });
-      
+
       for (let i = 0; i < req.files.serviceImages.length; i++) {
         const file = req.files.serviceImages[i];
         const serviceKey = serviceImageKeys[i];
-        
+
         if (serviceKey && file) {
           try {
             logger.info('Uploading service image to Cloudinary', {
@@ -169,19 +171,19 @@ const createProduct = asyncHandler(async (req, res) => {
               error: uploadError.message,
               errorType: uploadError.name
             });
-            
+
             // Don't crash the server - just continue without this service image
             logger.warn('Continuing product creation without service image', {
               serviceKey: serviceKey,
               productName: productName
             });
-            
+
             // Set a placeholder or null for the service image
             serviceImageUrls[serviceKey] = null;
           }
         }
       }
-      
+
       logger.info('Service image URLs mapping', {
         serviceImageUrls: serviceImageUrls
       });
@@ -242,8 +244,8 @@ const createProduct = asyncHandler(async (req, res) => {
       serviceType,
       categories: processedCategories,
       categoryNames: processedCategoryNames,
-      status: 'active', // Default status
-      isFeatured: false, // Default featured status
+      status: productData.status || 'active',
+      isFeatured: !!productData.isFeatured,
       createdBy: req.admin._id
     };
 
@@ -299,19 +301,19 @@ const getAllProducts = asyncHandler(async (req, res) => {
 
     // Build query
     const query = {};
-    
+
     if (search) {
       query.$text = { $search: search };
     }
-    
+
     if (serviceType) {
       query.serviceType = serviceType;
     }
-    
+
     if (status) {
       query.status = status;
     }
-    
+
     if (isFeatured !== undefined) {
       query.isFeatured = isFeatured === 'true';
     }
@@ -457,14 +459,14 @@ const updateProduct = asyncHandler(async (req, res) => {
           productId: product._id,
           error: uploadError.message
         });
-        
+
         // Don't fail the entire product update if image upload fails
         // Just log the error and continue without updating the image
         logger.warn('Continuing product update without image due to upload failure', {
           productId: product._id,
           error: uploadError.message
         });
-        
+
         // Remove productImage from update data so it doesn't get updated
         delete productData.productImage;
       }
@@ -473,20 +475,20 @@ const updateProduct = asyncHandler(async (req, res) => {
     // Handle service images upload
     const serviceImageUrls = {};
     if (req.files && req.files.serviceImages) {
-      const serviceImageKeys = req.body.serviceImageKeys ? 
+      const serviceImageKeys = req.body.serviceImageKeys ?
         (Array.isArray(req.body.serviceImageKeys) ? req.body.serviceImageKeys : [req.body.serviceImageKeys]) : [];
-      
+
       logger.info('Processing updated service images', {
         productId: product._id,
         filesCount: req.files.serviceImages.length,
         keysCount: serviceImageKeys.length,
         keys: serviceImageKeys
       });
-      
+
       for (let i = 0; i < req.files.serviceImages.length; i++) {
         const file = req.files.serviceImages[i];
         const serviceKey = serviceImageKeys[i];
-        
+
         if (serviceKey && file) {
           try {
             logger.info('Uploading updated service image to Cloudinary', {
@@ -523,19 +525,19 @@ const updateProduct = asyncHandler(async (req, res) => {
               error: uploadError.message,
               errorType: uploadError.name
             });
-            
+
             // Don't crash the server - just continue without this service image
             logger.warn('Continuing product update without service image', {
               productId: product._id,
               serviceKey: serviceKey
             });
-            
+
             // Set a placeholder or null for the service image
             serviceImageUrls[serviceKey] = null;
           }
         }
       }
-      
+
       logger.info('Updated service image URLs mapping', {
         productId: product._id,
         serviceImageUrls: serviceImageUrls
@@ -549,10 +551,10 @@ const updateProduct = asyncHandler(async (req, res) => {
           // Priority: new uploaded image > existing service image from request > existing service image from database
           const existingServiceImage = product.categories?.A?.[index]?.serviceImage;
           const serviceImageUrl = serviceImageUrls[`A_${index}`] || service.serviceImage || existingServiceImage;
-          logger.info('Processing updated service A', { 
-            productId: product._id, 
-            index, 
-            serviceName: service.serviceName, 
+          logger.info('Processing updated service A', {
+            productId: product._id,
+            index,
+            serviceName: service.serviceName,
             serviceImageUrl,
             hasNewImage: !!serviceImageUrls[`A_${index}`],
             hasRequestImage: !!service.serviceImage,
@@ -567,10 +569,10 @@ const updateProduct = asyncHandler(async (req, res) => {
         B: (productData.categories.B || []).map((service, index) => {
           const existingServiceImage = product.categories?.B?.[index]?.serviceImage;
           const serviceImageUrl = serviceImageUrls[`B_${index}`] || service.serviceImage || existingServiceImage;
-          logger.info('Processing updated service B', { 
-            productId: product._id, 
-            index, 
-            serviceName: service.serviceName, 
+          logger.info('Processing updated service B', {
+            productId: product._id,
+            index,
+            serviceName: service.serviceName,
             serviceImageUrl,
             hasNewImage: !!serviceImageUrls[`B_${index}`],
             hasRequestImage: !!service.serviceImage,
@@ -585,10 +587,10 @@ const updateProduct = asyncHandler(async (req, res) => {
         C: (productData.categories.C || []).map((service, index) => {
           const existingServiceImage = product.categories?.C?.[index]?.serviceImage;
           const serviceImageUrl = serviceImageUrls[`C_${index}`] || service.serviceImage || existingServiceImage;
-          logger.info('Processing updated service C', { 
-            productId: product._id, 
-            index, 
-            serviceName: service.serviceName, 
+          logger.info('Processing updated service C', {
+            productId: product._id,
+            index,
+            serviceName: service.serviceName,
             serviceImageUrl,
             hasNewImage: !!serviceImageUrls[`C_${index}`],
             hasRequestImage: !!service.serviceImage,
@@ -603,10 +605,10 @@ const updateProduct = asyncHandler(async (req, res) => {
         D: (productData.categories.D || []).map((service, index) => {
           const existingServiceImage = product.categories?.D?.[index]?.serviceImage;
           const serviceImageUrl = serviceImageUrls[`D_${index}`] || service.serviceImage || existingServiceImage;
-          logger.info('Processing updated service D', { 
-            productId: product._id, 
-            index, 
-            serviceName: service.serviceName, 
+          logger.info('Processing updated service D', {
+            productId: product._id,
+            index,
+            serviceName: service.serviceName,
             serviceImageUrl,
             hasNewImage: !!serviceImageUrls[`D_${index}`],
             hasRequestImage: !!service.serviceImage,
@@ -640,7 +642,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       },
       { new: true, runValidators: true }
     ).populate('createdBy', 'name email')
-     .populate('updatedBy', 'name email');
+      .populate('updatedBy', 'name email');
 
     logger.info(`Product updated: ${updatedProduct.productName} by admin: ${req.admin.email}`, {
       productId: updatedProduct._id,
@@ -687,7 +689,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
         const urlParts = product.productImage.split('/');
         const publicId = urlParts[urlParts.length - 1].split('.')[0];
         const folder = `fixifly/products/${product.productName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-        
+
         await cloudinaryService.deleteImage(`${folder}/${publicId}`);
         logger.info('Product image deleted from Cloudinary', {
           productId: product._id,
@@ -727,7 +729,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 const updateProductStatus = asyncHandler(async (req, res) => {
   try {
     const { status } = req.body;
-    
+
     if (!['active', 'inactive', 'archived'].includes(status)) {
       return res.status(400).json({
         success: false,
@@ -740,7 +742,7 @@ const updateProductStatus = asyncHandler(async (req, res) => {
       { status, updatedBy: req.admin._id },
       { new: true, runValidators: true }
     ).populate('createdBy', 'name email')
-     .populate('updatedBy', 'name email');
+      .populate('updatedBy', 'name email');
 
     if (!product) {
       return res.status(404).json({
@@ -974,14 +976,14 @@ const removeServiceFromCategory = asyncHandler(async (req, res) => {
 // @access  Public
 const getFeaturedProducts = asyncHandler(async (req, res) => {
   try {
-    const featuredProducts = await Product.find({ 
-      isFeatured: true, 
-      status: 'active' 
+    const featuredProducts = await Product.find({
+      isFeatured: true,
+      status: 'active'
     })
-    .select('productName productImage serviceType categories categoryNames')
-    .sort({ updatedAt: -1 }) // Sort by most recently updated featured products
-    .limit(3)
-    .lean();
+      .select('productName productImage serviceType categories categoryNames')
+      .sort({ updatedAt: -1 }) // Sort by most recently updated featured products
+      .limit(3)
+      .lean();
 
     logger.info(`Featured products retrieved: ${featuredProducts.length}`, {
       productNames: featuredProducts.map(p => p.productName)
@@ -1009,12 +1011,12 @@ const getFeaturedProducts = asyncHandler(async (req, res) => {
 // @access  Public
 const getAllActiveProducts = asyncHandler(async (req, res) => {
   try {
-    const allProducts = await Product.find({ 
-      status: 'active' 
+    const allProducts = await Product.find({
+      status: 'active'
     })
-    .select('productName productImage serviceType categories categoryNames isFeatured')
-    .sort({ isFeatured: -1, updatedAt: -1 }) // Sort featured products first, then by updated date
-    .lean();
+      .select('productName productImage serviceType categories categoryNames isFeatured')
+      .sort({ isFeatured: -1, updatedAt: -1 }) // Sort featured products first, then by updated date
+      .lean();
 
     logger.info(`All active products retrieved: ${allProducts.length}`, {
       featuredCount: allProducts.filter(p => p.isFeatured).length,
@@ -1043,12 +1045,12 @@ const getAllActiveProducts = asyncHandler(async (req, res) => {
 // @access  Public
 const getPublicProductById = asyncHandler(async (req, res) => {
   try {
-    const product = await Product.findOne({ 
+    const product = await Product.findOne({
       _id: req.params.id,
-      status: 'active' 
+      status: 'active'
     })
-    .select('productName productImage serviceType categories categoryNames isFeatured')
-    .lean();
+      .select('productName productImage serviceType categories categoryNames isFeatured')
+      .lean();
 
     if (!product) {
       return res.status(404).json({
@@ -1086,14 +1088,14 @@ const getProductsByServiceType = asyncHandler(async (req, res) => {
     const { serviceType } = req.params;
     const { limit = 6 } = req.query;
 
-    const products = await Product.find({ 
+    const products = await Product.find({
       serviceType: serviceType,
-      status: 'active' 
+      status: 'active'
     })
-    .select('productName productImage serviceType categories categoryNames isFeatured')
-    .sort({ isFeatured: -1, updatedAt: -1 }) // Sort featured products first, then by updated date
-    .limit(parseInt(limit))
-    .lean();
+      .select('productName productImage serviceType categories categoryNames isFeatured')
+      .sort({ isFeatured: -1, updatedAt: -1 }) // Sort featured products first, then by updated date
+      .limit(parseInt(limit))
+      .lean();
 
     logger.info(`Products by service type retrieved: ${products.length} for ${serviceType}`, {
       serviceType,

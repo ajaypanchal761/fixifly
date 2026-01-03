@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import AdminHeader from '../components/AdminHeader';
-import { 
-  Wallet, 
-  Search, 
-  Filter, 
-  Eye, 
-  Edit, 
-  CheckCircle, 
+import {
+  Wallet,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  CheckCircle,
   XCircle,
   Clock,
   User,
@@ -98,7 +98,7 @@ const AdminVendorWalletManagement = () => {
   const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([]);
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [loadingWithdrawals, setLoadingWithdrawals] = useState(false);
-  
+
   // State for recent transactions in wallet details modal
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [loadingTransactions, setLoadingTransactions] = useState(false);
@@ -125,7 +125,7 @@ const AdminVendorWalletManagement = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/wallets`, {
         method: 'GET'
@@ -153,9 +153,9 @@ const AdminVendorWalletManagement = () => {
     try {
       setLoadingWithdrawals(true);
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      
+
       console.log('Fetching withdrawal requests from:', `${API_BASE_URL}/admin/withdrawals`);
-      
+
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/withdrawals`, {
         method: 'GET'
       }).catch((fetchError) => {
@@ -181,7 +181,7 @@ const AdminVendorWalletManagement = () => {
 
       const data = await response.json();
       console.log('Withdrawal requests response:', data);
-      
+
       if (data.success && data.data) {
         setWithdrawalRequests(data.data.requests || []);
       } else {
@@ -223,7 +223,7 @@ const AdminVendorWalletManagement = () => {
 
       // Refresh withdrawal requests and vendor wallets
       await Promise.all([fetchWithdrawalRequests(), fetchVendorWallets()]);
-      
+
       alert('Withdrawal request approved successfully!');
     } catch (error) {
       console.error('Error approving withdrawal request:', error);
@@ -257,10 +257,10 @@ const AdminVendorWalletManagement = () => {
       }
 
       const data = await response.json();
-      
+
       // Refresh withdrawal requests
       await fetchWithdrawalRequests();
-      
+
       alert(data.message || 'Withdrawal request declined successfully!');
     } catch (error: any) {
       console.error('Error declining withdrawal request:', error);
@@ -277,12 +277,12 @@ const AdminVendorWalletManagement = () => {
 
   const filteredWallets = vendorWallets.filter(wallet => {
     const matchesSearch = wallet.vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         wallet.vendorEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         wallet.vendorPhone.includes(searchTerm);
-    const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' && wallet.isActive && wallet.isApproved) ||
-                         (statusFilter === 'suspended' && !wallet.isActive) ||
-                         (statusFilter === 'pending' && !wallet.isApproved);
+      wallet.vendorEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      wallet.vendorPhone.includes(searchTerm);
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'active' && wallet.isActive && wallet.isApproved) ||
+      (statusFilter === 'suspended' && !wallet.isActive) ||
+      (statusFilter === 'pending' && !wallet.isApproved);
     return matchesSearch && matchesStatus;
   });
 
@@ -310,7 +310,7 @@ const AdminVendorWalletManagement = () => {
       console.log('Wallet details response:', data);
       console.log('Transactions data:', data.data?.transactions);
       console.log('Transactions count:', data.data?.transactions?.length);
-      
+
       if (data.success && data.data && data.data.transactions) {
         // Transform transactions to match the expected format
         // Credit types: deposit, earning, refund, bonus
@@ -389,16 +389,16 @@ const AdminVendorWalletManagement = () => {
       const data = await response.json();
       if (data.success) {
         // Update the wallet in the local state
-        setVendorWallets(prev => prev.map(wallet => 
-          wallet.vendorId === editingWallet.vendorId 
+        setVendorWallets(prev => prev.map(wallet =>
+          wallet.vendorId === editingWallet.vendorId
             ? { ...wallet, currentBalance: parseFloat(editForm.currentBalance) + editingWallet.securityDeposit }
             : wallet
         ));
-        
+
         setIsEditWalletOpen(false);
         setEditingWallet(null);
         setEditForm({ currentBalance: '', description: '', adjustmentType: 'credit' });
-        
+
         // Show success message
         alert('Wallet balance updated successfully!');
       } else {
@@ -431,14 +431,14 @@ const AdminVendorWalletManagement = () => {
           const amount = parseFloat(newTransaction.amount);
           return {
             ...wallet,
-            currentBalance: newTransaction.type === 'credit' 
-              ? wallet.currentBalance + amount 
+            currentBalance: newTransaction.type === 'credit'
+              ? wallet.currentBalance + amount
               : wallet.currentBalance - amount,
-            totalEarnings: newTransaction.type === 'credit' 
-              ? wallet.totalEarnings + amount 
+            totalEarnings: newTransaction.type === 'credit'
+              ? wallet.totalEarnings + amount
               : wallet.totalEarnings,
-            totalWithdrawals: newTransaction.type === 'debit' 
-              ? wallet.totalWithdrawals + amount 
+            totalWithdrawals: newTransaction.type === 'debit'
+              ? wallet.totalWithdrawals + amount
               : wallet.totalWithdrawals,
             lastTransaction: new Date().toISOString(),
             updatedAt: new Date().toISOString()
@@ -469,7 +469,7 @@ const AdminVendorWalletManagement = () => {
   return (
     <div className="min-h-screen bg-background">
       <AdminHeader />
-      
+
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
         <div className="mb-4">
@@ -480,7 +480,7 @@ const AdminVendorWalletManagement = () => {
               </h1>
               <p className="text-sm text-muted-foreground">Manage vendor wallets, transactions, and payments</p>
             </div>
-           
+
           </div>
         </div>
 
@@ -561,9 +561,9 @@ const AdminVendorWalletManagement = () => {
               <div className="flex items-center justify-center text-red-600">
                 <AlertTriangle className="h-5 w-5 mr-2" />
                 <p className="text-sm">Error: {error}</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={fetchVendorWallets}
                   className="ml-4 text-xs"
                 >
@@ -624,7 +624,7 @@ const AdminVendorWalletManagement = () => {
                         <TableHead>Vendor Name</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Phone</TableHead>
-                        <TableHead>Current Balance</TableHead>
+                        <TableHead>Available Balance</TableHead>
                         <TableHead>Total Deposits</TableHead>
                         <TableHead>Total Withdrawals</TableHead>
                         <TableHead>Total Earnings</TableHead>
@@ -681,7 +681,7 @@ const AdminVendorWalletManagement = () => {
                           </TableCell>
                           <TableCell>
                             <span className="text-xs">
-                              {wallet.lastTransaction 
+                              {wallet.lastTransaction
                                 ? new Date(wallet.lastTransaction).toLocaleDateString()
                                 : 'No transactions'
                               }
@@ -689,8 +689,8 @@ const AdminVendorWalletManagement = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center gap-1 justify-end">
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="outline"
                                 onClick={() => handleViewWallet(wallet)}
                                 className="text-xs"
@@ -698,8 +698,8 @@ const AdminVendorWalletManagement = () => {
                                 <Eye className="w-3 h-3 mr-1" />
                                 View
                               </Button>
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="outline"
                                 onClick={() => handleEditWallet(wallet)}
                                 className="text-xs"
@@ -764,11 +764,11 @@ const AdminVendorWalletManagement = () => {
                             ₹{request.amount.toLocaleString()}
                           </TableCell>
                           <TableCell>
-                            <Badge 
+                            <Badge
                               variant={
                                 request.status === 'pending' ? 'secondary' :
-                                request.status === 'approved' ? 'default' :
-                                request.status === 'declined' ? 'destructive' : 'outline'
+                                  request.status === 'approved' ? 'default' :
+                                    request.status === 'declined' ? 'destructive' : 'outline'
                               }
                             >
                               {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
@@ -814,7 +814,7 @@ const AdminVendorWalletManagement = () => {
                             )}
                             {request.status !== 'pending' && (
                               <span className="text-sm text-muted-foreground">
-                                {request.processedAt ? 
+                                {request.processedAt ?
                                   `Processed on ${new Date(request.processedAt).toLocaleString('en-IN', {
                                     year: 'numeric',
                                     month: '2-digit',
@@ -822,7 +822,7 @@ const AdminVendorWalletManagement = () => {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                     hour12: true
-                                  })}` : 
+                                  })}` :
                                   'Processed'
                                 }
                               </span>
@@ -867,7 +867,7 @@ const AdminVendorWalletManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="transactionType" className="text-sm">Transaction Type</Label>
@@ -964,10 +964,10 @@ const AdminVendorWalletManagement = () => {
                       <Label className="text-xs font-medium text-muted-foreground">Status</Label>
                       <Badge variant={
                         selectedWallet.isActive && selectedWallet.isApproved ? 'default' :
-                        !selectedWallet.isActive ? 'destructive' : 'secondary'
+                          !selectedWallet.isActive ? 'destructive' : 'secondary'
                       } className="text-xs">
                         {selectedWallet.isActive && selectedWallet.isApproved ? 'Active' :
-                         !selectedWallet.isActive ? 'Suspended' : 'Pending'}
+                          !selectedWallet.isActive ? 'Suspended' : 'Pending'}
                       </Badge>
                     </div>
                   </div>
@@ -1061,7 +1061,7 @@ const AdminVendorWalletManagement = () => {
                             </p>
                             <Badge variant={
                               transaction.status === 'completed' ? 'default' :
-                              transaction.status === 'pending' ? 'secondary' : 'destructive'
+                                transaction.status === 'pending' ? 'secondary' : 'destructive'
                             } className="text-xs">
                               {transaction.status}
                             </Badge>
@@ -1077,8 +1077,8 @@ const AdminVendorWalletManagement = () => {
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  
-                 
+
+
                 </div>
               </div>
             )}
@@ -1136,7 +1136,7 @@ const AdminVendorWalletManagement = () => {
                         <TableCell>
                           <Badge variant={
                             transaction.status === 'completed' ? 'default' :
-                            transaction.status === 'pending' ? 'secondary' : 'destructive'
+                              transaction.status === 'pending' ? 'secondary' : 'destructive'
                           }>
                             {transaction.status === 'completed' && <CheckCircle className="w-3 h-3 mr-1" />}
                             {transaction.status === 'pending' && <Clock className="w-3 h-3 mr-1" />}
@@ -1174,7 +1174,7 @@ const AdminVendorWalletManagement = () => {
               <DialogTitle>Edit Wallet Balance</DialogTitle>
             </DialogHeader>
             {editingWallet && (
-            <div className="space-y-4">
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="vendor-name">Vendor</Label>
                   <Input
@@ -1184,7 +1184,7 @@ const AdminVendorWalletManagement = () => {
                     className="bg-gray-100"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="current-balance">Available Balance</Label>
                   <Input
@@ -1194,7 +1194,7 @@ const AdminVendorWalletManagement = () => {
                     onChange={(e) => setEditForm(prev => ({ ...prev, currentBalance: e.target.value }))}
                     placeholder="Enter new available balance"
                   />
-              </div>
+                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="adjustment-type">Adjustment Type</Label>
@@ -1213,20 +1213,20 @@ const AdminVendorWalletManagement = () => {
                 </div>
 
                 <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
                     value={editForm.description}
                     onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Reason for balance adjustment"
-                  rows={3}
-                />
-              </div>
+                    rows={3}
+                  />
+                </div>
 
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setIsEditWalletOpen(false)}>
-                  Cancel
-                </Button>
+                    Cancel
+                  </Button>
                   <Button onClick={handleUpdateWallet}>
                     Update Balance
                   </Button>

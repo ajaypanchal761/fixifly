@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import AdminHeader from '../components/AdminHeader';
-import { 
-  Image, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
+import {
+  Image,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
   EyeOff,
   Upload,
   X,
@@ -68,11 +68,20 @@ const AdminBannerManagement = () => {
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Filter banners based on target audience
-  const filteredBanners = banners.filter(banner => {
-    if (audienceFilter === 'all') return true;
-    return banner.targetAudience === audienceFilter;
-  });
+  // Filter and sort banners based on target audience and display order
+  const filteredBanners = banners
+    .filter(banner => {
+      if (audienceFilter === 'all') return true;
+      return banner.targetAudience === audienceFilter;
+    })
+    .sort((a, b) => {
+      // Sort by order first (ascending)
+      if (a.order !== b.order) {
+        return a.order - b.order;
+      }
+      // Then sort by createdAt (descending - newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
   const userBanners = banners.filter(banner => banner.targetAudience === 'user');
   const vendorBanners = banners.filter(banner => banner.targetAudience === 'vendor');
@@ -82,7 +91,7 @@ const AdminBannerManagement = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/banners`, {
         method: 'GET'
@@ -115,7 +124,7 @@ const AdminBannerManagement = () => {
     const file = e.target.files?.[0];
     if (file) {
       setFormData(prev => ({ ...prev, image: file }));
-      
+
       // Create preview URL
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
@@ -184,7 +193,7 @@ const AdminBannerManagement = () => {
 
     try {
       setUploading(true);
-      
+
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
@@ -216,7 +225,7 @@ const AdminBannerManagement = () => {
       if (!response.ok) {
         let errorData = {};
         let responseText = '';
-        
+
         try {
           responseText = await response.text();
           errorData = JSON.parse(responseText);
@@ -224,21 +233,21 @@ const AdminBannerManagement = () => {
           console.error('Failed to parse error response as JSON:', jsonError);
           errorData = { message: `Server error: ${response.status} ${response.statusText}` };
         }
-        
+
         console.error('Banner upload error:', {
           status: response.status,
           statusText: response.statusText,
           errorData,
           responseText
         });
-        
+
         const errorMessage = errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
       console.log('Banner upload response:', data);
-      
+
       if (data.success) {
         toast({
           title: "Success",
@@ -291,7 +300,7 @@ const AdminBannerManagement = () => {
 
     try {
       setUploading(true);
-      
+
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
@@ -329,7 +338,7 @@ const AdminBannerManagement = () => {
 
       const data = await response.json();
       console.log('Banner update response:', data);
-      
+
       if (data.success) {
         toast({
           title: "Success",
@@ -395,7 +404,7 @@ const AdminBannerManagement = () => {
     console.log('Opening image preview for URL:', imageUrl);
     setPreviewImageUrl(imageUrl);
     setIsImagePreviewOpen(true);
-    
+
     // Force a small delay to ensure state updates
     setTimeout(() => {
       console.log('Modal should be open now:', isImagePreviewOpen);
@@ -467,7 +476,7 @@ const AdminBannerManagement = () => {
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">Banner Management</h1>
               <p className="text-sm text-muted-foreground mt-1">Manage hero section banners for users and vendors</p>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <Select value={audienceFilter} onValueChange={(value: 'all' | 'user' | 'vendor') => setAudienceFilter(value)}>
                 <SelectTrigger className="w-40">
@@ -479,88 +488,88 @@ const AdminBannerManagement = () => {
                   <SelectItem value="vendor">Vendor Banners</SelectItem>
                 </SelectContent>
               </Select>
-            
-            <Dialog open={isAddBannerOpen} onOpenChange={setIsAddBannerOpen}>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2" size="sm">
-                  <Plus className="w-3 h-3" />
-                  Add Banner
-                </Button>
-              </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] mt-12">
-              <DialogHeader>
-                <DialogTitle className="text-lg">Add New Banner</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="title" className="text-sm">Banner Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Enter banner title"
-                    className="text-sm"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="order" className="text-sm">Display Order</Label>
-                  <Input
-                    id="order"
-                    type="number"
-                    value={formData.order}
-                    onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
-                    placeholder="0"
-                    className="text-sm"
-                  />
-                </div>
 
-                <div>
-                  <Label htmlFor="targetAudience" className="text-sm">Target Audience</Label>
-                  <Select value={formData.targetAudience} onValueChange={(value: 'user' | 'vendor') => setFormData(prev => ({ ...prev, targetAudience: value }))}>
-                    <SelectTrigger className="text-sm">
-                      <SelectValue placeholder="Select target audience" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">User Banners</SelectItem>
-                      <SelectItem value="vendor">Vendor Banners</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="image" className="text-sm">Banner Image</Label>
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="cursor-pointer text-sm"
-                  />
-                  {previewUrl && (
-                    <div className="mt-3">
-                      <img
-                        src={previewUrl}
-                        alt="Preview"
-                        className="w-full h-40 object-contain rounded-lg border cursor-pointer hover:opacity-90 transition-opacity bg-gray-50"
-                        onClick={() => handleImagePreview(previewUrl)}
+              <Dialog open={isAddBannerOpen} onOpenChange={setIsAddBannerOpen}>
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2" size="sm">
+                    <Plus className="w-3 h-3" />
+                    Add Banner
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px] mt-12">
+                  <DialogHeader>
+                    <DialogTitle className="text-lg">Add New Banner</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="title" className="text-sm">Banner Title</Label>
+                      <Input
+                        id="title"
+                        value={formData.title}
+                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="Enter banner title"
+                        className="text-sm"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Click image to view full size</p>
                     </div>
-                  )}
-                </div>
 
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsAddBannerOpen(false)} size="sm" className="text-xs">
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddBanner} disabled={uploading} size="sm" className="text-xs">
-                    {uploading ? 'Adding...' : 'Add Banner'}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-            </Dialog>
+                    <div>
+                      <Label htmlFor="order" className="text-sm">Display Order</Label>
+                      <Input
+                        id="order"
+                        type="number"
+                        value={formData.order}
+                        onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
+                        placeholder="0"
+                        className="text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="targetAudience" className="text-sm">Target Audience</Label>
+                      <Select value={formData.targetAudience} onValueChange={(value: 'user' | 'vendor') => setFormData(prev => ({ ...prev, targetAudience: value }))}>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Select target audience" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User Banners</SelectItem>
+                          <SelectItem value="vendor">Vendor Banners</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="image" className="text-sm">Banner Image</Label>
+                      <Input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="cursor-pointer text-sm"
+                      />
+                      {previewUrl && (
+                        <div className="mt-3">
+                          <img
+                            src={previewUrl}
+                            alt="Preview"
+                            className="w-full h-40 object-contain rounded-lg border cursor-pointer hover:opacity-90 transition-opacity bg-gray-50"
+                            onClick={() => handleImagePreview(previewUrl)}
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Click image to view full size</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end space-x-2">
+                      <Button variant="outline" onClick={() => setIsAddBannerOpen(false)} size="sm" className="text-xs">
+                        Cancel
+                      </Button>
+                      <Button onClick={handleAddBanner} disabled={uploading} size="sm" className="text-xs">
+                        {uploading ? 'Adding...' : 'Add Banner'}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
@@ -617,23 +626,21 @@ const AdminBannerManagement = () => {
                   className="w-full h-40 object-contain"
                 />
                 <div className="absolute top-1 right-1 flex flex-col gap-1">
-                  <Badge 
-                    className={`text-xs ${
-                      banner.isActive ? 'bg-green-500' : 'bg-gray-500'
-                    }`}
+                  <Badge
+                    className={`text-xs ${banner.isActive ? 'bg-green-500' : 'bg-gray-500'
+                      }`}
                   >
                     {banner.isActive ? 'Active' : 'Inactive'}
                   </Badge>
-                  <Badge 
-                    className={`text-xs ${
-                      banner.targetAudience === 'user' ? 'bg-blue-500' : 'bg-purple-500'
-                    }`}
+                  <Badge
+                    className={`text-xs ${banner.targetAudience === 'user' ? 'bg-blue-500' : 'bg-purple-500'
+                      }`}
                   >
                     {banner.targetAudience === 'user' ? 'User' : 'Vendor'}
                   </Badge>
                 </div>
               </div>
-              
+
               <CardHeader className="p-2">
                 <CardTitle className="text-xs">{banner.title}</CardTitle>
                 <div className="text-xs text-muted-foreground">
@@ -641,7 +648,7 @@ const AdminBannerManagement = () => {
                   <p>Created: {new Date(banner.createdAt).toLocaleDateString()}</p>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="p-2 pt-0">
                 <div className="flex space-x-1">
                   <Button
@@ -652,7 +659,7 @@ const AdminBannerManagement = () => {
                   >
                     <Edit className="w-3 h-3" />
                   </Button>
-                  
+
                   <Button
                     size="sm"
                     variant="outline"
@@ -661,7 +668,7 @@ const AdminBannerManagement = () => {
                   >
                     {banner.isActive ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                   </Button>
-                  
+
                   <Button
                     size="sm"
                     variant="destructive"
@@ -702,7 +709,7 @@ const AdminBannerManagement = () => {
                   className="text-sm"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="edit-order" className="text-sm">Display Order</Label>
                 <Input

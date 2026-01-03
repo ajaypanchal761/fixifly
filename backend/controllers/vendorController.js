@@ -538,8 +538,9 @@ const loginVendor = asyncHandler(async (req, res) => {
       // Temporarily bypass wallet creation due to index issue
       console.log('Skipping wallet creation for vendor:', vendor.vendorId);
       vendorWallet = {
+        vendorId: vendor.vendorId,
         currentBalance: 0,
-        securityDeposit: 4000,
+        securityDeposit: 3999,
         availableBalance: 0,
         totalDeposits: 0,
         totalWithdrawals: 0
@@ -635,7 +636,7 @@ const getVendorProfile = asyncHandler(async (req, res) => {
       vendorWallet = new VendorWallet({
         vendorId: vendor.vendorId,
         currentBalance: 0,
-        securityDeposit: 4000,
+        securityDeposit: 3999,
         availableBalance: 0
       });
       await vendorWallet.save();

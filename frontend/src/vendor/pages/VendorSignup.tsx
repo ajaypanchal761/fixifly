@@ -193,6 +193,11 @@ const VendorSignup = () => {
       setError('Please enter valid 10-digit phone numbers (without country code or leading 0)');
       return false;
     }
+
+    if (normalizedPhone === normalizedAlternatePhone) {
+      setError('Primary and Alternate phone numbers cannot be the same');
+      return false;
+    }
     return true;
   };
 
@@ -383,7 +388,7 @@ const VendorSignup = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email Address *</Label>
+        <Label htmlFor="email">Email *</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
@@ -400,39 +405,43 @@ const VendorSignup = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone Number *</Label>
+        <Label htmlFor="phone">Phone *</Label>
         <div className="relative">
           <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             id="phone"
             name="phone"
             type="tel"
-            placeholder="Enter your 10-digit phone number"
+            placeholder="Enter 10-digit number"
             value={formData.phone}
             onChange={handleInputChange}
             className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+            maxLength={10}
+            pattern="[0-9]*"
             required
           />
         </div>
-        <p className="text-xs text-gray-500">Enter 10-digit mobile number (e.g., 9876543210)</p>
+        <p className="text-xs text-gray-500">10-digit mobile number</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="alternatePhone">Alternate Phone Number *</Label>
+        <Label htmlFor="alternatePhone">Alt Phone *</Label>
         <div className="relative">
           <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             id="alternatePhone"
             name="alternatePhone"
             type="tel"
-            placeholder="Enter alternate 10-digit phone number"
+            placeholder="Enter alternate number"
             value={formData.alternatePhone}
             onChange={handleInputChange}
             className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+            maxLength={10}
+            pattern="[0-9]*"
             required
           />
         </div>
-        <p className="text-xs text-gray-500">Enter 10-digit mobile number (e.g., 9876543210)</p>
+        <p className="text-xs text-gray-500">10-digit mobile number</p>
       </div>
 
       <div className="space-y-2">
@@ -452,25 +461,27 @@ const VendorSignup = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="homePhone">Home Phone Number *</Label>
+        <Label htmlFor="homePhone">Home Phone *</Label>
         <div className="relative">
           <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             id="homePhone"
             name="homePhone"
             type="tel"
-            placeholder="Enter home 10-digit phone number"
+            placeholder="Enter home number"
             value={formData.homePhone}
             onChange={handleInputChange}
             className="pl-10 h-12 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-yellow-400 rounded-xl text-black placeholder:text-gray-600 focus:border-yellow-500 focus:ring-0"
+            maxLength={10}
+            pattern="[0-9]*"
             required
           />
         </div>
-        <p className="text-xs text-gray-500">Enter 10-digit mobile/landline number (e.g., 9876543210)</p>
+        <p className="text-xs text-gray-500">10-digit mobile/landline</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="currentAddress">Current Full Address *</Label>
+        <Label htmlFor="currentAddress">Address *</Label>
         <div className="relative">
           <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Textarea
@@ -855,15 +866,17 @@ const VendorSignup = () => {
           </div>
 
           <form onSubmit={currentStep === 3 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }} className="space-y-6">
-            {error && (
-              <Alert variant="destructive" className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
-              </Alert>
-            )}
+
 
             {currentStep === 1 && renderStep1()}
             {currentStep === 2 && renderStep2()}
             {currentStep === 3 && renderStep3()}
+
+            {error && (
+              <Alert variant="destructive" className="border-red-200 bg-red-50 mb-4">
+                <AlertDescription className="text-red-800">{error}</AlertDescription>
+              </Alert>
+            )}
 
             {/* Navigation Buttons */}
             <div className="flex justify-between mt-8">

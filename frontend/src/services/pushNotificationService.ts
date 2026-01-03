@@ -22,7 +22,7 @@ export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration
     if (existingRegistration) {
       console.log('✅ Service Worker already registered');
       serviceWorkerRegistration = existingRegistration;
-      
+
       // Wait for it to be active
       if (existingRegistration.active) {
         console.log('✅ Service Worker is already active');
@@ -58,7 +58,7 @@ export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
       scope: '/',
     });
-    
+
     console.log('✅ Service Worker registered successfully');
     serviceWorkerRegistration = registration;
 
@@ -139,11 +139,11 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
   }
 
   // Check if we're in a secure context (HTTPS or localhost)
-  const isSecureContext = window.isSecureContext || 
-    location.protocol === 'https:' || 
-    location.hostname === 'localhost' || 
+  const isSecureContext = window.isSecureContext ||
+    location.protocol === 'https:' ||
+    location.hostname === 'localhost' ||
     location.hostname === '127.0.0.1';
-  
+
   if (!isSecureContext) {
     console.error('❌ Push notifications require HTTPS (or localhost). Current protocol:', location.protocol);
     return null;
@@ -168,7 +168,7 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
       console.log(`⏳ Waiting for service worker to be active... (attempt ${attempts + 1}/${maxAttempts})`);
       await new Promise(resolve => setTimeout(resolve, 1000));
       attempts++;
-      
+
       // Re-check registration
       const currentRegistration = await navigator.serviceWorker.getRegistration('/');
       if (currentRegistration && currentRegistration.active) {
@@ -198,16 +198,16 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
       if (!serviceWorkerRegistration.active) {
         throw new Error('Service worker is not active');
       }
-      
+
       console.log('🔑 Getting FCM token with active service worker...');
 
       // Always use VAPID key if provided
       if (isValidVAPIDKey && VAPID_KEY) {
         console.log('🔑 Using VAPID key:', VAPID_KEY.substring(0, 20) + '...');
         console.log('🔑 Full VAPID key length:', VAPID_KEY.length);
-        
+
         // Try to get token with VAPID key
-        currentToken = await getToken(messaging, { 
+        currentToken = await getToken(messaging, {
           vapidKey: VAPID_KEY.trim(),
           serviceWorkerRegistration: serviceWorkerRegistration || undefined
         });
@@ -225,11 +225,11 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
         message: error.message,
         stack: error.stack
       });
-      
+
       // Provide helpful error messages
-      if (error.code === 'messaging/invalid-vapid-key' || 
-          error.message?.includes('applicationServerKey') ||
-          error.message?.includes('not valid')) {
+      if (error.code === 'messaging/invalid-vapid-key' ||
+        error.message?.includes('applicationServerKey') ||
+        error.message?.includes('not valid')) {
         console.error('❌ VAPID key validation failed. This might be due to:');
         console.error('   1. Key format issue - ensure it\'s copied correctly from Firebase Console');
         console.error('   2. Service worker not ready - try refreshing the page');
@@ -285,7 +285,7 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
     const userToken = localStorage.getItem('accessToken') || localStorage.getItem('token');
     const authToken = vendorToken || userToken;
     const isVendor = !!vendorToken;
-    
+
     if (!authToken) {
       console.warn('⚠️ User not logged in, skipping token registration');
       return currentToken;
@@ -293,10 +293,10 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
 
     // Save token to backend - use vendor endpoint if vendor, user endpoint otherwise
     try {
-      const endpoint = isVendor 
+      const endpoint = isVendor
         ? `${API_BASE_URL}/vendors/save-fcm-token`
         : `${API_BASE_URL}/users/save-fcm-token`;
-      
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -353,7 +353,7 @@ export const setupForegroundNotificationHandler = (
 ): (() => void) => {
   if (!messaging) {
     console.warn('⚠️ Firebase messaging not initialized');
-    return () => {};
+    return () => { };
   }
 
   try {
@@ -363,9 +363,11 @@ export const setupForegroundNotificationHandler = (
       // Show browser notification
       if (payload.notification) {
         const { title, body, icon } = payload.notification;
-        
+
         // Show notification
-        if ('Notification' in window && Notification.permission === 'granted') {
+        const isAPK = typeof navigator !== 'undefined' && /wv|WebView/i.test(navigator.userAgent);
+
+        if ('Notification' in window && Notification.permission === 'granted' && !isAPK) {
           const notification = new Notification(title || 'Fixfly Notification', {
             body: body || 'You have a new notification',
             icon: icon || '/favicon.png',
@@ -379,19 +381,19 @@ export const setupForegroundNotificationHandler = (
             event.preventDefault();
             // Get link from multiple possible locations
             const notificationData = payload.data || {};
-            let link = notificationData.link || 
-                       payload.fcmOptions?.link || 
-                       (notificationData.type === 'booking_assignment' && notificationData.bookingId 
-                         ? `/vendor/task/${notificationData.bookingId}` 
-                         : null) ||
-                       (notificationData.type === 'booking_assignment' && notificationData.taskId 
-                         ? `/vendor/task/${notificationData.taskId}` 
-                         : null) ||
-                       '/';
-            
+            let link = notificationData.link ||
+              payload.fcmOptions?.link ||
+              (notificationData.type === 'booking_assignment' && notificationData.bookingId
+                ? `/vendor/task/${notificationData.bookingId}`
+                : null) ||
+              (notificationData.type === 'booking_assignment' && notificationData.taskId
+                ? `/vendor/task/${notificationData.taskId}`
+                : null) ||
+              '/';
+
             console.log('📬 Notification clicked, navigating to:', link);
             window.focus();
-            
+
             // Use React Router navigation if available, otherwise use window.location
             if (window.location.pathname.startsWith('/vendor')) {
               window.location.href = link;
@@ -413,7 +415,7 @@ export const setupForegroundNotificationHandler = (
     return unsubscribe;
   } catch (error) {
     console.error('❌ Error setting up foreground notification handler:', error);
-    return () => {};
+    return () => { };
   }
 };
 
@@ -428,14 +430,14 @@ export const removeFCMToken = async (token: string): Promise<boolean> => {
     const userToken = localStorage.getItem('accessToken') || localStorage.getItem('token');
     const authToken = vendorToken || userToken;
     const isVendor = !!vendorToken;
-    
+
     if (!authToken) {
       console.warn('⚠️ User not logged in');
       return false;
     }
 
     // Use vendor endpoint if vendor, user endpoint otherwise
-    const endpoint = isVendor 
+    const endpoint = isVendor
       ? `${API_BASE_URL}/vendors/remove-fcm-token`
       : `${API_BASE_URL}/users/remove-fcm-token`;
 
@@ -476,11 +478,11 @@ export const saveMobileFCMToken = async (token: string, phone: string, email?: s
     const vendorToken = localStorage.getItem('vendorToken');
     const vendorData = localStorage.getItem('vendorData');
     const isVendor = !!vendorToken;
-    
+
     // For vendors, use email instead of phone
     let requestBody: any;
     let endpoint: string;
-    
+
     if (isVendor) {
       // Vendor endpoint uses email
       let vendorEmail = email;
@@ -492,12 +494,12 @@ export const saveMobileFCMToken = async (token: string, phone: string, email?: s
           console.error('Error parsing vendor data:', e);
         }
       }
-      
+
       if (!vendorEmail) {
         console.error('❌ Vendor email is required for saving mobile FCM token');
         return false;
       }
-      
+
       endpoint = `${API_BASE_URL}/vendors/save-fcm-token-mobile`;
       requestBody = {
         token: token,
@@ -513,7 +515,7 @@ export const saveMobileFCMToken = async (token: string, phone: string, email?: s
         platform: 'mobile',
       };
     }
-    
+
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {

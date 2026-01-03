@@ -1506,7 +1506,7 @@ const Support = () => {
             <h2 className="text-lg md:text-xl font-bold mb-1">Need Immediate Help?</h2>
             <p className="text-xs md:text-sm text-muted-foreground">Get in touch with our support team</p>
           </div>
-          <div className="grid grid-cols-3 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             <div className="text-center cursor-pointer group" onClick={handlePhoneCall}>
               <div className="bg-gradient-tech p-2 md:p-3 rounded-lg w-fit mx-auto mb-2 md:mb-3 group-hover:scale-105 transition-transform duration-300">
                 <Phone className="h-4 w-4 md:h-5 md:w-5 text-white" />

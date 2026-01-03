@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Trash2, 
-  Upload, 
-  Save, 
+import {
+  Plus,
+  Trash2,
+  Upload,
+  Save,
   X,
   AlertCircle,
   CheckCircle,
@@ -125,7 +125,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
   const handleServiceChange = (category: string, index: number, field: keyof Service, value: string | number | boolean) => {
     const updated = [...product.categories[category as keyof typeof product.categories]];
     updated[index] = { ...updated[index], [field]: value };
-    
+
     setProduct(prev => ({
       ...prev,
       categories: { ...prev.categories, [category]: updated }
@@ -134,15 +134,15 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
 
   const handleServiceImageChange = (category: string, index: number, file: File | null) => {
     const serviceKey = `${category}_${index}`;
-    
+
     if (file) {
       setServiceImageFiles(prev => ({ ...prev, [serviceKey]: file }));
-      
+
       const reader = new FileReader();
       reader.onload = (e) => {
-        setServiceImagePreviews(prev => ({ 
-          ...prev, 
-          [serviceKey]: e.target?.result as string 
+        setServiceImagePreviews(prev => ({
+          ...prev,
+          [serviceKey]: e.target?.result as string
         }));
       };
       reader.readAsDataURL(file);
@@ -154,7 +154,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
 
   const handleInputChange = (field: keyof ProductFormData, value: string | boolean) => {
     setProduct(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -186,11 +186,11 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       }
 
       setSelectedFile(file);
-      
+
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
-      
+
       // Clear any existing image URL
       setProduct(prev => ({ ...prev, productImage: '' }));
     }
@@ -275,7 +275,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       if (selectedProduct.categories?.B?.length > 0) activeCats.push('B');
       if (selectedProduct.categories?.C?.length > 0) activeCats.push('C');
       if (selectedProduct.categories?.D?.length > 0) activeCats.push('D');
-      
+
       // If no categories are active, default to A
       setActiveCategories(activeCats.length > 0 ? activeCats : ['A']);
 
@@ -332,7 +332,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast({
         title: "Validation Error",
@@ -343,7 +343,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Convert string prices to numbers and include category names
       const processedProduct = {
@@ -361,10 +361,10 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
 
       // Create FormData for file upload
       const formData = new FormData();
-      
+
       // Add product data as JSON string
       formData.append('productData', JSON.stringify(processedProduct));
-      
+
       // Add image file if selected
       if (selectedFile) {
         formData.append('productImage', selectedFile);
@@ -378,7 +378,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
           serviceImageKeys.push(serviceKey);
         }
       });
-      
+
       // Add service image keys as a single array
       if (serviceImageKeys.length > 0) {
         serviceImageKeys.forEach(key => {
@@ -392,7 +392,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       for (const [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
-      
+
       const productDataString = formData.get('productData') as string;
       if (productDataString) {
         console.log('Product data found:', JSON.parse(productDataString));
@@ -406,18 +406,18 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
 
 
       let response;
-      
+
       if (selectedProduct) {
         // Update existing product
         response = await adminApiService.updateProductWithImage(selectedProduct._id, formData);
-        
+
         if (response.success) {
           toast({
             title: "Success",
             description: "Product updated successfully!",
             variant: "default"
           });
-          
+
           // Go back to list view
           if (onBackToList) {
             onBackToList();
@@ -428,14 +428,14 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       } else {
         // Create new product
         response = await adminApiService.createProductWithImage(formData);
-        
+
         if (response.success) {
           toast({
             title: "Success",
             description: "Product created successfully!",
             variant: "default"
           });
-          
+
           // Reset form
           setProduct({
             productName: '',
@@ -457,14 +457,14 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
           throw new Error(response.message || 'Failed to create product');
         }
       }
-      
+
       // Notify parent component that product was created/updated
       onProductCreated?.();
     } catch (error: any) {
       console.error('Error saving product:', error);
       toast({
         title: "Error",
-        description: error.response?.data?.message || `Failed to ${selectedProduct ? 'update' : 'create'} product`,
+        description: error.message || `Failed to ${selectedProduct ? 'update' : 'create'} product`,
         variant: "destructive"
       });
     } finally {
@@ -564,7 +564,7 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
 
             <div className="space-y-2">
               <Label htmlFor="productImage">Product Image</Label>
-              
+
               {/* File Upload */}
               <div className="space-y-4">
                 <div className="flex items-center gap-4">

@@ -683,7 +683,7 @@ class EmailService {
 
             <p>To get started, please make your initial deposit of ₹4,000 to activate all features.</p>
             
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/login" class="cta-button">
+            <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/login" class="cta-button">
               Login to Your Dashboard
             </a>
             
@@ -709,7 +709,7 @@ class EmailService {
       
       To get started, please make your initial deposit of ₹4,000.
       
-      Login: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/login
+      Login: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/login
       
       Best regards,
       The Fixfly Team
@@ -1599,6 +1599,178 @@ class EmailService {
   }
 
   /**
+   * Send booking rescheduled email to user
+   * @param {Object} booking - Booking object
+   * @param {Object} rescheduleInfo - Reschedule details
+   * @returns {Promise<Object>} - Response object
+   */
+  async sendBookingRescheduledEmail(booking, rescheduleInfo) {
+    if (!this.isEmailConfigured()) {
+      logger.warn('Email service not configured. Skipping booking rescheduled email.');
+      return {
+        success: false,
+        message: 'Email service not configured'
+      };
+    }
+
+    try {
+      const bookingReference = booking.bookingReference || `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
+      const customerName = booking.customer?.name || 'Customer';
+      const customerEmail = booking.customer?.email;
+
+      const newDate = rescheduleInfo.newDate ? new Date(rescheduleInfo.newDate).toLocaleDateString('en-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }) : 'N/A';
+      const newTime = rescheduleInfo.newTime || 'N/A';
+
+      const originalDate = rescheduleInfo.originalDate ? new Date(rescheduleInfo.originalDate).toLocaleDateString('en-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }) : 'N/A';
+      const originalTime = rescheduleInfo.originalTime || 'N/A';
+      const reason = rescheduleInfo.reason || 'Not provided';
+      const rescheduledBy = rescheduleInfo.rescheduledBy === 'vendor' ? 'Service Engineer' : 'You';
+
+      const subject = `Booking Rescheduled - ${bookingReference} | Fixfly`;
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Booking Rescheduled</title>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+            .header { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; }
+            .content { padding: 30px 20px; }
+            .reschedule-badge { background: #fffbeb; border: 2px solid #F59E0B; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 25px; }
+            .reschedule-badge h2 { color: #D97706; margin: 0; font-size: 20px; }
+            .details-box { background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+            .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
+            .detail-row:last-child { border-bottom: none; }
+            .label { color: #6b7280; font-weight: 500; }
+            .value { color: #1f2937; font-weight: 600; text-align: right; }
+            .footer { background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 14px; border-top: 1px solid #e5e7eb; }
+            .contact-info { background: #fff7ed; border-radius: 8px; padding: 15px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🔄 Fixfly</h1>
+              <p>Booking Rescheduled</p>
+            </div>
+            <div class="content">
+              <div class="reschedule-badge">
+                <h2>Booking Rescheduled</h2>
+                <p style="margin: 5px 0 0 0; color: #B45309;">Your booking #${bookingReference} has been rescheduled</p>
+              </div>
+
+              <p>Hello ${customerName},</p>
+              <p>We're writing to confirm that your service booking has been rescheduled by ${rescheduledBy}.</p>
+
+              <div class="details-box">
+                <h3>🗓️ New Schedule</h3>
+                <div class="detail-row">
+                  <span class="label">New Date:</span>
+                  <span class="value">${newDate}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">New Time:</span>
+                  <span class="value">${newTime}</span>
+                </div>
+              </div>
+
+              <div class="details-box">
+                <h3>🕰️ Previous Schedule</h3>
+                <div class="detail-row">
+                  <span class="label">Date:</span>
+                  <span class="value">${originalDate}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Time:</span>
+                  <span class="value">${originalTime}</span>
+                </div>
+              </div>
+
+              <div class="details-box">
+                <h3>📝 Reschedule Details</h3>
+                <div class="detail-row">
+                  <span class="label">Reason:</span>
+                  <span class="value">${reason}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Rescheduled By:</span>
+                  <span class="value">${rescheduledBy}</span>
+                </div>
+              </div>
+
+              <div class="contact-info">
+                <h4>📞 Need to change this?</h4>
+                <p>If this new time doesn't work for you, please contact us immediately:</p>
+                <p><strong>Phone:</strong> +91-99313-54354</p>
+                <p><strong>Email:</strong> info@fixfly.in</p>
+              </div>
+            </div>
+            <div class="footer">
+              <p>Thank you for choosing Fixfly!</p>
+              <p>For support, contact us at info@fixfly.in</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const text = `
+        Booking Rescheduled - ${bookingReference} | Fixfly
+        
+        Hello ${customerName},
+        
+        Your booking #${bookingReference} has been rescheduled by ${rescheduledBy}.
+        
+        NEW SCHEDULE:
+        - Date: ${newDate}
+        - Time: ${newTime}
+        
+        PREVIOUS SCHEDULE:
+        - Date: ${originalDate}
+        - Time: ${originalTime}
+        
+        RESCHEDULE DETAILS:
+        - Reason: ${reason}
+        - Rescheduled By: ${rescheduledBy}
+        
+        If this new time doesn't work for you, please contact us at +91-99313-54354 or info@fixfly.in.
+        
+        Thank you for choosing Fixfly!
+      `;
+
+      return await this.sendEmail({
+        to: customerEmail,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+    } catch (error) {
+      logger.error('Failed to send booking rescheduled email:', error);
+      return {
+        success: false,
+        message: 'Failed to send booking rescheduled email',
+        error: error.message
+      };
+    }
+  }
+
+  /**
    * Send booking assignment email to vendor
    * @param {Object} vendor - Vendor object with firstName, lastName, email
    * @param {Object} booking - Booking object
@@ -1811,7 +1983,7 @@ class EmailService {
               </div>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard" class="cta-button">
+                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard" class="cta-button">
                   View in Dashboard
                 </a>
               </div>
@@ -1867,7 +2039,7 @@ class EmailService {
         - Update the booking status as you progress
         - Accept or decline the booking in your dashboard
         
-        View in Dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor/dashboard
+        View in Dashboard: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/vendor/dashboard
         
         Best regards,
         The Fixfly Support Team

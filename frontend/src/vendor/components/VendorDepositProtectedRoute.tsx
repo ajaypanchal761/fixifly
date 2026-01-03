@@ -20,20 +20,21 @@ const VendorDepositProtectedRoute = ({ children }: VendorDepositProtectedRoutePr
 
     if (!isLoading && isAuthenticated && vendor) {
       // Check if vendor has made the initial deposit - once deposit is made, always show Yes
-      const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || 
-                               (vendor.wallet?.currentBalance >= 3999) ||
-                               (vendor.wallet?.totalDeposits > 0);
-      
+      const securityDeposit = vendor.wallet?.securityDeposit || 3999;
+      const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
+        (vendor.wallet?.currentBalance >= securityDeposit) ||
+        (vendor.wallet?.totalDeposits > 0);
+
       console.log('=== VENDOR DEPOSIT PROTECTED ROUTE DEBUG ===');
       console.log('Vendor ID:', vendor.vendorId);
       console.log('Wallet data:', vendor.wallet);
       console.log('Has initial deposit:', hasInitialDeposit);
       console.log('Current path:', location.pathname);
-      
+
       // Allow access to support and earnings pages even without deposit
       const allowedPagesWithoutDeposit = ['/vendor/support', '/vendor/earnings'];
       const isAllowedPage = allowedPagesWithoutDeposit.includes(location.pathname);
-      
+
       // If no initial deposit and not on allowed pages, redirect to earnings
       if (!hasInitialDeposit && !isAllowedPage) {
         console.log('Redirecting to earnings - no initial deposit');

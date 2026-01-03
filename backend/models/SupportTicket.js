@@ -6,7 +6,7 @@ const SupportTicketSchema = new mongoose.Schema({
     required: true,
     unique: true,
     index: true,
-    default: function() {
+    default: function () {
       return `TK${Date.now().toString().slice(-6)}`;
     }
   },
@@ -133,7 +133,7 @@ const SupportTicketSchema = new mongoose.Schema({
     ref: 'Admin',
     default: null
   },
-  
+
   // Completion data (for vendor completion)
   completionData: {
     resolutionNote: String,
@@ -156,7 +156,7 @@ const SupportTicketSchema = new mongoose.Schema({
     travelingAmount: String,
     completedAt: Date
   },
-  
+
   // Vendor assignment tracking
   vendorAssignmentHistory: [{
     vendorId: {
@@ -178,7 +178,7 @@ const SupportTicketSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
-  
+
   // Vendor communication tracking
   vendorCommunications: [{
     message: String,
@@ -199,7 +199,7 @@ const SupportTicketSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
-  
+
   // Vendor performance tracking
   vendorPerformance: {
     responseTime: Number, // in hours
@@ -216,7 +216,7 @@ const SupportTicketSchema = new mongoose.Schema({
       max: 10
     }
   },
-  
+
   // Payment information
   paymentMode: {
     type: String,
@@ -232,7 +232,7 @@ const SupportTicketSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  
+
   // Reschedule data (matching booking task format)
   rescheduleData: {
     isRescheduled: Boolean,
@@ -247,7 +247,7 @@ const SupportTicketSchema = new mongoose.Schema({
       enum: ['admin', 'vendor', 'user']
     }
   },
-  
+
   // Cancellation data (matching booking task format)
   cancellationData: {
     isCancelled: Boolean,
@@ -262,7 +262,7 @@ const SupportTicketSchema = new mongoose.Schema({
       vendorName: String
     }
   },
-  
+
   tags: [{
     type: String,
     trim: true
@@ -377,18 +377,18 @@ SupportTicketSchema.index({ 'vendorAssignmentHistory.vendorId': 1 });
 SupportTicketSchema.index({ 'vendorPerformance.customerRating': -1 });
 
 // Pre-save middleware to generate ticket ID
-SupportTicketSchema.pre('save', async function(next) {
+SupportTicketSchema.pre('save', async function (next) {
   if (this.isNew) {
     try {
       // Use a more robust method to generate unique ticket ID
       let ticketId;
       let isUnique = false;
       let attempts = 0;
-      
+
       while (!isUnique && attempts < 10) {
         const count = await mongoose.model('SupportTicket').countDocuments();
         ticketId = `TK${String(count + 1 + attempts).padStart(6, '0')}`;
-        
+
         // Check if this ticketId already exists
         const existingTicket = await mongoose.model('SupportTicket').findOne({ ticketId });
         if (!existingTicket) {
@@ -396,12 +396,12 @@ SupportTicketSchema.pre('save', async function(next) {
         }
         attempts++;
       }
-      
+
       if (!isUnique) {
         // Fallback to timestamp-based ID if we can't find a unique sequential one
         ticketId = `TK${Date.now().toString().slice(-6)}`;
       }
-      
+
       this.ticketId = ticketId;
     } catch (error) {
       console.error('Error generating ticket ID:', error);
@@ -413,36 +413,35 @@ SupportTicketSchema.pre('save', async function(next) {
 });
 
 // Virtual for formatted creation date
-SupportTicketSchema.virtual('formattedCreatedAt').get(function() {
-  return this.createdAt.toLocaleDateString('en-US', {
-    year: 'numeric',
+SupportTicketSchema.virtual('formattedCreatedAt').get(function () {
+  const date = this.createdAt.toLocaleDateString('en-IN', {
+    day: 'numeric',
     month: 'short',
-    day: 'numeric'
+    year: 'numeric'
   });
+  const time = this.createdAt.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+  return `${date} at ${time}`;
 });
 
 // Virtual for last update time
-SupportTicketSchema.virtual('lastUpdate').get(function() {
-  const now = new Date();
-  const diffMs = now - this.lastResponseAt;
-  const minutes = Math.floor(diffMs / (1000 * 60));
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (days > 0) {
-    return `${days} day${days > 1 ? 's' : ''} ago`;
-  }
-  if (hours > 0) {
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  }
-  if (minutes > 0) {
-    return `${minutes} min${minutes > 1 ? 's' : ''} ago`;
-  }
-  return 'Just now';
+SupportTicketSchema.virtual('lastUpdate').get(function () {
+  return this.updatedAt.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  }) + ' at ' + this.updatedAt.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
 });
 
 // Method to add response
-SupportTicketSchema.methods.addResponse = function(message, sender, senderId, senderName, isInternal = false) {
+SupportTicketSchema.methods.addResponse = function (message, sender, senderId, senderName, isInternal = false) {
   this.responses.push({
     message,
     sender,
@@ -453,19 +452,19 @@ SupportTicketSchema.methods.addResponse = function(message, sender, senderId, se
   this.responseCount = this.responses.length;
   this.lastResponseAt = new Date();
   this.lastResponseBy = sender;
-  
+
   // Update status based on response
   if (sender === 'admin' && this.status === 'Submitted') {
     this.status = 'In Progress';
   } else if (sender === 'user' && this.status === 'In Progress') {
     this.status = 'Waiting for Response';
   }
-  
+
   return this.save();
 };
 
 // Method to resolve ticket
-SupportTicketSchema.methods.resolveTicket = function(resolution, resolvedBy) {
+SupportTicketSchema.methods.resolveTicket = function (resolution, resolvedBy) {
   this.status = 'Resolved';
   this.resolution = resolution;
   this.resolvedAt = new Date();
@@ -474,7 +473,7 @@ SupportTicketSchema.methods.resolveTicket = function(resolution, resolvedBy) {
 };
 
 // Method to escalate ticket
-SupportTicketSchema.methods.escalateTicket = function(escalatedTo) {
+SupportTicketSchema.methods.escalateTicket = function (escalatedTo) {
   this.isEscalated = true;
   this.escalatedAt = new Date();
   this.escalatedTo = escalatedTo;
@@ -483,12 +482,12 @@ SupportTicketSchema.methods.escalateTicket = function(escalatedTo) {
 };
 
 // Method to assign vendor to ticket
-SupportTicketSchema.methods.assignVendor = function(vendorId, adminId, notes = '') {
+SupportTicketSchema.methods.assignVendor = function (vendorId, adminId, notes = '') {
   this.assignedTo = vendorId;
   this.assignedAt = new Date();
   this.assignedBy = adminId;
   this.vendorStatus = 'Pending';
-  
+
   // Add to assignment history
   this.vendorAssignmentHistory.push({
     vendorId: vendorId,
@@ -497,68 +496,68 @@ SupportTicketSchema.methods.assignVendor = function(vendorId, adminId, notes = '
     status: 'assigned',
     notes: notes
   });
-  
+
   return this.save();
 };
 
 // Method to accept ticket by vendor
-SupportTicketSchema.methods.acceptByVendor = function(vendorId) {
+SupportTicketSchema.methods.acceptByVendor = function (vendorId) {
   if (this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
-  
+
   this.vendorStatus = 'Accepted';
   this.vendorAcceptedAt = new Date();
-  
+
   // Update assignment history
-  const assignment = this.vendorAssignmentHistory.find(a => 
+  const assignment = this.vendorAssignmentHistory.find(a =>
     a.vendorId.toString() === vendorId.toString() && a.status === 'assigned'
   );
   if (assignment) {
     assignment.status = 'accepted';
   }
-  
+
   return this.save();
 };
 
 // Method to decline ticket by vendor
-SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = '') {
+SupportTicketSchema.methods.declineByVendor = async function (vendorId, reason = '') {
   if (this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
-  
+
   this.vendorStatus = 'Declined';
   this.vendorDeclinedAt = new Date();
   this.vendorDeclineReason = reason;
-  
+
   // Update ticket status to Cancelled
   this.status = 'Cancelled';
   // Keep assignedTo to show in vendor's cancelled tab
   // this.assignedTo = null;
   // this.assignedAt = null;
-  
+
   // Update assignment history
-  const assignment = this.vendorAssignmentHistory.find(a => 
+  const assignment = this.vendorAssignmentHistory.find(a =>
     a.vendorId.toString() === vendorId.toString() && a.status === 'assigned'
   );
   if (assignment) {
     assignment.status = 'declined';
     assignment.notes = reason;
   }
-  
+
   // Apply penalty for task rejection
   const VendorWallet = require('./VendorWallet');
   const Vendor = require('./Vendor');
-  
+
   // Get vendor details to get the vendorId string
   const vendor = await Vendor.findById(vendorId);
   if (!vendor) {
     console.error('Vendor not found for penalty application:', vendorId);
     return this.save();
   }
-  
+
   const wallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
-  
+
   if (wallet) {
     const penaltyAmount = 100;
     // Check if wallet has balance > 0 - no penalty if balance is 0
@@ -568,7 +567,7 @@ SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = 
         vendorId: vendor.vendorId,
         amount: penaltyAmount
       });
-      
+
       // Add penalty for task rejection
       await wallet.addPenalty({
         caseId: this._id,
@@ -576,7 +575,7 @@ SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = 
         amount: penaltyAmount, // ₹100 penalty for rejecting task
         description: `Task rejection penalty - ${this.ticketId}`
       });
-      
+
       console.log('🔧 PENALTY DEBUG: Penalty applied successfully', {
         newBalance: wallet.currentBalance,
         totalPenalties: wallet.totalPenalties
@@ -592,31 +591,31 @@ SupportTicketSchema.methods.declineByVendor = async function(vendorId, reason = 
   } else {
     console.error('Vendor wallet not found for penalty application:', vendor.vendorId);
   }
-  
+
   return this.save();
 };
 
 // Method to complete ticket by vendor
-SupportTicketSchema.methods.completeByVendor = function(vendorId, completionData = {}) {
+SupportTicketSchema.methods.completeByVendor = function (vendorId, completionData = {}) {
   if (this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
-  
+
   this.vendorStatus = 'Completed';
   this.vendorCompletedAt = new Date();
-  
+
   // Store completion data
   if (completionData) {
     this.completionData = {
       ...completionData,
       completedAt: new Date()
     };
-    
+
     // Update payment information from completion data
     if (completionData.paymentMethod) {
       this.paymentMode = completionData.paymentMethod;
       this.paymentStatus = completionData.paymentMethod === 'online' ? 'pending' : 'collected';
-      
+
       // Set status based on payment method
       if (completionData.paymentMethod === 'online') {
         // For online payment, keep status as 'In Progress' until payment is completed
@@ -631,7 +630,7 @@ SupportTicketSchema.methods.completeByVendor = function(vendorId, completionData
       this.status = 'Resolved';
       this.resolvedAt = new Date();
     }
-    
+
     if (completionData.billingAmount !== undefined) {
       console.log('Setting billing amount in model:', completionData.billingAmount);
       this.billingAmount = completionData.billingAmount;
@@ -643,20 +642,20 @@ SupportTicketSchema.methods.completeByVendor = function(vendorId, completionData
     this.status = 'Resolved';
     this.resolvedAt = new Date();
   }
-  
+
   // Update assignment history
-  const assignment = this.vendorAssignmentHistory.find(a => 
+  const assignment = this.vendorAssignmentHistory.find(a =>
     a.vendorId.toString() === vendorId.toString() && a.status === 'accepted'
   );
   if (assignment) {
     assignment.status = 'completed';
   }
-  
+
   return this.save();
 };
 
 // Method to add vendor communication
-SupportTicketSchema.methods.addVendorCommunication = function(message, sender, senderId, senderName, isInternal = false) {
+SupportTicketSchema.methods.addVendorCommunication = function (message, sender, senderId, senderName, isInternal = false) {
   this.vendorCommunications.push({
     message,
     sender,
@@ -664,31 +663,31 @@ SupportTicketSchema.methods.addVendorCommunication = function(message, sender, s
     senderName,
     isInternal
   });
-  
+
   return this.save();
 };
 
 // Method to update vendor performance
-SupportTicketSchema.methods.updateVendorPerformance = function(performanceData) {
+SupportTicketSchema.methods.updateVendorPerformance = function (performanceData) {
   this.vendorPerformance = {
     ...this.vendorPerformance,
     ...performanceData
   };
-  
+
   return this.save();
 };
 
 // Method to cancel ticket by vendor
-SupportTicketSchema.methods.cancelByVendor = function(vendorId, reason = '') {
+SupportTicketSchema.methods.cancelByVendor = function (vendorId, reason = '') {
   if (this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
-  
+
   this.vendorStatus = 'Cancelled';
   this.status = 'Closed';
   this.vendorDeclinedAt = new Date();
   this.vendorDeclineReason = reason;
-  
+
   // Store cancellation data (matching booking task format)
   this.cancellationData = {
     isCancelled: true,
@@ -700,16 +699,16 @@ SupportTicketSchema.methods.cancelByVendor = function(vendorId, reason = '') {
       vendorName: 'Vendor' // Will be populated by controller
     }
   };
-  
+
   // Update assignment history
-  const assignment = this.vendorAssignmentHistory.find(a => 
+  const assignment = this.vendorAssignmentHistory.find(a =>
     a.vendorId.toString() === vendorId.toString() && a.status === 'accepted'
   );
   if (assignment) {
     assignment.status = 'cancelled';
     assignment.notes = reason;
   }
-  
+
   return this.save();
 };
 

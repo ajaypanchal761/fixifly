@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 const VendorSearchTasks = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   // Show 404 error on desktop - must be before any other hooks
   // Show 404 error on desktop
   if (!isMobile) {
@@ -38,7 +38,7 @@ const VendorSearchTasks = () => {
       priority: "High"
     },
     {
-      id: "CASE-2024-002", 
+      id: "CASE-2024-002",
       taskName: "Washing Machine Service",
       customerName: "Priya Sharma",
       phone: "+91 98765 43211",
@@ -67,7 +67,7 @@ const VendorSearchTasks = () => {
       setIsSearching(true);
       // Simulate API call delay
       setTimeout(() => {
-        const results = sampleTasks.filter(task => 
+        const results = sampleTasks.filter(task =>
           task.id.toLowerCase().includes(query.toLowerCase()) ||
           task.taskName.toLowerCase().includes(query.toLowerCase()) ||
           task.customerName.toLowerCase().includes(query.toLowerCase())
@@ -130,7 +130,7 @@ const VendorSearchTasks = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 type="text"
-                placeholder="Search by Case ID or Task Name"
+                placeholder="Search by Phone, Name or last 4 characters of Case ID"
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-10 h-12 text-sm border-gray-200 focus:border-blue-500 focus:ring-blue-500"
@@ -208,7 +208,7 @@ const VendorSearchTasks = () => {
               <Search className="w-20 h-20 text-gray-300 mx-auto mb-6" />
               <h3 className="text-lg font-medium text-gray-500 mb-2">Search for tasks</h3>
               <p className="text-sm text-gray-400">
-                Enter Case ID or Task Name to find specific tasks
+                Enter Phone, Name or last 4 characters of Case ID to find specific tasks
               </p>
             </div>
           )}

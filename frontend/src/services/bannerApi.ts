@@ -33,10 +33,10 @@ class BannerApiService {
     if (targetAudience) {
       url += `?targetAudience=${targetAudience}`;
     }
-    
+
     console.log('Banner API making request to:', url);
     console.log('Base URL:', this.baseUrl);
-    
+
     try {
       const response = await fetch(url, {
         method: 'GET',
@@ -49,7 +49,7 @@ class BannerApiService {
       console.log('Banner API response ok:', response.ok);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => {});
+        const errorData = await response.json().catch(() => { });
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
@@ -73,9 +73,12 @@ class BannerApiService {
     try {
       const response = await this.getActiveBanners(targetAudience);
       if (response.success && response.data) {
-        // Sort by order and return only image URLs
+        // Sort by order (ascending) and then by createdAt (descending)
         return response.data
-          .sort((a, b) => a.order - b.order)
+          .sort((a, b) => {
+            if (a.order !== b.order) return a.order - b.order;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          })
           .map(banner => banner.image.url);
       }
       return [];

@@ -101,7 +101,7 @@ const createBooking = asyncHandler(async (req, res) => {
     console.log('=== BOOKING CREATION REQUEST ===');
     console.log('Request body:', JSON.stringify(req.body, null, 2));
     console.log('Authenticated user:', req.user?.userId);
-    
+
     // Check if user is authenticated
     if (!req.user || !req.user.userId) {
       return res.status(401).json({
@@ -109,7 +109,7 @@ const createBooking = asyncHandler(async (req, res) => {
         message: 'Authentication required. Please login to create a booking.'
       });
     }
-    
+
     const {
       customer,
       services,
@@ -141,8 +141,8 @@ const createBooking = asyncHandler(async (req, res) => {
     }
 
     // Validate pricing - allow 0 values for first-time users
-    if (pricing.subtotal === undefined || pricing.subtotal === null || 
-        pricing.totalAmount === undefined || pricing.totalAmount === null) {
+    if (pricing.subtotal === undefined || pricing.subtotal === null ||
+      pricing.totalAmount === undefined || pricing.totalAmount === null) {
       return res.status(400).json({
         success: false,
         message: 'Pricing information is incomplete'
@@ -217,9 +217,9 @@ const createBooking = asyncHandler(async (req, res) => {
         bookingReference: booking.bookingReference,
         customerPhone: booking.customer.phone
       });
-      
+
       const whatsappResult = await botbeeService.sendBookingConfirmationToUser(booking);
-      
+
       if (whatsappResult.success) {
         console.log('✅ Booking confirmation WhatsApp sent to user successfully');
         logger.info('Booking confirmation WhatsApp sent to user', {
@@ -252,9 +252,9 @@ const createBooking = asyncHandler(async (req, res) => {
         bookingReference: booking.bookingReference,
         customerEmail: booking.customer.email
       });
-      
+
       const emailResult = await emailService.sendBookingConfirmationEmail(booking);
-      
+
       if (emailResult.success) {
         console.log('✅ Booking confirmation email sent to user successfully');
         logger.info('Booking confirmation email sent to user', {
@@ -286,9 +286,9 @@ const createBooking = asyncHandler(async (req, res) => {
         bookingId: booking._id,
         bookingReference: booking.bookingReference
       });
-      
+
       const whatsappResult = await botbeeService.sendBookingNotification(booking);
-      
+
       if (whatsappResult.success) {
         console.log('✅ WhatsApp notification sent to admin successfully');
         logger.info('WhatsApp notification sent to admin via Botbee', {
@@ -321,15 +321,15 @@ const createBooking = asyncHandler(async (req, res) => {
         bookingReference: booking.bookingReference,
         customerName: booking.customer.name
       });
-      
+
       const notificationResult = await adminNotificationService.sendNewBookingNotification(booking);
-      
+
       console.log('📊 Admin notification result:', {
         successCount: notificationResult.successCount,
         failureCount: notificationResult.failureCount,
         totalResponses: notificationResult.responses ? notificationResult.responses.length : 0
       });
-      
+
       logger.info('Admin notification sent for new booking', {
         bookingId: booking._id,
         successCount: notificationResult.successCount,
@@ -438,7 +438,7 @@ const createBooking = asyncHandler(async (req, res) => {
             link: `/booking/${booking._id}` // Link to booking details page
           }
         );
-        
+
         if (notificationSent) {
           console.log('✅ User notification sent successfully for booking confirmation (CASH)');
           logger.info('Push notification sent to user for booking confirmation (CASH)', {
@@ -495,7 +495,7 @@ const createBooking = asyncHandler(async (req, res) => {
     console.error('Error type:', typeof error);
     console.error('Full error:', error);
     console.error('=== END BOOKING CREATION ERROR ===');
-    
+
     logger.error('Error creating booking:', error);
     res.status(500).json({
       success: false,
@@ -523,7 +523,7 @@ const getBookingById = asyncHandler(async (req, res) => {
       if (id.toUpperCase().startsWith('FIX') && id.length >= 11) {
         // Extract the last 8 characters and try to find matching ObjectId
         const referenceSuffix = id.slice(-8).toUpperCase();
-        
+
         // Search for bookings where the last 8 characters of ObjectId match
         const bookings = await Booking.find({}).lean();
         booking = bookings.find(b => {
@@ -564,10 +564,10 @@ const getBookingById = asyncHandler(async (req, res) => {
     // Manually populate vendor data - only if vendor has accepted the task
     if (booking && booking.vendor && booking.vendor.vendorId) {
       // Check if vendor has accepted the task
-      const isAccepted = booking.vendorResponse?.status === 'accepted' || 
-                        booking.status === 'in_progress' || 
-                        booking.status === 'completed';
-      
+      const isAccepted = booking.vendorResponse?.status === 'accepted' ||
+        booking.status === 'in_progress' ||
+        booking.status === 'completed';
+
       if (isAccepted) {
         // Vendor has accepted - populate vendor details
         const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
@@ -594,10 +594,10 @@ const getBookingById = asyncHandler(async (req, res) => {
 
     // Hide customer phone number if vendor is accessing and hasn't accepted the task
     if (req.vendor && booking.customer && booking.customer.phone) {
-      const isAccepted = booking.vendorResponse?.status === 'accepted' || 
-                        booking.status === 'in_progress' || 
-                        booking.status === 'completed';
-      
+      const isAccepted = booking.vendorResponse?.status === 'accepted' ||
+        booking.status === 'in_progress' ||
+        booking.status === 'completed';
+
       if (!isAccepted) {
         // Hide phone number - set to null
         booking.customer.phone = null;
@@ -643,7 +643,7 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
 
     // Get all bookings for the customer
     // Users should see all their bookings, including those declined by vendors
-    const bookings = await Booking.find({ 
+    const bookings = await Booking.find({
       'customer.email': email
     })
       .select('customer services pricing scheduling status priority vendor vendorResponse notes assignmentNotes completionData paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
@@ -656,10 +656,10 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
     for (const booking of bookings) {
       if (booking.vendor && booking.vendor.vendorId) {
         // Check if vendor has accepted the task
-        const isAccepted = booking.vendorResponse?.status === 'accepted' || 
-                          booking.status === 'in_progress' || 
-                          booking.status === 'completed';
-        
+        const isAccepted = booking.vendorResponse?.status === 'accepted' ||
+          booking.status === 'in_progress' ||
+          booking.status === 'completed';
+
         if (isAccepted) {
           // Vendor has accepted - populate vendor details
           const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
@@ -675,7 +675,7 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
       }
     }
 
-    const totalBookings = await Booking.countDocuments({ 
+    const totalBookings = await Booking.countDocuments({
       'customer.email': email
     });
     const totalPages = Math.ceil(totalBookings / parseInt(limit));
@@ -715,7 +715,7 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
 const updateBookingStatus = asyncHandler(async (req, res) => {
   try {
     const { status, completionData } = req.body;
-    
+
     if (!['pending', 'waiting_for_engineer', 'confirmed', 'in_progress', 'completed', 'cancelled'].includes(status)) {
       return res.status(400).json({
         success: false,
@@ -725,7 +725,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
     // Prepare update object
     const updateData = { status };
-    
+
     // If status is completed and completion data is provided, store it
     if (status === 'completed' && completionData) {
       updateData.completionData = {
@@ -833,13 +833,13 @@ const getBookingsByVendor = asyncHandler(async (req, res) => {
           booking.vendor.vendorId = vendor;
         }
       }
-      
+
       // Hide customer phone number if vendor hasn't accepted the task
       if (booking.customer && booking.customer.phone) {
-        const isAccepted = booking.vendorResponse?.status === 'accepted' || 
-                          booking.status === 'in_progress' || 
-                          booking.status === 'completed';
-        
+        const isAccepted = booking.vendorResponse?.status === 'accepted' ||
+          booking.status === 'in_progress' ||
+          booking.status === 'completed';
+
         if (!isAccepted) {
           // Hide phone number - set to null
           booking.customer.phone = null;
@@ -946,7 +946,7 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
   try {
     console.log('=== BOOKING WITH PAYMENT REQUEST ===');
     console.log('Authenticated user:', req.user?.userId);
-    
+
     // Check if user is authenticated
     if (!req.user || !req.user.userId) {
       return res.status(401).json({
@@ -954,7 +954,7 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
         message: 'Authentication required. Please login to create a booking.'
       });
     }
-    
+
     const {
       customer,
       services,
@@ -980,13 +980,13 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     console.log('Razorpay Key ID:', process.env.RAZORPAY_KEY_ID);
     console.log('Razorpay Key Secret exists:', !!process.env.RAZORPAY_KEY_SECRET);
     console.log('Razorpay Key Secret length:', process.env.RAZORPAY_KEY_SECRET ? process.env.RAZORPAY_KEY_SECRET.length : 0);
-    
+
     const isSignatureValid = RazorpayService.verifyPaymentSignature(
       paymentData.razorpayOrderId,
       paymentData.razorpayPaymentId,
       paymentData.razorpaySignature
     );
-    
+
     console.log('Signature valid:', isSignatureValid);
     console.log('=== END PAYMENT VERIFICATION DEBUG ===');
 
@@ -1211,7 +1211,7 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
     console.error('Error type:', typeof error);
     console.error('Full error:', error);
     console.error('=== END BOOKING CREATION ERROR ===');
-    
+
     logger.error('Error creating booking with payment:', error);
     res.status(500).json({
       success: false,
@@ -1413,7 +1413,7 @@ const declineTask = asyncHandler(async (req, res) => {
     // Check wallet balance BEFORE allowing decline
     const wallet = await VendorWallet.findOne({ vendorId });
     const penaltyAmount = 100;
-    
+
     if (!wallet) {
       return res.status(400).json({
         success: false,
@@ -1421,7 +1421,7 @@ const declineTask = asyncHandler(async (req, res) => {
         error: 'WALLET_NOT_FOUND'
       });
     }
-    
+
     // Check if wallet has sufficient balance - prevent decline if balance < 100
     if (wallet.currentBalance < penaltyAmount) {
       logger.warn(`Task decline blocked for vendor ${vendorId} - insufficient wallet balance`, {
@@ -1430,10 +1430,10 @@ const declineTask = asyncHandler(async (req, res) => {
         requiredAmount: penaltyAmount,
         currentBalance: wallet.currentBalance
       });
-      
+
       return res.status(400).json({
         success: false,
-        message: wallet.currentBalance === 0 
+        message: wallet.currentBalance === 0
           ? 'Cannot decline task. Wallet balance is ₹0. Please add amount to your wallet first.'
           : `Cannot decline task. Insufficient wallet balance. You need at least ₹${penaltyAmount} to decline this task. Current balance: ₹${wallet.currentBalance.toLocaleString()}. Please add amount to your wallet first.`,
         error: 'INSUFFICIENT_WALLET_BALANCE',
@@ -1441,7 +1441,7 @@ const declineTask = asyncHandler(async (req, res) => {
         requiredAmount: penaltyAmount
       });
     }
-    
+
     // Apply penalty for task rejection (balance is sufficient)
     await wallet.addPenalty({
       caseId: bookingId,
@@ -1555,7 +1555,7 @@ const completeTask = asyncHandler(async (req, res) => {
         message: 'Booking not found'
       });
     }
-    
+
     console.log('Booking found:', {
       id: booking._id,
       status: booking.status,
@@ -1571,7 +1571,7 @@ const completeTask = asyncHandler(async (req, res) => {
         message: 'No vendor assigned to this booking'
       });
     }
-    
+
     console.log('Vendor assignment check passed:', {
       assignedVendorId: booking.vendor.vendorId,
       requestingVendorId: req.vendor.vendorId,
@@ -1583,7 +1583,7 @@ const completeTask = asyncHandler(async (req, res) => {
       const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
       return sum + amount;
     }, 0);
-    
+
     // totalAmount should be empty - billingAmount is separate for customer payment
     const totalAmount = ""; // Empty - billing amount is handled separately
 
@@ -1622,7 +1622,7 @@ const completeTask = asyncHandler(async (req, res) => {
     }
 
     console.log('About to update booking with data:', updateData);
-    
+
     const updatedBooking = await Booking.findByIdAndUpdate(
       bookingId,
       updateData,
@@ -1648,19 +1648,19 @@ const completeTask = asyncHandler(async (req, res) => {
         console.log('Billing amount:', completionData.billingAmount);
         console.log('Spare parts:', completionData.spareParts);
         console.log('Traveling amount:', completionData.travelingAmount);
-        
+
         const VendorWallet = require('../models/VendorWallet');
         const WalletCalculationService = require('../services/walletCalculationService');
-        
+
         const billingAmount = parseFloat(completionData.billingAmount) || 0;
         const spareAmount = completionData.spareParts?.reduce((sum, part) => {
           return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
         }, 0) || 0;
         const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
         const bookingAmount = parseFloat(booking.pricing?.totalAmount) || 0;
-        
+
         console.log('Calculated amounts:', { billingAmount, spareAmount, travellingAmount, bookingAmount });
-        
+
         // Calculate cash collection deduction
         const calculation = WalletCalculationService.calculateCashCollectionDeduction({
           billingAmount,
@@ -1669,12 +1669,12 @@ const completeTask = asyncHandler(async (req, res) => {
           bookingAmount,
           gstIncluded: completionData.includeGST || false
         });
-        
+
         // Check vendor wallet balance before proceeding
         console.log('Looking for vendor wallet with vendorId:', booking.vendor.vendorId);
         const vendorWallet = await VendorWallet.findOne({ vendorId: booking.vendor.vendorId });
         console.log('Vendor wallet found:', !!vendorWallet);
-        
+
         if (vendorWallet) {
           // Check if vendor has sufficient balance for cash collection deduction
           if (vendorWallet.currentBalance < calculation.calculatedAmount) {
@@ -1695,7 +1695,7 @@ const completeTask = asyncHandler(async (req, res) => {
             gstIncluded: completionData.includeGST || false,
             description: `Cash collection - ${updatedBooking.bookingReference || bookingId}`
           });
-          
+
           logger.info('Cash collection deducted from vendor wallet', {
             vendorId: booking.vendor.vendorId,
             caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
@@ -1734,7 +1734,7 @@ const completeTask = asyncHandler(async (req, res) => {
       console.log('Booking ID:', bookingId);
       console.log('Vendor ID:', booking.vendor.vendorId);
       console.log('Customer:', booking.customer?.name);
-      
+
       // Trigger event for frontend to show rating popup
       // This will be handled by the frontend listening for booking updates
       console.log('Cash payment completed - rating popup should be triggered for user');
@@ -1798,7 +1798,7 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
     const hasCompletionData = booking.completionData && booking.completionData.resolutionNote;
     const isOnlinePayment = booking.paymentMode === 'online' || booking.payment?.method === 'online';
     const isPaymentPending = booking.paymentStatus === 'pending' || booking.payment?.status === 'pending' || !booking.payment?.status;
-    
+
     if (!hasCompletionData && !isOnlinePayment && !isPaymentPending) {
       logger.error('Booking not ready for payment:', {
         paymentMode: booking.paymentMode,
@@ -1830,7 +1830,7 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
       currency: currency,
       bookingId: bookingId
     });
-    
+
     const razorpayOrder = await RazorpayService.createOrder({
       amount: parseFloat(amount), // Ensure amount is a number
       currency: currency,
@@ -1880,7 +1880,7 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
 const cancelBooking = asyncHandler(async (req, res) => {
   try {
     const { reason } = req.body;
-    
+
     if (!reason || !reason.trim()) {
       return res.status(400).json({
         success: false,
@@ -1920,7 +1920,7 @@ const cancelBooking = asyncHandler(async (req, res) => {
     if (vendorId) {
       const wallet = await VendorWallet.findOne({ vendorId });
       const penaltyAmount = 100;
-      
+
       if (!wallet) {
         return res.status(400).json({
           success: false,
@@ -1928,7 +1928,7 @@ const cancelBooking = asyncHandler(async (req, res) => {
           error: 'WALLET_NOT_FOUND'
         });
       }
-      
+
       // Check if wallet has sufficient balance - prevent cancellation if balance < 100
       if (wallet.currentBalance < penaltyAmount) {
         logger.warn(`Task cancellation blocked for vendor ${vendorId} - insufficient wallet balance`, {
@@ -1937,10 +1937,10 @@ const cancelBooking = asyncHandler(async (req, res) => {
           requiredAmount: penaltyAmount,
           currentBalance: wallet.currentBalance
         });
-        
+
         return res.status(400).json({
           success: false,
-          message: wallet.currentBalance === 0 
+          message: wallet.currentBalance === 0
             ? 'Cannot cancel task. Wallet balance is ₹0. Please add amount to your wallet first.'
             : `Cannot cancel task. Insufficient wallet balance. You need at least ₹${penaltyAmount} to cancel this task. Current balance: ₹${wallet.currentBalance.toLocaleString()}. Please add amount to your wallet first.`,
           error: 'INSUFFICIENT_WALLET_BALANCE',
@@ -1948,7 +1948,7 @@ const cancelBooking = asyncHandler(async (req, res) => {
           requiredAmount: penaltyAmount
         });
       }
-      
+
       // Apply penalty for task cancellation (balance is sufficient)
       await wallet.addPenalty({
         caseId: booking.bookingReference || req.params.id,
@@ -2038,7 +2038,7 @@ const cancelBooking = asyncHandler(async (req, res) => {
 const cancelBookingByUser = asyncHandler(async (req, res) => {
   try {
     const { reason } = req.body;
-    
+
     if (!reason || !reason.trim()) {
       return res.status(400).json({
         success: false,
@@ -2133,7 +2133,7 @@ const cancelBookingByUser = asyncHandler(async (req, res) => {
 const rescheduleBookingByUser = asyncHandler(async (req, res) => {
   try {
     const { newDate, newTime, reason } = req.body;
-    
+
     if (!newDate || !newTime || !reason) {
       return res.status(400).json({
         success: false,
@@ -2162,7 +2162,7 @@ const rescheduleBookingByUser = asyncHandler(async (req, res) => {
     const newDateTime = new Date(`${newDate}T${newTime}`);
     const now = new Date();
     const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-    
+
     if (newDateTime <= twoHoursFromNow) {
       return res.status(400).json({
         success: false,
@@ -2218,6 +2218,23 @@ const rescheduleBookingByUser = asyncHandler(async (req, res) => {
       buildBookingSummaryLines(updatedBooking, { showBookingId: true, details: `New slot: ${newDate} ${newTime} | Reason: ${reason}` })
     );
 
+    // Send reschedule confirmation email to user
+    try {
+      await emailService.sendBookingRescheduledEmail(updatedBooking, {
+        newDate,
+        newTime,
+        originalDate,
+        originalTime,
+        reason,
+        rescheduledBy: 'user'
+      });
+      logger.info(`Reschedule confirmation email sent to user for booking: ${updatedBooking.bookingReference}`);
+    } catch (emailError) {
+      logger.error('Failed to send reschedule confirmation email to user:', emailError);
+      // Don't fail the request if email fails
+    }
+
+
     res.json({
       success: true,
       message: 'Booking rescheduled successfully',
@@ -2254,7 +2271,7 @@ const rescheduleBookingByUser = asyncHandler(async (req, res) => {
 const rescheduleBooking = asyncHandler(async (req, res) => {
   try {
     const { newDate, newTime, reason } = req.body;
-    
+
     if (!newDate || !newTime || !reason) {
       return res.status(400).json({
         success: false,
@@ -2332,6 +2349,23 @@ const rescheduleBooking = asyncHandler(async (req, res) => {
       buildBookingSummaryLines(updatedBooking, { showBookingId: true, vendorInfo, details: `New slot: ${newDate} ${newTime} | Reason: ${reason}` })
     );
 
+    // Send reschedule confirmation email to user
+    try {
+      await emailService.sendBookingRescheduledEmail(updatedBooking, {
+        newDate,
+        newTime,
+        originalDate,
+        originalTime,
+        reason,
+        rescheduledBy: 'vendor'
+      });
+      logger.info(`Reschedule notification email sent to user for booking: ${updatedBooking.bookingReference}`);
+    } catch (emailError) {
+      logger.error('Failed to send reschedule notification email to user:', emailError);
+      // Don't fail the request if email fails
+    }
+
+
     res.json({
       success: true,
       message: 'Booking rescheduled successfully',
@@ -2388,7 +2422,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
     // Verify payment with Razorpay
     const crypto = require('crypto');
     const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
-    
+
     if (!razorpaySecret) {
       logger.error('Razorpay secret key not configured');
       return res.status(500).json({
@@ -2396,7 +2430,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
         message: 'Payment verification service not configured'
       });
     }
-    
+
     const body = razorpayOrderId + "|" + razorpayPaymentId;
     const expectedSignature = crypto
       .createHmac('sha256', razorpaySecret)
@@ -2445,7 +2479,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
       try {
         const VendorWallet = require('../models/VendorWallet');
         const WalletCalculationService = require('../services/walletCalculationService');
-        
+
         // Get completion data for calculation
         const completionData = updatedBooking.completionData;
         if (completionData && completionData.paymentMethod === 'online') {
@@ -2455,7 +2489,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
           }, 0) || 0;
           const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
           const bookingAmount = parseFloat(updatedBooking.pricing?.totalAmount) || 0;
-          
+
           // Calculate vendor earning
           const calculation = WalletCalculationService.calculateEarning({
             billingAmount,
@@ -2465,7 +2499,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
             paymentMethod: 'online',
             gstIncluded: completionData.includeGST || false
           });
-          
+
           // Add earning to vendor wallet
           const vendorWallet = await VendorWallet.findOne({ vendorId: updatedBooking.vendor.vendorId });
           if (vendorWallet) {
@@ -2479,7 +2513,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
               gstIncluded: completionData.includeGST || false,
               description: `Task completion earning - ${updatedBooking.bookingReference || bookingId}`
             });
-            
+
             logger.info('Vendor earning added to wallet', {
               vendorId: updatedBooking.vendor.vendorId,
               caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
