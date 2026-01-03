@@ -30,7 +30,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
-  
+
   // Forgot Password States
   const [forgotPasswordStep, setForgotPasswordStep] = useState<'none' | 'enterEmail' | 'verifyOtp' | 'resetPassword'>('none');
   const [forgotPasswordData, setForgotPasswordData] = useState({
@@ -122,22 +122,22 @@ const Login = () => {
       }
 
       console.log(`📱 Attempting to send OTP to: ${cleanPhone}`);
-      
+
       // Check if it's the default test number for development
       const isTestNumber = cleanPhone === '7610416911';
       if (isTestNumber) {
         console.log('🧪 Using test phone number - OTP will be: 110211');
       }
-      
+
       // Call backend API to send OTP
       const response = await apiService.sendOTP(cleanPhone);
-      
+
       console.log('📱 OTP Response:', response);
-      
+
       if (response.success) {
         setOtpSent(true);
         setOtpTimer(60); // 60 seconds timer
-        
+
         toast({
           title: "OTP Sent!",
           description: `OTP has been sent to +91 ${cleanPhone}`,
@@ -151,12 +151,12 @@ const Login = () => {
         console.error('📱 OTP sending failed:', response.message);
         setError(response.message || 'Failed to send OTP. Please try again.');
       }
-  } catch (err: any) {
+    } catch (err: any) {
       // Check if it's an expected error (user not found)
-      const isExpectedError = err.message?.includes('User not found') || 
-                             err.message?.includes('sign up first') ||
-                             err.message?.includes('complete your signup');
-      
+      const isExpectedError = err.message?.includes('User not found') ||
+        err.message?.includes('sign up first') ||
+        err.message?.includes('complete your signup');
+
       if (isExpectedError) {
         // Log expected errors as info instead of error
         console.info('ℹ️ User account check:', err.message);
@@ -164,9 +164,9 @@ const Login = () => {
         // Log unexpected errors as errors
         console.error('Send OTP Error:', err);
       }
-      
+
       let errorMessage = 'Failed to send OTP. Please try again.';
-      
+
       // Parse specific error messages
       if (err.message) {
         if (err.message.includes('User not found') || err.message.includes('sign up first')) {
@@ -187,7 +187,7 @@ const Login = () => {
           errorMessage = err.message;
         }
       }
-      
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -250,14 +250,14 @@ const Login = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center p-4 overflow-hidden" style={{ overflow: 'hidden' }}>
-      <div className="w-screen max-w-2xl max-h-screen overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
         <Card className="bg-white border-0 rounded-2xl shadow-2xl overflow-hidden">
           <CardHeader className="text-center pb-6 pt-4">
             <div className="flex justify-center mb-4">
-              <img 
-                src="/logofixifly.png" 
-                alt="Fixfly Logo" 
+              <img
+                src="/logofixifly.png"
+                alt="Fixfly Logo"
                 className="w-56 h-32 object-contain -mb-10"
               />
             </div>
@@ -266,7 +266,7 @@ const Login = () => {
               Sign in to your Fixfly account
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="px-6 pb-8">
             {error && (
               <Alert variant="destructive" className="mb-4">
@@ -396,23 +396,23 @@ const Login = () => {
             <Alert variant="destructive" className="mt-4">
               <AlertDescription className="space-y-2">
                 <div>{forgotPasswordError}</div>
-                {(forgotPasswordError.includes('Daily email sending limit') || 
-                  forgotPasswordError.includes('limit exceeded') || 
+                {(forgotPasswordError.includes('Daily email sending limit') ||
+                  forgotPasswordError.includes('limit exceeded') ||
                   forgotPasswordError.includes('limit reached')) && (
-                  <div className="mt-2 pt-2 border-t border-red-200">
-                    <p className="text-sm font-medium mb-1">Need immediate help?</p>
-                    <div className="text-sm space-y-1">
-                      <p>📧 Email: <a href="mailto:info@fixfly.in" className="underline">info@fixfly.in</a></p>
-                      <p>📱 WhatsApp: <a href="https://wa.me/919931354354" target="_blank" rel="noopener noreferrer" className="underline">+91-99313-54354</a></p>
+                    <div className="mt-2 pt-2 border-t border-red-200">
+                      <p className="text-sm font-medium mb-1">Need immediate help?</p>
+                      <div className="text-sm space-y-1">
+                        <p>📧 Email: <a href="mailto:info@fixfly.in" className="underline">info@fixfly.in</a></p>
+                        <p>📱 WhatsApp: <a href="https://wa.me/919931354354" target="_blank" rel="noopener noreferrer" className="underline">+91-99313-54354</a></p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </AlertDescription>
             </Alert>
           )}
 
           {forgotPasswordStep === 'enterEmail' && (
-            <form 
+            <form
               onSubmit={(e) => {
                 e.preventDefault();
                 if (forgotPasswordData.email && !forgotPasswordLoading) {
@@ -444,38 +444,28 @@ const Login = () => {
                 </div>
               </div>
               <Button
-                  id="user-send-otp-btn"
-                  type="button"
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    if (!forgotPasswordData.email) {
-                      setForgotPasswordError('Please enter your email address');
-                      return;
-                    }
-                    setForgotPasswordLoading(true);
-                    setForgotPasswordError('');
-                    try {
-                      const response = await apiService.sendForgotPasswordOTP(forgotPasswordData.email);
-                      if (response.success) {
-                        toast({
-                          title: "OTP Sent!",
-                          description: "OTP has been sent to your email address",
-                        });
-                        setForgotPasswordStep('verifyOtp');
-                      } else {
-                        const errorMsg = response.message || 'Failed to send OTP';
-                        if (errorMsg.includes('Daily email sending limit') || errorMsg.includes('limit exceeded') || errorMsg.includes('limit reached')) {
-                          setForgotPasswordError(
-                            'Email service daily limit reached. Please contact support at info@fixfly.in or WhatsApp: +91-99313-54354 for immediate assistance. You can also try again tomorrow.'
-                          );
-                        } else {
-                          setForgotPasswordError(errorMsg);
-                        }
-                      }
-                    } catch (err: any) {
-                      const errorMsg = err.message || 'Failed to send OTP';
+                id="user-send-otp-btn"
+                type="button"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if (!forgotPasswordData.email) {
+                    setForgotPasswordError('Please enter your email address');
+                    return;
+                  }
+                  setForgotPasswordLoading(true);
+                  setForgotPasswordError('');
+                  try {
+                    const response = await apiService.sendForgotPasswordOTP(forgotPasswordData.email);
+                    if (response.success) {
+                      toast({
+                        title: "OTP Sent!",
+                        description: "OTP has been sent to your email address",
+                      });
+                      setForgotPasswordStep('verifyOtp');
+                    } else {
+                      const errorMsg = response.message || 'Failed to send OTP';
                       if (errorMsg.includes('Daily email sending limit') || errorMsg.includes('limit exceeded') || errorMsg.includes('limit reached')) {
                         setForgotPasswordError(
                           'Email service daily limit reached. Please contact support at info@fixfly.in or WhatsApp: +91-99313-54354 for immediate assistance. You can also try again tomorrow.'
@@ -483,20 +473,30 @@ const Login = () => {
                       } else {
                         setForgotPasswordError(errorMsg);
                       }
-                    } finally {
-                      setForgotPasswordLoading(false);
                     }
-                  }}
-                  disabled={forgotPasswordLoading}
-                  className="w-full"
-                >
-                  {forgotPasswordLoading ? 'Sending...' : 'Send OTP'}
-                </Button>
+                  } catch (err: any) {
+                    const errorMsg = err.message || 'Failed to send OTP';
+                    if (errorMsg.includes('Daily email sending limit') || errorMsg.includes('limit exceeded') || errorMsg.includes('limit reached')) {
+                      setForgotPasswordError(
+                        'Email service daily limit reached. Please contact support at info@fixfly.in or WhatsApp: +91-99313-54354 for immediate assistance. You can also try again tomorrow.'
+                      );
+                    } else {
+                      setForgotPasswordError(errorMsg);
+                    }
+                  } finally {
+                    setForgotPasswordLoading(false);
+                  }
+                }}
+                disabled={forgotPasswordLoading}
+                className="w-full"
+              >
+                {forgotPasswordLoading ? 'Sending...' : 'Send OTP'}
+              </Button>
             </form>
           )}
 
           {forgotPasswordStep === 'verifyOtp' && (
-            <form 
+            <form
               onSubmit={(e) => {
                 e.preventDefault();
                 if (forgotPasswordData.otp && forgotPasswordData.otp.length === 6 && !forgotPasswordLoading) {
@@ -545,7 +545,7 @@ const Login = () => {
                   onClick={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     if (!forgotPasswordData.otp || forgotPasswordData.otp.length !== 6) {
                       setForgotPasswordError('Please enter a valid 6-digit OTP');
                       return;
@@ -579,13 +579,13 @@ const Login = () => {
           )}
 
           {forgotPasswordStep === 'resetPassword' && (
-            <form 
+            <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (forgotPasswordData.newPassword && 
-                    forgotPasswordData.newPassword.length >= 6 && 
-                    forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
-                    !forgotPasswordLoading) {
+                if (forgotPasswordData.newPassword &&
+                  forgotPasswordData.newPassword.length >= 6 &&
+                  forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                  !forgotPasswordLoading) {
                   document.getElementById('user-reset-password-btn')?.click();
                 }
               }}
@@ -604,10 +604,10 @@ const Login = () => {
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        if (forgotPasswordData.newPassword && 
-                            forgotPasswordData.newPassword.length >= 6 && 
-                            forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
-                            !forgotPasswordLoading) {
+                        if (forgotPasswordData.newPassword &&
+                          forgotPasswordData.newPassword.length >= 6 &&
+                          forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                          !forgotPasswordLoading) {
                           document.getElementById('user-reset-password-btn')?.click();
                         }
                       }
@@ -629,10 +629,10 @@ const Login = () => {
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        if (forgotPasswordData.newPassword && 
-                            forgotPasswordData.newPassword.length >= 6 && 
-                            forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
-                            !forgotPasswordLoading) {
+                        if (forgotPasswordData.newPassword &&
+                          forgotPasswordData.newPassword.length >= 6 &&
+                          forgotPasswordData.newPassword === forgotPasswordData.confirmPassword &&
+                          !forgotPasswordLoading) {
                           document.getElementById('user-reset-password-btn')?.click();
                         }
                       }
@@ -656,7 +656,7 @@ const Login = () => {
                   onClick={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     if (!forgotPasswordData.newPassword || forgotPasswordData.newPassword.length < 6) {
                       setForgotPasswordError('Password must be at least 6 characters long');
                       return;

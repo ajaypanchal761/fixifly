@@ -83,11 +83,11 @@ const Signup = () => {
         email: formData.email,
         phone: cleanPhone
       });
-      
+
       if (response.success) {
         setOtpSent(true);
         setOtpTimer(60); // 60 seconds timer
-        
+
         toast({
           title: "Account Created!",
           description: `OTP has been sent to +91 ${cleanPhone}. Please verify to complete signup.`,
@@ -177,14 +177,14 @@ const Signup = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center p-4 overflow-hidden" style={{ overflow: 'hidden' }}>
-      <div className="w-screen max-w-2xl max-h-screen overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
         <Card className="bg-white border-0 rounded-2xl shadow-2xl overflow-hidden">
           <CardHeader className="text-center pb-6 pt-4">
             <div className="flex justify-center mb-4">
-              <img 
-                src="/logofixifly.png" 
-                alt="Fixfly Logo" 
+              <img
+                src="/logofixifly.png"
+                alt="Fixfly Logo"
                 className="w-56 h-32 object-contain -mb-10"
               />
             </div>
@@ -193,8 +193,8 @@ const Signup = () => {
               Join Fixfly and get started with our services
             </CardDescription>
           </CardHeader>
-          
-          
+
+
           <CardContent className="px-6 pb-8">
             {error && (
               <Alert variant="destructive" className="mb-4">
