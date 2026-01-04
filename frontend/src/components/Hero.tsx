@@ -419,7 +419,7 @@ const Hero = () => {
             </p>
 
             {/* Top 3 Featured Product Cards */}
-            <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-7 md:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="300">
+            <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 mb-2 sm:mb-3 md:mb-4 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="300">
               {productsLoading ? (
                 // Loading state
                 Array.from({ length: 3 }).map((_, index) => (
@@ -486,7 +486,7 @@ const Hero = () => {
             </div>
 
             {/* More Services Button */}
-            <div className="flex justify-center mb-6 sm:mb-7 md:mb-8" data-aos="fade-up" data-aos-delay="400">
+            <div className="flex justify-center mb-2 sm:mb-3 md:mb-4" data-aos="fade-up" data-aos-delay="400">
               <button
                 onClick={toggleMoreProducts}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 sm:py-3 md:py-3 px-5 sm:px-6 md:px-6 text-sm sm:text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
