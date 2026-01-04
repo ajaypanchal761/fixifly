@@ -389,7 +389,8 @@ const Hero = () => {
 
                 {/* Banner Indicators */}
                 {!bannersLoading && banners.length > 1 && (
-                  <div className="absolute left-1/2 transform -translate-x-1/2 flex bottom-2 space-x-2">
+                  <div className="absolute left-1/2 transform -translate-x-1/2 flex bottom-2 lg:bottom-0 space-x-2 lg:space-x-0">
+
 
                     {banners.map((_, index) => (
                       <button
