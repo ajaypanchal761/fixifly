@@ -344,7 +344,7 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-0 sm:pt-6 md:pt-8 lg:pt-8`}>
+      <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-4 sm:pt-6 md:pt-8 lg:pt-8`}>
         <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
           <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:flex-col lg:justify-start lg:items-end lg:w-full lg:pr-8 mt-0 sm:mt-2 md:mt-3 lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
