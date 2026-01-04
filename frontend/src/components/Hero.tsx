@@ -53,8 +53,8 @@ const ReviewsCarousel = () => {
             key={star}
             size={14}
             className={`${star <= rating
-                ? 'text-yellow-400 fill-yellow-400'
-                : 'text-gray-300'
+              ? 'text-yellow-400 fill-yellow-400'
+              : 'text-gray-300'
               }`}
           />
         ))}
@@ -344,10 +344,10 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 ${showMoreProducts ? 'mt-8 sm:pt-12 md:pt-14 lg:pt-10' : 'pt-0 sm:pt-4 md:pt-6 lg:pt-10'}`}>
+      <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-0 sm:pt-4 md:pt-6 lg:pt-10`}>
         <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-          <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:flex-col lg:justify-start lg:items-end lg:w-full lg:pr-8 ${showMoreProducts ? 'mt-8 sm:mt-10 md:mt-10' : 'mt-0 sm:mt-2 md:mt-3'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
+          <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:flex-col lg:justify-start lg:items-end lg:w-full lg:pr-8 mt-0 sm:mt-2 md:mt-3 lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
             <div className="relative w-full lg:w-auto">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
