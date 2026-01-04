@@ -333,7 +333,7 @@ const Hero = () => {
 
   return (
     <section
-      className={`relative flex items-start justify-center ${showMoreProducts ? 'min-h-fit' : 'min-h-fit'
+      className={`relative flex items-start justify-center pt-6 ${showMoreProducts ? 'min-h-fit' : 'min-h-fit'
         }`}
     >
 
