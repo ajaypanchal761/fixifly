@@ -20,8 +20,8 @@ const ReviewsCarousel = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await reviewService.getReviews({ 
-          limit: 10, 
+        const response = await reviewService.getReviews({
+          limit: 10,
           sort: 'newest'
         });
         setReviews(response.data);
@@ -52,11 +52,10 @@ const ReviewsCarousel = () => {
           <Star
             key={star}
             size={14}
-            className={`${
-              star <= rating
+            className={`${star <= rating
                 ? 'text-yellow-400 fill-yellow-400'
                 : 'text-gray-300'
-            }`}
+              }`}
           />
         ))}
       </div>
@@ -91,7 +90,7 @@ const ReviewsCarousel = () => {
         <MessageSquare className="h-5 w-5 text-blue-600" />
         <h3 className="text-sm font-semibold text-gray-900">Customer Reviews</h3>
       </div>
-      
+
       <div className="flex-1 flex flex-col justify-center">
         <div className="flex items-start gap-3 mb-3 animate-fade-in">
           <Avatar className="h-8 w-8">
@@ -99,7 +98,7 @@ const ReviewsCarousel = () => {
               {currentReview.userInitials}
             </AvatarFallback>
           </Avatar>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h4 className="text-sm font-medium text-gray-900 truncate">
@@ -114,34 +113,33 @@ const ReviewsCarousel = () => {
                 </Badge>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2 mb-2">
               {renderStars(currentReview.rating)}
               <span className="text-xs text-gray-500">
                 {currentReview.formattedDate}
               </span>
             </div>
-            
+
             <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
               "{currentReview.comment}"
             </p>
           </div>
         </div>
       </div>
-      
+
       {/* Review Indicators */}
       <div className="flex justify-center space-x-1 mt-3">
         {reviews.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentReviewIndex(index)}
-            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-              index === currentReviewIndex ? 'bg-blue-600' : 'bg-gray-300'
-            }`}
+            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${index === currentReviewIndex ? 'bg-blue-600' : 'bg-gray-300'
+              }`}
           />
         ))}
       </div>
-      
+
       {/* Review Counter */}
       <div className="text-center mt-2">
         <span className="text-xs text-gray-500">
@@ -172,7 +170,7 @@ const Hero = () => {
     try {
       setBannersLoading(true);
       const bannerUrls = await bannerApiService.getBannerImageUrls('user');
-      
+
       if (bannerUrls.length > 0) {
         setBanners(bannerUrls);
         console.log('Loaded banners from database:', bannerUrls.length);
@@ -192,27 +190,27 @@ const Hero = () => {
   const fetchProducts = async () => {
     try {
       setProductsLoading(true);
-      
+
       // Get featured products for main display (top 3)
       const featuredResponse = await publicProductApi.getFeaturedProducts();
       console.log('Featured Products Response:', featuredResponse);
-      
+
       let featuredProducts = [];
       if (featuredResponse && featuredResponse.data && featuredResponse.data.products) {
         featuredProducts = featuredResponse.data.products;
         console.log('Featured products found:', featuredProducts.length);
       }
-      
+
       // Get all active products for "More Services" section
       const allProductsResponse = await publicProductApi.getAllActiveProducts();
       console.log('All Products Response:', allProductsResponse);
-      
+
       let allActiveProducts = [];
       if (allProductsResponse && allProductsResponse.data && allProductsResponse.data.products) {
         allActiveProducts = allProductsResponse.data.products;
         console.log('All active products found:', allActiveProducts.length);
       }
-      
+
       // Transform featured products for main display
       const transformedFeaturedProducts = featuredProducts.map(product => ({
         ...product,
@@ -220,7 +218,7 @@ const Hero = () => {
         primaryImage: product.productImage,
         category: { name: product.serviceType }
       }));
-      
+
       // Transform all products for "More Services" section
       const transformedAllProducts = allActiveProducts.map(product => ({
         ...product,
@@ -228,17 +226,17 @@ const Hero = () => {
         primaryImage: product.productImage,
         category: { name: product.serviceType }
       }));
-      
+
       // Filter and set featured products (top 3)
       const validFeaturedProducts = transformedFeaturedProducts.filter(p => p && p.name && p._id);
       console.log('Valid featured products after filtering:', validFeaturedProducts.length);
       setProducts(validFeaturedProducts);
-      
+
       // Filter and set all products for "More Services"
       const validAllProducts = transformedAllProducts.filter(p => p && p.name && p._id);
       console.log('Valid all products after filtering:', validAllProducts.length);
       setAllProducts(validAllProducts);
-      
+
     } catch (error) {
       console.error('Error fetching products:', error);
       // Fallback to empty arrays if API fails
@@ -277,16 +275,16 @@ const Hero = () => {
       try {
         // Fetch available cities for this service
         const citiesResponse = await cityApiService.getActiveCities({ limit: 100 });
-        
+
         if (citiesResponse.success && citiesResponse.data.cities) {
           const availableCities = citiesResponse.data.cities;
           const userCity = user.address.city.toLowerCase().trim();
-          
+
           // Check if user's city is available for this service
-          const isUserCityAvailable = availableCities.some(city => 
+          const isUserCityAvailable = availableCities.some(city =>
             city.isActive && city.name.toLowerCase().trim() === userCity
           );
-          
+
           if (!isUserCityAvailable) {
             // Show error popup
             toast({
@@ -302,7 +300,7 @@ const Hero = () => {
         // If there's an error, proceed with normal flow
       }
     }
-    
+
     // If user is not authenticated, doesn't have a city, or city is available, proceed normally
     setSelectedProduct(product);
     setIsCitySelectionModalOpen(true);
@@ -313,11 +311,11 @@ const Hero = () => {
     setSelectedCity(city);
     setIsCitySelectionModalOpen(false);
     if (selectedProduct) {
-      navigate(`/product/${selectedProduct._id}`, { 
-        state: { 
+      navigate(`/product/${selectedProduct._id}`, {
+        state: {
           product: selectedProduct,
-          selectedCity: city 
-        } 
+          selectedCity: city
+        }
       });
     }
     setSelectedProduct(null);
@@ -334,10 +332,10 @@ const Hero = () => {
 
 
   return (
-    <section className={`relative flex items-center justify-center ${showMoreProducts ? 'min-h-[100vh] sm:min-h-[110vh] md:min-h-[120vh]' : 'min-h-[96vh] sm:min-h-[100vh] md:min-h-[106vh]'}`}>
+    <section className={`relative flex items-start md:items-center justify-center ${showMoreProducts ? 'min-h-[100vh] sm:min-h-[110vh] md:min-h-[120vh]' : 'min-h-[96vh] sm:min-h-[100vh] md:min-h-[106vh]'}`}>
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
-      
+
       {/* Floating Elements */}
       <div className="absolute top-20 left-10 animate-float opacity-20">
         <div className="w-20 h-20 bg-gradient-tech rounded-full blur-xl" />
@@ -349,7 +347,7 @@ const Hero = () => {
       <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 ${showMoreProducts ? 'mt-8 sm:pt-12 md:pt-14 lg:pt-10' : 'pt-0 sm:pt-4 md:pt-6 lg:pt-10'}`}>
         <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-        <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:flex-col lg:justify-start lg:items-end lg:w-full lg:pr-8 ${showMoreProducts ? 'mt-8 sm:mt-10 md:mt-10' : 'mt-0 sm:mt-2 md:mt-3'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
+          <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:flex-col lg:justify-start lg:items-end lg:w-full lg:pr-8 ${showMoreProducts ? 'mt-8 sm:mt-10 md:mt-10' : 'mt-0 sm:mt-2 md:mt-3'} lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
             <div className="relative w-full lg:w-auto">
               <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
               <div className="relative rounded-3xl overflow-hidden">
@@ -363,15 +361,14 @@ const Hero = () => {
                 ) : (
                   <div className="relative w-full flex items-center justify-center rounded-3xl overflow-hidden">
                     {banners.map((banner, index) => (
-                      <img 
+                      <img
                         key={index}
-                        src={banner} 
-                        alt={`Fixfly Banner ${index + 1}`} 
+                        src={banner}
+                        alt={`Fixfly Banner ${index + 1}`}
                         loading={index === 0 ? "eager" : "lazy"}
                         decoding="async"
-                        className={`w-full h-auto object-contain rounded-3xl shadow-2xl transition-opacity duration-1000 ${
-                          index === currentBanner ? 'opacity-100 relative' : 'opacity-0 absolute top-0 left-0'
-                        }`}
+                        className={`w-full h-auto object-contain rounded-3xl shadow-2xl transition-opacity duration-1000 ${index === currentBanner ? 'opacity-100 relative' : 'opacity-0 absolute top-0 left-0'
+                          }`}
                         style={{
                           maxHeight: '100%',
                           display: 'block'
@@ -392,16 +389,15 @@ const Hero = () => {
                       <button
                         key={index}
                         onClick={() => setCurrentBanner(index)}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                          index === currentBanner ? 'bg-white' : 'bg-white/50'
-                        }`}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentBanner ? 'bg-white' : 'bg-white/50'
+                          }`}
                       />
                     ))}
                   </div>
                 )}
               </div>
             </div>
-            
+
             {/* User Reviews Display - Desktop Only, Show when More Services is expanded - Positioned below banner */}
             {showMoreProducts && (
               <div className="hidden lg:block mt-6 w-full max-w-xl">
@@ -418,7 +414,7 @@ const Hero = () => {
               All <span className="text-gradient">IT Needs</span> is Here at <span className="text-gradient">your DoorStep </span>
             </h1>
             <p className="hidden sm:block text-lg sm:text-xl md:text-xl text-muted-foreground mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto lg:mx-0">
-              Professional Laptop, Desktop, Electronics repair services at Door Step. 
+              Professional Laptop, Desktop, Electronics repair services at Door Step.
               Certified technicians and lightning-fast turnaround times.
             </p>
 
@@ -427,10 +423,10 @@ const Hero = () => {
               {productsLoading ? (
                 // Loading state
                 Array.from({ length: 3 }).map((_, index) => (
-                  <div 
+                  <div
                     key={index}
-                    className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg flex-1 flex items-center justify-center" 
-                    style={{backgroundColor: '#ffffff'}}
+                    className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg flex-1 flex items-center justify-center"
+                    style={{ backgroundColor: '#ffffff' }}
                   >
                     <div className="text-center">
                       <Loader2 className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 animate-spin text-gray-400" />
@@ -443,21 +439,21 @@ const Hero = () => {
                 Array.from({ length: 3 }).map((_, index) => {
                   const product = products[index];
                   console.log(`Featured Card ${index + 1}:`, product ? `Product: ${product.name}` : 'No product - showing placeholder');
-                  
+
                   if (product) {
                     // Show actual product card
                     const primaryImage = product.primaryImage;
                     return (
-                      <div 
+                      <div
                         key={product._id}
-                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer" 
-                        style={{backgroundColor: '#ffffff'}}
+                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer"
+                        style={{ backgroundColor: '#ffffff' }}
                         onClick={() => handleProductClick(product)}
                       >
                         <div className="text-center">
-                          <img 
-                            src={primaryImage || '/placeholder.svg'} 
-                            alt={product.name} 
+                          <img
+                            src={primaryImage || '/placeholder.svg'}
+                            alt={product.name}
                             className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 object-contain rounded-lg"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
@@ -471,10 +467,10 @@ const Hero = () => {
                   } else {
                     // Show placeholder card
                     return (
-                      <div 
+                      <div
                         key={`placeholder-${index}`}
-                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg flex-1 flex items-center justify-center" 
-                        style={{backgroundColor: '#ffffff'}}
+                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg flex-1 flex items-center justify-center"
+                        style={{ backgroundColor: '#ffffff' }}
                       >
                         <div className="text-center">
                           <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -512,16 +508,16 @@ const Hero = () => {
                     console.log('More Services product:', product?.name || 'Unknown Product');
                     const primaryImage = product.primaryImage;
                     return (
-                      <div 
+                      <div
                         key={product._id}
-                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer lg:flex-shrink-0 lg:min-w-[120px]" 
-                        style={{backgroundColor: '#ffffff'}}
+                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer lg:flex-shrink-0 lg:min-w-[120px]"
+                        style={{ backgroundColor: '#ffffff' }}
                         onClick={() => handleProductClick(product)}
                       >
                         <div className="text-center">
-                          <img 
-                            src={primaryImage || '/placeholder.svg'} 
-                            alt={product.name} 
+                          <img
+                            src={primaryImage || '/placeholder.svg'}
+                            alt={product.name}
                             loading="lazy"
                             decoding="async"
                             className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 object-contain rounded-lg"
@@ -566,7 +562,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      
+
       {/* City Selection Modal */}
       {selectedProduct && (
         <CitySelectionModal
