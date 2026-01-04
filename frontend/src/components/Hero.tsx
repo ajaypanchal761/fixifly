@@ -332,7 +332,7 @@ const Hero = () => {
 
 
   return (
-    <section className={`relative flex items-start md:items-center justify-center ${showMoreProducts ? 'min-h-[100vh] sm:min-h-[110vh] md:min-h-[120vh]' : 'min-h-[96vh] sm:min-h-[100vh] md:min-h-[106vh]'}`}>
+    <section className={`relative flex items-start justify-center ${showMoreProducts ? 'min-h-[100vh] sm:min-h-[110vh] md:min-h-[120vh]' : 'min-h-[96vh] sm:min-h-[100vh] md:min-h-[106vh]'}`}>
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
 
@@ -344,7 +344,7 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-0 sm:pt-4 md:pt-6 lg:pt-10`}>
+      <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-0 sm:pt-8 md:pt-16 lg:pt-20`}>
         <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
           {/* Banner Slideshow - Shows first on mobile, second on desktop */}
           <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:flex-col lg:justify-start lg:items-end lg:w-full lg:pr-8 mt-0 sm:mt-2 md:mt-3 lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
