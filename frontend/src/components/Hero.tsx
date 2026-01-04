@@ -332,9 +332,8 @@ const Hero = () => {
 
 
   return (
-    <section
-      className="relative flex items-start justify-center min-h-[100svh] pt-12 pb-6"
-    >
+    <section className="relative flex items-start justify-center min-h-[100svh] pb-6">
+
 
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
