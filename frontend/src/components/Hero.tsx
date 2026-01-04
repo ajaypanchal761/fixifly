@@ -332,7 +332,10 @@ const Hero = () => {
 
 
   return (
-    <section className={`relative flex items-start justify-center overflow-hidden ${showMoreProducts ? 'min-h-[100vh] sm:min-h-[110vh] md:min-h-[120vh]' : 'min-h-[96vh] sm:min-h-[100vh] md:min-h-[106vh]'}`}>
+    <section
+      className="relative flex items-start justify-center min-h-[100svh] pt-12 pb-6"
+    >
+
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
 
