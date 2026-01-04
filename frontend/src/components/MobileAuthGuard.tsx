@@ -8,9 +8,8 @@ interface MobileAuthGuardProps {
 
 // Public routes that don't require authentication on mobile
 const PUBLIC_ROUTES = [
-  '/login', 
+  '/login',
   '/signup',
-  '/profile',
   '/booking',
   '/checkout',
   '/amc',
@@ -39,7 +38,7 @@ const MobileAuthGuard: React.FC<MobileAuthGuardProps> = ({ children }) => {
 
   // Check if current route or any parent route matches public routes (memoized)
   const isPublicRoute = useMemo(() => {
-    return PUBLIC_ROUTES.some(route => 
+    return PUBLIC_ROUTES.some(route =>
       location.pathname === route || location.pathname.startsWith(route + '/')
     );
   }, [location.pathname]);
@@ -61,7 +60,7 @@ const MobileAuthGuard: React.FC<MobileAuthGuardProps> = ({ children }) => {
     }
 
     const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
-    
+
     // If not authenticated and not on a public route and not already on auth page
     if (!isAuthenticated && !isPublicRoute && !isAuthPage) {
       hasRedirectedRef.current = true;
