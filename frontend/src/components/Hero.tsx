@@ -333,12 +333,9 @@ const Hero = () => {
 
   return (
     <section
-      className={`relative flex items-start justify-center pt-4 ${showMoreProducts ? 'min-h-fit' : 'min-h-fit'
+      className={`relative flex items-start lg:items-center justify-center pt-4 lg:pt-0 ${showMoreProducts ? 'min-h-fit' : 'min-h-fit lg:min-h-[calc(100vh-76px)]'
         }`}
     >
-
-
-
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
 
@@ -416,8 +413,8 @@ const Hero = () => {
 
           {/* Text Content - Shows second on mobile, first on desktop */}
           <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-4 sm:-mt-3 md:-mt-2 lg:mt-0 lg:w-full lg:pr-8" data-aos="fade-right" data-aos-delay="100">
-            <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-5 md:mb-6">
-              All <span className="text-gradient">IT Needs</span> is Here at <span className="text-gradient">your DoorStep </span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-4 sm:mb-6">
+              All <span className="text-gradient">IT Needs</span> is <br className="hidden lg:block" /> Here at <span className="text-gradient">your DoorStep </span>
             </h1>
             <p className="hidden sm:block text-lg sm:text-xl md:text-xl text-muted-foreground mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto lg:mx-0">
               Professional Laptop, Desktop, Electronics repair services at Door Step.
