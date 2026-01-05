@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, MessageCircle, Star, Shield, Clock, Check, Home, ShoppingCart, ShoppingBag, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowLeft, Star, Shield, Clock, Check, ShoppingCart, ShoppingBag, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -454,8 +454,8 @@ const ServicePage = () => {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${defaultActiveTab === tab
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
                       }`}
                   >
                     {tab}
@@ -493,8 +493,8 @@ const ServicePage = () => {
                         <Button
                           size="sm"
                           className={`w-full text-white ${cartItems.find(item => item.id === service.id)
-                              ? 'bg-green-600 hover:bg-green-700'
-                              : 'bg-blue-600 hover:bg-blue-700'
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                           onClick={() => {
                             const existingItem = cartItems.find(item => item.id === service.id);

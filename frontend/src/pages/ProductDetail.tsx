@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, MessageCircle, Star, Shield, Clock, Check, Home, ShoppingCart, Loader2, ChevronDown, ChevronUp, ShoppingBag, ArrowRight } from "lucide-react";
+import { ArrowLeft, Star, Shield, Clock, Check, ShoppingCart, Loader2, ChevronDown, ChevronUp, ShoppingBag, ArrowRight } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -333,8 +333,8 @@ const ProductDetail = () => {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${defaultActiveTab === tab
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 {tab}
@@ -370,8 +370,8 @@ const ProductDetail = () => {
                     <Button
                       size="sm"
                       className={`w-full text-white ${cartItems.find(item => item.id === service._id)
-                          ? 'bg-green-600 hover:bg-green-700'
-                          : 'bg-blue-600 hover:bg-blue-700'
+                        ? 'bg-green-600 hover:bg-green-700'
+                        : 'bg-blue-600 hover:bg-blue-700'
                         }`}
                       onClick={() => {
                         const existingItem = cartItems.find(item => item.id === service._id);
@@ -478,8 +478,8 @@ const ProductDetail = () => {
                         <Star
                           key={star}
                           className={`h-6 w-6 ${star <= Math.round(reviewStats.averageRating || 0)
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-300'
                             }`}
                         />
                       ))}
@@ -508,8 +508,8 @@ const ProductDetail = () => {
                                 <Star
                                   key={star}
                                   className={`h-4 w-4 ${star <= review.rating
-                                      ? 'text-yellow-400 fill-current'
-                                      : 'text-gray-300'
+                                    ? 'text-yellow-400 fill-current'
+                                    : 'text-gray-300'
                                     }`}
                                 />
                               ))}
