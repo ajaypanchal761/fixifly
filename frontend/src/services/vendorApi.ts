@@ -343,8 +343,8 @@ class VendorApiService {
     try {
       const response = await this.fetchWithTimeout(url, {
         method: 'POST',
-        body: formData,
-        // Don't set Content-Type header, let browser set it with boundary for FormData
+        body: formData, // ✅ FormData directly
+        // ❌ headers mat do
       }, this.LONG_REQUEST_TIMEOUT);
 
       console.log('Registration response status:', response.status);
