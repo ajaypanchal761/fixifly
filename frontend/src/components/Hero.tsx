@@ -232,8 +232,14 @@ const Hero = () => {
       console.log('Valid featured products after filtering:', validFeaturedProducts.length);
       setProducts(validFeaturedProducts);
 
-      // Filter and set all products for "More Services"
-      const validAllProducts = transformedAllProducts.filter(p => p && p.name && p._id);
+      // Get IDs of visible featured products (top 3) to exclude ONLY them from "More Services"
+      const visibleFeaturedIds = new Set(validFeaturedProducts.slice(0, 3).map(p => String(p._id)));
+
+      // Filter and set all products for "More Services", excluding visible featured ones
+      const validAllProducts = transformedAllProducts
+        .filter(p => p && p.name && p._id)
+        .filter(p => !visibleFeaturedIds.has(String(p._id)));
+
       console.log('Valid all products after filtering:', validAllProducts.length);
       setAllProducts(validAllProducts);
 
@@ -361,8 +367,8 @@ const Hero = () => {
               data-aos-delay="100"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6">
-                All <span className="text-gradient">IT Needs</span> is here <br className="hidden lg:block mr-2" /> 
-                 at <span className="text-gradient ml-2">your Door-Step</span>
+                All <span className="text-gradient">IT Needs</span> is here <br className="hidden lg:block mr-2" />
+                at <span className="text-gradient ml-2">your Door-Step</span>
               </h1>
 
               <p className="hidden sm:block text-md sm:text-md md:text-md text-muted-foreground mb-6 max-w-2xl mx-auto lg:mx-0">
@@ -410,7 +416,7 @@ const Hero = () => {
             data-aos="fade-left"
             data-aos-delay="200"
           >
-            <div className="relative rounded-3xl overflow-hidden w-full max-w-[85%] mx-auto">
+            <div className="relative rounded-3xl overflow-hidden w-full max-w-full lg:max-w-[100%] mx-auto">
               {banners.map((banner, index) => (
                 <img
                   key={index}

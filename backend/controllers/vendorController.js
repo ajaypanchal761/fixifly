@@ -354,6 +354,8 @@ const createVerificationPayment = asyncHandler(async (req, res) => {
 // @desc    Verify verification payment
 // @route   POST /api/vendors/verify-verification-payment
 // @access  Private (Vendor)
+
+
 const verifyVerificationPayment = asyncHandler(async (req, res) => {
   try {
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;

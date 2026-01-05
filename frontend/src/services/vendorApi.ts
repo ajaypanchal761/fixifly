@@ -110,7 +110,7 @@ interface VendorAuthResponse {
 class VendorApiService {
   private baseURL: string;
   private readonly REQUEST_TIMEOUT = 30000; // 30 seconds timeout
-  private readonly LONG_REQUEST_TIMEOUT = 90000; // 90 seconds timeout for operations with file uploads
+  private readonly LONG_REQUEST_TIMEOUT = 300000; // 5 minutes timeout for mobile uploads
 
   constructor() {
     this.baseURL = API_BASE_URL;
