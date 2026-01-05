@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { 
+import {
   ArrowLeft,
   XCircle,
   AlertTriangle,
@@ -67,7 +67,7 @@ const VendorCancelTaskDetail = () => {
             }
           } catch (bookingError) {
             console.log('Not a booking, trying support ticket...');
-            
+
             // If booking fails, try support ticket as fallback
             try {
               const response = await vendorApiService.getSupportTicketById(taskId);
@@ -164,7 +164,7 @@ const VendorCancelTaskDetail = () => {
     }
 
     setIsSubmitting(true);
-    
+
     try {
       let response;
 
@@ -180,51 +180,51 @@ const VendorCancelTaskDetail = () => {
         // Create cancelled task object for event dispatch
         const cancelledTask = {
           id: task._id || task.id,
-          caseId: task.taskType === 'support_ticket' 
-            ? task.ticketId || task.id 
+          caseId: task.taskType === 'support_ticket'
+            ? task.ticketId || task.id
             : task.bookingReference,
-          title: task.taskType === 'support_ticket' 
+          title: task.taskType === 'support_ticket'
             ? task.subject || "Support Ticket"
             : task.services?.[0]?.serviceName || "Service Task",
-          customer: task.taskType === 'support_ticket' 
+          customer: task.taskType === 'support_ticket'
             ? task.userName || task.customerName
             : task.customer?.name,
-          phone: task.taskType === 'support_ticket' 
+          phone: task.taskType === 'support_ticket'
             ? task.userPhone || task.customerPhone
             : task.customer?.phone,
           amount: `₹0`,
-          date: new Date().toLocaleDateString('en-GB', { 
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric' 
+          date: new Date().toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
           }),
-          time: new Date().toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
+          time: new Date().toLocaleTimeString('en-US', {
+            hour: '2-digit',
             minute: '2-digit',
-            hour12: true 
+            hour12: true
           }),
           status: "Cancelled",
-          address: task.taskType === 'support_ticket' 
+          address: task.taskType === 'support_ticket'
             ? task.address || "Not provided"
             : `${task.customer?.address?.street}, ${task.customer?.address?.city}`,
-          issue: task.taskType === 'support_ticket' 
+          issue: task.taskType === 'support_ticket'
             ? task.description || "Support request"
             : task.notes || "Service request",
-          assignDate: task.taskType === 'support_ticket' 
-            ? (task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString('en-GB', { 
-                day: '2-digit', 
-                month: 'short', 
-                year: 'numeric' 
-              }) : "")
-            : (task.scheduling?.scheduledDate ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', { 
-                day: '2-digit', 
-                month: 'short', 
-                year: 'numeric' 
-              }) : ""),
-          assignTime: task.taskType === 'support_ticket' 
+          assignDate: task.taskType === 'support_ticket'
+            ? (task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            }) : "")
+            : (task.scheduling?.scheduledDate ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            }) : ""),
+          assignTime: task.taskType === 'support_ticket'
             ? task.scheduledTime || ""
             : task.scheduling?.scheduledTime || "",
-          taskType: task.taskType === 'support_ticket' 
+          taskType: task.taskType === 'support_ticket'
             ? "Support Ticket"
             : task.services?.[0]?.serviceName || "Service",
           cancelReason: reason,
@@ -233,25 +233,25 @@ const VendorCancelTaskDetail = () => {
 
         // Dispatch event to notify VendorHero component
         window.dispatchEvent(new CustomEvent('taskCancelled', { detail: cancelledTask }));
-        
+
         // Dispatch support ticket update event for admin interface
         if (task.taskType === 'support_ticket') {
-          window.dispatchEvent(new CustomEvent('supportTicketUpdated', { 
-            detail: { 
+          window.dispatchEvent(new CustomEvent('supportTicketUpdated', {
+            detail: {
               ticketId: taskId,
               type: 'cancelled',
               vendorStatus: 'Declined',
               reason: reason.trim()
-            } 
+            }
           }));
         }
-        
+
         // Show success message
-        const successMessage = task.taskType === 'support_ticket' 
+        const successMessage = task.taskType === 'support_ticket'
           ? "Support ticket has been declined successfully. ₹100 penalty has been applied to your wallet."
           : "Task has been cancelled successfully.";
         alert(successMessage);
-        
+
         // Navigate back to vendor dashboard with cancelled tab active
         navigate('/vendor?tab=cancelled');
       } else {
@@ -262,7 +262,7 @@ const VendorCancelTaskDetail = () => {
       }
     } catch (error: any) {
       console.error("Error cancelling task:", error);
-      
+
       // Handle insufficient wallet balance error
       let errorMessage = "An error occurred while cancelling the task. Please try again.";
       if (error?.error === 'INSUFFICIENT_WALLET_BALANCE' || error?.message?.includes('wallet balance') || error?.message?.includes('add amount')) {
@@ -270,7 +270,7 @@ const VendorCancelTaskDetail = () => {
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
+
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -285,12 +285,12 @@ const VendorCancelTaskDetail = () => {
           {/* Task Details Card */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
             {/* Header */}
-             <div className="p-2 border-b border-gray-200 bg-gray-50">
-               <h1 className="text-base font-semibold text-gray-800 mb-1">
-                 {task.taskType === 'support_ticket' 
-                   ? task.subject || "Support Ticket"
-                   : task.services?.[0]?.serviceName || "Service Task"}
-               </h1>
+            <div className="p-2 border-b border-gray-200 bg-gray-50">
+              <h1 className="text-base font-semibold text-gray-800 mb-1">
+                {task.taskType === 'support_ticket'
+                  ? task.subject || "Support Ticket"
+                  : task.services?.[0]?.serviceName || "Service Task"}
+              </h1>
               <div className="flex items-center space-x-2 mb-2">
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded">
                   {task.taskType === 'support_ticket'
@@ -298,47 +298,47 @@ const VendorCancelTaskDetail = () => {
                     : task.bookingReference}
                 </span>
                 <span className="px-2 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded">
-                  {task.taskType === 'support_ticket' 
+                  {task.taskType === 'support_ticket'
                     ? "Support Ticket"
                     : task.services?.[0]?.serviceName || "Service"}
                 </span>
               </div>
               <div className="text-sm text-gray-600">
                 <p><span className="font-medium">Customer:</span> {
-                  task.taskType === 'support_ticket' 
+                  task.taskType === 'support_ticket'
                     ? task.userName || task.customerName
                     : task.customer?.name
                 }</p>
                 <p><span className="font-medium">Phone:</span> {
-                  task.taskType === 'support_ticket' 
+                  task.taskType === 'support_ticket'
                     ? task.userPhone || task.customerPhone
                     : task.customer?.phone
                 }</p>
                 <p><span className="font-medium">Scheduled:</span> {
-                  task.taskType === 'support_ticket' 
-                    ? (task.scheduledDate 
-                        ? new Date(task.scheduledDate).toLocaleDateString('en-GB', { 
-                            day: '2-digit', 
-                            month: 'short', 
-                            year: 'numeric' 
-                          })
-                        : "Not scheduled")
-                    : (task.scheduling?.scheduledDate 
-                        ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', { 
-                            day: '2-digit', 
-                            month: 'short', 
-                            year: 'numeric' 
-                          })
-                        : new Date(task.scheduling?.preferredDate).toLocaleDateString('en-GB', { 
-                            day: '2-digit', 
-                            month: 'short', 
-                            year: 'numeric' 
-                          }))
+                  task.taskType === 'support_ticket'
+                    ? (task.scheduledDate
+                      ? new Date(task.scheduledDate).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                      })
+                      : "Not scheduled")
+                    : (task.scheduling?.scheduledDate
+                      ? new Date(task.scheduling.scheduledDate).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                      })
+                      : new Date(task.scheduling?.preferredDate).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                      }))
                 } {
-                  task.taskType === 'support_ticket' 
-                    ? (task.scheduledTime ? `at ${task.scheduledTime}` : "")
-                    : `at ${task.scheduling?.scheduledTime || task.scheduling?.preferredTimeSlot}`
-                }</p>
+                    task.taskType === 'support_ticket'
+                      ? (task.scheduledTime ? `at ${task.scheduledTime}` : "")
+                      : `at ${task.scheduling?.scheduledTime || task.scheduling?.preferredTimeSlot}`
+                  }</p>
               </div>
             </div>
           </div>
@@ -351,7 +351,7 @@ const VendorCancelTaskDetail = () => {
                 {task.taskType === 'support_ticket' ? 'Decline Reason' : 'Cancellation Reason'}
               </h2>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -366,7 +366,7 @@ const VendorCancelTaskDetail = () => {
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {task.taskType === 'support_ticket' 
+                  {task.taskType === 'support_ticket'
                     ? "This information will be shared with the admin and a ₹100 penalty will be applied to your wallet."
                     : "This information will be shared with the customer and used for internal records."
                   }
@@ -377,21 +377,21 @@ const VendorCancelTaskDetail = () => {
 
           {/* Action Buttons */}
           <div className="space-y-3">
-            <button 
+            <button
               onClick={handleCancelTask}
               disabled={isSubmitting || !reason.trim()}
               className="w-full py-3 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center space-x-2"
             >
               <XCircle className="w-5 h-5" />
               <span>
-                {isSubmitting 
-                  ? (task.taskType === 'support_ticket' ? "Declining..." : "Cancelling...") 
+                {isSubmitting
+                  ? (task.taskType === 'support_ticket' ? "Declining..." : "Cancelling...")
                   : (task.taskType === 'support_ticket' ? "Decline Support Ticket" : "Cancel Task")
                 }
               </span>
             </button>
-            
-            <button 
+
+            <button
               onClick={() => navigate(-1)}
               disabled={isSubmitting}
               className="w-full py-3 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"

@@ -9,14 +9,14 @@ const VendorShop = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  
+
   // Show 404 error on desktop - must be before any other hooks
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
 
-  
+
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
@@ -31,7 +31,7 @@ const VendorShop = () => {
             <h1 className="text-3xl font-bold text-foreground mb-4">Vendor Shop</h1>
             <h2 className="text-2xl font-semibold text-gradient mb-2">Coming Soon</h2>
             <p className="text-muted-foreground text-lg mb-8">We're working hard to bring you an amazing shopping experience</p>
-            
+
             {/* Contact Info */}
             <div className="text-center">
               <p className="text-muted-foreground text-sm">

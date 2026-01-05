@@ -85,7 +85,7 @@ app.use((req, res, next) => {
     return next();
   }
   console.log('Using body parsing for route:', req.path, req.method);
-  express.json({ limit: '10mb' })(req, res, next);
+  express.json({ limit: '50mb' })(req, res, next);
 });
 
 app.use((req, res, next) => {
@@ -95,7 +95,7 @@ app.use((req, res, next) => {
     return next();
   }
   console.log('Using urlencoded parsing for route:', req.path, req.method);
-  express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
+  express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
 });
 
 // Cookie parser

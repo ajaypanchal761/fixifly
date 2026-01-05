@@ -1335,8 +1335,8 @@ const VendorEarnings = () => {
             <div className="flex flex-wrap gap-1.5">
               <button
                 className={`text-xs px-2 py-1 rounded-md transition-colors ${activeFilter === 'All'
-                    ? 'btn-tech'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  ? 'btn-tech'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 onClick={() => setActiveFilter('All')}
               >
@@ -1344,8 +1344,8 @@ const VendorEarnings = () => {
               </button>
               <button
                 className={`text-xs px-2 py-1 rounded-md transition-colors ${activeFilter === 'Payment Received'
-                    ? 'btn-tech'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  ? 'btn-tech'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 onClick={() => setActiveFilter('Payment Received')}
               >
@@ -1353,8 +1353,8 @@ const VendorEarnings = () => {
               </button>
               <button
                 className={`text-xs px-2 py-1 rounded-md transition-colors ${activeFilter === 'Withdraw'
-                    ? 'btn-tech'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  ? 'btn-tech'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 onClick={() => setActiveFilter('Withdraw')}
               >
@@ -1362,8 +1362,8 @@ const VendorEarnings = () => {
               </button>
               <button
                 className={`text-xs px-2 py-1 rounded-md transition-colors ${activeFilter === 'Penalty'
-                    ? 'btn-tech'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  ? 'btn-tech'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 onClick={() => setActiveFilter('Penalty')}
               >
@@ -1371,8 +1371,8 @@ const VendorEarnings = () => {
               </button>
               <button
                 className={`text-xs px-2 py-1 rounded-md transition-colors ${activeFilter === 'Admin Adjustment'
-                    ? 'btn-tech'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  ? 'btn-tech'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 onClick={() => setActiveFilter('Admin Adjustment')}
               >
@@ -1428,10 +1428,10 @@ const VendorEarnings = () => {
                               <h3 className="font-semibold text-foreground break-words">{transaction.type}</h3>
                               {transaction.type === 'Withdrawal Request' && (
                                 <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${transaction.status === 'pending' ? 'bg-orange-100 text-orange-800' :
-                                    transaction.status === 'approved' ? 'bg-green-100 text-green-800' :
-                                      transaction.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                        transaction.status === 'declined' ? 'bg-red-100 text-red-800' :
-                                          'bg-gray-100 text-gray-800'
+                                  transaction.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                    transaction.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                      transaction.status === 'declined' ? 'bg-red-100 text-red-800' :
+                                        'bg-gray-100 text-gray-800'
                                   }`}>
                                   {transaction.status === 'approved' ? 'success' :
                                     transaction.status === 'rejected' ? 'rejected' :

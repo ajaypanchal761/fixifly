@@ -8,14 +8,14 @@ const VendorCustomers = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  
+
   // Show 404 error on desktop - must be before any other hooks
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
 
-  
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -23,7 +23,7 @@ const VendorCustomers = () => {
       <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8 md:hidden">Customers</h1>
-          
+
           {/* Search and Filter */}
           <div className="bg-white rounded-xl p-6 shadow-lg mb-8 md:hidden">
             <div className="flex flex-col md:flex-row gap-4">

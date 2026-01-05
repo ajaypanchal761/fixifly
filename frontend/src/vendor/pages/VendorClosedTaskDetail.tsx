@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  DollarSign, 
+import {
+  Phone,
+  MapPin,
+  Calendar,
+  DollarSign,
   ArrowLeft,
   CheckCircle,
   Clock,
@@ -34,7 +34,7 @@ const VendorClosedTaskDetail = () => {
       const loadingStartTime = Date.now();
       setLoading(true);
       setError(null);
-      
+
       const vendorToken = localStorage.getItem('vendorToken');
       if (!vendorToken) {
         setError('Please log in as a vendor to view task details');
@@ -47,15 +47,15 @@ const VendorClosedTaskDetail = () => {
         vendorApi.getVendorBookings(),
         vendorApi.getAssignedSupportTickets()
       ]);
-      
+
       // Ensure loading shows for at least 1 second
       const elapsedTime = Date.now() - loadingStartTime;
       const remainingTime = Math.max(0, 1000 - elapsedTime);
-      
+
       if (remainingTime > 0) {
         await new Promise(resolve => setTimeout(resolve, remainingTime));
       }
-      
+
       let foundTask = null;
       let isSupportTicket = false;
 
@@ -63,7 +63,7 @@ const VendorClosedTaskDetail = () => {
       if (bookingsResponse.success && bookingsResponse.data?.bookings) {
         const bookings = bookingsResponse.data.bookings;
         const bookingTask = bookings.find(booking => booking._id === taskId);
-        
+
         if (bookingTask) {
           // Transform booking data to task format
           foundTask = {
@@ -73,54 +73,54 @@ const VendorClosedTaskDetail = () => {
             customer: bookingTask.customer?.name || 'Unknown Customer',
             phone: bookingTask.customer?.phone || 'N/A',
             amount: `₹${bookingTask.pricing?.totalAmount || 0}`,
-            date: bookingTask.scheduling?.scheduledDate 
+            date: bookingTask.scheduling?.scheduledDate
               ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
-              : bookingTask.scheduling?.preferredDate 
-              ? new Date(bookingTask.scheduling.preferredDate).toLocaleDateString('en-IN')
-              : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
-            time: bookingTask.scheduling?.scheduledTime 
+              : bookingTask.scheduling?.preferredDate
+                ? new Date(bookingTask.scheduling.preferredDate).toLocaleDateString('en-IN')
+                : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
+            time: bookingTask.scheduling?.scheduledTime
               ? new Date(`2000-01-01T${bookingTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
               : bookingTask.scheduling?.preferredTimeSlot || 'Not scheduled',
             status: foundTask.status === 'completed' ? 'Completed' : foundTask.status,
-            address: bookingTask.customer?.address 
-              ? typeof bookingTask.customer.address === 'object' 
+            address: bookingTask.customer?.address
+              ? typeof bookingTask.customer.address === 'object'
                 ? `${bookingTask.customer.address.street || ''}, ${bookingTask.customer.address.city || ''}, ${bookingTask.customer.address.state || ''} - ${bookingTask.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
                 : bookingTask.customer.address
               : 'Address not provided',
             issue: bookingTask.notes || bookingTask.services?.[0]?.serviceName || 'Service request',
-            assignDate: bookingTask.vendor?.assignedAt 
+            assignDate: bookingTask.vendor?.assignedAt
               ? new Date(bookingTask.vendor.assignedAt).toLocaleDateString('en-IN')
               : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
-            assignTime: bookingTask.vendor?.assignedAt 
+            assignTime: bookingTask.vendor?.assignedAt
               ? new Date(bookingTask.vendor.assignedAt).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
               : 'Not assigned',
             taskType: bookingTask.services?.[0]?.serviceName || 'Service Request',
-            completedDate: bookingTask.completionData?.completedAt 
+            completedDate: bookingTask.completionData?.completedAt
               ? new Date(bookingTask.completionData.completedAt).toLocaleDateString('en-IN')
-              : bookingTask.scheduling?.scheduledDate 
-              ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
-              : new Date(bookingTask.updatedAt).toLocaleDateString('en-IN'),
-            completedTime: bookingTask.completionData?.completedAt 
+              : bookingTask.scheduling?.scheduledDate
+                ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
+                : new Date(bookingTask.updatedAt).toLocaleDateString('en-IN'),
+            completedTime: bookingTask.completionData?.completedAt
               ? new Date(bookingTask.completionData.completedAt).toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
+              : bookingTask.scheduling?.scheduledTime
+                ? new Date(`2000-01-01T${bookingTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: true
                 })
-              : bookingTask.scheduling?.scheduledTime 
-              ? new Date(`2000-01-01T${bookingTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
-              : 'Not available',
+                : 'Not available',
             resolutionNote: bookingTask.completionData?.resolutionNote || 'No resolution notes provided',
             billingAmount: `₹${bookingTask.pricing?.totalAmount || 0}`,
             spareParts: bookingTask.completionData?.spareParts || [],
@@ -137,7 +137,7 @@ const VendorClosedTaskDetail = () => {
       if (!foundTask && supportTicketsResponse.success && supportTicketsResponse.data?.tickets) {
         const supportTickets = supportTicketsResponse.data.tickets;
         const supportTicket = supportTickets.find(ticket => ticket.id === taskId);
-        
+
         if (supportTicket) {
           isSupportTicket = true;
           // Transform support ticket data to task format
@@ -148,51 +148,51 @@ const VendorClosedTaskDetail = () => {
             customer: supportTicket.customerName || 'Unknown Customer',
             phone: supportTicket.customerPhone || 'N/A',
             amount: 'Support Ticket',
-            date: supportTicket.scheduledDate 
+            date: supportTicket.scheduledDate
               ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
-              : supportTicket.created 
-              ? new Date(supportTicket.created).toLocaleDateString('en-IN')
-              : new Date().toLocaleDateString('en-IN'),
-            time: supportTicket.scheduledTime 
+              : supportTicket.created
+                ? new Date(supportTicket.created).toLocaleDateString('en-IN')
+                : new Date().toLocaleDateString('en-IN'),
+            time: supportTicket.scheduledTime
               ? (() => {
-                  // Convert 24-hour format to 12-hour format with AM/PM
-                  if (supportTicket.scheduledTime.includes(':')) {
-                    const [hours, minutes] = supportTicket.scheduledTime.split(':');
-                    const hour24 = parseInt(hours);
-                    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-                    const ampm = hour24 >= 12 ? 'PM' : 'AM';
-                    return `${hour12}:${minutes} ${ampm}`;
-                  }
-                  return supportTicket.scheduledTime;
-                })()
+                // Convert 24-hour format to 12-hour format with AM/PM
+                if (supportTicket.scheduledTime.includes(':')) {
+                  const [hours, minutes] = supportTicket.scheduledTime.split(':');
+                  const hour24 = parseInt(hours);
+                  const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                  const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                  return `${hour12}:${minutes} ${ampm}`;
+                }
+                return supportTicket.scheduledTime;
+              })()
               : 'Not scheduled',
             status: supportTicket.vendorStatus === 'Completed' ? 'Completed' : supportTicket.vendorStatus,
             address: supportTicket.address || 'Address not provided',
             issue: supportTicket.description || supportTicket.subject || 'Support request',
-            assignDate: supportTicket.assignedAt 
+            assignDate: supportTicket.assignedAt
               ? new Date(supportTicket.assignedAt).toLocaleDateString('en-IN')
               : new Date().toLocaleDateString('en-IN'),
-            assignTime: supportTicket.assignedAt 
+            assignTime: supportTicket.assignedAt
               ? new Date(supportTicket.assignedAt).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
               : 'Not assigned',
             taskType: supportTicket.subject || 'Support Request',
-            completedDate: supportTicket.vendorCompletedAt 
+            completedDate: supportTicket.vendorCompletedAt
               ? new Date(supportTicket.vendorCompletedAt).toLocaleDateString('en-IN')
-              : supportTicket.scheduledDate 
-              ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
-              : new Date().toLocaleDateString('en-IN'),
-            completedTime: supportTicket.vendorCompletedAt 
+              : supportTicket.scheduledDate
+                ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
+                : new Date().toLocaleDateString('en-IN'),
+            completedTime: supportTicket.vendorCompletedAt
               ? new Date(supportTicket.vendorCompletedAt).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
-              : supportTicket.scheduledTime 
-              ? (() => {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
+              : supportTicket.scheduledTime
+                ? (() => {
                   if (supportTicket.scheduledTime.includes(':')) {
                     const [hours, minutes] = supportTicket.scheduledTime.split(':');
                     const hour24 = parseInt(hours);
@@ -202,7 +202,7 @@ const VendorClosedTaskDetail = () => {
                   }
                   return supportTicket.scheduledTime;
                 })()
-              : 'Not available',
+                : 'Not available',
             resolutionNote: supportTicket.completionData?.resolutionNote || 'No resolution notes provided',
             billingAmount: `₹${supportTicket.billingAmount || 0}`,
             spareParts: supportTicket.completionData?.spareParts || [],
@@ -215,7 +215,7 @@ const VendorClosedTaskDetail = () => {
           };
         }
       }
-      
+
       if (foundTask) {
         setTask(foundTask);
       } else {
@@ -316,9 +316,8 @@ const VendorClosedTaskDetail = () => {
     return Array.from({ length: 5 }, (_, index) => (
       <Star
         key={index}
-        className={`w-4 h-4 ${
-          index < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-        }`}
+        className={`w-4 h-4 ${index < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+          }`}
       />
     ));
   };
@@ -365,7 +364,7 @@ const VendorClosedTaskDetail = () => {
                 <h3 className="text-sm font-medium text-gray-600">Customer Information</h3>
                 <div className="space-y-1">
                   <p className="text-sm text-gray-800">{task.customer}</p>
-                  <a 
+                  <a
                     href={`tel:${task.phone}`}
                     className="flex items-center space-x-3 bg-green-50 hover:bg-green-100 p-2 rounded-lg transition-colors group"
                   >
@@ -459,12 +458,12 @@ const VendorClosedTaskDetail = () => {
                     <span className="text-sm font-medium text-gray-800">{task.billingAmount}</span>
                   </div>
                   {task.spareParts && task.spareParts.length > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Spare Parts:</span>
-                    <span className="text-sm font-medium text-gray-800">
-                      ₹{task.spareParts.reduce((sum, part) => sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0).toLocaleString()}
-                    </span>
-                  </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Spare Parts:</span>
+                      <span className="text-sm font-medium text-gray-800">
+                        ₹{task.spareParts.reduce((sum, part) => sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0).toLocaleString()}
+                      </span>
+                    </div>
                   )}
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Traveling:</span>

@@ -12,14 +12,14 @@ const VendorPenaltyCharges = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  
+
   // Show 404 error on desktop - must be before any other hooks
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
 
-  
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">

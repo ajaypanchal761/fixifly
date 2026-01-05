@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  DollarSign, 
+import {
+  Phone,
+  MapPin,
+  Calendar,
+  DollarSign,
   ArrowLeft,
   XCircle,
   Clock,
@@ -24,9 +24,9 @@ const VendorCancelledTaskDetail = () => {
 
   // Sample cancelled task data - in real app, this would come from API
   const cancelledTaskData = {
-    7: { 
-      id: 7, caseId: "CASE-007", title: "Refrigerator Repair", customer: "Tom Wilson", 
-      phone: "+91 32109 87654", amount: "₹3,200", date: "13 Dec 2024", time: "4:15 PM", 
+    7: {
+      id: 7, caseId: "CASE-007", title: "Refrigerator Repair", customer: "Tom Wilson",
+      phone: "+91 32109 87654", amount: "₹3,200", date: "13 Dec 2024", time: "4:15 PM",
       status: "Cancelled", address: "147 Jayanagar, Bangalore, Karnataka 560011",
       issue: "Refrigerator not cooling. Food spoilage risk.",
       assignDate: "13 Dec 2024", assignTime: "3:00 PM",
@@ -38,9 +38,9 @@ const VendorCancelledTaskDetail = () => {
       refundAmount: "₹3,200",
       refundDate: "14 Dec 2024"
     },
-    8: { 
-      id: 8, caseId: "CASE-008", title: "Microwave Service", customer: "Emma Taylor", 
-      phone: "+91 21098 76543", amount: "₹1,500", date: "11 Dec 2024", time: "10:00 AM", 
+    8: {
+      id: 8, caseId: "CASE-008", title: "Microwave Service", customer: "Emma Taylor",
+      phone: "+91 21098 76543", amount: "₹1,500", date: "11 Dec 2024", time: "10:00 AM",
       status: "Cancelled", address: "258 Banashankari, Bangalore, Karnataka 560070",
       issue: "Microwave not heating food properly. Previous repair didn't work.",
       assignDate: "11 Dec 2024", assignTime: "9:00 AM",
@@ -52,9 +52,9 @@ const VendorCancelledTaskDetail = () => {
       refundAmount: "₹1,500",
       refundDate: "12 Dec 2024"
     },
-    9: { 
-      id: 9, caseId: "CASE-009", title: "AC Installation", customer: "Robert Kim", 
-      phone: "+91 10987 65432", amount: "₹8,500", date: "10 Dec 2024", time: "2:00 PM", 
+    9: {
+      id: 9, caseId: "CASE-009", title: "AC Installation", customer: "Robert Kim",
+      phone: "+91 10987 65432", amount: "₹8,500", date: "10 Dec 2024", time: "2:00 PM",
       status: "Cancelled", address: "369 Malleswaram, Bangalore, Karnataka 560003",
       issue: "New AC installation required for bedroom.",
       assignDate: "10 Dec 2024", assignTime: "1:00 PM",
@@ -164,7 +164,7 @@ const VendorCancelledTaskDetail = () => {
                 <h3 className="text-sm font-medium text-gray-600">Customer Information</h3>
                 <div className="space-y-2">
                   <p className="text-sm text-gray-800">{task.customer}</p>
-                  <a 
+                  <a
                     href={`tel:${task.phone}`}
                     className="flex items-center space-x-3 bg-green-50 hover:bg-green-100 p-3 rounded-lg transition-colors group"
                   >
@@ -218,7 +218,7 @@ const VendorCancelledTaskDetail = () => {
                     <span className="text-sm font-medium text-gray-800">Cancellation Reason:</span>
                   </div>
                   <p className="text-sm text-gray-800 ml-6">{task.cancellationReason}</p>
-                  
+
                   <div className="flex items-center space-x-2 mt-3">
                     <User className="w-4 h-4 text-gray-500" />
                     <span className="text-sm font-medium text-gray-600">Cancelled by:</span>

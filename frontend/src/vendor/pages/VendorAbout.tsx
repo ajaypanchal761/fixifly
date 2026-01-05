@@ -11,14 +11,14 @@ const VendorAbout = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  
+
   // Show 404 error on desktop - must be before any other hooks
   // Show 404 error on desktop
   if (!isMobile) {
     return <NotFound />;
   }
 
-  
+
 
   const companyStats = [
     { icon: Users, value: "500+", label: "Active Vendors", color: "bg-blue-500" },

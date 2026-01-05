@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { 
+import {
   ArrowLeft,
   CheckCircle,
   CreditCard,
@@ -75,7 +75,7 @@ const VendorTaskPreview = () => {
 
   const handleSubmit = async () => {
     setIsProcessing(true);
-    
+
     try {
       // Create completion data object
       const completionData = {
@@ -90,7 +90,7 @@ const VendorTaskPreview = () => {
 
       // Update booking status to completed
       const response = await vendorApi.updateBookingStatus(task.id, 'completed', completionData);
-      
+
       if (response.success) {
         // Create completed task object for local state update
         const completedTask = {
@@ -100,15 +100,15 @@ const VendorTaskPreview = () => {
           customer: task.customer,
           phone: task.phone,
           amount: calculateTotal().toString(),
-          date: new Date().toLocaleDateString('en-GB', { 
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric' 
+          date: new Date().toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
           }),
-          time: new Date().toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
+          time: new Date().toLocaleTimeString('en-US', {
+            hour: '2-digit',
             minute: '2-digit',
-            hour12: true 
+            hour12: true
           }),
           status: "Completed",
           address: task.address,
@@ -126,7 +126,7 @@ const VendorTaskPreview = () => {
 
         // Dispatch event to notify VendorHero component
         window.dispatchEvent(new CustomEvent('taskCompleted', { detail: completedTask }));
-        
+
         // Navigate back to vendor dashboard where the task will appear in closed tickets
         navigate('/vendor');
       } else {
@@ -239,12 +239,10 @@ const VendorTaskPreview = () => {
               <h2 className="text-lg font-semibold text-gray-800">Payment Method</h2>
             </div>
             <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                paymentMethod === 'online' ? 'bg-blue-100' : 'bg-green-100'
-              }`}>
-                <span className={`text-sm font-bold ${
-                  paymentMethod === 'online' ? 'text-blue-600' : 'text-green-600'
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${paymentMethod === 'online' ? 'bg-blue-100' : 'bg-green-100'
                 }`}>
+                <span className={`text-sm font-bold ${paymentMethod === 'online' ? 'text-blue-600' : 'text-green-600'
+                  }`}>
                   {paymentMethod === 'online' ? '💳' : '💰'}
                 </span>
               </div>
