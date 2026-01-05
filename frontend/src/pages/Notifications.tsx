@@ -60,9 +60,9 @@ const Notifications = () => {
   const markAsRead = async (notificationId: string) => {
     try {
       await userNotificationApi.markAsRead(notificationId);
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification._id === notificationId 
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification._id === notificationId
             ? { ...notification, isRead: true, readAt: new Date().toISOString() }
             : notification
         )
@@ -77,7 +77,7 @@ const Notifications = () => {
   const markAllAsRead = async () => {
     try {
       await userNotificationApi.markAllAsRead();
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(notification => ({ ...notification, isRead: true, readAt: new Date().toISOString() }))
       );
       setUnreadCount(0);
@@ -94,7 +94,7 @@ const Notifications = () => {
 
   const handleNotificationClick = (notification: UserNotification) => {
     markAsRead(notification._id);
-    
+
     // Navigate based on notification type and data
     if (notification.data?.type === 'admin_notification') {
       // Admin notifications - stay on notifications page or navigate to specific page
@@ -222,11 +222,10 @@ const Notifications = () => {
               </Card>
             ) : (
               notifications.map((notification) => (
-                <Card 
-                  key={notification._id} 
-                  className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                    !notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
-                  }`}
+                <Card
+                  key={notification._id}
+                  className={`cursor-pointer transition-all duration-200 hover:shadow-md ${!notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
+                    }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
                   <CardContent className="p-4">
@@ -237,35 +236,20 @@ const Notifications = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center space-x-2">
-                            <h3 className={`text-sm font-medium ${
-                              !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                            }`}>
+                            <h3 className={`text-sm font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                              }`}>
                               {notification.title}
                             </h3>
-                            {notification.image && notification.image.secure_url && (
-                              <div className="flex items-center space-x-1">
-                                <ImageIcon className="w-3 h-3 text-blue-600" />
-                                <span className="text-xs text-blue-600">Image</span>
-                              </div>
-                            )}
+
                           </div>
                           {!notification.isRead && (
                             <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                           )}
                         </div>
                         <p className="text-sm text-gray-600 mb-2">{notification.message}</p>
-                        
-                        {/* Display notification image if available */}
-                        {notification.image && notification.image.secure_url && (
-                          <div className="mb-2">
-                            <img
-                              src={notification.image.secure_url}
-                              alt="Notification"
-                              className="w-full h-32 object-cover rounded-lg border"
-                            />
-                          </div>
-                        )}
-                        
+
+
+
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-gray-500">{notification.timeAgo}</span>
                           {notification.serviceType && (
@@ -284,7 +268,7 @@ const Notifications = () => {
 
           {/* Mobile Bottom Navigation */}
           <MobileBottomNav />
-          
+
           {/* Footer */}
           <Footer />
         </>
@@ -292,7 +276,7 @@ const Notifications = () => {
         // Desktop Layout
         <>
           <Header />
-          
+
           {/* Desktop Notifications Header */}
           <div className="bg-white shadow-sm border-b pt-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -355,11 +339,10 @@ const Notifications = () => {
             ) : (
               <div className="space-y-4">
                 {notifications.map((notification) => (
-                  <Card 
-                    key={notification._id} 
-                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                      !notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
-                    }`}
+                  <Card
+                    key={notification._id}
+                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${!notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
+                      }`}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     <CardContent className="p-6">
@@ -370,35 +353,20 @@ const Notifications = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center space-x-2">
-                              <h3 className={`text-base font-medium ${
-                                !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                              }`}>
+                              <h3 className={`text-base font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                                }`}>
                                 {notification.title}
                               </h3>
-                              {notification.image && notification.image.secure_url && (
-                                <div className="flex items-center space-x-1">
-                                  <ImageIcon className="w-4 h-4 text-blue-600" />
-                                  <span className="text-sm text-blue-600">Image</span>
-                                </div>
-                              )}
+
                             </div>
                             {!notification.isRead && (
                               <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
                             )}
                           </div>
                           <p className="text-sm text-gray-600 mb-3">{notification.message}</p>
-                          
-                          {/* Display notification image if available */}
-                          {notification.image && notification.image.secure_url && (
-                            <div className="mb-3">
-                              <img
-                                src={notification.image.secure_url}
-                                alt="Notification"
-                                className="w-full max-w-md h-48 object-cover rounded-lg border"
-                              />
-                            </div>
-                          )}
-                          
+
+
+
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-500">{notification.timeAgo}</span>
                             {notification.serviceType && (

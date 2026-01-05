@@ -20,18 +20,14 @@ export interface AdminNotification {
     name: string;
     email: string;
   };
-  image?: {
-    public_id: string;
-    secure_url: string;
-    width: number;
-    height: number;
-  };
-  data?: any;
-  createdAt: string;
-  updatedAt: string;
-  timeAgo: string;
-  deliveryRate: number;
-  readRate: number;
+  email: string;
+};
+data ?: any;
+createdAt: string;
+updatedAt: string;
+timeAgo: string;
+deliveryRate: number;
+readRate: number;
 }
 
 export interface SendNotificationRequest {
@@ -42,12 +38,7 @@ export interface SendNotificationRequest {
   targetVendors?: string[];
   scheduledAt?: string;
   isScheduled?: boolean;
-  image?: {
-    public_id: string;
-    secure_url: string;
-    width: number;
-    height: number;
-  };
+
 }
 
 export interface SendNotificationResponse {

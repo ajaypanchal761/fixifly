@@ -57,7 +57,7 @@ const DesktopVendorNotifications = () => {
         page: 1,
         limit: 50
       });
-      
+
       if (response.success) {
         setNotifications(response.data.notifications);
         setUnreadCount(response.data.pagination.unreadCount);
@@ -83,11 +83,11 @@ const DesktopVendorNotifications = () => {
   const markAsRead = async (id: string) => {
     try {
       const response = await vendorNotificationApi.markAsRead(id);
-      
+
       if (response.success) {
-        setNotifications(prev => 
-          prev.map(notification => 
-            notification._id === id 
+        setNotifications(prev =>
+          prev.map(notification =>
+            notification._id === id
               ? { ...notification, isRead: true, readAt: new Date().toISOString() }
               : notification
           )
@@ -113,9 +113,9 @@ const DesktopVendorNotifications = () => {
   const markAllAsRead = async () => {
     try {
       const response = await vendorNotificationApi.markAllAsRead();
-      
+
       if (response.success) {
-        setNotifications(prev => 
+        setNotifications(prev =>
           prev.map(notification => ({ ...notification, isRead: true, readAt: new Date().toISOString() }))
         );
         setUnreadCount(0);
@@ -203,11 +203,10 @@ const DesktopVendorNotifications = () => {
               </div>
             ) : (
               notifications.map((notification) => (
-                <Card 
-                  key={notification._id} 
-                  className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                    !notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
-                  }`}
+                <Card
+                  key={notification._id}
+                  className={`cursor-pointer transition-all duration-200 hover:shadow-md ${!notification.isRead ? 'bg-blue-50 border-blue-200' : 'bg-white'
+                    }`}
                   onClick={() => markAsRead(notification._id)}
                 >
                   <CardContent className="p-6">
@@ -218,17 +217,11 @@ const DesktopVendorNotifications = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-2">
-                            <h3 className={`text-base font-medium ${
-                              !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                            }`}>
+                            <h3 className={`text-base font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                              }`}>
                               {notification.title}
                             </h3>
-                            {notification.image && (
-                              <div className="flex items-center space-x-1">
-                                <ImageIcon className="w-4 h-4 text-blue-600" />
-                                <span className="text-sm text-blue-600">Image</span>
-                              </div>
-                            )}
+
                           </div>
                           <div className="flex items-center space-x-2">
                             {!notification.isRead && (
@@ -237,17 +230,8 @@ const DesktopVendorNotifications = () => {
                           </div>
                         </div>
                         <p className="text-sm text-gray-600 mb-3">{notification.message}</p>
-                        
-                        {/* Display notification image if available */}
-                        {notification.image && (
-                          <div className="mb-3">
-                            <img
-                              src={notification.image.secure_url}
-                              alt="Notification"
-                              className="w-full max-w-md h-48 object-cover rounded-lg border"
-                            />
-                          </div>
-                        )}
+
+
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-500">
                             {new Date(notification.createdAt).toLocaleString()}
@@ -269,7 +253,7 @@ const DesktopVendorNotifications = () => {
 const VendorNotifications = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   // Show desktop version - must be before any other hooks
   if (!isMobile) {
     return <DesktopVendorNotifications />;
@@ -336,7 +320,7 @@ const VendorNotifications = () => {
         page: 1,
         limit: 50
       });
-      
+
       if (response.success) {
         setNotifications(response.data.notifications);
         setUnreadCount(response.data.pagination.unreadCount);
@@ -362,11 +346,11 @@ const VendorNotifications = () => {
   const markAsRead = async (id: string) => {
     try {
       const response = await vendorNotificationApi.markAsRead(id);
-      
+
       if (response.success) {
-        setNotifications(prev => 
-          prev.map(notification => 
-            notification._id === id 
+        setNotifications(prev =>
+          prev.map(notification =>
+            notification._id === id
               ? { ...notification, isRead: true, readAt: new Date().toISOString() }
               : notification
           )
@@ -392,9 +376,9 @@ const VendorNotifications = () => {
   const markAllAsRead = async () => {
     try {
       const response = await vendorNotificationApi.markAllAsRead();
-      
+
       if (response.success) {
-        setNotifications(prev => 
+        setNotifications(prev =>
           prev.map(notification => ({ ...notification, isRead: true, readAt: new Date().toISOString() }))
         );
         setUnreadCount(0);
@@ -466,13 +450,12 @@ const VendorNotifications = () => {
               </div>
             ) : (
               notifications.map((notification) => (
-                <Card 
-                  key={notification._id} 
-                  className={`shadow-sm border-0 cursor-pointer transition-all ${
-                    notification.isRead 
-                      ? 'bg-white' 
+                <Card
+                  key={notification._id}
+                  className={`shadow-sm border-0 cursor-pointer transition-all ${notification.isRead
+                      ? 'bg-white'
                       : 'bg-blue-50 border-l-4 border-l-blue-500'
-                  }`}
+                    }`}
                   onClick={() => markAsRead(notification._id)}
                 >
                   <CardContent className="p-4">
@@ -486,12 +469,7 @@ const VendorNotifications = () => {
                             <h3 className={`font-semibold text-sm ${notification.isRead ? 'text-gray-700' : 'text-gray-900'}`}>
                               {notification.title}
                             </h3>
-                            {notification.image && (
-                              <div className="flex items-center space-x-1">
-                                <ImageIcon className="w-3 h-3 text-blue-600" />
-                                <span className="text-xs text-blue-600">Image</span>
-                              </div>
-                            )}
+
                           </div>
                           <div className="flex items-center gap-2 ml-2">
                             {!notification.isRead && (
@@ -502,17 +480,8 @@ const VendorNotifications = () => {
                         <p className={`text-sm mb-2 ${notification.isRead ? 'text-gray-600' : 'text-gray-700'}`}>
                           {notification.message}
                         </p>
-                        
-                        {/* Display notification image if available */}
-                        {notification.image && (
-                          <div className="mb-2">
-                            <img
-                              src={notification.image.secure_url}
-                              alt="Notification"
-                              className="w-full h-32 object-cover rounded-lg border"
-                            />
-                          </div>
-                        )}
+
+
                         <p className="text-xs text-gray-500">
                           {new Date(notification.createdAt).toLocaleString()}
                         </p>
