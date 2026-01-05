@@ -347,7 +347,7 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className={`relative z-10 container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-0 sm:pt-0 md:pt-0 lg:pt-0`}>
+      <div className={`relative z-10 container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-0 sm:pt-0 md:pt-0 lg:pt-0 pb-8`}>
 
         <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
 
@@ -361,8 +361,8 @@ const Hero = () => {
               data-aos-delay="100"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6">
-                All <span className="text-gradient">IT Needs</span> is here<br className="hidden lg:block" />
-                at <span className="text-gradient">your DoorStep</span>
+                All <span className="text-gradient">IT Needs</span> is here <br className="hidden lg:block mr-2" /> 
+                 at <span className="text-gradient ml-2">your Door-Step</span>
               </h1>
 
               <p className="hidden sm:block text-md sm:text-md md:text-md text-muted-foreground mb-6 max-w-2xl mx-auto lg:mx-0">
@@ -410,7 +410,7 @@ const Hero = () => {
             data-aos="fade-left"
             data-aos-delay="200"
           >
-            <div className="relative rounded-3xl overflow-hidden w-full max-w-2xl mx-auto">
+            <div className="relative rounded-3xl overflow-hidden w-full max-w-[85%] mx-auto">
               {banners.map((banner, index) => (
                 <img
                   key={index}
