@@ -352,7 +352,7 @@ const Hero = () => {
         <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
 
           {/* LEFT COLUMN – Text + Products + Buttons + Trust */}
-          <div className="order-2 lg:order-1 p-4">
+          <div className="order-2 lg:order-1 p-4 px-2">
 
             {/* Text Content */}
             <div
@@ -393,7 +393,7 @@ const Hero = () => {
                       <img
                         src={product.primaryImage || "/placeholder.svg"}
                         alt={product.name}
-                        className="w-16 h-16 mx-auto mb-2 object-contain"
+                        className="w-14 h-14 md:w-15 md:h-15 mx-auto mb-1 object-contain"
                       />
                       <h3 className="text-sm font-bold">{product.name}</h3>
                     </div>
@@ -410,7 +410,7 @@ const Hero = () => {
             data-aos="fade-left"
             data-aos-delay="200"
           >
-            <div className="relative rounded-3xl overflow-hidden w-full max-w-2xl">
+            <div className="relative rounded-3xl overflow-hidden w-full max-w-2xl mx-auto">
               {banners.map((banner, index) => (
                 <img
                   key={index}
