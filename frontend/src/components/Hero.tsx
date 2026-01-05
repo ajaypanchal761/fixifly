@@ -347,227 +347,161 @@ const Hero = () => {
         <div className="w-16 h-16 bg-gradient-primary rounded-full blur-lg" />
       </div>
 
-      <div className={`container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-0 sm:pt-0 md:pt-0 lg:pt-0`}>
+      <div className={`relative z-10 container mx-auto px-4 sm:px-6 md:px-8 lg:px-8 pt-0 sm:pt-0 md:pt-0 lg:pt-0`}>
+
         <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
-          {/* Banner Slideshow - Shows first on mobile, second on desktop */}
-          <div className={`relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:flex-col lg:justify-start lg:items-end lg:w-full lg:pr-8 mt-0 lg:mt-0 lg:z-50`} data-aos="fade-left" data-aos-delay="200">
-            <div className="relative w-full lg:w-auto">
-              <div className="absolute inset-0 bg-gradient-tech rounded-3xl blur-3xl opacity-20 animate-pulse" />
-              <div className="relative rounded-3xl overflow-hidden">
-                {bannersLoading ? (
-                  <div className="w-full h-44 sm:h-56 md:h-72 lg:h-80 xl:h-96 bg-gray-200 rounded-3xl flex items-center justify-center">
-                    <div className="text-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Loading banners...</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative w-full flex items-center justify-center rounded-3xl overflow-hidden">
-                    {banners.map((banner, index) => (
-                      <img
-                        key={index}
-                        src={banner}
-                        alt={`Fixfly Banner ${index + 1}`}
-                        loading={index === 0 ? "eager" : "lazy"}
-                        decoding="async"
-                        className={`w-full h-auto object-contain rounded-3xl shadow-2xl transition-opacity duration-1000 ${index === currentBanner ? 'opacity-100 relative' : 'opacity-0 absolute top-0 left-0'
-                          }`}
-                        style={{
-                          maxHeight: '100%',
-                          display: 'block'
-                        }}
-                        onError={(e) => {
-                          console.error('Banner image failed to load:', banner);
-                          // Hide the broken image
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
 
+          {/* LEFT COLUMN – Text + Products + Buttons + Trust */}
+          <div className="order-2 lg:order-1 p-4">
 
-                {/* Banner Indicators */}
-                {!bannersLoading && banners.length > 1 && (
-                  <div className="absolute left-1/2 transform -translate-x-1/2 flex bottom-2 lg:bottom-0 space-x-2 lg:space-x-0">
+            {/* Text Content */}
+            <div
+              className="text-center lg:text-left animate-slide-up -mt-4 sm:-mt-3 md:-mt-2 lg:mt-0 lg:w-full lg:pr-8 pb-4"
+              data-aos="fade-right"
+              data-aos-delay="100"
+            >
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6">
+                All <span className="text-gradient">IT Needs</span> is here<br className="hidden lg:block" />
+                at <span className="text-gradient">your DoorStep</span>
+              </h1>
 
-
-                    {banners.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentBanner(index)}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentBanner ? 'bg-white' : 'bg-white/50'
-                          }`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+              <p className="hidden sm:block text-md sm:text-md md:text-md text-muted-foreground mb-6 max-w-2xl mx-auto lg:mx-0">
+                Professional Laptop, Desktop, Electronics repair services at Door Step.
+                Certified technicians and lightning-fast turnaround times.
+              </p>
             </div>
 
-            {/* User Reviews Display - Desktop Only, Show when More Services is expanded - Positioned below banner */}
-            {showMoreProducts && (
-              <div className="hidden lg:block mt-6 w-full max-w-xl">
-                <div className="w-full max-w-xl h-64 bg-white rounded-lg shadow-lg p-4">
-                  <ReviewsCarousel />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Text Content - Shows second on mobile, first on desktop */}
-          <div className="text-center lg:text-left animate-slide-up order-2 lg:order-1 -mt-4 sm:-mt-3 md:-mt-2 lg:mt-0 lg:w-full lg:pr-8" data-aos="fade-right" data-aos-delay="100">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-4 sm:mb-6">
-              All <span className="text-gradient">IT Needs</span> is <br className="hidden lg:block" /> Here at <span className="text-gradient">your DoorStep </span>
-            </h1>
-            <p className="hidden sm:block text-lg sm:text-xl md:text-xl text-muted-foreground mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto lg:mx-0">
-              Professional Laptop, Desktop, Electronics repair services at Door Step.
-              Certified technicians and lightning-fast turnaround times.
-            </p>
-
-            {/* Top 3 Featured Product Cards */}
-            <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 mb-2 sm:mb-3 md:mb-4 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="300">
-              {productsLoading ? (
-                // Loading state
-                Array.from({ length: 3 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg flex-1 flex items-center justify-center"
-                    style={{ backgroundColor: '#ffffff' }}
-                  >
-                    <div className="text-center">
-                      <Loader2 className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 animate-spin text-gray-400" />
-                      <h3 className="text-xs sm:text-sm md:text-sm font-bold text-gray-400 leading-tight">Loading...</h3>
-                    </div>
+            {/* Top 3 Featured Products */}
+            <div
+              className="flex gap-2 sm:gap-3 md:gap-4 mb-4 max-w-4xl mx-auto lg:mx-0"
+              data-aos="fade-up"
+              data-aos-delay="300"
+            >
+              {productsLoading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="bg-white rounded-xl p-4 shadow-lg flex-1 flex justify-center">
+                    <Loader2 className="animate-spin text-gray-400" />
                   </div>
                 ))
-              ) : (
-                // Show only top 3 featured products
-                Array.from({ length: 3 }).map((_, index) => {
-                  const product = products[index];
-                  console.log(`Featured Card ${index + 1}:`, product ? `Product: ${product.name}` : 'No product - showing placeholder');
-
-                  if (product) {
-                    // Show actual product card
-                    const primaryImage = product.primaryImage;
-                    return (
-                      <div
-                        key={product._id}
-                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex-1 cursor-pointer"
-                        style={{ backgroundColor: '#ffffff' }}
-                        onClick={() => handleProductClick(product)}
-                      >
-                        <div className="text-center">
-                          <img
-                            src={primaryImage || '/placeholder.svg'}
-                            alt={product.name}
-                            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 object-contain rounded-lg"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = '/placeholder.svg';
-                            }}
-                          />
-                          <h3 className="text-xs sm:text-sm md:text-sm font-bold text-gray-800 leading-tight">{product.name}</h3>
-                        </div>
-                      </div>
-                    );
-                  } else {
-                    // Show placeholder card
-                    return (
-                      <div
-                        key={`placeholder-${index}`}
-                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg flex-1 flex items-center justify-center"
-                        style={{ backgroundColor: '#ffffff' }}
-                      >
-                        <div className="text-center">
-                          <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <span className="text-gray-500 text-xs">No Product</span>
-                          </div>
-                          <h3 className="text-xs sm:text-sm md:text-sm font-bold text-gray-400 leading-tight">Coming Soon</h3>
-                        </div>
-                      </div>
-                    );
-                  }
-                })
-              )}
+                : products.slice(0, 3).map(product => (
+                  <div
+                    key={product._id}
+                    className="bg-white rounded-xl p-1 shadow-lg hover:shadow-xl transition cursor-pointer flex-1"
+                    onClick={() => handleProductClick(product)}
+                  >
+                    <div className="text-center">
+                      <img
+                        src={product.primaryImage || "/placeholder.svg"}
+                        alt={product.name}
+                        className="w-16 h-16 mx-auto mb-2 object-contain"
+                      />
+                      <h3 className="text-sm font-bold">{product.name}</h3>
+                    </div>
+                  </div>
+                ))}
             </div>
 
-            {/* More Services Button */}
-            <div className="flex justify-center mb-2 sm:mb-3 md:mb-4" data-aos="fade-up" data-aos-delay="400">
-              <button
-                onClick={toggleMoreProducts}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 sm:py-3 md:py-3 px-5 sm:px-6 md:px-6 text-sm sm:text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              >
-                {showMoreProducts ? 'Show Less' : 'More Services'}
-              </button>
+
+          </div>
+
+          {/* RIGHT COLUMN – Banner */}
+          <div
+            className="relative animate-fade-in-delay order-1 lg:order-2 lg:flex lg:justify-end"
+            data-aos="fade-left"
+            data-aos-delay="200"
+          >
+            <div className="relative rounded-3xl overflow-hidden w-full max-w-2xl">
+              {banners.map((banner, index) => (
+                <img
+                  key={index}
+                  src={banner}
+                  alt="Banner"
+                  className={`transition-opacity duration-1000 ${index === currentBanner ? "opacity-100" : "opacity-0 absolute inset-0"
+                    }`}
+                />
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom Full Width Section */}
+        <div className="w-full md:mt-12 mb-2">
+          {/* More Services Button */}
+          <div
+            className="flex justify-center mx-auto mb-8"
+            data-aos="fade-up"
+            data-aos-delay="400"
+          >
+            <button
+              onClick={toggleMoreProducts}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all text-lg"
+            >
+              {showMoreProducts ? "Show Less" : "More Services"}
+            </button>
+          </div>
+
+          {/* Additional Products */}
+          {showMoreProducts && (
+            <div
+              className="grid grid-cols-3 gap-3 md:flex md:overflow-x-auto md:gap-6 mb-12 animate-fade-in pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]"
+              data-aos="fade-up"
+              data-aos-delay="500"
+            >
+              {allProducts.map(product => (
+                <div
+                  key={product._id}
+                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer hover:-translate-y-1 border border-white/20 md:min-w-[180px]"
+                  onClick={() => handleProductClick(product)}
+                >
+                  <div className="text-center">
+                    <div className="bg-gray-50 rounded-xl p-2 mb-3 h-16 md:h-20 flex items-center justify-center">
+                      <img
+                        src={product.primaryImage || "/placeholder.svg"}
+                        alt={product.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <h3 className="text-xs md:text-sm font-bold text-gray-800 line-clamp-2">{product.name}</h3>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Trust Indicators */}
+          <div
+            className="grid grid-cols-3 gap-2 md:flex md:justify-center md:items-center md:gap-16 max-w-5xl mx-auto px-2 md:px-4"
+            data-aos="fade-up"
+            data-aos-delay="600"
+          >
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-gradient-to-b from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center mb-3 text-white shadow-lg shadow-blue-500/20">
+                <Building2 className="w-8 h-8" strokeWidth={1.5} />
+              </div>
+              <h4 className="text-xs md:text-sm font-bold text-gray-900 leading-tight">Private Limited</h4>
+              <p className="text-xs md:text-sm text-muted-foreground font-medium">Company</p>
             </div>
 
-            {/* Additional Products (Toggle) - Non-featured products */}
-            {showMoreProducts && allProducts.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:flex lg:flex-row lg:overflow-x-auto mb-6 sm:mb-7 md:mb-8 max-w-4xl mx-auto lg:mx-0" data-aos="fade-up" data-aos-delay="500">
-                {allProducts
-                  .filter(product => {
-                    // Show products that are not in the featured products list
-                    const isNotFeatured = !products.some(featuredProduct => featuredProduct._id === product._id);
-                    return product && product._id && isNotFeatured;
-                  })
-                  .map((product) => {
-                    console.log('More Services product:', product?.name || 'Unknown Product');
-                    const primaryImage = product.primaryImage;
-                    return (
-                      <div
-                        key={product._id}
-                        className="bg-white rounded-xl p-2 sm:p-3 md:p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer lg:flex-shrink-0 lg:min-w-[120px]"
-                        style={{ backgroundColor: '#ffffff' }}
-                        onClick={() => handleProductClick(product)}
-                      >
-                        <div className="text-center">
-                          <img
-                            src={primaryImage || '/placeholder.svg'}
-                            alt={product.name}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-2.5 md:mb-3 object-contain rounded-lg"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = '/placeholder.svg';
-                            }}
-                          />
-                          <h3 className="text-xs sm:text-sm md:text-sm font-bold text-gray-800 leading-tight">{product.name}</h3>
-                        </div>
-                      </div>
-                    );
-                  })}
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-gradient-to-b from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center mb-3 text-white shadow-lg shadow-blue-500/20">
+                <Award className="w-8 h-8" strokeWidth={1.5} />
               </div>
-            )}
+              <h4 className="text-xs md:text-sm font-bold text-gray-900 leading-tight">ISO 9001:2015</h4>
+              <p className="text-xs md:text-sm text-muted-foreground font-medium">Certified</p>
+            </div>
 
-
-            {/* Company Trust Indicators */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 max-w-md mx-auto lg:mx-0 lg:ml-16 mb-6 sm:mb-7 md:mb-8" data-aos="fade-up" data-aos-delay="600">
-              <div className="text-center">
-                <div className="bg-gradient-tech p-2.5 sm:p-2.5 md:p-3 rounded-xl w-fit mx-auto mb-1.5 sm:mb-2 md:mb-2">
-                  <Building2 className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" />
-                </div>
-                <p className="text-xs sm:text-sm md:text-sm font-semibold">Private Limited</p>
-                <p className="text-xs text-muted-foreground">Company</p>
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-gradient-to-b from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center mb-3 text-white shadow-lg shadow-blue-500/20">
+                <Star className="w-8 h-8" strokeWidth={1.5} />
               </div>
-              <div className="text-center">
-                <div className="bg-gradient-tech p-2.5 sm:p-2.5 md:p-3 rounded-xl w-fit mx-auto mb-1.5 sm:mb-2 md:mb-2">
-                  <Award className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" />
-                </div>
-                <p className="text-xs sm:text-sm md:text-sm font-semibold">ISO 9001:2015</p>
-                <p className="text-xs text-muted-foreground">Certified</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-gradient-tech p-2.5 sm:p-2.5 md:p-3 rounded-xl w-fit mx-auto mb-1.5 sm:mb-2 md:mb-2">
-                  <Star className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" />
-                </div>
-                <p className="text-xs sm:text-sm md:text-sm font-semibold">Positive Rating</p>
-                <p className="text-xs text-muted-foreground">Trusted Service</p>
-              </div>
+              <h4 className="text-xs md:text-sm font-bold text-gray-900 leading-tight">Positive Rating</h4>
+              <p className="text-xs md:text-sm text-muted-foreground font-medium">Trusted Service</p>
             </div>
           </div>
         </div>
+
+
       </div>
 
       {/* City Selection Modal */}
