@@ -42,22 +42,22 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<ProductDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("");
-  const [cartItems, setCartItems] = useState<{id: string, title: string, price: number, image: string}[]>([]);
+  const [cartItems, setCartItems] = useState<{ id: string, title: string, price: number, image: string }[]>([]);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [reviewStats, setReviewStats] = useState<{totalReviews: number; averageRating: number}>({totalReviews: 0, averageRating: 0});
+  const [reviewStats, setReviewStats] = useState<{ totalReviews: number; averageRating: number }>({ totalReviews: 0, averageRating: 0 });
 
   // Fetch reviews from backend
   const fetchReviews = async () => {
     try {
       setReviewsLoading(true);
       console.log('Fetching reviews...');
-      
+
       // Get featured reviews (limit to 4 for mobile display)
       const featuredResponse = await reviewService.getFeaturedReviews(4);
       console.log('Featured reviews response:', featuredResponse);
-      
+
       if (featuredResponse.success && featuredResponse.data.length > 0) {
         setReviews(featuredResponse.data);
         console.log('Reviews set:', featuredResponse.data);
@@ -66,7 +66,7 @@ const ProductDetail = () => {
         // Fallback to regular reviews if featured reviews are empty
         const regularResponse = await reviewService.getReviews({ limit: 4, sort: 'newest' });
         console.log('Regular reviews response:', regularResponse);
-        
+
         if (regularResponse.success && regularResponse.data.length > 0) {
           setReviews(regularResponse.data);
           console.log('Regular reviews set:', regularResponse.data);
@@ -76,11 +76,11 @@ const ProductDetail = () => {
           setReviews([]);
         }
       }
-      
+
       // Get review statistics
       const statsResponse = await reviewService.getReviewStats();
       console.log('Review stats response:', statsResponse);
-      
+
       if (statsResponse.success && statsResponse.data?.overview) {
         setReviewStats({
           totalReviews: statsResponse.data.overview.totalReviews || 0,
@@ -114,7 +114,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        
+
         // First try to get from location state
         if (location.state?.product) {
           setProduct(location.state.product);
@@ -131,7 +131,7 @@ const ProductDetail = () => {
             console.error('Failed to fetch product:', response.message);
           }
         }
-        
+
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
@@ -178,7 +178,7 @@ const ProductDetail = () => {
   ].filter(service => service.isActive);
 
   // Get unique categories for tabs
-  const tabs = Object.values(product.categoryNames).filter(name => 
+  const tabs = Object.values(product.categoryNames).filter(name =>
     allServices.some(service => service.category === name)
   );
 
@@ -186,18 +186,18 @@ const ProductDetail = () => {
   const defaultActiveTab = activeTab || tabs[0];
 
   // Filter services by active tab
-  const filteredServices = allServices.filter(service => 
+  const filteredServices = allServices.filter(service =>
     service.category === defaultActiveTab
   );
 
   const addToCart = (service: any) => {
     const existingItem = cartItems.find(item => item.id === service._id);
     if (!existingItem) {
-      setCartItems([...cartItems, { 
-        id: service._id, 
-        title: service.serviceName, 
-        price: service.discountPrice || service.price, 
-        image: service.serviceImage || product.productImage || '/placeholder.svg' 
+      setCartItems([...cartItems, {
+        id: service._id,
+        title: service.serviceName,
+        price: service.discountPrice || service.price,
+        image: service.serviceImage || product.productImage || '/placeholder.svg'
       }]);
     }
   };
@@ -217,35 +217,18 @@ const ProductDetail = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-             <div className="flex items-center space-x-4">
-               <div className="flex items-center space-x-2">
-                 <Button 
-                   variant="ghost" 
-                   size="sm"
-                   onClick={() => navigate(-1)}
-                   className="p-2"
-                 >
-                   <ArrowLeft className="h-5 w-5" />
-                 </Button>
-                 <Button 
-                   variant="ghost" 
-                   size="sm"
-                   onClick={() => navigate('/')}
-                   className="p-2"
-                 >
-                   <Home className="h-5 w-5" />
-                 </Button>
-               </div>
-               <h1 className="text-lg font-semibold">{product.productName}</h1>
-             </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" className="p-2">
-                <Phone className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="sm" className="p-2">
-                <MessageCircle className="h-5 w-5" />
-              </Button>
+          <div className="flex items-center">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(-1)}
+                  className="p-2"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -254,8 +237,8 @@ const ProductDetail = () => {
       <div className="container mx-auto px-4 py-4 pt-4">
         {/* Back Button Above Hero Banner */}
         <div className="mb-4 mt-2">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={() => navigate('/')}
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
@@ -264,68 +247,68 @@ const ProductDetail = () => {
             <span>Back to Home</span>
           </Button>
         </div>
-        
+
         <div className="grid lg:grid-cols-2 gap-8">
-           {/* Left Side - Hero Section */}
-           <div className="space-y-6">
-             {/* Hero Banner */}
-             <div className="relative">
-               <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl blur-3xl opacity-20 animate-pulse" />
-               <div className="relative bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl p-6 lg:p-8 text-white overflow-hidden">
-                 <div className="relative z-10">
-                   <h2 className="text-2xl lg:text-3xl font-bold mb-4">{product.productName} Services</h2>
-                   <div className="space-y-2 mb-6">
-                     <div className="flex items-center space-x-2">
-                       <Check className="h-5 w-5" />
-                       <span className="text-sm lg:text-base">All Experienced Engineers</span>
-                     </div>
-                     <div className="flex items-center space-x-2">
-                       <Check className="h-5 w-5" />
-                       <span className="text-sm lg:text-base">Lowest Price Guaranteed</span>
-                     </div>
-                     <div className="flex items-center space-x-2">
-                       <Check className="h-5 w-5" />
-                       <span className="text-sm lg:text-base">Upto 1 year Warranty</span>
-                     </div>
-                   </div>
-                 </div>
-                 
-                 {/* Product Image */}
-                 {product.productImage && (
-                   <div className="absolute bottom-0 right-0 w-32 h-32 lg:w-48 lg:h-48">
-                     <div className="relative w-full h-full">
-                       <div className="absolute inset-0 bg-white/10 rounded-full blur-xl"></div>
-                       <div className="relative w-full h-full flex items-center justify-center">
-                         <img 
-                           src={product.productImage} 
-                           alt={product.productName}
-                           loading="lazy"
-                           decoding="async"
-                           className="w-20 h-20 lg:w-32 lg:h-32 object-contain rounded-lg"
-                         />
-                       </div>
-                     </div>
-                   </div>
-                 )}
-                 
-                 {/* Background Pattern */}
-                 <div className="absolute inset-0 opacity-10">
-                   <div className="absolute top-4 right-4 w-20 h-20 lg:w-32 lg:h-32 bg-white rounded-full"></div>
-                   <div className="absolute bottom-4 left-4 w-16 h-16 lg:w-24 lg:h-24 bg-white rounded-full"></div>
-                 </div>
-               </div>
-             </div>
-           </div>
+          {/* Left Side - Hero Section */}
+          <div className="space-y-6">
+            {/* Hero Banner */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl blur-3xl opacity-20 animate-pulse" />
+              <div className="relative bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl p-6 lg:p-8 text-white overflow-hidden">
+                <div className="relative z-10">
+                  <h2 className="text-2xl lg:text-3xl font-bold mb-4">{product.productName} Services</h2>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center space-x-2">
+                      <Check className="h-5 w-5" />
+                      <span className="text-sm lg:text-base">All Experienced Engineers</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Check className="h-5 w-5" />
+                      <span className="text-sm lg:text-base">Lowest Price Guaranteed</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Check className="h-5 w-5" />
+                      <span className="text-sm lg:text-base">Upto 1 year Warranty</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Product Image */}
+                {product.productImage && (
+                  <div className="absolute bottom-0 right-0 w-32 h-32 lg:w-48 lg:h-48">
+                    <div className="relative w-full h-full">
+                      <div className="absolute inset-0 bg-white/10 rounded-full blur-xl"></div>
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <img
+                          src={product.productImage}
+                          alt={product.productName}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-20 h-20 lg:w-32 lg:h-32 object-contain rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-4 right-4 w-20 h-20 lg:w-32 lg:h-32 bg-white rounded-full"></div>
+                  <div className="absolute bottom-4 left-4 w-16 h-16 lg:w-24 lg:h-24 bg-white rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Right Side - Service Info */}
           <div className="space-y-6 -mt-4 lg:mt-0">
             <div>
               <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">{product.productName}</h1>
               <p className="text-base lg:text-lg text-gray-600 mb-6">
-                Professional {product.productName.toLowerCase()} repair and maintenance services at your doorstep. 
+                Professional {product.productName.toLowerCase()} repair and maintenance services at your doorstep.
                 Expert technicians with years of experience.
               </p>
-              
+
               {/* Rating and Stats */}
               <div className="flex items-center space-x-6 mb-6">
                 <div className="flex items-center space-x-1">
@@ -342,18 +325,17 @@ const ProductDetail = () => {
           </div>
         </div>
 
-         {/* Service Tabs */}
-         <div className="mt-0 lg:mt-4">
+        {/* Service Tabs */}
+        <div className="mt-0 lg:mt-4">
           <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-6 overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                 className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-                   defaultActiveTab === tab
-                     ? 'bg-white text-gray-900 shadow-sm'
-                     : 'text-gray-600 hover:text-gray-900'
-                 }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${defaultActiveTab === tab
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 {tab}
               </button>
@@ -377,21 +359,20 @@ const ProductDetail = () => {
                   </div>
                   <div className="flex flex-col items-center space-y-3">
                     <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
-                      <img 
-                        src={service.serviceImage || product.productImage || '/placeholder.svg'} 
+                      <img
+                        src={service.serviceImage || product.productImage || '/placeholder.svg'}
                         alt={service.serviceName}
                         loading="lazy"
                         decoding="async"
                         className="w-full h-full object-cover rounded-xl hover:scale-105 transition-transform duration-200"
                       />
                     </div>
-                    <Button 
-                      size="sm" 
-                      className={`w-full text-white ${
-                        cartItems.find(item => item.id === service._id) 
-                          ? 'bg-green-600 hover:bg-green-700' 
+                    <Button
+                      size="sm"
+                      className={`w-full text-white ${cartItems.find(item => item.id === service._id)
+                          ? 'bg-green-600 hover:bg-green-700'
                           : 'bg-blue-600 hover:bg-blue-700'
-                      }`}
+                        }`}
                       onClick={() => {
                         const existingItem = cartItems.find(item => item.id === service._id);
                         if (existingItem) {
@@ -413,8 +394,8 @@ const ProductDetail = () => {
         {/* Back Image Section - Mobile Only */}
         <div className="mb-48 -mt-24 md:hidden">
           <div className="flex justify-center">
-            <img 
-              src="/backimage.jpg" 
+            <img
+              src="/backimage.jpg"
               alt="Background Image"
               loading="lazy"
               decoding="async"
@@ -427,7 +408,7 @@ const ProductDetail = () => {
         <div className="mb-12 -mt-40 md:hidden">
           <div className="bg-white rounded-2xl p-6 shadow-lg">
             <h3 className="text-xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h3>
-            
+
             <div className="space-y-2">
               {[
                 {
@@ -481,7 +462,7 @@ const ProductDetail = () => {
               <MessageCircle className="h-6 w-6 text-blue-600 mr-2" />
               <h3 className="text-xl font-bold text-gray-900">Customer Reviews</h3>
             </div>
-            
+
             {reviewsLoading ? (
               <div className="flex justify-center items-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin mr-2" />
@@ -493,14 +474,13 @@ const ProductDetail = () => {
                 <div className="text-center mb-6 pb-6 border-b border-gray-200">
                   <div className="flex items-center justify-center mb-2">
                     <div className="flex items-center">
-                      {[1,2,3,4,5].map((star) => (
-                        <Star 
-                          key={star} 
-                          className={`h-6 w-6 ${
-                            star <= Math.round(reviewStats.averageRating || 0) 
-                              ? 'text-yellow-400 fill-current' 
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-6 w-6 ${star <= Math.round(reviewStats.averageRating || 0)
+                              ? 'text-yellow-400 fill-current'
                               : 'text-gray-300'
-                          }`} 
+                            }`}
                         />
                       ))}
                     </div>
@@ -519,19 +499,18 @@ const ProductDetail = () => {
                     {reviews.map((review, index) => {
                       const borderColors = ['border-blue-500', 'border-green-500', 'border-purple-500', 'border-orange-500'];
                       const borderColor = borderColors[index % borderColors.length];
-                      
+
                       return (
                         <div key={review._id} className={`border-l-4 ${borderColor} pl-4`}>
                           <div className="flex items-center mb-2">
                             <div className="flex items-center">
-                              {[1,2,3,4,5].map((star) => (
-                                <Star 
-                                  key={star} 
-                                  className={`h-4 w-4 ${
-                                    star <= review.rating 
-                                      ? 'text-yellow-400 fill-current' 
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-4 w-4 ${star <= review.rating
+                                      ? 'text-yellow-400 fill-current'
                                       : 'text-gray-300'
-                                  }`} 
+                                    }`}
                                 />
                               ))}
                             </div>
@@ -579,7 +558,7 @@ const ProductDetail = () => {
           <div className="fixed bottom-12 left-0 right-0 z-[70] md:bottom-0 md:z-50 transition-all duration-300 ease-out">
             {/* Backdrop blur effect */}
             <div className="absolute inset-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80"></div>
-            
+
             {/* Content */}
             <div className="relative container mx-auto px-4 py-3 md:py-4">
               <div className="flex items-center justify-between gap-3 md:gap-4">
@@ -596,7 +575,7 @@ const ProductDetail = () => {
                       </span>
                     )}
                   </div>
-                  
+
                   {/* Price Info */}
                   <div className="flex flex-col min-w-0">
                     <span className="text-xs md:text-sm text-gray-500 font-medium">
@@ -610,9 +589,9 @@ const ProductDetail = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Right Section - Checkout Button */}
-                <Button 
+                <Button
                   className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 md:px-6 lg:px-8 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0"
                   onClick={() => {
                     // Check if user is authenticated before proceeding to checkout
@@ -634,13 +613,13 @@ const ProductDetail = () => {
                 </Button>
               </div>
             </div>
-            
+
             {/* Subtle shadow at top */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
           </div>
         )}
       </div>
-      
+
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
     </div>
