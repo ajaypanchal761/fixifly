@@ -1,7 +1,18 @@
 // Vendor API service for Fixfly backend communication
 import { normalizeApiUrl } from '../utils/apiUrl';
 
-const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
+const API_BASE_URL = (() => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) return normalizeApiUrl(envUrl);
+
+  // If running on localhost, default to direct backend port
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:5000/api';
+  }
+
+  // If running on network IP (e.g. mobile testing), use relative path to leverage Vite proxy
+  return '/api';
+})();
 
 interface ApiResponse<T = any> {
   success: boolean;
