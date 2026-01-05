@@ -15,7 +15,7 @@ const VendorBottomNav = () => {
   const navItems = [
     {
       name: "Task",
-      href: "/vendor",
+      href: "/vendor/dashboard",
       icon: ClipboardList,
       requiresDeposit: true
     },

@@ -167,10 +167,10 @@ const VendorLogin = () => {
           // In APK, wait a bit longer for context to sync
           setTimeout(() => {
             console.log('📱 APK: Navigating after delay');
-            navigate('/vendor/tasks', { replace: true });
+            navigate('/vendor/dashboard', { replace: true });
           }, 300);
         } else {
-          navigate('/vendor/tasks', { replace: true });
+          navigate('/vendor/dashboard', { replace: true });
         }
         console.log('✅ VendorLogin: Navigate called');
       } else {
