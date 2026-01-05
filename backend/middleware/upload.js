@@ -218,14 +218,14 @@ class UploadMiddleware {
           });
           return this.handleUploadError(err, req, res, next);
         }
-        
+
         logger.info('Upload middleware success', {
           hasFiles: !!(req.files),
           filesCount: req.files ? Object.keys(req.files).length : 0,
           productImageCount: req.files?.productImage?.length || 0,
           serviceImagesCount: req.files?.serviceImages?.length || 0
         });
-        
+
         next();
       });
     };
@@ -249,7 +249,7 @@ class UploadMiddleware {
       storage: this.memoryStorage, // Use memory storage for Cloudinary
       fileFilter: this.fileFilter,
       limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB per file
+        fileSize: 50 * 1024 * 1024, // 50MB per file
         files: 3 // Maximum 3 files
       }
     }).fields([
@@ -268,7 +268,7 @@ class UploadMiddleware {
           });
           return this.handleUploadError(err, req, res, next);
         }
-        
+
         logger.info('Vendor registration upload middleware success', {
           hasFiles: !!(req.files),
           filesCount: req.files ? Object.keys(req.files).length : 0,
@@ -276,7 +276,7 @@ class UploadMiddleware {
           aadhaarBackCount: req.files?.aadhaarBack?.length || 0,
           profilePhotoCount: req.files?.profilePhoto?.length || 0
         });
-        
+
         next();
       });
     };
@@ -305,12 +305,12 @@ class UploadMiddleware {
           });
           return this.handleUploadError(err, req, res, next);
         }
-        
+
         logger.info('Upload middleware success', {
           hasFiles: !!(req.files),
           filesCount: req.files ? Object.keys(req.files).length : 0
         });
-        
+
         next();
       });
     };
@@ -324,7 +324,7 @@ class UploadMiddleware {
    * @param {Function} next - Next middleware function
    */
   handleUploadError(error, req, res, next) {
-    logger.error('Upload error occurred', { 
+    logger.error('Upload error occurred', {
       error: error.message,
       code: error.code,
       field: error.field
@@ -335,24 +335,24 @@ class UploadMiddleware {
         case 'LIMIT_FILE_SIZE':
           return res.status(400).json({
             success: false,
-            message: 'File size too large. Maximum size is 5MB for profile images.',
+            message: 'File size too large. Maximum size is 50MB.',
             error: 'FILE_TOO_LARGE'
           });
-        
+
         case 'LIMIT_FILE_COUNT':
           return res.status(400).json({
             success: false,
             message: 'Too many files. Maximum 1 file allowed for profile images.',
             error: 'TOO_MANY_FILES'
           });
-        
+
         case 'LIMIT_UNEXPECTED_FILE':
           return res.status(400).json({
             success: false,
             message: 'Unexpected file field.',
             error: 'UNEXPECTED_FILE_FIELD'
           });
-        
+
         default:
           return res.status(400).json({
             success: false,
@@ -387,7 +387,7 @@ class UploadMiddleware {
           fs.unlinkSync(file.path);
           logger.info('Temporary file cleaned up', { path: file.path });
         } catch (error) {
-          logger.error('Failed to cleanup temporary file', { 
+          logger.error('Failed to cleanup temporary file', {
             path: file.path,
             error: error.message
           });
