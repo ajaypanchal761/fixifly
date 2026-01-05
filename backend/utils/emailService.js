@@ -44,7 +44,10 @@ const sendInvoiceEmail = async (to, subject, content, ticketId) => {
           
           <div style="background-color: #e9ecef; padding: 20px; text-align: center;">
             <p style="margin: 0; color: #666;">Thank you for using FixFly services!</p>
-            <p style="margin: 5px 0 0 0; color: #666;">For any queries, contact us at support@fixfly.com</p>
+            <p style="margin: 15px 0 5px 0; color: #666;"><strong>Contact Us:</strong></p>
+            <p style="margin: 5px 0; color: #666;">Email: info@getfixfly.com</p>
+            <p style="margin: 5px 0; color: #666;">Phone: 022-6964-7030</p>
+            <p style="margin: 5px 0; color: #666;">WhatsApp: +91-9931-354-354</p>
           </div>
         </div>
       `
@@ -83,6 +86,10 @@ const sendNotificationEmail = async (to, subject, message) => {
           
           <div style="background-color: #e9ecef; padding: 20px; text-align: center;">
             <p style="margin: 0; color: #666;">Thank you for using FixFly services!</p>
+            <p style="margin: 15px 0 5px 0; color: #666;"><strong>Contact Us:</strong></p>
+            <p style="margin: 5px 0; color: #666;">Email: info@getfixfly.com</p>
+            <p style="margin: 5px 0; color: #666;">Phone: 022-6964-7030</p>
+            <p style="margin: 5px 0; color: #666;">WhatsApp: +91-9931-354-354</p>
           </div>
         </div>
       `

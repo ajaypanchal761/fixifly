@@ -113,6 +113,11 @@ const sendEmailToVendor = asyncHandler(async (req, res) => {
             </div>
             <div class="footer">
               <p>Best regards,<br>The Fixfly Admin Team</p>
+              <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                Email: info@getfixfly.com<br>
+                Phone: 022-6964-7030<br>
+                WhatsApp: +91-9931-354-354
+              </p>
             </div>
           </div>
         </body>
@@ -234,6 +239,11 @@ const sendBulkEmail = asyncHandler(async (req, res) => {
               </div>
               <div class="footer">
                 <p>Best regards,<br>The Fixfly Team</p>
+                <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                  Email: info@getfixfly.com<br>
+                  Phone: 022-6964-7030<br>
+                  WhatsApp: +91-9931-354-354
+                </p>
               </div>
             </div>
           </body>
@@ -246,7 +256,7 @@ const sendBulkEmail = asyncHandler(async (req, res) => {
     });
 
     const results = await Promise.allSettled(emailPromises);
-    
+
     const successful = results.filter(result => result.status === 'fulfilled' && result.value.success).length;
     const failed = results.length - successful;
 

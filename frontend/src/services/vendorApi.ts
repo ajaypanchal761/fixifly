@@ -3,15 +3,22 @@ import { normalizeApiUrl } from '../utils/apiUrl';
 
 const API_BASE_URL = (() => {
   const envUrl = import.meta.env.VITE_API_URL;
-  if (envUrl) return normalizeApiUrl(envUrl);
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-  // If running on localhost, default to direct backend port
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost:5000/api';
+  // If running on network IP (e.g. mobile testing), we MUST use relative path proxy
+  // because mobile devices cannot reach 'localhost' directly.
+  if (!isLocalhost) {
+    // If envUrl is missing OR if it points to localhost, force use of proxy
+    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
+      return '/api';
+    }
   }
 
-  // If running on network IP (e.g. mobile testing), use relative path to leverage Vite proxy
-  return '/api';
+  // For localhost usage, or if envUrl points to a real external server, use it
+  if (envUrl) return normalizeApiUrl(envUrl);
+
+  // Fallback for localhost
+  return 'http://localhost:5000/api';
 })();
 
 interface ApiResponse<T = any> {

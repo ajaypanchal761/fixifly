@@ -34,7 +34,7 @@ async function sendDirectEmail() {
     // Send email
     const recipientEmail = 'panchalajay717@gmail.com';
     console.log(`📤 Sending email to: ${recipientEmail}`);
-    
+
     const mailOptions = {
       from: `Fixifly <${process.env.SMTP_USER}>`,
       to: recipientEmail,
@@ -88,6 +88,11 @@ async function sendDirectEmail() {
             </div>
             <div class="footer">
               <p>Best regards,<br>The Fixifly Development Team</p>
+              <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                Email: info@getfixfly.com<br>
+                Phone: 022-6964-7030<br>
+                WhatsApp: +91-9931-354-354
+              </p>
               <p>This is an automated test email to verify SMTP functionality.</p>
             </div>
           </div>
@@ -126,7 +131,7 @@ async function sendDirectEmail() {
     };
 
     const result = await transporter.sendMail(mailOptions);
-    
+
     console.log('✅ Email sent successfully!');
     console.log(`📧 Message ID: ${result.messageId}`);
     console.log(`📬 Recipient: ${recipientEmail}`);

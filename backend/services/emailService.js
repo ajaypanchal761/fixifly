@@ -270,6 +270,11 @@ class EmailService {
           </div>
           <div class="footer">
             <p>Best regards,<br>The Fixfly Team</p>
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+              Email: info@getfixfly.com<br>
+              Phone: 022-6964-7030<br>
+              WhatsApp: +91-9931-354-354
+            </p>
             <p>This is an automated message. Please do not reply to this email.</p>
           </div>
         </div>
@@ -441,9 +446,9 @@ class EmailService {
               <h3>🆘 Need Help?</h3>
               <p>Our support team is here to help you make the most of your AMC:</p>
               <ul>
-                <li><strong>Phone:</strong> +91-XXXXXXXXXX (24/7 Support)</li>
-                <li><strong>Email:</strong> info@fixfly.in</li>
-                <li><strong>WhatsApp:</strong> +91-XXXXXXXXXX</li>
+                <li><strong>Phone:</strong> 022-6964-7030 (24/7 Support)</li>
+                <li><strong>Email:</strong> info@getfixfly.com</li>
+                <li><strong>WhatsApp:</strong> +91-9931-354-354</li>
                 <li><strong>Live Chat:</strong> Available on our website</li>
               </ul>
             </div>
@@ -454,7 +459,7 @@ class EmailService {
           <div class="footer">
             <p><strong>Best regards,<br>The Fixfly Team</strong></p>
             <p>This is an automated message. Please do not reply to this email.</p>
-            <p>For support, contact us at info@fixfly.in</p>
+            <p>For support, contact us at info@getfixfly.com</p>
           </div>
         </div>
       </body>
@@ -497,9 +502,9 @@ class EmailService {
       - View your remaining benefits and usage
       
       NEED HELP?
-      - Phone: +91-XXXXXXXXXX (24/7 Support)
-      - Email: info@fixfly.in
-      - WhatsApp: +91-XXXXXXXXXX
+      - Phone: 022-6964-7030 (24/7 Support)
+      - Email: info@getfixfly.com
+      - WhatsApp: +91-9931-354-354
       - Live Chat: Available on our website
       
       Thank you for trusting Fixfly with your device maintenance needs!
@@ -850,6 +855,11 @@ class EmailService {
           </div>
           <div class="footer">
             <p>Best regards,<br>The Fixfly Team</p>
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+              Email: info@getfixfly.com<br>
+              Phone: 022-6964-7030<br>
+              WhatsApp: +91-9931-354-354
+            </p>
             <p>This is an automated message. Please do not reply to this email.</p>
           </div>
         </div>
@@ -998,7 +1008,7 @@ class EmailService {
       `;
 
       const mailOptions = {
-        from: `"FixFly" <${process.env.SMTP_USER || 'fixfly.service@gmail.com'}>`,
+        from: `"FixFly" <${process.env.SMTP_USER || 'info@getfixfly.com'}>`,
         to: to,
         subject: subject,
         text: content,
@@ -1075,7 +1085,7 @@ class EmailService {
     `;
 
     return this.sendEmail({
-      to: process.env.ADMIN_EMAIL || 'info@fixfly.in',
+      to: process.env.ADMIN_EMAIL || 'info@getfixfly.com',
       subject,
       html
     });
@@ -1128,7 +1138,7 @@ class EmailService {
         
         <div style="text-align: center; margin-top: 30px;">
           <p style="color: #6b7280; font-size: 14px; margin: 0;">Thank you for using Fixfly!</p>
-          <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">If you have any questions, please contact our support team.</p>
+          <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">If you have any questions, please contact our support team at info@getfixfly.com</p>
         </div>
       </div>
     `;
@@ -1191,7 +1201,7 @@ class EmailService {
         
         <div style="text-align: center; margin-top: 30px;">
           <p style="color: #6b7280; font-size: 14px; margin: 0;">Thank you for using Fixfly!</p>
-          <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">If you have any questions, please contact our support team.</p>
+          <p style="color: #6b7280; font-size: 12px; margin: 5px 0 0 0;">If you have any questions, please contact our support team at info@getfixfly.com</p>
         </div>
       </div>
     `;
@@ -1511,9 +1521,9 @@ class EmailService {
 
               <div class="contact-info">
                 <h4>📞 Need Help?</h4>
-                <p><strong>Phone:</strong> +91-99313-54354 (24/7 Support)</p>
-                <p><strong>Email:</strong> info@fixfly.in</p>
-                <p><strong>WhatsApp:</strong> +91-99313-54354</p>
+                <p><strong>Phone:</strong> 022-6964-7030 (24/7 Support)</p>
+                <p><strong>Email:</strong> info@getfixfly.com</p>
+                <p><strong>WhatsApp:</strong> +91-9931-354-354</p>
               </div>
             </div>
 
@@ -1522,7 +1532,7 @@ class EmailService {
               <p>We're committed to providing you with excellent service.</p>
               <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
                 This is an automated confirmation email. Please do not reply to this email.<br>
-                For support, contact us at info@fixfly.in
+                For support, contact us at info@getfixfly.com
               </p>
             </div>
           </div>
@@ -1570,15 +1580,15 @@ class EmailService {
         Please keep this email for your records.
         
         NEED HELP?
-        Phone: +91-99313-54354 (24/7 Support)
-        Email: info@fixfly.in
-        WhatsApp: +91-99313-54354
+        Phone: 022-6964-7030 (24/7 Support)
+        Email: info@getfixfly.com
+        WhatsApp: +91-9931-354-354
         
         Thank you for choosing Fixfly!
         We're committed to providing you with excellent service.
         
         This is an automated confirmation email. Please do not reply to this email.
-        For support, contact us at info@fixfly.in
+        For support, contact us at info@getfixfly.com
       `;
 
       return await this.sendEmail({
@@ -1716,13 +1726,14 @@ class EmailService {
               <div class="contact-info">
                 <h4>📞 Need to change this?</h4>
                 <p>If this new time doesn't work for you, please contact us immediately:</p>
-                <p><strong>Phone:</strong> +91-99313-54354</p>
-                <p><strong>Email:</strong> info@fixfly.in</p>
+                <p><strong>Phone:</strong> 022-6964-7030</p>
+                <p><strong>Email:</strong> info@getfixfly.com</p>
+                <p><strong>WhatsApp:</strong> +91-9931-354-354</p>
               </div>
             </div>
             <div class="footer">
               <p>Thank you for choosing Fixfly!</p>
-              <p>For support, contact us at info@fixfly.in</p>
+              <p>For support, contact us at info@getfixfly.com</p>
             </div>
           </div>
         </body>
@@ -1748,7 +1759,7 @@ class EmailService {
         - Reason: ${reason}
         - Rescheduled By: ${rescheduledBy}
         
-        If this new time doesn't work for you, please contact us at +91-99313-54354 or info@fixfly.in.
+        If this new time doesn't work for you, please contact us at 022-6964-7030 or info@getfixfly.com.
         
         Thank you for choosing Fixfly!
       `;
@@ -1992,7 +2003,7 @@ class EmailService {
               <p><strong>Best regards,<br>The Fixfly Support Team</strong></p>
               <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
                 This is an automated assignment notification. Please do not reply to this email.<br>
-                For support, contact us at info@fixfly.in
+                For support, contact us at info@getfixfly.com
               </p>
             </div>
           </div>
@@ -2045,7 +2056,7 @@ class EmailService {
         The Fixfly Support Team
         
         This is an automated assignment notification. Please do not reply to this email.
-        For support, contact us at info@fixfly.in
+        For support, contact us at info@getfixfly.com
       `;
 
       return await this.sendEmail({
@@ -2130,8 +2141,9 @@ class EmailService {
             <div class="footer">
               <p>Best regards,<br>The Fixfly Team</p>
               <p style="margin-top: 20px; font-size: 12px; color: #999;">
-                Email: info@fixfly.in<br>
-                WhatsApp: +91-99313-54354
+                Email: info@getfixfly.com<br>
+                Phone: 022-6964-7030<br>
+                WhatsApp: +91-9931-354-354
               </p>
             </div>
           </div>
@@ -2157,8 +2169,9 @@ class EmailService {
       Best regards,
       The Fixfly Team
       
-      Email: info@fixfly.in
-      WhatsApp: +91-99313-54354
+      Email: info@getfixfly.com
+      Phone: 022-6964-7030
+      WhatsApp: +91-9931-354-354
     `;
 
       logger.info('Sending forgot password OTP email', {
@@ -2260,8 +2273,9 @@ class EmailService {
             <div class="footer">
               <p>Best regards,<br>The Fixfly Team</p>
               <p style="margin-top: 20px; font-size: 12px; color: #999;">
-                Email: info@fixfly.in<br>
-                WhatsApp: +91-99313-54354
+                Email: info@getfixfly.com<br>
+                Phone: 022-6964-7030<br>
+                WhatsApp: +91-9931-354-354
               </p>
             </div>
           </div>
@@ -2287,8 +2301,9 @@ class EmailService {
       Best regards,
       The Fixfly Team
       
-      Email: info@fixfly.in
-      WhatsApp: +91-99313-54354
+      Email: info@getfixfly.com
+      Phone: 022-6964-7030
+      WhatsApp: +91-9931-354-354
     `;
 
       logger.info('Sending user forgot password OTP email', {
