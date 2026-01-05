@@ -344,19 +344,7 @@ const ServicePage = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-4 pt-4">
-        {/* Back Button Above Hero Banner */}
-        <div className="mb-4 mt-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
-          </Button>
-        </div>
+      <div className="container mx-auto px-4 py-2">
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left Side - Hero Section */}

@@ -49,7 +49,7 @@ class ApiService {
   private async fetchWithTimeout(url: string, config: RequestInit, timeout: number = this.REQUEST_TIMEOUT): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
+
     try {
       const response = await fetch(url, {
         ...config,
@@ -66,12 +66,12 @@ class ApiService {
     }
   }
 
-  private async request<T>(
+  public async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -99,11 +99,11 @@ class ApiService {
     try {
       console.log('Making API request to:', url);
       console.log('Request config:', config);
-      
+
       const response = await this.fetchWithTimeout(url, config);
       console.log('Response status:', response.status);
       console.log('Response headers:', response.headers);
-      
+
       const data = await response.json();
       console.log('Response data:', data);
 
@@ -118,11 +118,11 @@ class ApiService {
       return data;
     } catch (error: any) {
       // Handle expected errors (like 404 - user not found) more gracefully
-      const isExpectedError = error.status === 404 || 
-                             error.message?.includes('User not found') ||
-                             error.message?.includes('sign up first') ||
-                             error.message?.includes('complete your signup');
-      
+      const isExpectedError = error.status === 404 ||
+        error.message?.includes('User not found') ||
+        error.message?.includes('sign up first') ||
+        error.message?.includes('complete your signup');
+
       if (isExpectedError) {
         // Log expected errors as info instead of error
         console.info('ℹ️ Expected API response:', {
@@ -141,7 +141,7 @@ class ApiService {
           config: config
         });
       }
-      
+
       // Handle network errors
       if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
         console.error('🌐 Network Error Details:', {
@@ -152,7 +152,7 @@ class ApiService {
         });
         throw new Error('Network error: Unable to connect to server. Please check your internet connection and try again.');
       }
-      
+
       // Handle HTTP errors
       if (error.response) {
         const { status, data } = error.response;
@@ -182,7 +182,7 @@ class ApiService {
           throw new Error(data.message || `Server error (${status}). Please try again later.`);
         }
       }
-      
+
       throw error;
     }
   }
@@ -400,7 +400,7 @@ class ApiService {
   async uploadProfileImage(formData: FormData): Promise<ApiResponse<{ profileImage: string; imageUrl: string }>> {
     const token = localStorage.getItem('accessToken');
     const url = `${this.baseURL}/users/profile/image`;
-    
+
     const response = await this.fetchWithTimeout(url, {
       method: 'POST',
       headers: {
@@ -410,7 +410,7 @@ class ApiService {
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }

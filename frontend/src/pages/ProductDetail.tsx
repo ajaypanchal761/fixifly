@@ -234,19 +234,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-4 pt-4">
-        {/* Back Button Above Hero Banner */}
-        <div className="mb-4 mt-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
-          </Button>
-        </div>
+      <div className="container mx-auto px-4 py-2">
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left Side - Hero Section */}
@@ -459,7 +447,6 @@ const ProductDetail = () => {
         <div className="mb-8 md:hidden">
           <div className="bg-white rounded-2xl p-6 shadow-lg">
             <div className="flex items-center mb-6">
-              <MessageCircle className="h-6 w-6 text-blue-600 mr-2" />
               <h3 className="text-xl font-bold text-gray-900">Customer Reviews</h3>
             </div>
 
