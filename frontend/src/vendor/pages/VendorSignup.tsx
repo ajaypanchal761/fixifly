@@ -113,11 +113,11 @@ const VendorSignup = () => {
       return;
     }
 
-    // Check file size (2MB limit)
-    if (file.size > 2 * 1024 * 1024) {
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File Too Large",
-        description: "Please select an image smaller than 2MB.",
+        description: "Please select an image smaller than 5MB.",
         variant: "destructive"
       });
       return;
@@ -288,8 +288,8 @@ const VendorSignup = () => {
               description: attempt > 1 ? `Retry attempt ${attempt}...` : "Please wait...",
             });
 
-            // Use 30s timeout as requested
-            const response = await vendorApiService.uploadDocument(file, 30000);
+            // Use 5 min timeout for slow connections
+            const response = await vendorApiService.uploadDocument(file, 300000);
 
             if (response.success && response.data?.url) {
               return response.data.url;
