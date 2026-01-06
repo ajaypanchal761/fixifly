@@ -95,11 +95,11 @@ class CloudinaryService {
       // Set up timeout
       const timeout = setTimeout(() => {
         logger.error('Cloudinary upload timeout', {
-          timeout: '5 minutes',
+          timeout: '30 seconds',
           folder: options.folder || 'fixifly/products'
         });
         reject(new Error('Image upload timeout - request took too long'));
-      }, 300000); // 5 minute timeout
+      }, 30000); // 30 second timeout
 
       const uploadStream = cloudinaryV2.uploader.upload_stream(
         {
@@ -383,7 +383,7 @@ class CloudinaryService {
    */
   validateImageFile(file) {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const maxSize = 20 * 1024 * 1024; // 20MB
+    const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (!file) {
       return {
@@ -402,7 +402,7 @@ class CloudinaryService {
     if (file.size > maxSize) {
       return {
         valid: false,
-        error: 'File size too large. Maximum size is 20MB'
+        error: 'File size too large. Maximum size is 5MB'
       };
     }
 

@@ -102,22 +102,11 @@ const VendorSignup = () => {
   };
 
   const handleFileUpload = (field: keyof typeof uploadedFiles, file: File) => {
-    // Check file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!allowedTypes.includes(file.type)) {
-      toast({
-        title: "Invalid File Type",
-        description: "Only JPG, JPEG, and PNG files are allowed.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     // Check file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "Image too large",
-        description: "Image must be less than 5MB",
+        title: "File Too Large",
+        description: "Please select an image smaller than 5MB.",
         variant: "destructive"
       });
       return;
@@ -277,129 +266,34 @@ const VendorSignup = () => {
         return;
       }
 
-      // Helper to compress image
-      const compressImage = async (file: File): Promise<File> => {
-
-
-        try {
-          return await new Promise((resolve, reject) => {
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              let width = img.width;
-              let height = img.height;
-
-              // Max dimension 1024px
-              const MAX_DIMENSION = 1024;
-              if (width > height) {
-                if (width > MAX_DIMENSION) {
-                  height *= MAX_DIMENSION / width;
-                  width = MAX_DIMENSION;
-                }
-              } else {
-                if (height > MAX_DIMENSION) {
-                  width *= MAX_DIMENSION / height;
-                  height = MAX_DIMENSION;
-                }
-              }
-
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx?.drawImage(img, 0, 0, width, height);
-
-              canvas.toBlob((blob) => {
-                if (!blob) {
-                  resolve(file); // Fallback
-                  return;
-                }
-                const compressedFile = new File([blob], file.name, {
-                  type: 'image/jpeg',
-                  lastModified: Date.now(),
-                });
-                resolve(compressedFile);
-              }, 'image/jpeg', 0.5); // 50% quality JPEG
-            };
-            img.onerror = (e) => reject(e);
-          });
-        } catch (e) {
-          console.error('Compression failed, using original file', e);
-          return file;
+      // Helper to upload a file with toast feedback
+      const uploadFile = async (file: File, label: string) => {
+        toast({
+          title: `Uploading ${label}...`,
+          description: "Please wait while we upload your document.",
+        });
+        const response = await vendorApiService.uploadDocument(file);
+        if (!response.success || !response.data?.url) {
+          throw new Error(`Failed to upload ${label}`);
         }
+        return response.data.url;
       };
 
-      // Reusable helper for safe image upload with retry
-      const uploadImageSafely = async (file: File, label: string): Promise<string | null> => {
-        const MAX_ATTEMPTS = 2; // Reduced retries
-
-        // Compress before upload loop
-        let fileToUpload = file;
-        try {
-          toast({ title: `Processing ${label}...`, description: "Optimizing image size..." });
-          fileToUpload = await compressImage(file);
-        } catch (e) {
-          console.log('Skipping compression', e);
-        }
-
-        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-          try {
-            toast({
-              title: `Uploading ${label}...`,
-              description: attempt > 1 ? `Retry attempt ${attempt}...` : "Please wait...",
-            });
-
-            // Use 10 min timeout for slow connections
-            const response = await vendorApiService.uploadDocument(fileToUpload, 600000);
-
-            if (response.success && response.data?.url) {
-              return response.data.url;
-            }
-          } catch (err) {
-            console.error(`Upload failed for ${label} (Attempt ${attempt}):`, err);
-
-            if (attempt === MAX_ATTEMPTS) {
-              const errorMessage = err instanceof Error ? err.message : "Unknown error";
-              setError(`Failed to upload ${label}: ${errorMessage}`);
-              return null;
-            }
-
-            // Wait 3 seconds before retry for better stability
-            await new Promise(resolve => setTimeout(resolve, 3000));
-          }
-        }
-        return null;
-      };
-
-      // Upload files sequentially - Stop if any fails
+      // Upload files one by one
       let aadhaarFrontUrl = '';
-      if (uploadedFiles.aadhaarFront) {
-        const url = await uploadImageSafely(uploadedFiles.aadhaarFront, 'Aadhaar Front');
-        if (!url) {
-          setIsLoading(false);
-          return; // Stop flow
-        }
-        aadhaarFrontUrl = url;
-      }
-
       let aadhaarBackUrl = '';
-      if (uploadedFiles.aadhaarBack) {
-        const url = await uploadImageSafely(uploadedFiles.aadhaarBack, 'Aadhaar Back');
-        if (!url) {
-          setIsLoading(false);
-          return; // Stop flow
-        }
-        aadhaarBackUrl = url;
+      let profilePhotoUrl = '';
+
+      if (uploadedFiles.aadhaarFront) {
+        aadhaarFrontUrl = await uploadFile(uploadedFiles.aadhaarFront, 'Aadhaar Front');
       }
 
-      let profilePhotoUrl = '';
+      if (uploadedFiles.aadhaarBack) {
+        aadhaarBackUrl = await uploadFile(uploadedFiles.aadhaarBack, 'Aadhaar Back');
+      }
+
       if (uploadedFiles.profilePhoto) {
-        const url = await uploadImageSafely(uploadedFiles.profilePhoto, 'Profile Photo');
-        if (!url) {
-          setIsLoading(false);
-          return; // Stop flow
-        }
-        profilePhotoUrl = url;
+        profilePhotoUrl = await uploadFile(uploadedFiles.profilePhoto, 'Profile Photo');
       }
 
       // Normalize phone numbers
