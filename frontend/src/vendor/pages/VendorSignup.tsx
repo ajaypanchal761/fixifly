@@ -102,11 +102,22 @@ const VendorSignup = () => {
   };
 
   const handleFileUpload = (field: keyof typeof uploadedFiles, file: File) => {
-    // Check file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Only JPG, JPEG, and PNG files are allowed.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check file size (2MB limit)
+    if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "File Too Large",
-        description: "Please select an image smaller than 5MB.",
+        description: "Please select an image smaller than 2MB.",
         variant: "destructive"
       });
       return;
@@ -266,34 +277,68 @@ const VendorSignup = () => {
         return;
       }
 
-      // Helper to upload a file with toast feedback
-      const uploadFile = async (file: File, label: string) => {
-        toast({
-          title: `Uploading ${label}...`,
-          description: "Please wait while we upload your document.",
-        });
-        const response = await vendorApiService.uploadDocument(file);
-        if (!response.success || !response.data?.url) {
-          throw new Error(`Failed to upload ${label}`);
+      // Reusable helper for safe image upload with retry
+      const uploadImageSafely = async (file: File, label: string): Promise<string | null> => {
+        const MAX_ATTEMPTS = 2;
+
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+          try {
+            toast({
+              title: `Uploading ${label}...`,
+              description: attempt > 1 ? `Retry attempt ${attempt}...` : "Please wait...",
+            });
+
+            // Use 30s timeout as requested
+            const response = await vendorApiService.uploadDocument(file, 30000);
+
+            if (response.success && response.data?.url) {
+              return response.data.url;
+            }
+          } catch (err) {
+            console.error(`Upload failed for ${label} (Attempt ${attempt}):`, err);
+
+            if (attempt === MAX_ATTEMPTS) {
+              const errorMessage = err instanceof Error ? err.message : "Unknown error";
+              setError(`Failed to upload ${label}: ${errorMessage}`);
+              return null;
+            }
+
+            // Wait 1 second before retry
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
         }
-        return response.data.url;
+        return null;
       };
 
-      // Upload files one by one
+      // Upload files sequentially - Stop if any fails
       let aadhaarFrontUrl = '';
-      let aadhaarBackUrl = '';
-      let profilePhotoUrl = '';
-
       if (uploadedFiles.aadhaarFront) {
-        aadhaarFrontUrl = await uploadFile(uploadedFiles.aadhaarFront, 'Aadhaar Front');
+        const url = await uploadImageSafely(uploadedFiles.aadhaarFront, 'Aadhaar Front');
+        if (!url) {
+          setIsLoading(false);
+          return; // Stop flow
+        }
+        aadhaarFrontUrl = url;
       }
 
+      let aadhaarBackUrl = '';
       if (uploadedFiles.aadhaarBack) {
-        aadhaarBackUrl = await uploadFile(uploadedFiles.aadhaarBack, 'Aadhaar Back');
+        const url = await uploadImageSafely(uploadedFiles.aadhaarBack, 'Aadhaar Back');
+        if (!url) {
+          setIsLoading(false);
+          return; // Stop flow
+        }
+        aadhaarBackUrl = url;
       }
 
+      let profilePhotoUrl = '';
       if (uploadedFiles.profilePhoto) {
-        profilePhotoUrl = await uploadFile(uploadedFiles.profilePhoto, 'Profile Photo');
+        const url = await uploadImageSafely(uploadedFiles.profilePhoto, 'Profile Photo');
+        if (!url) {
+          setIsLoading(false);
+          return; // Stop flow
+        }
+        profilePhotoUrl = url;
       }
 
       // Normalize phone numbers

@@ -338,7 +338,7 @@ class VendorApiService {
   }
 
   // Upload single document
-  async uploadDocument(file: File): Promise<ApiResponse<{ url: string; public_id: string }>> {
+  async uploadDocument(file: File, timeout: number = this.LONG_REQUEST_TIMEOUT): Promise<ApiResponse<{ url: string; public_id: string }>> {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -351,7 +351,7 @@ class VendorApiService {
       const response = await this.fetchWithTimeout(url, {
         method: 'POST',
         body: formData
-      }, this.LONG_REQUEST_TIMEOUT);
+      }, timeout);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
