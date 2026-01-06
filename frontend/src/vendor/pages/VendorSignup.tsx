@@ -279,7 +279,7 @@ const VendorSignup = () => {
 
       // Reusable helper for safe image upload with retry
       const uploadImageSafely = async (file: File, label: string): Promise<string | null> => {
-        const MAX_ATTEMPTS = 2;
+        const MAX_ATTEMPTS = 3; // Increased retries
 
         for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
           try {
@@ -303,8 +303,8 @@ const VendorSignup = () => {
               return null;
             }
 
-            // Wait 1 second before retry
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Wait 3 seconds before retry for better stability
+            await new Promise(resolve => setTimeout(resolve, 3000));
           }
         }
         return null;
