@@ -113,11 +113,11 @@ const VendorSignup = () => {
       return;
     }
 
-    // Check file size (20MB limit)
-    if (file.size > 20 * 1024 * 1024) {
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "File Too Large",
-        description: "Please select an image smaller than 20MB.",
+        title: "Image too large",
+        description: "Image must be less than 5MB",
         variant: "destructive"
       });
       return;
@@ -279,8 +279,7 @@ const VendorSignup = () => {
 
       // Helper to compress image
       const compressImage = async (file: File): Promise<File> => {
-        // Skip compression for small files (< 2MB)
-        if (file.size < 2 * 1024 * 1024) return file;
+
 
         try {
           return await new Promise((resolve, reject) => {
@@ -320,7 +319,7 @@ const VendorSignup = () => {
                   lastModified: Date.now(),
                 });
                 resolve(compressedFile);
-              }, 'image/jpeg', 0.6); // 60% quality JPEG
+              }, 'image/jpeg', 0.5); // 50% quality JPEG
             };
             img.onerror = (e) => reject(e);
           });
@@ -332,7 +331,7 @@ const VendorSignup = () => {
 
       // Reusable helper for safe image upload with retry
       const uploadImageSafely = async (file: File, label: string): Promise<string | null> => {
-        const MAX_ATTEMPTS = 3; // Increased retries
+        const MAX_ATTEMPTS = 2; // Reduced retries
 
         // Compress before upload loop
         let fileToUpload = file;
@@ -350,8 +349,8 @@ const VendorSignup = () => {
               description: attempt > 1 ? `Retry attempt ${attempt}...` : "Please wait...",
             });
 
-            // Use 5 min timeout for slow connections
-            const response = await vendorApiService.uploadDocument(fileToUpload, 300000);
+            // Use 10 min timeout for slow connections
+            const response = await vendorApiService.uploadDocument(fileToUpload, 600000);
 
             if (response.success && response.data?.url) {
               return response.data.url;
