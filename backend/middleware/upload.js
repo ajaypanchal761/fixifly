@@ -114,7 +114,7 @@ class UploadMiddleware {
       storage: this.diskStorage,
       fileFilter: this.fileFilter,
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB limit
+        fileSize: 20 * 1024 * 1024, // 20MB limit
         files: 5 // Maximum 5 files
       }
     };
@@ -335,7 +335,7 @@ class UploadMiddleware {
         case 'LIMIT_FILE_SIZE':
           return res.status(400).json({
             success: false,
-            message: 'File size too large. Maximum size is 50MB.',
+            message: 'File size too large. Maximum size is 20MB.',
             error: 'FILE_TOO_LARGE'
           });
 
@@ -410,10 +410,10 @@ class UploadMiddleware {
     }
 
     // Check file size
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 20 * 1024 * 1024) {
       return {
         valid: false,
-        error: 'File size exceeds 5MB limit'
+        error: 'File size exceeds 20MB limit'
       };
     }
 

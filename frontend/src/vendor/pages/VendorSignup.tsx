@@ -113,11 +113,11 @@ const VendorSignup = () => {
       return;
     }
 
-    // Check file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
+    // Check file size (20MB limit)
+    if (file.size > 20 * 1024 * 1024) {
       toast({
         title: "File Too Large",
-        description: "Please select an image smaller than 5MB.",
+        description: "Please select an image smaller than 20MB.",
         variant: "destructive"
       });
       return;
