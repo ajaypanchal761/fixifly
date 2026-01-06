@@ -327,6 +327,9 @@ class VendorApiService {
     customServiceCategory?: string;
     experience: string;
     address?: any;
+    aadhaarFrontUrl?: string;
+    aadhaarBackUrl?: string;
+    profileImageUrl?: string;
   }): Promise<ApiResponse<VendorAuthResponse>> {
     return this.request('/vendors/register', {
       method: 'POST',
@@ -334,67 +337,44 @@ class VendorApiService {
     });
   }
 
-  // Vendor Registration with Files
-  async registerWithFiles(formData: FormData): Promise<ApiResponse<VendorAuthResponse>> {
-    const url = `${this.baseURL}/vendors/register`;
+  // Upload single document
+  async uploadDocument(file: File): Promise<ApiResponse<{ url: string; public_id: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
 
-    console.log('Sending registration request to:', url);
+    // Upload using standard fetch (multipart)
+    // We don't use request() helper here because we need custom FormData handling
+    // but we can reuse fetchWithTimeout logic if we expose it or just use simple fetch
+    const url = `${this.baseURL}/vendors/upload-doc`;
 
     try {
       const response = await this.fetchWithTimeout(url, {
         method: 'POST',
-        body: formData, // ✅ FormData directly
-        // ❌ headers mat do
+        body: formData
       }, this.LONG_REQUEST_TIMEOUT);
 
-      console.log('Registration response status:', response.status);
-      console.log('Registration response headers:', Object.fromEntries(response.headers.entries()));
-
       if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-          console.log('Registration error response:', errorData);
-
-          // If there are validation errors, show them
-          if (errorData.errors && Array.isArray(errorData.errors)) {
-            throw new Error(`Validation failed: ${errorData.errors.join(', ')}`);
-          }
-        } catch (e) {
-          console.log('Failed to parse error response as JSON');
-          // Check if response is HTML (often happens with 500 errors or large payloads)
-          try {
-            const text = await response.text();
-            console.log('Response text preview:', text.substring(0, 200));
-          } catch (textError) {
-            // Ignore
-          }
-          errorData = { message: `HTTP error! status: ${response.status}` };
-        }
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Upload failed');
       }
 
-      const result = await response.json();
-      console.log('Registration success response:', result);
-      return result;
+      return await response.json();
     } catch (error: any) {
-      console.error('Vendor Registration failed:', error);
-
-      // Handle Network errors similar to request method
+      console.error('Document upload failed:', error);
       if (error.message === 'Failed to fetch' ||
         error.message.includes('NetworkError') ||
         error.name === 'TypeError' && error.message === 'Failed to fetch') {
-        console.error('Network error - backend might be down or CORS issue');
-        console.error('Backend URL:', url);
-
-        const networkError = new Error(
-          `Network error: Unable to connect to backend server. Please check your internet connection.`
-        );
-        throw networkError;
+        throw new Error('Network error: Unable to upload document. Please check your connection.');
       }
-
       throw error;
     }
+  }
+
+  // Legacy: registerWithFiles (Depreciated)
+  async registerWithFiles(formData: FormData): Promise<ApiResponse<VendorAuthResponse>> {
+    const url = `${this.baseURL}/vendors/register`;
+    // implementation details kept for reference but backend changed to JSON only
+    return { success: false, message: 'This method is deprecated. Please use uploadDocument and register.' };
   }
 
   // Create verification payment

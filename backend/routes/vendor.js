@@ -23,7 +23,8 @@ const {
   removeFCMToken,
   sendForgotPasswordOTP,
   verifyForgotPasswordOTP,
-  resetPassword
+  resetPassword,
+  uploadVendorDocument
 } = require('../controllers/vendorController');
 const {
   getVendorNotifications,
@@ -49,10 +50,15 @@ router.get('/test', (req, res) => {
   });
 });
 
+// @route   POST /api/vendors/upload-doc
+// @desc    Upload single vendor document
+// @access  Public
+router.post('/upload-doc', uploadMiddleware.getGeneralUpload().single('file'), uploadVendorDocument);
+
 // @route   POST /api/vendors/register
 // @desc    Register new vendor
 // @access  Public
-router.post('/register', uploadMiddleware.vendorRegistrationFiles(), registerVendor);
+router.post('/register', registerVendor);
 
 // @route   POST /api/vendors/login
 // @desc    Login vendor
@@ -108,7 +114,7 @@ router.put('/change-password', protectVendor, changePassword);
 // @route   POST /api/vendors/profile/image
 // @desc    Upload vendor profile image
 // @access  Private
-router.post('/profile/image', 
+router.post('/profile/image',
   protectVendor,
   uploadMiddleware.singleProfileImage(),
   uploadMiddleware.handleUploadError,

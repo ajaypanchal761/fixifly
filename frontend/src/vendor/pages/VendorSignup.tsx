@@ -255,46 +255,6 @@ const VendorSignup = () => {
     }
 
     try {
-      // Prepare FormData for file uploads
-      const formDataToSend = new FormData();
-
-      // Normalize phone numbers before sending
-      const normalizePhone = (phone) => {
-        const digits = phone.replace(/\D/g, '');
-        if (digits.length === 11 && digits.startsWith('0')) {
-          return digits.substring(1);
-        }
-        return digits;
-      };
-
-      // Add text fields
-      formDataToSend.append('firstName', formData.firstName.trim());
-      formDataToSend.append('lastName', formData.lastName.trim());
-      formDataToSend.append('email', formData.email.trim().toLowerCase());
-      formDataToSend.append('phone', normalizePhone(formData.phone.trim()));
-      formDataToSend.append('alternatePhone', normalizePhone(formData.alternatePhone.trim()));
-      formDataToSend.append('fatherName', formData.fatherName.trim());
-      formDataToSend.append('homePhone', normalizePhone(formData.homePhone.trim()));
-      formDataToSend.append('currentAddress', formData.currentAddress.trim());
-      formDataToSend.append('password', formData.password);
-      formDataToSend.append('experience', formData.experience);
-
-      // Add service categories as JSON string
-      formDataToSend.append('serviceCategories', JSON.stringify(formData.serviceCategories));
-
-      // Add files
-      if (uploadedFiles.aadhaarFront) {
-        formDataToSend.append('aadhaarFront', uploadedFiles.aadhaarFront);
-      }
-      if (uploadedFiles.aadhaarBack) {
-        formDataToSend.append('aadhaarBack', uploadedFiles.aadhaarBack);
-      }
-      if (uploadedFiles.profilePhoto) {
-        formDataToSend.append('profilePhoto', uploadedFiles.profilePhoto);
-      }
-
-      console.log('Attempting vendor registration with FormData');
-
       // Test backend connectivity first
       try {
         await vendorApiService.test();
@@ -306,17 +266,67 @@ const VendorSignup = () => {
         return;
       }
 
-      // Call backend API to register with FormData
-      console.log('FormData contents:');
-      for (let [key, value] of formDataToSend.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}: File - ${value.name} (${value.size} bytes)`);
-        } else {
-          console.log(`${key}: ${value}`);
+      // Helper to upload a file with toast feedback
+      const uploadFile = async (file: File, label: string) => {
+        toast({
+          title: `Uploading ${label}...`,
+          description: "Please wait while we upload your document.",
+        });
+        const response = await vendorApiService.uploadDocument(file);
+        if (!response.success || !response.data?.url) {
+          throw new Error(`Failed to upload ${label}`);
         }
+        return response.data.url;
+      };
+
+      // Upload files one by one
+      let aadhaarFrontUrl = '';
+      let aadhaarBackUrl = '';
+      let profilePhotoUrl = '';
+
+      if (uploadedFiles.aadhaarFront) {
+        aadhaarFrontUrl = await uploadFile(uploadedFiles.aadhaarFront, 'Aadhaar Front');
       }
 
-      const response = await vendorApiService.registerWithFiles(formDataToSend);
+      if (uploadedFiles.aadhaarBack) {
+        aadhaarBackUrl = await uploadFile(uploadedFiles.aadhaarBack, 'Aadhaar Back');
+      }
+
+      if (uploadedFiles.profilePhoto) {
+        profilePhotoUrl = await uploadFile(uploadedFiles.profilePhoto, 'Profile Photo');
+      }
+
+      // Normalize phone numbers
+      const normalizePhone = (phone: string) => {
+        const digits = phone.replace(/\D/g, '');
+        if (digits.length === 11 && digits.startsWith('0')) {
+          return digits.substring(1);
+        }
+        return digits;
+      };
+
+      // Prepare final registration data
+      const registrationData = {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: normalizePhone(formData.phone.trim()),
+        alternatePhone: normalizePhone(formData.alternatePhone.trim()),
+        fatherName: formData.fatherName.trim(),
+        homePhone: normalizePhone(formData.homePhone.trim()),
+        currentAddress: formData.currentAddress.trim(),
+        password: formData.password,
+        serviceCategories: formData.serviceCategories,
+        experience: formData.experience,
+        // Add uploaded file URLs
+        aadhaarFrontUrl,
+        aadhaarBackUrl,
+        profileImageUrl: profilePhotoUrl
+      };
+
+      console.log('Sending registration data with URLs:', registrationData);
+
+      const response = await vendorApiService.register(registrationData);
 
       if (response.success) {
         toast({

@@ -17,6 +17,56 @@ const generateToken = (vendorId) => {
   });
 };
 
+// @desc    Upload vendor document/image
+// @route   POST /api/vendors/upload-doc
+// @access  Public
+const uploadVendorDocument = asyncHandler(async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    logger.info('Processing single document upload', {
+      filename: req.file.originalname,
+      size: req.file.size
+    });
+
+    // Upload to Cloudinary
+    const result = await imageUploadService.uploadImage(
+      req.file,
+      'vendor-documents-temp'
+    );
+
+    logger.info('Document uploaded successfully', { url: result.secure_url });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        url: result.secure_url,
+        public_id: result.public_id
+      }
+    });
+
+  } catch (error) {
+    logger.error('Document upload failed', {
+      error: error.message,
+      stack: error.stack
+    });
+    res.status(500).json({
+      success: false,
+      message: 'Upload failed: ' + error.message
+    });
+  } finally {
+    // Cleanup temp file
+    if (req.file) {
+      imageUploadService.cleanupTempFiles([req.file]);
+    }
+  }
+});
+
 // @desc    Register new vendor
 // @route   POST /api/vendors/register
 // @access  Public
@@ -32,7 +82,11 @@ const registerVendor = asyncHandler(async (req, res) => {
     currentAddress,
     password,
     serviceCategories,
-    experience
+    experience,
+    // Extract URLs directly from body
+    aadhaarFrontUrl,
+    aadhaarBackUrl,
+    profileImageUrl
   } = req.body;
 
   // Normalize phone numbers by removing leading 0 if present
@@ -67,10 +121,7 @@ const registerVendor = asyncHandler(async (req, res) => {
     email: req.body.email,
     phone: req.body.phone,
     serviceCategories: parsedServiceCategories,
-    hasFiles: !!(req.files),
-    filesCount: req.files ? Object.keys(req.files).length : 0,
-    allBodyFields: Object.keys(req.body),
-    bodyData: req.body
+    allBodyFields: Object.keys(req.body)
   });
 
   try {
@@ -85,69 +136,6 @@ const registerVendor = asyncHandler(async (req, res) => {
         message: existingVendor.email === email
           ? 'Email is already registered'
           : 'Phone number is already registered'
-      });
-    }
-
-    // Handle file uploads
-    let aadhaarFrontUrl = null;
-    let aadhaarBackUrl = null;
-    let profileImageUrl = null;
-
-    try {
-      logger.info('Processing file uploads for vendor registration', {
-        hasFiles: !!(req.files),
-        filesKeys: req.files ? Object.keys(req.files) : [],
-        email: req.body.email
-      });
-
-      // Upload Aadhaar Front
-      if (req.files && req.files.aadhaarFront && req.files.aadhaarFront[0]) {
-        logger.info('Uploading Aadhaar front image');
-        const aadhaarFrontResult = await imageUploadService.uploadImage(
-          req.files.aadhaarFront[0],
-          'vendor-documents'
-        );
-        aadhaarFrontUrl = aadhaarFrontResult.secure_url;
-        logger.info('Aadhaar front uploaded successfully', { url: aadhaarFrontUrl });
-      }
-
-      // Upload Aadhaar Back
-      if (req.files && req.files.aadhaarBack && req.files.aadhaarBack[0]) {
-        logger.info('Uploading Aadhaar back image');
-        const aadhaarBackResult = await imageUploadService.uploadImage(
-          req.files.aadhaarBack[0],
-          'vendor-documents'
-        );
-        aadhaarBackUrl = aadhaarBackResult.secure_url;
-        logger.info('Aadhaar back uploaded successfully', { url: aadhaarBackUrl });
-      }
-
-      // Upload Profile Image
-      if (req.files && req.files.profilePhoto && req.files.profilePhoto[0]) {
-        logger.info('Uploading profile image');
-        const profileImageResult = await imageUploadService.uploadImage(
-          req.files.profilePhoto[0],
-          'vendor-profiles'
-        );
-        profileImageUrl = profileImageResult.secure_url;
-        logger.info('Profile image uploaded successfully', { url: profileImageUrl });
-      }
-
-      logger.info('All file uploads completed', {
-        aadhaarFrontUrl: !!aadhaarFrontUrl,
-        aadhaarBackUrl: !!aadhaarBackUrl,
-        profileImageUrl: !!profileImageUrl
-      });
-
-    } catch (uploadError) {
-      logger.error('File upload failed during vendor registration', {
-        error: uploadError.message,
-        stack: uploadError.stack,
-        email: req.body.email
-      });
-      return res.status(400).json({
-        success: false,
-        message: 'File upload failed. Please try again.'
       });
     }
 
@@ -274,14 +262,6 @@ const registerVendor = asyncHandler(async (req, res) => {
       success: false,
       message: 'Registration failed. Please try again.'
     });
-  } finally {
-    // Cleanup temporary files
-    if (req.files) {
-      const filesToCleanup = Object.values(req.files).flat();
-      if (filesToCleanup.length > 0) {
-        imageUploadService.cleanupTempFiles(filesToCleanup);
-      }
-    }
   }
 });
 
@@ -2489,5 +2469,6 @@ module.exports = {
   removeFCMToken,
   sendForgotPasswordOTP,
   verifyForgotPasswordOTP,
-  resetPassword
+  resetPassword,
+  uploadVendorDocument
 };
