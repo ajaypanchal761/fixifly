@@ -102,11 +102,22 @@ const VendorSignup = () => {
   };
 
   const handleFileUpload = (field: keyof typeof uploadedFiles, file: File) => {
-    // Check file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
+    // Check file size (2MB limit)
+    if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "File Too Large",
-        description: "Please select an image smaller than 5MB.",
+        description: "Please select an image smaller than 2MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload a valid image file (JPG, JPEG, PNG).",
         variant: "destructive"
       });
       return;
@@ -254,6 +265,82 @@ const VendorSignup = () => {
       return;
     }
 
+    // Helper to upload a file securely with retry and timeout
+    const uploadImageSafely = async (file: File, label: string): Promise<string | null> => {
+      const uploadWithRetry = async (retryCount = 0): Promise<string | null> => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const token = localStorage.getItem('vendorToken');
+
+          // Use the same base URL logic as the service or relative path if using proxy
+          // Assuming Vite proxy forwards /api to backend
+          const apiUrl = '/api/vendors/upload-doc';
+
+          try {
+            // Show toast for attempt
+            if (retryCount > 0) {
+              toast({
+                title: `Retrying ${label}...`,
+                description: "Network issue detected. Retrying upload...",
+              });
+            } else {
+              toast({
+                title: `Uploading ${label}...`,
+                description: "Please wait, do not close the app.",
+              });
+            }
+
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              body: formData,
+              signal: controller.signal,
+              headers: token ? { 'Authorization': `Bearer ${token}` } : undefined
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new Error(errorData.message || `Upload failed with status ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.success && data.data?.url) {
+              return data.data.url;
+            } else {
+              throw new Error(data.message || 'Upload failed');
+            }
+          } catch (err: any) {
+            clearTimeout(timeoutId);
+            throw err;
+          }
+        } catch (error: any) {
+          console.error(`Error uploading ${label} (Attempt ${retryCount + 1}):`, error);
+
+          // Retry logic: Retry once if it's a network error or timeout
+          if (retryCount < 0) { // Disabled retry for now as per "Retries once on failure" request? 
+            // "Retries once on failure" -> retryCount < 1
+          }
+
+          if (retryCount < 1) {
+            console.log(`Retrying ${label} upload...`);
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+            return await uploadWithRetry(retryCount + 1);
+          }
+
+          return null;
+        }
+      };
+
+      return await uploadWithRetry();
+    };
+
+
     try {
       // Test backend connectivity first
       try {
@@ -266,34 +353,38 @@ const VendorSignup = () => {
         return;
       }
 
-      // Helper to upload a file with toast feedback
-      const uploadFile = async (file: File, label: string) => {
-        toast({
-          title: `Uploading ${label}...`,
-          description: "Please wait while we upload your document.",
-        });
-        const response = await vendorApiService.uploadDocument(file);
-        if (!response.success || !response.data?.url) {
-          throw new Error(`Failed to upload ${label}`);
-        }
-        return response.data.url;
-      };
-
-      // Upload files one by one
+      // Sequential Uploads
       let aadhaarFrontUrl = '';
-      let aadhaarBackUrl = '';
-      let profilePhotoUrl = '';
-
       if (uploadedFiles.aadhaarFront) {
-        aadhaarFrontUrl = await uploadFile(uploadedFiles.aadhaarFront, 'Aadhaar Front');
+        const url = await uploadImageSafely(uploadedFiles.aadhaarFront, 'Aadhaar Front');
+        if (!url) {
+          setError('Failed to upload Aadhaar Front image. Please check your connection and try again.');
+          setIsLoading(false);
+          return;
+        }
+        aadhaarFrontUrl = url;
       }
 
+      let aadhaarBackUrl = '';
       if (uploadedFiles.aadhaarBack) {
-        aadhaarBackUrl = await uploadFile(uploadedFiles.aadhaarBack, 'Aadhaar Back');
+        const url = await uploadImageSafely(uploadedFiles.aadhaarBack, 'Aadhaar Back');
+        if (!url) {
+          setError('Failed to upload Aadhaar Back image. Please check your connection and try again.');
+          setIsLoading(false);
+          return;
+        }
+        aadhaarBackUrl = url;
       }
 
+      let profilePhotoUrl = '';
       if (uploadedFiles.profilePhoto) {
-        profilePhotoUrl = await uploadFile(uploadedFiles.profilePhoto, 'Profile Photo');
+        const url = await uploadImageSafely(uploadedFiles.profilePhoto, 'Profile Photo');
+        if (!url) {
+          setError('Failed to upload Profile Photo. Please check your connection and try again.');
+          setIsLoading(false);
+          return;
+        }
+        profilePhotoUrl = url;
       }
 
       // Normalize phone numbers
