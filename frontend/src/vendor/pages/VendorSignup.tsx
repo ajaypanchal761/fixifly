@@ -265,16 +265,35 @@ const VendorSignup = () => {
       return;
     }
 
-    // Helper to upload a file securely with retry and timeout
+    // Helper to upload a file securely with retry
     const uploadImageSafely = async (file: File, label: string): Promise<string | null> => {
       const uploadWithRetry = async (retryCount = 0): Promise<string | null> => {
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+          // Toast notification
+          if (retryCount > 0) {
+            toast({
+              title: `Retrying ${label}...`,
+              description: "Network issue detected. Retrying upload...",
+            });
+          } else {
+            toast({
+              title: `Uploading ${label}...`,
+              description: "Please wait, do not close the app.",
+            });
+          }
 
-          const formData = new FormData();
-          formData.append('file', file);
+          // Use the service method for upload
+          const response = await vendorApiService.uploadDocument(file);
 
+          if (response.success && response.data?.url) {
+            return response.data.url;
+          }
+
+          throw new Error(response.message || 'Upload failed');
+        } catch (error: any) {
+          console.error(`Error uploading ${label} (Attempt ${retryCount + 1}):`, error);
+
+          // Retry logic: Retry once
           if (retryCount < 1) {
             console.log(`Retrying ${label} upload...`);
             await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
