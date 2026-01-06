@@ -275,61 +275,9 @@ const VendorSignup = () => {
           const formData = new FormData();
           formData.append('file', file);
 
-          const token = localStorage.getItem('vendorToken');
-
-          // Use the same base URL logic as the service or relative path if using proxy
-          // Assuming Vite proxy forwards /api to backend
-          const apiUrl = '/api/vendors/upload-doc';
-
-          try {
-            // Show toast for attempt
-            if (retryCount > 0) {
-              toast({
-                title: `Retrying ${label}...`,
-                description: "Network issue detected. Retrying upload...",
-              });
-            } else {
-              toast({
-                title: `Uploading ${label}...`,
-                description: "Please wait, do not close the app.",
-              });
-            }
-
-            const response = await fetch(apiUrl, {
-              method: 'POST',
-              body: formData,
-              signal: controller.signal,
-              headers: token ? { 'Authorization': `Bearer ${token}` } : undefined
-            });
-
-            clearTimeout(timeoutId);
-
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({}));
-              throw new Error(errorData.message || `Upload failed with status ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (data.success && data.data?.url) {
-              return data.data.url;
-            } else {
-              throw new Error(data.message || 'Upload failed');
-            }
-          } catch (err: any) {
-            clearTimeout(timeoutId);
-            throw err;
-          }
-        } catch (error: any) {
-          console.error(`Error uploading ${label} (Attempt ${retryCount + 1}):`, error);
-
-          // Retry logic: Retry once if it's a network error or timeout
-          if (retryCount < 0) { // Disabled retry for now as per "Retries once on failure" request? 
-            // "Retries once on failure" -> retryCount < 1
-          }
-
           if (retryCount < 1) {
             console.log(`Retrying ${label} upload...`);
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
             return await uploadWithRetry(retryCount + 1);
           }
 
