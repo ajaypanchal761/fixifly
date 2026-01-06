@@ -76,7 +76,7 @@ class CloudinaryService {
         format: result.format
       };
     } catch (error) {
-      logger.error('Failed to upload image to Cloudinary', { 
+      logger.error('Failed to upload image to Cloudinary', {
         error: error.message,
         options: options
       });
@@ -94,12 +94,12 @@ class CloudinaryService {
     return new Promise((resolve, reject) => {
       // Set up timeout
       const timeout = setTimeout(() => {
-        logger.error('Cloudinary upload timeout', { 
-          timeout: '30 seconds',
+        logger.error('Cloudinary upload timeout', {
+          timeout: '5 minutes',
           folder: options.folder || 'fixifly/products'
         });
         reject(new Error('Image upload timeout - request took too long'));
-      }, 30000); // 30 second timeout
+      }, 300000); // 5 minute timeout
 
       const uploadStream = cloudinaryV2.uploader.upload_stream(
         {
@@ -115,9 +115,9 @@ class CloudinaryService {
         },
         (error, result) => {
           clearTimeout(timeout); // Clear timeout on completion
-          
+
           if (error) {
-            logger.error('Failed to upload from buffer', { 
+            logger.error('Failed to upload from buffer', {
               error: error.message,
               http_code: error.http_code,
               name: error.name
@@ -144,7 +144,7 @@ class CloudinaryService {
       // Handle stream errors
       uploadStream.on('error', (error) => {
         clearTimeout(timeout);
-        logger.error('Upload stream error', { 
+        logger.error('Upload stream error', {
           error: error.message,
           errorType: error.name
         });
@@ -198,7 +198,7 @@ class CloudinaryService {
         format: result.format
       };
     } catch (error) {
-      logger.error('Failed to upload banner image to Cloudinary', { 
+      logger.error('Failed to upload banner image to Cloudinary', {
         error: error.message,
         options: options
       });
@@ -216,7 +216,7 @@ class CloudinaryService {
   async uploadProductImage(buffer, productName = 'general', options = {}) {
     try {
       const sanitizedProductName = productName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      
+
       const defaultOptions = {
         folder: `fixifly/products/${sanitizedProductName}`,
         resource_type: 'image',
@@ -244,7 +244,7 @@ class CloudinaryService {
 
       return result;
     } catch (error) {
-      logger.error('Failed to upload product image', { 
+      logger.error('Failed to upload product image', {
         error: error.message,
         productName: productName
       });
@@ -262,7 +262,7 @@ class CloudinaryService {
   async uploadServiceImage(buffer, serviceKey = 'general', options = {}) {
     try {
       const sanitizedServiceKey = serviceKey.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      
+
       const defaultOptions = {
         folder: `fixifly/services/${sanitizedServiceKey}`,
         resource_type: 'image',
@@ -290,7 +290,7 @@ class CloudinaryService {
 
       return result;
     } catch (error) {
-      logger.error('Failed to upload service image', { 
+      logger.error('Failed to upload service image', {
         error: error.message,
         serviceKey: serviceKey
       });
@@ -316,9 +316,9 @@ class CloudinaryService {
           message: 'Image deleted successfully'
         };
       } else {
-        logger.warn('Image deletion failed', { 
-          public_id: publicId, 
-          result: result.result 
+        logger.warn('Image deletion failed', {
+          public_id: publicId,
+          result: result.result
         });
         return {
           success: false,
@@ -326,7 +326,7 @@ class CloudinaryService {
         };
       }
     } catch (error) {
-      logger.error('Failed to delete image from Cloudinary', { 
+      logger.error('Failed to delete image from Cloudinary', {
         error: error.message,
         public_id: publicId
       });
@@ -351,7 +351,7 @@ class CloudinaryService {
     };
 
     const finalTransformations = { ...defaultTransformations, ...transformations };
-    
+
     return cloudinaryV2.url(publicId, {
       ...finalTransformations,
       secure: true
@@ -368,7 +368,7 @@ class CloudinaryService {
       const matches = url.match(/\/v\d+\/(.+)\./);
       return matches ? matches[1] : null;
     } catch (error) {
-      logger.error('Failed to extract public ID from URL', { 
+      logger.error('Failed to extract public ID from URL', {
         error: error.message,
         url: url
       });
@@ -383,7 +383,7 @@ class CloudinaryService {
    */
   validateImageFile(file) {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 20 * 1024 * 1024; // 20MB
 
     if (!file) {
       return {
@@ -402,7 +402,7 @@ class CloudinaryService {
     if (file.size > maxSize) {
       return {
         valid: false,
-        error: 'File size too large. Maximum size is 5MB'
+        error: 'File size too large. Maximum size is 20MB'
       };
     }
 
