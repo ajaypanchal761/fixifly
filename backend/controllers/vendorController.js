@@ -274,6 +274,14 @@ const registerVendor = asyncHandler(async (req, res) => {
       success: false,
       message: 'Registration failed. Please try again.'
     });
+  } finally {
+    // Cleanup temporary files
+    if (req.files) {
+      const filesToCleanup = Object.values(req.files).flat();
+      if (filesToCleanup.length > 0) {
+        imageUploadService.cleanupTempFiles(filesToCleanup);
+      }
+    }
   }
 });
 

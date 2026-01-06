@@ -380,7 +380,7 @@ class ImageUploadService {
       });
 
       const results = await Promise.all(uploadPromises);
-      
+
       const successful = results.filter(r => r.success);
       const failed = results.filter(r => !r.success);
 
@@ -441,14 +441,29 @@ class ImageUploadService {
       const publicId = userId ? `${folder}_${userId}_${Date.now()}` : `${folder}_${Date.now()}`;
 
       // Upload to Cloudinary
-      const uploadResult = await this.cloudinary.uploadFromBuffer(file.buffer, {
-        folder: folderPath,
-        public_id: publicId,
-        transformation: [
-          { width: 800, height: 600, crop: 'limit' },
-          { quality: 'auto' }
-        ]
-      });
+      let uploadResult;
+
+      if (file.buffer) {
+        uploadResult = await this.cloudinary.uploadFromBuffer(file.buffer, {
+          folder: folderPath,
+          public_id: publicId,
+          transformation: [
+            { width: 800, height: 600, crop: 'limit' },
+            { quality: 'auto' }
+          ]
+        });
+      } else if (file.path) {
+        uploadResult = await this.cloudinary.uploadImage(file.path, {
+          folder: folderPath,
+          public_id: publicId,
+          transformation: [
+            { width: 800, height: 600, crop: 'limit' },
+            { quality: 'auto' }
+          ]
+        });
+      } else {
+        throw new Error('File object missing both buffer and path');
+      }
 
       logger.info('Image uploaded successfully', {
         fileName: file.originalname,

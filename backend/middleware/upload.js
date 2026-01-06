@@ -246,7 +246,7 @@ class UploadMiddleware {
    */
   vendorRegistrationFiles() {
     const upload = multer({
-      storage: this.memoryStorage, // Use memory storage for Cloudinary
+      storage: this.diskStorage, // Use disk storage for large vendor files
       fileFilter: this.fileFilter,
       limits: {
         fileSize: 50 * 1024 * 1024, // 50MB per file
