@@ -279,8 +279,8 @@ const VendorSignup = () => {
 
       // Helper to compress image
       const compressImage = async (file: File): Promise<File> => {
-        // Skip compression for small files (< 1MB)
-        if (file.size < 1024 * 1024) return file;
+        // Skip compression for small files (< 2MB)
+        if (file.size < 2 * 1024 * 1024) return file;
 
         try {
           return await new Promise((resolve, reject) => {
@@ -291,8 +291,8 @@ const VendorSignup = () => {
               let width = img.width;
               let height = img.height;
 
-              // Max dimension 1280px
-              const MAX_DIMENSION = 1280;
+              // Max dimension 1024px
+              const MAX_DIMENSION = 1024;
               if (width > height) {
                 if (width > MAX_DIMENSION) {
                   height *= MAX_DIMENSION / width;
@@ -320,7 +320,7 @@ const VendorSignup = () => {
                   lastModified: Date.now(),
                 });
                 resolve(compressedFile);
-              }, 'image/jpeg', 0.7); // 70% quality JPEG
+              }, 'image/jpeg', 0.6); // 60% quality JPEG
             };
             img.onerror = (e) => reject(e);
           });
