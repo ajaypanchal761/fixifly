@@ -277,9 +277,71 @@ const VendorSignup = () => {
         return;
       }
 
+      // Helper to compress image
+      const compressImage = async (file: File): Promise<File> => {
+        // Skip compression for small files (< 1MB)
+        if (file.size < 1024 * 1024) return file;
+
+        try {
+          return await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+
+              // Max dimension 1280px
+              const MAX_DIMENSION = 1280;
+              if (width > height) {
+                if (width > MAX_DIMENSION) {
+                  height *= MAX_DIMENSION / width;
+                  width = MAX_DIMENSION;
+                }
+              } else {
+                if (height > MAX_DIMENSION) {
+                  width *= MAX_DIMENSION / height;
+                  height = MAX_DIMENSION;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx?.drawImage(img, 0, 0, width, height);
+
+              canvas.toBlob((blob) => {
+                if (!blob) {
+                  resolve(file); // Fallback
+                  return;
+                }
+                const compressedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              }, 'image/jpeg', 0.7); // 70% quality JPEG
+            };
+            img.onerror = (e) => reject(e);
+          });
+        } catch (e) {
+          console.error('Compression failed, using original file', e);
+          return file;
+        }
+      };
+
       // Reusable helper for safe image upload with retry
       const uploadImageSafely = async (file: File, label: string): Promise<string | null> => {
         const MAX_ATTEMPTS = 3; // Increased retries
+
+        // Compress before upload loop
+        let fileToUpload = file;
+        try {
+          toast({ title: `Processing ${label}...`, description: "Optimizing image size..." });
+          fileToUpload = await compressImage(file);
+        } catch (e) {
+          console.log('Skipping compression', e);
+        }
 
         for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
           try {
@@ -289,7 +351,7 @@ const VendorSignup = () => {
             });
 
             // Use 5 min timeout for slow connections
-            const response = await vendorApiService.uploadDocument(file, 300000);
+            const response = await vendorApiService.uploadDocument(fileToUpload, 300000);
 
             if (response.success && response.data?.url) {
               return response.data.url;
