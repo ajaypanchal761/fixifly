@@ -103,10 +103,10 @@ const VendorSignup = () => {
 
   const handleFileUpload = (field: keyof typeof uploadedFiles, file: File) => {
     // Check file size (2MB limit)
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File Too Large",
-        description: "Please select an image smaller than 2MB.",
+        description: "Please select an image smaller than 5MB.",
         variant: "destructive"
       });
       return;
@@ -325,7 +325,7 @@ const VendorSignup = () => {
       if (uploadedFiles.aadhaarFront) {
         const url = await uploadImageSafely(uploadedFiles.aadhaarFront, 'Aadhaar Front');
         if (!url) {
-          setError('Failed to upload Aadhaar Front image. Please check your connection and try again.');
+          setError(`Failed to upload Aadhaar Front image. Please check your connection and try again. ${url}`);
           setIsLoading(false);
           return;
         }
@@ -336,7 +336,7 @@ const VendorSignup = () => {
       if (uploadedFiles.aadhaarBack) {
         const url = await uploadImageSafely(uploadedFiles.aadhaarBack, 'Aadhaar Back');
         if (!url) {
-          setError('Failed to upload Aadhaar Back image. Please check your connection and try again.');
+          setError(`Failed to upload Aadhaar Back image. Please check your connection and try again. ${url}`);
           setIsLoading(false);
           return;
         }
