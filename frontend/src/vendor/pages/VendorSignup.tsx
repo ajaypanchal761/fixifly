@@ -923,7 +923,7 @@ const VendorSignup = () => {
           <div className="mb-6">
             <div className="flex justify-between text-sm text-gray-600 mb-2">
               <span>Step {currentStep} of 3</span>
-              <span>{currentStep === 1 ? 'Personal Information' : currentStep === 2 ? 'Security' : 'Service Details'}</span>
+              <span>{currentStep === 1 ? 'Personal Information' : currentStep === 2 ? 'Security' : 'Service details'}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div

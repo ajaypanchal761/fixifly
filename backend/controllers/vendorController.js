@@ -23,7 +23,6 @@ const generateToken = (vendorId) => {
 const uploadVendorDocument = asyncHandler(async (req, res) => {
   try {
     if (!req.file) {
-      logger.warn('Vendor document upload failed: No file uploaded');
       return res.status(400).json({
         success: false,
         message: 'No file uploaded'
@@ -132,18 +131,11 @@ const registerVendor = asyncHandler(async (req, res) => {
     });
 
     if (existingVendor) {
-      const message = existingVendor.email === email
-        ? 'Email is already registered'
-        : 'Phone number is already registered';
-
-      logger.warn(`Vendor registration failed: ${message}`, {
-        email,
-        phone: normalizedPhone
-      });
-
       return res.status(400).json({
         success: false,
-        message
+        message: existingVendor.email === email
+          ? 'Email is already registered'
+          : 'Phone number is already registered'
       });
     }
 
