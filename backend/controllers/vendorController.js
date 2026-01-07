@@ -23,6 +23,7 @@ const generateToken = (vendorId) => {
 const uploadVendorDocument = asyncHandler(async (req, res) => {
   try {
     if (!req.file) {
+      logger.warn('Vendor document upload failed: No file uploaded');
       return res.status(400).json({
         success: false,
         message: 'No file uploaded'
@@ -131,11 +132,18 @@ const registerVendor = asyncHandler(async (req, res) => {
     });
 
     if (existingVendor) {
+      const message = existingVendor.email === email
+        ? 'Email is already registered'
+        : 'Phone number is already registered';
+
+      logger.warn(`Vendor registration failed: ${message}`, {
+        email,
+        phone: normalizedPhone
+      });
+
       return res.status(400).json({
         success: false,
-        message: existingVendor.email === email
-          ? 'Email is already registered'
-          : 'Phone number is already registered'
+        message
       });
     }
 
@@ -180,8 +188,8 @@ const registerVendor = asyncHandler(async (req, res) => {
         aadhaarFront: aadhaarFrontUrl,
         aadhaarBack: aadhaarBackUrl
       },
-      isApproved: true,  // Instant approval - vendor account created and approved immediately
-      isActive: true,     // Allow immediate login
+      isApproved: false,  // Wait for admin approval
+      isActive: true,     // Allow login to complete profile
       isBlocked: false
     });
 
@@ -223,7 +231,7 @@ const registerVendor = asyncHandler(async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Vendor account created and approved instantly! You can now login and access all features immediately.',
+      message: 'Vendor account created successfully! Please wait for admin approval.',
       data: {
         vendor: vendorData,
         token
