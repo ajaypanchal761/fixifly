@@ -77,10 +77,11 @@ class CloudinaryService {
       };
     } catch (error) {
       logger.error('Failed to upload image to Cloudinary', {
-        error: error.message,
+        error: error,
         options: options
       });
-      throw new Error(`Image upload failed: ${error.message}`);
+      const errorMessage = error.message || (error.error && error.error.message) || JSON.stringify(error);
+      throw new Error(`Image upload failed: ${errorMessage}`);
     }
   }
 

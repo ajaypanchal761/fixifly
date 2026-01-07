@@ -102,7 +102,22 @@ const VendorSignup = () => {
   };
 
   const handleFileUpload = (field: keyof typeof uploadedFiles, file: File) => {
-    // Check file size (2MB limit)
+    // Validate file existence
+    if (!file) {
+      return;
+    }
+
+    // Check for empty file
+    if (file.size === 0) {
+      toast({
+        title: "Empty File",
+        description: "The selected file is empty. Please choose a valid image.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File Too Large",
@@ -113,11 +128,11 @@ const VendorSignup = () => {
     }
 
     // Check file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
       toast({
         title: "Invalid File Type",
-        description: "Please upload a valid image file (JPG, JPEG, PNG).",
+        description: "Please upload a valid image file (JPG, JPEG, PNG, WEBP).",
         variant: "destructive"
       });
       return;
