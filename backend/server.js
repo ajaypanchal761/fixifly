@@ -92,26 +92,10 @@ app.use(cors({
   credentials: true
 }));
 
-// Body parsing middleware - but skip for routes that use multer
-app.use((req, res, next) => {
-  // Skip body parsing for routes that use multer (file uploads)
-  if (req.path.includes('/admin/products') && (req.method === 'POST' || req.method === 'PUT')) {
-    console.log('Skipping body parsing for product route:', req.path, req.method);
-    return next();
-  }
-  console.log('Using body parsing for route:', req.path, req.method);
-  express.json({ limit: '50mb' })(req, res, next);
-});
 
-app.use((req, res, next) => {
-  // Skip body parsing for routes that use multer (file uploads)
-  if (req.path.includes('/admin/products') && (req.method === 'POST' || req.method === 'PUT')) {
-    console.log('Skipping urlencoded parsing for product route:', req.path, req.method);
-    return next();
-  }
-  console.log('Using urlencoded parsing for route:', req.path, req.method);
-  express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
-});
+// Body parsers (GLOBAL)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Cookie parser
 app.use(cookieParser());
