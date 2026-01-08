@@ -453,18 +453,24 @@ const assignVendor = asyncHandler(async (req, res) => {
 
       // Check for conflicting warranty claims
       const WarrantyClaim = require('../models/WarrantyClaim');
-      const conflictingClaim = await WarrantyClaim.findOne({
-        assignedVendor: vendorId,
-        scheduledDate: scheduledDateObj,
-        scheduledTime: scheduledTime,
-        status: { $nin: ['cancelled', 'rejected', 'completed'] }
-      });
 
-      if (conflictingClaim) {
-        return res.status(400).json({
-          success: false,
-          message: 'Vendor is not available'
+      // Get vendor ObjectId for WarrantyClaim check
+      const vendorForClaim = await Vendor.findOne({ vendorId: vendorId }).select('_id');
+
+      if (vendorForClaim) {
+        const conflictingClaim = await WarrantyClaim.findOne({
+          assignedVendor: vendorForClaim._id,
+          scheduledDate: scheduledDateObj,
+          scheduledTime: scheduledTime,
+          status: { $nin: ['cancelled', 'rejected', 'completed'] }
         });
+
+        if (conflictingClaim) {
+          return res.status(400).json({
+            success: false,
+            message: 'Vendor is not available'
+          });
+        }
       }
     }
 
