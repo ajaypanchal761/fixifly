@@ -368,13 +368,7 @@ const Login = () => {
                   Sign up here
                 </Link>
               </p>
-              <button
-                type="button"
-                onClick={() => setForgotPasswordStep('enterEmail')}
-                className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
-              >
-                Forgot Password?
-              </button>
+
             </div>
           </CardContent>
         </Card>
