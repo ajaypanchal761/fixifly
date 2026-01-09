@@ -53,12 +53,10 @@ async function recalculateWalletBalance(vendorId) {
       const spareAmount = transaction.spareAmount || 0;
       const travellingAmount = transaction.travellingAmount || 0;
 
-      if (billingAmount <= 500) {
-        if (transaction.paymentMethod === 'online') {
-          newAmount = billingAmount - 20; // 20 rupees cut for online
-        } else {
-          newAmount = billingAmount; // Full amount for cash
-        }
+      if (billingAmount <= 600) {
+        // For amounts > 300 and <= 600: (Billing - Spare - Travel) * 50% + Spare + Travel
+        const baseAmount = billingAmount - spareAmount - travellingAmount;
+        newAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
       } else {
         // New formula: (Billing - Spare - Travel - Booking) × 50% + Spare + Travel + Booking
         const baseAmount = billingAmount - spareAmount - travellingAmount - bookingAmount;

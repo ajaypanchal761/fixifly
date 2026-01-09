@@ -883,10 +883,6 @@ For support, contact us at info@getfixfly.com
 
           <div class="section">
             <h3>PAYMENT DETAILS</h3>
-            <div class="row">
-              <span>Initial Payment:</span>
-              <span>₹${booking.pricing.totalAmount}</span>
-            </div>
             ${billingAmount > 0 ? `
             <div class="row">
               <span>Service Charges:</span>
@@ -1072,11 +1068,6 @@ For support, contact us at info@getfixfly.com
       doc.setFontSize(10);
       yPosition += 5;
 
-      // Clean amount to remove any superscript or formatting characters
-      let initialPayment = String(booking.pricing.totalAmount || 0);
-      initialPayment = initialPayment.replace(/[¹²³⁴⁵⁶⁷⁸⁹⁰]/g, '').replace(/[^\d.]/g, '');
-      if (!initialPayment || initialPayment === '') initialPayment = '0';
-      yPosition = addText(`Initial Payment: ${initialPayment}`, 20, yPosition);
       if (billingAmount > 0) {
         yPosition = addText(`Service Charges: ${billingAmount}`, 20, yPosition);
       }
@@ -1685,7 +1676,7 @@ For support, contact us at info@getfixfly.com
                                       return 'Phone not available';
                                     })()}
                                   </div>
-                                  <div className="text-gray-600 text-xs">
+                                  <div className="text-gray-600 text-xs" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                                     {(() => {
                                       const vendor = booking.vendor.vendorId as any;
                                       if (typeof vendor === 'object' && vendor !== null) {
@@ -2221,7 +2212,7 @@ For support, contact us at info@getfixfly.com
                     </div>
                     <div>
                       <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Email</p>
-                      <p className="font-medium text-xs md:text-sm break-all">{bookingDetails.customer.email}</p>
+                      <p className="font-medium text-xs md:text-sm break-all" style={{ pointerEvents: 'none', userSelect: 'none' }}>{bookingDetails.customer.email}</p>
                     </div>
                     <div>
                       <p className="text-xs md:text-sm text-gray-500 md:text-gray-600">Phone</p>
@@ -2303,7 +2294,7 @@ For support, contact us at info@getfixfly.com
                         </div>
                         <div>
                           <p className="text-xs md:text-sm text-green-600 md:text-green-700">Email</p>
-                          <p className="font-medium text-xs md:text-sm text-green-900 break-all">{bookingDetails.vendor.vendorId.email}</p>
+                          <p className="font-medium text-xs md:text-sm text-green-900 break-all" style={{ pointerEvents: 'none', userSelect: 'none' }}>{bookingDetails.vendor.vendorId.email}</p>
                         </div>
                       </div>
                     </div>

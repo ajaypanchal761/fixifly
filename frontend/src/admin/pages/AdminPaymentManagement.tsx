@@ -160,11 +160,17 @@ const AdminPaymentManagement = () => {
     // Get the exact payment ID that's displayed in the table
     // This matches: payment.payment?.razorpayPaymentId || payment.payment?.transactionId
     const displayedPaymentId = payment.payment?.razorpayPaymentId || payment.payment?.transactionId || '';
+    const paymentIdString = displayedPaymentId.toString();
     
-    // Priority 1: Check if the displayed Payment ID starts with "CASH_" - this is the most reliable indicator
-    // This is the exact same value shown in the Payment ID column
-    if (displayedPaymentId && displayedPaymentId.toString().startsWith('CASH_')) {
+    // Priority 1: Check Payment ID prefix - most reliable indicator
+    // If Payment ID starts with "CASH_" → Cash payment
+    if (paymentIdString && paymentIdString.startsWith('CASH_')) {
       return 'cash';
+    }
+    
+    // If Payment ID starts with "pay_" → Online payment (Razorpay)
+    if (paymentIdString && paymentIdString.startsWith('pay_')) {
+      return 'online';
     }
     
     // Priority 2: Check payment method
@@ -177,12 +183,11 @@ const AdminPaymentManagement = () => {
       return 'cash';
     }
     
-    // Priority 4: Check if paymentMode is explicitly set (but ignore if it contradicts CASH_ evidence)
-    // If we have CASH_ in the displayed payment ID, always return cash regardless of paymentMode
-    if (displayedPaymentId && displayedPaymentId.toString().startsWith('CASH_')) {
-      return 'cash';
+    if (payment.completionData?.paymentMethod === 'online') {
+      return 'online';
     }
     
+    // Priority 4: Check if paymentMode is explicitly set
     if (payment.paymentMode) {
       return payment.paymentMode;
     }

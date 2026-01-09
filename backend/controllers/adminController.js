@@ -772,8 +772,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
                     then: 0, // Admin gets nothing if billing <= 300
                     else: {
                       $cond: {
-                        if: { $lte: ['$$billingAmount', 500] },
-                        then: { $multiply: ['$$billingAmount', 0.5] },
+                        if: { $lte: ['$$billingAmount', 600] },
+                        then: { $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount'] }] }, 0.5] },
                         else: {
                           $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount'] }] }, 0.5]
                         }
@@ -843,7 +843,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
                 },
                 in: {
                   $cond: {
-                    if: { $lte: ['$$billingAmount', 500] },
+                    if: { $lte: ['$$billingAmount', 600] },
                     then: 0,
                     else: {
                       $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$supportTicketBaseAmount'] }] }, 0.5]
@@ -862,7 +862,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       $addFields: {
         adminCommissionWithGST: {
           $cond: {
-            // If adminCommission is 0 (billing <= 500 for support tickets), then adminCommissionWithGST should also be 0
+            // If adminCommission is 0 (billing <= 600 for support tickets), then adminCommissionWithGST should also be 0
             // Admin should not get GST if they're not getting any commission
             if: { $eq: ['$adminCommission', 0] },
             then: 0,

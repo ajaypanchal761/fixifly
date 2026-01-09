@@ -70,7 +70,7 @@ const Support = () => {
 
     let hasCache = false;
     try {
-      const userId = user?.email || user?._id || 'default';
+      const userId = user?.email || user?.id || 'default';
       const cachedTickets = localStorage.getItem(`userSupportTickets_${userId}`);
       if (cachedTickets) {
         const parsed = JSON.parse(cachedTickets);
@@ -151,7 +151,7 @@ const Support = () => {
 
         // Cache tickets for instant loading next time
         try {
-          const userId = user?.email || user?._id || 'default';
+          const userId = user?.email || user?.id || 'default';
           localStorage.setItem(`userSupportTickets_${userId}`, JSON.stringify(response.data.tickets));
           localStorage.setItem(`userSupportTicketsTime_${userId}`, Date.now().toString());
         } catch (error) {
@@ -478,22 +478,91 @@ const Support = () => {
   // Handle invoice download - PDF format
   const handleDownloadInvoice = async (ticket) => {
     try {
+      // Fetch full ticket details to get completionData
+      let fullTicket = ticket;
+      try {
+        const response = await supportTicketAPI.getTicket(ticket.id);
+        if (response.success && response.data.ticket) {
+          fullTicket = response.data.ticket;
+          console.log('📄 Full ticket data fetched:', {
+            hasCompletionData: !!fullTicket.completionData,
+            completionData: fullTicket.completionData,
+            resolutionNote: fullTicket.completionData?.resolutionNote,
+            resolution: fullTicket.resolution,
+            spareParts: fullTicket.completionData?.spareParts?.length || 0,
+            fullTicketKeys: Object.keys(fullTicket)
+          });
+        }
+      } catch (error) {
+        console.log('Could not fetch full ticket details, using provided ticket data');
+        console.log('Original ticket data:', ticket);
+      }
+
+      // Ensure we have completionData from any source
+      // Handle case where completionData might be a string (JSON) or object
+      let completionData = fullTicket.completionData || ticket.completionData || null;
+      
+      // If completionData is a string, try to parse it
+      if (typeof completionData === 'string') {
+        try {
+          completionData = JSON.parse(completionData);
+        } catch (e) {
+          console.warn('Could not parse completionData as JSON:', e);
+        }
+      }
+      
+      // If completionData is null or undefined, try to get it from the raw ticket
+      if (!completionData) {
+        // Try accessing from the raw MongoDB document structure
+        const rawCompletionData = (fullTicket as any).completionData || (ticket as any).completionData;
+        if (rawCompletionData) {
+          completionData = rawCompletionData;
+        }
+      }
+      
       const invoiceData = {
-        ticketId: ticket.id,
-        subject: ticket.subject,
-        caseId: ticket.caseId,
-        amount: ticket.totalAmount || ticket.billingAmount || 0,
-        paymentMode: ticket.paymentMode,
-        status: ticket.status,
-        created: ticket.created,
-        resolved: ticket.lastUpdate,
+        ticketId: fullTicket.id,
+        subject: fullTicket.subject,
+        caseId: fullTicket.caseId,
+        amount: fullTicket.totalAmount || fullTicket.billingAmount || 0,
+        paymentMode: fullTicket.paymentMode,
+        status: fullTicket.status,
+        created: fullTicket.created,
+        resolved: fullTicket.lastUpdate,
         customerName: user?.name || 'Customer',
         customerEmail: user?.email || '',
-        customerPhone: user?.phone || ''
+        customerPhone: user?.phone || '',
+        completionData: completionData
       };
+
+      console.log('📄 Invoice data prepared:', {
+        hasCompletionData: !!invoiceData.completionData,
+        completionData: invoiceData.completionData,
+        completionDataType: typeof invoiceData.completionData,
+        resolutionNote: invoiceData.completionData?.resolutionNote,
+        resolutionNoteType: typeof invoiceData.completionData?.resolutionNote,
+        resolutionNoteValue: invoiceData.completionData?.resolutionNote,
+        sparePartsCount: invoiceData.completionData?.spareParts?.length || 0,
+        fullTicketKeys: Object.keys(fullTicket),
+        ticketKeys: Object.keys(ticket)
+      });
 
       // Create PDF using jsPDF
       const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      let yPosition = 30;
+
+      // Helper function to add text with automatic page break
+      const addText = (text: string, x: number, y: number, maxWidth?: number, align?: 'left' | 'center' | 'right') => {
+        if (y > pageHeight - 30) {
+          doc.addPage();
+          return 20;
+        }
+        const lines = doc.splitTextToSize(text, maxWidth || pageWidth - x - 20);
+        doc.text(lines, x, y, { align: align || 'left' });
+        return y + (lines.length * 5);
+      };
 
       // Set font
       doc.setFont('helvetica');
@@ -501,64 +570,172 @@ const Support = () => {
       // Add header
       doc.setFontSize(24);
       doc.setTextColor(40, 40, 40);
-      doc.text('FIXFLY', 20, 30);
+      yPosition = addText('FIXFLY', pageWidth / 2, yPosition, undefined, 'center');
 
       doc.setFontSize(16);
       doc.setTextColor(100, 100, 100);
-      doc.text('INVOICE', 20, 40);
+      yPosition = addText('INVOICE', pageWidth / 2, yPosition + 5, undefined, 'center');
 
       // Add invoice details
       doc.setFontSize(12);
       doc.setTextColor(40, 40, 40);
-      doc.text(`Invoice No: INV-${invoiceData.ticketId}`, 20, 60);
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 70);
+      yPosition += 10;
+      yPosition = addText(`Invoice No: INV-${invoiceData.ticketId}`, 20, yPosition);
+      yPosition = addText(`Date: ${new Date().toLocaleDateString()}`, 20, yPosition);
 
       // Add customer details
       doc.setFontSize(14);
-      doc.setTextColor(40, 40, 40);
-      doc.text('BILL TO:', 20, 90);
-
+      doc.setFont('helvetica', 'bold');
+      yPosition += 10;
+      yPosition = addText('BILL TO:', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
-      doc.text(invoiceData.customerName, 20, 100);
-      doc.text(invoiceData.customerEmail, 20, 110);
-      doc.text(invoiceData.customerPhone, 20, 120);
+      yPosition += 5;
+      yPosition = addText(invoiceData.customerName, 20, yPosition);
+      yPosition = addText(invoiceData.customerEmail, 20, yPosition);
+      yPosition = addText(invoiceData.customerPhone, 20, yPosition);
 
       // Add service details
       doc.setFontSize(14);
-      doc.text('SERVICE DETAILS:', 20, 140);
-
+      doc.setFont('helvetica', 'bold');
+      yPosition += 10;
+      yPosition = addText('SERVICE DETAILS:', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
-      doc.text(`Ticket ID: ${invoiceData.ticketId}`, 20, 150);
-      doc.text(`Case ID: ${invoiceData.caseId}`, 20, 160);
-      doc.text(`Subject: ${invoiceData.subject}`, 20, 170);
-      doc.text(`Service Date: ${invoiceData.created}`, 20, 180);
-      doc.text(`Completion Date: ${invoiceData.resolved}`, 20, 190);
+      yPosition += 5;
+      yPosition = addText(`Ticket ID: ${invoiceData.ticketId}`, 20, yPosition);
+      if (invoiceData.caseId) {
+        yPosition = addText(`Case ID: ${invoiceData.caseId}`, 20, yPosition);
+      }
+      yPosition = addText(`Subject: ${invoiceData.subject}`, 20, yPosition);
+      yPosition = addText(`Service Date: ${invoiceData.created}`, 20, yPosition);
+      yPosition = addText(`Completion Date: ${invoiceData.resolved}`, 20, yPosition);
 
       // Add payment details
       doc.setFontSize(14);
-      doc.text('PAYMENT DETAILS:', 20, 210);
-
+      doc.setFont('helvetica', 'bold');
+      yPosition += 10;
+      yPosition = addText('PAYMENT DETAILS:', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
-      doc.text(`Payment Mode: ${invoiceData.paymentMode}`, 20, 220);
-      doc.text(`Status: ${invoiceData.status}`, 20, 230);
+      yPosition += 5;
+      yPosition = addText(`Payment Mode: ${invoiceData.paymentMode || 'N/A'}`, 20, yPosition);
+      yPosition = addText(`Status: ${invoiceData.status}`, 20, yPosition);
 
       // Add amount section
       doc.setFontSize(14);
-      doc.text('AMOUNT:', 20, 250);
-
+      doc.setFont('helvetica', 'bold');
+      yPosition += 10;
+      yPosition = addText('AMOUNT:', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
-      doc.text(`Service Amount: ₹${invoiceData.amount}`, 20, 260);
+      yPosition += 5;
+      yPosition = addText(`Service Amount: ₹${invoiceData.amount}`, 20, yPosition);
 
       // Add total amount
       doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
       doc.setTextColor(40, 40, 40);
-      doc.text(`TOTAL AMOUNT: ₹${invoiceData.amount}`, 20, 280);
+      yPosition += 10;
+      yPosition = addText(`TOTAL AMOUNT: ₹${invoiceData.amount}`, 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+
+      // Spare Parts Section - show details and warranty
+      const spareParts = invoiceData.completionData?.spareParts || [];
+      if (spareParts && spareParts.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        yPosition += 10;
+        yPosition = addText('SPARE PARTS DETAILS', 20, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        yPosition += 5;
+
+        spareParts.forEach((part: any, index: number) => {
+          yPosition = addText(`${index + 1}. ${part.name || 'N/A'}`, 20, yPosition);
+          if (part.warranty) {
+            yPosition = addText(`   Warranty: ${part.warranty}`, 25, yPosition);
+          }
+          yPosition += 3; // Small gap between parts
+        });
+        yPosition += 5;
+      }
+
+      // Resolution Notes Section
+      // Use exact same access pattern as AdminSupportManagement: completionData?.resolutionNote
+      // Direct access - simplest and most reliable
+      let resolutionNote: string | null = null;
+      
+      // Try direct access from completionData (exact same as AdminSupportManagement)
+      if (invoiceData.completionData?.resolutionNote) {
+        resolutionNote = invoiceData.completionData.resolutionNote;
+      } else if (fullTicket.completionData?.resolutionNote) {
+        resolutionNote = fullTicket.completionData.resolutionNote;
+      } else if (ticket.completionData?.resolutionNote) {
+        resolutionNote = ticket.completionData.resolutionNote;
+      }
+      
+      // Clean and validate
+      if (resolutionNote && typeof resolutionNote === 'string') {
+        resolutionNote = resolutionNote.trim();
+        if (resolutionNote === '') {
+          resolutionNote = null;
+        }
+      } else {
+        resolutionNote = null;
+      }
+      
+      // Comprehensive debug logging
+      console.log('📝 Resolution Note Debug - COMPREHENSIVE:', {
+        'Step 1 - invoiceData.completionData exists': !!invoiceData.completionData,
+        'Step 2 - invoiceData.completionData type': typeof invoiceData.completionData,
+        'Step 3 - invoiceData.completionData keys': invoiceData.completionData ? Object.keys(invoiceData.completionData) : [],
+        'Step 4 - invoiceData.completionData.resolutionNote': invoiceData.completionData?.resolutionNote,
+        'Step 5 - invoiceData.completionData.resolutionNote type': typeof invoiceData.completionData?.resolutionNote,
+        'Step 6 - fullTicket.completionData exists': !!fullTicket.completionData,
+        'Step 7 - fullTicket.completionData.resolutionNote': fullTicket.completionData?.resolutionNote,
+        'Step 8 - ticket.completionData exists': !!ticket.completionData,
+        'Step 9 - ticket.completionData.resolutionNote': ticket.completionData?.resolutionNote,
+        'FINAL resolutionNote value': resolutionNote,
+        'FINAL resolutionNote type': typeof resolutionNote,
+        'FINAL resolutionNote length': resolutionNote ? resolutionNote.length : 0,
+        'Will display in PDF': !!(resolutionNote && resolutionNote.trim() !== ''),
+        'Full invoiceData.completionData JSON': JSON.stringify(invoiceData.completionData, null, 2),
+        'Full fullTicket.completionData JSON': JSON.stringify(fullTicket.completionData, null, 2),
+        'Full ticket.completionData JSON': JSON.stringify(ticket.completionData, null, 2)
+      });
+      
+      // Always show resolution note section if completionData exists (same as service management)
+      if (invoiceData.completionData || fullTicket.completionData || ticket.completionData) {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        yPosition += 10;
+        yPosition = addText(`RESOLUTION NOTE: ${resolutionNote}`, 20, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        yPosition += 5;
+        
+        if (resolutionNote && resolutionNote.trim() !== '') {
+          // Split long text into multiple lines if needed
+          const noteLines = doc.splitTextToSize(resolutionNote.trim(), pageWidth - 40);
+          noteLines.forEach((line: string) => {
+            yPosition = addText(line, 20, yPosition, pageWidth - 40);
+          });
+        } else {
+          // Show message if resolution note is missing
+          doc.setTextColor(150, 150, 150);
+          yPosition = addText('(No resolution note provided)', 20, yPosition, pageWidth - 40);
+          doc.setTextColor(0, 0, 0);
+        }
+        yPosition += 5;
+      }
 
       // Add footer
       doc.setFontSize(10);
+      doc.setFont('helvetica', 'italic');
       doc.setTextColor(100, 100, 100);
-      doc.text('Thank you for using FixFly services!', 20, 300);
-      doc.text('For any queries, contact us at info@getfixfly.com', 20, 310);
+      yPosition = addText('Thank you for using FixFly services!', pageWidth / 2, pageHeight - 5, undefined, 'center');
+      yPosition = addText('For any queries, contact us at info@getfixfly.com', pageWidth/2 , pageHeight - 2, undefined, 'center');
 
       // Save the PDF
       doc.save(`FixFly_Invoice_${invoiceData.ticketId}.pdf`);
@@ -1539,13 +1716,13 @@ const Support = () => {
               </Button>
             </div>
 
-            <div className="text-center cursor-pointer group" onClick={handleEmailClick}>
+            <div className="text-center group">
               <div className="bg-gradient-tech p-2 md:p-3 rounded-lg w-fit mx-auto mb-2 md:mb-3 group-hover:scale-105 transition-transform duration-300">
                 <Mail className="h-4 w-4 md:h-5 md:w-5 text-white" />
               </div>
               <h3 className="text-sm md:text-base font-semibold mb-1 md:mb-2">Email</h3>
               <div className="flex items-center justify-center gap-1 mb-1">
-                <p className="font-semibold text-primary text-xs md:text-sm">info@getfixfly.com</p>
+                <p className="font-semibold text-primary text-xs md:text-sm" style={{ pointerEvents: 'none', userSelect: 'none' }}>info@getfixfly.com</p>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -1718,7 +1895,7 @@ const Support = () => {
                       {selectedTicket.assignedTo.email && (
                         <div>
                           <p className="text-xs md:text-sm text-green-600 md:text-green-700">Email</p>
-                          <p className="font-medium text-xs md:text-sm text-green-900 break-all">{selectedTicket.assignedTo.email}</p>
+                          <p className="font-medium text-xs md:text-sm text-green-900 break-all" style={{ pointerEvents: 'none', userSelect: 'none' }}>{selectedTicket.assignedTo.email}</p>
                         </div>
                       )}
                     </div>

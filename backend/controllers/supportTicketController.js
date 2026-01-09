@@ -318,7 +318,8 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
       paymentStatus: ticket.paymentStatus,
       billingAmount: ticket.billingAmount || 0,
       totalAmount: ticket.completionData?.totalAmount || 0,
-      vendorStatus: ticket.vendorStatus
+      vendorStatus: ticket.vendorStatus,
+      completionData: ticket.completionData || null
     };
   });
 
@@ -360,6 +361,26 @@ const getSupportTicket = asyncHandler(async (req, res) => {
     };
   }
 
+  // Ensure completionData is properly serialized
+  let completionData = null;
+  if (ticket.completionData) {
+    // Convert Mongoose subdocument to plain object
+    completionData = ticket.completionData.toObject ? ticket.completionData.toObject() : ticket.completionData;
+    // Ensure it's a plain object, not a Mongoose document
+    if (completionData && typeof completionData === 'object') {
+      completionData = JSON.parse(JSON.stringify(completionData));
+    }
+  }
+
+  // Debug log to verify completionData structure
+  console.log('🔍 getSupportTicket - completionData check:', {
+    hasCompletionData: !!ticket.completionData,
+    completionDataType: typeof ticket.completionData,
+    resolutionNote: ticket.completionData?.resolutionNote,
+    completionDataKeys: ticket.completionData ? Object.keys(ticket.completionData) : [],
+    serializedCompletionData: completionData
+  });
+
   res.json({
     success: true,
     data: {
@@ -379,6 +400,11 @@ const getSupportTicket = asyncHandler(async (req, res) => {
         assignedTo: assignedToInfo,
         vendorStatus: ticket.vendorStatus || 'Pending',
         resolution: ticket.resolution,
+        completionData: completionData,
+        paymentMode: ticket.paymentMode || null,
+        paymentStatus: ticket.paymentStatus || null,
+        billingAmount: ticket.billingAmount || 0,
+        totalAmount: ticket.completionData?.totalAmount || ticket.billingAmount || 0,
         responses: ticket.responses.map(response => ({
           message: response.message,
           sender: response.sender,

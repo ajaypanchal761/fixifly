@@ -44,17 +44,21 @@ class WalletCalculationService {
       // For online with GST: billing amount + GST goes to vendor (full amount)
       calculatedAmount = netBillingAmount + gstAmount; // Include GST in vendor earning
     }
-    // Special case for amounts > 300 and <= 500
-    else if (netBillingAmount <= 500) {
+    // Special case for amounts > 300 and <= 600
+    else if (netBillingAmount <= 600) {
       if (paymentMethod === 'online') {
-        calculatedAmount = netBillingAmount - 20; // 20 rupees cut for online
+        // Online payment: (GST-excluded - Spare - Travel) * 50% + Spare + Travel
         // GST amount NOT added to vendor earning for amounts > 300
+        const baseAmount = netBillingAmount - spareAmount - travellingAmount;
+        calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
       } else {
-        calculatedAmount = netBillingAmount; // Full amount for cash
+        // Cash payment: (GST-excluded - Spare - Travel) * 50% + Spare + Travel
         // GST amount NOT added to vendor earning for amounts > 300
+        const baseAmount = netBillingAmount - spareAmount - travellingAmount;
+        calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
       }
     }
-    // Regular calculation for amounts > 500
+    // Regular calculation for amounts > 600
     else {
       // Calculate amount based on payment method
       if (paymentMethod === 'online') {
@@ -83,7 +87,7 @@ class WalletCalculationService {
       breakdown: {
         baseAmount: netBillingAmount - spareAmount - travellingAmount,
         percentage: netBillingAmount <= 300 ? '100% (Full to vendor)' : 
-                    netBillingAmount <= 500 ? (paymentMethod === 'online' ? 'Fixed -20' : '100%') : '50%',
+                    netBillingAmount <= 600 ? '50% (with spare & travel)' : '50%',
         spareAmount,
         travellingAmount,
         gstAmount

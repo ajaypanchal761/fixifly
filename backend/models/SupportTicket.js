@@ -621,9 +621,23 @@ SupportTicketSchema.methods.completeByVendor = function (vendorId, completionDat
   // Store completion data
   if (completionData) {
     this.completionData = {
-      ...completionData,
-      completedAt: new Date()
+      resolutionNote: completionData.resolutionNote || null,
+      spareParts: completionData.spareParts || [],
+      paymentMethod: completionData.paymentMethod || 'cash',
+      totalAmount: completionData.totalAmount || 0,
+      billingAmount: completionData.billingAmount || 0,
+      includeGST: completionData.includeGST || false,
+      gstAmount: completionData.gstAmount || 0,
+      travelingAmount: completionData.travelingAmount || completionData.travellingAmount || null,
+      completedAt: new Date(),
+      ...completionData // Spread to ensure all fields are included
     };
+    
+    console.log('📝 Support Ticket completionData being saved:', {
+      resolutionNote: this.completionData.resolutionNote,
+      hasResolutionNote: !!this.completionData.resolutionNote,
+      sparePartsCount: this.completionData.spareParts?.length || 0
+    });
 
     // Update payment information from completion data
     if (completionData.paymentMethod) {
