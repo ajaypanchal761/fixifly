@@ -526,38 +526,57 @@ vendorWalletSchema.methods.addRefund = async function(refundData) {
 
 // Static method to get vendor wallet summary
 vendorWalletSchema.statics.getVendorSummary = async function(vendorId) {
-  const wallet = await this.findOne({ vendorId });
-  if (!wallet) {
-    return {
-      currentBalance: 0,
-      availableBalance: 0,
-      totalEarnings: 0,
-      totalPenalties: 0,
-      totalWithdrawals: 0,
-      totalDeposits: 0,
-      totalTaskAcceptanceFees: 0,
-      totalCashCollections: 0,
-      totalRefunds: 0,
-      totalTasksCompleted: 0,
-      totalTasksRejected: 0,
-      totalTasksCancelled: 0
-    };
-  }
+  try {
+    const wallet = await this.findOne({ vendorId });
+    if (!wallet) {
+      return {
+        currentBalance: 0,
+        availableBalance: 0,
+        totalEarnings: 0,
+        totalPenalties: 0,
+        totalWithdrawals: 0,
+        totalDeposits: 0,
+        totalTaskAcceptanceFees: 0,
+        totalCashCollections: 0,
+        totalRefunds: 0,
+        totalTasksCompleted: 0,
+        totalTasksRejected: 0,
+        totalTasksCancelled: 0
+      };
+    }
 
-  return {
-    currentBalance: wallet.currentBalance,
-    availableBalance: wallet.availableForWithdrawal,
-    totalEarnings: wallet.totalEarnings,
-    totalPenalties: wallet.totalPenalties,
-    totalWithdrawals: wallet.totalWithdrawals,
-    totalDeposits: wallet.totalDeposits,
-    totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees,
-    totalCashCollections: wallet.totalCashCollections,
-    totalRefunds: wallet.totalRefunds,
-    totalTasksCompleted: wallet.totalTasksCompleted,
-    totalTasksRejected: wallet.totalTasksRejected,
-    totalTasksCancelled: wallet.totalTasksCancelled
-  };
+    // Calculate available balance safely (virtual property might not be accessible in all contexts)
+    let availableBalance = 0;
+    try {
+      if (wallet.availableBalance !== undefined && wallet.availableBalance !== null) {
+        availableBalance = wallet.availableBalance;
+      } else {
+        // Calculate manually if virtual property is not accessible
+        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999));
+      }
+    } catch (balanceError) {
+      // Fallback calculation
+      availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999));
+    }
+
+    return {
+      currentBalance: wallet.currentBalance || 0,
+      availableBalance: availableBalance,
+      totalEarnings: wallet.totalEarnings || 0,
+      totalPenalties: wallet.totalPenalties || 0,
+      totalWithdrawals: wallet.totalWithdrawals || 0,
+      totalDeposits: wallet.totalDeposits || 0,
+      totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees || 0,
+      totalCashCollections: wallet.totalCashCollections || 0,
+      totalRefunds: wallet.totalRefunds || 0,
+      totalTasksCompleted: wallet.totalTasksCompleted || 0,
+      totalTasksRejected: wallet.totalTasksRejected || 0,
+      totalTasksCancelled: wallet.totalTasksCancelled || 0
+    };
+  } catch (error) {
+    console.error('Error in getVendorSummary:', error);
+    throw error; // Re-throw to be caught by the caller
+  }
 };
 
 // Static method to get recent transactions

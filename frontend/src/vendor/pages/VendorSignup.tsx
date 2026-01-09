@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Clock, ChevronLeft, ChevronRight, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import vendorApiService from '@/services/vendorApi';
+import { registerFCMToken } from '@/services/pushNotificationService';
 
 const VendorSignup = () => {
   const navigate = useNavigate();
@@ -378,6 +379,46 @@ const VendorSignup = () => {
         return digits;
       };
 
+      // Helper function to get FCM token
+      const getFCMToken = async (): Promise<string | null> => {
+        try {
+          // Check if Flutter bridge is available (mobile app)
+          if (typeof (window as any).flutter_inappwebview !== 'undefined') {
+            try {
+              const token = await (window as any).flutter_inappwebview.callHandler('getFCMToken');
+              return token || null;
+            } catch {
+              return null;
+            }
+          } else if (typeof (window as any).Android !== 'undefined') {
+            // Android WebView
+            const token = (window as any).Android.getFCMToken();
+            return token || null;
+          } else {
+            // For web: Try to get FCM token from localStorage or register
+            const savedToken = localStorage.getItem('fcmToken');
+            if (savedToken) {
+              return savedToken;
+            }
+            
+            // Try to register and get FCM token
+            try {
+              const token = await registerFCMToken(false);
+              return token;
+            } catch {
+              return null;
+            }
+          }
+        } catch (error) {
+          console.error('Error getting FCM token:', error);
+          return null;
+        }
+      };
+
+      // Get FCM token if available
+      const fcmToken = await getFCMToken();
+      const deviceToken = fcmToken; // Use same token for deviceToken field
+
       // Prepare final registration data
       const registrationData = {
         firstName: formData.firstName.trim(),
@@ -394,7 +435,10 @@ const VendorSignup = () => {
         // Add uploaded file URLs
         aadhaarFrontUrl,
         aadhaarBackUrl,
-        profileImageUrl: profilePhotoUrl
+        profileImageUrl: profilePhotoUrl,
+        // Add FCM token if available
+        ...(deviceToken && { deviceToken }),
+        ...(fcmToken && { fcmToken })
       };
 
       console.log('Sending registration data with URLs:', registrationData);

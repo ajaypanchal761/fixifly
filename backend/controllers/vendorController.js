@@ -86,7 +86,9 @@ const registerVendor = asyncHandler(async (req, res) => {
     // Extract URLs directly from body
     aadhaarFrontUrl,
     aadhaarBackUrl,
-    profileImageUrl
+    profileImageUrl,
+    deviceToken,
+    fcmToken
   } = req.body;
 
   // Normalize phone numbers by removing leading 0 if present
@@ -188,6 +190,72 @@ const registerVendor = asyncHandler(async (req, res) => {
     // Check if profile is complete
     vendor.checkProfileComplete();
     await vendor.save();
+
+    // Save FCM token if provided during registration
+    const fcmTokenToSave = deviceToken || fcmToken;
+    if (fcmTokenToSave) {
+      try {
+        logger.info(`🔔 Saving FCM token for vendor registration ${vendor._id} (mobile/webview only)`);
+
+        // Fetch vendor with fcmTokenMobile field explicitly selected
+        const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+
+        // Save to fcmTokenMobile array (mobile/webview only, no web tokens)
+        if (!vendorWithTokens.fcmTokenMobile || !Array.isArray(vendorWithTokens.fcmTokenMobile)) {
+          vendorWithTokens.fcmTokenMobile = [];
+        }
+
+        // Remove token if already exists to avoid duplicates
+        vendorWithTokens.fcmTokenMobile = vendorWithTokens.fcmTokenMobile.filter(t => t !== fcmTokenToSave);
+
+        // Add new token at the beginning
+        vendorWithTokens.fcmTokenMobile.unshift(fcmTokenToSave);
+
+        // Keep only the most recent 10 tokens
+        if (vendorWithTokens.fcmTokenMobile.length > 10) {
+          vendorWithTokens.fcmTokenMobile = vendorWithTokens.fcmTokenMobile.slice(0, 10);
+        }
+
+        vendorWithTokens.markModified('fcmTokenMobile');
+        if (!vendorWithTokens.notificationSettings) {
+          vendorWithTokens.notificationSettings = {};
+        }
+        if (!vendorWithTokens.notificationSettings.pushNotifications) {
+          vendorWithTokens.notificationSettings.pushNotifications = true;
+        }
+        await vendorWithTokens.save({ validateBeforeSave: false });
+
+        // Verify save
+        const verifyVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+        const tokenSaved = verifyVendor?.fcmTokenMobile?.includes(fcmTokenToSave) || false;
+
+        if (tokenSaved) {
+          logger.info(`✅ FCM mobile/webview token saved successfully during registration for vendor ${vendor._id}`, {
+            tokenCount: verifyVendor.fcmTokenMobile?.length || 0,
+            tokenExists: true
+          });
+        } else {
+          // Try to save again using updateOne
+          await Vendor.updateOne(
+            { _id: vendor._id },
+            {
+              $set: {
+                fcmTokenMobile: verifyVendor.fcmTokenMobile || [fcmTokenToSave],
+                updatedAt: new Date()
+              }
+            }
+          );
+          logger.info(`⚠️ FCM mobile/webview token re-saved using updateOne for vendor ${vendor._id}`);
+        }
+      } catch (error) {
+        logger.error('❌ Error saving device token during vendor registration:', {
+          error: error.message,
+          stack: error.stack,
+          vendorId: vendor._id
+        });
+        // Don't fail registration if device token saving fails
+      }
+    }
 
     // Generate token
     const token = generateToken(vendor._id);
@@ -1757,38 +1825,80 @@ const getVendorWallet = asyncHandler(async (req, res) => {
 
     // Create wallet if it doesn't exist
     if (!wallet) {
-      wallet = new VendorWallet({
-        vendorId: vendorWalletId,
-        currentBalance: 0,
-        securityDeposit: 4000,
-        availableBalance: 0
-      });
-      await wallet.save();
+      try {
+        wallet = new VendorWallet({
+          vendorId: vendorWalletId,
+          currentBalance: 0,
+          securityDeposit: 4000,
+          availableBalance: 0
+        });
+        await wallet.save();
+        logger.info(`Created new wallet for vendor ${vendorWalletId}`);
+      } catch (walletCreationError) {
+        // If wallet creation fails (e.g., duplicate key error), try to fetch it again
+        logger.error('Error creating wallet, attempting to fetch existing:', walletCreationError);
+        wallet = await VendorWallet.findOne({ vendorId: vendorWalletId });
+        
+        if (!wallet) {
+          // If still no wallet, return error
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to create or fetch wallet',
+            error: walletCreationError.message
+          });
+        }
+      }
     }
 
     // Safely get summary and transactions with error handling
-    let summary;
+    let summary = {};
     let recentTransactions = [];
 
     try {
       summary = await VendorWallet.getVendorSummary(vendorWalletId);
     } catch (summaryError) {
-      logger.error('Error fetching vendor summary:', summaryError);
+      logger.error('Error fetching vendor summary:', {
+        error: summaryError.message,
+        stack: summaryError.stack,
+        vendorId: vendorWalletId
+      });
       // Use default summary if there's an error
-      summary = {
-        currentBalance: wallet.currentBalance || 0,
-        availableBalance: wallet.availableForWithdrawal || 0,
-        totalEarnings: wallet.totalEarnings || 0,
-        totalPenalties: wallet.totalPenalties || 0,
-        totalWithdrawals: wallet.totalWithdrawals || 0,
-        totalDeposits: wallet.totalDeposits || 0,
-        totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees || 0,
-        totalCashCollections: wallet.totalCashCollections || 0,
-        totalRefunds: wallet.totalRefunds || 0,
-        totalTasksCompleted: wallet.totalTasksCompleted || 0,
-        totalTasksRejected: wallet.totalTasksRejected || 0,
-        totalTasksCancelled: wallet.totalTasksCancelled || 0
-      };
+      try {
+        summary = {
+          currentBalance: wallet.currentBalance || 0,
+          availableBalance: wallet.availableBalance || (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999),
+          totalEarnings: wallet.totalEarnings || 0,
+          totalPenalties: wallet.totalPenalties || 0,
+          totalWithdrawals: wallet.totalWithdrawals || 0,
+          totalDeposits: wallet.totalDeposits || 0,
+          totalTaskAcceptanceFees: wallet.totalTaskAcceptanceFees || 0,
+          totalCashCollections: wallet.totalCashCollections || 0,
+          totalRefunds: wallet.totalRefunds || 0,
+          totalTasksCompleted: wallet.totalTasksCompleted || 0,
+          totalTasksRejected: wallet.totalTasksRejected || 0,
+          totalTasksCancelled: wallet.totalTasksCancelled || 0
+        };
+        // Ensure availableBalance is not negative
+        if (summary.availableBalance < 0) {
+          summary.availableBalance = 0;
+        }
+      } catch (fallbackError) {
+        logger.error('Error creating fallback summary:', fallbackError);
+        summary = {
+          currentBalance: 0,
+          availableBalance: 0,
+          totalEarnings: 0,
+          totalPenalties: 0,
+          totalWithdrawals: 0,
+          totalDeposits: 0,
+          totalTaskAcceptanceFees: 0,
+          totalCashCollections: 0,
+          totalRefunds: 0,
+          totalTasksCompleted: 0,
+          totalTasksRejected: 0,
+          totalTasksCancelled: 0
+        };
+      }
     }
 
     try {
@@ -1799,13 +1909,29 @@ const getVendorWallet = asyncHandler(async (req, res) => {
       recentTransactions = [];
     }
 
+    // Calculate available balance safely (use availableBalance field or calculate from currentBalance and securityDeposit)
+    let availableBalance = 0;
+    try {
+      if (wallet.availableBalance !== undefined) {
+        availableBalance = wallet.availableBalance;
+      } else if (wallet.availableForWithdrawal !== undefined) {
+        availableBalance = wallet.availableForWithdrawal;
+      } else {
+        // Calculate manually: availableBalance = currentBalance - securityDeposit (minimum 0)
+        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999));
+      }
+    } catch (balanceError) {
+      logger.error('Error calculating available balance:', balanceError);
+      availableBalance = 0;
+    }
+
     res.status(200).json({
       success: true,
       data: {
         wallet: {
           currentBalance: wallet.currentBalance || 0,
           securityDeposit: wallet.securityDeposit || 3999,
-          availableBalance: wallet.availableForWithdrawal || 0,
+          availableBalance: availableBalance,
           totalEarnings: wallet.totalEarnings || 0,
           totalPenalties: wallet.totalPenalties || 0,
           totalWithdrawals: wallet.totalWithdrawals || 0,
@@ -1829,12 +1955,14 @@ const getVendorWallet = asyncHandler(async (req, res) => {
   } catch (error) {
     logger.error('Error fetching vendor wallet:', {
       error: error.message,
-      vendorId: req.vendor?._id
+      stack: error.stack,
+      vendorId: req.vendor?._id,
+      vendorWalletId: req.vendor?.vendorId
     });
     res.status(500).json({
       success: false,
       message: 'Failed to fetch wallet information',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });

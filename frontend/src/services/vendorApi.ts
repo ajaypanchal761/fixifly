@@ -330,6 +330,8 @@ class VendorApiService {
     aadhaarFrontUrl?: string;
     aadhaarBackUrl?: string;
     profileImageUrl?: string;
+    deviceToken?: string;
+    fcmToken?: string;
   }): Promise<ApiResponse<VendorAuthResponse>> {
     return this.request('/vendors/register', {
       method: 'POST',

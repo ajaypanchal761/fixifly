@@ -246,45 +246,10 @@ class ApiService {
     });
   }
 
-  async verifyOTP(phone: string, otp: string, name?: string, email?: string): Promise<ApiResponse<AuthResponse>> {
-    // FCM token generation disabled
-    const fcmToken = null;
-    // let fcmToken = null;
-    // try {
-    //   console.log('🔔 Generating FCM token for user verifyOTP...');
-    //   
-    //   // Check if notifications are supported
-    //   if ('Notification' in window && 'serviceWorker' in navigator) {
-    //     // Request permission
-    //     const permission = await Notification.requestPermission();
-    //     if (permission === 'granted') {
-    //       // Import Firebase messaging
-    //       const { getMessaging, getToken } = await import('firebase/messaging');
-    //       const { getApp: getFirebaseApp } = await import('firebase/app');
-    //       
-    //       // Get Firebase app and messaging instance
-    //       const app = getFirebaseApp();
-    //       const messaging = getMessaging(app);
-    //       
-    //       // Get FCM token
-    //       const token = await getToken(messaging, {
-    //         vapidKey: "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU"
-    //       });
-    //       
-    //       if (token) {
-    //         fcmToken = token;
-    //         console.log('✅ FCM token generated for user verifyOTP:', token.substring(0, 20) + '...');
-    //       }
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error('❌ Error generating FCM token during verifyOTP:', error);
-    //   // Don't fail login if FCM token generation fails
-    // }
-
+  async verifyOTP(phone: string, otp: string, name?: string, email?: string, fcmToken?: string, platform?: string): Promise<ApiResponse<AuthResponse>> {
     return this.request('/auth/verify-otp', {
       method: 'POST',
-      body: JSON.stringify({ phone, otp, name, email, fcmToken }),
+      body: JSON.stringify({ phone, otp, name, email, fcmToken, platform }),
     });
   }
 
@@ -293,6 +258,8 @@ class ApiService {
     email: string;
     phone: string;
     address?: any;
+    fcmToken?: string;
+    platform?: string;
   }): Promise<ApiResponse<{ user: User; messageId: string; otp?: string }>> {
     return this.request('/auth/register', {
       method: 'POST',

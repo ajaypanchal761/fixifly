@@ -454,7 +454,7 @@ const verifyOTP = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/register
 // @access  Public
 const register = asyncHandler(async (req, res) => {
-  const { name, email, phone, address } = req.body;
+  const { name, email, phone, address, fcmToken } = req.body;
 
   // Validate required fields
   if (!name || !email || !phone) {
@@ -547,7 +547,115 @@ const register = asyncHandler(async (req, res) => {
       var user = new User(userData);
     }
 
+    // Save FCM token if provided during registration
+    if (fcmToken) {
+      try {
+        // Detect platform from user-agent or request body
+        const userAgent = req.headers['user-agent'] || '';
+        const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
+
+        logger.info(`🔔 Saving FCM token for user registration ${user._id || 'new'} (platform: ${platform})`);
+
+        if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
+          // Save to fcmTokenMobile array for mobile devices
+          if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
+            user.fcmTokenMobile = [];
+          }
+
+          // Remove token if already exists to avoid duplicates
+          user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== fcmToken);
+
+          // Add new token at the beginning
+          user.fcmTokenMobile.unshift(fcmToken);
+
+          // Keep only the most recent 10 tokens
+          if (user.fcmTokenMobile.length > 10) {
+            user.fcmTokenMobile = user.fcmTokenMobile.slice(0, 10);
+          }
+
+          user.markModified('fcmTokenMobile');
+        } else {
+          // Save to fcmTokens array for web devices
+          if (!user.fcmTokens || !Array.isArray(user.fcmTokens)) {
+            user.fcmTokens = [];
+          }
+
+          // Remove token if already exists to avoid duplicates
+          user.fcmTokens = user.fcmTokens.filter(t => t !== fcmToken);
+
+          // Add new token at the beginning
+          user.fcmTokens.unshift(fcmToken);
+
+          // Keep only the most recent 10 tokens
+          if (user.fcmTokens.length > 10) {
+            user.fcmTokens = user.fcmTokens.slice(0, 10);
+          }
+
+          user.markModified('fcmTokens');
+        }
+      } catch (error) {
+        logger.error('❌ Error saving FCM token during registration:', error);
+        // Don't fail registration if FCM token saving fails
+      }
+    }
+
     await user.save();
+
+    // After saving, if FCM token was provided, verify it was saved correctly
+    if (fcmToken && user._id) {
+      try {
+        const userAgent = req.headers['user-agent'] || '';
+        const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
+
+        if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
+          const verifyUser = await User.findById(user._id).select('+fcmTokenMobile');
+          const tokenSaved = verifyUser?.fcmTokenMobile?.includes(fcmToken) || false;
+
+          if (tokenSaved) {
+            logger.info(`✅ FCM mobile token saved successfully during registration for user ${user._id}`, {
+              tokenCount: verifyUser.fcmTokenMobile.length,
+              tokenExists: true
+            });
+          } else {
+            // Try to save again using updateOne
+            await User.updateOne(
+              { _id: user._id },
+              {
+                $set: {
+                  fcmTokenMobile: verifyUser.fcmTokenMobile || [fcmToken],
+                  updatedAt: new Date()
+                }
+              }
+            );
+            logger.info(`⚠️ FCM mobile token re-saved using updateOne for user ${user._id}`);
+          }
+        } else {
+          const verifyUser = await User.findById(user._id).select('+fcmTokens');
+          const tokenSaved = verifyUser?.fcmTokens?.includes(fcmToken) || false;
+
+          if (tokenSaved) {
+            logger.info(`✅ FCM web token saved successfully during registration for user ${user._id}`, {
+              tokenCount: verifyUser.fcmTokens.length,
+              tokenExists: true
+            });
+          } else {
+            // Try to save again using updateOne
+            await User.updateOne(
+              { _id: user._id },
+              {
+                $set: {
+                  fcmTokens: verifyUser.fcmTokens || [fcmToken],
+                  updatedAt: new Date()
+                }
+              }
+            );
+            logger.info(`⚠️ FCM web token re-saved using updateOne for user ${user._id}`);
+          }
+        }
+      } catch (error) {
+        logger.error('❌ Error verifying FCM token save during registration:', error);
+      }
+    }
 
     // Check for default test number
     const isDefaultTestNumber = cleanPhone === '7610416911';

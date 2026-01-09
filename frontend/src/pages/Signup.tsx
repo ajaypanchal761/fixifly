@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail, User, Phone, Shield } from 'lucide-react';
 import apiService from '@/services/api';
+import { registerFCMToken } from '@/services/pushNotificationService';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -51,6 +52,42 @@ const Signup = () => {
     }));
   };
 
+  // Helper function to get FCM token
+  const getFCMToken = async (): Promise<string | null> => {
+    try {
+      // Check if Flutter bridge is available (mobile app)
+      if (typeof (window as any).flutter_inappwebview !== 'undefined') {
+        try {
+          const token = await (window as any).flutter_inappwebview.callHandler('getFCMToken');
+          return token || null;
+        } catch {
+          return null;
+        }
+      } else if (typeof (window as any).Android !== 'undefined') {
+        // Android WebView
+        const token = (window as any).Android.getFCMToken();
+        return token || null;
+      } else {
+        // For web: Try to get FCM token from localStorage or register
+        const savedToken = localStorage.getItem('fcmToken');
+        if (savedToken) {
+          return savedToken;
+        }
+        
+        // Try to register and get FCM token
+        try {
+          const token = await registerFCMToken(false);
+          return token;
+        } catch {
+          return null;
+        }
+      }
+    } catch (error) {
+      console.error('Error getting FCM token:', error);
+      return null;
+    }
+  };
+
   const sendOTP = async () => {
     // Validate all required fields for registration
     if (!formData.name || !formData.email || !formData.phone) {
@@ -77,11 +114,16 @@ const Signup = () => {
     setError('');
 
     try {
+      // Get FCM token if available
+      const fcmToken = await getFCMToken();
+      const platform = (typeof (window as any).flutter_inappwebview !== 'undefined' || typeof (window as any).Android !== 'undefined') ? 'mobile' : 'web';
+
       // Call register endpoint which creates user and sends OTP
       const response = await apiService.register({
         name: formData.name,
         email: formData.email,
-        phone: cleanPhone
+        phone: cleanPhone,
+        ...(fcmToken && { fcmToken, platform })
       });
 
       if (response.success) {
@@ -145,12 +187,18 @@ const Signup = () => {
         return;
       }
 
+      // Get FCM token if available
+      const fcmToken = await getFCMToken();
+      const platform = (typeof (window as any).flutter_inappwebview !== 'undefined' || typeof (window as any).Android !== 'undefined') ? 'mobile' : 'web';
+
       // Call backend API to verify OTP and complete registration
       const response = await apiService.verifyOTP(
         cleanPhone,
         formData.otp,
         formData.name,
-        formData.email
+        formData.email,
+        fcmToken || undefined,
+        platform || undefined
       );
 
       if (response.success && response.data) {
