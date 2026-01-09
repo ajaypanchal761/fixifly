@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Phone, Shield, Mail, Lock } from 'lucide-react';
 import apiService from '@/services/api';
+import { registerFCMToken } from '@/services/pushNotificationService';
 import {
   Dialog,
   DialogContent,
@@ -78,6 +79,42 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  // Helper function to get FCM token
+  const getFCMToken = async (): Promise<string | null> => {
+    try {
+      // Check if Flutter bridge is available (mobile app)
+      if (typeof (window as any).flutter_inappwebview !== 'undefined') {
+        try {
+          const token = await (window as any).flutter_inappwebview.callHandler('getFCMToken');
+          return token || null;
+        } catch {
+          return null;
+        }
+      } else if (typeof (window as any).Android !== 'undefined') {
+        // Android WebView
+        const token = (window as any).Android.getFCMToken();
+        return token || null;
+      } else {
+        // For web: Try to get FCM token from localStorage or register
+        const savedToken = localStorage.getItem('fcmToken');
+        if (savedToken) {
+          return savedToken;
+        }
+        
+        // Try to register and get FCM token
+        try {
+          const token = await registerFCMToken(false);
+          return token;
+        } catch {
+          return null;
+        }
+      }
+    } catch (error) {
+      console.error('Error getting FCM token:', error);
+      return null;
+    }
   };
 
   const sendOTP = async () => {

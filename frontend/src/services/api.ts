@@ -289,45 +289,10 @@ class ApiService {
     });
   }
 
-  async login(phone: string, otp: string): Promise<ApiResponse<AuthResponse>> {
-    // FCM token generation disabled
-    const fcmToken = null;
-    // let fcmToken = null;
-    // try {
-    //   console.log('🔔 Generating FCM token for user login...');
-    //   
-    //   // Check if notifications are supported
-    //   if ('Notification' in window && 'serviceWorker' in navigator) {
-    //     // Request permission
-    //     const permission = await Notification.requestPermission();
-    //     if (permission === 'granted') {
-    //       // Import Firebase messaging
-    //       const { getMessaging, getToken } = await import('firebase/messaging');
-    //       const { getApp: getFirebaseApp } = await import('firebase/app');
-    //       
-    //       // Get Firebase app and messaging instance
-    //       const app = getFirebaseApp();
-    //       const messaging = getMessaging(app);
-    //       
-    //       // Get FCM token
-    //       const token = await getToken(messaging, {
-    //         vapidKey: "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU"
-    //       });
-    //       
-    //       if (token) {
-    //         fcmToken = token;
-    //         console.log('✅ FCM token generated for user login:', token.substring(0, 20) + '...');
-    //       }
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error('❌ Error generating FCM token during login:', error);
-    //   // Don't fail login if FCM token generation fails
-    // }
-
+  async login(phone: string, otp: string, fcmToken?: string, platform?: string): Promise<ApiResponse<AuthResponse>> {
     return this.request('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ phone, otp, fcmToken }),
+      body: JSON.stringify({ phone, otp, fcmToken, platform }),
     });
   }
 

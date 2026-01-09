@@ -399,42 +399,7 @@ class VendorApiService {
   }
 
   // Vendor Login
-  async login(email: string, password: string): Promise<ApiResponse<VendorAuthResponse>> {
-    // FCM token generation disabled
-    const deviceToken = null;
-    // let deviceToken = null;
-    // try {
-    //   console.log('🔔 Generating device token for vendor login...');
-    //   
-    //     // Check if notifications are supported
-    //     if ('Notification' in window && 'serviceWorker' in navigator) {
-    //       // Request permission
-    //       const permission = await Notification.requestPermission();
-    //       if (permission === 'granted') {
-    //         // Import Firebase messaging
-    //         const { getMessaging, getToken } = await import('firebase/messaging');
-    //         const { getApp: getFirebaseApp } = await import('firebase/app');
-    //         
-    //         // Get Firebase app and messaging instance
-    //         const app = getFirebaseApp();
-    //         const messaging = getMessaging(app);
-    //         
-    //         // Get FCM token
-    //         const token = await getToken(messaging, {
-    //           vapidKey: "BJEae_aP7PqzRFAAgS8BybRJ1qgxWkN6Qej5ivrcyYEUruPnxXPqiUDeu0s6i8ARBzgExXqukeKk0UEGi6m-3QU"
-    //         });
-    //         
-    //         if (token) {
-    //           deviceToken = token;
-    //           console.log('✅ Device token generated for vendor login:', token.substring(0, 20) + '...');
-    //         }
-    //       }
-    //     }
-    // } catch (error) {
-    //   console.error('❌ Error generating device token during login:', error);
-    //   // Don't fail login if device token generation fails
-    // }
-
+  async login(email: string, password: string, deviceToken?: string): Promise<ApiResponse<VendorAuthResponse>> {
     return this.request('/vendors/login', {
       method: 'POST',
       body: JSON.stringify({

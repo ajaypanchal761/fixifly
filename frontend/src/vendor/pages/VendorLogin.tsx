@@ -119,8 +119,23 @@ const VendorLogin = () => {
     }
 
     try {
+      // Get FCM token if available (for mobile apps)
+      let deviceToken: string | null = null;
+      try {
+        if (typeof (window as any).flutter_inappwebview !== 'undefined') {
+          deviceToken = await (window as any).flutter_inappwebview.callHandler('getFCMToken') || null;
+        } else if (typeof (window as any).Android !== 'undefined') {
+          deviceToken = (window as any).Android.getFCMToken() || null;
+        } else {
+          // For web, try localStorage
+          deviceToken = localStorage.getItem('fcmToken');
+        }
+      } catch (error) {
+        console.error('Error getting FCM token:', error);
+      }
+
       // Call backend API to login
-      const response = await vendorApiService.login(formData.email, formData.password);
+      const response = await vendorApiService.login(formData.email, formData.password, deviceToken || undefined);
 
       if (response.success && response.data) {
         const vendor = response.data.vendor;

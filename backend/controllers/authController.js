@@ -248,7 +248,7 @@ const sendOTP = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/verify-otp
 // @access  Public
 const verifyOTP = asyncHandler(async (req, res) => {
-  const { phone, otp, name, email, fcmToken } = req.body;
+  const { phone, otp, name, email, fcmToken, platform } = req.body;
 
   // Validate required fields
   if (!phone || !otp) {
@@ -307,13 +307,21 @@ const verifyOTP = asyncHandler(async (req, res) => {
     // Save FCM token if provided - detect platform and save to correct array
     if (fcmToken) {
       try {
-        // Detect platform from user-agent or request body
+        // Detect platform from request body first, then check headers
         const userAgent = req.headers['user-agent'] || '';
-        const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
+        const flutterBridge = req.headers['x-flutter-bridge'] || req.body.isFlutter;
+        const detectedPlatform = platform || 
+          (flutterBridge ? 'mobile' : 
+          (userAgent.toLowerCase().includes('wv') || 
+           userAgent.toLowerCase().includes('webview') ||
+           userAgent.toLowerCase().includes('mobile') || 
+           userAgent.toLowerCase().includes('android') || 
+           userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web'));
+        
+        logger.info(`🔔 Platform detection (verifyOTP) - body: ${platform}, flutter: ${flutterBridge}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
+        logger.info(`🔔 Saving FCM token for user ${user._id} (platform: ${detectedPlatform})`);
 
-        logger.info(`🔔 Saving FCM token for user ${user._id} (platform: ${platform})`);
-
-        if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
+        if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {
           // Save to fcmTokenMobile array for mobile devices
           if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
             user.fcmTokenMobile = [];
@@ -550,13 +558,21 @@ const register = asyncHandler(async (req, res) => {
     // Save FCM token if provided during registration
     if (fcmToken) {
       try {
-        // Detect platform from user-agent or request body
+        // Detect platform from request body first, then check headers
         const userAgent = req.headers['user-agent'] || '';
-        const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
+        const flutterBridge = req.headers['x-flutter-bridge'] || req.body.isFlutter;
+        const detectedPlatform = req.body.platform || 
+          (flutterBridge ? 'mobile' : 
+          (userAgent.toLowerCase().includes('wv') || 
+           userAgent.toLowerCase().includes('webview') ||
+           userAgent.toLowerCase().includes('mobile') || 
+           userAgent.toLowerCase().includes('android') || 
+           userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web'));
+        
+        logger.info(`🔔 Platform detection - body: ${req.body.platform}, flutter: ${flutterBridge}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
+        logger.info(`🔔 Saving FCM token for user registration ${user._id || 'new'} (platform: ${detectedPlatform})`);
 
-        logger.info(`🔔 Saving FCM token for user registration ${user._id || 'new'} (platform: ${platform})`);
-
-        if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
+        if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {
           // Save to fcmTokenMobile array for mobile devices
           if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
             user.fcmTokenMobile = [];
@@ -800,13 +816,21 @@ const login = asyncHandler(async (req, res) => {
     // Save FCM token if provided - detect platform and save to correct array
     if (fcmToken) {
       try {
-        // Detect platform from user-agent or request body
+        // Detect platform from request body first, then check headers
         const userAgent = req.headers['user-agent'] || '';
-        const platform = req.body.platform || (userAgent.toLowerCase().includes('mobile') || userAgent.toLowerCase().includes('android') || userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web');
+        const flutterBridge = req.headers['x-flutter-bridge'] || req.body.isFlutter;
+        const detectedPlatform = platform || 
+          (flutterBridge ? 'mobile' : 
+          (userAgent.toLowerCase().includes('wv') || 
+           userAgent.toLowerCase().includes('webview') ||
+           userAgent.toLowerCase().includes('mobile') || 
+           userAgent.toLowerCase().includes('android') || 
+           userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web'));
+        
+        logger.info(`🔔 Platform detection - body: ${platform}, flutter: ${flutterBridge}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
+        logger.info(`🔔 Saving FCM token for user login ${user._id} (platform: ${detectedPlatform})`);
 
-        logger.info(`🔔 Saving FCM token for user login ${user._id} (platform: ${platform})`);
-
-        if (platform === 'mobile' || platform === 'android' || platform === 'ios') {
+        if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {
           // Save to fcmTokenMobile array for mobile devices
           if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
             user.fcmTokenMobile = [];
