@@ -1,4 +1,4 @@
-# Welcome to your FixFly project
+# Welcome to your FixFly projects
 
 ## Project infos
 
