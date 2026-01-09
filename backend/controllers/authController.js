@@ -328,48 +328,78 @@ const verifyOTP = asyncHandler(async (req, res) => {
         logger.info(`🔔 Saving FCM token for user ${user._id} (platform: ${detectedPlatform})`);
 
         if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {
-          // Save to fcmTokenMobile array for mobile devices
-          if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
-            user.fcmTokenMobile = [];
+          // Fetch fresh user with fcmTokenMobile explicitly selected
+          const userForToken = await User.findById(user._id).select('+fcmTokenMobile');
+          
+          // Initialize array if it doesn't exist
+          if (!userForToken.fcmTokenMobile || !Array.isArray(userForToken.fcmTokenMobile)) {
+            userForToken.fcmTokenMobile = [];
           }
 
           // Remove token if already exists to avoid duplicates
-          user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== fcmToken);
+          userForToken.fcmTokenMobile = userForToken.fcmTokenMobile.filter(t => t && t !== fcmToken);
 
           // Add new token at the beginning
-          user.fcmTokenMobile.unshift(fcmToken);
+          userForToken.fcmTokenMobile.unshift(fcmToken);
 
           // Keep only the most recent 10 tokens
-          if (user.fcmTokenMobile.length > 10) {
-            user.fcmTokenMobile = user.fcmTokenMobile.slice(0, 10);
+          if (userForToken.fcmTokenMobile.length > 10) {
+            userForToken.fcmTokenMobile = userForToken.fcmTokenMobile.slice(0, 10);
           }
 
-          user.markModified('fcmTokenMobile');
+          // Mark as modified
+          userForToken.markModified('fcmTokenMobile');
 
-          // Use updateOne for more reliable persistence of select: false fields
+          // Use $addToSet to ensure token is added, then update with $set to maintain order
           await User.updateOne(
             { _id: user._id },
             {
               $set: {
-                fcmTokenMobile: user.fcmTokenMobile,
+                fcmTokenMobile: userForToken.fcmTokenMobile,
                 updatedAt: new Date()
               }
             }
           );
-          // Also save the document to ensure all changes are persisted
-          await user.save({ validateBeforeSave: false });
 
-          // Verify the save
+          // Verify the save immediately
           const verifyUser = await User.findById(user._id).select('+fcmTokenMobile');
-          const tokenSaved = verifyUser?.fcmTokenMobile?.includes(fcmToken) || false;
+          const tokenSaved = verifyUser && verifyUser.fcmTokenMobile && Array.isArray(verifyUser.fcmTokenMobile) && verifyUser.fcmTokenMobile.includes(fcmToken);
 
           if (tokenSaved) {
             logger.info(`✅ FCM mobile token saved successfully for user ${user._id}`, {
               tokenCount: verifyUser.fcmTokenMobile.length,
-              tokenExists: true
+              tokenExists: true,
+              tokenPreview: fcmToken.substring(0, 30) + '...'
             });
           } else {
-            logger.error(`❌ FCM mobile token NOT saved for user ${user._id} - verification failed`);
+            logger.error(`❌ FCM mobile token NOT saved for user ${user._id} - verification failed`, {
+              tokenExistsInArray: verifyUser?.fcmTokenMobile?.includes(fcmToken),
+              arrayLength: verifyUser?.fcmTokenMobile?.length || 0,
+              arrayType: typeof verifyUser?.fcmTokenMobile,
+              isArray: Array.isArray(verifyUser?.fcmTokenMobile)
+            });
+            
+            // Retry with direct MongoDB operation
+            try {
+              await User.findByIdAndUpdate(
+                user._id,
+                {
+                  $addToSet: { fcmTokenMobile: fcmToken },
+                  $set: { updatedAt: new Date() }
+                },
+                { new: true, upsert: false }
+              );
+              
+              // Fetch again to verify
+              const retryUser = await User.findById(user._id).select('+fcmTokenMobile');
+              if (retryUser && retryUser.fcmTokenMobile && retryUser.fcmTokenMobile.includes(fcmToken)) {
+                logger.info(`✅ FCM mobile token saved successfully on retry for user ${user._id}`);
+              } else {
+                logger.error(`❌ FCM mobile token STILL NOT saved after retry for user ${user._id}`);
+              }
+            } catch (retryError) {
+              logger.error(`❌ Retry save failed:`, retryError);
+            }
           }
         } else {
           // Save to fcmTokens array for web devices
@@ -585,13 +615,13 @@ const register = asyncHandler(async (req, res) => {
         logger.info(`🔔 Saving FCM token for user registration ${user._id || 'new'} (platform: ${detectedPlatform})`);
 
         if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {
-          // Save to fcmTokenMobile array for mobile devices
+          // Initialize fcmTokenMobile array if it doesn't exist
           if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
             user.fcmTokenMobile = [];
           }
 
           // Remove token if already exists to avoid duplicates
-          user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== fcmToken);
+          user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t && t !== fcmToken);
 
           // Add new token at the beginning
           user.fcmTokenMobile.unshift(fcmToken);
@@ -609,7 +639,7 @@ const register = asyncHandler(async (req, res) => {
           }
 
           // Remove token if already exists to avoid duplicates
-          user.fcmTokens = user.fcmTokens.filter(t => t !== fcmToken);
+          user.fcmTokens = user.fcmTokens.filter(t => t && t !== fcmToken);
 
           // Add new token at the beginning
           user.fcmTokens.unshift(fcmToken);
@@ -849,48 +879,78 @@ const login = asyncHandler(async (req, res) => {
         logger.info(`🔔 Saving FCM token for user login ${user._id} (platform: ${detectedPlatform})`);
 
         if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {
-          // Save to fcmTokenMobile array for mobile devices
-          if (!user.fcmTokenMobile || !Array.isArray(user.fcmTokenMobile)) {
-            user.fcmTokenMobile = [];
+          // Fetch fresh user with fcmTokenMobile explicitly selected
+          const userForToken = await User.findById(user._id).select('+fcmTokenMobile');
+          
+          // Initialize array if it doesn't exist
+          if (!userForToken.fcmTokenMobile || !Array.isArray(userForToken.fcmTokenMobile)) {
+            userForToken.fcmTokenMobile = [];
           }
 
           // Remove token if already exists to avoid duplicates
-          user.fcmTokenMobile = user.fcmTokenMobile.filter(t => t !== fcmToken);
+          userForToken.fcmTokenMobile = userForToken.fcmTokenMobile.filter(t => t && t !== fcmToken);
 
           // Add new token at the beginning
-          user.fcmTokenMobile.unshift(fcmToken);
+          userForToken.fcmTokenMobile.unshift(fcmToken);
 
           // Keep only the most recent 10 tokens
-          if (user.fcmTokenMobile.length > 10) {
-            user.fcmTokenMobile = user.fcmTokenMobile.slice(0, 10);
+          if (userForToken.fcmTokenMobile.length > 10) {
+            userForToken.fcmTokenMobile = userForToken.fcmTokenMobile.slice(0, 10);
           }
 
-          user.markModified('fcmTokenMobile');
+          // Mark as modified
+          userForToken.markModified('fcmTokenMobile');
 
-          // Use updateOne for more reliable persistence of select: false fields
+          // Use updateOne for reliable persistence
           await User.updateOne(
             { _id: user._id },
             {
               $set: {
-                fcmTokenMobile: user.fcmTokenMobile,
+                fcmTokenMobile: userForToken.fcmTokenMobile,
                 updatedAt: new Date()
               }
             }
           );
-          // Also save the document to ensure all changes are persisted
-          await user.save({ validateBeforeSave: false });
 
-          // Verify the save
+          // Verify the save immediately
           const verifyUser = await User.findById(user._id).select('+fcmTokenMobile');
-          const tokenSaved = verifyUser?.fcmTokenMobile?.includes(fcmToken) || false;
+          const tokenSaved = verifyUser && verifyUser.fcmTokenMobile && Array.isArray(verifyUser.fcmTokenMobile) && verifyUser.fcmTokenMobile.includes(fcmToken);
 
           if (tokenSaved) {
             logger.info(`✅ FCM mobile token saved successfully for user login ${user._id}`, {
               tokenCount: verifyUser.fcmTokenMobile.length,
-              tokenExists: true
+              tokenExists: true,
+              tokenPreview: fcmToken.substring(0, 30) + '...'
             });
           } else {
-            logger.error(`❌ FCM mobile token NOT saved for user login ${user._id} - verification failed`);
+            logger.error(`❌ FCM mobile token NOT saved for user login ${user._id} - verification failed`, {
+              tokenExistsInArray: verifyUser?.fcmTokenMobile?.includes(fcmToken),
+              arrayLength: verifyUser?.fcmTokenMobile?.length || 0,
+              arrayType: typeof verifyUser?.fcmTokenMobile,
+              isArray: Array.isArray(verifyUser?.fcmTokenMobile)
+            });
+            
+            // Retry with direct MongoDB operation
+            try {
+              await User.findByIdAndUpdate(
+                user._id,
+                {
+                  $addToSet: { fcmTokenMobile: fcmToken },
+                  $set: { updatedAt: new Date() }
+                },
+                { new: true, upsert: false }
+              );
+              
+              // Fetch again to verify
+              const retryUser = await User.findById(user._id).select('+fcmTokenMobile');
+              if (retryUser && retryUser.fcmTokenMobile && retryUser.fcmTokenMobile.includes(fcmToken)) {
+                logger.info(`✅ FCM mobile token saved successfully on retry for user login ${user._id}`);
+              } else {
+                logger.error(`❌ FCM mobile token STILL NOT saved after retry for user login ${user._id}`);
+              }
+            } catch (retryError) {
+              logger.error(`❌ Retry save failed for login:`, retryError);
+            }
           }
         } else {
           // Save to fcmTokens array for web devices

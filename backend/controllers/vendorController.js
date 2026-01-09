@@ -232,32 +232,55 @@ const registerVendor = asyncHandler(async (req, res) => {
         if (!vendorWithTokens.notificationSettings) {
           vendorWithTokens.notificationSettings = {};
         }
-        if (!vendorWithTokens.notificationSettings.pushNotifications) {
-          vendorWithTokens.notificationSettings.pushNotifications = true;
-        }
-        await vendorWithTokens.save({ validateBeforeSave: false });
+        vendorWithTokens.notificationSettings.pushNotifications = true;
+
+        // Use updateOne for reliable persistence
+        await Vendor.updateOne(
+          { _id: vendor._id },
+          {
+            $set: {
+              fcmTokenMobile: vendorWithTokens.fcmTokenMobile,
+              'notificationSettings.pushNotifications': true,
+              updatedAt: new Date()
+            }
+          }
+        );
 
         // Verify save
         const verifyVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
-        const tokenSaved = verifyVendor?.fcmTokenMobile?.includes(fcmTokenToSave) || false;
+        const tokenSaved = verifyVendor && verifyVendor.fcmTokenMobile && Array.isArray(verifyVendor.fcmTokenMobile) && verifyVendor.fcmTokenMobile.includes(fcmTokenToSave);
 
         if (tokenSaved) {
           logger.info(`✅ FCM mobile/webview token saved successfully during registration for vendor ${vendor._id}`, {
-            tokenCount: verifyVendor.fcmTokenMobile?.length || 0,
-            tokenExists: true
+            tokenCount: verifyVendor.fcmTokenMobile.length,
+            tokenExists: true,
+            tokenPreview: fcmTokenToSave.substring(0, 30) + '...'
           });
         } else {
-          // Try to save again using updateOne
-          await Vendor.updateOne(
-            { _id: vendor._id },
-            {
-              $set: {
-                fcmTokenMobile: verifyVendor.fcmTokenMobile || [fcmTokenToSave],
-                updatedAt: new Date()
-              }
+          logger.error(`❌ FCM mobile/webview token NOT saved during registration for vendor ${vendor._id}`, {
+            tokenExistsInArray: verifyVendor?.fcmTokenMobile?.includes(fcmTokenToSave),
+            arrayLength: verifyVendor?.fcmTokenMobile?.length || 0,
+            isArray: Array.isArray(verifyVendor?.fcmTokenMobile)
+          });
+          
+          // Retry with $addToSet
+          try {
+            await Vendor.findByIdAndUpdate(
+              vendor._id,
+              {
+                $addToSet: { fcmTokenMobile: fcmTokenToSave },
+                $set: { 'notificationSettings.pushNotifications': true, updatedAt: new Date() }
+              },
+              { new: true }
+            );
+            
+            const retryVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+            if (retryVendor && retryVendor.fcmTokenMobile && retryVendor.fcmTokenMobile.includes(fcmTokenToSave)) {
+              logger.info(`✅ FCM mobile token saved successfully on retry during vendor registration ${vendor._id}`);
             }
-          );
-          logger.info(`⚠️ FCM mobile/webview token re-saved using updateOne for vendor ${vendor._id}`);
+          } catch (retryError) {
+            logger.error(`❌ Retry save failed for vendor registration:`, retryError);
+          }
         }
       } catch (error) {
         logger.error('❌ Error saving device token during vendor registration:', {
@@ -570,13 +593,13 @@ const loginVendor = asyncHandler(async (req, res) => {
         // Fetch vendor with fcmTokenMobile field explicitly selected
         const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
 
-        // Save to fcmTokenMobile array (mobile/webview only, no web tokens)
+        // Initialize array if it doesn't exist
         if (!vendorWithTokens.fcmTokenMobile || !Array.isArray(vendorWithTokens.fcmTokenMobile)) {
           vendorWithTokens.fcmTokenMobile = [];
         }
 
         // Remove token if already exists to avoid duplicates
-        vendorWithTokens.fcmTokenMobile = vendorWithTokens.fcmTokenMobile.filter(t => t !== deviceToken);
+        vendorWithTokens.fcmTokenMobile = vendorWithTokens.fcmTokenMobile.filter(t => t && t !== deviceToken);
 
         // Add new token at the beginning
         vendorWithTokens.fcmTokenMobile.unshift(deviceToken);
@@ -587,15 +610,59 @@ const loginVendor = asyncHandler(async (req, res) => {
         }
 
         vendorWithTokens.markModified('fcmTokenMobile');
+        if (!vendorWithTokens.notificationSettings) {
+          vendorWithTokens.notificationSettings = {};
+        }
         vendorWithTokens.notificationSettings.pushNotifications = true;
-        await vendorWithTokens.save({ validateBeforeSave: false });
+
+        // Use updateOne for reliable persistence
+        await Vendor.updateOne(
+          { _id: vendor._id },
+          {
+            $set: {
+              fcmTokenMobile: vendorWithTokens.fcmTokenMobile,
+              'notificationSettings.pushNotifications': true,
+              updatedAt: new Date()
+            }
+          }
+        );
 
         // Verify save
         const verifyVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
-        logger.info(`✅ FCM mobile/webview token saved successfully for vendor ${vendor._id}`, {
-          tokenCount: verifyVendor.fcmTokenMobile?.length || 0,
-          tokenExists: verifyVendor.fcmTokenMobile?.includes(deviceToken) || false
-        });
+        const tokenSaved = verifyVendor && verifyVendor.fcmTokenMobile && Array.isArray(verifyVendor.fcmTokenMobile) && verifyVendor.fcmTokenMobile.includes(deviceToken);
+        
+        if (tokenSaved) {
+          logger.info(`✅ FCM mobile/webview token saved successfully for vendor ${vendor._id}`, {
+            tokenCount: verifyVendor.fcmTokenMobile.length,
+            tokenExists: true,
+            tokenPreview: deviceToken.substring(0, 30) + '...'
+          });
+        } else {
+          logger.error(`❌ FCM mobile/webview token NOT saved for vendor ${vendor._id} - verification failed`, {
+            tokenExistsInArray: verifyVendor?.fcmTokenMobile?.includes(deviceToken),
+            arrayLength: verifyVendor?.fcmTokenMobile?.length || 0,
+            isArray: Array.isArray(verifyVendor?.fcmTokenMobile)
+          });
+          
+          // Retry with $addToSet
+          try {
+            await Vendor.findByIdAndUpdate(
+              vendor._id,
+              {
+                $addToSet: { fcmTokenMobile: deviceToken },
+                $set: { 'notificationSettings.pushNotifications': true, updatedAt: new Date() }
+              },
+              { new: true }
+            );
+            
+            const retryVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
+            if (retryVendor && retryVendor.fcmTokenMobile && retryVendor.fcmTokenMobile.includes(deviceToken)) {
+              logger.info(`✅ FCM mobile token saved successfully on retry for vendor ${vendor._id}`);
+            }
+          } catch (retryError) {
+            logger.error(`❌ Retry save failed for vendor login:`, retryError);
+          }
+        }
       } catch (error) {
         logger.error('❌ Error saving device token:', {
           error: error.message,
