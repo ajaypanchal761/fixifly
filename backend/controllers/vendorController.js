@@ -195,8 +195,20 @@ const registerVendor = asyncHandler(async (req, res) => {
     const fcmTokenToSave = deviceToken || fcmToken;
     if (fcmTokenToSave) {
       try {
-        logger.info(`🔔 Saving FCM token for vendor registration ${vendor._id} (mobile/webview only)`);
+        // Detect if this is from mobile app (Flutter/Android bridge)
+        const flutterBridge = req.headers['x-flutter-bridge'] === 'true' || req.headers['x-is-mobile'] === 'true';
+        const androidBridge = req.headers['x-android-bridge'] === 'true';
+        const isMobileApp = flutterBridge || androidBridge || 
+          (req.headers['user-agent'] && (
+            req.headers['user-agent'].toLowerCase().includes('wv') || 
+            req.headers['user-agent'].toLowerCase().includes('webview') ||
+            req.headers['user-agent'].toLowerCase().includes('android') ||
+            req.headers['user-agent'].toLowerCase().includes('mobile')
+          ));
 
+        logger.info(`🔔 Saving FCM token for vendor registration ${vendor._id} - mobile: ${isMobileApp}, flutter: ${flutterBridge}, android: ${androidBridge}`);
+
+        // Always save to fcmTokenMobile for vendor registration (vendors only use mobile)
         // Fetch vendor with fcmTokenMobile field explicitly selected
         const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
 
@@ -541,8 +553,20 @@ const loginVendor = asyncHandler(async (req, res) => {
     // Save FCM token if provided - only for mobile/webview devices
     if (deviceToken) {
       try {
-        logger.info(`🔔 Saving FCM token for vendor ${vendor._id} (mobile/webview only)`);
+        // Detect if this is from mobile app (Flutter/Android bridge)
+        const flutterBridge = req.headers['x-flutter-bridge'] === 'true' || req.headers['x-is-mobile'] === 'true';
+        const androidBridge = req.headers['x-android-bridge'] === 'true';
+        const isMobileApp = flutterBridge || androidBridge || 
+          (req.headers['user-agent'] && (
+            req.headers['user-agent'].toLowerCase().includes('wv') || 
+            req.headers['user-agent'].toLowerCase().includes('webview') ||
+            req.headers['user-agent'].toLowerCase().includes('android') ||
+            req.headers['user-agent'].toLowerCase().includes('mobile')
+          ));
 
+        logger.info(`🔔 Saving FCM token for vendor login ${vendor._id} - mobile: ${isMobileApp}, flutter: ${flutterBridge}, android: ${androidBridge}`);
+
+        // Always save to fcmTokenMobile for vendor login (vendors only use mobile)
         // Fetch vendor with fcmTokenMobile field explicitly selected
         const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
 

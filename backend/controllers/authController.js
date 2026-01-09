@@ -307,18 +307,24 @@ const verifyOTP = asyncHandler(async (req, res) => {
     // Save FCM token if provided - detect platform and save to correct array
     if (fcmToken) {
       try {
-        // Detect platform from request body first, then check headers
+        // Detect platform - prioritize explicit platform, then headers, then user-agent
         const userAgent = req.headers['user-agent'] || '';
-        const flutterBridge = req.headers['x-flutter-bridge'] || req.body.isFlutter;
+        const flutterBridge = req.headers['x-flutter-bridge'] === 'true' || req.headers['x-is-mobile'] === 'true' || req.body.isFlutter;
+        const androidBridge = req.headers['x-android-bridge'] === 'true';
+        const isMobileHeader = req.headers['x-is-mobile'] === 'true';
+        
+        // If explicit platform is provided, use it
+        // Otherwise, if Flutter/Android bridge header is present, ALWAYS treat as mobile
+        // Otherwise, check user-agent
         const detectedPlatform = platform || 
-          (flutterBridge ? 'mobile' : 
+          (flutterBridge || androidBridge || isMobileHeader ? 'mobile' : 
           (userAgent.toLowerCase().includes('wv') || 
            userAgent.toLowerCase().includes('webview') ||
            userAgent.toLowerCase().includes('mobile') || 
            userAgent.toLowerCase().includes('android') || 
            userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web'));
         
-        logger.info(`🔔 Platform detection (verifyOTP) - body: ${platform}, flutter: ${flutterBridge}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
+        logger.info(`🔔 Platform detection (verifyOTP) - body: ${platform}, flutter: ${flutterBridge}, android: ${androidBridge}, isMobile: ${isMobileHeader}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
         logger.info(`🔔 Saving FCM token for user ${user._id} (platform: ${detectedPlatform})`);
 
         if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {
@@ -558,18 +564,24 @@ const register = asyncHandler(async (req, res) => {
     // Save FCM token if provided during registration
     if (fcmToken) {
       try {
-        // Detect platform from request body first, then check headers
+        // Detect platform - prioritize explicit platform, then headers, then user-agent
         const userAgent = req.headers['user-agent'] || '';
-        const flutterBridge = req.headers['x-flutter-bridge'] || req.body.isFlutter;
+        const flutterBridge = req.headers['x-flutter-bridge'] === 'true' || req.headers['x-is-mobile'] === 'true' || req.body.isFlutter;
+        const androidBridge = req.headers['x-android-bridge'] === 'true';
+        const isMobileHeader = req.headers['x-is-mobile'] === 'true';
+        
+        // If explicit platform is provided, use it
+        // Otherwise, if Flutter/Android bridge header is present, ALWAYS treat as mobile
+        // Otherwise, check user-agent
         const detectedPlatform = req.body.platform || 
-          (flutterBridge ? 'mobile' : 
+          (flutterBridge || androidBridge || isMobileHeader ? 'mobile' : 
           (userAgent.toLowerCase().includes('wv') || 
            userAgent.toLowerCase().includes('webview') ||
            userAgent.toLowerCase().includes('mobile') || 
            userAgent.toLowerCase().includes('android') || 
            userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web'));
         
-        logger.info(`🔔 Platform detection - body: ${req.body.platform}, flutter: ${flutterBridge}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
+        logger.info(`🔔 Platform detection (register) - body: ${req.body.platform}, flutter: ${flutterBridge}, android: ${androidBridge}, isMobile: ${isMobileHeader}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
         logger.info(`🔔 Saving FCM token for user registration ${user._id || 'new'} (platform: ${detectedPlatform})`);
 
         if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {
@@ -816,18 +828,24 @@ const login = asyncHandler(async (req, res) => {
     // Save FCM token if provided - detect platform and save to correct array
     if (fcmToken) {
       try {
-        // Detect platform from request body first, then check headers
+        // Detect platform - prioritize explicit platform, then headers, then user-agent
         const userAgent = req.headers['user-agent'] || '';
-        const flutterBridge = req.headers['x-flutter-bridge'] || req.body.isFlutter;
+        const flutterBridge = req.headers['x-flutter-bridge'] === 'true' || req.headers['x-is-mobile'] === 'true' || req.body.isFlutter;
+        const androidBridge = req.headers['x-android-bridge'] === 'true';
+        const isMobileHeader = req.headers['x-is-mobile'] === 'true';
+        
+        // If explicit platform is provided, use it
+        // Otherwise, if Flutter/Android bridge header is present, ALWAYS treat as mobile
+        // Otherwise, check user-agent
         const detectedPlatform = platform || 
-          (flutterBridge ? 'mobile' : 
+          (flutterBridge || androidBridge || isMobileHeader ? 'mobile' : 
           (userAgent.toLowerCase().includes('wv') || 
            userAgent.toLowerCase().includes('webview') ||
            userAgent.toLowerCase().includes('mobile') || 
            userAgent.toLowerCase().includes('android') || 
            userAgent.toLowerCase().includes('ios') ? 'mobile' : 'web'));
         
-        logger.info(`🔔 Platform detection - body: ${platform}, flutter: ${flutterBridge}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
+        logger.info(`🔔 Platform detection (login) - body: ${platform}, flutter: ${flutterBridge}, android: ${androidBridge}, isMobile: ${isMobileHeader}, ua: ${userAgent.substring(0, 50)}, detected: ${detectedPlatform}`);
         logger.info(`🔔 Saving FCM token for user login ${user._id} (platform: ${detectedPlatform})`);
 
         if (detectedPlatform === 'mobile' || detectedPlatform === 'android' || detectedPlatform === 'ios') {

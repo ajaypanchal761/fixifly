@@ -260,8 +260,12 @@ const Login = () => {
         return;
       }
 
+      // Get FCM token if available
+      const fcmToken = await getFCMToken();
+      const platform = (typeof (window as any).flutter_inappwebview !== 'undefined' || typeof (window as any).Android !== 'undefined') ? 'mobile' : 'web';
+
       // Call backend API to verify OTP and login
-      const response = await apiService.login(cleanPhone, formData.otp);
+      const response = await apiService.login(cleanPhone, formData.otp, fcmToken || undefined, platform || undefined);
 
       if (response.success && response.data) {
         // Use auth context to login

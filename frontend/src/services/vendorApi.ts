@@ -144,9 +144,22 @@ class VendorApiService {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
 
+    // Detect if running in Flutter/Android bridge (mobile app)
+    const isFlutterBridge = typeof (window as any).flutter_inappwebview !== 'undefined';
+    const isAndroidBridge = typeof (window as any).Android !== 'undefined';
+    const isMobileApp = isFlutterBridge || isAndroidBridge;
+
     const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     };
+
+    // Add mobile app detection headers
+    if (isMobileApp) {
+      defaultHeaders['x-flutter-bridge'] = isFlutterBridge ? 'true' : 'false';
+      defaultHeaders['x-is-mobile'] = 'true';
+      defaultHeaders['x-android-bridge'] = isAndroidBridge ? 'true' : 'false';
+    }
 
     // Add authorization header if token exists
     const token = localStorage.getItem('vendorToken');
