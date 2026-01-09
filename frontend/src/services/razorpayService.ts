@@ -89,7 +89,7 @@ class RazorpayService {
   private razorpayKey: string;
 
   constructor() {
-    this.razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_8sYbzHWidwe5Zw';
+    this.razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_RyCVwnDNEvO2uL';
 
     if (!this.razorpayKey) {
       console.error('⚠️  RAZORPAY_KEY_ID not configured in environment variables');

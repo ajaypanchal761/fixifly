@@ -1,4 +1,4 @@
-# User Model Documentation
+# User Model Documentationss
 
 ## Overview
 The User model is designed to handle all user-related data for the Fixifly application, including authentication, profile information, and user preferences.
