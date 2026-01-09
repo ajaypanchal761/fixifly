@@ -256,16 +256,6 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-bold text-green-600">
-                                  ₹{service.price.toLocaleString()}
-                                </span>
-                                {service.discountPrice && service.discountPrice !== service.price && (
-                                  <span className="text-xs text-gray-500 line-through">
-                                    ₹{service.discountPrice.toLocaleString()}
-                                  </span>
-                                )}
-                              </div>
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge 
                                   variant={service.isActive ? "default" : "secondary"}
@@ -273,11 +263,6 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
                                 >
                                   {service.isActive ? 'Active' : 'Inactive'}
                                 </Badge>
-                                {service.discountPrice && service.discountPrice !== service.price && (
-                                  <Badge variant="outline" className="text-orange-600 border-orange-200 text-xs">
-                                    {Math.round(((service.price - service.discountPrice) / service.price) * 100)}% OFF
-                                  </Badge>
-                                )}
                               </div>
                             </div>
                           </div>

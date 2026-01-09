@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, CreditCard, Shield, Check, Loader2, User, Mail, Phone, MapPin, LogIn, Banknote } from "lucide-react";
+import { ArrowLeft, Shield, Check, Loader2, User, Mail, Phone, MapPin, LogIn, Banknote } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import razorpayService, { BookingData } from "@/services/razorpayService";
+import type { BookingData } from "@/services/razorpayService";
 import { generateDynamicTimeSlots, getTimeSlotDisplayText } from "@/utils/timeSlotUtils";
 
 interface CartItem {
@@ -140,16 +140,51 @@ const Checkout = () => {
       return;
     }
 
-    if (location.state?.cartItems && location.state?.totalPrice) {
+    // Check for cart data in location state first
+    if (location.state?.cartItems && location.state?.totalPrice !== undefined) {
+      console.log('Cart data from location.state:', location.state);
       setCheckoutData({
         cartItems: location.state.cartItems,
         totalPrice: location.state.totalPrice
       });
-    } else {
-      // Redirect to home if no cart data
-      navigate('/');
+      return;
     }
-  }, [location.state, navigate, isAuthenticated, toast]);
+
+    // Fallback: Try to get cart data from localStorage
+    let cartDataFound = false;
+    try {
+      const savedCartData = localStorage.getItem('checkoutCartData');
+      if (savedCartData) {
+        const parsed = JSON.parse(savedCartData);
+        if (parsed.cartItems && parsed.totalPrice !== undefined) {
+          console.log('Cart data from localStorage:', parsed);
+          setCheckoutData({
+            cartItems: parsed.cartItems,
+            totalPrice: parsed.totalPrice
+          });
+          cartDataFound = true;
+        }
+      }
+    } catch (error) {
+      console.error('Error reading cart data from localStorage:', error);
+    }
+
+    // Only redirect if no cart data found after checking both sources
+    // Give it a small delay to allow state to propagate
+    if (!cartDataFound && !location.state?.cartItems) {
+      const redirectTimer = setTimeout(() => {
+        console.log('No cart data found, redirecting to home');
+        toast({
+          title: "No Items in Cart",
+          description: "Please add items to cart before checkout",
+          variant: "destructive"
+        });
+        navigate('/');
+      }, 200);
+
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [location.state, navigate, isAuthenticated, toast, location]);
 
   // First-time user check removed - all users pay regular pricing
 
@@ -189,14 +224,6 @@ const Checkout = () => {
         }
       };
 
-      console.log('Cash payment booking request data:', requestData);
-      console.log('Pricing data being sent:', requestData.pricing);
-      console.log('Date validation:', {
-        scheduledDate: customerData.scheduledDate,
-        dateObject: new Date(customerData.scheduledDate),
-        isValidDate: !isNaN(new Date(customerData.scheduledDate).getTime())
-      });
-
       // Get authentication token
       const token = localStorage.getItem('accessToken');
       const headers: HeadersInit = {
@@ -216,27 +243,13 @@ const Checkout = () => {
 
       const data = await response.json();
 
-      console.log('Cash payment booking response:', {
-        status: response.status,
-        success: data.success,
-        message: data.message,
-        error: data.error,
-        data: data.data
-      });
-
       if (!data.success) {
-        console.error('Backend error details:', {
-          message: data.message,
-          error: data.error,
-          fullResponse: data
-        });
         throw new Error(data.message || 'Failed to create booking');
       }
 
-      // Navigate IMMEDIATELY to booking page with booking data - don't wait for toast
-      // This ensures instant navigation to confirmation page
+      // Navigate IMMEDIATELY to booking page - instant booking
       navigate('/booking', { 
-        replace: true, // Replace current history entry to prevent back navigation to checkout
+        replace: true,
         state: { 
           booking: data.data.booking,
           bookingReference: data.data.booking.bookingReference,
@@ -244,26 +257,26 @@ const Checkout = () => {
         }
       });
 
-      // Show toast after navigation (non-blocking)
-      toast({
-        title: "Booking Created Successfully!",
-        description: `Your booking has been created with reference: ${data.data.booking.bookingReference}. Payment will be collected on delivery.`,
-        variant: "default"
-      });
+      // Show success toast (non-blocking, after navigation)
+      setTimeout(() => {
+        toast({
+          title: "Booking Confirmed!",
+          description: `Your booking reference: ${data.data.booking.bookingReference}`,
+          variant: "default"
+        });
+      }, 100);
 
     } catch (error) {
-      console.error('Error creating cash payment booking:', error);
+      setLoading(false);
       toast({
         title: "Booking Failed",
         description: error instanceof Error ? error.message : "Failed to create booking. Please try again.",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handlePayment = async (paymentMethod: 'razorpay' | 'cash') => {
+  const handlePayment = async () => {
     try {
       setLoading(true);
       
@@ -280,10 +293,6 @@ const Checkout = () => {
         setLoading(false);
         return;
       }
-      
-      // Debug: Log the email being used
-      console.log('Creating booking with email:', customerData.email);
-      console.log('Logged in user email:', user?.email);
       
       // Validate phone number format (should start with +91)
       if (!customerData.phone.startsWith('+91') || customerData.phone.length !== 13) {
@@ -317,90 +326,21 @@ const Checkout = () => {
         notes: customerData.notes || "Booking created from checkout"
       };
 
-      if (paymentMethod === 'cash') {
-        // Handle cash payment
-        await handleCashPayment(bookingData);
-      } else {
-        // Process payment with Razorpay
-        await razorpayService.processBookingPayment(
-          bookingData,
-          // Success callback
-          (response) => {
-            console.log('✅ Payment success callback received:', {
-              hasBooking: !!response.booking,
-              bookingReference: response.bookingReference,
-              responseKeys: Object.keys(response)
-            });
-
-            const bookingRef = response.bookingReference || response.booking?.bookingReference;
-            
-            // Navigate IMMEDIATELY to booking page - don't wait for toast
-            // This ensures instant navigation to confirmation page
-            navigate('/booking', { 
-              replace: true, // Replace current history entry to prevent back navigation to checkout
-              state: { 
-                booking: response.booking,
-                bookingReference: bookingRef,
-                fromCheckout: true 
-              } 
-            });
-
-            // Show toast after navigation (non-blocking)
-            toast({
-              title: "Payment Successful!",
-              description: `Your booking has been confirmed. Reference: ${bookingRef}`,
-              variant: "default"
-            });
-          },
-          // Failure callback
-          (error) => {
-            console.error('Payment failed:', error);
-            toast({
-              title: "Payment Failed",
-              description: error instanceof Error ? error.message : "Please try again or contact support.",
-              variant: "destructive"
-            });
-          },
-          // Close callback
-          () => {
-            console.log('Payment modal closed');
-          }
-        );
-      }
+      // Handle cash payment
+      await handleCashPayment(bookingData);
       
     } catch (error) {
-      console.error('Payment initialization failed:', error);
+      setLoading(false);
       toast({
         title: "Payment Failed",
         description: error instanceof Error ? error.message : "Please try again or contact support.",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => navigate(-1)}
-                className="p-2"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <h1 className="text-lg font-semibold">Checkout</h1>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="container mx-auto px-4 py-6 pb-24">
         <div className="max-w-2xl mx-auto">
           {/* Back Button */}
@@ -684,41 +624,22 @@ const Checkout = () => {
             </div>
           </div>
           
-          {/* Payment Buttons */}
+          {/* Payment Button */}
           {/* Cash on Delivery Button */}
           <Button 
-            onClick={() => handlePayment('cash')}
+            onClick={handlePayment}
             disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold mb-3"
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold"
           >
             {loading ? (
               <>
                 <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Creating Booking...
+                Booking...
               </>
             ) : (
               <>
                 <Banknote className="h-5 w-5 mr-2" />
-                Cash on Delivery - ₹{totalAmount}
-              </>
-            )}
-          </Button>
-
-          {/* Pay with Razorpay Button */}
-          <Button 
-            onClick={() => handlePayment('razorpay')}
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Processing Payment...
-              </>
-            ) : (
-              <>
-                <CreditCard className="h-5 w-5 mr-2" />
-                Pay with Razorpay - ₹{totalAmount}
+                Book Now
               </>
             )}
           </Button>

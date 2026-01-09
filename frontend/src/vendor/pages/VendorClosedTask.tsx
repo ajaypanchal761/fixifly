@@ -645,13 +645,12 @@ const VendorClosedTask = () => {
       return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
     }, 0);
     const travellingAmountValue = 100; // Fixed travelling amount
-    const bookingAmountValue = 0; // For now, booking amount is 0
     
     const calculation = calculateCashCollectionDeduction({
       billingAmount: billingAmountValue,
       spareAmount: spareAmountValue,
       travellingAmount: travellingAmountValue,
-      bookingAmount: bookingAmountValue,
+      bookingAmount: 0,
       gstIncluded: includeGST
     });
     
@@ -1136,14 +1135,6 @@ const VendorClosedTask = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Traveling Amount</span>
                 <span className="text-sm font-medium text-gray-800">₹100</span>
-              </div>
-
-              {/* Booking Amount */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Booking Amount</span>
-                <span className="text-sm font-medium text-gray-800">
-                  {task?.isSupportTicket ? 'N/A' : task?.amount || '₹0'}
-                </span>
               </div>
 
               {/* GST (show if GST is included) */}

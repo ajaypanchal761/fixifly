@@ -257,27 +257,70 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
   const userId = req.user.userId || req.user._id;
 
   const tickets = await SupportTicket.find({ userId })
-    .select('ticketId subject type status priority createdAt lastResponseAt responseCount caseId subscriptionId paymentMode paymentStatus billingAmount vendorStatus completionData description')
-    .sort({ createdAt: -1 });
+    .select('ticketId subject type status priority createdAt updatedAt lastResponseAt responseCount caseId subscriptionId paymentMode paymentStatus billingAmount vendorStatus completionData description')
+    .sort({ createdAt: -1 })
+    .lean();
 
-  const formattedTickets = tickets.map(ticket => ({
-    id: ticket.ticketId,
-    subject: ticket.subject,
-    type: ticket.type,
-    status: ticket.status,
-    priority: ticket.priority,
-    created: ticket.formattedCreatedAt,
-    lastUpdate: ticket.lastUpdate,
-    responses: ticket.responseCount,
-    caseId: ticket.caseId,
-    subscriptionId: ticket.subscriptionId,
-    description: ticket.description,
-    paymentMode: ticket.paymentMode,
-    paymentStatus: ticket.paymentStatus,
-    billingAmount: ticket.billingAmount || 0,
-    totalAmount: ticket.completionData?.totalAmount || 0,
-    vendorStatus: ticket.vendorStatus
-  }));
+  const formattedTickets = tickets.map(ticket => {
+    // Format dates safely
+    let formattedCreated = 'Date not available';
+    let formattedLastUpdate = 'Date not available';
+    
+    if (ticket.createdAt) {
+      try {
+        const date = new Date(ticket.createdAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+        const time = new Date(ticket.createdAt).toLocaleTimeString('en-IN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+        formattedCreated = `${date} at ${time}`;
+      } catch (error) {
+        console.error('Error formatting createdAt:', error);
+      }
+    }
+    
+    if (ticket.updatedAt) {
+      try {
+        const date = new Date(ticket.updatedAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+        const time = new Date(ticket.updatedAt).toLocaleTimeString('en-IN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+        formattedLastUpdate = `${date} at ${time}`;
+      } catch (error) {
+        console.error('Error formatting updatedAt:', error);
+      }
+    }
+    
+    return {
+      id: ticket.ticketId,
+      subject: ticket.subject,
+      type: ticket.type,
+      status: ticket.status,
+      priority: ticket.priority,
+      created: formattedCreated,
+      lastUpdate: formattedLastUpdate,
+      responses: ticket.responseCount || 0,
+      caseId: ticket.caseId,
+      subscriptionId: ticket.subscriptionId,
+      description: ticket.description,
+      paymentMode: ticket.paymentMode,
+      paymentStatus: ticket.paymentStatus,
+      billingAmount: ticket.billingAmount || 0,
+      totalAmount: ticket.completionData?.totalAmount || 0,
+      vendorStatus: ticket.vendorStatus
+    };
+  });
 
   res.json({
     success: true,
@@ -2103,35 +2146,40 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
           gstIncluded: includeGST || false
         });
 
-        // Check if vendor has sufficient balance for cash collection deduction
-        if (vendorWallet.currentBalance < calculation.calculatedAmount) {
-          return res.status(400).json({
-            success: false,
-            message: `Insufficient wallet balance. You need at least ₹${calculation.calculatedAmount.toLocaleString()} to complete this cash task. Current balance: ₹${vendorWallet.currentBalance.toLocaleString()}`,
-            error: 'INSUFFICIENT_WALLET_BALANCE',
-            currentBalance: vendorWallet.currentBalance,
-            requiredAmount: calculation.calculatedAmount
+        // For billing <= 300, no wallet deduction is made, so skip wallet check
+        if (calculation.calculatedAmount > 0) {
+          // Check if vendor has sufficient balance for cash collection deduction
+          if (vendorWallet.currentBalance < calculation.calculatedAmount) {
+            return res.status(400).json({
+              success: false,
+              message: `Insufficient wallet balance. You need at least ₹${calculation.calculatedAmount.toLocaleString()} to complete this cash task. Current balance: ₹${vendorWallet.currentBalance.toLocaleString()}`,
+              error: 'INSUFFICIENT_WALLET_BALANCE',
+              currentBalance: vendorWallet.currentBalance,
+              requiredAmount: calculation.calculatedAmount
+            });
+          }
+
+          console.log('🔧 WALLET DEBUG: About to call addCashCollectionDeduction with:', {
+            caseId: ticket.ticketId,
+            billingAmount: parsedBillingAmount,
+            spareAmount,
+            travellingAmount,
+            gstIncluded: includeGST || false
           });
+
+          const deductionResult = await vendorWallet.addCashCollectionDeduction({
+            caseId: ticket.ticketId,
+            billingAmount: parsedBillingAmount,
+            spareAmount,
+            travellingAmount,
+            gstIncluded: includeGST || false,
+            description: `Support ticket cash collection - ${ticket.ticketId}`
+          });
+
+          console.log('🔧 WALLET DEBUG: Cash collection deduction result:', deductionResult);
+        } else {
+          console.log('🔧 WALLET DEBUG: Billing amount <= 300, skipping wallet deduction for cash collection');
         }
-
-        console.log('🔧 WALLET DEBUG: About to call addCashCollectionDeduction with:', {
-          caseId: ticket.ticketId,
-          billingAmount: parsedBillingAmount,
-          spareAmount,
-          travellingAmount,
-          gstIncluded: includeGST || false
-        });
-
-        const deductionResult = await vendorWallet.addCashCollectionDeduction({
-          caseId: ticket.ticketId,
-          billingAmount: parsedBillingAmount,
-          spareAmount,
-          travellingAmount,
-          gstIncluded: includeGST || false,
-          description: `Support ticket cash collection - ${ticket.ticketId}`
-        });
-
-        console.log('🔧 WALLET DEBUG: Cash collection deduction result:', deductionResult);
 
         logger.info('Support ticket cash collection deducted from vendor wallet', {
           vendorId: vendorId,

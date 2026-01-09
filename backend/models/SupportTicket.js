@@ -414,30 +414,44 @@ SupportTicketSchema.pre('save', async function (next) {
 
 // Virtual for formatted creation date
 SupportTicketSchema.virtual('formattedCreatedAt').get(function () {
-  const date = this.createdAt.toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  });
-  const time = this.createdAt.toLocaleTimeString('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
-  return `${date} at ${time}`;
+  if (!this.createdAt) {
+    return 'Date not available';
+  }
+  try {
+    const date = this.createdAt.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+    const time = this.createdAt.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    return `${date} at ${time}`;
+  } catch (error) {
+    return 'Date not available';
+  }
 });
 
 // Virtual for last update time
 SupportTicketSchema.virtual('lastUpdate').get(function () {
-  return this.updatedAt.toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  }) + ' at ' + this.updatedAt.toLocaleTimeString('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  if (!this.updatedAt) {
+    return 'Date not available';
+  }
+  try {
+    return this.updatedAt.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }) + ' at ' + this.updatedAt.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (error) {
+    return 'Date not available';
+  }
 });
 
 // Method to add response

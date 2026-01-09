@@ -5,12 +5,12 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 require('dotenv').config({ path: './config/production.env' });
 
-// Set Razorpay environment variables if not set (Live Credentials)
+// Set Razorpay environment variables if not set (Test Credentials)
 if (!process.env.RAZORPAY_KEY_ID) {
-  process.env.RAZORPAY_KEY_ID = 'rzp_live_RyCVwnDNEvO2uL';
+  process.env.RAZORPAY_KEY_ID = 'rzp_test_8sYbzHWidwe5Zw';
 }
 if (!process.env.RAZORPAY_KEY_SECRET) {
-  process.env.RAZORPAY_KEY_SECRET = 'jhc3nFz1B10oWNZZBP1ChVRO';
+  process.env.RAZORPAY_KEY_SECRET = 'GkxKRQ2B0U63BKBoayuugS3D';
 }
 
 // Import database connection

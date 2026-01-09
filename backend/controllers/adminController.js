@@ -696,12 +696,21 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     console.log('🔍 COMPLETED BOOKINGS WITH PAYMENT:', JSON.stringify(completedWithPayment, null, 2));
 
     // Reusable expressions for admin commission calculation
+    // Match completed bookings that have billing/pricing data (more flexible payment status)
+    // billingAmount is stored as String, so we check for existence and non-empty
     const bookingMatchBase = {
       status: 'completed',
-      'payment.status': 'completed',
       $or: [
-        { 'completionData.billingAmount': { $exists: true, $ne: null, $ne: '', $gt: 0 } },
-        { 'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 } }
+        { 
+          'completionData.billingAmount': { 
+            $exists: true, 
+            $ne: null, 
+            $ne: '',
+            $nin: ['0', '0.00', '0.0']
+          } 
+        },
+        { 'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 } },
+        { 'billingAmount': { $exists: true, $ne: null, $ne: '' } }
       ]
     };
 
@@ -755,18 +764,20 @@ const getDashboardStats = asyncHandler(async (req, res) => {
                       }
                     }
                   },
-                  travellingAmount: safeToDouble({ $ifNull: ['$completionData.travelingAmount', 0] }),
-                  bookingAmount: safeToDouble({ $ifNull: ['$pricing.totalAmount', 0] })
+                  travellingAmount: safeToDouble({ $ifNull: ['$completionData.travelingAmount', 0] })
                 },
                 in: {
                   $cond: {
-                    if: { $lte: ['$$billingAmount', 500] },
-                    then: { $multiply: [{ $ifNull: ['$pricing.totalAmount', 0] }, 0.5] },
+                    if: { $lte: ['$$billingAmount', 300] },
+                    then: 0, // Admin gets nothing if billing <= 300
                     else: {
-                      $add: [
-                        { $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount', '$$bookingAmount'] }] }, 0.5] },
-                        { $multiply: ['$$bookingAmount', 0.5] }
-                      ]
+                      $cond: {
+                        if: { $lte: ['$$billingAmount', 500] },
+                        then: { $multiply: ['$$billingAmount', 0.5] },
+                        else: {
+                          $multiply: [{ $subtract: ['$$billingAmount', { $add: ['$$spareAmount', '$$travellingAmount'] }] }, 0.5]
+                        }
+                      }
                     }
                   }
                 }
@@ -781,16 +792,24 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const bookingCommissionAddFieldsStage2 = {
       $addFields: {
         adminCommissionWithGST: {
-          $add: [
-            '$adminCommission',
-            {
-              $cond: [
-                { $ifNull: ['$completionData.includeGST', false] },
-                safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
-                0
+          $cond: {
+            // If adminCommission is 0 (billing <= 300), then adminCommissionWithGST should also be 0
+            // Admin should not get GST if they're not getting any commission
+            if: { $eq: ['$adminCommission', 0] },
+            then: 0,
+            else: {
+              $add: [
+                '$adminCommission',
+                {
+                  $cond: [
+                    { $ifNull: ['$completionData.includeGST', false] },
+                    safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
+                    0
+                  ]
+                }
               ]
             }
-          ]
+          }
         }
       }
     };
@@ -842,16 +861,24 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const supportCommissionAddFieldsStage2 = {
       $addFields: {
         adminCommissionWithGST: {
-          $add: [
-            '$adminCommission',
-            {
-              $cond: [
-                { $ifNull: ['$completionData.includeGST', false] },
-                safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
-                0
+          $cond: {
+            // If adminCommission is 0 (billing <= 500 for support tickets), then adminCommissionWithGST should also be 0
+            // Admin should not get GST if they're not getting any commission
+            if: { $eq: ['$adminCommission', 0] },
+            then: 0,
+            else: {
+              $add: [
+                '$adminCommission',
+                {
+                  $cond: [
+                    { $ifNull: ['$completionData.includeGST', false] },
+                    safeToDouble({ $ifNull: ['$completionData.gstAmount', 0] }),
+                    0
+                  ]
+                }
               ]
             }
-          ]
+          }
         }
       }
     };
@@ -880,30 +907,35 @@ const getDashboardStats = asyncHandler(async (req, res) => {
             _id: 0,
             source: { $literal: 'booking' },
             reference: {
-              $let: {
-                vars: {
-                  idStr: { $toString: '$_id' }
-                },
-                in: {
-                  $concat: [
-                    'FIX',
-                    {
-                      $toUpper: {
-                        $substrBytes: [
-                          '$$idStr',
-                          {
-                            $max: [
-                              { $subtract: [{ $strLenBytes: '$$idStr' }, 8] },
-                              0
+              $ifNull: [
+                '$bookingReference',
+                {
+                  $let: {
+                    vars: {
+                      idStr: { $toString: '$_id' }
+                    },
+                    in: {
+                      $concat: [
+                        'FIX',
+                        {
+                          $toUpper: {
+                            $substrBytes: [
+                              '$$idStr',
+                              {
+                                $max: [
+                                  { $subtract: [{ $strLenBytes: '$$idStr' }, 8] },
+                                  0
+                                ]
+                              },
+                              8
                             ]
-                          },
-                          8
-                        ]
-                      }
+                          }
+                        }
+                      ]
                     }
-                  ]
+                  }
                 }
-              }
+              ]
             },
             vendorId: '$vendor.vendorId',
             vendorName: {
@@ -1085,16 +1117,34 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const monthlySupportTicketRevenue = monthlySupportTicketRevenueResult.length > 0 ? (monthlySupportTicketRevenueResult[0].total || 0) : 0;
     const totalSupportTicketRevenue = totalSupportTicketRevenueResult.length > 0 ? (totalSupportTicketRevenueResult[0].total || 0) : 0;
     
+    // Log breakdown results for debugging
+    console.log('🔍 BREAKDOWN DEBUG:', {
+      monthlyBookingBreakdownCount: monthlyBookingBreakdown?.length || 0,
+      totalBookingBreakdownCount: totalBookingBreakdown?.length || 0,
+      monthlySupportBreakdownCount: monthlySupportBreakdown?.length || 0,
+      totalSupportBreakdownCount: totalSupportBreakdown?.length || 0,
+      monthlyBookingBreakdownSample: monthlyBookingBreakdown?.slice(0, 2) || [],
+      totalBookingBreakdownSample: totalBookingBreakdown?.slice(0, 2) || []
+    });
+    
     // Build detailed breakdowns (merged booking + support tickets)
     const monthlyRevenueBreakdown = [
       ...(monthlyBookingBreakdown || []),
       ...(monthlySupportBreakdown || [])
-    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    ].sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
 
     const totalRevenueBreakdown = [
       ...(totalBookingBreakdown || []),
       ...(totalSupportBreakdown || [])
-    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    ].sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
 
     // Combine booking and support ticket revenue
     let monthlyRevenue = monthlyBookingRevenue + monthlySupportTicketRevenue;

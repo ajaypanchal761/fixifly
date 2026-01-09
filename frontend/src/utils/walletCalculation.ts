@@ -53,8 +53,8 @@ export function calculateCashCollectionDeduction(params: CashCollectionParams): 
 
   let calculatedAmount = 0;
 
-  // Cash collection: (Billing - Spare - Travel - Booking) * 50%
-  const baseAmount = netBillingAmount - spareAmount - travellingAmount - bookingAmount;
+  // Cash collection: (Billing - Spare - Travel) * 50%
+  const baseAmount = netBillingAmount - spareAmount - travellingAmount;
   calculatedAmount = baseAmount * 0.5;
 
   // Add GST amount to cash collection deduction if GST is included
@@ -71,13 +71,12 @@ export function calculateCashCollectionDeduction(params: CashCollectionParams): 
     gstAmount,
     gstIncluded,
     calculatedAmount: Math.round(calculatedAmount * 100) / 100,
-    breakdown: {
-      baseAmount: netBillingAmount - spareAmount - travellingAmount - bookingAmount,
-      percentage: '50%',
-      spareAmount,
-      travellingAmount,
-      bookingAmount,
-      gstAmount
-    }
+      breakdown: {
+        baseAmount: netBillingAmount - spareAmount - travellingAmount,
+        percentage: '50%',
+        spareAmount,
+        travellingAmount,
+        gstAmount
+      }
   };
 }

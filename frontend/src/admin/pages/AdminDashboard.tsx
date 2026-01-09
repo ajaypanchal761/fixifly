@@ -556,7 +556,6 @@ const AdminDashboard = () => {
                     <th className="text-left px-3 py-2">Vendor</th>
                     <th className="text-left px-3 py-2">Payment</th>
                     <th className="text-left px-3 py-2">Billing</th>
-                    <th className="text-left px-3 py-2">Booking Amount</th>
                     <th className="text-left px-3 py-2">Commission</th>
                     <th className="text-left px-3 py-2">Date</th>
                   </tr>
@@ -578,11 +577,6 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-3 py-2 capitalize">{item.paymentMethod || 'N/A'}</td>
                       <td className="px-3 py-2">{formatBilling(item)}</td>
-                      <td className="px-3 py-2">
-                        {item.source === 'booking' && typeof item.bookingAmount === 'number'
-                          ? formatCurrency(item.bookingAmount)
-                          : '—'}
-                      </td>
                       <td className="px-3 py-2 font-semibold text-emerald-700">{formatCommission(item)}</td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}

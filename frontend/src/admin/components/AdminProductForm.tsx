@@ -97,8 +97,8 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
     const newService: Service = {
       serviceName: '',
       description: '',
-      price: '',
-      discountPrice: '',
+      price: 0,
+      discountPrice: 0,
       isActive: true,
       serviceImage: ''
     };
@@ -287,11 +287,14 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
       // Set up service image previews for existing services
       const newServiceImagePreviews: Record<string, string> = {};
       Object.entries(selectedProduct.categories || {}).forEach(([categoryKey, services]) => {
-        services.forEach((service: any, index: number) => {
-          if (service.serviceImage) {
-            newServiceImagePreviews[`${categoryKey}_${index}`] = service.serviceImage;
-          }
-        });
+        const servicesArray = services as Service[];
+        if (Array.isArray(servicesArray)) {
+          servicesArray.forEach((service, index: number) => {
+            if (service.serviceImage) {
+              newServiceImagePreviews[`${categoryKey}_${index}`] = service.serviceImage;
+            }
+          });
+        }
       });
       setServiceImagePreviews(newServiceImagePreviews);
     }
@@ -320,9 +323,6 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
         if (!service.serviceName.trim()) {
           newErrors[`${categoryKey}_${index}_serviceName`] = 'Service name is required';
         }
-        if (!service.price || Number(service.price) <= 0) {
-          newErrors[`${categoryKey}_${index}_price`] = 'Valid price is required';
-        }
       });
     });
 
@@ -345,14 +345,12 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
     setIsSubmitting(true);
 
     try {
-      // Convert string prices to numbers and include category names
+      // Process product data and include category names
       const processedProduct = {
         ...product,
         categories: Object.entries(product.categories).reduce((acc, [key, services]) => {
           acc[key] = services.map(service => ({
-            ...service,
-            price: Number(service.price),
-            discountPrice: service.discountPrice ? Number(service.discountPrice) : undefined
+            ...service
           }));
           return acc;
         }, {} as typeof product.categories),
@@ -718,33 +716,17 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
                               </Button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label>Service Name *</Label>
-                                <Input
-                                  placeholder="Enter service name"
-                                  value={service.serviceName}
-                                  onChange={(e) => handleServiceChange(categoryKey, index, 'serviceName', e.target.value)}
-                                  className={errors[`${categoryKey}_${index}_serviceName`] ? 'border-red-500' : ''}
-                                />
-                                {errors[`${categoryKey}_${index}_serviceName`] && (
-                                  <p className="text-sm text-red-500">{errors[`${categoryKey}_${index}_serviceName`]}</p>
-                                )}
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label>Price *</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="0.00"
-                                  value={service.price}
-                                  onChange={(e) => handleServiceChange(categoryKey, index, 'price', e.target.value)}
-                                  className={errors[`${categoryKey}_${index}_price`] ? 'border-red-500' : ''}
-                                />
-                                {errors[`${categoryKey}_${index}_price`] && (
-                                  <p className="text-sm text-red-500">{errors[`${categoryKey}_${index}_price`]}</p>
-                                )}
-                              </div>
+                            <div className="space-y-2">
+                              <Label>Service Name *</Label>
+                              <Input
+                                placeholder="Enter service name"
+                                value={service.serviceName}
+                                onChange={(e) => handleServiceChange(categoryKey, index, 'serviceName', e.target.value)}
+                                className={errors[`${categoryKey}_${index}_serviceName`] ? 'border-red-500' : ''}
+                              />
+                              {errors[`${categoryKey}_${index}_serviceName`] && (
+                                <p className="text-sm text-red-500">{errors[`${categoryKey}_${index}_serviceName`]}</p>
+                              )}
                             </div>
 
                             <div className="space-y-2">
@@ -798,26 +780,14 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label>Discount Price</Label>
-                                <Input
-                                  type="number"
-                                  placeholder="0.00"
-                                  value={service.discountPrice}
-                                  onChange={(e) => handleServiceChange(categoryKey, index, 'discountPrice', e.target.value)}
-                                />
-                              </div>
-
-                              <div className="flex items-center space-x-2 pt-6">
-                                <input
-                                  type="checkbox"
-                                  checked={service.isActive}
-                                  onChange={(e) => handleServiceChange(categoryKey, index, 'isActive', e.target.checked)}
-                                  className="rounded border-gray-300"
-                                />
-                                <Label>Active Service</Label>
-                              </div>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={service.isActive}
+                                onChange={(e) => handleServiceChange(categoryKey, index, 'isActive', e.target.checked)}
+                                className="rounded border-gray-300"
+                              />
+                              <Label>Active Service</Label>
                             </div>
                           </div>
                         ))}

@@ -1657,54 +1657,58 @@ const completeTask = asyncHandler(async (req, res) => {
           return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
         }, 0) || 0;
         const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
-        const bookingAmount = parseFloat(booking.pricing?.totalAmount) || 0;
 
-        console.log('Calculated amounts:', { billingAmount, spareAmount, travellingAmount, bookingAmount });
+        console.log('Calculated amounts:', { billingAmount, spareAmount, travellingAmount });
 
         // Calculate cash collection deduction
         const calculation = WalletCalculationService.calculateCashCollectionDeduction({
           billingAmount,
           spareAmount,
           travellingAmount,
-          bookingAmount,
+          bookingAmount: 0,
           gstIncluded: completionData.includeGST || false
         });
 
-        // Check vendor wallet balance before proceeding
-        console.log('Looking for vendor wallet with vendorId:', booking.vendor.vendorId);
-        const vendorWallet = await VendorWallet.findOne({ vendorId: booking.vendor.vendorId });
-        console.log('Vendor wallet found:', !!vendorWallet);
+        // Check vendor wallet balance before proceeding (only if deduction > 0)
+        // For billing <= 300, no deduction is made, so skip wallet check
+        if (calculation.calculatedAmount > 0) {
+          console.log('Looking for vendor wallet with vendorId:', booking.vendor.vendorId);
+          const vendorWallet = await VendorWallet.findOne({ vendorId: booking.vendor.vendorId });
+          console.log('Vendor wallet found:', !!vendorWallet);
 
-        if (vendorWallet) {
-          // Check if vendor has sufficient balance for cash collection deduction
-          if (vendorWallet.currentBalance < calculation.calculatedAmount) {
-            return res.status(400).json({
-              success: false,
-              message: `Insufficient wallet balance. You need at least ₹${calculation.calculatedAmount.toLocaleString()} to complete this cash task. Current balance: ₹${vendorWallet.currentBalance.toLocaleString()}`,
-              error: 'INSUFFICIENT_WALLET_BALANCE',
-              currentBalance: vendorWallet.currentBalance,
-              requiredAmount: calculation.calculatedAmount
+          if (vendorWallet) {
+            // Check if vendor has sufficient balance for cash collection deduction
+            if (vendorWallet.currentBalance < calculation.calculatedAmount) {
+              return res.status(400).json({
+                success: false,
+                message: `Insufficient wallet balance. You need at least ₹${calculation.calculatedAmount.toLocaleString()} to complete this cash task. Current balance: ₹${vendorWallet.currentBalance.toLocaleString()}`,
+                error: 'INSUFFICIENT_WALLET_BALANCE',
+                currentBalance: vendorWallet.currentBalance,
+                requiredAmount: calculation.calculatedAmount
+              });
+            }
+            await vendorWallet.addCashCollectionDeduction({
+              caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
+              billingAmount,
+              spareAmount,
+              travellingAmount,
+              bookingAmount: 0,
+              gstIncluded: completionData.includeGST || false,
+              description: `Cash collection - ${updatedBooking.bookingReference || bookingId}`
+            });
+
+            logger.info('Cash collection deducted from vendor wallet', {
+              vendorId: booking.vendor.vendorId,
+              caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
+              deductionAmount: calculation.calculatedAmount,
+              billingAmount,
+              spareAmount,
+              travellingAmount,
+              bookingAmount: 0
             });
           }
-          await vendorWallet.addCashCollectionDeduction({
-            caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
-            billingAmount,
-            spareAmount,
-            travellingAmount,
-            bookingAmount,
-            gstIncluded: completionData.includeGST || false,
-            description: `Cash collection - ${updatedBooking.bookingReference || bookingId}`
-          });
-
-          logger.info('Cash collection deducted from vendor wallet', {
-            vendorId: booking.vendor.vendorId,
-            caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
-            deductionAmount: calculation.calculatedAmount,
-            billingAmount,
-            spareAmount,
-            travellingAmount,
-            bookingAmount
-          });
+        } else {
+          console.log('Billing amount <= 300, skipping wallet deduction for cash collection');
         }
       } catch (error) {
         console.log('=== CASH PAYMENT WALLET DEDUCTION ERROR ===');
@@ -2488,14 +2492,13 @@ const verifyPayment = asyncHandler(async (req, res) => {
             return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
           }, 0) || 0;
           const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
-          const bookingAmount = parseFloat(updatedBooking.pricing?.totalAmount) || 0;
 
           // Calculate vendor earning
           const calculation = WalletCalculationService.calculateEarning({
             billingAmount,
             spareAmount,
             travellingAmount,
-            bookingAmount,
+            bookingAmount: 0,
             paymentMethod: 'online',
             gstIncluded: completionData.includeGST || false
           });
@@ -2508,7 +2511,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
               billingAmount,
               spareAmount,
               travellingAmount,
-              bookingAmount,
+              bookingAmount: 0,
               paymentMethod: 'online',
               gstIncluded: completionData.includeGST || false,
               description: `Task completion earning - ${updatedBooking.bookingReference || bookingId}`

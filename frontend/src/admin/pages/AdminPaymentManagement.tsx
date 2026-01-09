@@ -484,10 +484,8 @@ const AdminPaymentManagement = () => {
                       <TableHead>Booking ID</TableHead>
                       <TableHead>Customer</TableHead>
                       <TableHead>Service</TableHead>
-                      <TableHead>Initial Payment</TableHead>
                       <TableHead>Service Charges Payment</TableHead>
                       <TableHead>Spare Parts Payment</TableHead>
-                      <TableHead>Total Amount</TableHead>
                       <TableHead>Payment Mode</TableHead>
                       <TableHead>Payment Status</TableHead>
                       <TableHead>Payment ID</TableHead>
@@ -511,12 +509,6 @@ const AdminPaymentManagement = () => {
                         <TableCell className="text-sm">
                           {payment.services?.map(s => s.serviceName).join(', ') || 'N/A'}
                         </TableCell>
-                        <TableCell className="text-sm font-medium text-blue-600">
-                          <div>
-                            <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mb-1 inline-block">Completed</div>
-                            <div>₹{payment.pricing?.totalAmount || 0}</div>
-                          </div>
-                        </TableCell>
                         <TableCell className="text-sm font-medium text-green-600">
                           <div>
                             {(() => {
@@ -539,7 +531,7 @@ const AdminPaymentManagement = () => {
                             {payment.completionData?.spareParts && payment.completionData.spareParts.length > 0 ? (
                               <>
                                 <div className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded mb-1 inline-block">
-                                  Admin Only
+                                  Spare Parts Amount
                                 </div>
                                 <div>₹{payment.completionData.spareParts.reduce((sum: number, part: any) => 
                                   sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
@@ -549,9 +541,6 @@ const AdminPaymentManagement = () => {
                               <span className="text-gray-400">-</span>
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell className="text-sm font-medium text-purple-600">
-                          ₹{(payment.pricing?.totalAmount || 0) + (parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0)}
                         </TableCell>
                         <TableCell>
                           {getPaymentModeBadge(getPaymentMode(payment))}
@@ -622,10 +611,6 @@ const AdminPaymentManagement = () => {
                 {/* Amount Summary */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <Label className="text-xs text-gray-500">Initial Payment</Label>
-                    <p className="font-medium text-blue-600">₹{selectedPayment.pricing?.totalAmount || 0}</p>
-                  </div>
-                  <div>
                     <Label className="text-xs text-gray-500">Service Charges</Label>
                     <p className="font-medium text-green-600">₹{parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0}</p>
                   </div>
@@ -636,12 +621,6 @@ const AdminPaymentManagement = () => {
                         selectedPayment.completionData.spareParts.reduce((sum: number, part: any) => 
                           sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
                         ) : 0}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-500">Total Amount</Label>
-                    <p className="font-medium text-purple-600">
-                      ₹{(selectedPayment.pricing?.totalAmount || 0) + (parseFloat(selectedPayment.completionData?.billingAmount || selectedPayment.billingAmount || '0') || 0)}
                     </p>
                   </div>
                 </div>

@@ -433,21 +433,49 @@ const assignVendor = asyncHandler(async (req, res) => {
     // Validation: Check if vendor already has a task for the same date and time
     if (scheduledDate && scheduledTime) {
       const scheduledDateObj = new Date(scheduledDate);
+      // Normalize date to start of day for comparison (set hours, minutes, seconds, ms to 0)
+      const normalizedDate = new Date(scheduledDateObj);
+      normalizedDate.setHours(0, 0, 0, 0);
+      
+      // Get end of day for date range query
+      const endOfDay = new Date(normalizedDate);
+      endOfDay.setHours(23, 59, 59, 999);
 
-      // Check for conflicting active bookings (not cancelled or declined)
+      // Check for conflicting active bookings
+      // Exclude: cancelled, declined, and completed bookings (completed jobs don't block new assignments)
       // Note: We exclude the current booking being assigned if it's a re-assignment
+      // Use date range query to handle time component differences
+      // Find conflicting bookings: exclude cancelled, declined, completed statuses
+      // Also exclude bookings where vendor has declined (allows reassignment)
       const conflictingBooking = await Booking.findOne({
         _id: { $ne: req.params.id },
         'vendor.vendorId': vendorId,
-        'scheduling.scheduledDate': scheduledDateObj,
+        'scheduling.scheduledDate': {
+          $gte: normalizedDate,
+          $lte: endOfDay
+        },
         'scheduling.scheduledTime': scheduledTime,
-        status: { $nin: ['cancelled', 'declined'] }
-      }).select('bookingReference');
+        status: { $nin: ['cancelled', 'declined', 'completed'] },
+        $or: [
+          { 'vendorResponse.status': { $exists: false } },
+          { 'vendorResponse.status': null },
+          { 'vendorResponse.status': 'pending' },
+          { 'vendorResponse.status': 'accepted' }
+        ]
+      }).select('bookingReference status vendorResponse.status');
 
       if (conflictingBooking) {
+        logger.warn('Vendor conflict detected', {
+          vendorId,
+          scheduledDate: normalizedDate,
+          scheduledTime,
+          conflictingBooking: conflictingBooking.bookingReference,
+          conflictingStatus: conflictingBooking.status,
+          currentBookingId: req.params.id
+        });
         return res.status(400).json({
           success: false,
-          message: 'Vendor is not available'
+          message: `Vendor is not available. Already assigned to booking ${conflictingBooking.bookingReference} (Status: ${conflictingBooking.status}) at the same date and time.`
         });
       }
 
@@ -460,15 +488,25 @@ const assignVendor = asyncHandler(async (req, res) => {
       if (vendorForClaim) {
         const conflictingClaim = await WarrantyClaim.findOne({
           assignedVendor: vendorForClaim._id,
-          scheduledDate: scheduledDateObj,
+          scheduledDate: {
+            $gte: normalizedDate,
+            $lte: endOfDay
+          },
           scheduledTime: scheduledTime,
           status: { $nin: ['cancelled', 'rejected', 'completed'] }
         });
 
         if (conflictingClaim) {
+          logger.warn('Vendor conflict detected with warranty claim', {
+            vendorId,
+            scheduledDate: normalizedDate,
+            scheduledTime,
+            conflictingClaimId: conflictingClaim._id,
+            currentBookingId: req.params.id
+          });
           return res.status(400).json({
             success: false,
-            message: 'Vendor is not available'
+            message: 'Vendor is not available. Already assigned to a warranty claim at the same date and time.'
           });
         }
       }
@@ -854,36 +892,76 @@ const updateBooking = asyncHandler(async (req, res) => {
       const vendorId = booking.vendor?.vendorId;
 
       if (vendorId && (scheduling.scheduledDate || scheduling.scheduledTime) && newScheduledDate && newScheduledTime) {
+        // Normalize date to start of day for comparison
+        const normalizedUpdateDate = new Date(newScheduledDate);
+        normalizedUpdateDate.setHours(0, 0, 0, 0);
+        
+        // Get end of day for date range query
+        const endOfUpdateDay = new Date(normalizedUpdateDate);
+        endOfUpdateDay.setHours(23, 59, 59, 999);
+        
         // Check for conflicting active bookings
+        // Exclude cancelled, declined, completed statuses and bookings where vendor declined
         const conflictingBooking = await Booking.findOne({
           _id: { $ne: req.params.id },
           'vendor.vendorId': vendorId,
-          'scheduling.scheduledDate': newScheduledDate,
+          'scheduling.scheduledDate': {
+            $gte: normalizedUpdateDate,
+            $lte: endOfUpdateDay
+          },
           'scheduling.scheduledTime': newScheduledTime,
-          status: { $nin: ['cancelled', 'declined'] }
-        });
+          status: { $nin: ['cancelled', 'declined', 'completed'] },
+          $or: [
+            { 'vendorResponse.status': { $exists: false } },
+            { 'vendorResponse.status': null },
+            { 'vendorResponse.status': 'pending' },
+            { 'vendorResponse.status': 'accepted' }
+          ]
+        }).select('bookingReference status vendorResponse.status');
 
         if (conflictingBooking) {
+          logger.warn('Vendor conflict detected in updateBooking', {
+            vendorId,
+            scheduledDate: normalizedUpdateDate,
+            scheduledTime: newScheduledTime,
+            conflictingBooking: conflictingBooking.bookingReference,
+            conflictingStatus: conflictingBooking.status,
+            currentBookingId: req.params.id
+          });
           return res.status(400).json({
             success: false,
-            message: 'Vendor is not available'
+            message: `Vendor is not available. Already assigned to booking ${conflictingBooking.bookingReference} (Status: ${conflictingBooking.status}) at the same date and time.`
           });
         }
 
         // Check for conflicting warranty claims
         const WarrantyClaim = require('../models/WarrantyClaim');
-        const conflictingClaim = await WarrantyClaim.findOne({
-          assignedVendor: vendorId,
-          scheduledDate: newScheduledDate,
-          scheduledTime: newScheduledTime,
-          status: { $nin: ['cancelled', 'rejected', 'completed'] }
-        });
-
-        if (conflictingClaim) {
-          return res.status(400).json({
-            success: false,
-            message: 'Vendor is not available'
+        const vendorForClaim = await Vendor.findOne({ vendorId: vendorId }).select('_id');
+        
+        if (vendorForClaim) {
+          const conflictingClaim = await WarrantyClaim.findOne({
+            assignedVendor: vendorForClaim._id,
+            scheduledDate: {
+              $gte: normalizedUpdateDate,
+              $lte: endOfUpdateDay
+            },
+            scheduledTime: newScheduledTime,
+            status: { $nin: ['cancelled', 'rejected', 'completed'] }
           });
+
+          if (conflictingClaim) {
+            logger.warn('Vendor conflict detected with warranty claim in updateBooking', {
+              vendorId,
+              scheduledDate: normalizedUpdateDate,
+              scheduledTime: newScheduledTime,
+              conflictingClaimId: conflictingClaim._id,
+              currentBookingId: req.params.id
+            });
+            return res.status(400).json({
+              success: false,
+              message: 'Vendor is not available. Already assigned to a warranty claim at the same date and time.'
+            });
+          }
         }
       }
 

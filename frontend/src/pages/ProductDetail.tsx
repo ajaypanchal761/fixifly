@@ -338,12 +338,6 @@ const ProductDetail = () => {
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{service.serviceName}</h3>
                     <p className="text-gray-600 text-sm mb-2 leading-relaxed">{service.description}</p>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl font-bold text-gray-900">₹{service.discountPrice || service.price}</span>
-                      {service.discountPrice && (
-                        <span className="text-sm text-gray-500 line-through">₹{service.price}</span>
-                      )}
-                    </div>
                   </div>
                   <div className="flex flex-col items-center space-y-3">
                     <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
@@ -544,10 +538,10 @@ const ProductDetail = () => {
         {cartItems.length > 0 && (
           <div className="fixed bottom-12 left-0 right-0 z-[70] md:bottom-0 md:z-50 transition-all duration-300 ease-out">
             {/* Backdrop blur effect */}
-            <div className="absolute inset-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80"></div>
+            <div className="absolute inset-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 pointer-events-none"></div>
 
             {/* Content */}
-            <div className="relative container mx-auto px-4 py-3 md:py-4">
+            <div className="relative container mx-auto px-4 py-3 md:py-4 pointer-events-auto">
               <div className="flex items-center justify-between gap-3 md:gap-4">
                 {/* Left Section - Cart Info */}
                 <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
@@ -570,17 +564,24 @@ const ProductDetail = () => {
                     </span>
                     <div className="flex items-baseline gap-1">
                       <span className="text-lg md:text-xl font-bold text-gray-900">
-                        ₹{totalPrice}
+                        {totalPrice === 0 ? 'Free' : `₹${totalPrice}`}
                       </span>
-                      <span className="text-xs text-gray-500">total</span>
+                      {totalPrice !== 0 && (
+                        <span className="text-xs text-gray-500">total</span>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 {/* Right Section - Checkout Button */}
                 <Button
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 md:px-6 lg:px-8 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0"
-                  onClick={() => {
+                  type="button"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 md:px-6 lg:px-8 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0 relative z-10"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Checkout button clicked', { cartItems, totalPrice, isAuthenticated });
+                    
                     // Check if user is authenticated before proceeding to checkout
                     if (!isAuthenticated) {
                       toast({
@@ -591,8 +592,36 @@ const ProductDetail = () => {
                       navigate('/login', { state: { from: { pathname: '/checkout', state: { cartItems, totalPrice } } } });
                       return;
                     }
-                    // Navigate to checkout page
-                    navigate('/checkout', { state: { cartItems, totalPrice } });
+                    
+                    // Ensure cart has items
+                    if (!cartItems || cartItems.length === 0) {
+                      toast({
+                        title: "Cart Empty",
+                        description: "Please add items to cart before checkout",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    
+                    // Save cart data to localStorage as backup
+                    try {
+                      localStorage.setItem('checkoutCartData', JSON.stringify({ cartItems, totalPrice }));
+                    } catch (error) {
+                      console.error('Error saving cart data to localStorage:', error);
+                    }
+                    
+                    // Navigate to checkout page immediately
+                    console.log('Navigating to checkout...', { cartItems, totalPrice });
+                    try {
+                      navigate('/checkout', { 
+                        state: { cartItems, totalPrice },
+                        replace: false
+                      });
+                    } catch (error) {
+                      console.error('Navigation error:', error);
+                      // Fallback to window.location if navigate fails
+                      window.location.href = '/checkout';
+                    }
                   }}
                 >
                   <span>Proceed to Checkout</span>
@@ -602,7 +631,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Subtle shadow at top */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent pointer-events-none"></div>
           </div>
         )}
       </div>

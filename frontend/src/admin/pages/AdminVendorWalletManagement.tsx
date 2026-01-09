@@ -116,8 +116,7 @@ const AdminVendorWalletManagement = () => {
   const [editingWallet, setEditingWallet] = useState<VendorWallet | null>(null);
   const [editForm, setEditForm] = useState({
     currentBalance: '',
-    description: '',
-    adjustmentType: 'credit' as 'credit' | 'debit'
+    description: ''
   });
 
   // Fetch vendor wallets data
@@ -359,8 +358,7 @@ const AdminVendorWalletManagement = () => {
     setEditingWallet(wallet);
     setEditForm({
       currentBalance: wallet.availableBalance.toString(),
-      description: '',
-      adjustmentType: 'credit'
+      description: ''
     });
     setIsEditWalletOpen(true);
   };
@@ -377,8 +375,7 @@ const AdminVendorWalletManagement = () => {
         },
         body: JSON.stringify({
           currentBalance: parseFloat(editForm.currentBalance) + editingWallet.securityDeposit,
-          description: editForm.description,
-          adjustmentType: editForm.adjustmentType
+          description: editForm.description
         })
       });
 
@@ -1194,22 +1191,6 @@ const AdminVendorWalletManagement = () => {
                     onChange={(e) => setEditForm(prev => ({ ...prev, currentBalance: e.target.value }))}
                     placeholder="Enter new available balance"
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="adjustment-type">Adjustment Type</Label>
-                  <Select
-                    value={editForm.adjustmentType}
-                    onValueChange={(value: 'credit' | 'debit') => setEditForm(prev => ({ ...prev, adjustmentType: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="credit">Credit (Add Money)</SelectItem>
-                      <SelectItem value="debit">Debit (Deduct Money)</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div className="space-y-2">

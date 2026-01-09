@@ -1469,8 +1469,8 @@ For support, contact us at info@getfixfly.com
   return (
     <div className="bg-blue-50 min-h-screen pb-40 md:pb-20">
       {/* Header with Categories */}
-      <div className="bg-white shadow-sm border-b pb-0 mb-4 mt-2 sticky top-0 z-50">
-        <div className="container px-2 py-24">
+      <div className="bg-white shadow-sm border-b pb-0 mb-4 mt-2 sticky top-[76px] z-50">
+        <div className="container px-2 py-2">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-0 pt-0">
             <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-0 h-auto rounded-lg">
               <TabsTrigger
@@ -1503,7 +1503,7 @@ For support, contact us at info@getfixfly.com
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-4 pb-24 md:pb-8 max-w-7xl">
+      <div className="container mx-auto px-4 pt-12 pb-24 md:pb-8 max-w-7xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Ongoing Bookings */}
           <TabsContent value="ongoing" className="space-y-4 md:space-y-0">
@@ -1533,7 +1533,7 @@ For support, contact us at info@getfixfly.com
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Bookings</h3>
                   <p className="text-gray-600 mb-4">{error}</p>
                   <Button
-                    onClick={fetchBookings}
+                    onClick={() => fetchBookings()}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     Try Again
