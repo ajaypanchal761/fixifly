@@ -299,6 +299,22 @@ const Payment = () => {
                     <span>Description:</span>
                     <span className="font-medium">{paymentData.description}</span>
                   </div>
+                  
+                  {/* Payment Section */}
+                  <div className="border-t pt-3 mt-3">
+                    <h4 className="font-semibold mb-3">Payment</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span>Booking Amount:</span>
+                        <span className="font-medium">₹{paymentData.amount || '0'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Booking Amount:</span>
+                        <span className="font-medium">₹{paymentData.amount || '0'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="flex justify-between text-lg font-semibold border-t pt-2">
                     <span>Total Amount:</span>
                     <span className="text-blue-600">₹{paymentData.amount}</span>

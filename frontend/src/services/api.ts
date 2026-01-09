@@ -131,7 +131,10 @@ class ApiService {
     } catch (error: any) {
       // Handle expected errors (like 404 - user not found) more gracefully
       const isExpectedError = error.status === 404 ||
+        error.status === 401 ||
         error.message?.includes('User not found') ||
+        error.message?.includes('user not found') ||
+        error.message?.includes('Not authorized') ||
         error.message?.includes('sign up first') ||
         error.message?.includes('complete your signup');
 

@@ -252,11 +252,30 @@ const AdminProductDetailModal: React.FC<AdminProductDetailModalProps> = ({
                                   {service.description && (
                                     <p className="text-xs text-gray-600 mt-1">{service.description}</p>
                                   )}
+                                  <div className="flex items-center gap-3 mt-2">
+                                    <div className="flex items-center gap-1">
+                                      <DollarSign className="w-3 h-3 text-gray-500" />
+                                      <span className="text-xs font-medium text-gray-700">
+                                        ₹{Number(service.price).toLocaleString('en-IN')}
+                                      </span>
+                                    </div>
+                                    {service.discountPrice && Number(service.discountPrice) > 0 && (
+                                      <div className="flex items-center gap-1">
+                                        <DollarSign className="w-3 h-3 text-green-600" />
+                                        <span className="text-xs font-medium text-green-600">
+                                          ₹{Number(service.discountPrice).toLocaleString('en-IN')}
+                                        </span>
+                                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-300">
+                                          Discount
+                                        </Badge>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="flex items-center gap-2 mt-1">
+                              <div className="flex flex-col items-end gap-2">
                                 <Badge 
                                   variant={service.isActive ? "default" : "secondary"}
                                   className={`${service.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"} text-xs`}

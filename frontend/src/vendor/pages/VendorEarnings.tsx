@@ -172,9 +172,13 @@ const VendorEarnings = () => {
           mode: 'cors',
           credentials: 'include'
         });
-      } catch (networkError) {
-        console.error('Network error:', networkError);
-        throw new Error(`Network error: ${networkError.message}. Please check if the backend server is running.`);
+      } catch (networkError: any) {
+        // Handle network errors gracefully - use cached data if available
+        console.warn('⚠️ Network error fetching wallet data:', networkError.message);
+        console.warn('Backend might be down - using cached data if available');
+        // Don't throw - let the function continue with empty/default data
+        setLoadingWallet(false);
+        return;
       }
 
       console.log('Response received, status:', response.status);
@@ -322,8 +326,13 @@ const VendorEarnings = () => {
           setPendingWithdrawalRequest(pendingRequest || null);
         }
       }
-    } catch (error) {
-      console.error('Error checking pending withdrawal requests:', error);
+    } catch (error: any) {
+      // Handle network errors gracefully
+      if (error?.message?.includes('Failed to fetch') || error?.name === 'TypeError') {
+        console.warn('⚠️ Network error checking withdrawal requests:', error.message);
+      } else {
+        console.error('Error checking pending withdrawal requests:', error);
+      }
     }
   }, [vendor?.vendorId]);
 
@@ -356,9 +365,14 @@ const VendorEarnings = () => {
           mode: 'cors',
           credentials: 'include'
         });
-      } catch (networkError) {
-        console.error('Network error:', networkError);
-        throw new Error(`Network error: ${networkError.message}. Please check if the backend server is running.`);
+      } catch (networkError: any) {
+        // Handle network errors gracefully - use cached data if available
+        console.warn('⚠️ Network error fetching transaction history:', networkError.message);
+        console.warn('Backend might be down - using empty transaction history');
+        // Don't throw - let the function continue with empty/default data
+        setTransactionHistory([]);
+        setLoadingTransactions(false);
+        return;
       }
 
       if (!response.ok) {
@@ -644,26 +658,29 @@ const VendorEarnings = () => {
       }
 
       setTransactionHistory(transformedTransactions);
-    } catch (error) {
+    } catch (error: any) {
+      // Handle network errors gracefully
+      if (error?.message?.includes('Network error') ||
+        error?.message?.includes('Unexpected token') ||
+        error?.message?.includes('<!doctype') ||
+        error?.message?.includes('Failed to fetch') ||
+        error?.name === 'TypeError') {
+        console.warn('⚠️ Network error fetching transaction history - backend might be down');
+        console.warn('Using empty transaction history');
+        setTransactionHistory([]);
+        setLoadingTransactions(false);
+        return;
+      }
+      
       console.error('Error fetching transaction history:', error);
       setTransactionHistory([]);
-
-      // Check if it's a network error or server not running
-      if (error.message.includes('Network error') ||
-        error.message.includes('Unexpected token') ||
-        error.message.includes('<!doctype') ||
-        error.message.includes('Failed to fetch')) {
-        console.warn('Backend server appears to be down, using empty transaction history');
-        console.warn('Please ensure the backend server is running on http://localhost:5000');
-        // Removed toast notification for server unavailability
-      } else {
-        // Show user-friendly error message for other errors
-        toast({
-          title: "Error",
-          description: "Failed to load transaction history. Please try again later.",
-          variant: "destructive"
-        });
-      }
+      setLoadingTransactions(false);
+      // Show user-friendly error message for other errors
+      toast({
+        title: "Error",
+        description: "Failed to load transaction history. Please try again later.",
+        variant: "destructive"
+      });
     } finally {
       setLoadingTransactions(false);
     }
@@ -1447,7 +1464,13 @@ const VendorEarnings = () => {
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
-                            {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toLocaleString()}
+                            {(() => {
+                              // Use calculatedAmount if available (actual credited amount), otherwise use amount
+                              const displayAmount = (transaction as any).calculatedAmount !== undefined 
+                                ? (transaction as any).calculatedAmount 
+                                : transaction.amount;
+                              return (displayAmount > 0 ? '+' : '') + '₹' + Math.abs(displayAmount).toLocaleString();
+                            })()}
                           </p>
                           <p className="text-sm text-muted-foreground">{transaction.date}</p>
                         </div>

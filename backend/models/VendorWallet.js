@@ -195,6 +195,7 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
     bookingAmount = 0,
     paymentMethod,
     gstIncluded = false,
+    gstAmount: providedGstAmount = 0, // Use GST amount from frontend if provided
     description = 'Task completion earning'
   } = transactionData;
 
@@ -217,9 +218,9 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
   let netBillingAmount = billingAmount;
   if (gstIncluded) {
     // When GST is included, billing amount is GST-excluded
-    // GST amount = billing amount * 0.18
+    // Use provided GST amount from frontend, or calculate if not provided
     netBillingAmount = billingAmount; // GST-excluded amount (same as billing amount)
-    gstAmount = billingAmount * 0.18; // GST amount
+    gstAmount = providedGstAmount > 0 ? providedGstAmount : (billingAmount * 0.18); // Use provided GST or calculate
   }
 
   // Special case for amounts <= 300: Full amount goes to vendor (including GST)
@@ -234,8 +235,10 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
   else if (netBillingAmount <= 500) {
     if (paymentMethod === 'online') {
       calculatedAmount = netBillingAmount - 20; // 20 rupees cut for online
+      // GST amount NOT added to vendor earning for amounts > 300
     } else {
       calculatedAmount = netBillingAmount; // Full amount for cash
+      // GST amount NOT added to vendor earning for amounts > 300
     }
   }
   // Regular calculation for amounts > 500
@@ -243,10 +246,12 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
     // Calculate amount based on payment method
     if (paymentMethod === 'online') {
       // Online payment: (GST-excluded - Spare - Travel) * 50% + Spare + Travel
+      // GST amount NOT added to vendor earning for amounts > 300
       const baseAmount = netBillingAmount - spareAmount - travellingAmount;
       calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
     } else if (paymentMethod === 'cash') {
       // Cash payment: (GST-excluded - Spare - Travel) * 50% + Spare + Travel
+      // GST amount NOT added to vendor earning for amounts > 300
       const baseAmount = netBillingAmount - spareAmount - travellingAmount;
       calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
     }
@@ -269,6 +274,9 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
     status: 'completed'
   };
 
+  // Ensure amount field always uses calculatedAmount (not billingAmount)
+  transaction.amount = calculatedAmount;
+  
   this.transactions.push(transaction);
   this.currentBalance += calculatedAmount;
   this.totalEarnings += calculatedAmount;
@@ -371,6 +379,7 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
     travellingAmount = 0,
     bookingAmount = 0,
     gstIncluded = false,
+    gstAmount: providedGstAmount = 0, // Use GST amount from frontend if provided
     description = 'Cash collection deduction'
   } = collectionData;
 
@@ -392,9 +401,9 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
   // Calculate GST if included (billing amount is GST-excluded)
   if (gstIncluded) {
     // When GST is included, billing amount is GST-excluded
-    // GST amount = billing amount * 0.18
+    // Use provided GST amount from frontend, or calculate if not provided
     netBillingAmount = billingAmount; // GST-excluded amount (same as billing amount)
-    gstAmount = billingAmount * 0.18; // GST amount
+    gstAmount = providedGstAmount > 0 ? providedGstAmount : (billingAmount * 0.18); // Use provided GST or calculate
   }
 
   // Special case: If billing amount <= 300, no wallet deduction

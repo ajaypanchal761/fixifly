@@ -90,7 +90,7 @@ const AdminDashboard = () => {
       
       if (response.success && response.data) {
         const breakdown = (response.data as any).revenueBreakdown || { monthly: [], total: [] };
-        // Calculate revenue as: admin commission + half of raw booking amount (if provided)
+        // Calculate revenue as: admin commission only
         const calcRevenueFromEntries = (entries: RevenueEntry[]) => {
           if (!entries || entries.length === 0) return 0;
           return entries.reduce((sum, item) => {
@@ -99,16 +99,7 @@ const AdminDashboard = () => {
               ? (item.adminCommissionWithGST || 0)
               : (item.adminCommission || 0);
 
-            // For bookings, add half of the raw booking amount to admin revenue
-            let bookingShare = 0;
-            if (item.source === 'booking') {
-              const bookingAmount = typeof item.bookingAmount === 'number'
-                ? item.bookingAmount
-                : 0;
-              bookingShare = bookingAmount / 2;
-            }
-
-            return sum + commission + bookingShare;
+            return sum + commission;
           }, 0);
         };
 
@@ -199,7 +190,7 @@ const AdminDashboard = () => {
   };
 
   // Show commission breakdown like:
-  // "₹350 + ₹50 (booking half)"  OR  "₹350 + ₹180 (GST) + ₹4.5 (booking half)"
+  // "₹350"  OR  "₹350 + ₹180 (GST)"
   const formatCommission = (item: RevenueEntry) => {
     // Base commission without GST
     const baseCommission = item.adminCommission || 0;
@@ -211,14 +202,6 @@ const AdminDashboard = () => {
         : 0;
     const commissionGST = Math.max(0, commissionWithGST - baseCommission);
 
-    // For bookings, booking share = half of raw booking amount (from backend)
-    let bookingShare = 0;
-    if (item.source === 'booking') {
-      const bookingAmount =
-        typeof item.bookingAmount === 'number' ? item.bookingAmount : 0;
-      bookingShare = bookingAmount / 2;
-    }
-
     const parts: string[] = [];
 
     if (baseCommission > 0) {
@@ -226,9 +209,6 @@ const AdminDashboard = () => {
     }
     if (commissionGST > 0) {
       parts.push(`${formatCurrency(commissionGST)} (GST)`);
-    }
-    if (bookingShare > 0) {
-      parts.push(`${formatCurrency(bookingShare)} (booking half)`);
     }
 
     // If for some reason all parts are zero, just show ₹0
@@ -520,8 +500,7 @@ const AdminDashboard = () => {
               </span>
               <span className="text-sm font-semibold">
                 Total Commission: {(() => {
-                  // Total commission should match the per-row display:
-                  // base admin commission (with GST when available) + half of booking amount.
+                  // Total commission: base admin commission (with GST when available)
                   const total = revenueEntries.reduce((sum, item) => {
                     // Base commission (prefer value with GST if it's provided)
                     const baseCommission =
@@ -529,17 +508,7 @@ const AdminDashboard = () => {
                         ? item.adminCommissionWithGST || 0
                         : item.adminCommission || 0;
 
-                    // For bookings, add half of the raw booking amount
-                    let bookingShare = 0;
-                    if (item.source === 'booking') {
-                      const bookingAmount =
-                        typeof item.bookingAmount === 'number'
-                          ? item.bookingAmount
-                          : 0;
-                      bookingShare = bookingAmount / 2;
-                    }
-
-                    return sum + baseCommission + bookingShare;
+                    return sum + baseCommission;
                   }, 0);
 
                   return formatCurrency(total);

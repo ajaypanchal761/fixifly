@@ -656,17 +656,22 @@ For support, contact us at info@getfixfly.com
         return;
       }
 
-      // Check for GST data in localStorage first
-      const gstData = getGSTData(booking._id);
+      // Priority 1: Check database (completionData) first - this is the source of truth
+      const completionData = (booking as any).completionData || {};
+      const includeGST = completionData.includeGST || false;
+      const gstAmount = completionData.gstAmount || 0;
+      
       let totalAmount = baseAmount;
-
-      if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
-        totalAmount = gstData.totalAmount;
+      
+      // Use database GST data if available
+      if (includeGST && gstAmount > 0) {
+        totalAmount = baseAmount + gstAmount;
       } else {
-        // Fallback to booking data
-        const includeGST = (booking as any).includeGST;
-        const gstAmount = (booking as any).gstAmount || 0;
-        totalAmount = includeGST && gstAmount > 0 ? baseAmount + gstAmount : baseAmount;
+        // Fallback to localStorage cache (for backward compatibility)
+        const gstData = getGSTData(booking._id);
+        if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
+          totalAmount = gstData.totalAmount;
+        }
       }
 
       console.log('Payment request data:', {
@@ -794,16 +799,27 @@ For support, contact us at info@getfixfly.com
     try {
       const bookingRef = (booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`;
 
-      // Get GST data if available
-      const gstData = getGSTData(booking._id);
       // Use billing amount instead of spare parts total
       const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
       const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
       const baseAmount = booking.pricing.totalAmount + billingAmount;
-      // For receipts, ignore GST and show only base amount (no GST added)
-      let totalAmount = baseAmount;
-      let includeGST = false;
-      let gstAmount = 0;
+      
+      // Priority 1: Check database (completionData) first - this is the source of truth
+      const completionData = (booking as any).completionData || {};
+      let includeGST = completionData.includeGST || false;
+      let gstAmount = completionData.gstAmount || 0;
+      
+      // Fallback to localStorage cache if database doesn't have GST data
+      if (!includeGST || gstAmount === 0) {
+        const gstData = getGSTData(booking._id);
+        if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
+          includeGST = gstData.includeGST;
+          gstAmount = gstData.gstAmount;
+        }
+      }
+      
+      // For receipts, show base amount + GST if applicable
+      let totalAmount = baseAmount + (includeGST ? gstAmount : 0);
 
       const receiptHTML = `
         <!DOCTYPE html>
@@ -931,16 +947,27 @@ For support, contact us at info@getfixfly.com
 
       const bookingRef = (booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`;
 
-      // Get GST data if available
-      const gstData = getGSTData(booking._id);
       // Use billing amount instead of spare parts total
       const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
       const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
       const baseAmount = booking.pricing.totalAmount + billingAmount;
-      // For receipts, ignore GST and show only base amount (no GST added)
-      let totalAmount = baseAmount;
-      let includeGST = false;
-      let gstAmount = 0;
+      
+      // Priority 1: Check database (completionData) first - this is the source of truth
+      const completionData = (booking as any).completionData || {};
+      let includeGST = completionData.includeGST || false;
+      let gstAmount = completionData.gstAmount || 0;
+      
+      // Fallback to localStorage cache if database doesn't have GST data
+      if (!includeGST || gstAmount === 0) {
+        const gstData = getGSTData(booking._id);
+        if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
+          includeGST = gstData.includeGST;
+          gstAmount = gstData.gstAmount;
+        }
+      }
+      
+      // For receipts, show base amount + GST if applicable
+      let totalAmount = baseAmount + (includeGST ? gstAmount : 0);
 
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -1780,19 +1807,22 @@ For support, contact us at info@getfixfly.com
                                   return '0';
                                 }
 
-                                // Check for GST data in localStorage
+                                // Priority 1: Check database (completionData) first - this is the source of truth
+                                const completionData = (booking as any).completionData || {};
+                                const includeGST = completionData.includeGST || false;
+                                const gstAmount = completionData.gstAmount || 0;
+
+                                // Use database GST data if available
+                                if (includeGST && gstAmount > 0) {
+                                  return (billingAmount + gstAmount).toLocaleString();
+                                }
+
+                                // Fallback to localStorage cache (for backward compatibility)
                                 const gstData = getGSTData(booking._id);
                                 if (gstData && gstData.includeGST && gstData.gstAmount > 0) {
                                   return gstData.totalAmount.toLocaleString();
                                 }
 
-                                // Fallback to booking data
-                                const includeGST = (booking as any).includeGST;
-                                const gstAmount = (booking as any).gstAmount || 0;
-
-                                if (includeGST && gstAmount > 0) {
-                                  return (billingAmount + gstAmount).toLocaleString();
-                                }
                                 return billingAmount.toLocaleString();
                               })()}
                             </Button>

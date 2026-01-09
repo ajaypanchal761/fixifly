@@ -193,6 +193,8 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
 
     // Get FCM token
     let currentToken: string | null = null;
+    let retryAttempted = false;
+    
     try {
       // Verify service worker is still active
       if (!serviceWorkerRegistration.active) {
@@ -226,51 +228,131 @@ export const registerFCMToken = async (forceUpdate: boolean = false): Promise<st
         stack: error.stack
       });
 
-      // Provide helpful error messages
-      if (error.code === 'messaging/invalid-vapid-key' ||
-        error.message?.includes('applicationServerKey') ||
-        error.message?.includes('not valid')) {
-        console.error('❌ VAPID key validation failed. This might be due to:');
-        console.error('   1. Key format issue - ensure it\'s copied correctly from Firebase Console');
-        console.error('   2. Service worker not ready - try refreshing the page');
-        console.error('   3. Browser compatibility - ensure you\'re using a supported browser');
-        console.error('   4. HTTPS required - push notifications only work on HTTPS (or localhost)');
-        console.error('');
-        console.error('💡 Current VAPID key:', VAPID_KEY);
-        console.error('💡 Key length:', VAPID_KEY?.length || 0);
-      } else if (error.code === 'messaging/permission-blocked') {
-        console.warn('⚠️ Notification permission is blocked. Please enable it in browser settings.');
-      } else if (error.code === 'messaging/unsupported-browser') {
-        console.warn('⚠️ This browser does not support Firebase Cloud Messaging.');
-      } else if (error.code === 'messaging/failed-service-worker-registration') {
-        console.error('❌ Service worker registration failed. Check if firebase-messaging-sw.js is accessible.');
-      } else if (error.message?.includes('no active Service Worker') || error.message?.includes('Subscription failed')) {
-        console.error('❌ Service worker is not active. This usually means:');
-        console.error('   1. Service worker file is not accessible at /firebase-messaging-sw.js');
-        console.error('   2. Service worker failed to install/activate');
-        console.error('   3. Browser blocked service worker registration');
-        console.error('');
-        console.error('💡 Solutions:');
-        console.error('   1. Check if firebase-messaging-sw.js exists in public/ folder');
-        console.error('   2. Clear browser cache and reload');
-        console.error('   3. Check browser console for service worker errors');
-        console.error('   4. Try in incognito mode to rule out extension conflicts');
-        console.error('   5. Ensure you\'re on HTTPS or localhost');
-      } else if (error.code === 'messaging/token-subscribe-failed') {
-        console.error('❌ FCM token subscription failed. This usually means:');
-        console.error('   1. Firebase Cloud Messaging API is not enabled in Google Cloud Console');
-        console.error('   2. API key restrictions are blocking FCM API access');
-        console.error('   3. Service account lacks proper permissions');
-        console.error('');
-        console.error('💡 Solution:');
-        console.error('   1. Go to: https://console.cloud.google.com/apis/library/fcm.googleapis.com');
-        console.error('   2. Select project: fixfly-fb12b');
-        console.error('   3. Click "Enable" button');
-        console.error('   4. Wait 2-3 minutes and try again');
-        console.error('');
-        console.error('📖 See FIREBASE_API_SETUP.md for detailed instructions');
+      // Handle IndexedDB connection closing error - retry with exponential backoff
+      if (error.code === 11 || 
+          error.message?.includes('IDBDatabase') || 
+          error.message?.includes('database connection is closing') ||
+          error.name === 'InvalidStateError') {
+        console.warn('⚠️ IndexedDB connection issue detected. Retrying with exponential backoff...');
+        
+        // Try multiple retries with increasing delays
+        const maxRetries = 3;
+        let retryCount = 0;
+        let lastError = error;
+        
+        while (retryCount < maxRetries) {
+          retryCount++;
+          const delay = Math.min(2000 * Math.pow(2, retryCount - 1), 8000); // 2s, 4s, 8s
+          console.log(`🔄 Retry attempt ${retryCount}/${maxRetries} after ${delay}ms delay...`);
+          
+          // Wait with exponential backoff
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          try {
+            // Re-check service worker
+            const currentRegistration = await navigator.serviceWorker.getRegistration('/');
+            if (!currentRegistration || !currentRegistration.active) {
+              console.warn('⚠️ Service worker not ready on retry, skipping FCM token registration');
+              return null;
+            }
+            
+            serviceWorkerRegistration = currentRegistration;
+            
+            // Small additional delay to ensure IndexedDB is ready
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Retry getting token
+            if (isValidVAPIDKey && VAPID_KEY) {
+              currentToken = await getToken(messaging, {
+                vapidKey: VAPID_KEY.trim(),
+                serviceWorkerRegistration: serviceWorkerRegistration || undefined
+              });
+            } else {
+              currentToken = await getToken(messaging, {
+                serviceWorkerRegistration: serviceWorkerRegistration || undefined
+              });
+            }
+            
+            console.log('✅ Successfully got FCM token on retry attempt', retryCount);
+            retryAttempted = true;
+            break; // Success, exit retry loop
+          } catch (retryError: any) {
+            lastError = retryError;
+            console.warn(`⚠️ Retry attempt ${retryCount} failed:`, retryError.message);
+            
+            // If it's still an IndexedDB error and we have more retries, continue
+            if (retryCount < maxRetries && 
+                (retryError.code === 11 || 
+                 retryError.message?.includes('IDBDatabase') || 
+                 retryError.message?.includes('database connection is closing'))) {
+              continue; // Try again
+            } else {
+              // Different error or max retries reached
+              console.error('❌ All retry attempts failed');
+              console.warn('⚠️ FCM token registration will be skipped. Notifications may not work until page refresh.');
+              console.warn('💡 This is usually a temporary issue. Try refreshing the page or wait a few moments.');
+              return null;
+            }
+          }
+        }
+        
+        // If we exhausted all retries
+        if (!currentToken && !retryAttempted) {
+          console.error('❌ All retry attempts exhausted');
+          console.warn('⚠️ FCM token registration failed after multiple attempts. Notifications may not work.');
+          console.warn('💡 This is usually a temporary IndexedDB issue. Try refreshing the page.');
+          return null;
+        }
+      } else {
+        // Provide helpful error messages for other errors
+        if (error.code === 'messaging/invalid-vapid-key' ||
+          error.message?.includes('applicationServerKey') ||
+          error.message?.includes('not valid')) {
+          console.error('❌ VAPID key validation failed. This might be due to:');
+          console.error('   1. Key format issue - ensure it\'s copied correctly from Firebase Console');
+          console.error('   2. Service worker not ready - try refreshing the page');
+          console.error('   3. Browser compatibility - ensure you\'re using a supported browser');
+          console.error('   4. HTTPS required - push notifications only work on HTTPS (or localhost)');
+          console.error('');
+          console.error('💡 Current VAPID key:', VAPID_KEY);
+          console.error('💡 Key length:', VAPID_KEY?.length || 0);
+        } else if (error.code === 'messaging/permission-blocked') {
+          console.warn('⚠️ Notification permission is blocked. Please enable it in browser settings.');
+        } else if (error.code === 'messaging/unsupported-browser') {
+          console.warn('⚠️ This browser does not support Firebase Cloud Messaging.');
+        } else if (error.code === 'messaging/failed-service-worker-registration') {
+          console.error('❌ Service worker registration failed. Check if firebase-messaging-sw.js is accessible.');
+        } else if (error.message?.includes('no active Service Worker') || error.message?.includes('Subscription failed')) {
+          console.error('❌ Service worker is not active. This usually means:');
+          console.error('   1. Service worker file is not accessible at /firebase-messaging-sw.js');
+          console.error('   2. Service worker failed to install/activate');
+          console.error('   3. Browser blocked service worker registration');
+          console.error('');
+          console.error('💡 Solutions:');
+          console.error('   1. Check if firebase-messaging-sw.js exists in public/ folder');
+          console.error('   2. Clear browser cache and reload');
+          console.error('   3. Check browser console for service worker errors');
+          console.error('   4. Try in incognito mode to rule out extension conflicts');
+          console.error('   5. Ensure you\'re on HTTPS or localhost');
+        } else if (error.code === 'messaging/token-subscribe-failed') {
+          console.error('❌ FCM token subscription failed. This usually means:');
+          console.error('   1. Firebase Cloud Messaging API is not enabled in Google Cloud Console');
+          console.error('   2. API key restrictions are blocking FCM API access');
+          console.error('   3. Service account lacks proper permissions');
+          console.error('');
+          console.error('💡 Solution:');
+          console.error('   1. Go to: https://console.cloud.google.com/apis/library/fcm.googleapis.com');
+          console.error('   2. Select project: fixfly-fb12b');
+          console.error('   3. Click "Enable" button');
+          console.error('   4. Wait 2-3 minutes and try again');
+          console.error('');
+          console.error('📖 See FIREBASE_API_SETUP.md for detailed instructions');
+        }
+        // Only return null if retry was not attempted or failed
+        if (!retryAttempted) {
+          return null;
+        }
       }
-      return null;
     }
 
     if (!currentToken) {

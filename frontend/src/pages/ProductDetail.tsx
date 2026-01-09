@@ -338,6 +338,25 @@ const ProductDetail = () => {
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{service.serviceName}</h3>
                     <p className="text-gray-600 text-sm mb-2 leading-relaxed">{service.description}</p>
+                    <div className="flex items-center gap-3 mt-3">
+                      {service.discountPrice && Number(service.discountPrice) > 0 && Number(service.discountPrice) < Number(service.price) ? (
+                        <>
+                          <span className="text-lg font-bold text-green-600">
+                            ₹{Number(service.discountPrice).toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-sm text-gray-500 line-through">
+                            ₹{Number(service.price).toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                            Save ₹{(Number(service.price) - Number(service.discountPrice)).toLocaleString('en-IN')}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-lg font-bold text-gray-900">
+                          ₹{Number(service.price).toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex flex-col items-center space-y-3">
                     <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">

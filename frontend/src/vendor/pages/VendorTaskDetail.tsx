@@ -178,6 +178,8 @@ const VendorTaskDetail = () => {
               payment: bookingTask.payment,
               paymentMode: bookingTask.paymentMode,
               assignmentNotes: bookingTask.assignmentNotes || null,
+              totalAmount: totalAmount,
+              pricing: bookingTask.pricing,
               isSupportTicket: false
             };
           }
@@ -516,6 +518,22 @@ const VendorTaskDetail = () => {
                 <h3 className="text-sm font-medium text-gray-600">Issue Description</h3>
                 <p className="text-sm text-gray-800 bg-gray-50 p-3 rounded-md">{task.issue}</p>
               </div>
+
+              {/* Booking Amount Pending - Only show for bookings with pending payment */}
+              {!task.isSupportTicket && task.payment && task.payment.status === 'pending' && task.totalAmount && task.totalAmount > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-gray-600">Booking Amount</h3>
+                  <div className="bg-orange-50 border border-orange-200 p-3 rounded-md">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-orange-800">Pending Amount:</span>
+                      <span className="text-lg font-bold text-orange-600">
+                        ₹{Number(task.totalAmount).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <p className="text-xs text-orange-700 mt-1">Payment is pending for this booking</p>
+                  </div>
+                </div>
+              )}
 
               {/* Assignment Notes */}
               {task.assignmentNotes && (

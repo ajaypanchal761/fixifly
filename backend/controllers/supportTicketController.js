@@ -2143,7 +2143,8 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
           billingAmount: parsedBillingAmount,
           spareAmount,
           travellingAmount,
-          gstIncluded: includeGST || false
+          gstIncluded: includeGST || false,
+          gstAmount: completionData?.gstAmount || 0 // Pass GST amount from frontend
         });
 
         // For billing <= 300, no wallet deduction is made, so skip wallet check
@@ -2164,7 +2165,8 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
             billingAmount: parsedBillingAmount,
             spareAmount,
             travellingAmount,
-            gstIncluded: includeGST || false
+            gstIncluded: includeGST || false,
+            gstAmount: completionData?.gstAmount || 0
           });
 
           const deductionResult = await vendorWallet.addCashCollectionDeduction({
@@ -2173,6 +2175,7 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
             spareAmount,
             travellingAmount,
             gstIncluded: includeGST || false,
+            gstAmount: completionData?.gstAmount || 0, // Pass GST amount from frontend
             description: `Support ticket cash collection - ${ticket.ticketId}`
           });
 
@@ -2368,6 +2371,7 @@ const verifySupportTicketPayment = asyncHandler(async (req, res) => {
             bookingAmount: 0,
             paymentMethod: 'online',
             gstIncluded: completionData.includeGST || false,
+            gstAmount: completionData.gstAmount || 0, // Pass GST amount from frontend
             description: `Support ticket payment verified earning - ${ticket.ticketId}`
           });
 

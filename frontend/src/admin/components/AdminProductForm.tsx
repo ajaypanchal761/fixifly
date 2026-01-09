@@ -323,6 +323,14 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
         if (!service.serviceName.trim()) {
           newErrors[`${categoryKey}_${index}_serviceName`] = 'Service name is required';
         }
+        if (!service.price || Number(service.price) <= 0) {
+          newErrors[`${categoryKey}_${index}_price`] = 'Price is required and must be greater than 0';
+        }
+        if (service.discountPrice && Number(service.discountPrice) > 0) {
+          if (Number(service.discountPrice) >= Number(service.price)) {
+            newErrors[`${categoryKey}_${index}_discountPrice`] = 'Discount price must be less than regular price';
+          }
+        }
       });
     });
 
@@ -737,6 +745,43 @@ const AdminProductForm: React.FC<AdminProductFormProps> = ({ onProductCreated, s
                                 onChange={(e) => handleServiceChange(categoryKey, index, 'description', e.target.value)}
                                 rows={2}
                               />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label>Price *</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter price"
+                                  value={service.price}
+                                  onChange={(e) => handleServiceChange(categoryKey, index, 'price', parseFloat(e.target.value) || 0)}
+                                  min="0"
+                                  step="0.01"
+                                  className={errors[`${categoryKey}_${index}_price`] ? 'border-red-500' : ''}
+                                />
+                                {errors[`${categoryKey}_${index}_price`] && (
+                                  <p className="text-sm text-red-500">{errors[`${categoryKey}_${index}_price`]}</p>
+                                )}
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label>Discount Price</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter discount price"
+                                  value={service.discountPrice}
+                                  onChange={(e) => handleServiceChange(categoryKey, index, 'discountPrice', parseFloat(e.target.value) || 0)}
+                                  min="0"
+                                  step="0.01"
+                                  className={errors[`${categoryKey}_${index}_discountPrice`] ? 'border-red-500' : ''}
+                                />
+                                {errors[`${categoryKey}_${index}_discountPrice`] && (
+                                  <p className="text-sm text-red-500">{errors[`${categoryKey}_${index}_discountPrice`]}</p>
+                                )}
+                                {service.discountPrice && service.price && Number(service.discountPrice) >= Number(service.price) && (
+                                  <p className="text-sm text-yellow-600">Discount price should be less than regular price</p>
+                                )}
+                              </div>
                             </div>
 
                             <div className="space-y-2">

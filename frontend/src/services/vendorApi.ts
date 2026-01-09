@@ -261,11 +261,12 @@ class VendorApiService {
         error.message.includes('Failed to fetch') ||
         error.name === 'TypeError' ||
         (error.name === 'TypeError' && error.message === 'Failed to fetch')) {
-        console.error('Network error - backend might be down or CORS issue');
-        console.error('Backend URL:', url);
-        console.error('Base URL:', this.baseURL);
-        console.error('API_BASE_URL:', API_BASE_URL);
-        console.error('Check if backend is running on:', this.baseURL);
+        // Log as warning instead of error for network issues (backend might be down)
+        console.warn('⚠️ Network error - backend might be down or CORS issue');
+        console.warn('Backend URL:', url);
+        console.warn('Base URL:', this.baseURL);
+        console.warn('API_BASE_URL:', API_BASE_URL);
+        console.warn('Check if backend is running on:', this.baseURL);
 
         // Provide more helpful error message
         const networkError = new Error(

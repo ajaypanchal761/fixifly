@@ -346,7 +346,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('userData', JSON.stringify(freshUserData));
       }
     } catch (error: any) {
-      console.error('Error refreshing user data:', error);
+      // Handle authorization/user not found errors - clear invalid token and logout
+      if (error?.message?.includes('Not authorized') || 
+          error?.message?.includes('user not found') ||
+          error?.message?.includes('User not found') ||
+          error?.status === 401 ||
+          error?.status === 404) {
+        console.warn('⚠️ User not found or unauthorized - clearing invalid session');
+        logout();
+        return;
+      }
       
       // Handle timeout and network errors - use cached data silently
       if (error?.message?.includes('timeout') || 
@@ -360,6 +369,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // For other errors, log but don't break the app
       // The app will continue with cached data
+      console.warn('⚠️ Error refreshing user data (non-critical):', error.message);
     }
   };
 

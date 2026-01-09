@@ -19,7 +19,8 @@ class WalletCalculationService {
       travellingAmount = 0,
       bookingAmount = 0,
       paymentMethod,
-      gstIncluded = false
+      gstIncluded = false,
+      gstAmount: providedGstAmount = 0 // Use GST amount from frontend if provided
     } = params;
 
     let gstAmount = 0;
@@ -28,9 +29,9 @@ class WalletCalculationService {
     // Calculate GST if included (billing amount is GST-excluded)
     if (gstIncluded) {
       // When GST is included, billing amount is GST-excluded
-      // GST amount = billing amount * 0.18
+      // Use provided GST amount from frontend, or calculate if not provided
       netBillingAmount = billingAmount; // GST-excluded amount (same as billing amount)
-      gstAmount = billingAmount * 0.18; // GST amount
+      gstAmount = providedGstAmount > 0 ? providedGstAmount : (billingAmount * 0.18); // Use provided GST or calculate
     }
 
     let calculatedAmount = 0;
@@ -47,8 +48,10 @@ class WalletCalculationService {
     else if (netBillingAmount <= 500) {
       if (paymentMethod === 'online') {
         calculatedAmount = netBillingAmount - 20; // 20 rupees cut for online
+        // GST amount NOT added to vendor earning for amounts > 300
       } else {
         calculatedAmount = netBillingAmount; // Full amount for cash
+        // GST amount NOT added to vendor earning for amounts > 300
       }
     }
     // Regular calculation for amounts > 500
@@ -56,10 +59,12 @@ class WalletCalculationService {
       // Calculate amount based on payment method
       if (paymentMethod === 'online') {
         // Online payment: (GST-excluded - Spare - Travel) * 50% + Spare + Travel
+        // GST amount NOT added to vendor earning for amounts > 300
         const baseAmount = netBillingAmount - spareAmount - travellingAmount;
         calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
       } else if (paymentMethod === 'cash') {
         // Cash payment: (GST-excluded - Spare - Travel) * 50% + Spare + Travel
+        // GST amount NOT added to vendor earning for amounts > 300
         const baseAmount = netBillingAmount - spareAmount - travellingAmount;
         calculatedAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
       }
@@ -97,7 +102,8 @@ class WalletCalculationService {
       spareAmount = 0,
       travellingAmount = 0,
       bookingAmount = 0,
-      gstIncluded = false
+      gstIncluded = false,
+      gstAmount: providedGstAmount = 0 // Use GST amount from frontend if provided
     } = params;
 
     let gstAmount = 0;
@@ -106,9 +112,9 @@ class WalletCalculationService {
     // Calculate GST if included (billing amount is GST-excluded)
     if (gstIncluded) {
       // When GST is included, billing amount is GST-excluded
-      // GST amount = billing amount * 0.18
+      // Use provided GST amount from frontend, or calculate if not provided
       netBillingAmount = billingAmount; // GST-excluded amount (same as billing amount)
-      gstAmount = billingAmount * 0.18; // GST amount
+      gstAmount = providedGstAmount > 0 ? providedGstAmount : (billingAmount * 0.18); // Use provided GST or calculate
     }
 
     let calculatedAmount = 0;

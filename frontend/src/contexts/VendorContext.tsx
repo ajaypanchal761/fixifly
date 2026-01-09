@@ -426,18 +426,20 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         return Promise.resolve();
       }
     } catch (error: any) {
-      console.error('❌ VendorContext: Failed to refresh vendor data:', error);
-
       // Handle timeout and network errors - use cached data silently
       if (error?.message?.includes('timeout') ||
         error?.message?.includes('Request timeout') ||
         error?.message?.includes('Network error') ||
         error?.message?.includes('Failed to fetch') ||
+        error?.name === 'TypeError' ||
         error?.isNetworkError) {
-        console.warn('⚠️ Refresh failed - using cached data:', error.message);
+        console.warn('⚠️ VendorContext: Refresh failed - using cached data:', error.message);
         // Don't throw - just use existing cached data
         return;
       }
+      
+      // Log other errors but don't break the app
+      console.warn('⚠️ VendorContext: Error refreshing vendor data (non-critical):', error.message);
 
       // Don't throw error, just log it - this prevents breaking the app
       // The app will continue with cached data

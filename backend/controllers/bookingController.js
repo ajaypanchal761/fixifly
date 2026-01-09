@@ -1666,7 +1666,8 @@ const completeTask = asyncHandler(async (req, res) => {
           spareAmount,
           travellingAmount,
           bookingAmount: 0,
-          gstIncluded: completionData.includeGST || false
+          gstIncluded: completionData.includeGST || false,
+          gstAmount: completionData.gstAmount || 0 // Pass GST amount from frontend
         });
 
         // Check vendor wallet balance before proceeding (only if deduction > 0)
@@ -1694,6 +1695,7 @@ const completeTask = asyncHandler(async (req, res) => {
               travellingAmount,
               bookingAmount: 0,
               gstIncluded: completionData.includeGST || false,
+              gstAmount: completionData.gstAmount || 0, // Pass GST amount from frontend
               description: `Cash collection - ${updatedBooking.bookingReference || bookingId}`
             });
 
@@ -2500,7 +2502,8 @@ const verifyPayment = asyncHandler(async (req, res) => {
             travellingAmount,
             bookingAmount: 0,
             paymentMethod: 'online',
-            gstIncluded: completionData.includeGST || false
+            gstIncluded: completionData.includeGST || false,
+            gstAmount: completionData.gstAmount || 0 // Pass GST amount from frontend
           });
 
           // Add earning to vendor wallet
@@ -2514,6 +2517,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
               bookingAmount: 0,
               paymentMethod: 'online',
               gstIncluded: completionData.includeGST || false,
+              gstAmount: completionData.gstAmount || 0, // Pass GST amount from frontend
               description: `Task completion earning - ${updatedBooking.bookingReference || bookingId}`
             });
 

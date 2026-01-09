@@ -379,6 +379,7 @@ const addCashCollectionDeduction = asyncHandler(async (req, res) => {
       spareAmount = 0,
       travellingAmount = 0,
       gstIncluded = false,
+      gstAmount = 0, // GST amount from frontend
       description,
       cashPhoto
     } = req.body;
@@ -402,6 +403,7 @@ const addCashCollectionDeduction = asyncHandler(async (req, res) => {
       spareAmount,
       travellingAmount,
       gstIncluded,
+      gstAmount, // Pass GST amount from frontend
       description
     });
 
