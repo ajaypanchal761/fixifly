@@ -153,54 +153,121 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     })();
     
     // Register FCM token after successful login
+    // Increase timeout to give Flutter bridge more time to initialize
     setTimeout(() => {
       if (isWebView) {
         // For webview/APK: Get FCM token from Flutter bridge and save using mobile endpoint
         console.log('📱 Detected webview/APK environment, using mobile FCM token endpoint');
         
-        // Try to get FCM token from Flutter bridge
-        const getFCMTokenFromFlutter = (): Promise<string | null> => {
+        // Try to get FCM token from Flutter bridge with retries
+        const getFCMTokenFromFlutter = (retryCount = 0, maxRetries = 3): Promise<string | null> => {
           return new Promise((resolve) => {
             try {
               // Check if Flutter bridge is available
               if (typeof (window as any).flutter_inappwebview !== 'undefined') {
                 // Flutter InAppWebView
-                (window as any).flutter_inappwebview.callHandler('getFCMToken').then((token: string) => {
-                  resolve(token);
-                }).catch(() => {
-                  resolve(null);
-                });
+                console.log(`📱 Attempting to get FCM token from Flutter bridge (attempt ${retryCount + 1}/${maxRetries + 1})...`);
+                (window as any).flutter_inappwebview.callHandler('getFCMToken')
+                  .then((token: string) => {
+                    if (token) {
+                      console.log('✅ FCM token retrieved from Flutter bridge:', token.substring(0, 30) + '...');
+                      resolve(token);
+                    } else {
+                      console.warn('⚠️ Flutter bridge returned null/empty token');
+                      if (retryCount < maxRetries) {
+                        setTimeout(() => resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries)), 2000);
+                      } else {
+                        resolve(null);
+                      }
+                    }
+                  })
+                  .catch((error: any) => {
+                    console.warn(`⚠️ Flutter bridge call failed (attempt ${retryCount + 1}):`, error);
+                    if (retryCount < maxRetries) {
+                      setTimeout(() => resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries)), 2000);
+                    } else {
+                      resolve(null);
+                    }
+                  });
               } else if (typeof (window as any).Android !== 'undefined') {
                 // Android WebView
+                console.log('📱 Attempting to get FCM token from Android bridge...');
                 const token = (window as any).Android.getFCMToken();
-                resolve(token || null);
+                if (token) {
+                  console.log('✅ FCM token retrieved from Android bridge:', token.substring(0, 30) + '...');
+                  resolve(token);
+                } else {
+                  console.warn('⚠️ Android bridge returned null/empty token');
+                  if (retryCount < maxRetries) {
+                    setTimeout(() => resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries)), 2000);
+                  } else {
+                    resolve(null);
+                  }
+                }
               } else {
                 // Try to get from localStorage (if Flutter saved it)
                 const savedToken = localStorage.getItem('fcmToken');
                 if (savedToken) {
+                  console.log('✅ FCM token found in localStorage:', savedToken.substring(0, 30) + '...');
                   resolve(savedToken);
                 } else {
+                  console.log('📱 Listening for FCM token from Flutter...');
                   // Listen for token from Flutter
-                  window.addEventListener('message', function(event) {
+                  let messageListener: ((event: MessageEvent) => void) | null = null;
+                  const timeout = setTimeout(() => {
+                    if (messageListener) {
+                      window.removeEventListener('message', messageListener);
+                    }
+                    if (retryCount < maxRetries) {
+                      console.log(`⏳ FCM token not received, retrying (${retryCount + 1}/${maxRetries})...`);
+                      resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries));
+                    } else {
+                      console.warn('⚠️ FCM token not received after all retries');
+                      resolve(null);
+                    }
+                  }, 5000); // Increased timeout to 5 seconds
+                  
+                  messageListener = function(event: MessageEvent) {
                     if (event.data && event.data.type === 'FCM_TOKEN') {
+                      clearTimeout(timeout);
+                      window.removeEventListener('message', messageListener!);
+                      console.log('✅ FCM token received via message event:', event.data.token.substring(0, 30) + '...');
                       resolve(event.data.token);
                     }
-                  });
-                  // Timeout after 3 seconds
-                  setTimeout(() => resolve(null), 3000);
+                  };
+                  
+                  window.addEventListener('message', messageListener);
                 }
               }
             } catch (error) {
-              console.error('Error getting FCM token from Flutter:', error);
-              resolve(null);
+              console.error('❌ Error getting FCM token from Flutter:', error);
+              if (retryCount < maxRetries) {
+                setTimeout(() => resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries)), 2000);
+              } else {
+                resolve(null);
+              }
             }
           });
         };
         
         getFCMTokenFromFlutter().then((fcmToken) => {
-          if (fcmToken && userData.phone) {
+          // Get phone from userData or try to extract from user state
+          const phoneNumber = userData.phone || (user ? user.phone : null);
+          
+          console.log('📱 FCM Token Save Check:', {
+            hasToken: !!fcmToken,
+            hasPhone: !!phoneNumber,
+            tokenPreview: fcmToken ? fcmToken.substring(0, 30) + '...' : 'null',
+            phoneValue: phoneNumber || 'null',
+            userDataPhone: userData.phone || 'null',
+            userPhone: user ? user.phone : 'null'
+          });
+          
+          if (fcmToken && phoneNumber) {
             // Clean phone number (remove +91 if present)
-            const cleanPhone = userData.phone.replace(/\D/g, '').replace(/^91/, '');
+            const cleanPhone = phoneNumber.replace(/\D/g, '').replace(/^91/, '');
+            console.log(`💾 Saving FCM token for phone: ${cleanPhone}`);
+            
             saveMobileFCMToken(fcmToken, cleanPhone).then((success) => {
               if (success) {
                 console.log('✅ Mobile FCM token saved after login');
@@ -211,7 +278,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               console.error('❌ Error saving mobile FCM token after login:', error);
             });
           } else {
-            console.warn('⚠️ FCM token or phone not available for mobile save');
+            const missingItems = [];
+            if (!fcmToken) missingItems.push('FCM token');
+            if (!phoneNumber) missingItems.push('phone number');
+            console.warn(`⚠️ FCM token or phone not available for mobile save. Missing: ${missingItems.join(', ')}`);
+            
+            // If we have phone but no token, try one more time after delay
+            if (phoneNumber && !fcmToken) {
+              console.log('⏳ Retrying FCM token retrieval in 3 seconds...');
+              setTimeout(() => {
+                getFCMTokenFromFlutter(0, 2).then((retryToken) => {
+                  if (retryToken && phoneNumber) {
+                    const cleanPhone = phoneNumber.replace(/\D/g, '').replace(/^91/, '');
+                    saveMobileFCMToken(retryToken, cleanPhone).then((success) => {
+                      if (success) {
+                        console.log('✅ Mobile FCM token saved after retry');
+                      }
+                    });
+                  }
+                });
+              }, 3000);
+            }
           }
         });
       } else {
@@ -221,7 +308,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.error('Failed to register FCM token after login:', error);
         });
       }
-    }, 2000); // Wait 2 seconds for Flutter bridge to be ready
+    }, 3000); // Wait 3 seconds for Flutter bridge to be ready (increased for APK)
   };
 
   const logout = () => {

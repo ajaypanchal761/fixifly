@@ -222,48 +222,109 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         // For webview/APK: Get FCM token from Flutter bridge and save using mobile endpoint
         console.log('📱 Detected webview/APK environment for vendor, using mobile FCM token endpoint');
 
-        // Try to get FCM token from Flutter bridge
-        const getFCMTokenFromFlutter = (): Promise<string | null> => {
+        // Try to get FCM token from Flutter bridge with retries
+        const getFCMTokenFromFlutter = (retryCount = 0, maxRetries = 3): Promise<string | null> => {
           return new Promise((resolve) => {
             try {
               // Check if Flutter bridge is available
               if (typeof (window as any).flutter_inappwebview !== 'undefined') {
                 // Flutter InAppWebView
-                (window as any).flutter_inappwebview.callHandler('getFCMToken').then((token: string) => {
-                  resolve(token);
-                }).catch(() => {
-                  resolve(null);
-                });
+                console.log(`📱 [Vendor] Attempting to get FCM token from Flutter bridge (attempt ${retryCount + 1}/${maxRetries + 1})...`);
+                (window as any).flutter_inappwebview.callHandler('getFCMToken')
+                  .then((token: string) => {
+                    if (token) {
+                      console.log('✅ [Vendor] FCM token retrieved from Flutter bridge:', token.substring(0, 30) + '...');
+                      resolve(token);
+                    } else {
+                      console.warn('⚠️ [Vendor] Flutter bridge returned null/empty token');
+                      if (retryCount < maxRetries) {
+                        setTimeout(() => resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries)), 2000);
+                      } else {
+                        resolve(null);
+                      }
+                    }
+                  })
+                  .catch((error: any) => {
+                    console.warn(`⚠️ [Vendor] Flutter bridge call failed (attempt ${retryCount + 1}):`, error);
+                    if (retryCount < maxRetries) {
+                      setTimeout(() => resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries)), 2000);
+                    } else {
+                      resolve(null);
+                    }
+                  });
               } else if (typeof (window as any).Android !== 'undefined') {
                 // Android WebView
+                console.log('📱 [Vendor] Attempting to get FCM token from Android bridge...');
                 const token = (window as any).Android.getFCMToken();
-                resolve(token || null);
+                if (token) {
+                  console.log('✅ [Vendor] FCM token retrieved from Android bridge:', token.substring(0, 30) + '...');
+                  resolve(token);
+                } else {
+                  console.warn('⚠️ [Vendor] Android bridge returned null/empty token');
+                  if (retryCount < maxRetries) {
+                    setTimeout(() => resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries)), 2000);
+                  } else {
+                    resolve(null);
+                  }
+                }
               } else {
                 // Try to get from localStorage (if Flutter saved it)
                 const savedToken = localStorage.getItem('fcmToken');
                 if (savedToken) {
+                  console.log('✅ [Vendor] FCM token found in localStorage:', savedToken.substring(0, 30) + '...');
                   resolve(savedToken);
                 } else {
+                  console.log('📱 [Vendor] Listening for FCM token from Flutter...');
                   // Listen for token from Flutter
-                  window.addEventListener('message', function (event) {
+                  let messageListener: ((event: MessageEvent) => void) | null = null;
+                  const timeout = setTimeout(() => {
+                    if (messageListener) {
+                      window.removeEventListener('message', messageListener);
+                    }
+                    if (retryCount < maxRetries) {
+                      console.log(`⏳ [Vendor] FCM token not received, retrying (${retryCount + 1}/${maxRetries})...`);
+                      resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries));
+                    } else {
+                      console.warn('⚠️ [Vendor] FCM token not received after all retries');
+                      resolve(null);
+                    }
+                  }, 5000); // Increased timeout to 5 seconds
+                  
+                  messageListener = function(event: MessageEvent) {
                     if (event.data && event.data.type === 'FCM_TOKEN') {
+                      clearTimeout(timeout);
+                      window.removeEventListener('message', messageListener!);
+                      console.log('✅ [Vendor] FCM token received via message event:', event.data.token.substring(0, 30) + '...');
                       resolve(event.data.token);
                     }
-                  });
-                  // Timeout after 3 seconds
-                  setTimeout(() => resolve(null), 3000);
+                  };
+                  
+                  window.addEventListener('message', messageListener);
                 }
               }
             } catch (error) {
-              console.error('Error getting FCM token from Flutter:', error);
-              resolve(null);
+              console.error('❌ [Vendor] Error getting FCM token from Flutter:', error);
+              if (retryCount < maxRetries) {
+                setTimeout(() => resolve(getFCMTokenFromFlutter(retryCount + 1, maxRetries)), 2000);
+              } else {
+                resolve(null);
+              }
             }
           });
         };
 
         getFCMTokenFromFlutter().then((fcmToken) => {
-          if (fcmToken && vendorWithWallet.email) {
-            saveMobileFCMToken(fcmToken, '', vendorWithWallet.email).then((success) => {
+          const vendorEmail = vendorWithWallet.email;
+          
+          console.log('📱 [Vendor] FCM Token Save Check:', {
+            hasToken: !!fcmToken,
+            hasEmail: !!vendorEmail,
+            tokenPreview: fcmToken ? fcmToken.substring(0, 30) + '...' : 'null',
+            emailValue: vendorEmail || 'null'
+          });
+          
+          if (fcmToken && vendorEmail) {
+            saveMobileFCMToken(fcmToken, '', vendorEmail).then((success) => {
               if (success) {
                 console.log('✅ Vendor mobile FCM token saved after login');
               } else {
@@ -273,7 +334,26 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
               console.error('❌ Error saving vendor mobile FCM token after login:', error);
             });
           } else {
-            console.warn('⚠️ FCM token or email not available for vendor mobile save');
+            const missingItems = [];
+            if (!fcmToken) missingItems.push('FCM token');
+            if (!vendorEmail) missingItems.push('email');
+            console.warn(`⚠️ [Vendor] FCM token or email not available for mobile save. Missing: ${missingItems.join(', ')}`);
+            
+            // If we have email but no token, try one more time after delay
+            if (vendorEmail && !fcmToken) {
+              console.log('⏳ [Vendor] Retrying FCM token retrieval in 3 seconds...');
+              setTimeout(() => {
+                getFCMTokenFromFlutter(0, 2).then((retryToken) => {
+                  if (retryToken && vendorEmail) {
+                    saveMobileFCMToken(retryToken, '', vendorEmail).then((success) => {
+                      if (success) {
+                        console.log('✅ [Vendor] Mobile FCM token saved after retry');
+                      }
+                    });
+                  }
+                });
+              }, 3000);
+            }
           }
         });
       } else {
@@ -283,7 +363,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
           console.error('Failed to register vendor FCM token after login:', error);
         });
       }
-    }, 2000); // Wait 2 seconds for Flutter bridge to be ready
+    }, 3000); // Wait 3 seconds for Flutter bridge to be ready (increased for APK)
 
     // In APK, ensure state is fully updated before resolving
     const isAPK = /wv|WebView/.test(navigator.userAgent) ||
