@@ -2416,55 +2416,44 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
       });
     }
 
-    // Validate identifier (email or phone)
-    if (!email && !phone) {
+    // VENDOR endpoint requires EMAIL only (vendors are identified by email, not phone)
+    // If phone is provided, this is likely a user calling the wrong endpoint
+    if (!email) {
+      if (phone) {
+        // Phone provided but no email - this is likely a user, not a vendor
+        logger.warn('⚠️ Phone number provided to vendor endpoint. Users should use /api/users/save-fcm-token-mobile instead.');
+        return res.status(400).json({
+          success: false,
+          message: 'Email is required for vendor FCM token save. If you are a regular user, please use /api/users/save-fcm-token-mobile endpoint with phone number instead.',
+          hint: 'Vendors must use email. Users should use phone number with /api/users/save-fcm-token-mobile'
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Email is required for vendor FCM token save'
+        });
+      }
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const normalizedEmail = email.toLowerCase().trim();
+
+    if (!emailRegex.test(normalizedEmail)) {
+      logger.error('Invalid email format', { email });
       return res.status(400).json({
         success: false,
-        message: 'Email or Phone is required'
+        message: 'Please provide a valid email address'
       });
     }
 
-    let query = {};
+    // Vendors are looked up by email only
+    const query = { email: normalizedEmail };
+    logger.info('🔍 Looking up vendor by email:', normalizedEmail);
 
-    if (email) {
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const normalizedEmail = email.toLowerCase().trim();
+    logger.info('Vendor lookup query (email only):', query);
 
-      if (!emailRegex.test(normalizedEmail)) {
-        logger.error('Invalid email format', { email });
-        return res.status(400).json({
-          success: false,
-          message: 'Please provide a valid email address'
-        });
-      }
-      query.email = normalizedEmail;
-    } else if (phone) {
-      // Normalize phone number
-      const normalizedPhone = phone.replace(/\D/g, '');
-      // Handle 10-12 digit formats simply for lookup
-      if (normalizedPhone.length < 10) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid phone number format'
-        });
-      }
-
-      // If client sends 10 digits, we might need to be careful if DB has other formats, 
-      // but usually vendors are stored with 10 digits in 'phone' field based on schema.
-      // We'll search by the exact phone first. 
-      // NOTE: Vendor schema has 'phone' as String, usually 10 digits.
-      // We will try to match the last 10 digits if the input is longer.
-      const searchPhone = normalizedPhone.slice(-10);
-
-      // We used to query exact phone. Let's try flexible search or just assume standard 10 digit.
-      // Schema validation enforces 10 digits. So we query with 10 digits.
-      query.phone = searchPhone;
-    }
-
-    logger.info('Vendor lookup query', query);
-
-    // Find vendor by email or phone - explicitly select fcmTokenMobile field
+    // Find vendor by email only - explicitly select fcmTokenMobile field
     const vendor = await Vendor.findOne(query).select('+fcmTokenMobile');
 
     logger.info('Vendor lookup attempt', {
@@ -2474,13 +2463,13 @@ const saveFCMTokenMobile = asyncHandler(async (req, res) => {
     });
 
     if (!vendor) {
-      logger.error('Vendor not found', query);
+      logger.error('Vendor not found with email:', normalizedEmail);
       return res.status(404).json({
         success: false,
-        message: 'Vendor not found. Please register first.',
+        message: 'Vendor not found with this email. Please register as a vendor first.',
         debug: {
-          query,
-          hint: 'Make sure the email/phone matches the one used during registration'
+          email: normalizedEmail,
+          hint: 'Make sure the email matches the one used during vendor registration. If you are a regular user, use /api/users/save-fcm-token-mobile endpoint instead.'
         }
       });
     }

@@ -477,14 +477,17 @@ export const saveMobileFCMToken = async (token: string, phone: string, email?: s
     // Check if user is a vendor or regular user
     const vendorToken = localStorage.getItem('vendorToken');
     const vendorData = localStorage.getItem('vendorData');
+    const accessToken = localStorage.getItem('accessToken');
+    const userData = localStorage.getItem('userData');
     const isVendor = !!vendorToken;
 
-    // For vendors, use email instead of phone
+    // For vendors, use email (REQUIRED)
+    // For users, use phone (REQUIRED)
     let requestBody: any;
     let endpoint: string;
 
     if (isVendor) {
-      // Vendor endpoint uses email
+      // Vendor endpoint uses EMAIL (required for vendors)
       let vendorEmail = email;
       if (!vendorEmail && vendorData) {
         try {
@@ -497,24 +500,63 @@ export const saveMobileFCMToken = async (token: string, phone: string, email?: s
 
       if (!vendorEmail) {
         console.error('❌ Vendor email is required for saving mobile FCM token');
+        console.error('   Cannot save FCM token: vendor email not found');
         return false;
       }
 
+      console.log('📱 [VENDOR] Saving FCM token using email:', vendorEmail);
+      console.log('📍 Using endpoint: /vendors/save-fcm-token-mobile (VENDOR endpoint)');
       endpoint = `${API_BASE_URL}/vendors/save-fcm-token-mobile`;
       requestBody = {
         token: token,
-        email: vendorEmail,
+        email: vendorEmail, // Vendors MUST use email
         platform: 'mobile',
       };
     } else {
-      // User endpoint uses phone
-      endpoint = `${API_BASE_URL}/users/save-fcm-token-mobile`;
+      // USER endpoint uses PHONE (users should NOT call vendor endpoint)
+      if (!phone || phone.trim().length === 0) {
+        // Try to get phone from userData if not provided
+        let userPhone = phone;
+        if (!userPhone && userData) {
+          try {
+            const parsed = JSON.parse(userData);
+            userPhone = parsed.phone;
+            if (userPhone) {
+              // Clean phone number (remove +91 if present)
+              userPhone = userPhone.replace(/\D/g, '').replace(/^91/, '');
+            }
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+          }
+        }
+
+        if (!userPhone || userPhone.trim().length === 0) {
+          console.error('❌ User phone number is required for saving mobile FCM token');
+          console.error('   Cannot save FCM token: user phone not found');
+          return false;
+        }
+        phone = userPhone;
+      }
+
+      console.log('📱 [USER] Saving FCM token using phone:', phone.substring(0, 3) + '****' + phone.substring(7));
+      console.log('📍 Using endpoint: /users/save-fcm-token-mobile (USER endpoint)');
+      endpoint = `${API_BASE_URL}/users/save-fcm-token-mobile`; // USER endpoint, not vendor
       requestBody = {
         token: token,
-        phone: phone,
+        phone: phone, // Users MUST use phone
         platform: 'mobile',
       };
     }
+
+    // Log which endpoint is being used to help debug
+    console.log('🔍 Endpoint Selection Debug:', {
+      isVendor: isVendor,
+      endpoint: endpoint,
+      hasEmail: !!requestBody.email,
+      hasPhone: !!requestBody.phone,
+      emailValue: requestBody.email || 'none',
+      phoneValue: requestBody.phone ? requestBody.phone.substring(0, 3) + '****' : 'none'
+    });
 
     const response = await fetch(endpoint, {
       method: 'POST',
