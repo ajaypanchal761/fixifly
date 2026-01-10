@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Info, Mail, Phone, Globe, MapPin, ArrowLeft, Star, Award, Users, Shield } from "lucide-react";
+import { Info, Mail, Phone, Globe, MapPin, ArrowLeft, Star, Award, Users, Shield, Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const About = () => {
@@ -232,6 +232,48 @@ const About = () => {
                       Mumbai, Maharashtra, India, 400022
                     </p>
                   </div>
+                </div>
+              </div>
+              
+              {/* Social Media Icons - Desktop Only */}
+              <div className="hidden md:block pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-center gap-6">
+                  <a
+                    href="https://www.instagram.com/getfixfly/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="text-gray-600 hover:text-pink-600 transition-colors duration-200"
+                  >
+                    <Instagram className="w-7 h-7" />
+                  </a>
+                  <a
+                    href="https://facebook.com/115654851630007"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                  >
+                    <Facebook className="w-7 h-7" />
+                  </a>
+                  <a
+                    href="https://x.com/Fixflyindia"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="X (Twitter)"
+                    className="text-gray-600 hover:text-black transition-colors duration-200"
+                  >
+                    <Twitter className="w-7 h-7" />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@Fixfly_App"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="YouTube"
+                    className="text-gray-600 hover:text-red-600 transition-colors duration-200"
+                  >
+                    <Youtube className="w-7 h-7" />
+                  </a>
                 </div>
               </div>
             </CardContent>
