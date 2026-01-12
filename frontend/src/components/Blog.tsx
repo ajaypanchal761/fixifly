@@ -18,6 +18,10 @@ const Blog = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [mouseStart, setMouseStart] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleReadMore = (blogPost: Blog) => {
     setSelectedBlog(blogPost);
@@ -148,16 +152,73 @@ const Blog = () => {
     }
   };
 
-  // Auto-slide reviews every 5 seconds
-  useEffect(() => {
-    if (reviews.length > 0) {
-      const interval = setInterval(() => {
-        setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
-      }, 5000); // 5 seconds
+  // Minimum swipe distance (in pixels)
+  const minSwipeDistance = 50;
 
-      return () => clearInterval(interval);
+  // Handle touch start
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  // Handle touch move
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  // Handle touch end
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && currentReviewIndex < reviews.length - 1) {
+      setCurrentReviewIndex(currentReviewIndex + 1);
     }
-  }, [reviews.length]);
+    if (isRightSwipe && currentReviewIndex > 0) {
+      setCurrentReviewIndex(currentReviewIndex - 1);
+    }
+  };
+
+  // Handle mouse down
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setMouseStart(e.clientX);
+  };
+
+  // Handle mouse move
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || mouseStart === null) return;
+    
+    const distance = mouseStart - e.clientX;
+    const isLeftDrag = distance > minSwipeDistance;
+    const isRightDrag = distance < -minSwipeDistance;
+
+    if (isLeftDrag && currentReviewIndex < reviews.length - 1) {
+      setCurrentReviewIndex(currentReviewIndex + 1);
+      setIsDragging(false);
+      setMouseStart(null);
+    }
+    if (isRightDrag && currentReviewIndex > 0) {
+      setCurrentReviewIndex(currentReviewIndex - 1);
+      setIsDragging(false);
+      setMouseStart(null);
+    }
+  };
+
+  // Handle mouse up
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setMouseStart(null);
+  };
+
+  // Handle mouse leave (when mouse leaves the element)
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    setMouseStart(null);
+  };
 
   const loadBlogs = async () => {
     try {
@@ -304,7 +365,16 @@ const Blog = () => {
             ) : reviews.length > 0 ? (
               <div className="relative w-full">
                 {/* Carousel Container */}
-                <div className="overflow-x-hidden relative w-full">
+                <div 
+                  className="overflow-x-hidden relative w-full cursor-grab active:cursor-grabbing select-none"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <div 
                     className="flex transition-transform duration-700 ease-in-out w-full"
                     style={{ transform: `translateX(-${currentReviewIndex * 100}%)` }}

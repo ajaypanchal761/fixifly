@@ -16,6 +16,10 @@ const ReviewsCarousel = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [mouseStart, setMouseStart] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -35,15 +39,73 @@ const ReviewsCarousel = () => {
     fetchReviews();
   }, []);
 
-  useEffect(() => {
-    if (reviews.length > 0) {
-      const interval = setInterval(() => {
-        setCurrentReviewIndex((prev) => (prev + 1) % reviews.length);
-      }, 4000); // Change review every 4 seconds
+  // Minimum swipe distance (in pixels)
+  const minSwipeDistance = 50;
 
-      return () => clearInterval(interval);
+  // Handle touch start
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  // Handle touch move
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  // Handle touch end
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && currentReviewIndex < reviews.length - 1) {
+      setCurrentReviewIndex(currentReviewIndex + 1);
     }
-  }, [reviews.length]);
+    if (isRightSwipe && currentReviewIndex > 0) {
+      setCurrentReviewIndex(currentReviewIndex - 1);
+    }
+  };
+
+  // Handle mouse down
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setMouseStart(e.clientX);
+  };
+
+  // Handle mouse move
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || mouseStart === null) return;
+    
+    const distance = mouseStart - e.clientX;
+    const isLeftDrag = distance > minSwipeDistance;
+    const isRightDrag = distance < -minSwipeDistance;
+
+    if (isLeftDrag && currentReviewIndex < reviews.length - 1) {
+      setCurrentReviewIndex(currentReviewIndex + 1);
+      setIsDragging(false);
+      setMouseStart(null);
+    }
+    if (isRightDrag && currentReviewIndex > 0) {
+      setCurrentReviewIndex(currentReviewIndex - 1);
+      setIsDragging(false);
+      setMouseStart(null);
+    }
+  };
+
+  // Handle mouse up
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setMouseStart(null);
+  };
+
+  // Handle mouse leave
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    setMouseStart(null);
+  };
 
   const renderStars = (rating: number) => {
     return (
@@ -91,7 +153,16 @@ const ReviewsCarousel = () => {
         <h3 className="text-sm font-semibold text-gray-900">Customer Reviews</h3>
       </div>
 
-      <div className="flex flex-col">
+      <div 
+        className="flex flex-col cursor-grab active:cursor-grabbing select-none"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+      >
         <div className="flex items-start gap-3 mb-3 animate-fade-in">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-blue-100 text-blue-600 text-xs font-semibold">
@@ -450,14 +521,19 @@ const Hero = () => {
           {/* Additional Products */}
           {showMoreProducts && (
             <div
-              className="grid grid-cols-3 gap-3 md:flex md:overflow-x-auto md:gap-6 mb-12 animate-fade-in pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]"
+              className="grid grid-cols-3 gap-3 md:flex md:overflow-x-auto md:gap-6 mb-12 animate-fade-in pb-4 md:pb-6 services-scrollbar"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#3b82f6 #f3f4f6',
+                scrollBehavior: 'smooth'
+              }}
               data-aos="fade-up"
               data-aos-delay="500"
             >
               {allProducts.map(product => (
                 <div
                   key={product._id}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer hover:-translate-y-1 border border-white/20 md:min-w-[180px]"
+                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer hover:-translate-y-1 border border-white/20 md:min-w-[180px] flex-shrink-0"
                   onClick={() => handleProductClick(product)}
                 >
                   <div className="text-center">

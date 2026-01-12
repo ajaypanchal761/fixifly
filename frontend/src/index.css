@@ -437,3 +437,30 @@
 .animate-delay-400 { animation-delay: 0.4s; }
 .animate-delay-500 { animation-delay: 0.5s; }
 .animate-delay-600 { animation-delay: 0.6s; }
+
+/* Services Scrollbar - Desktop Only */
+@media (min-width: 768px) {
+  .services-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #3b82f6 #f3f4f6;
+  }
+  
+  .services-scrollbar::-webkit-scrollbar {
+    height: 8px;
+    display: block;
+  }
+  
+  .services-scrollbar::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 10px;
+  }
+  
+  .services-scrollbar::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 10px;
+  }
+  
+  .services-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #2563eb;
+  }
+}
