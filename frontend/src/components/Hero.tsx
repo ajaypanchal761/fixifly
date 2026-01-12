@@ -85,13 +85,13 @@ const ReviewsCarousel = () => {
   const currentReview = reviews[currentReviewIndex];
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col">
       <div className="flex items-center gap-2 mb-3">
         <MessageSquare className="h-5 w-5 text-blue-600" />
         <h3 className="text-sm font-semibold text-gray-900">Customer Reviews</h3>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex flex-col">
         <div className="flex items-start gap-3 mb-3 animate-fade-in">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-blue-100 text-blue-600 text-xs font-semibold">
@@ -121,7 +121,7 @@ const ReviewsCarousel = () => {
               </span>
             </div>
 
-            <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
+            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
               "{currentReview.comment}"
             </p>
           </div>

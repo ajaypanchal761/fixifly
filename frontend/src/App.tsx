@@ -37,6 +37,7 @@ import FloatingCallButton from "./components/FloatingCallButton";
 import { AuthProvider } from "./contexts/AuthContext";
 import { VendorProvider } from "./contexts/VendorContext";
 import MobileAuthGuard from "./components/MobileAuthGuard";
+import UserProtectedRoute from "./components/UserProtectedRoute";
 
 // Admin imports
 import AdminLogin from "./admin/pages/AdminLogin";
@@ -138,7 +139,7 @@ const AppContent = () => {
           <Route path="/payment" element={<MobileAuthGuard><Payment /></MobileAuthGuard>} />
 
           {/* Profile & Settings Routes */}
-          <Route path="/profile" element={<MobileAuthGuard><Profile /></MobileAuthGuard>} />
+          <Route path="/profile" element={<UserProtectedRoute><Profile /></UserProtectedRoute>} />
           <Route path="/notifications" element={<MobileAuthGuard><Notifications /></MobileAuthGuard>} />
 
           {/* Information Pages Routes */}

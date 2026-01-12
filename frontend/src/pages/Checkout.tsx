@@ -32,6 +32,7 @@ const Checkout = () => {
   // First-time user free service feature has been removed
   const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean>(false);
   const [checkingFirstTime, setCheckingFirstTime] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   // Customer form data - initialize with user data if available
   const [customerData, setCustomerData] = useState({
@@ -56,15 +57,15 @@ const Checkout = () => {
     }
   }, [isAuthenticated, refreshUserData]);
 
-  // Update customer data when user changes
+  // Initialize customer data with user profile only once on mount
+  // After initialization, user can edit freely without profile data overwriting
   useEffect(() => {
-    if (user) {
-      console.log('User data in Checkout:', user);
-      console.log('User address data:', user.address);
+    if (!isInitialized && user && isAuthenticated) {
+      console.log('Initializing customer data from user profile:', user);
       setCustomerData(prev => ({
         ...prev,
         name: user.name || prev.name,
-        email: user.email || prev.email, // Always use user's email if available
+        email: user.email || prev.email,
         phone: user.phone || prev.phone,
         address: {
           street: user.address?.street || prev.address.street,
@@ -73,8 +74,9 @@ const Checkout = () => {
           pincode: user.address?.pincode || prev.address.pincode
         }
       }));
+      setIsInitialized(true);
     }
-  }, [user]);
+  }, [user, isAuthenticated, isInitialized]);
 
   // Generate dynamic time slots based on selected date - using useMemo after customerData is declared
   const timeSlots = useMemo(() => {
@@ -394,6 +396,8 @@ const Checkout = () => {
                   value={customerData.name}
                   onChange={(e) => setCustomerData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter your full name"
+                  readOnly={isAuthenticated && user?.name ? true : false}
+                  className={isAuthenticated && user?.name ? "bg-gray-100 cursor-not-allowed" : ""}
                 />
               </div>
 
@@ -409,8 +413,8 @@ const Checkout = () => {
                   value={customerData.email}
                   onChange={(e) => setCustomerData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="Enter your email"
-                  readOnly={Boolean(isAuthenticated && user?.email)} // Make read-only if user is logged in
-                  className={isAuthenticated && user?.email ? "bg-gray-100" : ""}
+                  readOnly={isAuthenticated && user?.email ? true : false}
+                  className={isAuthenticated && user?.email ? "bg-gray-100 cursor-not-allowed" : ""}
                 />
               </div>
 
@@ -429,6 +433,8 @@ const Checkout = () => {
                     setCustomerData(prev => ({ ...prev, phone: formatted }));
                   }}
                   placeholder="+91 98765 43210"
+                  readOnly={isAuthenticated && user?.phone ? true : false}
+                  className={isAuthenticated && user?.phone ? "bg-gray-100 cursor-not-allowed" : ""}
                 />
               </div>
 

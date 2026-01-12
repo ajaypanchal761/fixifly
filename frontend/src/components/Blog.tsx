@@ -290,7 +290,7 @@ const Blog = () => {
 
         {/* Ratings Carousel Section - Above Benefits */}
         <div className="mb-8 animate-fade-in-delay" data-aos="fade-up" data-aos-delay="400">
-          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 overflow-visible">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               <h3 className="text-lg sm:text-xl font-bold text-gray-900">Customer Ratings</h3>
@@ -302,26 +302,27 @@ const Blog = () => {
                 <span className="text-gray-600">Loading ratings...</span>
               </div>
             ) : reviews.length > 0 ? (
-              <div className="relative">
+              <div className="relative w-full">
                 {/* Carousel Container */}
-                <div className="overflow-hidden relative">
+                <div className="overflow-x-hidden relative w-full">
                   <div 
-                    className="flex transition-transform duration-700 ease-in-out"
+                    className="flex transition-transform duration-700 ease-in-out w-full"
                     style={{ transform: `translateX(-${currentReviewIndex * 100}%)` }}
                   >
                     {reviews.map((review, index) => (
                       <div
                         key={review._id}
-                        className="min-w-full flex-shrink-0 px-2"
+                        className="min-w-full flex-shrink-0 px-2 py-2 w-full"
+                        style={{ height: 'auto', minHeight: 'auto' }}
                       >
-                        <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="flex items-start gap-3 sm:gap-4 w-full">
                           <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                             <AvatarFallback className="bg-blue-100 text-blue-600 text-sm sm:text-base font-semibold">
                               {review.userInitials}
                             </AvatarFallback>
                           </Avatar>
                           
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 w-full" style={{ maxWidth: '100%' }}>
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
                               <h4 className="text-sm sm:text-base font-semibold text-gray-900">
                                 {review.userDisplayName}
@@ -343,7 +344,17 @@ const Blog = () => {
                               </span>
                             </div>
                             
-                            <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                            <p 
+                              className="text-sm sm:text-base text-gray-700 leading-relaxed" 
+                              style={{ 
+                                wordWrap: 'break-word', 
+                                overflowWrap: 'break-word', 
+                                whiteSpace: 'normal',
+                                overflow: 'visible',
+                                display: 'block',
+                                width: '100%'
+                              }}
+                            >
                               "{review.comment}"
                             </p>
                           </div>

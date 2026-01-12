@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Clock, User, Phone, MessageCircle } from "lucide-react";
 import { Card as CardType } from "@/services/cardApi";
 import { generateDynamicTimeSlots } from "@/utils/timeSlotUtils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ServiceBookingModalProps {
   isOpen: boolean;
@@ -42,6 +43,7 @@ interface FormData {
 
 const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: ServiceBookingModalProps) => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     customerName: "",
     phoneNumber: "",
@@ -59,6 +61,27 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showThankYou, setShowThankYou] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Load user data when authenticated - only once when modal opens
+  useEffect(() => {
+    if (isAuthenticated && user && isOpen && !isInitialized) {
+      setFormData(prev => ({
+        ...prev,
+        customerName: user.name || prev.customerName,
+        email: user.email || prev.email,
+        phoneNumber: user.phone || prev.phoneNumber,
+        address: user.address?.street || prev.address,
+        city: prev.city || user.address?.city || selectedCity?.name || "",
+        pincode: user.address?.pincode || prev.pincode
+      }));
+      setIsInitialized(true);
+    }
+    // Reset initialization when modal closes
+    if (!isOpen) {
+      setIsInitialized(false);
+    }
+  }, [isAuthenticated, user, isOpen, selectedCity, isInitialized]);
 
   // Generate dynamic time slots based on selected date
   const getTimeSlots = () => {
@@ -297,6 +320,8 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                   onChange={(e) => handleInputChange("customerName", e.target.value)}
                   placeholder="Enter your full name"
                   className={errors.customerName ? "border-red-500" : ""}
+                  readOnly={isAuthenticated && user?.name ? true : false}
+                  style={isAuthenticated && user?.name ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
                 />
                 {errors.customerName && <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>}
               </div>
@@ -309,6 +334,8 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                   onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
                   placeholder="Enter 10-digit phone number"
                   className={errors.phoneNumber ? "border-red-500" : ""}
+                  readOnly={isAuthenticated && user?.phone ? true : false}
+                  style={isAuthenticated && user?.phone ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
                 />
                 {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
               </div>
@@ -322,6 +349,8 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="Enter your email"
                   className={errors.email ? "border-red-500" : ""}
+                  readOnly={isAuthenticated && user?.email ? true : false}
+                  style={isAuthenticated && user?.email ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
                 />
                 {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
