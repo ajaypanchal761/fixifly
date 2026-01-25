@@ -36,6 +36,17 @@ const getAllBookings = asyncHandler(async (req, res) => {
     }
 
     if (search) {
+      // Find vendors that match the search term (name or vendor ID)
+      const matchingVendors = await Vendor.find({
+        $or: [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } },
+          { vendorId: { $regex: search, $options: 'i' } }
+        ]
+      }).select('vendorId');
+
+      const vendorIds = matchingVendors.map(v => v.vendorId);
+
       filter.$or = [
         { 'customer.name': { $regex: search, $options: 'i' } },
         { 'customer.email': { $regex: search, $options: 'i' } },
@@ -43,7 +54,10 @@ const getAllBookings = asyncHandler(async (req, res) => {
         { 'payment.razorpayPaymentId': { $regex: search, $options: 'i' } },
         { 'payment.razorpayOrderId': { $regex: search, $options: 'i' } },
         { 'payment.transactionId': { $regex: search, $options: 'i' } },
-        { $expr: { $regexMatch: { input: { $toString: "$_id" }, regex: search, options: "i" } } }
+        { $expr: { $regexMatch: { input: { $toString: "$_id" }, regex: search, options: "i" } } },
+        // Search by vendor ID (direct match or from vendor lookup)
+        { 'vendor.vendorId': { $in: vendorIds } },
+        { 'vendor.vendorId': { $regex: search, $options: 'i' } }
       ];
     }
 
@@ -436,18 +450,13 @@ const assignVendor = asyncHandler(async (req, res) => {
       // Normalize date to start of day for comparison (set hours, minutes, seconds, ms to 0)
       const normalizedDate = new Date(scheduledDateObj);
       normalizedDate.setHours(0, 0, 0, 0);
-      
+
       // Get end of day for date range query
       const endOfDay = new Date(normalizedDate);
       endOfDay.setHours(23, 59, 59, 999);
 
-      // Check for conflicting active bookings
-      // Exclude: cancelled, declined, and completed bookings (completed jobs don't block new assignments)
-      // Note: We exclude the current booking being assigned if it's a re-assignment
-      // Use date range query to handle time component differences
-      // Find conflicting bookings: exclude cancelled, declined, completed statuses
-      // Also exclude bookings where vendor has declined (allows reassignment)
-      const conflictingBooking = await Booking.findOne({
+      // Build conflict filter
+      const conflictFilter = {
         _id: { $ne: req.params.id },
         'vendor.vendorId': vendorId,
         'scheduling.scheduledDate': {
@@ -456,16 +465,19 @@ const assignVendor = asyncHandler(async (req, res) => {
         },
         'scheduling.scheduledTime': scheduledTime,
         status: { $nin: ['cancelled', 'declined', 'completed'] },
+        // Only count as conflict if vendor hasn't declined it
         $or: [
           { 'vendorResponse.status': { $exists: false } },
           { 'vendorResponse.status': null },
           { 'vendorResponse.status': 'pending' },
           { 'vendorResponse.status': 'accepted' }
         ]
-      }).select('bookingReference status vendorResponse.status');
+      };
+
+      const conflictingBooking = await Booking.findOne(conflictFilter).select('bookingReference status vendorResponse.status');
 
       if (conflictingBooking) {
-        logger.warn('Vendor conflict detected', {
+        logger.warn('Vendor conflict detected in bookings', {
           vendorId,
           scheduledDate: normalizedDate,
           scheduledTime,
@@ -475,8 +487,42 @@ const assignVendor = asyncHandler(async (req, res) => {
         });
         return res.status(400).json({
           success: false,
-          message: `Vendor is not available. Already assigned to booking ${conflictingBooking.bookingReference} (Status: ${conflictingBooking.status}) at the same date and time.`
+          message: `Vendor is already assigned to Booking ${conflictingBooking.bookingReference} (Status: ${conflictingBooking.status}) at the same date and time. Please choose a different time or vendor.`
         });
+      }
+
+      // Also check for conflicting Support Tickets
+      const SupportTicket = require('../models/SupportTicket');
+      const VendorModel = require('../models/Vendor');
+
+      // Find the vendor's ObjectId first for accurate cross-collection matching
+      const vendorRef = await VendorModel.findOne({ vendorId: vendorId }).select('_id');
+
+      if (vendorRef) {
+        const conflictingTicket = await SupportTicket.findOne({
+          assignedTo: vendorRef._id,
+          scheduledDate: {
+            $gte: normalizedDate,
+            $lte: endOfDay
+          },
+          scheduledTime: scheduledTime,
+          status: { $nin: ['Resolved', 'Closed', 'Cancelled'] },
+          vendorStatus: { $nin: ['Declined', 'Cancelled'] }
+        }).select('ticketId status vendorStatus');
+
+        if (conflictingTicket) {
+          logger.warn('Vendor conflict detected in support tickets', {
+            vendorId,
+            scheduledDate: normalizedDate,
+            scheduledTime,
+            conflictingTicket: conflictingTicket.ticketId,
+            currentBookingId: req.params.id
+          });
+          return res.status(400).json({
+            success: false,
+            message: `Vendor is already assigned to Support Ticket ${conflictingTicket.ticketId} (Status: ${conflictingTicket.status}) at the same date and time.`
+          });
+        }
       }
 
       // Check for conflicting warranty claims
@@ -612,7 +658,8 @@ const assignVendor = asyncHandler(async (req, res) => {
 
       // Send email to vendor
       try {
-        const vendor = await Vendor.findById(vendorId).select('firstName lastName email');
+        // Fix: Use findOne({ vendorId }) instead of findById for human-readable numeric IDs
+        const vendor = await Vendor.findOne({ vendorId: vendorId }).select('firstName lastName email');
 
         if (vendor && vendor.email) {
           console.log('📧 Sending booking assignment email to vendor:', {
@@ -895,11 +942,11 @@ const updateBooking = asyncHandler(async (req, res) => {
         // Normalize date to start of day for comparison
         const normalizedUpdateDate = new Date(newScheduledDate);
         normalizedUpdateDate.setHours(0, 0, 0, 0);
-        
+
         // Get end of day for date range query
         const endOfUpdateDay = new Date(normalizedUpdateDate);
         endOfUpdateDay.setHours(23, 59, 59, 999);
-        
+
         // Check for conflicting active bookings
         // Exclude cancelled, declined, completed statuses and bookings where vendor declined
         const conflictingBooking = await Booking.findOne({
@@ -937,7 +984,7 @@ const updateBooking = asyncHandler(async (req, res) => {
         // Check for conflicting warranty claims
         const WarrantyClaim = require('../models/WarrantyClaim');
         const vendorForClaim = await Vendor.findOne({ vendorId: vendorId }).select('_id');
-        
+
         if (vendorForClaim) {
           const conflictingClaim = await WarrantyClaim.findOne({
             assignedVendor: vendorForClaim._id,

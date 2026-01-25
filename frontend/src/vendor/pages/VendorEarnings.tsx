@@ -671,7 +671,7 @@ const VendorEarnings = () => {
         setLoadingTransactions(false);
         return;
       }
-      
+
       console.error('Error fetching transaction history:', error);
       setTransactionHistory([]);
       setLoadingTransactions(false);
@@ -1466,8 +1466,8 @@ const VendorEarnings = () => {
                           <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
                             {(() => {
                               // Use calculatedAmount if available (actual credited amount), otherwise use amount
-                              const displayAmount = (transaction as any).calculatedAmount !== undefined 
-                                ? (transaction as any).calculatedAmount 
+                              const displayAmount = (transaction as any).calculatedAmount !== undefined
+                                ? (transaction as any).calculatedAmount
                                 : transaction.amount;
                               return (displayAmount > 0 ? '+' : '') + '₹' + Math.abs(displayAmount).toLocaleString();
                             })()}

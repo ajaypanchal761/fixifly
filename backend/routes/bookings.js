@@ -1,11 +1,12 @@
 const express = require('express');
-const { 
-  createBooking, 
-  createBookingWithPayment, 
-  getBookingById, 
-  getBookingsByCustomer, 
-  getBookingsByVendor, 
-  updateBookingStatus, 
+const {
+  createBooking,
+  createBookingWithPayment,
+  createQuickBooking,
+  getBookingById,
+  getBookingsByCustomer,
+  getBookingsByVendor,
+  updateBookingStatus,
   getBookingStats,
   acceptTask,
   declineTask,
@@ -24,6 +25,10 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 
 // Protected booking routes (authentication required)
+// Public booking routes
+router.route('/quick')
+  .post(createQuickBooking); // Create quick booking (Guest/One-step)
+
 router.route('/')
   .post(protect, createBooking); // Create new booking (requires login)
 

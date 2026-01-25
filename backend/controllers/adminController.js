@@ -65,7 +65,7 @@ const registerAdmin = asyncHandler(async (req, res) => {
 
   // Generate JWT token pair (access + refresh)
   const tokens = generateTokenPair(admin);
-  
+
   // Store refresh token in database
   await admin.generateRefreshToken();
 
@@ -162,7 +162,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
   if (!isPasswordValid) {
     // Increment login attempts
     await admin.incrementLoginAttempts();
-    
+
     logger.warn('Failed admin login attempt', {
       adminId: admin.adminId,
       email: admin.email,
@@ -180,7 +180,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
 
   // Generate JWT token pair (access + refresh)
   const tokens = generateTokenPair(admin);
-  
+
   // Store refresh token in database
   await admin.generateRefreshToken();
 
@@ -241,10 +241,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     // Verify refresh token
     const decoded = verifyRefreshToken(refreshToken);
-    
+
     // Find admin by ID
     const admin = await Admin.findById(decoded.adminId).select('+security.refreshToken');
-    
+
     if (!admin) {
       return res.status(401).json({
         success: false,
@@ -278,7 +278,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     // Generate new token pair
     const tokens = generateTokenPair(admin);
-    
+
     // Update refresh token in database
     await admin.generateRefreshToken();
 
@@ -327,14 +327,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 // @access  Private (Admin)
 const logoutAdmin = asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
-  
+
   if (refreshToken && req.admin) {
     try {
       // Find admin and revoke refresh token
       const admin = await Admin.findById(req.admin._id);
       if (admin) {
         await admin.revokeRefreshToken();
-        
+
         // Log activity
         await admin.logActivity(
           'LOGOUT',
@@ -610,7 +610,7 @@ const getAdminStats = asyncHandler(async (req, res) => {
 const getDashboardStats = asyncHandler(async (req, res) => {
   try {
     const { month, year } = req.query;
-    
+
     // Set date range for monthly stats
     let startDate, endDate;
     if (month && year) {
@@ -644,16 +644,16 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       Booking.countDocuments(),
       SupportTicket.countDocuments(),
       // Pending vendors: not approved but active (waiting for approval)
-      Vendor.countDocuments({ 
-        isApproved: false, 
-        isActive: true, 
-        isBlocked: false 
+      Vendor.countDocuments({
+        isApproved: false,
+        isActive: true,
+        isBlocked: false
       }),
       // Active vendors: approved, active, and not blocked
-      Vendor.countDocuments({ 
-        isApproved: true, 
-        isActive: true, 
-        isBlocked: false 
+      Vendor.countDocuments({
+        isApproved: true,
+        isActive: true,
+        isBlocked: false
       }),
       // Blocked vendors
       Vendor.countDocuments({ isBlocked: true }),
@@ -683,12 +683,12 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     // First check what bookings exist
     const allBookings = await Booking.find({}).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
     console.log('🔍 ALL BOOKINGS IN DB:', JSON.stringify(allBookings, null, 2));
-    
+
     const completedBookings = await Booking.find({
       status: 'completed'
     }).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
     console.log('🔍 COMPLETED BOOKINGS (status=completed):', JSON.stringify(completedBookings, null, 2));
-    
+
     const completedWithPayment = await Booking.find({
       status: 'completed',
       'payment.status': 'completed'
@@ -696,21 +696,31 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     console.log('🔍 COMPLETED BOOKINGS WITH PAYMENT:', JSON.stringify(completedWithPayment, null, 2));
 
     // Reusable expressions for admin commission calculation
-    // Match completed bookings that have billing/pricing data (more flexible payment status)
-    // billingAmount is stored as String, so we check for existence and non-empty
+    // Match completed OR paid bookings that have billing/pricing data (more flexible status check)
+    // Expanded status check to include paid/payment_done/collected to show full history as requested
     const bookingMatchBase = {
-      status: 'completed',
-      $or: [
-        { 
-          'completionData.billingAmount': { 
-            $exists: true, 
-            $ne: null, 
-            $ne: '',
-            $nin: ['0', '0.00', '0.0']
-          } 
+      $and: [
+        {
+          $or: [
+            { status: 'completed' },
+            { 'payment.status': 'completed' },
+            { paymentStatus: { $in: ['payment_done', 'collected'] } }
+          ]
         },
-        { 'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 } },
-        { 'billingAmount': { $exists: true, $ne: null, $ne: '' } }
+        {
+          $or: [
+            {
+              'completionData.billingAmount': {
+                $exists: true,
+                $ne: null,
+                $ne: '',
+                $nin: ['0', '0.00', '0.0']
+              }
+            },
+            { 'pricing.totalAmount': { $exists: true, $ne: null, $gt: 0 } },
+            { 'billingAmount': { $exists: true, $ne: null, $ne: '' } }
+          ]
+        }
       ]
     };
 
@@ -1088,7 +1098,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         { $group: { _id: null, total: { $sum: '$adminCommissionWithGST' } } }
       ]),
       // Pending bookings count (bookings waiting for engineer assignment)
-      Booking.countDocuments({ 
+      Booking.countDocuments({
         status: 'waiting_for_engineer'
       }),
       // Monthly revenue from completed support tickets (admin commission)
@@ -1116,7 +1126,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const totalBookingRevenue = totalRevenueResult.length > 0 ? (totalRevenueResult[0].total || 0) : 0;
     const monthlySupportTicketRevenue = monthlySupportTicketRevenueResult.length > 0 ? (monthlySupportTicketRevenueResult[0].total || 0) : 0;
     const totalSupportTicketRevenue = totalSupportTicketRevenueResult.length > 0 ? (totalSupportTicketRevenueResult[0].total || 0) : 0;
-    
+
     // Log breakdown results for debugging
     console.log('🔍 BREAKDOWN DEBUG:', {
       monthlyBookingBreakdownCount: monthlyBookingBreakdown?.length || 0,
@@ -1126,7 +1136,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       monthlyBookingBreakdownSample: monthlyBookingBreakdown?.slice(0, 2) || [],
       totalBookingBreakdownSample: totalBookingBreakdown?.slice(0, 2) || []
     });
-    
+
     // Build detailed breakdowns (merged booking + support tickets)
     const monthlyRevenueBreakdown = [
       ...(monthlyBookingBreakdown || []),
@@ -1181,11 +1191,11 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       startDate,
       endDate
     });
-    
+
     // Log detailed aggregation results
     console.log('🔍 MONTHLY REVENUE RESULT:', monthlyRevenueResult);
     console.log('🔍 TOTAL REVENUE RESULT:', totalRevenueResult);
-    
+
     logger.info('Admin dashboard revenue calculation', {
       monthlyRevenue,
       totalRevenue,

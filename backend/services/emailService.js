@@ -439,7 +439,7 @@ class EmailService {
                 <li>View your remaining benefits and usage</li>
                 <li>Contact support for any queries</li>
               </ul>
-              <a href="${process.env.FRONTEND_URL || 'https://fixfly.com'}/amc" class="cta-button">Access Your AMC Dashboard</a>
+              <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/amc" class="cta-button">Access Your AMC Dashboard</a>
             </div>
 
             <div class="section">
@@ -2338,6 +2338,314 @@ class EmailService {
         error: error.message
       };
     }
+  }
+  /**
+   * Send engineer assigned email to user
+   */
+  async sendEngineerAssignedEmail(booking, vendor) {
+    const { customer, bookingReference, scheduling } = booking;
+    const {
+      firstName,
+      lastName,
+      phone: vendorPhone,
+      profileImage
+    } = vendor;
+
+    const vendorName = `${firstName} ${lastName}`.trim();
+    const subject = `Engineer Assigned - Booking #${bookingReference} | Fixfly`;
+
+    // Format date and time
+    const scheduleDate = scheduling?.scheduledDate
+      ? new Date(scheduling.scheduledDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+      : scheduling?.preferredDate
+        ? new Date(scheduling.preferredDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+        : 'As requested';
+
+    const scheduleTime = scheduling?.scheduledTime || scheduling?.preferredTimeSlot || 'As requested';
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Engineer Assigned</title>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f3f4f6; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+          .header { background: linear-gradient(135deg, #3B82F6, #2563EB); color: white; padding: 24px; text-align: center; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .header p { margin: 8px 0 0; opacity: 0.9; }
+          .content { padding: 32px 24px; }
+          .engineer-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 24px 0; display: flex; align-items: center; gap: 16px; }
+          .engineer-avatar { width: 64px; height: 64px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #64748b; font-weight: 600; overflow: hidden; }
+          .engineer-img { width: 100%; height: 100%; object-fit: cover; }
+          .engineer-info h3 { margin: 0 0 4px; color: #1e293b; font-size: 18px; }
+          .engineer-info p { margin: 0; color: #64748b; font-size: 14px; }
+          .details-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
+          .detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+          .detail-label { color: #64748b; font-size: 14px; }
+          .detail-value { color: #1e293b; font-weight: 500; font-size: 14px; }
+          .btn { display: inline-block; background: #3B82F6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; margin-top: 16px; width: 100%; text-align: center; box-sizing: border-box; }
+          .footer { margin-top: 24px; text-align: center; color: #94a3b8; font-size: 12px; }
+          .contact-link { color: #3B82F6; text-decoration: none; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="card">
+            <div class="header">
+              <h1>Engineer Assigned</h1>
+              <p>Booking #${bookingReference}</p>
+            </div>
+            
+            <div class="content">
+              <p>Hello ${customer.name},</p>
+              <p>Good news! Previously matched engineer has accepted your request. <strong>${vendorName}</strong> will be visiting your location.</p>
+              
+              <div class="engineer-card">
+                <div class="engineer-avatar">
+                  ${profileImage ? `<img src="${profileImage}" alt="${vendorName}" class="engineer-img">` : vendorName.charAt(0)}
+                </div>
+                <div class="engineer-info">
+                  <h3>${vendorName}</h3>
+                  <p>Professional Engineer</p>
+                  <p>📞 <a href="tel:${vendorPhone}" class="contact-link">${vendorPhone}</a></p>
+                </div>
+              </div>
+
+              <div class="details-grid">
+                <div class="detail-row">
+                  <span class="detail-label">Service</span>
+                  <span class="detail-value">${booking.services.map(s => s.serviceName).join(', ')}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Scheduled Date</span>
+                  <span class="detail-value">${scheduleDate}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Time Slot</span>
+                  <span class="detail-value">${scheduleTime}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Total Amount</span>
+                  <span class="detail-value">₹${booking.pricing.totalAmount}</span>
+                </div>
+              </div>
+
+              <p style="font-size: 14px; color: #64748b; background: #fff1f2; padding: 12px; border-radius: 6px; border-left: 4px solid #F43F5E;">
+                <strong>Safety Tip:</strong> Verify the engineer's identity using the booking reference number upon arrival.
+              </p>
+
+              <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/user/bookings" class="btn">View Booking Details</a>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>Need help? Call us at <a href="tel:02269647030" class="contact-link">022-6964-7030</a></p>
+            <p>&copy; ${new Date().getFullYear()} Fixfly Services. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      Engineer Assigned - Booking #${bookingReference}
+      
+      Hello ${customer.name},
+      
+      Good news! ${vendorName} has been assigned to your booking.
+      
+      ENGINEER DETAILS:
+      Name: ${vendorName}
+      Phone: ${vendorPhone}
+      
+      BOOKING DETAILS:
+      Service: ${booking.services.map(s => s.serviceName).join(', ')}
+      Date: ${scheduleDate}
+      Time: ${scheduleTime}
+      Amount: ₹${booking.pricing.totalAmount}
+      
+      Track your service and view details in your dashboard:
+      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/user/bookings
+      
+      Need help? Contact support at 022-6964-7030
+      
+      Fixfly Team
+    `;
+
+    return await this.sendEmail({
+      to: customer.email,
+      subject: subject,
+      html: html,
+      text: text
+    });
+  }
+
+  /**
+   * Send booking completion email to user with receipt
+   */
+  async sendBookingCompletionEmail(booking) {
+    const { customer, bookingReference, completionData } = booking;
+    const {
+      resolutionNote,
+      billingAmount,
+      spareParts,
+      sparePartsTotal,
+      travelingAmount,
+      totalAmount,
+      paymentMethod,
+      gstAmount,
+      gstIncluded
+    } = completionData;
+
+    // Ensure customer email exists
+    if (!customer?.email) {
+      logger.warn('No customer email found for booking completion email', { bookingId: booking._id });
+      return { success: false, message: 'No customer email' };
+    }
+
+    const subject = `Service Completed - Receipt #${bookingReference} | Fixfly`;
+    const completedDate = new Date().toLocaleDateString('en-IN', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    const sparePartsHtml = spareParts && spareParts.length > 0
+      ? spareParts.map(part => `
+          <div class="detail-row">
+            <span class="detail-label">${part.name} (Spare)</span>
+            <span class="detail-value">₹${part.amount}</span>
+          </div>`).join('')
+      : '';
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Service Receipt</title>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f3f4f6; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+          .header { background: #10B981; color: white; padding: 24px; text-align: center; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .content { padding: 32px 24px; }
+          .amount-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+          .amount-title { color: #166534; font-size: 14px; margin-bottom: 4px; }
+          .amount-value { color: #15803d; font-size: 32px; font-weight: 700; }
+          .details-section { margin-top: 24px; }
+          .section-title { font-size: 16px; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px; }
+          .detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+          .detail-label { color: #6b7280; }
+          .detail-value { color: #1f2937; font-weight: 500; }
+          .note-box { background: #eff6ff; border-left: 4px solid #3B82F6; padding: 16px; margin-top: 24px; border-radius: 4px; }
+          .footer { margin-top: 24px; text-align: center; color: #94a3b8; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="card">
+            <div class="header">
+              <h1>Service Completed</h1>
+              <p>Receipt #${bookingReference}</p>
+            </div>
+            
+            <div class="content">
+              <p>Hello ${customer.name},</p>
+              <p>Your service has been successfully completed. Here is your digital receipt.</p>
+
+              <div class="amount-box">
+                <div class="amount-title">TOTAL AMOUNT</div>
+                <div class="amount-value">₹${billingAmount}</div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}</div>
+              </div>
+
+              ${resolutionNote ? `
+              <div class="note-box">
+                <h4 style="margin: 0 0 8px; color: #1e40af;">📝 Resolution Note</h4>
+                <p style="margin: 0; color: #1e3a8a;">${resolutionNote}</p>
+              </div>` : ''}
+
+              <div class="details-section">
+                <div class="section-title">Billing Details</div>
+                ${booking.services.map(s => `
+                  <div class="detail-row">
+                    <span class="detail-label">${s.serviceName}</span>
+                    <span class="detail-value">-</span> 
+                  </div>`).join('')}
+                
+                ${sparePartsHtml}
+
+                ${travelingAmount > 0 ? `
+                <div class="detail-row">
+                  <span class="detail-label">Traveling Charges</span>
+                  <span class="detail-value">₹${travelingAmount}</span>
+                </div>` : ''}
+
+                ${gstIncluded ? `
+                 <div class="detail-row">
+                  <span class="detail-label">GST (Included)</span>
+                  <span class="detail-value">₹${gstAmount || 0}</span>
+                </div>` : ''}
+                 
+                <div class="detail-row" style="border-top: 1px dashed #e5e7eb; padding-top: 12px; margin-top: 12px;">
+                  <span class="detail-label" style="font-weight: 600; color: #374151;">Net Total</span>
+                  <span class="detail-value" style="font-weight: 600; font-size: 16px;">₹${billingAmount}</span>
+                </div>
+              </div>
+
+              <div style="text-align: center; margin-top: 30px; background-color: #fce7f3; padding: 20px; border-radius: 8px; border: 1px dashed #db2777;">
+                <h3 style="margin: 0 0 10px; color: #be185d;">🌟 How was your experience?</h3>
+                <p style="margin: 0 0 20px; color: #9d174d; font-size: 14px;">Your feedback helps us improve our service.</p>
+                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking" style="display: inline-block; background: #db2777; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Rate Your Service</a>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>Date: ${completedDate}</p>
+            <p>Thank you for choosing Fixfly Services!</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      Service Completed - Receipt #${bookingReference}
+      
+      Hello ${customer.name},
+      
+      Your service has been completed successfully.
+      
+      TOTAL AMOUNT: ₹${billingAmount}
+      Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}
+      
+      ${resolutionNote ? `RESOLUTION NOTE:\n${resolutionNote}\n` : ''}
+      
+      BILLING DETAILS:
+      ${booking.services.map(s => `- ${s.serviceName}`).join('\n')}
+      ${travelingAmount > 0 ? `Traveling Charges: ₹${travelingAmount}\n` : ''}
+      ${spareParts && spareParts.length > 0 ? `Spare Parts: ${spareParts.map(p => `${p.name} (₹${p.amount})`).join(', ')}\n` : ''}
+      
+      RATE YOUR SERVICE:
+      Please take a moment to rate your experience:
+      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking
+      
+      Thank you for choosing Fixfly!
+    `;
+
+    return await this.sendEmail({
+      to: customer.email,
+      subject: subject,
+      html: html,
+      text: text
+    });
   }
 }
 

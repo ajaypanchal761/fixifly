@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import publicProductApi, { PublicProduct } from '@/services/publicProductApi';
 import reviewService, { Review } from '@/services/reviewService';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import QuickBookModal from '@/components/QuickBookModal';
 
 interface Service {
   serviceName: string;
@@ -47,6 +48,7 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewStats, setReviewStats] = useState<{ totalReviews: number; averageRating: number }>({ totalReviews: 0, averageRating: 0 });
+  const [quickBookService, setQuickBookService] = useState<any>(null);
 
   // Fetch reviews from backend
   const fetchReviews = async () => {
@@ -385,6 +387,14 @@ const ProductDetail = () => {
                     >
                       {cartItems.find(item => item.id === service._id) ? 'Remove' : 'Add Cart'}
                     </Button>
+
+                    <Button
+                      size="sm"
+                      className="w-full bg-green-600 hover:bg-green-700 text-white mt-2"
+                      onClick={() => setQuickBookService(service)}
+                    >
+                      Book Now
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -405,8 +415,8 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* FAQ Section - Mobile Only */}
-        <div className="mb-12 -mt-40 md:hidden">
+        {/* FAQ Section */}
+        <div className="mb-12 -mt-40 md:mt-12">
           <div className="bg-white rounded-2xl p-6 shadow-lg">
             <h3 className="text-xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h3>
 
@@ -456,8 +466,8 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Customer Reviews Section - Mobile Only */}
-        <div className="mb-8 md:hidden">
+        {/* Customer Reviews Section */}
+        <div className="mb-8">
           <div className="bg-white rounded-2xl p-6 shadow-lg">
             <div className="flex items-center mb-6">
               <h3 className="text-xl font-bold text-gray-900">Customer Reviews</h3>
@@ -600,7 +610,7 @@ const ProductDetail = () => {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log('Checkout button clicked', { cartItems, totalPrice, isAuthenticated });
-                    
+
                     // Check if user is authenticated before proceeding to checkout
                     if (!isAuthenticated) {
                       toast({
@@ -611,7 +621,7 @@ const ProductDetail = () => {
                       navigate('/login', { state: { from: { pathname: '/checkout', state: { cartItems, totalPrice } } } });
                       return;
                     }
-                    
+
                     // Ensure cart has items
                     if (!cartItems || cartItems.length === 0) {
                       toast({
@@ -621,18 +631,18 @@ const ProductDetail = () => {
                       });
                       return;
                     }
-                    
+
                     // Save cart data to localStorage as backup
                     try {
                       localStorage.setItem('checkoutCartData', JSON.stringify({ cartItems, totalPrice }));
                     } catch (error) {
                       console.error('Error saving cart data to localStorage:', error);
                     }
-                    
+
                     // Navigate to checkout page immediately
                     console.log('Navigating to checkout...', { cartItems, totalPrice });
                     try {
-                      navigate('/checkout', { 
+                      navigate('/checkout', {
                         state: { cartItems, totalPrice },
                         replace: false
                       });
@@ -657,6 +667,16 @@ const ProductDetail = () => {
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
+
+      {/* Quick Booking Modal */}
+      {quickBookService && (
+        <QuickBookModal
+          isOpen={true}
+          onClose={() => setQuickBookService(null)}
+          service={quickBookService}
+          productName={product.productName}
+        />
+      )}
     </div>
   );
 };

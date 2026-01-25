@@ -55,9 +55,9 @@ const markNotificationAsRead = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const vendorId = req.vendor._id;
 
-  const notification = await VendorNotification.findOne({ 
-    _id: id, 
-    vendorId 
+  const notification = await VendorNotification.findOne({
+    _id: id,
+    vendorId
   });
 
   if (!notification) {
@@ -92,9 +92,9 @@ const markAllNotificationsAsRead = asyncHandler(async (req, res) => {
 
   const result = await VendorNotification.updateMany(
     { vendorId, isRead: false },
-    { 
-      isRead: true, 
-      readAt: new Date() 
+    {
+      isRead: true,
+      readAt: new Date()
     }
   );
 
@@ -116,11 +116,11 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
 
   // Build filter object
   const filter = { assignedTo: vendorId };
-  
+
   if (status && status !== 'all') {
     filter.status = status;
   }
-  
+
   if (priority && priority !== 'all') {
     filter.priority = priority;
   }
@@ -197,7 +197,7 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
 const getVendorDashboard = asyncHandler(async (req, res) => {
   const vendorId = req.vendor._id;
 
-  logger.info('Fetching vendor dashboard', { 
+  logger.info('Fetching vendor dashboard', {
     vendorId: vendorId.toString(),
     vendorInfo: {
       id: req.vendor._id,
@@ -213,10 +213,10 @@ const getVendorDashboard = asyncHandler(async (req, res) => {
       assignedTo: vendorId,
       vendorStatus: 'Pending'
     })
-    .populate('userId', 'name email phone address')
-    .select('ticketId subject type priority createdAt userName userEmail userPhone description')
-    .sort({ createdAt: -1 })
-    .limit(5);
+      .populate('userId', 'name email phone address')
+      .select('ticketId subject type priority createdAt userName userEmail userPhone description')
+      .sort({ createdAt: -1 })
+      .limit(5);
 
     logger.info('Pending tickets found for vendor', {
       vendorId: vendorId.toString(),
@@ -234,8 +234,8 @@ const getVendorDashboard = asyncHandler(async (req, res) => {
       vendorId,
       type: 'support_ticket_assignment'
     })
-    .sort({ createdAt: -1 })
-    .limit(5);
+      .sort({ createdAt: -1 })
+      .limit(5);
 
     // Get unread notification count
     const unreadNotificationCount = await VendorNotification.countDocuments({
@@ -245,7 +245,7 @@ const getVendorDashboard = asyncHandler(async (req, res) => {
 
     // Get vendor stats
     const vendor = await Vendor.findById(vendorId).select('stats rating');
-    
+
     // Get total assigned tickets count
     const totalAssignedTickets = await SupportTicket.countDocuments({
       assignedTo: vendorId
@@ -346,7 +346,7 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
         throw new Error(`Vendor with ID ${vendorId} not found`);
       }
       vendorObjectId = vendor._id;
-      
+
       logger.info('Converted string vendorId to ObjectId for support ticket notification', {
         originalVendorId: vendorId,
         vendorObjectId: vendorObjectId,
@@ -391,13 +391,13 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
       });
 
       const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings firstName lastName email');
-      
+
       // Use mobile/webview tokens only (web tokens removed)
       const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
-      
+
       // Check if push notifications are enabled (default to true if not set)
       const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;
-      
+
       logger.info('Vendor details for push notification', {
         vendorId,
         vendorFound: !!vendor,
@@ -432,14 +432,15 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
         });
 
         // Send push notification to all tokens using multicast
-        const firebasePushService = require('../services/firebasePushService');
         const pushResult = await firebasePushService.sendMulticastPushNotification(
           uniqueTokens,
           pushNotification,
           pushData
         );
+        pushNotificationSent = pushResult.successCount > 0;
 
-        // Send realtime notification (if enabled)
+        // Send realtime notification for in-app UI updates
+        // Note: Realtime notifications don't trigger system trays in most web setups unless specifically coded
         const realtimeResult = await firebaseRealtimeService.sendRealtimeNotification(
           vendorId,
           {
@@ -450,14 +451,11 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
           }
         );
 
-        logger.info('Complete notification result for support ticket assignment', {
+        logger.info('Notification results for support ticket assignment', {
           vendorId,
           ticketId: ticketData.ticketId,
-          pushNotification: pushResult.successCount > 0,
-          pushSuccessCount: pushResult.successCount,
-          pushFailureCount: pushResult.failureCount,
-          realtimeNotification: realtimeResult,
-          totalTokens: uniqueTokens.length
+          pushSuccess: pushNotificationSent,
+          realtimeSuccess: realtimeResult
         });
       } else {
         const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
@@ -468,9 +466,9 @@ const createSupportTicketAssignmentNotification = asyncHandler(async (vendorId, 
           mobileTokens: vendor?.fcmTokenMobile?.length || 0,
           pushEnabled: pushNotificationsEnabled,
           vendorExists: !!vendor,
-          reason: !vendor ? 'Vendor not found' : 
-                  uniqueTokens.length === 0 ? 'No FCM tokens' : 
-                  'Push notifications disabled'
+          reason: !vendor ? 'Vendor not found' :
+            uniqueTokens.length === 0 ? 'No FCM tokens' :
+              'Push notifications disabled'
         });
       }
     } catch (pushError) {
@@ -509,7 +507,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
     console.log('Vendor ID:', vendorId, 'Type:', typeof vendorId);
     console.log('Booking ID:', bookingData._id);
     console.log('Booking Reference:', bookingData.bookingReference);
-    
+
     logger.info('🔔 === BOOKING ASSIGNMENT NOTIFICATION START ===', {
       vendorId,
       vendorIdType: typeof vendorId,
@@ -521,11 +519,11 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
     await notificationConnectionService.ensureConnection();
 
     const Vendor = require('../models/Vendor');
-    
+
     // Convert vendorId string to ObjectId by finding the vendor
     let vendorObjectId = vendorId;
     let vendorForNotification = null;
-    
+
     if (typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
       // vendorId is a string like "967", need to find the vendor
       logger.info('Looking up vendor by vendorId string', { vendorId });
@@ -535,7 +533,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         throw new Error(`Vendor with ID ${vendorId} not found`);
       }
       vendorObjectId = vendorForNotification._id;
-      
+
       logger.info('Converted string vendorId to ObjectId for notification', {
         originalVendorId: vendorId,
         vendorObjectId: vendorObjectId.toString(),
@@ -587,10 +585,10 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         vendorObjectIdType: typeof vendorObjectId,
         originalVendorId: vendorId
       });
-      
+
       // Try to find vendor by _id first, then by vendorId if needed
       let vendor = await Vendor.findById(vendorObjectId).select('+fcmTokenMobile notificationSettings firstName lastName email');
-      
+
       // If not found by _id and we have the original vendorId string, try finding by vendorId
       if (!vendor && vendorForNotification) {
         console.log('🔄 Vendor not found by _id, using vendorForNotification from earlier lookup');
@@ -598,13 +596,13 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         // Re-fetch with fcmTokenMobile field
         vendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile notificationSettings firstName lastName email');
       }
-      
+
       // If still not found, try finding by vendorId string directly
       if (!vendor && typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
         console.log('🔄 Trying to find vendor by vendorId string:', vendorId);
         vendor = await Vendor.findOne({ vendorId: vendorId }).select('+fcmTokenMobile notificationSettings firstName lastName email');
       }
-      
+
       if (!vendor) {
         logger.error('❌ Vendor not found for push notification', {
           vendorObjectId: vendorObjectId.toString(),
@@ -617,7 +615,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         });
         throw new Error(`Vendor not found with ID: ${vendorObjectId} (original: ${vendorId})`);
       }
-      
+
       logger.info('✅ Vendor found for push notification', {
         vendorId: vendor._id.toString(),
         vendorName: `${vendor.firstName} ${vendor.lastName}`,
@@ -626,13 +624,13 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         fcmTokenMobileCount: vendor.fcmTokenMobile?.length || 0,
         notificationSettings: vendor.notificationSettings
       });
-      
+
       // Use mobile/webview tokens only (web tokens removed)
       const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
-      
+
       // Check if push notifications are enabled (default to true if not set)
       const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;
-      
+
       logger.info('📱 Push notification check', {
         vendorId: vendor._id.toString(),
         vendorIdString: vendor.vendorId,
@@ -641,7 +639,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         tokens: uniqueTokens.map(t => t.substring(0, 20) + '...'),
         fcmTokenMobileArray: vendor.fcmTokenMobile
       });
-      
+
       // Log warning if no tokens found
       if (uniqueTokens.length === 0) {
         logger.warn('⚠️ No FCM tokens found for vendor', {
@@ -659,7 +657,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           vendorName: `${vendor.firstName} ${vendor.lastName}`
         });
       }
-      
+
       // Log warning if push notifications disabled
       if (!pushNotificationsEnabled) {
         logger.warn('⚠️ Push notifications disabled for vendor', {
@@ -672,7 +670,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           vendorIdString: vendor.vendorId
         });
       }
-      
+
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const customerName = bookingData.customer?.name || 'customer';
         const bookingRef = bookingData.bookingReference || '';
@@ -702,14 +700,14 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           tokenCount: uniqueTokens.length,
           tokens: uniqueTokens.map(t => t.substring(0, 30) + '...')
         });
-        
+
         const firebasePushService = require('../services/firebasePushService');
         const pushResult = await firebasePushService.sendMulticastPushNotification(
           uniqueTokens,
           pushNotification,
           pushData
         );
-        
+
         console.log('📤 Push notification result:', {
           successCount: pushResult.successCount,
           failureCount: pushResult.failureCount,
@@ -720,7 +718,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           hasInvalidTokens: !!pushResult.invalidTokens,
           pushResult: pushResult
         });
-        
+
         // Clean up invalid tokens if any
         // Check if invalidTokens exists and has items
         if (pushResult.invalidTokens && Array.isArray(pushResult.invalidTokens) && pushResult.invalidTokens.length > 0) {
@@ -729,7 +727,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
             invalidTokenCount: pushResult.invalidTokens.length,
             tokens: pushResult.invalidTokens.map(t => t.substring(0, 30) + '...')
           });
-          
+
           try {
             // Remove invalid tokens from vendor's fcmTokenMobile array
             vendor.fcmTokenMobile = vendor.fcmTokenMobile.filter(
@@ -737,13 +735,13 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
             );
             vendor.markModified('fcmTokenMobile');
             await vendor.save({ validateBeforeSave: false });
-            
+
             console.log('✅ Invalid tokens removed from vendor:', {
               vendorId: vendor._id.toString(),
               removedCount: pushResult.invalidTokens.length,
               remainingTokens: vendor.fcmTokenMobile.length
             });
-            
+
             logger.info(`Cleaned up ${pushResult.invalidTokens.length} invalid tokens for vendor ${vendor._id}`, {
               vendorId: vendor._id.toString(),
               removedTokens: pushResult.invalidTokens.length,
@@ -758,7 +756,9 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           }
         }
 
-        // Send realtime notification (if enabled)
+
+
+        // Send realtime notification for in-app updates
         const realtimeResult = await firebaseRealtimeService.sendRealtimeNotification(
           vendorId,
           {
@@ -769,20 +769,13 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           }
         );
 
-        logger.info('✅ Complete notification sent for booking assignment', {
+        logger.info('✅ Notification sent for booking assignment', {
           vendorId: vendor._id.toString(),
-          vendorName: `${vendor.firstName} ${vendor.lastName}`,
-          bookingId: bookingData._id,
           bookingReference: bookingData.bookingReference,
-          pushNotification: pushResult.successCount > 0,
-          pushSuccessCount: pushResult.successCount,
-          pushFailureCount: pushResult.failureCount,
-          realtimeNotification: realtimeResult,
-          totalTokens: uniqueTokens.length,
-          mobileTokens: vendor.fcmTokenMobile?.length || 0,
-          pushResult: pushResult
+          pushSuccess: pushResult.successCount > 0,
+          realtimeSuccess: realtimeResult
         });
-        
+
         if (pushResult.successCount === 0) {
           logger.warn('⚠️ Push notification sent but successCount is 0', {
             vendorId: vendor._id.toString(),
@@ -814,10 +807,10 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           });
         }
         const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
-        const reason = !vendor ? 'Vendor not found' : 
-                      uniqueTokens.length === 0 ? 'No FCM tokens' : 
-                      !pushNotificationsEnabled ? 'Push notifications disabled' : 'Unknown';
-        
+        const reason = !vendor ? 'Vendor not found' :
+          uniqueTokens.length === 0 ? 'No FCM tokens' :
+            !pushNotificationsEnabled ? 'Push notifications disabled' : 'Unknown';
+
         console.warn('⚠️ Push notification skipped for booking assignment:', {
           vendorId: vendor?._id?.toString() || vendorId,
           vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found',
@@ -826,7 +819,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
           pushEnabled: pushNotificationsEnabled,
           reason: reason
         });
-        
+
         logger.warn('⚠️ Push notification skipped for booking assignment', {
           vendorId: vendor?._id?.toString() || vendorId,
           vendorName: vendor ? `${vendor.firstName} ${vendor.lastName}` : 'Not found',
@@ -843,7 +836,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
       console.error('Error stack:', pushError?.stack);
       console.error('Vendor ID:', vendorId);
       console.error('Booking ID:', bookingData._id);
-      
+
       logger.error('❌ Failed to send push notification for booking assignment', {
         error: pushError.message,
         stack: pushError.stack,
@@ -861,7 +854,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
       bookingReference: bookingData.bookingReference,
       notificationId: notification._id
     });
-    
+
     logger.info('🔔 === BOOKING ASSIGNMENT NOTIFICATION END ===');
 
     return notification;
@@ -903,7 +896,7 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
         throw new Error(`Vendor with ID ${vendorId} not found`);
       }
       vendorObjectId = vendor._id;
-      
+
       logger.info('Converted string vendorId to ObjectId for warranty claim notification', {
         originalVendorId: vendorId,
         vendorObjectId: vendorObjectId,
@@ -941,13 +934,13 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
     // Send push notification
     try {
       const vendor = await Vendor.findById(vendorObjectId).select('+fcmTokens +fcmTokenMobile notificationSettings');
-      
+
       // Use mobile/webview tokens only (web tokens removed)
       const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
-      
+
       // Check if push notifications are enabled (default to true if not set)
       const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;
-      
+
       if (vendor && uniqueTokens.length > 0 && pushNotificationsEnabled) {
         const pushNotification = {
           title: '🛠️ New Warranty Claim Assigned',
@@ -960,7 +953,7 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
           item: claimData.item,
           issueDescription: claimData.issueDescription,
           action: 'view_claim'
-      };
+        };
 
         // Send push notification to all tokens using multicast
         const firebasePushService = require('../services/firebasePushService');
@@ -969,7 +962,7 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
           pushNotification,
           pushData
         );
-      
+
         logger.info('Push notification sent for warranty claim assignment', {
           vendorId,
           claimId: claimData._id,
@@ -981,7 +974,7 @@ const createWarrantyClaimAssignmentNotification = asyncHandler(async (vendorId, 
       } else {
         const pushNotificationsEnabled = vendor?.notificationSettings?.pushNotifications !== false;
         logger.info('Push notification skipped - no FCM token or disabled', {
-        vendorId,
+          vendorId,
           hasTokens: uniqueTokens.length > 0,
           mobileTokens: vendor?.fcmTokenMobile?.length || 0,
           pushEnabled: pushNotificationsEnabled

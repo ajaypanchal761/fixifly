@@ -16,7 +16,7 @@ class SimpleNotificationService {
    */
   async initialize() {
     if (this.isInitialized) return true;
-    
+
     try {
       // Ensure MongoDB connection
       if (mongoose.connection.readyState !== 1) {
@@ -26,7 +26,7 @@ class SimpleNotificationService {
           socketTimeoutMS: 45000
         });
       }
-      
+
       this.isInitialized = true;
       logger.info('Simple notification service initialized');
       return true;
@@ -46,7 +46,7 @@ class SimpleNotificationService {
     try {
       // Initialize if needed
       await this.initialize();
-      
+
       logger.info('Sending simple notification to vendor', {
         vendorId,
         title: notificationData.title,
@@ -56,12 +56,12 @@ class SimpleNotificationService {
       // Get vendor details for FCM tokens (mobile/webview only - web tokens removed)
       const Vendor = require('../models/Vendor');
       const vendor = await Vendor.findOne({ vendorId: vendorId }).select('+fcmTokenMobile notificationSettings');
-      
+
       // Use mobile/webview tokens only
-      const uniqueTokens = [...(vendor?.fcmTokenMobile || [])].filter(token => 
+      const uniqueTokens = [...(vendor?.fcmTokenMobile || [])].filter(token =>
         token && !token.startsWith('test_') && !token.startsWith('real_fcm_token_')
       );
-      
+
       let pushNotificationSent = false;
       let realtimeNotificationSent = false;
 
@@ -91,18 +91,18 @@ class SimpleNotificationService {
               fcmData[key] = String(notificationData.data[key]);
             });
           }
-          
+
           const pushNotification = {
             title: notificationData.title,
             body: notificationData.message
           };
-          
+
           const pushResult = await firebasePushService.sendMulticastPushNotification(
             uniqueTokens,
             pushNotification,
             fcmData
           );
-          
+
           if (pushResult.successCount > 0) {
             pushNotificationSent = true;
             logger.info('Push notification sent successfully', {
@@ -125,16 +125,16 @@ class SimpleNotificationService {
       }
 
       const success = realtimeNotificationSent || pushNotificationSent;
-      
+
       if (success) {
-        logger.info('Simple notification sent successfully', {
+        logger.info('Simple notification process completed', {
           vendorId,
           title: notificationData.title,
-          realtimeNotification: realtimeNotificationSent,
-          pushNotification: pushNotificationSent
+          pushSent: pushNotificationSent,
+          realtimeSent: realtimeNotificationSent
         });
       } else {
-        logger.error('Failed to send simple notification', {
+        logger.error('Failed to send simple notification through any channel', {
           vendorId,
           title: notificationData.title
         });

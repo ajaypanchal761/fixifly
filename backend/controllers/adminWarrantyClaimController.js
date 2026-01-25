@@ -289,39 +289,89 @@ const assignVendorToClaim = asyncHandler(async (req, res) => {
     });
   }
 
+  // Find the vendor by numeric vendorId to get its ObjectId
+  const Vendor = require('../models/Vendor');
+  const vendorRecord = await Vendor.findOne({ vendorId: vendorId });
+
+  if (!vendorRecord) {
+    return res.status(404).json({
+      success: false,
+      message: `Vendor with ID ${vendorId} not found`
+    });
+  }
+
   // Validation: Check if vendor already has a task for the same date and time
   if (scheduledDate && scheduledTime) {
     const scheduledDateObj = new Date(scheduledDate);
+    // Normalize date to start of day for comparison
+    const normalizedDate = new Date(scheduledDateObj);
+    normalizedDate.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(normalizedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
     const { Booking } = require('../models/Booking');
+    const SupportTicket = require('../models/SupportTicket');
 
     // Check conflicts in Bookings
     const conflictingBooking = await Booking.findOne({
       'vendor.vendorId': vendorId,
-      'scheduling.scheduledDate': scheduledDateObj,
+      'scheduling.scheduledDate': {
+        $gte: normalizedDate,
+        $lte: endOfDay
+      },
       'scheduling.scheduledTime': scheduledTime,
-      status: { $nin: ['cancelled', 'declined'] }
-    });
+      status: { $nin: ['cancelled', 'declined', 'completed'] },
+      $or: [
+        { 'vendorResponse.status': { $exists: false } },
+        { 'vendorResponse.status': null },
+        { 'vendorResponse.status': 'pending' },
+        { 'vendorResponse.status': 'accepted' }
+      ]
+    }).select('bookingReference status');
 
     if (conflictingBooking) {
       return res.status(400).json({
         success: false,
-        message: 'Vendor is not available'
+        message: `Vendor is busy with Booking ${conflictingBooking.bookingReference} at that time.`
       });
     }
 
     // Check conflicts in other Warranty Claims
     const conflictingClaim = await WarrantyClaim.findOne({
       _id: { $ne: req.params.id },
-      assignedVendor: vendorId,
-      scheduledDate: scheduledDateObj,
+      assignedVendor: vendorRecord._id,
+      scheduledDate: {
+        $gte: normalizedDate,
+        $lte: endOfDay
+      },
       scheduledTime: scheduledTime,
       status: { $nin: ['cancelled', 'rejected', 'completed'] }
-    });
+    }).select('_id status');
 
     if (conflictingClaim) {
       return res.status(400).json({
         success: false,
-        message: 'Vendor is not available'
+        message: 'Vendor is already assigned to another warranty claim at the same date and time.'
+      });
+    }
+
+    // Check conflicts in Support Tickets
+    const conflictingTicket = await SupportTicket.findOne({
+      assignedTo: vendorRecord._id,
+      scheduledDate: {
+        $gte: normalizedDate,
+        $lte: endOfDay
+      },
+      scheduledTime: scheduledTime,
+      status: { $nin: ['Resolved', 'Closed', 'Cancelled'] },
+      vendorStatus: { $nin: ['Declined', 'Cancelled'] }
+    }).select('ticketId status');
+
+    if (conflictingTicket) {
+      return res.status(400).json({
+        success: false,
+        message: `Vendor is busy with Support Ticket ${conflictingTicket.ticketId} at that time.`
       });
     }
   }
@@ -343,7 +393,7 @@ const assignVendorToClaim = asyncHandler(async (req, res) => {
   }
 
   // Update claim with vendor assignment
-  claim.assignedVendor = vendorId;
+  claim.assignedVendor = vendorRecord._id;
   claim.assignedBy = req.admin._id;
   claim.assignedAt = new Date();
   claim.status = 'in_progress';

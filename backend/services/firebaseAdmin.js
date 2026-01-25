@@ -21,9 +21,9 @@ const initializeFirebase = () => {
 
   try {
     console.log('🔧 === Initializing Firebase Admin SDK ===');
-    
+
     // Try to find service account file
-    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || 
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
       path.join(__dirname, '../config/fixfly-fb12b-firebase-adminsdk-fbsvc-d96cf044fa.json');
 
     console.log('📁 Checking service account path:', serviceAccountPath);
@@ -50,18 +50,18 @@ const initializeFirebase = () => {
     else {
       console.log('🔍 Searching for Firebase service account file in config directory...');
       const configDir = path.join(__dirname, '../config');
-      
+
       if (!fs.existsSync(configDir)) {
         throw new Error(`Config directory not found: ${configDir}`);
       }
-      
+
       const files = fs.readdirSync(configDir);
       console.log('📁 Files in config directory:', files);
-      
-      const serviceAccountFile = files.find(file => 
+
+      const serviceAccountFile = files.find(file =>
         file.includes('firebase-adminsdk') && file.endsWith('.json')
       );
-      
+
       if (serviceAccountFile) {
         const fullPath = path.join(configDir, serviceAccountFile);
         console.log('📂 Found service account file:', serviceAccountFile);
@@ -86,7 +86,7 @@ const initializeFirebase = () => {
     if (serviceAccount.private_key && typeof serviceAccount.private_key === 'string') {
       // Replace escaped newlines with actual newlines if needed
       serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-      
+
       // Ensure proper BEGIN/END markers
       if (!serviceAccount.private_key.includes('BEGIN PRIVATE KEY')) {
         throw new Error('Invalid private key format: Missing BEGIN PRIVATE KEY marker');
@@ -196,10 +196,10 @@ const sendPushNotification = async (tokens, payload) => {
   try {
     // Ensure tokens is an array
     const tokenArray = Array.isArray(tokens) ? tokens : [tokens];
-    
-    // Remove null/undefined/empty tokens
-    const validTokens = tokenArray.filter(token => token && token.trim().length > 0);
-    
+
+    // Remove null/undefined/empty tokens and unique-ify
+    const validTokens = [...new Set(tokenArray.filter(token => token && token.trim().length > 0))];
+
     if (validTokens.length === 0) {
       logger.warn('No valid FCM tokens provided');
       return { success: false, error: 'No valid FCM tokens provided' };
@@ -252,9 +252,9 @@ const sendPushNotification = async (tokens, payload) => {
 
     // Generate consistent tag/notification ID to prevent duplicates
     // Use bookingId or type to ensure same notification type gets same tag
-    const notificationTag = payload.data?.bookingId 
-      ? `booking_${String(payload.data.bookingId)}` 
-      : payload.data?.type 
+    const notificationTag = payload.data?.bookingId
+      ? `booking_${String(payload.data.bookingId)}`
+      : payload.data?.type
         ? `type_${String(payload.data.type)}`
         : `notif_${payload.data?.notificationId || Date.now()}`;
 
@@ -324,7 +324,7 @@ const sendPushNotification = async (tokens, payload) => {
             // Use consistent thread-id (similar to tag) to prevent duplicate notifications
             'thread-id': notificationTag,
             // Include image for iOS
-            ...(payload.image && { 
+            ...(payload.image && {
               'mutable-content': 1,
               'fcm_options': {
                 image: payload.image
@@ -367,9 +367,9 @@ const sendPushNotification = async (tokens, payload) => {
         firebaseInitialized: firebaseInitialized,
         adminAppsCount: admin.apps.length
       });
-      
+
       const response = await admin.messaging().sendEach(messages);
-      
+
       console.log('✅ === Push notification sent successfully ===');
       console.log('Results:', {
         successCount: response.successCount,
@@ -378,7 +378,7 @@ const sendPushNotification = async (tokens, payload) => {
         successRate: `${((response.successCount / validTokens.length) * 100).toFixed(1)}%`,
         responsesCount: response.responses?.length || 0
       });
-      
+
       // Log all responses for debugging
       if (response.responses && response.responses.length > 0) {
         console.log('📋 All responses:', response.responses.map((resp, idx) => ({
@@ -403,7 +403,7 @@ const sendPushNotification = async (tokens, payload) => {
         });
         const invalidTokens = [];
         let credentialErrorDetected = false;
-        
+
         // Ensure responses array exists and has items
         if (!response.responses || !Array.isArray(response.responses)) {
           console.error('❌ response.responses is not an array:', {
@@ -411,13 +411,13 @@ const sendPushNotification = async (tokens, payload) => {
             responsesType: typeof response.responses
           });
         }
-        
+
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             const errorCode = resp.error?.code;
             const errorMessage = resp.error?.message || resp.error?.toString() || 'Unknown error';
             const fullError = resp.error;
-            
+
             console.error(`❌ Token ${idx + 1} failed:`, {
               error: errorMessage,
               code: errorCode,
@@ -426,14 +426,14 @@ const sendPushNotification = async (tokens, payload) => {
               errorType: typeof resp.error,
               errorKeys: resp.error ? Object.keys(resp.error) : []
             });
-            
+
             logger.error(`Push notification failed for token ${idx + 1}`, {
               errorCode,
               errorMessage,
               tokenPreview: validTokens[idx]?.substring(0, 30) + '...',
               fullError: fullError
             });
-            
+
             // Check for credential errors
             if (errorCode === 'app/invalid-credential' || errorMessage.includes('Invalid JWT Signature')) {
               if (!credentialErrorDetected) {
@@ -450,14 +450,14 @@ const sendPushNotification = async (tokens, payload) => {
                 console.error('🔴 === END CREDENTIAL ERROR ===');
               }
             }
-            
+
             // Collect invalid tokens for cleanup
             // Check for all invalid token error codes
-            const isInvalidToken = errorCode === 'messaging/invalid-registration-token' || 
-                                   errorCode === 'messaging/registration-token-not-registered' ||
-                                   errorCode === 'messaging/invalid-argument' ||
-                                   (errorMessage && errorMessage.includes('not found'));
-            
+            const isInvalidToken = errorCode === 'messaging/invalid-registration-token' ||
+              errorCode === 'messaging/registration-token-not-registered' ||
+              errorCode === 'messaging/invalid-argument' ||
+              (errorMessage && errorMessage.includes('not found'));
+
             if (isInvalidToken) {
               invalidTokens.push(validTokens[idx]);
               console.log(`🗑️ Marking token ${idx + 1} as invalid for cleanup:`, {
@@ -477,7 +477,7 @@ const sendPushNotification = async (tokens, payload) => {
           console.log(`🗑️ Total invalid tokens to cleanup: ${invalidTokens.length}`);
           console.log(`🗑️ Invalid tokens list:`, invalidTokens.map(t => t.substring(0, 30) + '...'));
         }
-        
+
         return {
           success: response.successCount > 0,
           successCount: response.successCount,
@@ -539,7 +539,7 @@ const sendPushNotificationToUser = async (userId, payload) => {
 
     const User = require('../models/User');
     const user = await User.findById(userId).select('+fcmTokens +fcmTokenMobile preferences');
-    
+
     if (!user) {
       return { success: false, error: 'User not found' };
     }

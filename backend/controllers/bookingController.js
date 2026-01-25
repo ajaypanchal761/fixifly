@@ -1337,6 +1337,12 @@ const acceptTask = asyncHandler(async (req, res) => {
           customerPhone: booking.customer.phone
         });
       }
+
+      // Send email to user with engineer details
+      if (booking.customer && booking.customer.email) {
+        logger.info(`Sending engineer assigned email to customer: ${booking.customer.email}`);
+        await emailService.sendEngineerAssignedEmail(booking, vendor);
+      }
     } catch (notifyError) {
       logger.error('Error sending user notification after vendor acceptance', {
         error: notifyError.message,
@@ -1733,6 +1739,16 @@ const completeTask = asyncHandler(async (req, res) => {
       '✅ Booking Task Completed',
       buildBookingSummaryLines(updatedBooking, { details: `Payment method: ${completionData.paymentMethod || 'N/A'}`, vendorInfo: updatedBooking?.vendor?.vendorId ? `${updatedBooking.vendor.vendorId.firstName || ''} ${updatedBooking.vendor.vendorId.lastName || ''} (${updatedBooking.vendor.vendorId.vendorId || updatedBooking.vendor.vendorId})`.trim() : undefined })
     );
+
+    // Send completion email to user with receipt
+    try {
+      if (updatedBooking.customer && updatedBooking.customer.email) {
+        await emailService.sendBookingCompletionEmail(updatedBooking);
+      }
+    } catch (emailError) {
+      logger.error('Failed to send booking completion email:', emailError);
+      // Don't fail the request if email fails
+    }
 
     // For cash payments, trigger rating popup for user
     if (completionData.paymentMethod === 'cash') {
@@ -2601,9 +2617,157 @@ const checkFirstTimeUser = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Create a quick booking (Guest/One-step)
+// @route   POST /api/bookings/quick
+// @access  Public
+const createQuickBooking = asyncHandler(async (req, res) => {
+  try {
+    const { email, phone, address, preferredTime, issueNote, services, productId } = req.body;
+
+    // Parse address if it's a string, or use directly if object
+    let parsedAddress = {};
+    if (typeof address === 'string') {
+      parsedAddress = {
+        street: address,
+        city: 'Mumbai', // Default or extract
+        state: 'Maharashtra', // Default
+        pincode: '400001' // Default dummy
+      };
+    } else {
+      parsedAddress = address || {};
+    }
+
+    // Default name if not provided (guest)
+    const name = req.body.name || (email ? email.split('@')[0] : 'Guest User');
+
+    // 1. Find or Create User
+    let user = await User.findByPhoneOrEmail(phone || email);
+
+    if (!user) {
+      // Create new user
+      user = await User.create({
+        name: name,
+        email: email || `guest${Date.now()}@fixfly.text`,
+        phone: phone,
+        address: parsedAddress,
+        role: 'user',
+        isActive: true,
+        isPhoneVerified: false,
+        isEmailVerified: false,
+        // Set a random password
+        password: Math.random().toString(36).slice(-8)
+      });
+      logger.info('Created new guest user for quick booking', { userId: user._id });
+    } else {
+      // Update address if provided
+      if (address) {
+        user.address = { ...user.address, ...parsedAddress };
+        await user.save({ validateBeforeSave: false });
+      }
+    }
+
+    // 2. Prepare Booking Data
+    // We need service details. If productId is provided, we might need to fetch it.
+    // For now, assume services array is passed or construct from minimal info
+
+    let bookingServices = [];
+    let totalAmount = 0;
+
+    if (services && services.length > 0) {
+      bookingServices = services;
+      totalAmount = services.reduce((sum, s) => sum + (s.price || 0), 0);
+    } else {
+      // Fallback dummy service if none provided (should not happen in real flow)
+      bookingServices = [{
+        serviceName: 'Quick Booking Service',
+        price: 0
+      }];
+    }
+
+    // Mock pricing if not fully provided
+    const pricing = {
+      subtotal: totalAmount,
+      serviceFee: 100, // Standard fee
+      totalAmount: totalAmount + 100
+    };
+
+    // Construct scheduling
+    const scheduling = {
+      preferredDate: new Date(), // Today
+      preferredTimeSlot: preferredTime || 'As soon as possible'
+    };
+
+    // Create the booking
+    const bookingData = {
+      user: user._id,
+      customer: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: parsedAddress
+      },
+      services: bookingServices.map(s => ({
+        serviceId: s.id || s._id || `svc_${Date.now()}`,
+        serviceName: s.serviceName || s.title || 'Service',
+        price: s.price || 0
+      })),
+      pricing: pricing,
+      scheduling: scheduling,
+      notes: issueNote || 'Quick booking via popup',
+      status: 'waiting_for_engineer',
+      payment: {
+        status: 'pending',
+        method: 'cash' // Default to cash/pay later
+      }
+    };
+
+    const booking = await Booking.create(bookingData);
+
+    logger.info(`Quick Booking created: ${booking.bookingReference}`, {
+      bookingId: booking._id,
+      customerPhone: phone
+    });
+
+    // Send notifications (WhatsApp/Email) - Reusing existing services
+    try {
+      await botbeeService.sendBookingConfirmationToUser(booking);
+    } catch (e) { logger.error('Error sending WhatsApp for quick booking', e); }
+
+    try {
+      if (email) {
+        await emailService.sendBookingConfirmationEmail(booking);
+      }
+    } catch (e) { logger.error('Error sending Email for quick booking', e); }
+
+    // Notify admins
+    await notifyAdminsByEmail(
+      '🚀 New Quick Booking Received',
+      buildBookingSummaryLines(booking, { details: `Source: Quick Booking Popup\nIssue: ${issueNote || 'N/A'}` })
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Booking created successfully',
+      data: {
+        bookingId: booking._id,
+        reference: booking.bookingReference
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error in createQuickBooking:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create booking',
+      error: error.message
+    });
+  }
+});
+
 module.exports = {
   createBooking,
   createBookingWithPayment,
+  createQuickBooking,
   getBookingById,
   getBookingsByCustomer,
   getBookingsByVendor,

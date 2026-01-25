@@ -316,7 +316,9 @@ const AdminVendorWalletManagement = () => {
         // Debit types: withdrawal, penalty
         const creditTypes = ['deposit', 'earning', 'refund', 'bonus'];
         const transformedTransactions = data.data.transactions.map((txn: any) => {
-          const isCredit = creditTypes.includes(txn.type?.toLowerCase());
+          // Determine if it's a credit based on type OR if amount is positive
+          // This ensures manual adjustments that ADD balance show as green/credit
+          const isCredit = creditTypes.includes(txn.type?.toLowerCase()) || (txn.amount > 0);
           return {
             id: txn._id || txn.transactionId,
             vendorId: txn.vendorId,

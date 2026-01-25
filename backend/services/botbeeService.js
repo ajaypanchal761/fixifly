@@ -35,11 +35,11 @@ class BotbeeService {
 
     try {
       const url = `${this.baseUrl}/api/v1/whatsapp/send`;
-      
+
       const payload = {
         apiToken: this.apiKey,
         phone_number_id: this.phoneId,
-        phone_number: phoneNumber,
+        mobile: phoneNumber,
         message: message
       };
 
@@ -104,13 +104,13 @@ class BotbeeService {
       // Botbee uses same endpoint for template messages
       // Format: template_id + parameters (Botbee automatically uses approved template text)
       const url = `${this.baseUrl}/api/v1/whatsapp/send`;
-      
+
       // Template ID 267669 - Botbee requires both template_id and message field
       // Use custom message text if provided, otherwise use default template text
-      
+
       // Build template message text (Botbee requires message field even for templates)
       let templateText = customMessageText || 'Thank Your For Using Fixfly. Your booking has been confirmed successfully. Hello, our team has received your service request. Our Team will Assigned Enginner shortly. Thank you for choosing Fixfly.';
-      
+
       // Replace variables if any exist (only if custom message text not provided)
       if (!customMessageText && templateParams && Object.keys(templateParams).length > 0) {
         Object.keys(templateParams).forEach(key => {
@@ -118,15 +118,15 @@ class BotbeeService {
           templateText = templateText.replace(regex, templateParams[key]);
         });
       }
-      
+
       const payload = {
         apiToken: this.apiKey,
         phone_number_id: this.phoneId,
-        phone_number: phoneNumber,
+        mobile: phoneNumber,
         template_id: templateId,
         message: templateText // Botbee requires message field with template text
       };
-      
+
       // Only add parameters if they exist and are not empty
       if (templateParams && Object.keys(templateParams).length > 0) {
         payload.parameters = templateParams;
@@ -237,25 +237,25 @@ class BotbeeService {
    */
   normalizePhoneNumber(phone) {
     if (!phone) return null;
-    
+
     // Remove all non-digit characters
     const digits = phone.replace(/\D/g, '');
-    
+
     // If already has country code (starts with 91 and has 12 digits)
     if (digits.length === 12 && digits.startsWith('91')) {
       return digits;
     }
-    
+
     // If has 10 digits, add 91 prefix
     if (digits.length === 10) {
       return '91' + digits;
     }
-    
+
     // If has 11 digits and starts with 0, remove 0 and add 91
     if (digits.length === 11 && digits.startsWith('0')) {
       return '91' + digits.substring(1);
     }
-    
+
     return digits;
   }
 
@@ -270,15 +270,15 @@ class BotbeeService {
       const customerName = booking.customer?.name || 'N/A';
       const customerPhone = booking.customer?.phone || 'N/A';
       const customerEmail = booking.customer?.email || 'N/A';
-      const customerAddress = booking.customer?.address 
+      const customerAddress = booking.customer?.address
         ? `${booking.customer.address.street}, ${booking.customer.address.city}, ${booking.customer.address.state} - ${booking.customer.address.pincode}`
         : 'N/A';
-      
-      const preferredDate = booking.scheduling?.preferredDate 
+
+      const preferredDate = booking.scheduling?.preferredDate
         ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')
         : 'N/A';
       const preferredTime = booking.scheduling?.preferredTimeSlot || 'N/A';
-      
+
       const services = booking.services?.map(s => `- ${s.serviceName} (₹${s.price})`).join('\n') || 'N/A';
       const totalAmount = booking.pricing?.totalAmount ? `₹${booking.pricing.totalAmount}` : 'N/A';
       const paymentMethod = booking.payment?.method || 'N/A';
@@ -357,13 +357,13 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
 
       const bookingReference = booking.bookingReference || `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
       const customerName = booking.customer?.name || 'Customer';
-      const preferredDate = booking.scheduling?.preferredDate 
-        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })
+      const preferredDate = booking.scheduling?.preferredDate
+        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
         : 'N/A';
       const preferredTime = booking.scheduling?.preferredTimeSlot || 'N/A';
       const services = booking.services?.map(s => `${s.serviceName} (₹${s.price})`).join(', ') || 'N/A';
@@ -374,17 +374,17 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
       // Check if utility template ID is configured
       // Template ID 267669 - Approved WhatsApp template
       const templateId = process.env.BOTBEE_BOOKING_TEMPLATE_ID;
-      
+
       if (templateId) {
         // Use utility template if configured
         // Template ID 267669 - Include user name, booking ID, and service name in message
         // Get service name(s)
         const serviceNames = booking.services?.map(s => s.serviceName).join(', ') || 'Service';
         const firstServiceName = booking.services?.[0]?.serviceName || 'Service';
-        
+
         // Build template message with user name, booking ID, and service name
         const templateMessage = `Thank Your For Using Fixfly.Your booking has been confirmed successfully. Hello ${customerName}, our team has received your service request for ${firstServiceName}. Your booking ID is ${bookingReference}. Our Team will Assigned Enginner shortly. Thank you for choosing Fixfly.`;
-        
+
         const templateParams = {
           customer_name: customerName,
           booking_id: bookingReference,
@@ -401,11 +401,11 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
 
         // Send template message with custom message text including user name and booking ID
         const templateResult = await this.sendTemplateMessage(normalizedPhone, templateId, templateParams, templateMessage);
-        
+
         // Note: Booking reference is included in template message
         // Cannot send separate plain message outside 24-hour window (WhatsApp rule)
         // If template message fails, it will fallback to plain message automatically
-        
+
         if (templateResult.success) {
           console.log('✅ Template message sent successfully');
           logger.info('Template message sent successfully', {
@@ -421,7 +421,7 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
             response: templateResult.response
           });
         }
-        
+
         return templateResult;
       } else {
         // Fallback to plain message if template not configured

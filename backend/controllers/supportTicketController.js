@@ -265,7 +265,7 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
     // Format dates safely
     let formattedCreated = 'Date not available';
     let formattedLastUpdate = 'Date not available';
-    
+
     if (ticket.createdAt) {
       try {
         const date = new Date(ticket.createdAt).toLocaleDateString('en-IN', {
@@ -283,7 +283,7 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
         console.error('Error formatting createdAt:', error);
       }
     }
-    
+
     if (ticket.updatedAt) {
       try {
         const date = new Date(ticket.updatedAt).toLocaleDateString('en-IN', {
@@ -301,7 +301,7 @@ const getUserSupportTickets = asyncHandler(async (req, res) => {
         console.error('Error formatting updatedAt:', error);
       }
     }
-    
+
     return {
       id: ticket.ticketId,
       subject: ticket.subject,
@@ -710,8 +710,75 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
       }
     }
 
-    // Use the assignVendor method from SupportTicket model
-    await ticket.assignVendor(vendorId, req.admin._id, notes || '');
+    // Find the vendor by numeric vendorId to get its ObjectId
+    const Vendor = require('../models/Vendor');
+    const vendorRecord = await Vendor.findOne({ vendorId: vendorId });
+
+    if (!vendorRecord) {
+      return res.status(404).json({
+        success: false,
+        message: `Vendor with ID ${vendorId} not found`
+      });
+    }
+
+    // --- CONFLICT CHECK START ---
+    if (scheduledDate && scheduledTime) {
+      const scheduledDateObj = new Date(scheduledDate);
+      const normalizedDate = new Date(scheduledDateObj);
+      normalizedDate.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(normalizedDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      // Check for conflicting Bookings
+      const { Booking } = require('../models/Booking');
+      const conflictingBooking = await Booking.findOne({
+        'vendor.vendorId': vendorId,
+        'scheduling.scheduledDate': {
+          $gte: normalizedDate,
+          $lte: endOfDay
+        },
+        'scheduling.scheduledTime': scheduledTime,
+        status: { $nin: ['cancelled', 'declined', 'completed'] },
+        $or: [
+          { 'vendorResponse.status': { $exists: false } },
+          { 'vendorResponse.status': null },
+          { 'vendorResponse.status': 'pending' },
+          { 'vendorResponse.status': 'accepted' }
+        ]
+      }).select('bookingReference status');
+
+      if (conflictingBooking) {
+        return res.status(400).json({
+          success: false,
+          message: `Vendor is already assigned to Booking ${conflictingBooking.bookingReference} at the same date and time.`
+        });
+      }
+
+      // Check for other conflicting Support Tickets
+      const conflictingTicket = await SupportTicket.findOne({
+        _id: { $ne: ticket._id },
+        assignedTo: vendorRecord._id,
+        scheduledDate: {
+          $gte: normalizedDate,
+          $lte: endOfDay
+        },
+        scheduledTime: scheduledTime,
+        status: { $nin: ['Resolved', 'Closed', 'Cancelled'] },
+        vendorStatus: { $nin: ['Declined', 'Cancelled'] }
+      }).select('ticketId status');
+
+      if (conflictingTicket) {
+        return res.status(400).json({
+          success: false,
+          message: `Vendor is already assigned to Support Ticket ${conflictingTicket.ticketId} at the same date and time.`
+        });
+      }
+    }
+    // --- CONFLICT CHECK END ---
+
+    // Use the assignVendor method from SupportTicket model with vendorRecord._id (ObjectId)
+    await ticket.assignVendor(vendorRecord._id, req.admin._id, notes || '');
 
     // Update additional fields if provided
     const updateData = {};
@@ -1096,8 +1163,21 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
 
       // Use the new assignVendor method for better tracking
       if (assignedTo) {
-        console.log('Assigning vendor to ticket...');
-        await ticket.assignVendor(assignedTo, adminId, scheduleNotes || '');
+        console.log('Assigning vendor to ticket...', assignedTo);
+
+        // Handle both ObjectId and numeric vendorId
+        let vendorRefId = assignedTo;
+        if (typeof assignedTo === 'string' && !assignedTo.match(/^[0-9a-fA-F]{24}$/)) {
+          const Vendor = require('../models/Vendor');
+          const v = await Vendor.findOne({ vendorId: assignedTo });
+          if (v) {
+            vendorRefId = v._id;
+          } else {
+            console.warn(`Vendor with ID ${assignedTo} not found during update`);
+          }
+        }
+
+        await ticket.assignVendor(vendorRefId, adminId, scheduleNotes || '');
         console.log('Vendor assigned successfully');
       } else {
         console.log('Removing vendor assignment...');

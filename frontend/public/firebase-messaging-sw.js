@@ -39,18 +39,26 @@ self.addEventListener('message', function(event) {
 messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   
-  const notificationTitle = payload.notification?.title || payload.data?.title || 'Fixfly Notification';
+  // If the payload already has a notification property, the FCM SDK will show it automatically 
+  // on most platforms (especially with the webpush/android notification blocks we have).
+  // Manually showing it here causes a second (duplicate) notification.
+  if (payload.notification) {
+    console.log('[firebase-messaging-sw.js] Payload has notification block, skipping manual showNotification to prevent duplicates');
+    return;
+  }
+
+  const notificationTitle = payload.data?.title || payload.data?.heading || 'Fixfly Notification';
   const notificationOptions = {
-    body: payload.notification?.body || payload.data?.body || 'You have a new notification',
-    icon: payload.notification?.icon || payload.data?.icon || '/favicon.png',
+    body: payload.data?.body || payload.data?.message || 'You have a new notification',
+    icon: payload.data?.icon || '/favicon.png',
     badge: '/favicon.png',
     tag: payload.data?.tag || 'fixfly-notification',
     data: payload.data || {},
-    requireInteraction: false,
+    requireInteraction: payload.data?.priority === 'high' || false,
     silent: false,
   };
 
-  // Show notification
+  // Show notification only for data-only messages
   return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
