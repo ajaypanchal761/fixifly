@@ -2564,27 +2564,26 @@ class EmailService {
                 <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}</div>
               </div>
 
-              ${resolutionNote ? `
               <div class="note-box">
                 <h4 style="margin: 0 0 8px; color: #1e40af;">📝 Resolution Note</h4>
-                <p style="margin: 0; color: #1e3a8a;">${resolutionNote}</p>
-              </div>` : ''}
+                <p style="margin: 0; color: #1e3a8a;">${resolutionNote || 'No resolution note provided.'}</p>
+              </div>
 
               <div class="details-section">
                 <div class="section-title">Billing Details</div>
-                ${booking.services.map(s => `
+            ${booking.services.map(s => `
                   <div class="detail-row">
                     <span class="detail-label">${s.serviceName}</span>
                     <span class="detail-value">-</span> 
                   </div>`).join('')}
                 
-                ${sparePartsHtml}
-
-                ${travelingAmount > 0 ? `
-                <div class="detail-row">
-                  <span class="detail-label">Traveling Charges</span>
-                  <span class="detail-value">₹${travelingAmount}</span>
-                </div>` : ''}
+                ${spareParts && spareParts.length > 0
+        ? spareParts.map(part => `
+                      <div class="detail-row">
+                        <span class="detail-label">${part.name} (Spare)${part.warranty ? ` - <span style="color:#2563eb; font-size:12px;">(${part.warranty} Warranty)</span>` : ''}</span>
+                        <span class="detail-value">Included</span>
+                      </div>`).join('')
+        : ''}
 
                 ${gstIncluded ? `
                  <div class="detail-row">
@@ -2601,7 +2600,7 @@ class EmailService {
               <div style="text-align: center; margin-top: 30px; background-color: #fce7f3; padding: 20px; border-radius: 8px; border: 1px dashed #db2777;">
                 <h3 style="margin: 0 0 10px; color: #be185d;">🌟 How was your experience?</h3>
                 <p style="margin: 0 0 20px; color: #9d174d; font-size: 14px;">Your feedback helps us improve our service.</p>
-                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking" style="display: inline-block; background: #db2777; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Rate Your Service</a>
+                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/user/bookings?tab=completed&ratingBookingId=${booking._id}" style="display: inline-block; background: #db2777; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Rate Your Service</a>
               </div>
 
             </div>
@@ -2626,7 +2625,8 @@ class EmailService {
       TOTAL AMOUNT: ₹${billingAmount}
       Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}
       
-      ${resolutionNote ? `RESOLUTION NOTE:\n${resolutionNote}\n` : ''}
+      RESOLUTION NOTE:
+      ${resolutionNote || 'No resolution note provided.'}
       
       BILLING DETAILS:
       ${booking.services.map(s => `- ${s.serviceName}`).join('\n')}
@@ -2635,7 +2635,7 @@ class EmailService {
       
       RATE YOUR SERVICE:
       Please take a moment to rate your experience:
-      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking
+      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/user/bookings?tab=completed&ratingBookingId=${booking._id}
       
       Thank you for choosing Fixfly!
     `;

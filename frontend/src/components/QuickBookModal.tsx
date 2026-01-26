@@ -51,6 +51,10 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
             toast({ title: "Invalid Phone", description: "Please enter a valid phone number", variant: "destructive" });
             return false;
         }
+        if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+            toast({ title: "Email Required", description: "Please enter a valid email address", variant: "destructive" });
+            return false;
+        }
         if (!formData.address) {
             toast({ title: "Address Required", description: "Please enter your address", variant: "destructive" });
             return false;
@@ -65,8 +69,13 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
         try {
             setLoading(true);
 
+            // Construct payload matching backend createQuickBooking
             const payload = {
-                ...formData,
+                phone: formData.phone,
+                email: formData.email,
+                address: formData.address, // Backend handles string address
+                preferredTime: formData.preferredTime,
+                issueNote: formData.issueNote,
                 services: [{
                     id: service._id || service.id,
                     serviceName: service.serviceName,
@@ -80,7 +89,7 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
             if (response.data.success) {
                 toast({
                     title: "Booking Successful! 🎉",
-                    description: "Your booking has been confirmed. You will receive details shortly.",
+                    description: "Your booking has been confirmed. You will receive details shortly via WhatsApp and Email.",
                     variant: "default",
                     className: "bg-green-50 border-green-200 text-green-900"
                 });
@@ -131,7 +140,7 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
 
                     <div className="space-y-2">
                         <Label htmlFor="email" className="flex items-center gap-2">
-                            <Mail className="w-4 h-4 text-gray-500" /> Email Address
+                            <Mail className="w-4 h-4 text-gray-500" /> Email Address <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             id="email"
@@ -140,6 +149,7 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
                             value={formData.email}
                             onChange={handleChange}
                             type="email"
+                            required
                             className="border-gray-300 focus:border-blue-500"
                         />
                     </div>
@@ -151,7 +161,7 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
                         <Textarea
                             id="address"
                             name="address"
-                            placeholder="Flat no, Building, Area, City"
+                            placeholder="Enter your complete address (House no, Area, Landmark)"
                             value={formData.address}
                             onChange={handleChange}
                             required

@@ -104,11 +104,11 @@ const VendorTermsConditions = () => {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>
-                  <span>A refundable security deposit of ₹3999 is required before activation.</span>
+                  <span>Complete profile verification is required before activation.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Premium Partner Onboarding Fee: ₹3999 (one-time)</span>
+                  <span>Premium Partner Benefits include:</span>
                 </li>
               </ul>
               <p className="text-sm text-gray-700 mt-3 font-semibold">Includes:</p>

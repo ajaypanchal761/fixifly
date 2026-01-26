@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { 
+import {
   ArrowLeft,
   Plus,
   X,
@@ -29,7 +29,7 @@ interface SparePart {
 const VendorClosedTask = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   // Show 404 error on desktop - must be before any other hooks
   if (!isMobile) {
     return (
@@ -58,7 +58,7 @@ const VendorClosedTask = () => {
   const [spareParts, setSpareParts] = useState<SparePart[]>([
     { id: 1, name: "", amount: "", photo: null, warranty: "" }
   ]);
-  
+
   // Refs for file inputs - one per spare part for APK compatibility
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
@@ -67,10 +67,10 @@ const VendorClosedTask = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const vendorToken = localStorage.getItem('vendorToken');
       const vendorData = localStorage.getItem('vendorData');
-      
+
       console.log('Vendor authentication check:', {
         hasToken: !!vendorToken,
         hasVendorData: !!vendorData,
@@ -102,12 +102,12 @@ const VendorClosedTask = () => {
         vendorApi.getVendorBookings(),
         vendorApi.getAssignedSupportTickets()
       ]);
-      
+
       console.log('API Responses:', {
         bookingsResponse,
         supportTicketsResponse
       });
-      
+
       let foundTask = null;
       let isSupportTicket = false;
 
@@ -115,7 +115,7 @@ const VendorClosedTask = () => {
       if (bookingsResponse.success && bookingsResponse.data?.bookings) {
         const bookings = bookingsResponse.data.bookings;
         const bookingTask = bookings.find(booking => booking._id === taskId);
-        
+
         if (bookingTask) {
           // Transform booking data to task format
           foundTask = {
@@ -125,36 +125,36 @@ const VendorClosedTask = () => {
             customer: bookingTask.customer?.name || 'Unknown Customer',
             phone: bookingTask.customer?.phone || 'N/A',
             amount: `₹${bookingTask.pricing?.totalAmount || 0}`,
-            date: bookingTask.scheduling?.scheduledDate 
+            date: bookingTask.scheduling?.scheduledDate
               ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
-              : bookingTask.scheduling?.preferredDate 
-              ? new Date(bookingTask.scheduling.preferredDate).toLocaleDateString('en-IN')
-              : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
-            time: bookingTask.scheduling?.scheduledTime 
+              : bookingTask.scheduling?.preferredDate
+                ? new Date(bookingTask.scheduling.preferredDate).toLocaleDateString('en-IN')
+                : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
+            time: bookingTask.scheduling?.scheduledTime
               ? new Date(`2000-01-01T${bookingTask.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
               : bookingTask.scheduling?.preferredTimeSlot || 'Not scheduled',
-            status: bookingTask.priority === 'urgent' ? 'Emergency' : 
-                   bookingTask.priority === 'high' ? 'High Priority' : 
-                   bookingTask.priority === 'low' ? 'Low Priority' : 'Normal',
-            address: bookingTask.customer?.address 
-              ? typeof bookingTask.customer.address === 'object' 
+            status: bookingTask.priority === 'urgent' ? 'Emergency' :
+              bookingTask.priority === 'high' ? 'High Priority' :
+                bookingTask.priority === 'low' ? 'Low Priority' : 'Normal',
+            address: bookingTask.customer?.address
+              ? typeof bookingTask.customer.address === 'object'
                 ? `${bookingTask.customer.address.street || ''}, ${bookingTask.customer.address.city || ''}, ${bookingTask.customer.address.state || ''} - ${bookingTask.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
                 : bookingTask.customer.address
               : 'Address not provided',
             issue: bookingTask.notes || bookingTask.services?.[0]?.serviceName || 'Service request',
-            assignDate: bookingTask.vendor?.assignedAt 
+            assignDate: bookingTask.vendor?.assignedAt
               ? new Date(bookingTask.vendor.assignedAt).toLocaleDateString('en-IN')
               : new Date(bookingTask.createdAt).toLocaleDateString('en-IN'),
-            assignTime: bookingTask.vendor?.assignedAt 
+            assignTime: bookingTask.vendor?.assignedAt
               ? new Date(bookingTask.vendor.assignedAt).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
               : 'Not assigned',
             taskType: bookingTask.services?.[0]?.serviceName || 'Service Request',
             bookingStatus: bookingTask.status,
@@ -168,7 +168,7 @@ const VendorClosedTask = () => {
       if (!foundTask && supportTicketsResponse.success && supportTicketsResponse.data?.tickets) {
         const supportTickets = supportTicketsResponse.data.tickets;
         const supportTicket = supportTickets.find(ticket => ticket.id === taskId);
-        
+
         if (supportTicket) {
           isSupportTicket = true;
           // Transform support ticket data to task format
@@ -179,37 +179,37 @@ const VendorClosedTask = () => {
             customer: supportTicket.customerName || 'Unknown Customer',
             phone: supportTicket.customerPhone || 'N/A',
             amount: 'Support Ticket',
-            date: supportTicket.scheduledDate 
+            date: supportTicket.scheduledDate
               ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
-              : supportTicket.created 
-              ? new Date(supportTicket.created).toLocaleDateString('en-IN')
-              : new Date().toLocaleDateString('en-IN'),
-            time: supportTicket.scheduledTime 
+              : supportTicket.created
+                ? new Date(supportTicket.created).toLocaleDateString('en-IN')
+                : new Date().toLocaleDateString('en-IN'),
+            time: supportTicket.scheduledTime
               ? (() => {
-                  // Convert 24-hour format to 12-hour format with AM/PM
-                  if (supportTicket.scheduledTime.includes(':')) {
-                    const [hours, minutes] = supportTicket.scheduledTime.split(':');
-                    const hour24 = parseInt(hours);
-                    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-                    const ampm = hour24 >= 12 ? 'PM' : 'AM';
-                    return `${hour12}:${minutes} ${ampm}`;
-                  }
-                  return supportTicket.scheduledTime;
-                })()
+                // Convert 24-hour format to 12-hour format with AM/PM
+                if (supportTicket.scheduledTime.includes(':')) {
+                  const [hours, minutes] = supportTicket.scheduledTime.split(':');
+                  const hour24 = parseInt(hours);
+                  const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                  const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                  return `${hour12}:${minutes} ${ampm}`;
+                }
+                return supportTicket.scheduledTime;
+              })()
               : 'Not scheduled',
-            status: supportTicket.priority === 'High' ? 'High Priority' : 
-                   supportTicket.priority === 'Medium' ? 'Normal' : 'Low Priority',
+            status: supportTicket.priority === 'High' ? 'High Priority' :
+              supportTicket.priority === 'Medium' ? 'Normal' : 'Low Priority',
             address: supportTicket.address || 'Address not provided',
             issue: supportTicket.description || supportTicket.subject || 'Support request',
-            assignDate: supportTicket.assignedAt 
+            assignDate: supportTicket.assignedAt
               ? new Date(supportTicket.assignedAt).toLocaleDateString('en-IN')
               : new Date().toLocaleDateString('en-IN'),
-            assignTime: supportTicket.assignedAt 
+            assignTime: supportTicket.assignedAt
               ? new Date(supportTicket.assignedAt).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
               : 'Not assigned',
             taskType: supportTicket.subject || 'Support Request',
             vendorStatus: supportTicket.vendorStatus,
@@ -364,7 +364,7 @@ const VendorClosedTask = () => {
   };
 
   const updateSparePart = (id: number, field: keyof SparePart, value: string) => {
-    setSpareParts(spareParts.map(part => 
+    setSpareParts(spareParts.map(part =>
       part.id === id ? { ...part, [field]: value } : part
     ));
   };
@@ -375,8 +375,8 @@ const VendorClosedTask = () => {
       if (typeof navigator === 'undefined') return false;
       const userAgent = navigator.userAgent || '';
       const isWebView = /wv|WebView/i.test(userAgent);
-      const hasFlutterBridge = typeof (window as any).flutter_inappwebview !== 'undefined' || 
-                                typeof (window as any).Android !== 'undefined';
+      const hasFlutterBridge = typeof (window as any).flutter_inappwebview !== 'undefined' ||
+        typeof (window as any).Android !== 'undefined';
       return isWebView || hasFlutterBridge;
     } catch (error) {
       return false;
@@ -398,16 +398,16 @@ const VendorClosedTask = () => {
       }, 10000); // 10 seconds timeout
 
       const img = new Image();
-      
+
       img.onload = () => {
         try {
           clearTimeout(timeout);
-          
+
           // Validate image loaded successfully
           if (img.width === 0 || img.height === 0) {
-          reject(new Error('Invalid image dimensions'));
-          return;
-        }
+            reject(new Error('Invalid image dimensions'));
+            return;
+          }
 
           const canvas = document.createElement('canvas');
           let width = img.width;
@@ -440,35 +440,35 @@ const VendorClosedTask = () => {
 
           // Draw and compress
           ctx.drawImage(img, 0, 0, width, height);
-          
+
           // Convert to JPEG with specified quality
           const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-          
+
           // Validate compressed result
           if (!compressedBase64 || compressedBase64.length < 100) {
             reject(new Error('Compression failed - result too small'));
             return;
           }
-          
+
           // Check if compression actually reduced size
           const originalSize = base64String.length;
           const compressedSize = compressedBase64.length;
           const reductionPercent = ((1 - compressedSize / originalSize) * 100).toFixed(1);
-          
+
           console.log(`Image compression: ${(originalSize / 1024).toFixed(2)}KB -> ${(compressedSize / 1024).toFixed(2)}KB (${reductionPercent}% reduction)`);
-          
+
           resolve(compressedBase64);
         } catch (error: any) {
           clearTimeout(timeout);
           reject(new Error(`Compression error: ${error.message || 'Unknown error'}`));
         }
       };
-      
+
       img.onerror = (error) => {
         clearTimeout(timeout);
         reject(new Error('Failed to load image for compression'));
       };
-      
+
       // Set image source to trigger loading
       img.src = base64String;
     });
@@ -500,7 +500,7 @@ const VendorClosedTask = () => {
         // Compress image before storing
         try {
           let compressedImage = await compressImage(base64String, 800, 0.7);
-          
+
           // Check if compressed image is still too large (over 500KB base64)
           const compressedSizeKB = compressedImage.length / 1024;
           if (compressedSizeKB > 500) {
@@ -526,13 +526,13 @@ const VendorClosedTask = () => {
           event.target.value = '';
         }
       };
-      
+
       reader.onerror = () => {
         console.error('FileReader error');
         alert('Failed to read image. Please try again.');
         event.target.value = '';
       };
-      
+
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error reading file:', error);
@@ -540,11 +540,11 @@ const VendorClosedTask = () => {
       event.target.value = '';
     }
   };
-  
+
   // Function to trigger camera - works in both web and APK
   const triggerCamera = (partId: number) => {
     const isAPK = isAPKEnvironment();
-    
+
     if (isAPK) {
       // For APK: Use the ref-based input that's already in DOM
       const input = fileInputRefs.current[partId];
@@ -577,7 +577,7 @@ const VendorClosedTask = () => {
     input.style.opacity = '0';
     input.style.width = '1px';
     input.style.height = '1px';
-    
+
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
@@ -592,13 +592,13 @@ const VendorClosedTask = () => {
         document.body.removeChild(input);
       }
     };
-    
+
     input.oncancel = () => {
       if (document.body.contains(input)) {
         document.body.removeChild(input);
       }
     };
-    
+
     document.body.appendChild(input);
     // Use setTimeout for better compatibility
     setTimeout(() => {
@@ -612,12 +612,12 @@ const VendorClosedTask = () => {
       const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
       return sum + amount;
     }, 0);
-    
+
     // If GST is included, billing amount is already GST-inclusive
     if (includeGST) {
       return billingAmountValue; // Billing amount is already GST-inclusive
     }
-    
+
     return billingAmountValue; // Billing amount only
   };
 
@@ -639,13 +639,13 @@ const VendorClosedTask = () => {
   // Calculate required wallet amount for cash payment
   const calculateRequiredWalletAmount = (): number => {
     if (paymentMethod !== 'cash') return 0;
-    
+
     const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
     const spareAmountValue = spareParts.reduce((sum, part) => {
       return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
     }, 0);
-    const travellingAmountValue = 100; // Fixed travelling amount
-    
+    const travellingAmountValue = 130; // Fixed travelling amount
+
     const calculation = calculateCashCollectionDeduction({
       billingAmount: billingAmountValue,
       spareAmount: spareAmountValue,
@@ -653,7 +653,7 @@ const VendorClosedTask = () => {
       bookingAmount: 0,
       gstIncluded: includeGST
     });
-    
+
     return calculation.calculatedAmount;
   };
 
@@ -665,6 +665,140 @@ const VendorClosedTask = () => {
     setIsWalletCheckOpen(false);
     // Proceed with task completion
     handleNext();
+  };
+
+  // New States for Online Payment QR Flow
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [qrStep, setQrStep] = useState<'scan' | 'proof'>('scan');
+  const [tempTaskData, setTempTaskData] = useState<any>(null);
+  const [paymentProofImage, setPaymentProofImage] = useState<string | null>(null);
+  const paymentProofInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePaymentProofCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image size is too large. Please capture a smaller image.');
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64String = e.target?.result as string;
+        if (!base64String) {
+          alert('Failed to read image.');
+          return;
+        }
+
+        try {
+          const compressedImage = await compressImage(base64String, 800, 0.7);
+          setPaymentProofImage(compressedImage);
+          console.log(`✅ Payment proof image captured`);
+        } catch (compressError) {
+          console.error('Image compression failed:', compressError);
+          alert('Failed to process image. Please try again.');
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      alert('Failed to read image.');
+    }
+  };
+
+  const triggerPaymentProofCamera = () => {
+    if (paymentProofInputRef.current) {
+      paymentProofInputRef.current.value = '';
+      paymentProofInputRef.current.click();
+    }
+  };
+
+  const handleFinalOnlineSubmission = async () => {
+    if (!tempTaskData) return;
+
+    if (!paymentProofImage) {
+      alert('Please upload/capture payment proof screenshot.');
+      return;
+    }
+
+    setIsCompleting(true);
+
+    try {
+      // Add payment proof to task data
+      const finalTaskData = {
+        ...tempTaskData,
+        paymentProofImage: paymentProofImage
+      };
+
+      let response;
+      if (task?.isSupportTicket) {
+        response = await vendorApi.completeSupportTicket(taskId!, finalTaskData);
+      } else {
+        response = await vendorApi.completeTask(taskId!, finalTaskData);
+      }
+
+      if (response.success) {
+        const totalAmount = finalTaskData.totalAmount;
+        const gstAmount = finalTaskData.gstAmount;
+        const includeGST = finalTaskData.includeGST;
+
+        if (task?.isSupportTicket) {
+          alert(`Support ticket completed successfully! Payment verified.`);
+        } else {
+          alert(`Task completed successfully! Online payment verified.`);
+        }
+
+        // Trigger refresh event for vendor home page
+        window.dispatchEvent(new CustomEvent('taskCompleted', {
+          detail: { taskId, status: 'completed', totalAmount, includeGST, gstAmount }
+        }));
+
+        // Store payment data in localStorage for user page
+        const paymentData = {
+          taskId,
+          includeGST: task?.isSupportTicket ? false : includeGST,
+          gstAmount: task?.isSupportTicket ? 0 : gstAmount,
+          totalAmount,
+          baseAmount: task?.isSupportTicket ? totalAmount : (totalAmount - gstAmount),
+          isSupportTicket: task?.isSupportTicket || false,
+          timestamp: Date.now()
+        };
+
+        // Store with both key formats for compatibility
+        localStorage.setItem(`payment_${taskId}`, JSON.stringify(paymentData));
+        localStorage.setItem(`gst_${taskId}`, JSON.stringify(paymentData));
+
+        // Trigger event for user page refresh
+        const eventName = task?.isSupportTicket ? 'supportTicketUpdated' : 'bookingUpdated';
+        window.dispatchEvent(new CustomEvent(eventName, {
+          detail: {
+            taskId,
+            status: 'completed', // Completed now since payment is verified
+            paymentMode: 'online',
+            paymentStatus: 'collected', // Collected via QR
+            includeGST: task?.isSupportTicket ? false : includeGST,
+            gstAmount: task?.isSupportTicket ? 0 : gstAmount,
+            totalAmount,
+            completionData: finalTaskData
+          }
+        }));
+
+        navigate('/vendor');
+      } else {
+        alert(response.message || 'Failed to complete task');
+      }
+
+    } catch (error: any) {
+      console.error('Error completing task:', error);
+      alert(error.message || 'Failed to complete task. Please try again.');
+    } finally {
+      setIsCompleting(false);
+    }
   };
 
   const handleNext = async () => {
@@ -681,12 +815,18 @@ const VendorClosedTask = () => {
         return;
       }
 
+      // Validate Device Serial Number Image
+      if (!deviceSerialImage) {
+        alert('Please capture the Device Serial Number image.');
+        return;
+      }
+
       // Validate billing amount for both support tickets and booking tasks
       if (!billingAmount || billingAmount.trim() === '') {
         alert('Please enter billing amount');
         return;
       }
-      
+
       setIsCompleting(true);
 
       // Validate billing amount value
@@ -696,7 +836,7 @@ const VendorClosedTask = () => {
         setIsCompleting(false);
         return;
       }
-      
+
       // Validate spare parts - check if all spare parts with names have photos and warranty
       const validSpareParts = spareParts.filter(part => part.name.trim() !== '');
       if (validSpareParts.length > 0) {
@@ -706,7 +846,7 @@ const VendorClosedTask = () => {
             setIsCompleting(false);
             return;
           }
-          
+
           // Validate photo size (should be compressed, max 800KB base64)
           if (part.photo) {
             const photoSizeKB = part.photo.length / 1024;
@@ -716,7 +856,7 @@ const VendorClosedTask = () => {
               return;
             }
           }
-          
+
           if (!part.warranty) {
             alert(`Please select warranty period for spare part: ${part.name || 'Part ' + (spareParts.indexOf(part) + 1)}`);
             setIsCompleting(false);
@@ -724,18 +864,16 @@ const VendorClosedTask = () => {
           }
         }
       }
-      
+
       console.log('Billing amount calculation:', {
         originalBillingAmount: billingAmount,
         billingAmountValue: billingAmountValue,
         isSupportTicket: task?.isSupportTicket
       });
-      
+
       // Calculate the correct billing amount to send to backend
-      // The vendor enters the GST-excluded amount in the input field
-      // Backend expects GST-excluded amount for calculation
       const billingAmountForBackend = billingAmountValue;
-      
+
       const taskData = {
         resolutionNote: resolutionNote.trim(),
         spareParts: validSpareParts, // Only include parts with names, photos, and warranty
@@ -744,22 +882,33 @@ const VendorClosedTask = () => {
         gstAmount: includeGST ? calculateGSTAmount() : 0,
         totalAmount: calculateBillingTotal(), // Use total amount including GST
         billingAmount: billingAmountForBackend, // Send GST-excluded amount for vendor calculation
-        travelingAmount: "100"
+        travelingAmount: "130",
+        deviceSerialImage: deviceSerialImage // Include device serial image
       };
-      
+
+      // If Online Payment -> Open QR Modal
+      if (paymentMethod === 'online') {
+        setTempTaskData(taskData);
+        setQrStep('scan');
+        setPaymentProofImage(null); // Reset proof image for new flow
+        setShowQRModal(true);
+        setIsCompleting(false); // Stop loading state for now, will restart on final submission
+        return;
+      }
+
       // Calculate payload size for debugging and validation
       const payloadString = JSON.stringify(taskData);
       const payloadSizeKB = parseFloat((new Blob([payloadString]).size / 1024).toFixed(2));
       console.log('Task data being sent:', taskData);
       console.log('Payload size:', `${payloadSizeKB} KB`);
-      
-      // Validate payload size before sending (max 1MB to prevent timeout)
-      if (payloadSizeKB > 1000) {
-        alert(`Request size is too large (${payloadSizeKB.toFixed(2)}KB). Please reduce the number of images or try capturing smaller images.`);
+
+      // Validate payload size before sending (max 2MB to accommodate extra image)
+      if (payloadSizeKB > 2000) {
+        alert(`Request size is too large (${payloadSizeKB.toFixed(2)}KB). Please try capturing smaller images.`);
         setIsCompleting(false);
         return;
       }
-      
+
       // Warn if payload is large (over 500KB)
       if (payloadSizeKB > 500) {
         console.warn('⚠️ Large payload detected. This may cause timeout issues.');
@@ -778,150 +927,92 @@ const VendorClosedTask = () => {
       } else {
         response = await vendorApi.completeTask(taskId!, taskData);
       }
-      
+
       if (response.success) {
-        if (paymentMethod === 'online') {
-          // For online payment, task is completed and user will pay
-          let totalAmount, gstAmount;
-          
-          if (task?.isSupportTicket) {
-            // For support tickets, only billing amount is charged
-            totalAmount = calculateBillingTotal();
-            gstAmount = 0;
-            alert(`Support ticket completed successfully! User will now receive payment request for ₹${totalAmount.toLocaleString()}.`);
-          } else {
-            // For booking tasks, use billing amount (not spare parts)
-            totalAmount = calculateBillingTotal();
-            gstAmount = includeGST ? calculateGSTAmount() : 0;
-          
-          if (includeGST) {
-            alert(`Task completed successfully! User will now receive payment request for ₹${totalAmount.toLocaleString()} (including 18% GST: ₹${gstAmount.toLocaleString()}).`);
-          } else {
-            alert(`Task completed successfully! User will now receive payment request for ₹${totalAmount.toLocaleString()}.`);
-            }
-          }
-          
-          // Trigger refresh event for vendor home page
-          window.dispatchEvent(new CustomEvent('taskCompleted', { 
-            detail: { taskId, status: 'completed', totalAmount, includeGST, gstAmount } 
-          }));
-          
-          // Store payment data in localStorage for user page
-          const paymentData = {
-            taskId,
-            includeGST: task?.isSupportTicket ? false : includeGST,
-            gstAmount: task?.isSupportTicket ? 0 : gstAmount,
-            totalAmount,
-            baseAmount: task?.isSupportTicket ? totalAmount : (totalAmount - gstAmount),
-            isSupportTicket: task?.isSupportTicket || false,
-            timestamp: Date.now()
-          };
-          
-          // Store with both key formats for compatibility
-          localStorage.setItem(`payment_${taskId}`, JSON.stringify(paymentData));
-          localStorage.setItem(`gst_${taskId}`, JSON.stringify(paymentData));
-          
-          // Trigger event for user page refresh
-          const eventName = task?.isSupportTicket ? 'supportTicketUpdated' : 'bookingUpdated';
-          window.dispatchEvent(new CustomEvent(eventName, { 
-            detail: { 
-              taskId, 
-              status: 'in_progress', // Keep as in_progress to show Pay Now button
-              paymentMode: 'online', 
-              paymentStatus: 'pending', 
-              includeGST: task?.isSupportTicket ? false : includeGST, 
-              gstAmount: task?.isSupportTicket ? 0 : gstAmount,
-              totalAmount,
-              completionData: {
-                resolutionNote: resolutionNote.trim(),
-                billingAmount: billingAmountValue,
-                spareParts: spareParts.filter(part => part.name.trim() !== ''),
-                paymentMethod: 'online',
-                includeGST: includeGST,
-                gstAmount: includeGST ? calculateGSTAmount() : 0,
-                totalAmount: totalAmount
-              }
-            } 
-          }));
-          
-          navigate('/vendor');
-        } else {
-          // For cash payment, show success message and redirect
-          alert('Task completed successfully! Payment will be collected on site.');
-          
-          // Trigger refresh event for vendor home page
-          window.dispatchEvent(new CustomEvent('taskCompleted', { 
-            detail: { taskId, status: 'completed' } 
-          }));
-          
-          // Also trigger event for user bookings refresh - move to completed
-          console.log('=== VENDOR CASH PAYMENT COMPLETION ===');
-          console.log('Triggering bookingUpdated event with data:', {
-            taskId,
-            status: 'completed',
-            paymentMode: 'cash',
-            paymentStatus: 'collected'
-          });
-          
-          window.dispatchEvent(new CustomEvent('bookingUpdated', { 
-            detail: { taskId, status: 'completed', paymentMode: 'cash', paymentStatus: 'collected' } 
-          }));
-          
-          console.log('bookingUpdated event dispatched successfully');
-          
-          navigate('/vendor');
-        }
+        // For cash payment (Online handled above), show success message and redirect
+        alert('Task completed successfully! Payment will be collected on site.');
+
+        // Trigger refresh event for vendor home page
+        window.dispatchEvent(new CustomEvent('taskCompleted', {
+          detail: { taskId, status: 'completed' }
+        }));
+
+        // Also trigger event for user bookings refresh - move to completed
+        console.log('=== VENDOR CASH PAYMENT COMPLETION ===');
+        console.log('Triggering bookingUpdated event with data:', {
+          taskId,
+          status: 'completed',
+          paymentMode: 'cash',
+          paymentStatus: 'collected'
+        });
+
+        window.dispatchEvent(new CustomEvent('bookingUpdated', {
+          detail: { taskId, status: 'completed', paymentMode: 'cash', paymentStatus: 'collected' }
+        }));
+
+        console.log('bookingUpdated event dispatched successfully');
+
+        navigate('/vendor');
       } else {
-        alert('Failed to complete task. Please try again.');
+        alert(response.message || 'Failed to complete task. Please try again.');
       }
     } catch (error: any) {
       console.error('Error completing task:', error);
-      console.error('Error details:', {
-        name: error?.name,
-        message: error?.message,
-        stack: error?.stack,
-        response: error?.response?.data
-      });
-      
-      // Show more detailed error message
+      // Show more detailed error message...
       let errorMessage = 'An error occurred while completing the task. Please try again.';
-      
       if (error?.message) {
-        // Check for specific error types
-        if (error.message.includes('timeout') || error.message.includes('Timeout')) {
-          errorMessage = 'Request timeout: The task is taking too long to complete. Please check your internet connection and try again. If the problem persists, try reducing the number of images.';
-        } else if (error.message.includes('Network error') || error.message.includes('Failed to fetch')) {
-          errorMessage = 'Network error: Unable to connect to server. Please check your internet connection and try again.';
-        } else if (error.message.includes('payload') || error.message.includes('too large') || error.message.includes('413')) {
-          errorMessage = 'Request size too large. Please reduce the number of images or try capturing smaller images with better lighting.';
-        } else if (error.message.includes('400') || error.message.includes('Bad Request')) {
-          errorMessage = 'Invalid request data. Please check all fields and try again.';
-        } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
-          errorMessage = 'Server error occurred. Please try again in a few moments.';
-        } else {
-          errorMessage = error.message;
-        }
+        if (error.message.includes('timeout')) errorMessage = 'Request timeout. Check internet connection.';
+        else errorMessage = error.message;
       }
-      
-      // Check response data for more details
-      if (error?.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error?.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      }
-      
-      // Show user-friendly error message
       alert(errorMessage);
     } finally {
       setIsCompleting(false);
     }
   };
 
+  const [deviceSerialImage, setDeviceSerialImage] = useState<string | null>(null);
+  const serialNumberInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSerialImageCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image size is too large. Please capture a smaller image.');
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64String = e.target?.result as string;
+        if (!base64String) { alert('Failed to read image.'); return; }
+        try {
+          const compressedImage = await compressImage(base64String, 800, 0.7);
+          setDeviceSerialImage(compressedImage);
+        } catch (compressError) {
+          alert('Failed to process image.');
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      alert('Failed to read image.');
+    }
+  };
+
+  const triggerSerialCamera = () => {
+    if (serialNumberInputRef.current) {
+      serialNumberInputRef.current.value = '';
+      serialNumberInputRef.current.click();
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <VendorHeader />
-      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0">
-        <div className="container mx-auto px-4 py-4">
+      <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
+        <div className="container mx-auto px-4 py-4 max-w-2xl pb-32">
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
@@ -931,150 +1022,157 @@ const VendorClosedTask = () => {
             <span className="text-sm font-medium">Back</span>
           </button>
 
-          {/* Task Header */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-            <h1 className="text-lg font-semibold text-gray-800 mb-2">{task.title}</h1>
-            <div className="flex items-center space-x-2">
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded">
-                {task.caseId}
-              </span>
-              <span className="px-2 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded">
-                {task.taskType}
-              </span>
-            </div>
-          </div>
+          <h1 className="text-xl font-bold text-gray-800 mb-6">Close Task</h1>
 
-          {/* Resolution Note */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-            <div className="flex items-center space-x-2 mb-3">
-              <FileText className="w-5 h-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-800">Resolution Note</h2>
-            </div>
-            <textarea
-              value={resolutionNote}
-              onChange={(e) => setResolutionNote(e.target.value)}
-              placeholder="Describe how the issue was resolved..."
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              rows={4}
-            />
-          </div>
+          <div className="space-y-6">
 
+            {/* Device Serial Number Image Section */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                <Camera className="w-4 h-4 text-blue-500" />
+                Device Serial Number <span className="text-red-500">*</span>
+              </h3>
 
-          {/* Spare Parts */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-gray-800">Spare Parts Used</h2>
-              <button
-                onClick={addSparePart}
-                className="flex items-center space-x-1 px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              <div
+                onClick={triggerSerialCamera}
+                className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
               >
-                <Plus className="w-4 h-4" />
-                <span className="text-sm">Add</span>
-              </button>
+                <input
+                  type="file"
+                  ref={serialNumberInputRef}
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={handleSerialImageCapture}
+                />
+
+                {deviceSerialImage ? (
+                  <div className="relative w-full h-48">
+                    <img src={deviceSerialImage} alt="Device Serial Number" className="w-full h-full object-contain rounded-md" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-md opacity-0 hover:opacity-100 transition-opacity">
+                      <span className="text-white font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full">Retake Photo</span>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 text-blue-600">
+                      <Camera className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm text-gray-600 font-medium">Tap to capture serial number</p>
+                    <p className="text-xs text-gray-400 mt-1">Required for verification</p>
+                  </>
+                )}
+              </div>
             </div>
 
-            <div className="space-y-4">
+            {/* Resolution Note */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Resolution Note <span className="text-red-500">*</span></h3>
+              <textarea
+                value={resolutionNote}
+                onChange={(e) => setResolutionNote(e.target.value)}
+                placeholder="Describe the work done to resolve the issue..."
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+              />
+            </div>
+
+            {/* Spare Parts */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 space-y-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Spare Parts (Optional)</h3>
+                <button
+                  onClick={addSparePart}
+                  className="text-sm text-blue-600 font-medium flex items-center hover:text-blue-700"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Part
+                </button>
+              </div>
+
               {spareParts.map((part, index) => (
-                <div key={part.id} className="border border-gray-200 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-gray-600">Part {index + 1}</span>
-                    {spareParts.length > 1 && (
-                      <button
-                        onClick={() => removeSparePart(part.id)}
-                        className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                      >
-                        <X className="w-4 h-4 text-gray-500" />
-                      </button>
-                    )}
-                  </div>
+                <div key={part.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200 relative">
+                  {spareParts.length > 1 && (
+                    <button
+                      onClick={() => removeSparePart(part.id)}
+                      className="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
 
                   <div className="space-y-3">
-                    {/* Spare Part Name */}
-                    <input
-                      type="text"
-                      value={part.name}
-                      onChange={(e) => updateSparePart(part.id, 'name', e.target.value)}
-                      placeholder="Spare part name (e.g., Laptop Screen)"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-
-                    {/* Amount */}
-                    <input
-                      type="text"
-                      value={part.amount}
-                      onChange={(e) => updateSparePart(part.id, 'amount', e.target.value)}
-                      placeholder="Amount (e.g., ₹1,500)"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-
-                    {/* Service Warranty */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600">Service Warranty <span className="text-red-500">*</span></label>
-                      <select
-                        value={part.warranty}
-                        onChange={(e) => updateSparePart(part.id, 'warranty', e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Select warranty period</option>
-                        <option value="30 days">30 days</option>
-                        <option value="90 days">90 days</option>
-                        <option value="180 days">180 days</option>
-                        <option value="1 year">1 year</option>
-                        <option value="3 years">3 years</option>
-                        <option value="5 years">5 years</option>
-                      </select>
+                    {/* Part Name */}
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Part Name</label>
+                      <input
+                        type="text"
+                        value={part.name}
+                        onChange={(e) => updateSparePart(part.id, 'name', e.target.value)}
+                        placeholder="e.g. Capacitor, Fan Motor"
+                        className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
                     </div>
 
-                    {/* Photo Capture - Mandatory */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600">
-                        Photo <span className="text-red-500">*</span>
-                      </label>
+                    {/* Part Amount and Warranty */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1 block">Amount (₹)</label>
+                        <input
+                          type="number"
+                          value={part.amount}
+                          onChange={(e) => updateSparePart(part.id, 'amount', e.target.value)}
+                          placeholder="0"
+                          className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1 block">Warranty</label>
+                        <select
+                          value={part.warranty}
+                          onChange={(e) => updateSparePart(part.id, 'warranty', e.target.value)}
+                          className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                        >
+                          <option value="">Select</option>
+                          <option value="No Warranty">No Warranty</option>
+                          <option value="3 Months">3 Months</option>
+                          <option value="6 Months">6 Months</option>
+                          <option value="1 Year">1 Year</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Part Photo */}
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Part Photo</label>
                       <div className="flex items-center space-x-3">
-                        {part.photo ? (
-                          <div className="relative">
+                        <button
+                          onClick={() => triggerCamera(part.id)}
+                          className="flex items-center justify-center p-2 bg-white border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 flex-1"
+                        >
+                          <Camera className="w-4 h-4 mr-2" />
+                          <span className="text-xs">Take Photo</span>
+                        </button>
+
+                        {/* Hidden input for this specific part */}
+                        <input
+                          type="file"
+                          ref={el => fileInputRefs.current[part.id] = el}
+                          accept="image/*"
+                          capture="environment"
+                          style={{ display: 'none' }}
+                          onChange={(e) => handlePhotoCapture(part.id, e)}
+                        />
+
+                        {part.photo && (
+                          <div className="w-10 h-10 relative">
                             <img
                               src={part.photo}
-                              alt="Spare part"
-                              className="w-20 h-20 object-cover rounded-md border-2 border-green-500"
+                              alt="Part"
+                              className="w-full h-full object-cover rounded-md border border-gray-300"
                             />
-                            <button
-                              onClick={() => updateSparePart(part.id, 'photo', '')}
-                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
-                              type="button"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-white"></div>
                           </div>
-                        ) : (
-                          <div className="relative">
-                            {/* Hidden file input for APK compatibility - always in DOM */}
-                            <input
-                              ref={(el) => {
-                                fileInputRefs.current[part.id] = el;
-                              }}
-                              type="file"
-                              accept="image/*"
-                              capture="environment"
-                              onChange={(e) => handlePhotoCapture(part.id, e)}
-                              className="hidden"
-                              id={`file-input-${part.id}`}
-                            />
-                            {/* Label for APK compatibility - clicking label triggers input */}
-                            <label
-                              htmlFor={`file-input-${part.id}`}
-                              className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-red-300 rounded-md cursor-pointer hover:border-red-400 transition-colors bg-red-50"
-                            >
-                              <Camera className="w-8 h-8 text-red-500 mb-1" />
-                              <span className="text-xs text-red-600 font-medium">Capture</span>
-                            </label>
-                          </div>
-                        )}
-                        {!part.photo && (
-                          <span className="text-xs text-red-600 font-medium">Photo capture required</span>
-                        )}
-                        {part.photo && (
-                          <span className="text-xs text-green-600 font-medium">✓ Photo captured</span>
                         )}
                       </div>
                     </div>
@@ -1082,193 +1180,194 @@ const VendorClosedTask = () => {
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Billing Amount */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-            <h2 className="text-lg font-semibold text-gray-800 mb-3">Billing Amount</h2>
-            <div className="space-y-3">
-              <div>
-                <label htmlFor="billingAmount" className="block text-sm font-medium text-gray-700 mb-2">
-                  Enter Billing Amount
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">₹</span>
+            {/* Billing Info */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 space-y-4">
+              <h3 className="text-sm font-medium text-gray-700 border-b pb-2">Billing Information</h3>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Service/Labor Charge</span>
+                <div className="relative w-32">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                   <input
-                    type="text"
-                    id="billingAmount"
+                    type="number"
                     value={billingAmount}
                     onChange={(e) => setBillingAmount(e.target.value)}
                     placeholder="0"
-                    className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-medium"
+                    className="w-full pl-6 pr-2 py-1 border border-gray-300 rounded-md text-right text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Total Amount */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-            <h2 className="text-lg font-semibold text-gray-800 mb-3">Amount Summary</h2>
-            
-            <div className="space-y-2">
-              {/* Billing Amount */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Billing Amount</span>
-                <span className="text-sm font-medium text-gray-800">
-                  ₹{billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0}
-                </span>
-              </div>
-
-              {/* Spare Parts Total */}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Spare Parts Total</span>
                 <span className="text-sm font-medium text-gray-800">
-                  ₹{spareParts.reduce((sum, part) => {
-                    const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
-                    return sum + amount;
-                  }, 0).toLocaleString()}
+                  ₹{spareParts.reduce((sum, part) => sum + (parseFloat(part.amount) || 0), 0).toLocaleString()}
                 </span>
               </div>
 
-              {/* Traveling Amount */}
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Traveling Amount</span>
-                <span className="text-sm font-medium text-gray-800">₹100</span>
+                <span className="text-sm text-gray-600">Visiting Charge</span>
+                <span className="text-sm font-medium text-gray-800">₹130</span>
               </div>
 
-              {/* GST (show if GST is included) */}
-              {includeGST && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">GST (18%)</span>
-                  <span className="text-sm font-medium text-gray-800">
-                    ₹{calculateGSTAmount().toLocaleString()}
+              <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                <span className="text-base font-bold text-gray-900">Total Amount</span>
+                <div className="text-right">
+                  <span className="text-lg font-bold text-blue-600">
+                    ₹{(calculateTotal() + 130).toLocaleString()}
                   </span>
+                  {includeGST && (
+                    <p className="text-xs text-gray-500">(Includes 18% GST)</p>
+                  )}
                 </div>
-              )}
-
-              {/* GST-excluded amount (show if GST is included) */}
-              {includeGST && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">GST-excluded Amount</span>
-                  <span className="text-sm font-medium text-gray-800">
-                    ₹{calculateGSTExcludedAmount().toLocaleString()}
-                  </span>
-                </div>
-              )}
-
-              {/* Billing Amount Total */}
-              <div className="flex items-center justify-between border-t border-gray-300 pt-2">
-                <span className="text-lg font-semibold text-gray-800">Billing Amount Total</span>
-                <span className="text-xl font-bold text-green-600">₹{calculateBillingTotal().toLocaleString()}</span>
               </div>
             </div>
-          </div>
 
-          {/* Payment Method Selection */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-            <h2 className="text-lg font-semibold text-gray-800 mb-3">Payment Method</h2>
-            <div className="space-y-3">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="radio"
-                    id="online"
-                    name="paymentMethod"
-                    value="online"
-                    checked={paymentMethod === 'online'}
-                    onChange={(e) => setPaymentMethod(e.target.value as 'online' | 'cash')}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="online" className="flex items-center space-x-2 cursor-pointer">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 text-sm font-bold">💳</span>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-gray-800">Online Payment</span>
-                      <p className="text-xs text-gray-500">Card, UPI, Net Banking</p>
-                    </div>
-                  </label>
-                </div>
-                
-                {/* GST Option - only enabled for online payment */}
-                <div className="ml-11 flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id="includeGST"
-                    checked={includeGST}
-                    onChange={(e) => setIncludeGST(e.target.checked)}
-                    disabled={paymentMethod === 'cash'}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                  <label 
-                    htmlFor="includeGST" 
-                    className={`flex items-center space-x-2 ${paymentMethod === 'cash' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-                  >
-                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-orange-600 text-xs font-bold">📋</span>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-gray-800">Customer wants GST bill</span>
-                      <p className="text-xs text-gray-500">
-                        {paymentMethod === 'online' 
-                          ? 'Billing amount is GST-inclusive. Vendor gets: (GST-excluded - spare - travel) × 50% + spare + travel'
-                          : paymentMethod === 'cash'
-                          ? 'GST bill option is not available for cash payments'
-                          : 'Billing amount is GST-inclusive. Wallet deduction: (GST-excluded - spare - travel) × 50% + 18% GST'
-                        }
-                      </p>
-                    </div>
-                  </label>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <input
-                  type="radio"
-                  id="cash"
-                  name="paymentMethod"
-                  value="cash"
-                  checked={paymentMethod === 'cash'}
-                  onChange={handleCashPaymentClick}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                />
-                <label htmlFor="cash" className="flex items-center space-x-2 cursor-pointer">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-sm font-bold">💰</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-800">Cash Payment</span>
-                    <p className="text-xs text-gray-500">Pay on completion</p>
-                  </div>
-                </label>
+            {/* Payment Method */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Payment Method <span className="text-red-500">*</span></h3>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setPaymentMethod('online')}
+                  className={`p-3 rounded-lg border text-sm font-medium flex flex-col items-center justify-center space-y-1 transition-all ${paymentMethod === 'online'
+                    ? 'bg-blue-50 border-blue-500 text-blue-700'
+                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                    }`}
+                >
+                  <DollarSign className="w-5 h-5" />
+                  <span>Online Payment</span>
+                </button>
+
+                <button
+                  onClick={handleCashPaymentClick}
+                  className={`p-3 rounded-lg border text-sm font-medium flex flex-col items-center justify-center space-y-1 transition-all ${paymentMethod === 'cash'
+                    ? 'bg-green-50 border-green-500 text-green-700'
+                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                    }`}
+                >
+                  <DollarSign className="w-5 h-5" />
+                  <span>Cash Payment</span>
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* Next Button */}
-          <button
-            onClick={handleNext}
-            disabled={!paymentMethod || isCompleting}
-            className={`w-full py-3 px-4 rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 ${
-              paymentMethod && !isCompleting
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            {isCompleting && <Loader2 className="w-4 h-4 animate-spin" />}
-            <span>
-              {isCompleting 
-                ? 'Completing Task...' 
-                : paymentMethod === 'online' && includeGST 
-                  ? 'Complete Task & Send Payment Request' 
-                  : 'Complete Task'
-              }
-            </span>
-          </button>
+          </div>
         </div>
       </main>
-      <VendorBottomNav />
+
+      {/* Complete Button Footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-10 md:hidden">
+        <button
+          onClick={handleNext}
+          disabled={isCompleting}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg shadow-md hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+        >
+          {isCompleting ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+              Completing Task...
+            </>
+          ) : (
+            'Complete & Close Task'
+          )}
+        </button>
+      </div>
+
+      {/* Online Payment QR Modal */}
+      <Dialog open={showQRModal} onOpenChange={(open) => {
+        if (!open) { setShowQRModal(false); setQrStep('scan'); }
+      }}>
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-white">
+          {qrStep === 'scan' ? (
+            <div className="flex flex-col items-center">
+              <div className="w-full bg-yellow-400 py-4 text-center">
+                <h2 className="text-xl font-bold text-black">Accept Payment Now</h2>
+              </div>
+
+              <div className="p-8 flex flex-col items-center">
+                <div className="w-64 h-64 border-4 border-yellow-200 rounded-lg p-2 mb-6">
+                  {/* Placeholder QR Code - In production use actual QR image */}
+                  <div className="w-full h-full bg-white flex items-center justify-center relative">
+                    <img
+                      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=fixifly@upi&pn=Fixifly Services&mc=0000&tid=cxnkj342&tr=4353&tn=ServicePayment&am=0&cu=INR"
+                      alt="Company QR Code"
+                      className="w-full h-full object-contain"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-white p-1 rounded-full">
+                        <div className="text-blue-500 font-bold text-xs">FIXFLY</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => setQrStep('proof')}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-lg py-6 rounded-full font-bold mb-3"
+                >
+                  Payment Completed
+                </Button>
+
+                <p className="text-red-500 text-xs text-center font-medium">
+                  Jab Payment Complete ho Jaye to ihi buttons ko click kare
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <div className="w-full bg-gradient-to-r from-blue-500 to-purple-600 py-4 text-center">
+                <h2 className="text-xl font-bold text-white">Upload Payment Proof</h2>
+              </div>
+
+              <div className="p-6 w-full flex flex-col items-center">
+                <div
+                  onClick={triggerPaymentProofCamera}
+                  className="w-full bg-blue-50 rounded-xl border-2 border-dashed border-blue-300 p-6 mb-6 cursor-pointer flex flex-col items-center justify-center min-h-[180px]"
+                >
+                  <input
+                    type="file"
+                    ref={paymentProofInputRef}
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={handlePaymentProofCapture}
+                  />
+
+                  {paymentProofImage ? (
+                    <div className="relative w-full h-48">
+                      <img src={paymentProofImage} alt="Payment Proof" className="w-full h-full object-contain rounded-md" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-md opacity-0 hover:opacity-100 transition-opacity">
+                        <span className="text-white font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full">Retake Screenshot</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600">
+                        <Camera className="w-8 h-8" />
+                      </div>
+                      <h3 className="text-lg font-bold text-blue-600 mb-1">Screenshot</h3>
+                      <p className="text-sm text-gray-500 text-center">Upload Payment Success Screenshot</p>
+                    </>
+                  )}
+                </div>
+
+                <Button
+                  onClick={handleFinalOnlineSubmission}
+                  disabled={!paymentProofImage || isCompleting}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-6 rounded-full font-bold mb-2 disabled:opacity-70"
+                >
+                  {isCompleting ? (
+                    <><Loader2 className="w-5 h-5 animate-spin mr-2" /> PROCESSING...</>
+                  ) : (
+                    'CLOSED TASK'
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Cash Payment Warning Modal */}
       <Dialog open={showCashWarning} onOpenChange={setShowCashWarning}>

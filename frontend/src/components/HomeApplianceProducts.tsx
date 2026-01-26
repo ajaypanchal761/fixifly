@@ -14,13 +14,13 @@ const HomeApplianceProducts = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch products with service type filter for "Home Appliance"
       const response = await publicProductApi.getProducts({
         serviceType: "Home Appliance",
         limit: 6 // Limit to 6 products to match the original grid layout
       });
-      
+
       if (response.success && response.data.products) {
         setProducts(response.data.products);
       } else {
@@ -49,11 +49,11 @@ const HomeApplianceProducts = () => {
               Home <span className="text-gradient">Appliance Services</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Professional home appliance repair services with certified technicians 
+              Professional home appliance repair services with certified technicians
               and genuine spare parts. Same-day service available.
             </p>
           </div>
-          
+
           <div className="flex justify-center items-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2 text-muted-foreground">Loading products...</span>
@@ -73,11 +73,11 @@ const HomeApplianceProducts = () => {
               Home <span className="text-gradient">Appliance Services</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Professional home appliance repair services with certified technicians 
+              Professional home appliance repair services with certified technicians
               and genuine spare parts. Same-day service available.
             </p>
           </div>
-          
+
           <div className="text-center py-12">
             <p className="text-muted-foreground">
               {error || "No home appliance products available at the moment."}
@@ -92,33 +92,33 @@ const HomeApplianceProducts = () => {
     <section className="pt-8 pb-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header with slide animation */}
-        <div 
+        <div
           className="text-center mb-16 animate-slide-up"
-          data-aos="fade-up" 
+          data-aos="fade-up"
           data-aos-delay="100"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             Home <span className="text-gradient">Appliance Services</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Professional home appliance repair services with certified technicians 
+            Professional home appliance repair services with certified technicians
             and genuine spare parts. Same-day service available.
           </p>
         </div>
 
         {/* Products Grid with staggered slide animations */}
-        <div 
-          className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-6xl mx-auto" 
-          data-aos="fade-up" 
+        <div
+          className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8 max-w-6xl mx-auto"
+          data-aos="fade-up"
           data-aos-delay="200"
         >
           {products.map((product, index) => {
             const primaryImage = product.productImage || product.primaryImage;
-            
+
             return (
               <div
                 key={product._id}
-                className={`bg-white rounded-xl p-2 sm:p-4 shadow-lg hover:shadow-xl transition-all duration-500 ease-out cursor-pointer group animate-slide-left animate-delay-${Math.min(index * 100, 600)}`}
+                className={`bg-white rounded-xl p-3 sm:p-4 shadow-md hover:shadow-xl transition-all duration-500 ease-out cursor-pointer group animate-slide-left animate-delay-${Math.min(index * 100, 600)} border-2 border-transparent hover:border-blue-400`}
                 data-aos="zoom-in"
                 data-aos-delay={300 + (index * 100)}
                 onClick={() => navigate(`/product/${product._id}`, { state: { product } })}
@@ -130,23 +130,23 @@ const HomeApplianceProducts = () => {
                 }}
               >
                 <div className="text-center">
-                  <div 
-                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 rounded-lg overflow-hidden transition-transform duration-300 group-hover:scale-110 animate-slide-bottom animate-delay-${Math.min((index * 100) + 300, 600)}`}
+                  <div
+                    className={`w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 sm:mb-4 rounded-full bg-blue-50 flex items-center justify-center p-2 transition-transform duration-300 group-hover:bg-blue-100 group-hover:scale-110 animate-slide-bottom animate-delay-${Math.min((index * 100) + 300, 600)}`}
                   >
-                    <img 
-                      src={primaryImage || '/placeholder.svg'} 
-                      alt={product.productName} 
+                    <img
+                      src={primaryImage || '/placeholder.svg'}
+                      alt={product.productName}
                       loading="lazy"
                       decoding="async"
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain drop-shadow-sm"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = '/placeholder.svg';
                       }}
                     />
                   </div>
-                  <h3 
-                    className={`text-xs sm:text-sm font-bold text-gray-800 leading-tight transition-colors duration-300 group-hover:text-primary animate-slide-bottom animate-delay-${Math.min((index * 100) + 400, 600)}`}
+                  <h3
+                    className={`text-sm sm:text-base font-bold text-gray-800 leading-tight transition-colors duration-300 group-hover:text-blue-700 animate-slide-bottom animate-delay-${Math.min((index * 100) + 400, 600)}`}
                   >
                     {product.productName}
                   </h3>

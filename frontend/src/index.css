@@ -129,6 +129,16 @@
   }
 }
 
+/* Admin Sidebar Collapse Override */
+body.admin-sidebar-closed main {
+  margin-left: 0 !important;
+  transition: margin-left 0.2s ease-out;
+}
+
+body:not(.admin-sidebar-closed) main {
+  transition: margin-left 0.2s ease-out;
+}
+
 @layer components {
   /* Hero Components */
   .hero-gradient {

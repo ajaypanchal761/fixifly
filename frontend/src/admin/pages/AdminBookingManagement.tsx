@@ -1257,9 +1257,9 @@ const AdminBookingManagement = () => {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-xs">
-                      <div className="overflow-hidden">
-                        <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap" title={booking.services?.map(service => service.serviceName).join(', ') || 'N/A'}>
+                    <TableCell className="min-w-[150px] max-w-[300px]">
+                      <div className="break-words">
+                        <p className="text-sm font-medium text-gray-900" title={booking.services?.map(service => service.serviceName).join(', ') || 'N/A'}>
                           {booking.services?.map(service => service.serviceName).join(', ') || 'N/A'}
                         </p>
                       </div>
@@ -2320,29 +2320,74 @@ const AdminBookingManagement = () => {
                     onChange={(e) => setEditingBooking({ ...editingBooking, customer: { ...editingBooking.customer, email: e.target.value } })}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Textarea
-                    id="address"
-                    value={`${editingBooking.customer.address.street}, ${editingBooking.customer.address.city}, ${editingBooking.customer.address.state} - ${editingBooking.customer.address.pincode}`}
-                    onChange={(e) => {
-                      const addressParts = e.target.value.split(', ');
-                      setEditingBooking({
+                <div className="space-y-3 border p-3 rounded-md bg-gray-50">
+                  <Label className="font-semibold text-gray-700">Address Details</Label>
+                  <div>
+                    <Label htmlFor="street" className="text-xs text-gray-500">Street / Building</Label>
+                    <Input
+                      id="street"
+                      value={editingBooking.customer.address?.street || ''}
+                      onChange={(e) => setEditingBooking({
                         ...editingBooking,
                         customer: {
                           ...editingBooking.customer,
-                          address: {
-                            ...editingBooking.customer.address,
-                            street: addressParts[0] || '',
-                            city: addressParts[1] || '',
-                            state: addressParts[2]?.split(' - ')[0] || '',
-                            pincode: addressParts[2]?.split(' - ')[1] || ''
-                          }
+                          address: { ...editingBooking.customer.address, street: e.target.value }
                         }
-                      });
-                    }}
-                    rows={3}
-                  />
+                      })}
+                      placeholder="Street Address"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <Label htmlFor="city" className="text-xs text-gray-500">City</Label>
+                      <Input
+                        id="city"
+                        value={editingBooking.customer.address?.city || ''}
+                        onChange={(e) => setEditingBooking({
+                          ...editingBooking,
+                          customer: {
+                            ...editingBooking.customer,
+                            address: { ...editingBooking.customer.address, city: e.target.value }
+                          }
+                        })}
+                        placeholder="City"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state" className="text-xs text-gray-500">State</Label>
+                      <Input
+                        id="state"
+                        value={editingBooking.customer.address?.state || ''}
+                        onChange={(e) => setEditingBooking({
+                          ...editingBooking,
+                          customer: {
+                            ...editingBooking.customer,
+                            address: { ...editingBooking.customer.address, state: e.target.value }
+                          }
+                        })}
+                        placeholder="State"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="pincode" className="text-xs text-gray-500">Pincode</Label>
+                      <Input
+                        id="pincode"
+                        value={editingBooking.customer.address?.pincode || ''}
+                        onChange={(e) => setEditingBooking({
+                          ...editingBooking,
+                          customer: {
+                            ...editingBooking.customer,
+                            address: { ...editingBooking.customer.address, pincode: e.target.value }
+                          }
+                        })}
+                        placeholder="Pincode"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

@@ -56,7 +56,7 @@ const ReviewsCarousel = () => {
   // Handle touch end
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -78,7 +78,7 @@ const ReviewsCarousel = () => {
   // Handle mouse move
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || mouseStart === null) return;
-    
+
     const distance = mouseStart - e.clientX;
     const isLeftDrag = distance > minSwipeDistance;
     const isRightDrag = distance < -minSwipeDistance;
@@ -153,7 +153,7 @@ const ReviewsCarousel = () => {
         <h3 className="text-sm font-semibold text-gray-900">Customer Reviews</h3>
       </div>
 
-      <div 
+      <div
         className="flex flex-col cursor-grab active:cursor-grabbing select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -228,7 +228,6 @@ const Hero = () => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [products, setProducts] = useState<PublicProduct[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
-  const [showMoreProducts, setShowMoreProducts] = useState(false);
   const [allProducts, setAllProducts] = useState<PublicProduct[]>([]);
   const [banners, setBanners] = useState<string[]>([]);
   const [bannersLoading, setBannersLoading] = useState(true);
@@ -340,10 +339,8 @@ const Hero = () => {
     fetchProducts();
   }, []);
 
-  // Toggle function for showing more products
-  const toggleMoreProducts = () => {
-    setShowMoreProducts(!showMoreProducts);
-  };
+  // Toggle function removed
+
 
   // Handle product card click
   const handleProductClick = async (product: PublicProduct) => {
@@ -410,8 +407,7 @@ const Hero = () => {
 
   return (
     <section
-      className={`relative flex items-start lg:items-center justify-center pt-4 lg:pt-0 ${showMoreProducts ? 'min-h-fit' : 'min-h-fit lg:min-h-[calc(100vh-76px)]'
-        }`}
+      className="relative flex items-start lg:items-center justify-center pt-4 lg:pt-0 min-h-fit"
     >
       {/* Background Gradient */}
       <div className="absolute inset-0 hero-gradient opacity-10" />
@@ -463,16 +459,18 @@ const Hero = () => {
                 : products.slice(0, 3).map(product => (
                   <div
                     key={product._id}
-                    className="bg-white rounded-xl p-1 shadow-lg hover:shadow-xl transition cursor-pointer flex-1"
+                    className="bg-white rounded-xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer flex-1 border-2 border-blue-100 hover:border-blue-400 hover:-translate-y-1 group"
                     onClick={() => handleProductClick(product)}
                   >
                     <div className="text-center">
-                      <img
-                        src={product.primaryImage || "/placeholder.svg"}
-                        alt={product.name}
-                        className="w-14 h-14 md:w-15 md:h-15 mx-auto mb-1 object-contain"
-                      />
-                      <h3 className="text-sm font-bold">{product.name}</h3>
+                      <div className="bg-blue-50 rounded-full w-20 h-20 md:w-24 md:h-24 mx-auto mb-2 flex items-center justify-center p-2 group-hover:bg-blue-100 transition-colors">
+                        <img
+                          src={product.primaryImage || "/placeholder.svg"}
+                          alt={product.name}
+                          className="w-full h-full object-contain drop-shadow-sm"
+                        />
+                      </div>
+                      <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-blue-700 transition-colors">{product.name}</h3>
                     </div>
                   </div>
                 ))}
@@ -504,52 +502,36 @@ const Hero = () => {
 
         {/* Bottom Full Width Section */}
         <div className="w-full md:mt-12 mb-2">
-          {/* More Services Button */}
+          {/* Additional Products - Always Visible */}
           <div
-            className="flex justify-center mx-auto mb-8"
+            className="grid grid-cols-3 gap-3 md:flex md:overflow-x-auto md:gap-6 mb-12 mt-8 animate-fade-in pb-4 md:pb-6 services-scrollbar"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#3b82f6 #f3f4f6',
+              scrollBehavior: 'smooth'
+            }}
             data-aos="fade-up"
-            data-aos-delay="400"
+            data-aos-delay="500"
           >
-            <button
-              onClick={toggleMoreProducts}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all text-lg"
-            >
-              {showMoreProducts ? "Show Less" : "More Services"}
-            </button>
-          </div>
-
-          {/* Additional Products */}
-          {showMoreProducts && (
-            <div
-              className="grid grid-cols-3 gap-3 md:flex md:overflow-x-auto md:gap-6 mb-12 animate-fade-in pb-4 md:pb-6 services-scrollbar"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#3b82f6 #f3f4f6',
-                scrollBehavior: 'smooth'
-              }}
-              data-aos="fade-up"
-              data-aos-delay="500"
-            >
-              {allProducts.map(product => (
-                <div
-                  key={product._id}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer hover:-translate-y-1 border border-white/20 md:min-w-[180px] flex-shrink-0"
-                  onClick={() => handleProductClick(product)}
-                >
-                  <div className="text-center">
-                    <div className="bg-gray-50 rounded-xl p-2 mb-3 h-16 md:h-20 flex items-center justify-center">
-                      <img
-                        src={product.primaryImage || "/placeholder.svg"}
-                        alt={product.name}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <h3 className="text-xs md:text-sm font-bold text-gray-800 line-clamp-2">{product.name}</h3>
+            {allProducts.map(product => (
+              <div
+                key={product._id}
+                className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-lg hover:shadow-xl transition-all cursor-pointer hover:-translate-y-1 border border-white/20 md:min-w-[180px] flex-shrink-0"
+                onClick={() => handleProductClick(product)}
+              >
+                <div className="text-center">
+                  <div className="bg-gray-50 rounded-xl p-2 mb-3 h-16 md:h-20 flex items-center justify-center">
+                    <img
+                      src={product.primaryImage || "/placeholder.svg"}
+                      alt={product.name}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
+                  <h3 className="text-xs md:text-sm font-bold text-gray-800 line-clamp-2">{product.name}</h3>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
 
           {/* Trust Indicators */}
           <div

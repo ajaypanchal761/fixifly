@@ -71,7 +71,7 @@ const VendorClosedTaskDetail = () => {
             caseId: bookingTask.bookingReference || `FIX${bookingTask._id.toString().substring(bookingTask._id.toString().length - 8).toUpperCase()}`,
             title: bookingTask.services?.[0]?.serviceName || 'Service Request',
             customer: bookingTask.customer?.name || 'Unknown Customer',
-            phone: bookingTask.customer?.phone || 'N/A',
+            phone: '******' + (bookingTask.customer?.phone?.slice(-4) || '****'),
             amount: `₹${bookingTask.pricing?.totalAmount || 0}`,
             date: bookingTask.scheduling?.scheduledDate
               ? new Date(bookingTask.scheduling.scheduledDate).toLocaleDateString('en-IN')
@@ -146,7 +146,7 @@ const VendorClosedTaskDetail = () => {
             caseId: supportTicket.id,
             title: supportTicket.subject || 'Support Request',
             customer: supportTicket.customerName || 'Unknown Customer',
-            phone: supportTicket.customerPhone || 'N/A',
+            phone: '******' + (supportTicket.customerPhone?.slice(-4) || '****'),
             amount: 'Support Ticket',
             date: supportTicket.scheduledDate
               ? new Date(supportTicket.scheduledDate).toLocaleDateString('en-IN')
@@ -364,18 +364,17 @@ const VendorClosedTaskDetail = () => {
                 <h3 className="text-sm font-medium text-gray-600">Customer Information</h3>
                 <div className="space-y-1">
                   <p className="text-sm text-gray-800">{task.customer}</p>
-                  <a
-                    href={`tel:${task.phone}`}
-                    className="flex items-center space-x-3 bg-green-50 hover:bg-green-100 p-2 rounded-lg transition-colors group"
+                  <div
+                    className="flex items-center space-x-3 bg-gray-50 p-2 rounded-lg transition-colors cursor-not-allowed opacity-70"
                   >
-                    <div className="flex items-center justify-center w-6 h-6 bg-green-500 rounded-full group-hover:bg-green-600 transition-colors">
+                    <div className="flex items-center justify-center w-6 h-6 bg-gray-400 rounded-full">
                       <Phone className="w-3 h-3 text-white" />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-800">{task.phone}</p>
-                      <p className="text-xs text-green-600">Tap to call</p>
+                      <p className="text-xs text-gray-500">Number hidden (Task Closed)</p>
                     </div>
-                  </a>
+                  </div>
                 </div>
               </div>
 

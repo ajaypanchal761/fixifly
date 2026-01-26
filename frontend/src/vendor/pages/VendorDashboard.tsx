@@ -57,11 +57,11 @@ const VendorDashboard = () => {
       return;
     }
 
-    const securityDeposit = vendor.wallet?.securityDeposit || 3999;
+    const securityDeposit = vendor.wallet?.securityDeposit || 0;
 
-    // Check if vendor has initial deposit
+    // Check if vendor has initial deposit (Verified Partner)
+    // We only rely on the explicit flag or total deposits, not current balance threshold
     const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
-      (vendor.wallet?.currentBalance >= securityDeposit) ||
       (vendor.wallet?.totalDeposits > 0);
 
     console.log('🔄 VendorDashboard: hasInitialDeposit:', hasInitialDeposit);
@@ -76,10 +76,10 @@ const VendorDashboard = () => {
       currentPath = '';
     }
     if (!hasInitialDeposit && (currentPath === '/vendor' || currentPath === '/vendor/dashboard')) {
-      console.log('🔄 VendorDashboard: Redirecting to earnings - no initial deposit');
-      navigate('/vendor/earnings', { replace: true });
+      console.log('🔄 VendorDashboard: Redirecting to verification - not verified yet');
+      navigate('/vendor/verification', { replace: true });
     } else {
-      console.log('✅ VendorDashboard: Vendor has initial deposit, staying on dashboard');
+      console.log('✅ VendorDashboard: Vendor verified, staying on dashboard');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vendor?.vendorId, isLoading]); // Only depend on vendorId and isLoading

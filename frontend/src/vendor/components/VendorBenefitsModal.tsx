@@ -8,17 +8,17 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  GraduationCap, 
-  User, 
-  ShoppingBag, 
-  BookOpen, 
-  CreditCard, 
-  Users, 
-  Award, 
-  Notebook, 
-  Tag, 
-  Laptop, 
+import {
+  GraduationCap,
+  User,
+  ShoppingBag,
+  BookOpen,
+  CreditCard,
+  Users,
+  Award,
+  Notebook,
+  Tag,
+  Laptop,
   Pen,
   Gift,
   Star,
@@ -108,13 +108,13 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
             🎉 Fixfly Certified Partner Benefits
           </DialogTitle>
           <p className="text-center text-muted-foreground mb-6">
-            {hasInitialDeposit 
+            {hasInitialDeposit
               ? "You are now a certified partner! Here are all the benefits you have access to:"
               : "Become a certified partner and unlock these amazing benefits with your ₹3,999 deposit"
             }
           </p>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* Header Section */}
           <div className="text-center p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border-2 border-dashed border-blue-200">
@@ -123,7 +123,7 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
               <h3 className="text-xl font-bold text-gray-800">Certified Partner Package</h3>
             </div>
             <p className="text-gray-600 mb-4">
-              {hasInitialDeposit 
+              {hasInitialDeposit
                 ? "You have access to all these benefits as a certified partner!"
                 : "All these benefits are included when you make your initial deposit of ₹3,999"
               }
@@ -183,7 +183,7 @@ const VendorBenefitsModal: React.FC<VendorBenefitsModalProps> = ({ children, has
               </p>
             </div>
           )}
-          
+
           {hasInitialDeposit && (
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <h4 className="font-bold text-green-900 mb-2">Congratulations! You're a Certified Partner</h4>

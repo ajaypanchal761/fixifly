@@ -6,6 +6,7 @@ const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
 const userNotificationService = require('../services/userNotificationService');
 const emailService = require('../services/emailService');
+const BotbeeService = require('../services/botbeeService');
 
 // @desc    Get all bookings for admin
 // @route   GET /api/admin/bookings
@@ -294,7 +295,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
     // Send WhatsApp notification to user about status update
     try {
-      await WhatsAppService.sendStatusUpdateToUser(booking, status);
+      await BotbeeService.sendStatusUpdateToUser(booking, status);
       logger.info('WhatsApp status update sent to user', {
         bookingId: booking._id,
         customerPhone: booking.customer.phone,
@@ -444,6 +445,21 @@ const assignVendor = asyncHandler(async (req, res) => {
       });
     }
 
+    let vendorObjectId = vendorId;
+
+    // Resolve vendorId to ObjectId if it's a string (custom vendor ID like "101")
+    // This is crucial because Booking model stores vendorId as ObjectId ref
+    if (vendorId && typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+      const vendorDoc = await Vendor.findOne({ vendorId: vendorId }).select('_id');
+      if (!vendorDoc) {
+        return res.status(404).json({
+          success: false,
+          message: `Vendor with ID ${vendorId} not found`
+        });
+      }
+      vendorObjectId = vendorDoc._id;
+    }
+
     // Validation: Check if vendor already has a task for the same date and time
     if (scheduledDate && scheduledTime) {
       const scheduledDateObj = new Date(scheduledDate);
@@ -458,7 +474,7 @@ const assignVendor = asyncHandler(async (req, res) => {
       // Build conflict filter
       const conflictFilter = {
         _id: { $ne: req.params.id },
-        'vendor.vendorId': vendorId,
+        'vendor.vendorId': vendorObjectId,
         'scheduling.scheduledDate': {
           $gte: normalizedDate,
           $lte: endOfDay
@@ -493,73 +509,62 @@ const assignVendor = asyncHandler(async (req, res) => {
 
       // Also check for conflicting Support Tickets
       const SupportTicket = require('../models/SupportTicket');
-      const VendorModel = require('../models/Vendor');
 
-      // Find the vendor's ObjectId first for accurate cross-collection matching
-      const vendorRef = await VendorModel.findOne({ vendorId: vendorId }).select('_id');
+      const conflictingTicket = await SupportTicket.findOne({
+        assignedTo: vendorObjectId,
+        scheduledDate: {
+          $gte: normalizedDate,
+          $lte: endOfDay
+        },
+        scheduledTime: scheduledTime,
+        status: { $nin: ['Resolved', 'Closed', 'Cancelled'] },
+        vendorStatus: { $nin: ['Declined', 'Cancelled'] }
+      }).select('ticketId status vendorStatus');
 
-      if (vendorRef) {
-        const conflictingTicket = await SupportTicket.findOne({
-          assignedTo: vendorRef._id,
-          scheduledDate: {
-            $gte: normalizedDate,
-            $lte: endOfDay
-          },
-          scheduledTime: scheduledTime,
-          status: { $nin: ['Resolved', 'Closed', 'Cancelled'] },
-          vendorStatus: { $nin: ['Declined', 'Cancelled'] }
-        }).select('ticketId status vendorStatus');
-
-        if (conflictingTicket) {
-          logger.warn('Vendor conflict detected in support tickets', {
-            vendorId,
-            scheduledDate: normalizedDate,
-            scheduledTime,
-            conflictingTicket: conflictingTicket.ticketId,
-            currentBookingId: req.params.id
-          });
-          return res.status(400).json({
-            success: false,
-            message: `Vendor is already assigned to Support Ticket ${conflictingTicket.ticketId} (Status: ${conflictingTicket.status}) at the same date and time.`
-          });
-        }
+      if (conflictingTicket) {
+        logger.warn('Vendor conflict detected in support tickets', {
+          vendorId,
+          scheduledDate: normalizedDate,
+          scheduledTime,
+          conflictingTicket: conflictingTicket.ticketId,
+          currentBookingId: req.params.id
+        });
+        return res.status(400).json({
+          success: false,
+          message: `Vendor is already assigned to Support Ticket ${conflictingTicket.ticketId} (Status: ${conflictingTicket.status}) at the same date and time.`
+        });
       }
 
       // Check for conflicting warranty claims
       const WarrantyClaim = require('../models/WarrantyClaim');
 
-      // Get vendor ObjectId for WarrantyClaim check
-      const vendorForClaim = await Vendor.findOne({ vendorId: vendorId }).select('_id');
+      const conflictingClaim = await WarrantyClaim.findOne({
+        assignedVendor: vendorObjectId,
+        scheduledDate: {
+          $gte: normalizedDate,
+          $lte: endOfDay
+        },
+        scheduledTime: scheduledTime,
+        status: { $nin: ['cancelled', 'rejected', 'completed'] }
+      });
 
-      if (vendorForClaim) {
-        const conflictingClaim = await WarrantyClaim.findOne({
-          assignedVendor: vendorForClaim._id,
-          scheduledDate: {
-            $gte: normalizedDate,
-            $lte: endOfDay
-          },
-          scheduledTime: scheduledTime,
-          status: { $nin: ['cancelled', 'rejected', 'completed'] }
+      if (conflictingClaim) {
+        logger.warn('Vendor conflict detected with warranty claim', {
+          vendorId,
+          scheduledDate: normalizedDate,
+          scheduledTime,
+          conflictingClaimId: conflictingClaim._id,
+          currentBookingId: req.params.id
         });
-
-        if (conflictingClaim) {
-          logger.warn('Vendor conflict detected with warranty claim', {
-            vendorId,
-            scheduledDate: normalizedDate,
-            scheduledTime,
-            conflictingClaimId: conflictingClaim._id,
-            currentBookingId: req.params.id
-          });
-          return res.status(400).json({
-            success: false,
-            message: 'Vendor is not available. Already assigned to a warranty claim at the same date and time.'
-          });
-        }
+        return res.status(400).json({
+          success: false,
+          message: 'Vendor is not available. Already assigned to a warranty claim at the same date and time.'
+        });
       }
     }
 
     const updateData = {
-      'vendor.vendorId': vendorId,
+      'vendor.vendorId': vendorObjectId,
       'vendor.assignedAt': new Date(),
       'vendor.autoRejectAt': new Date(Date.now() + 25 * 60 * 1000), // Set 25-minute auto-reject timer
       'tracking.updatedAt': new Date(),
@@ -596,7 +601,7 @@ const assignVendor = asyncHandler(async (req, res) => {
 
     // Manually populate vendor data and mark first task assignment
     if (booking && booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+      const vendor = await Vendor.findById(booking.vendor.vendorId)
         .select('firstName lastName email phone address');
       if (vendor) {
         booking.vendor.vendorId = vendor;
@@ -921,14 +926,14 @@ const updateBooking = asyncHandler(async (req, res) => {
 
     // Update customer information if provided
     if (customer) {
-      if (customer.name) updateData['customer.name'] = customer.name;
-      if (customer.email) updateData['customer.email'] = customer.email;
-      if (customer.phone) updateData['customer.phone'] = customer.phone;
+      if (customer.name !== undefined) updateData['customer.name'] = customer.name;
+      if (customer.email !== undefined) updateData['customer.email'] = customer.email;
+      if (customer.phone !== undefined) updateData['customer.phone'] = customer.phone;
       if (customer.address) {
-        if (customer.address.street) updateData['customer.address.street'] = customer.address.street;
-        if (customer.address.city) updateData['customer.address.city'] = customer.address.city;
-        if (customer.address.state) updateData['customer.address.state'] = customer.address.state;
-        if (customer.address.pincode) updateData['customer.address.pincode'] = customer.address.pincode;
+        if (customer.address.street !== undefined) updateData['customer.address.street'] = customer.address.street;
+        if (customer.address.city !== undefined) updateData['customer.address.city'] = customer.address.city;
+        if (customer.address.state !== undefined) updateData['customer.address.state'] = customer.address.state;
+        if (customer.address.pincode !== undefined) updateData['customer.address.pincode'] = customer.address.pincode;
       }
     }
 
@@ -936,9 +941,35 @@ const updateBooking = asyncHandler(async (req, res) => {
     if (scheduling) {
       const newScheduledDate = scheduling.scheduledDate ? new Date(scheduling.scheduledDate) : booking.scheduling?.scheduledDate;
       const newScheduledTime = scheduling.scheduledTime || booking.scheduling?.scheduledTime;
-      const vendorId = booking.vendor?.vendorId;
 
-      if (vendorId && (scheduling.scheduledDate || scheduling.scheduledTime) && newScheduledDate && newScheduledTime) {
+      // Resolve the vendor ObjectId from the booking
+      // booking.vendor.vendorId can be:
+      // 1. A string "101" (if not populated result and schema allows string, or logic handles it)
+      // 2. An ObjectId (if raw mongoose doc with ref)
+      // 3. A populated Object (if populate called)
+
+      let vendorObjectId = null;
+      let vendorStringId = null;
+
+      if (booking.vendor && booking.vendor.vendorId) {
+        // If it's a string that looks like a custom ID (e.g. "101") or standard UUID but not ObjectId
+        if (typeof booking.vendor.vendorId === 'string' && !booking.vendor.vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+          vendorStringId = booking.vendor.vendorId;
+          const vDoc = await Vendor.findOne({ vendorId: vendorStringId }).select('_id');
+          if (vDoc) vendorObjectId = vDoc._id;
+        }
+        // If it is a mongo ObjectId (string or object)
+        else if (booking.vendor.vendorId.toString().match(/^[0-9a-fA-F]{24}$/)) {
+          // It might be the ObjectId of the vendor document
+          vendorObjectId = booking.vendor.vendorId;
+          // Try to get string ID if needed
+          const vDoc = await Vendor.findById(vendorObjectId).select('vendorId');
+          if (vDoc) vendorStringId = vDoc.vendorId;
+        }
+      }
+
+      // Proceed only if we successfully resolved a vendor ObjectId
+      if (vendorObjectId && (scheduling.scheduledDate || scheduling.scheduledTime) && newScheduledDate && newScheduledTime) {
         // Normalize date to start of day for comparison
         const normalizedUpdateDate = new Date(newScheduledDate);
         normalizedUpdateDate.setHours(0, 0, 0, 0);
@@ -951,7 +982,7 @@ const updateBooking = asyncHandler(async (req, res) => {
         // Exclude cancelled, declined, completed statuses and bookings where vendor declined
         const conflictingBooking = await Booking.findOne({
           _id: { $ne: req.params.id },
-          'vendor.vendorId': vendorId,
+          'vendor.vendorId': vendorObjectId, // using ObjectId
           'scheduling.scheduledDate': {
             $gte: normalizedUpdateDate,
             $lte: endOfUpdateDay
@@ -968,7 +999,7 @@ const updateBooking = asyncHandler(async (req, res) => {
 
         if (conflictingBooking) {
           logger.warn('Vendor conflict detected in updateBooking', {
-            vendorId,
+            vendorId: vendorStringId || vendorObjectId,
             scheduledDate: normalizedUpdateDate,
             scheduledTime: newScheduledTime,
             conflictingBooking: conflictingBooking.bookingReference,
@@ -983,11 +1014,11 @@ const updateBooking = asyncHandler(async (req, res) => {
 
         // Check for conflicting warranty claims
         const WarrantyClaim = require('../models/WarrantyClaim');
-        const vendorForClaim = await Vendor.findOne({ vendorId: vendorId }).select('_id');
+        // We already have vendorObjectId
 
-        if (vendorForClaim) {
+        if (vendorObjectId) {
           const conflictingClaim = await WarrantyClaim.findOne({
-            assignedVendor: vendorForClaim._id,
+            assignedVendor: vendorObjectId,
             scheduledDate: {
               $gte: normalizedUpdateDate,
               $lte: endOfUpdateDay
@@ -998,7 +1029,7 @@ const updateBooking = asyncHandler(async (req, res) => {
 
           if (conflictingClaim) {
             logger.warn('Vendor conflict detected with warranty claim in updateBooking', {
-              vendorId,
+              vendorId: vendorStringId || vendorObjectId,
               scheduledDate: normalizedUpdateDate,
               scheduledTime: newScheduledTime,
               conflictingClaimId: conflictingClaim._id,

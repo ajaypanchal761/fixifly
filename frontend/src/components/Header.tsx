@@ -531,59 +531,7 @@ const Header = () => {
           {/* Authentication Buttons */}
           <Divider sx={{ margin: isMobile ? '8px 0' : '-2px 0' }} />
 
-          {isAuthenticated ? (
-            // Show Logout button if user is authenticated
-            <Button
-              onClick={() => {
-                logout();
-                handleDrawerClose();
-                navigate('/');
-              }}
-              startIcon={<LogOut size={isMobile ? 16 : 20} />}
-              fullWidth
-              sx={{
-                justifyContent: 'flex-start',
-                padding: isMobile ? '8px 12px' : '12px 16px',
-                margin: isMobile ? '2px 0 8px 0' : '2px 0 8px 0',
-                textTransform: 'none',
-                color: '#dc2626',
-                fontSize: isMobile ? '14px' : '16px',
-                fontWeight: 500,
-                minHeight: isMobile ? '40px' : 'auto',
-                '&:hover': {
-                  backgroundColor: '#fef2f2',
-                  color: '#b91c1c'
-                }
-              }}
-            >
-              Logout
-            </Button>
-          ) : (
-            // Show Login button if user is not authenticated
-            <Button
-              component={Link}
-              to="/login"
-              startIcon={<LogIn size={isMobile ? 16 : 20} />}
-              fullWidth
-              onClick={handleDrawerClose}
-              sx={{
-                justifyContent: 'flex-start',
-                padding: isMobile ? '8px 12px' : '12px 16px',
-                margin: isMobile ? '2px 0 8px 0' : '2px 0 8px 0',
-                textTransform: 'none',
-                color: '#059669',
-                fontSize: isMobile ? '14px' : '16px',
-                fontWeight: 500,
-                minHeight: isMobile ? '40px' : 'auto',
-                '&:hover': {
-                  backgroundColor: '#ecfdf5',
-                  color: '#047857'
-                }
-              }}
-            >
-              Login
-            </Button>
-          )}
+
 
           {/* Download App and Rate Us Buttons - Mobile Only */}
           {isMobile && (

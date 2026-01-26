@@ -72,7 +72,7 @@ const VendorEarnings = () => {
 
   // All useState hooks must be declared before ANY conditional returns
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
-  const [depositAmount, setDepositAmount] = useState('3999');
+  const [depositAmount, setDepositAmount] = useState('100');
   const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
 
   // Withdrawal modal state
@@ -89,7 +89,7 @@ const VendorEarnings = () => {
     initialDepositAmount: 0,
     totalDeposits: 0,
     totalWithdrawals: 0,
-    securityDeposit: 3999,
+    securityDeposit: 0,
     summary: {
       totalEarnings: 0,
       totalWithdrawals: 0
@@ -233,7 +233,7 @@ const VendorEarnings = () => {
           initialDepositAmount: data.data.wallet.initialDepositAmount || 0,
           totalDeposits: data.data.wallet.totalDeposits || 0,
           totalWithdrawals: data.data.wallet.totalWithdrawals || 0,
-          securityDeposit: data.data.wallet.securityDeposit || 3999,
+          securityDeposit: data.data.wallet.securityDeposit || 0,
           summary: {
             totalEarnings: data.data.wallet.summary?.totalEarnings || 0,
             totalWithdrawals: data.data.wallet.summary?.totalWithdrawals || 0
@@ -718,7 +718,7 @@ const VendorEarnings = () => {
         initialDepositAmount: vendor.wallet.initialDepositAmount || 0,
         totalDeposits: vendor.wallet.totalDeposits || 0,
         totalWithdrawals: vendor.wallet.totalWithdrawals || 0,
-        securityDeposit: vendor.wallet.securityDeposit || 3999,
+        securityDeposit: vendor.wallet.securityDeposit || 0,
         summary: {
           totalEarnings: 0,
           totalWithdrawals: vendor.wallet.totalWithdrawals || 0
@@ -791,7 +791,7 @@ const VendorEarnings = () => {
     console.log('🔄 Calculated balance from transactions:', calculatedBalance);
   }
 
-  const actualSecurityDeposit = walletData.securityDeposit || (vendor?.wallet?.securityDeposit) || 3999;
+  const actualSecurityDeposit = walletData.securityDeposit || (vendor?.wallet?.securityDeposit) || 0;
   const availableBalance = Math.max(0, actualCurrentBalance - actualSecurityDeposit); // Available for withdrawal
   const withdrawableAmount = Math.max(0, availableBalance - 5000); // Amount above ₹5000 that can be withdrawn
   const totalWithdrawn = walletData.summary?.totalWithdrawals || 0;

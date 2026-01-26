@@ -45,6 +45,9 @@ interface RazorpayOptions {
       };
     };
   };
+  retry?: {
+    enabled: boolean;
+  };
 }
 
 interface PaymentResponse {
@@ -259,6 +262,7 @@ class RazorpayService {
     email: string;
     phone: string;
     description: string;
+    keyId?: string; // Optional custom key for specific flows (e.g. Vendor App)
     onSuccess: (response: any) => void;
     onError: (error: any) => void;
   }): Promise<void> {
@@ -298,7 +302,7 @@ class RazorpayService {
 
       // Razorpay options
       const options: RazorpayOptions = {
-        key: this.razorpayKey,
+        key: paymentData.keyId || this.razorpayKey,
         amount: paymentData.amount, // Amount is already in paise from backend
         currency: paymentData.currency,
         name: 'Fixfly',

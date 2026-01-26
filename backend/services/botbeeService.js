@@ -469,6 +469,103 @@ For support: +91-99313-54354`;
       };
     }
   }
+  /**
+   * Send status update to user via WhatsApp
+   * @param {Object} booking - Booking object
+   * @param {string} status - New status
+   * @returns {Promise<Object>} - Response object
+   */
+  async sendStatusUpdateToUser(booking, status) {
+    try {
+      const customerPhone = booking.customer?.phone;
+      if (!customerPhone) {
+        logger.warn('Customer phone not found for WhatsApp status update', {
+          bookingId: booking._id
+        });
+        return {
+          success: false,
+          message: 'Customer phone number not found'
+        };
+      }
+
+      const normalizedPhone = this.normalizePhoneNumber(customerPhone);
+      if (!normalizedPhone) {
+        logger.warn('Invalid phone number format for WhatsApp status update', {
+          bookingId: booking._id,
+          phone: customerPhone
+        });
+        return {
+          success: false,
+          message: 'Invalid phone number format'
+        };
+      }
+
+      const bookingReference = booking.bookingReference || `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
+      const customerName = booking.customer?.name || 'Customer';
+
+      let statusMessage = '';
+      let emoji = 'ℹ️';
+
+      switch (status) {
+        case 'confirmed':
+          statusMessage = 'Your booking has been confirmed! An engineer will be assigned shortly.';
+          emoji = '✅';
+          break;
+        case 'in_progress':
+          statusMessage = 'Your service has started! Our engineer is working on your request.';
+          emoji = '⚙️';
+          break;
+        case 'completed':
+          statusMessage = 'Your service has been completed successfully! Thank you for choosing Fixfly.';
+          emoji = '🎉';
+          break;
+        case 'cancelled':
+          statusMessage = 'Your booking has been cancelled.';
+          emoji = '❌';
+          break;
+        case 'declined':
+          statusMessage = 'Your booking request was declined. Please contact support for assistance.';
+          emoji = '⚠️';
+          break;
+        case 'waiting_for_engineer':
+          statusMessage = 'We are currently looking for an available engineer for your request.';
+          emoji = '🔍';
+          break;
+        default:
+          statusMessage = `Your booking status has been updated to: ${status.replace(/_/g, ' ')}`;
+      }
+
+      const message = `${emoji} *Status Update*
+
+Hello ${customerName},
+
+${statusMessage}
+
+📋 *Booking Details:*
+Booking ID: ${bookingReference}
+Current Status: ${status.toUpperCase().replace(/_/g, ' ')}
+
+You can track your booking in the Fixfly app or website.
+
+For support: +91-99313-54354`;
+
+      logger.info('Sending status update via WhatsApp', {
+        bookingId: booking._id,
+        phone: normalizedPhone,
+        status: status
+      });
+
+      return await this.sendMessage(normalizedPhone, message);
+
+    } catch (error) {
+      logger.error('Failed to send status update to user via WhatsApp:', error);
+      return {
+        success: false,
+        message: 'Failed to send status update',
+        error: error.message
+      };
+    }
+  }
 }
 
 // Export singleton instance

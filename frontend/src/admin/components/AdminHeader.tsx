@@ -7,17 +7,17 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { 
-  Menu as MenuIcon, 
-  X, 
-  Users, 
-  UserCheck, 
-  Car, 
-  Bus, 
-  BarChart3, 
-  Calendar, 
-  FileText, 
-  Package, 
+import {
+  Menu as MenuIcon,
+  X,
+  Users,
+  UserCheck,
+  Car,
+  Bus,
+  BarChart3,
+  Calendar,
+  FileText,
+  Package,
   CreditCard,
   BookOpen,
   Shield,
@@ -31,6 +31,7 @@ import {
   Wallet,
   Image,
   MapPin,
+  ChevronLeft,
 } from 'lucide-react';
 import { Button, useMediaQuery, Avatar, Typography, Box as MuiBox, TextField, InputAdornment, Select, MenuItem, Menu, ListItemIcon, ListItemText } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
@@ -91,9 +92,22 @@ const AppBar = styled(MuiAppBar, {
 const AdminHeader = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(() => {
+    const saved = localStorage.getItem('adminSidebarOpen');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const [userMenuAnchor, setUserMenuAnchor] = React.useState<null | HTMLElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Sync sidebar state with body class and localStorage
+  React.useEffect(() => {
+    localStorage.setItem('adminSidebarOpen', JSON.stringify(open));
+    if (open) {
+      document.body.classList.remove('admin-sidebar-closed');
+    } else {
+      document.body.classList.add('admin-sidebar-closed');
+    }
+  }, [open]);
 
   // Auto-enable admin notifications - DISABLED
   // React.useEffect(() => {
@@ -221,8 +235,8 @@ const AdminHeader = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar 
-        position="fixed" 
+      <AppBar
+        position="fixed"
         open={open}
         sx={{
           backgroundColor: 'hsl(var(--background))',
@@ -231,28 +245,28 @@ const AdminHeader = () => {
           height: '80px',
         }}
       >
-         <Toolbar sx={{ minHeight: '80px !important', justifyContent: 'space-between', paddingX: 3 }}>
-           {/* Left side - Menu Icon and Logo */}
-           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-             <IconButton
-               color="inherit"
-               aria-label="open drawer"
-               onClick={handleDrawerOpen}
-               edge="start"
-                 sx={[
-                   {
-                     mr: 2,
-                     color: 'hsl(var(--foreground))',
-                   },
-                   open && { display: 'none' },
-                 ]}
-             >
-               <MenuIcon />
-             </IconButton>
-             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <img 
-                src="/logofixifly.png" 
-                alt="Fixfly Logo" 
+        <Toolbar sx={{ minHeight: '80px !important', justifyContent: 'space-between', paddingX: 3 }}>
+          {/* Left side - Menu Icon and Logo */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={[
+                {
+                  mr: 2,
+                  color: 'hsl(var(--foreground))',
+                },
+                open && { display: 'none' },
+              ]}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <img
+                src="/logofixifly.png"
+                alt="Fixfly Logo"
                 onClick={handleLogoClick}
                 style={{
                   height: isMobile ? '40px' : '60px',
@@ -260,22 +274,22 @@ const AdminHeader = () => {
                   cursor: 'pointer',
                   transition: 'opacity 0.2s ease-in-out'
                 }}
-                 onMouseEnter={(e) => {
-                   e.currentTarget.style.opacity = '0.8';
-                 }}
-                 onMouseLeave={(e) => {
-                   e.currentTarget.style.opacity = '1';
-                 }}
-               />
-             </Box>
-           </Box>
-          
-         {/* Right side - Refresh and User Profile */}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.8';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* Right side - Refresh and User Profile */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <IconButton
               color="inherit"
               aria-label="refresh"
-              sx={{ 
+              sx={{
                 color: 'hsl(var(--foreground))',
                 '&:hover': { backgroundColor: 'hsl(var(--muted))' }
               }}
@@ -314,7 +328,7 @@ const AdminHeader = () => {
                 </Typography>
                 <ChevronDown size={16} />
               </Button>
-              
+
               <Menu
                 anchorEl={userMenuAnchor}
                 open={Boolean(userMenuAnchor)}
@@ -372,9 +386,9 @@ const AdminHeader = () => {
         open={open}
       >
         {/* Admin Panel Title */}
-        <MuiBox sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+        <MuiBox sx={{
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
           padding: 3,
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -383,12 +397,15 @@ const AdminHeader = () => {
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'hsl(var(--sidebar-primary-foreground))' }}>
             Admin Panel
           </Typography>
+          <IconButton onClick={handleDrawerClose} sx={{ color: 'hsl(var(--sidebar-primary-foreground))', ml: 1 }}>
+            <ChevronLeft size={20} />
+          </IconButton>
         </MuiBox>
-        
+
         <Divider sx={{ borderColor: 'hsl(var(--sidebar-border))' }} />
-        
+
         {/* Menu Options */}
-        <MuiBox sx={{ 
+        <MuiBox sx={{
           padding: 1,
           flex: 1,
           overflowY: 'auto',
@@ -399,7 +416,7 @@ const AdminHeader = () => {
           {adminNavItems.map((item) => {
             const IconComponent = item.icon;
             const isActive = window.location.pathname === item.href;
-            
+
             return (
               <Button
                 key={item.name}
@@ -426,7 +443,7 @@ const AdminHeader = () => {
               </Button>
             );
           })}
-          
+
           {/* Logout Button */}
           <Divider sx={{ margin: '16px 0', borderColor: 'hsl(var(--sidebar-border))' }} />
           <Button

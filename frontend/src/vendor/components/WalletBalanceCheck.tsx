@@ -48,7 +48,7 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
         const totalDeposits = wallet.totalDeposits || 0;
 
         // Calculate display balance: show current balance minus security deposit
-        const securityDeposit = wallet.securityDeposit || 3999;
+        const securityDeposit = wallet.securityDeposit || 0;
         let displayBalance = 0;
         if (currentBalance > securityDeposit) {
           displayBalance = currentBalance - securityDeposit;

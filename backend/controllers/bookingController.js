@@ -1287,7 +1287,7 @@ const acceptTask = asyncHandler(async (req, res) => {
 
     logger.info(`Vendor accepted task for booking ${bookingId}`);
 
-    // Notify user that engineer accepted/assigned
+    // 1. Send Push Notification to User (Best Effort)
     try {
       const normalizePhone = (phone) => {
         if (!phone) return null;
@@ -1330,24 +1330,56 @@ const acceptTask = asyncHandler(async (req, res) => {
             link: `/booking/${booking._id}`
           }
         );
+        logger.info(`Push notification sent to user for booking ${bookingId}`);
       } else {
-        logger.warn('User not found for engineer accepted notification', {
+        logger.warn('User not found for engineer accepted push notification', {
           bookingId: booking._id,
           customerEmail: booking.customer.email,
           customerPhone: booking.customer.phone
         });
       }
-
-      // Send email to user with engineer details
-      if (booking.customer && booking.customer.email) {
-        logger.info(`Sending engineer assigned email to customer: ${booking.customer.email}`);
-        await emailService.sendEngineerAssignedEmail(booking, vendor);
-      }
-    } catch (notifyError) {
-      logger.error('Error sending user notification after vendor acceptance', {
-        error: notifyError.message,
+    } catch (pushError) {
+      // Log but don't fail the request or stop email
+      logger.error('Error sending user push notification after vendor acceptance', {
+        error: pushError.message,
         bookingId,
         vendorId
+      });
+    }
+
+    // 2. Send Email to User (Critical)
+    try {
+      if (booking.customer && booking.customer.email) {
+        logger.info(`Sending engineer assigned email to customer: ${booking.customer.email}`);
+        const emailResult = await emailService.sendEngineerAssignedEmail(booking, vendor);
+
+        if (!emailResult.success) {
+          logger.warn('Email service returned failure for engineer assigned email', {
+            bookingId: booking._id,
+            error: emailResult.message
+          });
+        }
+      } else {
+        logger.warn('Cannot send engineer assigned email - No customer email', {
+          bookingId: booking._id
+        });
+      }
+    } catch (emailError) {
+      logger.error('Error sending user email notification after vendor acceptance', {
+        error: emailError.message,
+        bookingId,
+        vendorId
+      });
+    }
+
+    // 3. Send WhatsApp to User (Best Effort)
+    try {
+      await botbeeService.sendStatusUpdateToUser(updatedBooking, 'in_progress');
+      logger.info(`WhatsApp status update sent to user for booking ${bookingId}`);
+    } catch (waError) {
+      logger.error('Error sending user WhatsApp notification after vendor acceptance', {
+        error: waError.message,
+        bookingId
       });
     }
 
@@ -1735,14 +1767,24 @@ const completeTask = asyncHandler(async (req, res) => {
       totalAmount
     });
 
-    await notifyAdminsByEmail(
-      '✅ Booking Task Completed',
-      buildBookingSummaryLines(updatedBooking, { details: `Payment method: ${completionData.paymentMethod || 'N/A'}`, vendorInfo: updatedBooking?.vendor?.vendorId ? `${updatedBooking.vendor.vendorId.firstName || ''} ${updatedBooking.vendor.vendorId.lastName || ''} (${updatedBooking.vendor.vendorId.vendorId || updatedBooking.vendor.vendorId})`.trim() : undefined })
-    );
+    // Notify admins (Non-blocking)
+    try {
+      await notifyAdminsByEmail(
+        '✅ Booking Task Completed',
+        buildBookingSummaryLines(updatedBooking, { details: `Payment method: ${completionData.paymentMethod || 'N/A'}`, vendorInfo: updatedBooking?.vendor?.vendorId ? `${updatedBooking.vendor.vendorId.firstName || ''} ${updatedBooking.vendor.vendorId.lastName || ''} (${updatedBooking.vendor.vendorId.vendorId || updatedBooking.vendor.vendorId})`.trim() : undefined })
+      );
+    } catch (adminEmailError) {
+      logger.error('Failed to send admin completion email:', adminEmailError);
+      // Continue to send user email
+    }
 
     // Send completion email to user with receipt
     try {
       if (updatedBooking.customer && updatedBooking.customer.email) {
+        logger.info(`Sending completion email to customer: ${updatedBooking.customer.email}`);
+        if (updatedBooking.completionData && updatedBooking.completionData.resolutionNote) {
+          logger.info(`Including resolution note in email: ${updatedBooking.completionData.resolutionNote}`);
+        }
         await emailService.sendBookingCompletionEmail(updatedBooking);
       }
     } catch (emailError) {

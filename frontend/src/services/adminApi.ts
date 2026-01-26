@@ -100,17 +100,17 @@ class AdminApiService {
       const token = this.getAccessToken();
       const refreshToken = localStorage.getItem('adminRefreshToken');
       const adminData = localStorage.getItem('adminData');
-      
+
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
-      
+
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       } else {
         console.warn('No valid admin token found. User may need to login again.');
       }
-      
+
       return headers;
     } catch (error) {
       console.error('Error getting auth headers:', error);
@@ -260,13 +260,13 @@ class AdminApiService {
     try {
       const refreshToken = this.getRefreshToken();
       const token = this.getAccessToken();
-      
+
       // If no token or refresh token, just clear local data and return success
       if (!token && !refreshToken) {
         this.clearAuthData();
         return { success: true, message: 'Logged out successfully' };
       }
-      
+
       // Try to logout on backend if we have tokens
       try {
         const response = await fetch(`${API_BASE_URL}/admin/logout`, {
@@ -338,6 +338,8 @@ class AdminApiService {
 
   // Helper method to check if access token is expired
   private isAccessTokenExpired(token: string): boolean {
+    return false; // Disable client-side expiration check
+    /*
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Date.now() / 1000;
@@ -345,13 +347,14 @@ class AdminApiService {
     } catch (error) {
       return true;
     }
+    */
   }
 
   // Method to refresh access token
   async refreshAccessToken(): Promise<{ success: boolean; data?: { accessToken: string; refreshToken: string } }> {
     try {
       const refreshToken = this.getRefreshToken();
-      
+
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
@@ -391,7 +394,7 @@ class AdminApiService {
   // Enhanced request method with automatic token refresh
   async makeAuthenticatedRequest(url: string, options: RequestInit = {}): Promise<Response> {
     let token = localStorage.getItem('adminToken');
-    
+
     // Check if token is expired and refresh if needed
     if (token && this.isAccessTokenExpired(token)) {
       try {
@@ -427,14 +430,14 @@ class AdminApiService {
       try {
         await this.refreshAccessToken();
         const newToken = localStorage.getItem('adminToken');
-        
+
         if (newToken) {
           // Retry the request with new token
           const retryHeaders: Record<string, string> = {
             ...headers,
             'Authorization': `Bearer ${newToken}`
           };
-          
+
           return await fetch(url, {
             ...options,
             headers: retryHeaders
@@ -442,8 +445,9 @@ class AdminApiService {
         }
       } catch (error) {
         // If refresh fails, clear auth data and redirect
-        this.clearAuthData();
-        window.location.href = '/admin/login';
+        // this.clearAuthData();
+        // window.location.href = '/admin/login';
+        console.warn('Token refresh failed on 401, but preventing auto-logout redirect');
       }
     }
 
@@ -479,19 +483,19 @@ class AdminApiService {
       console.log('Params type:', typeof params);
       console.log('Params is null:', params === null);
       console.log('Params is undefined:', params === undefined);
-      
+
       // Check if admin token exists
       const token = localStorage.getItem('adminToken');
       if (!token) {
         throw new Error('Admin not authenticated. Please login again.');
       }
-      
+
       const queryParams = new URLSearchParams();
-      
+
       // Ensure params is a valid object - provide default if undefined/null
       const safeParams = params || {};
       console.log('Safe params:', safeParams);
-      
+
       if (typeof safeParams === 'object' && safeParams !== null && !Array.isArray(safeParams)) {
         try {
           Object.entries(safeParams).forEach(([key, value]) => {
@@ -511,7 +515,7 @@ class AdminApiService {
       // Ensure API_BASE_URL is defined
       const baseUrl = API_BASE_URL || 'http://localhost:5000/api';
       console.log('API_BASE_URL:', baseUrl);
-      
+
       const url = `${baseUrl}/admin/cards?${queryParams}`;
       console.log('Fetching from URL:', url);
       console.log('Auth headers:', this.getAuthHeaders());
@@ -528,17 +532,17 @@ class AdminApiService {
       console.log('Response status:', response.status);
       console.log('Response ok:', response.ok);
       console.log('Response type:', response.type);
-      
+
       // Check if response is valid
       if (!response) {
         throw new Error('No response received from server');
       }
-      
+
       let data = null;
       try {
         const responseText = await response.text();
         console.log('Raw response text:', responseText);
-        
+
         if (responseText) {
           data = JSON.parse(responseText);
           console.log('Parsed response data:', data);
@@ -555,19 +559,19 @@ class AdminApiService {
 
       if (!response.ok) {
         let errorMessage = `Server error: ${response.status}`;
-        
+
         if (data && typeof data === 'object' && data.message) {
           errorMessage = data.message;
         } else if (data && typeof data === 'string') {
           errorMessage = data;
         }
-        
+
         console.error('Server error response:', {
           status: response.status,
           statusText: response.statusText,
           data: data
         });
-        
+
         throw new Error(errorMessage);
       }
 
@@ -576,7 +580,7 @@ class AdminApiService {
         console.error('Invalid data structure received:', data);
         throw new Error('Invalid data structure received from server');
       }
-      
+
       console.log('Successfully processed response data');
       return data;
     } catch (error: any) {
@@ -881,7 +885,7 @@ class AdminApiService {
   }> {
     try {
       const queryParams = new URLSearchParams();
-      
+
       if (params) {
         Object.entries(params).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== '') {
@@ -1095,7 +1099,7 @@ class AdminApiService {
   }> {
     try {
       const queryParams = new URLSearchParams();
-      
+
       if (params) {
         Object.entries(params).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== '') {
@@ -1405,8 +1409,8 @@ class AdminApiService {
           vendorName?: string;
           paymentMethod?: string;
           billingAmount?: number;
-        // New: raw booking amount / platform fee to share with admin
-        bookingAmount?: number;
+          // New: raw booking amount / platform fee to share with admin
+          bookingAmount?: number;
           adminCommission: number;
           createdAt?: string;
         }>;
@@ -1417,7 +1421,7 @@ class AdminApiService {
           vendorName?: string;
           paymentMethod?: string;
           billingAmount?: number;
-        bookingAmount?: number;
+          bookingAmount?: number;
           adminCommission: number;
           createdAt?: string;
         }>;
@@ -1428,10 +1432,10 @@ class AdminApiService {
       const params = new URLSearchParams();
       if (month) params.append('month', month.toString());
       if (year) params.append('year', year.toString());
-      
+
       const queryString = params.toString();
       const url = `${API_BASE_URL}/admin/dashboard${queryString ? `?${queryString}` : ''}`;
-      
+
       console.log('Dashboard stats request to:', url);
 
       // Use makeAuthenticatedRequest which handles token refresh automatically
@@ -1446,7 +1450,7 @@ class AdminApiService {
           // Token refresh failed, auth data already cleared by makeAuthenticatedRequest
           throw new Error('Authentication expired. Please login again.');
         }
-        
+
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
@@ -1486,7 +1490,7 @@ class AdminApiService {
     try {
       console.log('Making request to:', `${API_BASE_URL}/admin/products`);
       console.log('API_BASE_URL:', API_BASE_URL);
-      
+
       const response = await this.makeAuthenticatedRequest(`${API_BASE_URL}/admin/products`, {
         method: 'POST',
         // Don't set Content-Type header, let browser set it with boundary for FormData

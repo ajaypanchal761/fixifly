@@ -46,6 +46,14 @@ interface WalletResponse {
   };
 }
 
+// RAZORPAY ACCOUNT CONFIGURATION
+// To change the account, update the key below.
+// OLD ACCOUNT (Backup):
+// const RAZORPAY_KEY = 'rzp_live_RyCVwnDNEvO2uL';
+
+// NEW ACCOUNT (Active):
+const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_RyCVwnDNEvO2uL';
+
 class VendorDepositService {
   private baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -136,6 +144,7 @@ class VendorDepositService {
         email: vendorEmail,
         phone: vendorPhone,
         description: 'Vendor Initial Deposit',
+        keyId: RAZORPAY_KEY, // Use configured key
         onSuccess: async (paymentResponse) => {
           try {
             // Verify payment

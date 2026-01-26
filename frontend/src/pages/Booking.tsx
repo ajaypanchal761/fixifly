@@ -106,6 +106,65 @@ const Booking = () => {
     }
   }, []); // Run only once on mount
 
+  // Handle rating request from URL (e.g., from email link)
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const ratingBookingId = searchParams.get('ratingBookingId');
+    const tabParam = searchParams.get('tab');
+
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+
+    if (ratingBookingId && isAuthenticated) {
+      console.log('🌟 Rating request from URL detected for booking:', ratingBookingId);
+
+      const handleRatingRequest = async () => {
+        // First try to find in current bookings list
+        let bookingToRate = bookings.find(b => b._id === ratingBookingId);
+
+        // If not found in list, try to fetch specific booking
+        if (!bookingToRate) {
+          try {
+            // Temporarily show loading if needed, or just fetch in background
+            console.log('Booking not in list, fetching specific booking...');
+            const response = await bookingApi.getBookingById(ratingBookingId); // Assuming this API method exists
+            if (response.success && response.data) {
+              bookingToRate = response.data;
+            }
+          } catch (err) {
+            console.error('Error fetching booking for rating:', err);
+          }
+        }
+
+        if (bookingToRate) {
+          console.log('✅ Found booking to rate:', bookingToRate._id);
+          const hasReview = await checkExistingReview(bookingToRate._id);
+          if (!hasReview) {
+            setRatingBooking(bookingToRate);
+            setShowRatingPopup(true);
+            // Clear the param from URL to prevent reopening on refresh
+            const newSearchParams = new URLSearchParams(location.search);
+            newSearchParams.delete('ratingBookingId');
+            navigate({ search: newSearchParams.toString() }, { replace: true });
+          } else {
+            console.log('⚠️ Booking already reviewed');
+            toast({
+              title: "Already Reviewed",
+              description: "You have already submitted a review for this booking.",
+              variant: "default"
+            });
+          }
+        } else {
+          console.log('❌ Could not find booking to rate');
+        }
+      };
+
+      // Delay slightly to ensure auth and other states are settled
+      setTimeout(handleRatingRequest, 1000);
+    }
+  }, [location.search, isAuthenticated, bookings]);
+
   // Debug confirmation view state
   useEffect(() => {
     console.log('🔍 Confirmation view state:', {
@@ -660,9 +719,9 @@ For support, contact us at info@getfixfly.com
       const completionData = (booking as any).completionData || {};
       const includeGST = completionData.includeGST || false;
       const gstAmount = completionData.gstAmount || 0;
-      
+
       let totalAmount = baseAmount;
-      
+
       // Use database GST data if available
       if (includeGST && gstAmount > 0) {
         totalAmount = baseAmount + gstAmount;
@@ -803,12 +862,12 @@ For support, contact us at info@getfixfly.com
       const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
       const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
       const baseAmount = booking.pricing.totalAmount + billingAmount;
-      
+
       // Priority 1: Check database (completionData) first - this is the source of truth
       const completionData = (booking as any).completionData || {};
       let includeGST = completionData.includeGST || false;
       let gstAmount = completionData.gstAmount || 0;
-      
+
       // Fallback to localStorage cache if database doesn't have GST data
       if (!includeGST || gstAmount === 0) {
         const gstData = getGSTData(booking._id);
@@ -817,7 +876,7 @@ For support, contact us at info@getfixfly.com
           gstAmount = gstData.gstAmount;
         }
       }
-      
+
       // For receipts, show base amount + GST if applicable
       let totalAmount = baseAmount + (includeGST ? gstAmount : 0);
 
@@ -947,12 +1006,12 @@ For support, contact us at info@getfixfly.com
       const billingAmountStr = (booking as any).completionData?.billingAmount || (booking as any).billingAmount || '0';
       const billingAmount = parseFloat(billingAmountStr.replace(/[₹,]/g, '')) || 0;
       const baseAmount = booking.pricing.totalAmount + billingAmount;
-      
+
       // Priority 1: Check database (completionData) first - this is the source of truth
       const completionData = (booking as any).completionData || {};
       let includeGST = completionData.includeGST || false;
       let gstAmount = completionData.gstAmount || 0;
-      
+
       // Fallback to localStorage cache if database doesn't have GST data
       if (!includeGST || gstAmount === 0) {
         const gstData = getGSTData(booking._id);
@@ -961,7 +1020,7 @@ For support, contact us at info@getfixfly.com
           gstAmount = gstData.gstAmount;
         }
       }
-      
+
       // For receipts, show base amount + GST if applicable
       let totalAmount = baseAmount + (includeGST ? gstAmount : 0);
 
@@ -2318,6 +2377,28 @@ For support, contact us at info@getfixfly.com
 
                     {bookingDetails.completionData.billingAmount && (
                       null
+                    )}
+
+                    {/* Spare Parts (Name & Warranty Only) */}
+                    {bookingDetails.completionData.spareParts && bookingDetails.completionData.spareParts.length > 0 && (
+                      <div className="mb-2 md:mb-3">
+                        <p className="text-xs md:text-sm text-gray-500 md:text-gray-600 mb-1">Spare Parts Used</p>
+                        <div className="bg-gray-50 rounded-lg p-2 space-y-2">
+                          {bookingDetails.completionData.spareParts.map((part: any, idx: number) => (
+                            <div key={idx} className="flex flex-col border-b border-gray-100 last:border-0 pb-1 last:pb-0">
+                              <span className="font-medium text-xs md:text-sm text-gray-800">
+                                {part.name} <span className="text-blue-600 text-[10px] md:text-xs font-normal">(Spare)</span>
+                              </span>
+                              {part.warranty && (
+                                <span className="text-[10px] md:text-xs text-green-600 flex items-center mt-0.5">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  {part.warranty} Warranty
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
