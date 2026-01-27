@@ -698,11 +698,12 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     // Reusable expressions for admin commission calculation
     // Match completed OR paid bookings that have billing/pricing data (more flexible status check)
     // Expanded status check to include paid/payment_done/collected to show full history as requested
+    // Expanded status check to include all active and completed bookings to show full history as requested
     const bookingMatchBase = {
       $and: [
         {
           $or: [
-            { status: 'completed' },
+            { status: { $in: ['completed', 'confirmed', 'in_progress', 'waiting_for_engineer', 'pending'] } },
             { 'payment.status': 'completed' },
             { paymentStatus: { $in: ['payment_done', 'collected'] } }
           ]
@@ -998,7 +999,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 
     const buildSupportBreakdownPipeline = (dateRange) => {
       const matchStage = {
-        status: 'Resolved',
+        status: { $in: ['Resolved', 'Closed'] },
         paymentStatus: 'collected',
         billingAmount: { $exists: true, $ne: null, $gt: 0 }
       };
@@ -1103,14 +1104,14 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       }),
       // Monthly revenue from completed support tickets (admin commission)
       SupportTicket.aggregate([
-        { $match: { status: 'Resolved', paymentStatus: 'collected', createdAt: { $gte: startDate, $lte: endDate }, billingAmount: { $exists: true, $ne: null, $gt: 0 } } },
+        { $match: { status: { $in: ['Resolved', 'Closed'] }, paymentStatus: 'collected', createdAt: { $gte: startDate, $lte: endDate }, billingAmount: { $exists: true, $ne: null, $gt: 0 } } },
         supportCommissionAddFieldsStage1,
         supportCommissionAddFieldsStage2,
         { $group: { _id: null, total: { $sum: '$adminCommissionWithGST' } } }
       ]),
       // Total revenue from all completed support tickets (admin commission)
       SupportTicket.aggregate([
-        { $match: { status: 'Resolved', paymentStatus: 'collected', billingAmount: { $exists: true, $ne: null, $gt: 0 } } },
+        { $match: { status: { $in: ['Resolved', 'Closed'] }, paymentStatus: 'collected', billingAmount: { $exists: true, $ne: null, $gt: 0 } } },
         supportCommissionAddFieldsStage1,
         supportCommissionAddFieldsStage2,
         { $group: { _id: null, total: { $sum: '$adminCommissionWithGST' } } }

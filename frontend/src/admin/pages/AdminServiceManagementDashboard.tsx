@@ -16,6 +16,7 @@ import {
   Phone,
   Wrench,
   Package,
+  MessageCircle,
   Image as ImageIcon,
   MoreVertical,
 } from 'lucide-react';
@@ -46,7 +47,10 @@ interface ServiceManagementBooking {
   };
   services: Array<{
     serviceName: string;
+    description?: string;
   }>;
+  description?: string;
+  notes?: string;
   pricing: {
     subtotal: number;
     serviceFee: number;
@@ -149,24 +153,24 @@ const AdminServiceManagementDashboard = () => {
         const rawPaymentStatus = booking.payment?.status;
         const paymentStatus = rawPaymentStatus ? String(rawPaymentStatus).toLowerCase().trim() : 'pending';
         // Check if payment is pending (handle all variations - be very strict)
-        const isPending = !rawPaymentStatus || 
-                         rawPaymentStatus === null ||
-                         rawPaymentStatus === undefined ||
-                         String(rawPaymentStatus).toLowerCase().trim() === 'pending';
-        
+        const isPending = !rawPaymentStatus ||
+          rawPaymentStatus === null ||
+          rawPaymentStatus === undefined ||
+          String(rawPaymentStatus).toLowerCase().trim() === 'pending';
+
         // Determine payment mode with strict logic - CASH FIRST approach
         let detectedPaymentMode = 'online'; // default (will be overridden if conditions match)
-        
+
         // STEP 1: Check explicit paymentMode field (highest priority - set by backend on task completion)
         if ((booking as any).paymentMode) {
           detectedPaymentMode = String((booking as any).paymentMode).toLowerCase().trim();
           console.log(`✅ STEP 1: Using explicit paymentMode: ${detectedPaymentMode}`, booking.bookingReference);
-        } 
+        }
         // STEP 2: Check if payment method is explicitly 'cash'
         else if (paymentMethod === 'cash') {
           detectedPaymentMode = 'cash';
           console.log(`✅ STEP 2: Payment method is cash: ${detectedPaymentMode}`, booking.bookingReference);
-        } 
+        }
         // STEP 3: CRITICAL FIX - If payment status is 'pending' AND no Razorpay IDs, it MUST be cash
         // This MUST come before checking Razorpay IDs or payment methods
         // This handles cash on delivery bookings where payment.method might default to 'card'
@@ -323,6 +327,7 @@ const AdminServiceManagementDashboard = () => {
             vendorResponse: ticket.vendorStatus
               ? { status: ticket.vendorStatus.toLowerCase() }
               : undefined,
+            description: ticket.description || '',
             completionData: ticket.completionData,
             billingAmount: billingAmount?.toString?.() ?? String(billingAmount ?? 0),
             paymentMode: ticket.paymentMode || ticket.completionData?.paymentMethod || 'cash',
@@ -406,7 +411,7 @@ const AdminServiceManagementDashboard = () => {
   const getVendorStatusBadge = (booking: any) => {
     // Check vendorResponse.status first, then fallback to vendor.response
     const vendorResponse = booking.vendorResponse?.status || booking.vendor?.response || '';
-    
+
     if (!vendorResponse || vendorResponse === 'pending') {
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -485,7 +490,7 @@ const AdminServiceManagementDashboard = () => {
   };
 
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = 
+    const matchesSearch =
       (booking.bookingReference || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (booking.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (booking.customer?.phone || '').includes(searchTerm) ||
@@ -494,7 +499,7 @@ const AdminServiceManagementDashboard = () => {
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     const matchesPriority = priorityFilter === 'all' || booking.priority === priorityFilter;
     const vendorResponse = booking.vendorResponse?.status || booking.vendor?.response || '';
-    const matchesVendorStatus = vendorStatusFilter === 'all' || 
+    const matchesVendorStatus = vendorStatusFilter === 'all' ||
       (vendorStatusFilter === 'pending' && (!vendorResponse || vendorResponse === 'pending')) ||
       (vendorStatusFilter !== 'pending' && vendorResponse === vendorStatusFilter);
     const matchesPaymentMode = paymentModeFilter === 'all' || booking.paymentMode === paymentModeFilter;
@@ -539,7 +544,7 @@ const AdminServiceManagementDashboard = () => {
           <div className="text-center">
             <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <p className="text-red-600">{error}</p>
-            <button 
+            <button
               onClick={fetchBookings}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
@@ -610,7 +615,7 @@ const AdminServiceManagementDashboard = () => {
                 className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Vendor Status</option>
-                 <option value="pending">Pending</option>
+                <option value="pending">Pending</option>
                 <option value="accepted">Accepted</option>
                 <option value="declined">Declined</option>
               </select>
@@ -644,37 +649,37 @@ const AdminServiceManagementDashboard = () => {
           {/* Bookings Table */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="w-full table-auto divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">
                       Booking ID
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[150px]">
                       Customer
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
                       Service
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[180px]">
                       Booking & Scheduled Date
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[90px]">
                       Priority
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">
                       Vendor
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[140px]">
                       Payment
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[90px]">
                       Amount
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">
                       Status
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">
                       Actions
                     </th>
                   </tr>
@@ -682,20 +687,20 @@ const AdminServiceManagementDashboard = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredBookings.map((booking) => (
                     <tr key={booking._id} className="hover:bg-gray-50">
-                      <td className="px-2 py-1 whitespace-nowrap text-xs font-medium text-gray-900">
+                      <td className="px-2 py-2 text-xs font-medium text-gray-900 break-words">
                         {booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
                       </td>
-                      <td className="px-2 py-1 whitespace-nowrap">
-                        <div>
+                      <td className="px-2 py-2">
+                        <div className="break-words">
                           <div className="text-xs font-medium text-gray-900">{booking.customer?.name || 'N/A'}</div>
                           <div className="text-xs text-gray-500">{booking.customer?.phone || 'N/A'}</div>
                         </div>
                       </td>
-                      <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-900">
-                        {booking.services[0]?.serviceName || 'N/A'}
+                      <td className="px-2 py-2 text-xs text-gray-900 break-words">
+                        {booking.services?.map(s => s.serviceName).join(', ') || 'N/A'}
                       </td>
-                      <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-900">
-                        <div>
+                      <td className="px-2 py-2 text-xs text-gray-900">
+                        <div className="break-words">
                           <div className="mb-1">
                             <div className="text-xs font-medium text-gray-500">Booking Date:</div>
                             <div>{booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A'}</div>
@@ -707,30 +712,34 @@ const AdminServiceManagementDashboard = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-2 py-1 whitespace-nowrap">
+                      <td className="px-2 py-2">
                         {getPriorityBadge(booking.priority)}
                       </td>
-                       <td className="px-2 py-1 whitespace-nowrap">
-                         {getVendorStatusBadge(booking)}
-                       </td>
-                      <td className="px-2 py-1 whitespace-nowrap">
-                        <div className="space-y-0.5">
+                      <td className="px-2 py-2">
+                        <div className="break-words">
+                          {getVendorStatusBadge(booking)}
+                        </div>
+                      </td>
+                      <td className="px-2 py-2">
+                        <div className="space-y-1">
                           {getPaymentModeBadge(booking.paymentMode || '')}
                           {getPaymentStatusBadge(booking.paymentStatus || '', booking.paymentMode || '')}
                         </div>
                       </td>
-                      <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-900">
-                        {booking.paymentAmount && booking.paymentAmount > 0 
-                          ? `₹${booking.paymentAmount}` 
-                          : booking.pricing?.totalAmount 
-                            ? `₹${booking.pricing.totalAmount}` 
+                      <td className="px-2 py-2 text-xs text-gray-900">
+                        {booking.paymentAmount && booking.paymentAmount > 0
+                          ? `₹${booking.paymentAmount}`
+                          : booking.pricing?.totalAmount
+                            ? `₹${booking.pricing.totalAmount}`
                             : '-'}
                       </td>
-                      <td className="px-2 py-1 whitespace-nowrap">
-                        {getStatusBadge(booking.status)}
+                      <td className="px-2 py-2">
+                        <div className="break-words">
+                          {getStatusBadge(booking.status)}
+                        </div>
                       </td>
-                      <td className="px-2 py-1 whitespace-nowrap text-xs font-medium">
-                        <div className="flex flex-col space-y-0.5">
+                      <td className="px-2 py-2 text-xs font-medium">
+                        <div className="flex flex-col space-y-1">
                           <button
                             onClick={() => handleViewDetails(booking)}
                             className="text-blue-600 hover:text-blue-900 flex items-center"
@@ -805,7 +814,7 @@ const AdminServiceManagementDashboard = () => {
                       <div>
                         <span className="text-xs text-gray-600">Address:</span>
                         <p className="text-xs font-medium text-gray-900 ml-1">
-                          {typeof selectedBooking.customer.address === 'object' 
+                          {typeof selectedBooking.customer.address === 'object'
                             ? `${selectedBooking.customer.address.street || ''}, ${selectedBooking.customer.address.city || ''}, ${selectedBooking.customer.address.state || ''} - ${selectedBooking.customer.address.pincode || ''}`
                             : selectedBooking.customer.address || 'Not provided'
                           }
@@ -822,7 +831,7 @@ const AdminServiceManagementDashboard = () => {
                     <div className="flex items-center">
                       <Wrench className="w-3 h-3 text-gray-500 mr-1" />
                       <span className="text-xs text-gray-600">Service:</span>
-                      <span className="text-xs font-medium text-gray-900 ml-1">{selectedBooking.services[0]?.serviceName || 'N/A'}</span>
+                      <span className="text-xs font-medium text-gray-900 ml-1">{selectedBooking.services?.map(s => s.serviceName).join(', ') || 'N/A'}</span>
                     </div>
                     <div className="flex items-center">
                       <Calendar className="w-3 h-3 text-gray-500 mr-1" />
@@ -850,8 +859,8 @@ const AdminServiceManagementDashboard = () => {
                       <User className="w-3 h-3 text-gray-500 mr-1" />
                       <span className="text-xs text-gray-600">Assigned Engineer:</span>
                       <span className="text-xs font-medium text-gray-900 ml-1">
-                        {selectedBooking.vendor?.vendorId ? 
-                          `${selectedBooking.vendor.vendorId.firstName} ${selectedBooking.vendor.vendorId.lastName}` : 
+                        {selectedBooking.vendor?.vendorId ?
+                          `${selectedBooking.vendor.vendorId.firstName} ${selectedBooking.vendor.vendorId.lastName}` :
                           'Not assigned'
                         }
                       </span>
@@ -866,8 +875,8 @@ const AdminServiceManagementDashboard = () => {
                     <div className="flex items-center">
                       <span className="text-xs text-gray-600">Assigned Date:</span>
                       <span className="text-xs font-medium text-gray-900 ml-1">
-                        {selectedBooking.vendor?.assignedAt ? 
-                          new Date(selectedBooking.vendor.assignedAt).toLocaleDateString() : 
+                        {selectedBooking.vendor?.assignedAt ?
+                          new Date(selectedBooking.vendor.assignedAt).toLocaleDateString() :
                           'Not assigned'
                         }
                       </span>
@@ -878,42 +887,56 @@ const AdminServiceManagementDashboard = () => {
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Payment Information */}
+              {/* Task Description / Notes */}
+              {(selectedBooking.isSupportTicket ? selectedBooking.description : selectedBooking.notes) && (
+                <div className="mt-4 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+                  <h3 className="text-xs font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                    <MessageCircle className="w-3 h-3" />
+                    Task Description / Message
+                  </h3>
+                  <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {selectedBooking.isSupportTicket ? selectedBooking.description : selectedBooking.notes}
+                  </p>
+                </div>
+              )}
+
+              {/* Payment Information */}
+              <div className="space-y-0.5">
+                <h3 className="text-xs font-semibold text-gray-900">Payment Information</h3>
                 <div className="space-y-0.5">
-                  <h3 className="text-xs font-semibold text-gray-900">Payment Information</h3>
-                  <div className="space-y-0.5">
-                    <div className="flex items-center">
-                      <span className="text-xs text-gray-600">Payment Mode:</span>
-                      <span className="ml-1">{getPaymentModeBadge(selectedBooking.paymentMode || '')}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-xs text-gray-600">Payment Status:</span>
-                      <span className="ml-1">{getPaymentStatusBadge(selectedBooking.paymentStatus || '', selectedBooking.paymentMode || '')}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <DollarSign className="w-3 h-3 text-gray-500 mr-1" />
-                      <span className="text-xs text-gray-600">Payment Amount:</span>
-                      <span className="text-xs font-medium text-gray-900 ml-1">
-                        {selectedBooking.paymentAmount && selectedBooking.paymentAmount > 0 
-                          ? `₹${selectedBooking.paymentAmount}` 
-                          : selectedBooking.pricing?.totalAmount 
-                            ? `₹${selectedBooking.pricing.totalAmount}` 
-                            : 'N/A'}
-                      </span>
-                    </div>
+                  <div className="flex items-center">
+                    <span className="text-xs text-gray-600">Payment Mode:</span>
+                    <span className="ml-1">{getPaymentModeBadge(selectedBooking.paymentMode || '')}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-xs text-gray-600">Payment Status:</span>
+                    <span className="ml-1">{getPaymentStatusBadge(selectedBooking.paymentStatus || '', selectedBooking.paymentMode || '')}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <DollarSign className="w-3 h-3 text-gray-500 mr-1" />
+                    <span className="text-xs text-gray-600">Payment Amount:</span>
+                    <span className="text-xs font-medium text-gray-900 ml-1">
+                      {selectedBooking.paymentAmount && selectedBooking.paymentAmount > 0
+                        ? `₹${selectedBooking.paymentAmount}`
+                        : selectedBooking.pricing?.totalAmount
+                          ? `₹${selectedBooking.pricing.totalAmount}`
+                          : 'N/A'}
+                    </span>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Spare Parts */}
-              {selectedBooking.completionData?.spareParts && selectedBooking.completionData.spareParts.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Spare Parts Used</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {selectedBooking.completionData.spareParts.map((part, index) => {
-                      console.log('Spare part in admin service management:', part);
-                      return (
+            {/* Spare Parts */}
+            {selectedBooking.completionData?.spareParts && selectedBooking.completionData.spareParts.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Spare Parts Used</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {selectedBooking.completionData.spareParts.map((part, index) => {
+                    console.log('Spare part in admin service management:', part);
+                    return (
                       <div key={index} className="border border-gray-200 rounded-lg p-3">
                         <div className="flex items-center justify-between mb-1">
                           <h4 className="text-xs font-medium text-gray-900">{part.name}</h4>
@@ -936,49 +959,48 @@ const AdminServiceManagementDashboard = () => {
                           </div>
                         )}
                       </div>
-                      );
-                    })}
-                  </div>
-                  <div className="mt-3 p-2 bg-gray-50 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600">Total Spare Parts Amount:</span>
-                      <span className="text-sm font-bold text-green-600">
-                        ₹{selectedBooking.completionData.spareParts.reduce((sum, part) => 
-                          sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
-                        ).toLocaleString()}
-                      </span>
-                    </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 p-2 bg-gray-50 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-600">Total Spare Parts Amount:</span>
+                    <span className="text-sm font-bold text-green-600">
+                      ₹{selectedBooking.completionData.spareParts.reduce((sum, part) =>
+                        sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
+                      ).toLocaleString()}
+                    </span>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Resolution Note */}
-              {selectedBooking.completionData?.resolutionNote && (
-                <div className="mt-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-1">Resolution Note</h3>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-xs text-gray-700">{selectedBooking.completionData.resolutionNote}</p>
-                  </div>
+            {/* Resolution Note */}
+            {selectedBooking.completionData?.resolutionNote && (
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-1">Resolution Note</h3>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-700">{selectedBooking.completionData.resolutionNote}</p>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Cancellation Reason */}
-              {selectedBooking.status === 'cancelled' && (selectedBooking as any).cancellationData?.cancellationReason && (
-                <div className="mt-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-1">Cancellation Details</h3>
-                  <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                    <p className="text-xs text-red-800 font-medium mb-1">Cancellation Reason:</p>
-                    <p className="text-xs text-red-700 mb-1">{(selectedBooking as any).cancellationData.cancellationReason}</p>
-                    <p className="text-xs text-red-600">
-                      Cancelled by: {(selectedBooking as any).cancellationData.cancelledBy} on{' '}
-                      {(selectedBooking as any).cancellationData.cancelledAt 
-                        ? new Date((selectedBooking as any).cancellationData.cancelledAt).toLocaleDateString()
-                        : 'Unknown date'}
-                    </p>
-                  </div>
+            {/* Cancellation Reason */}
+            {selectedBooking.status === 'cancelled' && (selectedBooking as any).cancellationData?.cancellationReason && (
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-1">Cancellation Details</h3>
+                <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+                  <p className="text-xs text-red-800 font-medium mb-1">Cancellation Reason:</p>
+                  <p className="text-xs text-red-700 mb-1">{(selectedBooking as any).cancellationData.cancellationReason}</p>
+                  <p className="text-xs text-red-600">
+                    Cancelled by: {(selectedBooking as any).cancellationData.cancelledBy} on{' '}
+                    {(selectedBooking as any).cancellationData.cancelledAt
+                      ? new Date((selectedBooking as any).cancellationData.cancelledAt).toLocaleDateString()
+                      : 'Unknown date'}
+                  </p>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1029,7 +1051,7 @@ const AdminServiceManagementDashboard = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-medium text-gray-600">Total Spare Parts Amount:</span>
                   <span className="text-sm font-bold text-green-600">
-                    ₹{selectedBooking.completionData.spareParts.reduce((sum, part) => 
+                    ₹{selectedBooking.completionData.spareParts.reduce((sum, part) =>
                       sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
                     ).toLocaleString()}
                   </span>

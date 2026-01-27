@@ -344,7 +344,7 @@ const VendorHero = () => {
         return {
           id: booking._id,
           caseId: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
-          title: booking.services?.[0]?.serviceName || 'Service Request',
+          title: booking.services?.map(s => s.serviceName).join(', ') || 'Service Request',
           customer: booking.customer?.name || 'Unknown Customer',
           phone: booking.customer?.phone || 'N/A',
           amount: displayAmount,
@@ -368,7 +368,7 @@ const VendorHero = () => {
               ? `${booking.customer.address.street || ''}, ${booking.customer.address.city || ''}, ${booking.customer.address.state || ''} - ${booking.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
               : booking.customer.address
             : 'Address not provided',
-          issue: booking.notes || booking.services?.[0]?.serviceName || 'Service request',
+          issue: booking.notes || booking.services?.map(s => s.serviceName).join(', ') || 'Service request',
           assignDate: booking.vendor?.assignedAt 
             ? new Date(booking.vendor.assignedAt).toLocaleDateString('en-IN')
             : new Date(booking.createdAt).toLocaleDateString('en-IN'),

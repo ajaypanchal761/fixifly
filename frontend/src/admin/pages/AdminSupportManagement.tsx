@@ -699,7 +699,7 @@ const AdminSupportManagement = () => {
                           <TableCell>
                             <div>
                               <p className="text-sm font-medium text-gray-900">{safeRender(ticket.subject)}</p>
-                              <p className="text-xs text-gray-500 max-w-xs truncate">
+                              <p className="text-xs text-gray-500">
                                 {ticket.description || 'No description provided'}
                               </p>
                             </div>
