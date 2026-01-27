@@ -603,6 +603,71 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         vendor = await Vendor.findOne({ vendorId: vendorId }).select('+fcmTokenMobile notificationSettings firstName lastName email');
       }
 
+      // --- SEND EMAIL TO USER ABOUT ENGINEER ASSIGNMENT ---
+      try {
+        if (bookingData.customer && bookingData.customer.email) {
+          console.log('📧 Sending engineer assignment email to user:', bookingData.customer.email);
+
+          const emailService = new (require('../services/emailService'))();
+          const subject = `Engineer Assigned for your Booking #${bookingData.bookingReference || bookingData._id.toString().substring(0, 8).toUpperCase()}`;
+
+          // Format date and time
+          const scheduledDateVal = bookingData.scheduling?.scheduledDate
+            ? new Date(bookingData.scheduling.scheduledDate).toLocaleDateString('en-IN', {
+              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            })
+            : 'As scheduled';
+
+          const scheduledTimeVal = bookingData.scheduling?.scheduledTime || 'As scheduled';
+
+          const htmlContent = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #2563eb;">Engineer Assigned!</h2>
+                        <p style="font-size: 16px; color: #4b5563;">Good news! An engineer has been assigned to your service request.</p>
+                    </div>
+                    
+                    <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                        <h3 style="margin-top: 0; color: #1f2937;">Booking Details</h3>
+                        <p><strong>Booking ID:</strong> ${bookingData.bookingReference || bookingData._id}</p>
+                        <p><strong>Service:</strong> ${bookingData.services && bookingData.services[0] ? bookingData.services[0].name : 'Requested Service'}</p>
+                        <p><strong>Date:</strong> ${scheduledDateVal}</p>
+                        <p><strong>Time:</strong> ${scheduledTimeVal}</p>
+                    </div>
+
+                    ${vendor ? `
+                    <div style="background-color: #ecfdf5; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #d1fae5;">
+                        <h3 style="margin-top: 0; color: #065f46;">Engineer Details</h3>
+                        <p><strong>Name:</strong> ${vendor.firstName} ${vendor.lastName}</p>
+                        <p><strong>Experience:</strong> ${vendor.experience || 'Experienced'}</p>
+                        <p><strong>Rating:</strong> ${vendor.rating?.average ? '⭐ ' + vendor.rating.average.toFixed(1) : 'New'}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="text-align: center; margin-top: 30px; font-size: 14px; color: #6b7280;">
+                        <p>The engineer will arrive at the scheduled time. You can track your booking status in the app.</p>
+                        <p>Thank you for choosing Fixfly!</p>
+                    </div>
+                </div>
+            `;
+
+          await emailService.sendEmail({
+            to: bookingData.customer.email,
+            subject: subject,
+            html: htmlContent,
+            text: `Engineer Assigned! An engineer has been assigned to your service request (Booking ID: ${bookingData.bookingReference}). They will arrive on ${scheduledDateVal} at ${scheduledTimeVal}.`
+          });
+
+          console.log('✅ Engineer assignment email sent successfully');
+        } else {
+          console.log('⚠️ No customer email found for engineer assignment notification');
+        }
+      } catch (emailError) {
+        console.error('❌ Failed to send engineer assignment email:', emailError);
+        // Don't block the rest of the notification flow
+      }
+      // ----------------------------------------------------
+
       if (!vendor) {
         logger.error('❌ Vendor not found for push notification', {
           vendorObjectId: vendorObjectId.toString(),

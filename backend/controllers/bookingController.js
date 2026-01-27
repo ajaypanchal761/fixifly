@@ -93,6 +93,24 @@ const isFirstTimeUser = async (customerEmail, customerPhone) => {
   return false; // Always return false - no free service for first-time users
 };
 
+// Helper: populate vendor data robustly (handles both Custom ID and ObjectId)
+const populateVendorData = async (booking) => {
+  if (booking && booking.vendor && booking.vendor.vendorId) {
+    let vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+      .select('firstName lastName email phone');
+
+    // Fallback: If not found and looks like ObjectId, try findById
+    if (!vendor && typeof booking.vendor.vendorId === 'string' && booking.vendor.vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+      vendor = await Vendor.findById(booking.vendor.vendorId).select('firstName lastName email phone');
+    }
+
+    if (vendor) {
+      booking.vendor.vendorId = vendor;
+    }
+  }
+  return booking;
+};
+
 // @desc    Create a new booking
 // @route   POST /api/bookings
 // @access  Private (requires authentication)
@@ -553,7 +571,11 @@ const getBookingById = asyncHandler(async (req, res) => {
     // Check if vendor is trying to access this booking
     if (req.vendor) {
       // If vendor is authenticated, check if they are assigned to this booking
-      if (booking.vendor && booking.vendor.vendorId !== req.vendor.vendorId) {
+      const assignedVendorID = booking.vendor?.vendorId;
+      // Also allow if it matches their mongo _id (in case ObjectId was saved)
+      const isCorrectVendor = assignedVendorID === req.vendor.vendorId || assignedVendorID === req.vendor._id.toString();
+
+      if (booking.vendor && !isCorrectVendor) {
         return res.status(403).json({
           success: false,
           message: 'You are not authorized to view this booking'
@@ -570,11 +592,7 @@ const getBookingById = asyncHandler(async (req, res) => {
 
       if (isAccepted) {
         // Vendor has accepted - populate vendor details
-        const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
-          .select('firstName lastName email phone');
-        if (vendor) {
-          booking.vendor.vendorId = vendor;
-        }
+        await populateVendorData(booking);
       } else {
         // Vendor hasn't accepted yet - completely remove vendor object for users
         // But keep it for vendors themselves (they can see their assignment)
@@ -583,11 +601,7 @@ const getBookingById = asyncHandler(async (req, res) => {
           booking.vendor = null;
         } else {
           // Vendor is viewing their own assignment - populate it so they can see it
-          const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
-            .select('firstName lastName email phone');
-          if (vendor) {
-            booking.vendor.vendorId = vendor;
-          }
+          await populateVendorData(booking);
         }
       }
     }
@@ -746,13 +760,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
     ).lean();
 
     // Manually populate vendor data
-    if (booking && booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
-        .select('firstName lastName email phone');
-      if (vendor) {
-        booking.vendor.vendorId = vendor;
-      }
-    }
+    await populateVendorData(booking);
 
     if (!booking) {
       return res.status(404).json({
@@ -809,8 +817,27 @@ const getBookingsByVendor = asyncHandler(async (req, res) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Resolve vendor to get both ID variants (fix for visibility issue)
+    // This handles cases where bookings might have either Custom ID or Mongo ID stored
+    let searchIds = [vendorId];
+    try {
+      // First try to find by Custom ID (common case)
+      let vendorDoc = await Vendor.findOne({ vendorId: vendorId }).select('_id vendorId');
+
+      // If not found and input looks like MongoID, try match by _id
+      if (!vendorDoc && vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+        vendorDoc = await Vendor.findById(vendorId).select('_id vendorId');
+      }
+
+      if (vendorDoc) {
+        searchIds = [vendorDoc.vendorId, vendorDoc._id.toString()];
+      }
+    } catch (err) {
+      logger.warn('Error resolving vendor IDs in getBookingsByVendor', err);
+    }
+
     // Build query
-    const query = { 'vendor.vendorId': vendorId };
+    const query = { 'vendor.vendorId': { $in: searchIds } };
     if (status && status !== 'all') {
       query.status = status;
     }
@@ -826,13 +853,7 @@ const getBookingsByVendor = asyncHandler(async (req, res) => {
 
     // Manually populate vendor data and hide customer phone if task not accepted
     for (const booking of bookings) {
-      if (booking.vendor && booking.vendor.vendorId) {
-        const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
-          .select('firstName lastName email phone');
-        if (vendor) {
-          booking.vendor.vendorId = vendor;
-        }
-      }
+      await populateVendorData(booking);
 
       // Hide customer phone number if vendor hasn't accepted the task
       if (booking.customer && booking.customer.phone) {
@@ -1285,6 +1306,9 @@ const acceptTask = asyncHandler(async (req, res) => {
       { new: true, runValidators: true }
     ).lean();
 
+    // Populate vendor data for return data
+    await populateVendorData(updatedBooking);
+
     logger.info(`Vendor accepted task for booking ${bookingId}`);
 
     // 1. Send Push Notification to User (Best Effort)
@@ -1517,6 +1541,9 @@ const declineTask = asyncHandler(async (req, res) => {
       { new: true, runValidators: true }
     ).lean();
 
+    // Populate vendor data for return data
+    await populateVendorData(updatedBooking);
+
     logger.info(`Vendor declined task for booking ${bookingId}`, {
       vendorId,
       bookingId,
@@ -1666,6 +1693,9 @@ const completeTask = asyncHandler(async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     ).lean();
+
+    // Populate vendor data for return data
+    await populateVendorData(updatedBooking);
 
     if (!updatedBooking) {
       console.log('ERROR: Failed to update booking');
@@ -2048,13 +2078,7 @@ const cancelBooking = asyncHandler(async (req, res) => {
     ).lean();
 
     // Manually populate vendor data
-    if (updatedBooking && updatedBooking.vendor && updatedBooking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: updatedBooking.vendor.vendorId })
-        .select('firstName lastName email phone');
-      if (vendor) {
-        updatedBooking.vendor.vendorId = vendor;
-      }
-    }
+    await populateVendorData(updatedBooking);
 
     logger.info(`Booking cancelled: ${updatedBooking.bookingReference}`, {
       bookingId: updatedBooking._id,
@@ -2144,13 +2168,7 @@ const cancelBookingByUser = asyncHandler(async (req, res) => {
     ).lean();
 
     // Manually populate vendor data if exists
-    if (updatedBooking && updatedBooking.vendor && updatedBooking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: updatedBooking.vendor.vendorId })
-        .select('firstName lastName email phone');
-      if (vendor) {
-        updatedBooking.vendor.vendorId = vendor;
-      }
-    }
+    await populateVendorData(updatedBooking);
 
     logger.info(`Booking cancelled by customer: ${updatedBooking.bookingReference}`, {
       bookingId: updatedBooking._id,
@@ -2260,13 +2278,7 @@ const rescheduleBookingByUser = asyncHandler(async (req, res) => {
     ).lean();
 
     // Manually populate vendor data
-    if (updatedBooking && updatedBooking.vendor && updatedBooking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: updatedBooking.vendor.vendorId })
-        .select('firstName lastName email phone');
-      if (vendor) {
-        updatedBooking.vendor.vendorId = vendor;
-      }
-    }
+    await populateVendorData(updatedBooking);
 
     logger.info(`Booking rescheduled by customer: ${updatedBooking.bookingReference}`, {
       bookingId: updatedBooking._id,
@@ -2386,13 +2398,7 @@ const rescheduleBooking = asyncHandler(async (req, res) => {
     ).lean();
 
     // Manually populate vendor data
-    if (updatedBooking && updatedBooking.vendor && updatedBooking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: updatedBooking.vendor.vendorId })
-        .select('firstName lastName email phone');
-      if (vendor) {
-        updatedBooking.vendor.vendorId = vendor;
-      }
-    }
+    await populateVendorData(updatedBooking);
 
     logger.info(`Booking rescheduled: ${updatedBooking.bookingReference}`, {
       bookingId: updatedBooking._id,

@@ -73,7 +73,7 @@ const bookingSchema = new mongoose.Schema({
 
   // Service Information
   services: [bookingServiceSchema],
-  
+
   // Pricing Information
   pricing: {
     subtotal: {
@@ -181,25 +181,6 @@ const bookingSchema = new mongoose.Schema({
     },
     preferredTimeSlot: {
       type: String,
-      enum: [
-        // Standard 2-hour slots from 9 AM to 9 PM
-        '9:00 AM - 11:00 AM',
-        '10:00 AM - 12:00 PM',
-        '11:00 AM - 1:00 PM',
-        '12:00 PM - 2:00 PM',
-        '1:00 PM - 3:00 PM',
-        '2:00 PM - 4:00 PM',
-        '3:00 PM - 5:00 PM',
-        '4:00 PM - 6:00 PM',
-        '5:00 PM - 7:00 PM',
-        '6:00 PM - 8:00 PM',
-        '7:00 PM - 9:00 PM',
-        '8:00 PM - 10:00 PM',
-        // Keep old format for backward compatibility
-        'morning', 
-        'afternoon', 
-        'evening'
-      ],
       required: [true, 'Preferred time slot is required']
     },
     scheduledDate: {
@@ -221,7 +202,7 @@ const bookingSchema = new mongoose.Schema({
     },
     autoRejectAt: {
       type: Date,
-      default: function() {
+      default: function () {
         // Set auto-reject time to 25 minutes from assignment
         return new Date(Date.now() + 25 * 60 * 1000);
       }
@@ -406,24 +387,24 @@ const bookingSchema = new mongoose.Schema({
       type: Date
     }
   }
-}, { 
+}, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
 // Virtual for booking reference number
-bookingSchema.virtual('bookingReference').get(function() {
+bookingSchema.virtual('bookingReference').get(function () {
   return `FIX${this._id.toString().slice(-8).toUpperCase()}`;
 });
 
 // Virtual for total services count
-bookingSchema.virtual('totalServices').get(function() {
+bookingSchema.virtual('totalServices').get(function () {
   return this.services.length;
 });
 
 // Pre-save middleware to update updatedAt
-bookingSchema.pre('save', function(next) {
+bookingSchema.pre('save', function (next) {
   this.tracking.updatedAt = new Date();
   next();
 });
@@ -439,20 +420,20 @@ bookingSchema.index({ 'vendor.vendorId': 1 });
 bookingSchema.index({ createdAt: -1 });
 
 // Static methods
-bookingSchema.statics.findByCustomerEmail = function(email) {
+bookingSchema.statics.findByCustomerEmail = function (email) {
   return this.find({ 'customer.email': email }).sort({ createdAt: -1 });
 };
 
-bookingSchema.statics.findByStatus = function(status) {
+bookingSchema.statics.findByStatus = function (status) {
   return this.find({ status }).sort({ createdAt: -1 });
 };
 
-bookingSchema.statics.findByVendor = function(vendorId) {
+bookingSchema.statics.findByVendor = function (vendorId) {
   return this.find({ 'vendor.vendorId': vendorId }).sort({ createdAt: -1 });
 };
 
 // Instance methods
-bookingSchema.methods.updateStatus = function(newStatus) {
+bookingSchema.methods.updateStatus = function (newStatus) {
   this.status = newStatus;
   if (newStatus === 'completed') {
     this.tracking.completedAt = new Date();
@@ -460,7 +441,7 @@ bookingSchema.methods.updateStatus = function(newStatus) {
   return this.save();
 };
 
-bookingSchema.methods.assignVendor = function(vendorId) {
+bookingSchema.methods.assignVendor = function (vendorId) {
   this.vendor.vendorId = vendorId;
   this.vendor.assignedAt = new Date();
   this.vendor.autoRejectAt = new Date(Date.now() + 25 * 60 * 1000); // 25 minutes from now

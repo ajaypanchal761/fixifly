@@ -75,8 +75,14 @@ const getAllBookings = asyncHandler(async (req, res) => {
     // Manually populate vendor data and review data
     for (const booking of bookings) {
       if (booking.vendor && booking.vendor.vendorId) {
-        const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+        let vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
           .select('firstName lastName email phone');
+
+        // Fallback: If not found and looks like ObjectId, try findById
+        if (!vendor && typeof booking.vendor.vendorId === 'string' && booking.vendor.vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+          vendor = await Vendor.findById(booking.vendor.vendorId).select('firstName lastName email phone');
+        }
+
         if (vendor) {
           booking.vendor.vendorId = vendor;
         }
@@ -190,8 +196,14 @@ const getBookingById = asyncHandler(async (req, res) => {
 
     // Manually populate vendor data
     if (booking && booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+      let vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
         .select('firstName lastName email phone address');
+
+      // Fallback: If not found and looks like ObjectId, try findById
+      if (!vendor && typeof booking.vendor.vendorId === 'string' && booking.vendor.vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+        vendor = await Vendor.findById(booking.vendor.vendorId).select('firstName lastName email phone address');
+      }
+
       if (vendor) {
         booking.vendor.vendorId = vendor;
       }
@@ -273,8 +285,14 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
     // Manually populate vendor data
     if (booking && booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+      let vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
         .select('firstName lastName email phone');
+
+      // Fallback: If not found and looks like ObjectId, try findById
+      if (!vendor && typeof booking.vendor.vendorId === 'string' && booking.vendor.vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+        vendor = await Vendor.findById(booking.vendor.vendorId).select('firstName lastName email phone');
+      }
+
       if (vendor) {
         booking.vendor.vendorId = vendor;
       }
@@ -393,8 +411,14 @@ const updateBookingPriority = asyncHandler(async (req, res) => {
 
     // Manually populate vendor data
     if (booking && booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+      let vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
         .select('firstName lastName email phone');
+
+      // Fallback: If not found and looks like ObjectId, try findById
+      if (!vendor && typeof booking.vendor.vendorId === 'string' && booking.vendor.vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+        vendor = await Vendor.findById(booking.vendor.vendorId).select('firstName lastName email phone');
+      }
+
       if (vendor) {
         booking.vendor.vendorId = vendor;
       }
@@ -445,25 +469,38 @@ const assignVendor = asyncHandler(async (req, res) => {
       });
     }
 
-    let vendorObjectId = vendorId;
+    // Resolve vendor IDs (need both Custom String ID for Booking and ObjectId for other models)
+    let vendorMongoId = vendorId;
+    let vendorCustomId = vendorId;
 
-    // Resolve vendorId to ObjectId if it's a string (custom vendor ID like "101")
-    // This is crucial because Booking model stores vendorId as ObjectId ref
-    if (vendorId && typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/)) {
-      const vendorDoc = await Vendor.findOne({ vendorId: vendorId }).select('_id');
+    // Check if input is a Custom ID (e.g., "101" - string of digits/chars, not 24-char hex)
+    const isCustomId = vendorId && typeof vendorId === 'string' && !vendorId.match(/^[0-9a-fA-F]{24}$/);
+
+    if (isCustomId) {
+      // Input is Custom ID
+      const vendorDoc = await Vendor.findOne({ vendorId: vendorId }).select('_id vendorId');
       if (!vendorDoc) {
         return res.status(404).json({
           success: false,
           message: `Vendor with ID ${vendorId} not found`
         });
       }
-      vendorObjectId = vendorDoc._id;
+      vendorMongoId = vendorDoc._id;
+      vendorCustomId = vendorDoc.vendorId;
+    } else {
+      // Input is likely ObjectId
+      const vendorDoc = await Vendor.findById(vendorId).select('vendorId');
+      if (vendorDoc) {
+        vendorMongoId = vendorDoc._id;
+        vendorCustomId = vendorDoc.vendorId;
+      }
+      // If not found by ID, we proceed with original value (might fail later or be intended)
     }
 
     // Validation: Check if vendor already has a task for the same date and time
     if (scheduledDate && scheduledTime) {
       const scheduledDateObj = new Date(scheduledDate);
-      // Normalize date to start of day for comparison (set hours, minutes, seconds, ms to 0)
+      // Normalize date to start of day for comparison
       const normalizedDate = new Date(scheduledDateObj);
       normalizedDate.setHours(0, 0, 0, 0);
 
@@ -471,10 +508,10 @@ const assignVendor = asyncHandler(async (req, res) => {
       const endOfDay = new Date(normalizedDate);
       endOfDay.setHours(23, 59, 59, 999);
 
-      // Build conflict filter
+      // 1. Check Booking Conflict (Uses Custom Vendor ID)
       const conflictFilter = {
         _id: { $ne: req.params.id },
-        'vendor.vendorId': vendorObjectId,
+        'vendor.vendorId': vendorCustomId, // Uses Custom String ID
         'scheduling.scheduledDate': {
           $gte: normalizedDate,
           $lte: endOfDay
@@ -494,7 +531,7 @@ const assignVendor = asyncHandler(async (req, res) => {
 
       if (conflictingBooking) {
         logger.warn('Vendor conflict detected in bookings', {
-          vendorId,
+          vendorId: vendorCustomId,
           scheduledDate: normalizedDate,
           scheduledTime,
           conflictingBooking: conflictingBooking.bookingReference,
@@ -507,11 +544,11 @@ const assignVendor = asyncHandler(async (req, res) => {
         });
       }
 
-      // Also check for conflicting Support Tickets
+      // 2. Check Support Ticket Conflict (Uses Mongo ObjectId)
       const SupportTicket = require('../models/SupportTicket');
 
       const conflictingTicket = await SupportTicket.findOne({
-        assignedTo: vendorObjectId,
+        assignedTo: vendorMongoId, // Uses ObjectId
         scheduledDate: {
           $gte: normalizedDate,
           $lte: endOfDay
@@ -523,7 +560,7 @@ const assignVendor = asyncHandler(async (req, res) => {
 
       if (conflictingTicket) {
         logger.warn('Vendor conflict detected in support tickets', {
-          vendorId,
+          vendorId: vendorCustomId,
           scheduledDate: normalizedDate,
           scheduledTime,
           conflictingTicket: conflictingTicket.ticketId,
@@ -535,11 +572,11 @@ const assignVendor = asyncHandler(async (req, res) => {
         });
       }
 
-      // Check for conflicting warranty claims
+      // 3. Check Warranty Claim Conflict (Uses Mongo ObjectId)
       const WarrantyClaim = require('../models/WarrantyClaim');
 
       const conflictingClaim = await WarrantyClaim.findOne({
-        assignedVendor: vendorObjectId,
+        assignedVendor: vendorMongoId, // Uses ObjectId
         scheduledDate: {
           $gte: normalizedDate,
           $lte: endOfDay
@@ -550,7 +587,7 @@ const assignVendor = asyncHandler(async (req, res) => {
 
       if (conflictingClaim) {
         logger.warn('Vendor conflict detected with warranty claim', {
-          vendorId,
+          vendorId: vendorCustomId,
           scheduledDate: normalizedDate,
           scheduledTime,
           conflictingClaimId: conflictingClaim._id,
@@ -564,7 +601,7 @@ const assignVendor = asyncHandler(async (req, res) => {
     }
 
     const updateData = {
-      'vendor.vendorId': vendorObjectId,
+      'vendor.vendorId': vendorCustomId, // Store Custom String ID
       'vendor.assignedAt': new Date(),
       'vendor.autoRejectAt': new Date(Date.now() + 25 * 60 * 1000), // Set 25-minute auto-reject timer
       'tracking.updatedAt': new Date(),
@@ -601,7 +638,7 @@ const assignVendor = asyncHandler(async (req, res) => {
 
     // Manually populate vendor data and mark first task assignment
     if (booking && booking.vendor && booking.vendor.vendorId) {
-      const vendor = await Vendor.findById(booking.vendor.vendorId)
+      const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
         .select('firstName lastName email phone address');
       if (vendor) {
         booking.vendor.vendorId = vendor;

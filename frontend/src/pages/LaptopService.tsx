@@ -5,6 +5,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import publicProductApi, { PublicProduct } from "@/services/publicProductApi";
+import QuickBookModal from '@/components/QuickBookModal';
 
 interface ServiceItem {
   id: string;
@@ -23,12 +24,10 @@ const ServicePage = () => {
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("");
-  const [cartItems, setCartItems] = useState<{ id: string, title: string, price: number, image: string }[]>([]);
-
-  // Backend data state
   const [product, setProduct] = useState<PublicProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [quickBookService, setQuickBookService] = useState<any>(null);
 
   // Map serviceType to product search query
   const getProductSearchQuery = (urlServiceType: string | undefined): string => {
@@ -313,19 +312,6 @@ const ServicePage = () => {
   const serviceSubtitle = `${product?.productName || 'Service'} In Mumbai`;
   const heroTitle = `${product?.productName || 'Service'} Repair Service`;
 
-  const addToCart = (service: any) => {
-    const existingItem = cartItems.find(item => item.id === service.id);
-    if (!existingItem) {
-      setCartItems([...cartItems, { id: service.id, title: service.title, price: service.price, image: service.image }]);
-    }
-  };
-
-  const removeFromCart = (serviceId: string) => {
-    setCartItems(cartItems.filter(item => item.id !== serviceId));
-  };
-
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -495,20 +481,16 @@ const ServicePage = () => {
                         </div>
                         <Button
                           size="sm"
-                          className={`w-full text-white ${cartItems.find(item => item.id === service.id)
-                            ? 'bg-green-600 hover:bg-green-700'
-                            : 'bg-blue-600 hover:bg-blue-700'
-                            }`}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md active:scale-95 transition-all"
                           onClick={() => {
-                            const existingItem = cartItems.find(item => item.id === service.id);
-                            if (existingItem) {
-                              removeFromCart(service.id);
-                            } else {
-                              addToCart(service);
-                            }
+                            setQuickBookService({
+                              _id: service.id,
+                              serviceName: service.title,
+                              price: service.price
+                            });
                           }}
                         >
-                          {cartItems.find(item => item.id === service.id) ? 'Remove' : 'Add Cart'}
+                          Book Now
                         </Button>
                       </div>
                     </div>
@@ -519,105 +501,14 @@ const ServicePage = () => {
           </div>
         )}
 
-        {/* Checkout Section */}
-        {cartItems.length > 0 && (
-          <div className="fixed bottom-12 left-0 right-0 z-[70] md:bottom-0 md:z-50 transition-all duration-300 ease-out">
-            {/* Backdrop blur effect */}
-            <div className="absolute inset-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 pointer-events-none"></div>
-
-            {/* Content */}
-            <div className="relative container mx-auto px-4 py-3 md:py-4 pointer-events-auto">
-              <div className="flex items-center justify-between gap-3 md:gap-4">
-                {/* Left Section - Cart Info */}
-                <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-                  {/* Cart Icon Badge */}
-                  <div className="relative flex-shrink-0">
-                    <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
-                      <ShoppingBag className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                    </div>
-                    {cartItems.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg">
-                        {cartItems.length}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Price Info */}
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs md:text-sm text-gray-500 font-medium">
-                      {cartItems.length} {cartItems.length === 1 ? 'Service' : 'Services'}
-                    </span>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-lg md:text-xl font-bold text-gray-900">
-                        {totalPrice === 0 ? 'Free' : `₹${totalPrice}`}
-                      </span>
-                      {totalPrice !== 0 && (
-                        <span className="text-xs text-gray-500">total</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Section - Checkout Button */}
-                <Button
-                  type="button"
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 md:px-6 lg:px-8 py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 font-semibold text-sm md:text-base whitespace-nowrap flex-shrink-0 relative z-10"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Checkout button clicked', { cartItems, totalPrice, isAuthenticated });
-                    
-                    // Check if user is authenticated before proceeding to checkout
-                    if (!isAuthenticated) {
-                      toast({
-                        title: "Login Required",
-                        description: "Please login to proceed with checkout",
-                        variant: "destructive"
-                      });
-                      navigate('/login', { state: { from: { pathname: '/checkout', state: { cartItems, totalPrice } } } });
-                      return;
-                    }
-                    
-                    // Ensure cart has items
-                    if (!cartItems || cartItems.length === 0) {
-                      toast({
-                        title: "Cart Empty",
-                        description: "Please add items to cart before checkout",
-                        variant: "destructive"
-                      });
-                      return;
-                    }
-                    
-                    // Save cart data to localStorage as backup
-                    try {
-                      localStorage.setItem('checkoutCartData', JSON.stringify({ cartItems, totalPrice }));
-                    } catch (error) {
-                      console.error('Error saving cart data to localStorage:', error);
-                    }
-                    
-                    // Navigate to checkout page immediately
-                    console.log('Navigating to checkout...', { cartItems, totalPrice });
-                    try {
-                      navigate('/checkout', { 
-                        state: { cartItems, totalPrice },
-                        replace: false
-                      });
-                    } catch (error) {
-                      console.error('Navigation error:', error);
-                      // Fallback to window.location if navigate fails
-                      window.location.href = '/checkout';
-                    }
-                  }}
-                >
-                  <span>Proceed to Checkout</span>
-                  <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Subtle shadow at top */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent pointer-events-none"></div>
-          </div>
+        {/* Quick Booking Modal */}
+        {quickBookService && (
+          <QuickBookModal
+            isOpen={true}
+            onClose={() => setQuickBookService(null)}
+            service={quickBookService}
+            productName={product?.productName}
+          />
         )}
       </div>
     </div>

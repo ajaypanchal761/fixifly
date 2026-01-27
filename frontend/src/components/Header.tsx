@@ -437,7 +437,7 @@ const Header = () => {
           </MuiBox>
         )}
 
-        {/* User Profile Section - Fixed at top */}
+        {/* Simplified Header - Removing User Profile for Guest-only flow */}
         <MuiBox sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -446,32 +446,13 @@ const Header = () => {
           backgroundColor: '#f8f9fa',
           flexShrink: 0
         }}>
-          <Avatar
-            src={isAuthenticated && user?.profileImage ? user.profileImage : undefined}
-            sx={{
-              width: isMobile ? 50 : 60,
-              height: isMobile ? 50 : 60,
-              marginBottom: isMobile ? 0.5 : 1,
-              backgroundColor: isAuthenticated && user?.profileImage ? 'transparent' : '#3b82f6',
-              fontSize: isMobile ? '1.2rem' : '1.5rem'
-            }}
-          >
-            {isAuthenticated && user && user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-          </Avatar>
-          <Typography variant="subtitle1" sx={{
-            fontWeight: 'bold',
-            marginBottom: 0.25,
-            color: '#1f2937',
-            fontSize: isMobile ? '0.9rem' : '1rem'
-          }}>
-            {isAuthenticated && user && user.name ? user.name : 'Guest User'}
-          </Typography>
-          <Typography variant="body2" sx={{
-            color: '#6b7280',
-            marginBottom: isMobile ? 0.5 : 1,
-            fontSize: isMobile ? '0.75rem' : '0.875rem'
-          }}>
-            {isAuthenticated && user ? user.phone : 'Not logged in'}
+          <img
+            src={logoFixifly}
+            alt="Fixfly"
+            style={{ height: '40px', marginBottom: '8px' }}
+          />
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1f2937' }}>
+            Welcome to Fixfly
           </Typography>
         </MuiBox>
 
@@ -488,10 +469,6 @@ const Header = () => {
           paddingBottom: isMobile ? '100px' : '16px' // Extra space for mobile bottom nav
         }}>
           {[
-            { name: "Profile", icon: User, href: "/profile" },
-            { name: "Notifications", icon: Bell, href: "/notifications" },
-            { name: "Booking", icon: Calendar, href: "/booking" },
-            { name: "AMC Plan", icon: Wrench, href: "/amc" },
             { name: "Services Booking T&C", icon: FileText, href: "/terms-conditions" },
             { name: "Privacy Policy", icon: ShieldCheck, href: "/privacy-policy" },
             { name: "Cancellation & Refund ", icon: RefreshCw, href: "/cancellation-refund-policy" },

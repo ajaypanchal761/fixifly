@@ -105,8 +105,6 @@ const AppContent = () => {
         <Routes>
           {/* ================== PUBLIC ROUTES ================== */}
           <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/laptop-service" element={<LaptopService />} />
           <Route path="/service/:serviceType" element={<LaptopService />} />
@@ -124,34 +122,34 @@ const AppContent = () => {
           <Route path="/vendor/benefits" element={<VendorBenefits />} />
 
           {/* ================== PROTECTED USER ROUTES ================== */}
-          <Route path="/booking" element={<MobileAuthGuard><Booking /></MobileAuthGuard>} />
-          <Route path="/checkout" element={<MobileAuthGuard><Checkout /></MobileAuthGuard>} />
-          <Route path="/reschedule/:id" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
-          <Route path="/reschedule" element={<MobileAuthGuard><Reschedule /></MobileAuthGuard>} />
+          <Route path="/booking" element={<Booking />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/reschedule/:id" element={<Reschedule />} />
+          <Route path="/reschedule" element={<Reschedule />} />
 
           {/* AMC Routes */}
-          <Route path="/amc" element={<MobileAuthGuard><AMC /></MobileAuthGuard>} />
-          <Route path="/amc/plan/:planId" element={<MobileAuthGuard><AMCPlanDetails /></MobileAuthGuard>} />
-          <Route path="/amc/subscribe/:planId" element={<MobileAuthGuard><AMCSubscribe /></MobileAuthGuard>} />
+          <Route path="/amc" element={<AMC />} />
+          <Route path="/amc/plan/:planId" element={<AMCPlanDetails />} />
+          <Route path="/amc/subscribe/:planId" element={<AMCSubscribe />} />
 
           {/* Support Routes */}
-          <Route path="/support" element={<MobileAuthGuard><Support /></MobileAuthGuard>} />
-          <Route path="/payment" element={<MobileAuthGuard><Payment /></MobileAuthGuard>} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/payment" element={<Payment />} />
 
           {/* Profile & Settings Routes */}
-          <Route path="/profile" element={<UserProtectedRoute><Profile /></UserProtectedRoute>} />
-          <Route path="/notifications" element={<MobileAuthGuard><Notifications /></MobileAuthGuard>} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/notifications" element={<Notifications />} />
 
           {/* Information Pages Routes */}
-          <Route path="/tips-tricks" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
-          <Route path="/tips" element={<MobileAuthGuard><TipsTricks /></MobileAuthGuard>} />
-          <Route path="/terms-conditions" element={<MobileAuthGuard><TermsConditions /></MobileAuthGuard>} />
-          <Route path="/privacy-policy" element={<MobileAuthGuard><PrivacyPolicy /></MobileAuthGuard>} />
-          <Route path="/cancellation-refund-policy" element={<MobileAuthGuard><CancellationRefundPolicy /></MobileAuthGuard>} />
-          <Route path="/about" element={<MobileAuthGuard><About /></MobileAuthGuard>} />
-          <Route path="/rate-us" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
-          <Route path="/rate" element={<MobileAuthGuard><RateUs /></MobileAuthGuard>} />
-          <Route path="/shop" element={<MobileAuthGuard><Shop /></MobileAuthGuard>} />
+          <Route path="/tips-tricks" element={<TipsTricks />} />
+          <Route path="/tips" element={<TipsTricks />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/cancellation-refund-policy" element={<CancellationRefundPolicy />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/rate-us" element={<RateUs />} />
+          <Route path="/rate" element={<RateUs />} />
+          <Route path="/shop" element={<Shop />} />
 
           {/* ================== ADMIN PROTECTED ROUTES ================== */}
           <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />

@@ -33,7 +33,7 @@ const Checkout = () => {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean>(false);
   const [checkingFirstTime, setCheckingFirstTime] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  
+
   // Customer form data - initialize with user data if available
   const [customerData, setCustomerData] = useState({
     name: user?.name || "",
@@ -84,7 +84,7 @@ const Checkout = () => {
       // Default slots if no date selected
       return [
         "9:00 AM - 11:00 AM",
-        "11:00 AM - 1:00 PM", 
+        "11:00 AM - 1:00 PM",
         "1:00 PM - 3:00 PM",
         "3:00 PM - 5:00 PM",
         "5:00 PM - 7:00 PM",
@@ -99,7 +99,7 @@ const Checkout = () => {
   useEffect(() => {
     if (customerData.scheduledDate && customerData.scheduledTime) {
       const isSlotAvailable = timeSlots.includes(customerData.scheduledTime);
-      
+
       // If current time slot is not available, clear it
       if (!isSlotAvailable) {
         setCustomerData(prev => ({ ...prev, scheduledTime: "" }));
@@ -111,37 +111,26 @@ const Checkout = () => {
   const formatPhoneNumber = (value: string) => {
     // Remove all non-digits
     const digits = value.replace(/\D/g, '');
-    
+
     // If it starts with 91, add + prefix
     if (digits.startsWith('91') && digits.length === 12) {
       return `+${digits}`;
     }
-    
+
     // If it doesn't start with 91, add +91 prefix
     if (digits.length === 10) {
       return `+91${digits}`;
     }
-    
+
     // If it already has +91, keep it
     if (value.startsWith('+91')) {
       return value;
     }
-    
+
     return value;
   };
 
   useEffect(() => {
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      toast({
-        title: "Login Required",
-        description: "Please login to proceed with checkout",
-        variant: "destructive"
-      });
-      navigate('/login', { state: { from: location } });
-      return;
-    }
-
     // Check for cart data in location state first
     if (location.state?.cartItems && location.state?.totalPrice !== undefined) {
       console.log('Cart data from location.state:', location.state);
@@ -231,12 +220,12 @@ const Checkout = () => {
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
-      
+
       // Add authorization header if token exists
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-      
+
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings`, {
         method: 'POST',
         headers,
@@ -250,12 +239,12 @@ const Checkout = () => {
       }
 
       // Navigate IMMEDIATELY to booking page - instant booking
-      navigate('/booking', { 
+      navigate('/booking', {
         replace: true,
-        state: { 
+        state: {
           booking: data.data.booking,
           bookingReference: data.data.booking.bookingReference,
-          fromCheckout: true 
+          fromCheckout: true
         }
       });
 
@@ -281,12 +270,12 @@ const Checkout = () => {
   const handlePayment = async () => {
     try {
       setLoading(true);
-      
+
       // Validate required fields
-      if (!customerData.name || !customerData.email || !customerData.phone || 
-          !customerData.address.street || !customerData.address.city || 
-          !customerData.address.state || !customerData.address.pincode || 
-          !customerData.notes || !customerData.scheduledDate || !customerData.scheduledTime) {
+      if (!customerData.name || !customerData.email || !customerData.phone ||
+        !customerData.address.street || !customerData.address.city ||
+        !customerData.address.state || !customerData.address.pincode ||
+        !customerData.notes || !customerData.scheduledDate || !customerData.scheduledTime) {
         toast({
           title: "Missing Information",
           description: "Please fill in all required fields (Name, Email, Phone, Address, City, State, Pincode, Issue Description, Schedule Date, Schedule Time)",
@@ -295,7 +284,7 @@ const Checkout = () => {
         setLoading(false);
         return;
       }
-      
+
       // Validate phone number format (should start with +91)
       if (!customerData.phone.startsWith('+91') || customerData.phone.length !== 13) {
         toast({
@@ -306,7 +295,7 @@ const Checkout = () => {
         setLoading(false);
         return;
       }
-      
+
       // Create booking data
       const bookingData: BookingData = {
         customer: customerData,
@@ -330,7 +319,7 @@ const Checkout = () => {
 
       // Handle cash payment
       await handleCashPayment(bookingData);
-      
+
     } catch (error) {
       setLoading(false);
       toast({
@@ -347,8 +336,8 @@ const Checkout = () => {
         <div className="max-w-2xl mx-auto">
           {/* Back Button */}
           <div className="mb-6">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => navigate(-1)}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
@@ -362,19 +351,8 @@ const Checkout = () => {
           <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900">Customer Information</h2>
-              {!isAuthenticated && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/login')}
-                  className="flex items-center space-x-2"
-                >
-                  <LogIn className="h-4 w-4" />
-                  <span>Login to Load Profile</span>
-                </Button>
-              )}
             </div>
-            
+
             {isAuthenticated && (
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-800">
@@ -382,7 +360,7 @@ const Checkout = () => {
                 </p>
               </div>
             )}
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Name */}
               <div className="space-y-2">
@@ -448,8 +426,8 @@ const Checkout = () => {
                   id="address"
                   type="text"
                   value={customerData.address.street}
-                  onChange={(e) => setCustomerData(prev => ({ 
-                    ...prev, 
+                  onChange={(e) => setCustomerData(prev => ({
+                    ...prev,
                     address: { ...prev.address, street: e.target.value }
                   }))}
                   placeholder="Enter your address"
@@ -466,8 +444,8 @@ const Checkout = () => {
                   id="city"
                   type="text"
                   value={customerData.address.city}
-                  onChange={(e) => setCustomerData(prev => ({ 
-                    ...prev, 
+                  onChange={(e) => setCustomerData(prev => ({
+                    ...prev,
                     address: { ...prev.address, city: e.target.value }
                   }))}
                   placeholder="Enter your city"
@@ -484,8 +462,8 @@ const Checkout = () => {
                   id="state"
                   type="text"
                   value={customerData.address.state}
-                  onChange={(e) => setCustomerData(prev => ({ 
-                    ...prev, 
+                  onChange={(e) => setCustomerData(prev => ({
+                    ...prev,
                     address: { ...prev.address, state: e.target.value }
                   }))}
                   placeholder="Enter your state"
@@ -502,8 +480,8 @@ const Checkout = () => {
                   id="pincode"
                   type="text"
                   value={customerData.address.pincode}
-                  onChange={(e) => setCustomerData(prev => ({ 
-                    ...prev, 
+                  onChange={(e) => setCustomerData(prev => ({
+                    ...prev,
                     address: { ...prev.address, pincode: e.target.value }
                   }))}
                   placeholder="Enter your pincode"
@@ -518,9 +496,9 @@ const Checkout = () => {
               <Textarea
                 id="notes"
                 value={customerData.notes}
-                onChange={(e) => setCustomerData(prev => ({ 
-                  ...prev, 
-                  notes: e.target.value 
+                onChange={(e) => setCustomerData(prev => ({
+                  ...prev,
+                  notes: e.target.value
                 }))}
                 placeholder="Describe the issue or problem you're facing..."
                 rows={4}
@@ -538,9 +516,9 @@ const Checkout = () => {
                   id="scheduledDate"
                   type="date"
                   value={customerData.scheduledDate}
-                  onChange={(e) => setCustomerData(prev => ({ 
-                    ...prev, 
-                    scheduledDate: e.target.value 
+                  onChange={(e) => setCustomerData(prev => ({
+                    ...prev,
+                    scheduledDate: e.target.value
                   }))}
                   min={new Date().toISOString().split('T')[0]}
                   required
@@ -553,17 +531,17 @@ const Checkout = () => {
                 <select
                   id="scheduledTime"
                   value={customerData.scheduledTime}
-                  onChange={(e) => setCustomerData(prev => ({ 
-                    ...prev, 
-                    scheduledTime: e.target.value 
+                  onChange={(e) => setCustomerData(prev => ({
+                    ...prev,
+                    scheduledTime: e.target.value
                   }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 >
                   <option value="">Select time slot</option>
                   {timeSlots.map((slot) => (
-                    <option 
-                      key={slot} 
+                    <option
+                      key={slot}
                       value={slot}
                     >
                       {slot}
@@ -572,7 +550,7 @@ const Checkout = () => {
                 </select>
               </div>
             </div>
-            
+
             {/* Service Delay Notice */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
               <div className="flex items-start space-x-2">
@@ -593,15 +571,15 @@ const Checkout = () => {
           {/* Order Summary */}
           <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
-            
+
             {/* Services List */}
             <div className="space-y-3 mb-6">
               {checkoutData.cartItems.map((item) => (
                 <div key={item.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                      <img 
-                        src={item.image} 
+                      <img
+                        src={item.image}
                         alt={item.title}
                         className="w-full h-full object-cover"
                       />
@@ -629,10 +607,10 @@ const Checkout = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Payment Button */}
           {/* Cash on Delivery Button */}
-          <Button 
+          <Button
             onClick={handlePayment}
             disabled={loading}
             className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold"
