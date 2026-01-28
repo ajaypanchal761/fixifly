@@ -45,6 +45,16 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+
+        // Restricted to 10 digits for phone
+        if (name === 'phone') {
+            const cleaned = value.replace(/\D/g, '');
+            if (cleaned.length <= 10) {
+                setFormData(prev => ({ ...prev, [name]: cleaned }));
+            }
+            return;
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
