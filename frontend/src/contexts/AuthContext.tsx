@@ -42,10 +42,10 @@ export const useAuth = () => {
         user: null,
         token: null,
         isAuthenticated: false,
-        login: () => {},
-        logout: () => {},
-        updateUser: () => {},
-        refreshUserData: async () => {},
+        login: () => { },
+        logout: () => { },
+        updateUser: () => { },
+        refreshUserData: async () => { },
         checkTokenValidity: () => false,
         isLoading: true,
       } as AuthContextType;
@@ -127,38 +127,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('userData', JSON.stringify(userData));
     setUser(userData);
     setToken(token);
-    
+
     // Detect if running in webview/APK
     const isWebView = (() => {
       try {
         // Check for webview user agent
         const userAgent = navigator.userAgent || '';
         const isWebViewUA = /wv|WebView/.test(userAgent);
-        
+
         // Check for standalone mode (PWA)
         const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
-        
+
         // Check for iOS standalone
         const isIOSStandalone = (window.navigator as any).standalone === true;
-        
+
         // Check if Flutter bridge is available (for APK)
-        const hasFlutterBridge = typeof (window as any).flutter_inappwebview !== 'undefined' || 
-                                 typeof (window as any).Android !== 'undefined';
-        
+        const hasFlutterBridge = typeof (window as any).flutter_inappwebview !== 'undefined' ||
+          typeof (window as any).Android !== 'undefined';
+
         return isWebViewUA || isStandalone || isIOSStandalone || hasFlutterBridge;
       } catch (error) {
         console.error('Error detecting webview:', error);
         return false;
       }
     })();
-    
+
     // Register FCM token after successful login
     // Increase timeout to give Flutter bridge more time to initialize
     setTimeout(() => {
       if (isWebView) {
         // For webview/APK: Get FCM token from Flutter bridge and save using mobile endpoint
         console.log('📱 Detected webview/APK environment, using mobile FCM token endpoint');
-        
+
         // Try to get FCM token from Flutter bridge with retries
         const getFCMTokenFromFlutter = (retryCount = 0, maxRetries = 3): Promise<string | null> => {
           return new Promise((resolve) => {
@@ -226,8 +226,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                       resolve(null);
                     }
                   }, 5000); // Increased timeout to 5 seconds
-                  
-                  messageListener = function(event: MessageEvent) {
+
+                  messageListener = function (event: MessageEvent) {
                     if (event.data && event.data.type === 'FCM_TOKEN') {
                       clearTimeout(timeout);
                       window.removeEventListener('message', messageListener!);
@@ -235,7 +235,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                       resolve(event.data.token);
                     }
                   };
-                  
+
                   window.addEventListener('message', messageListener);
                 }
               }
@@ -249,11 +249,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           });
         };
-        
+
         getFCMTokenFromFlutter().then((fcmToken) => {
           // Get phone from userData or try to extract from user state
           const phoneNumber = userData.phone || (user ? user.phone : null);
-          
+
           console.log('📱 FCM Token Save Check:', {
             hasToken: !!fcmToken,
             hasPhone: !!phoneNumber,
@@ -262,12 +262,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             userDataPhone: userData.phone || 'null',
             userPhone: user ? user.phone : 'null'
           });
-          
+
           if (fcmToken && phoneNumber) {
             // Clean phone number (remove +91 if present)
             const cleanPhone = phoneNumber.replace(/\D/g, '').replace(/^91/, '');
             console.log(`💾 Saving FCM token for phone: ${cleanPhone}`);
-            
+
             saveMobileFCMToken(fcmToken, cleanPhone).then((success) => {
               if (success) {
                 console.log('✅ Mobile FCM token saved after login');
@@ -282,7 +282,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (!fcmToken) missingItems.push('FCM token');
             if (!phoneNumber) missingItems.push('phone number');
             console.warn(`⚠️ FCM token or phone not available for mobile save. Missing: ${missingItems.join(', ')}`);
-            
+
             // If we have phone but no token, try one more time after delay
             if (phoneNumber && !fcmToken) {
               console.log('⏳ Retrying FCM token retrieval in 3 seconds...');
@@ -330,14 +330,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshUserData = async () => {
     if (!token) return;
-    
+
     try {
       // Import apiService dynamically to avoid circular dependency
       const { default: apiService } = await import('@/services/api');
-      
+
       // Use API service directly - it has built-in timeout with AbortController
       const response = await apiService.getUserProfile();
-      
+
       if (response.success && response.data?.user) {
         const freshUserData = response.data.user;
         console.log('AuthContext: Refreshing user data from backend:', freshUserData);
@@ -347,26 +347,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error: any) {
       // Handle authorization/user not found errors - clear invalid token and logout
-      if (error?.message?.includes('Not authorized') || 
-          error?.message?.includes('user not found') ||
-          error?.message?.includes('User not found') ||
-          error?.status === 401 ||
-          error?.status === 404) {
+      if (error?.message?.includes('Not authorized') ||
+        error?.message?.includes('user not found') ||
+        error?.message?.includes('User not found') ||
+        error?.status === 401) {
         console.warn('⚠️ User not found or unauthorized - clearing invalid session');
         logout();
         return;
       }
-      
+
       // Handle timeout and network errors - use cached data silently
-      if (error?.message?.includes('timeout') || 
-          error?.message?.includes('Request timeout') ||
-          error?.message?.includes('Network error') ||
-          error?.message?.includes('Failed to fetch')) {
+      if (error?.message?.includes('timeout') ||
+        error?.message?.includes('Request timeout') ||
+        error?.message?.includes('Network error') ||
+        error?.message?.includes('Failed to fetch')) {
         console.warn('⚠️ Refresh failed - using cached data:', error.message);
         // Don't throw - just use existing cached data
         return;
       }
-      
+
       // For other errors, log but don't break the app
       // The app will continue with cached data
       console.warn('⚠️ Error refreshing user data (non-critical):', error.message);
@@ -376,7 +375,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkTokenValidity = () => {
     const token = localStorage.getItem('accessToken');
     if (!token) return false;
-    
+
     try {
       // Basic token format check (JWT tokens have 3 parts separated by dots)
       const parts = token.split('.');
@@ -384,17 +383,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('Invalid token format');
         return false;
       }
-      
+
       // Check if token is expired (basic check)
       const payload = JSON.parse(atob(parts[1]));
       const currentTime = Math.floor(Date.now() / 1000);
-      
+
       if (payload.exp && payload.exp < currentTime) {
         console.log('Token is expired');
         logout();
         return false;
       }
-      
+
       return true;
     } catch (error) {
       console.error('Error checking token validity:', error);

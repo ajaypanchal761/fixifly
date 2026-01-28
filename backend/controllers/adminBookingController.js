@@ -493,8 +493,12 @@ const assignVendor = asyncHandler(async (req, res) => {
       if (vendorDoc) {
         vendorMongoId = vendorDoc._id;
         vendorCustomId = vendorDoc.vendorId;
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: `Vendor with ID ${vendorId} not found`
+        });
       }
-      // If not found by ID, we proceed with original value (might fail later or be intended)
     }
 
     // Validation: Check if vendor already has a task for the same date and time

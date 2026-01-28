@@ -172,6 +172,7 @@ const createBooking = asyncHandler(async (req, res) => {
     let finalPricing = { ...pricing };
 
     // Create booking data
+    // Create booking data
     const bookingData = {
       user: req.user.userId, // Link booking to authenticated user
       customer: {
@@ -192,7 +193,7 @@ const createBooking = asyncHandler(async (req, res) => {
       })),
       pricing: {
         subtotal: finalPricing.subtotal,
-        serviceFee: finalPricing.serviceFee || 100,
+        serviceFee: finalPricing.serviceFee || 0, // Allow 0 service fee if configured
         totalAmount: finalPricing.totalAmount,
       },
       scheduling: {
@@ -201,6 +202,11 @@ const createBooking = asyncHandler(async (req, res) => {
       },
       notes: notes || '',
       status: 'waiting_for_engineer',
+
+      // Explicitly set root payment mode/status for consistency
+      paymentMode: req.body.payment?.method === 'cash' ? 'cash' : 'online',
+      paymentStatus: req.body.payment?.method === 'cash' ? 'pending' : (req.body.payment?.status || 'pending'),
+
       payment: {
         status: req.body.payment?.status || (req.body.payment?.method === 'cash' ? 'pending' : 'completed'),
         method: req.body.payment?.method || 'card',
@@ -1649,12 +1655,12 @@ const completeTask = asyncHandler(async (req, res) => {
       return sum + amount;
     }, 0);
 
-    // totalAmount should be empty - billingAmount is separate for customer payment
-    const totalAmount = ""; // Empty - billing amount is handled separately
+    // Use totalAmount from completionData if available, otherwise 0
+    const totalAmount = completionData?.totalAmount || 0;
 
     // Prepare update data
     const updateData = {
-      status: completionData.paymentMethod === 'online' ? 'in_progress' : 'completed',
+      status: completionData.paymentMethod === 'online' ? 'completed' : 'completed', // Always complete if vendor finishes task (QR or Cash)
       billingAmount: completionData.billingAmount, // Save to root level
       completionData: {
         resolutionNote: completionData.resolutionNote,
@@ -1664,7 +1670,8 @@ const completeTask = asyncHandler(async (req, res) => {
         travelingAmount: completionData.travelingAmount,
         paymentMethod: completionData.paymentMethod,
         completedAt: completionData.completedAt,
-        totalAmount: totalAmount, // Empty - billing amount is separate
+        totalAmount: totalAmount, // Use valid number
+
         includeGST: completionData.includeGST || false,
         gstAmount: completionData.gstAmount || 0
       },
@@ -1786,6 +1793,57 @@ const completeTask = asyncHandler(async (req, res) => {
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
         logger.error('Error deducting cash collection from vendor wallet:', error);
+        // Don't fail the task completion if wallet update fails
+      }
+    }
+
+    // Handle vendor wallet earning for online payment
+    if (completionData.paymentMethod === 'online') {
+      try {
+        console.log('=== ONLINE PAYMENT WALLET CREDIT DEBUG ===');
+        console.log('Completion data:', completionData);
+
+        const VendorWallet = require('../models/VendorWallet');
+        const bookingIdStr = bookingId.toString();
+
+        console.log('Looking for vendor wallet with vendorId:', booking.vendor.vendorId);
+        const vendorWallet = await VendorWallet.findOne({ vendorId: booking.vendor.vendorId });
+
+        if (vendorWallet) {
+          const billingAmount = parseFloat(completionData.billingAmount) || 0;
+          const spareAmount = completionData.spareParts?.reduce((sum, part) => {
+            return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+          }, 0) || 0;
+          const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
+
+          await vendorWallet.addEarning({
+            caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
+            billingAmount,
+            spareAmount,
+            travellingAmount,
+            bookingAmount: 0,
+            paymentMethod: 'online',
+            gstIncluded: completionData.includeGST || false,
+            gstAmount: completionData.gstAmount || 0,
+            description: `Task completion earning - ${updatedBooking.bookingReference || bookingId}`
+          });
+
+          logger.info('Earning added to vendor wallet for online payment', {
+            vendorId: booking.vendor.vendorId,
+            caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
+            billingAmount,
+            spareAmount,
+            travellingAmount
+          });
+
+          console.log('✅ Wallet credited successfully for online payment');
+        } else {
+          console.warn('⚠️ Vendor wallet not found for earning credit');
+        }
+      } catch (error) {
+        console.log('=== ONLINE PAYMENT WALLET CREDIT ERROR ===');
+        console.error('Error details:', error);
+        logger.error('Error crediting vendor wallet for online payment:', error);
         // Don't fail the task completion if wallet update fails
       }
     }

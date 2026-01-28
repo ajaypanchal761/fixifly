@@ -7,6 +7,7 @@ import { ArrowLeft, Shield, Check, Loader2, User, Mail, Phone, MapPin, LogIn, Ba
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import bookingApi from "@/services/bookingApi";
 import type { BookingData } from "@/services/razorpayService";
 import { generateDynamicTimeSlots, getTimeSlotDisplayText } from "@/utils/timeSlotUtils";
 
@@ -208,42 +209,29 @@ const Checkout = () => {
         scheduling: bookingData.scheduling,
         notes: bookingData.notes,
         payment: {
-          status: 'pending',
+          status: 'pending', // Explicitly pending for cash
           method: 'cash',
           transactionId: `CASH_${Date.now()}`,
           paidAt: null
         }
       };
 
-      // Get authentication token
-      const token = localStorage.getItem('accessToken');
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
+      // Use bookingApi to ensure consistent URL and headers
+      // We cast to any because bookingApi's type definition might be strict about payment field
+      const response = await bookingApi.createBooking(requestData as any);
 
-      // Add authorization header if token exists
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to create booking');
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/bookings`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(requestData),
-      });
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to create booking');
-      }
+      const booking = response.data.booking;
 
       // Navigate IMMEDIATELY to booking page - instant booking
       navigate('/booking', {
         replace: true,
         state: {
-          booking: data.data.booking,
-          bookingReference: data.data.booking.bookingReference,
+          booking: booking,
+          bookingReference: booking.bookingReference,
           fromCheckout: true
         }
       });
@@ -252,13 +240,14 @@ const Checkout = () => {
       setTimeout(() => {
         toast({
           title: "Booking Confirmed!",
-          description: `Your booking reference: ${data.data.booking.bookingReference}`,
+          description: `Your booking reference: ${booking.bookingReference}`,
           variant: "default"
         });
       }, 100);
 
     } catch (error) {
       setLoading(false);
+      console.error('Booking creation error:', error);
       toast({
         title: "Booking Failed",
         description: error instanceof Error ? error.message : "Failed to create booking. Please try again.",

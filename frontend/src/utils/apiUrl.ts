@@ -44,8 +44,13 @@ export const normalizeApiUrl = (url: string): string => {
   try {
     const parsed = new URL(withProtocol);
 
-    // Always force the pathname to exactly /api
-    parsed.pathname = '/api';
+    // Only force /api if pathname is root or empty
+    // This allows VITE_API_URL to contain custom paths like /v1 or /api/v2
+    if (parsed.pathname === '/' || parsed.pathname === '') {
+      parsed.pathname = '/api';
+    }
+    // If it already has a path, we trust the environment variable
+
     parsed.search = '';
     parsed.hash = '';
 

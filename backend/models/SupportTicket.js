@@ -632,7 +632,7 @@ SupportTicketSchema.methods.completeByVendor = function (vendorId, completionDat
       completedAt: new Date(),
       ...completionData // Spread to ensure all fields are included
     };
-    
+
     console.log('📝 Support Ticket completionData being saved:', {
       resolutionNote: this.completionData.resolutionNote,
       hasResolutionNote: !!this.completionData.resolutionNote,
@@ -646,8 +646,9 @@ SupportTicketSchema.methods.completeByVendor = function (vendorId, completionDat
 
       // Set status based on payment method
       if (completionData.paymentMethod === 'online') {
-        // For online payment, keep status as 'In Progress' until payment is completed
-        this.status = 'In Progress';
+        // For online payment, mark as resolved if vendor completes it (assuming QR/verified)
+        this.status = 'Resolved';
+        this.resolvedAt = new Date();
       } else {
         // For cash payment, mark as resolved immediately
         this.status = 'Resolved';

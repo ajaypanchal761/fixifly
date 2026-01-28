@@ -19,9 +19,12 @@ import {
   MessageCircle,
   Image as ImageIcon,
   MoreVertical,
+  UserPlus,
+  Loader2,
 } from 'lucide-react';
 import AdminHeader from '../components/AdminHeader';
 import adminBookingApi from '@/services/adminBookingApi';
+import adminApiService from '@/services/adminApi';
 import { adminSupportTicketAPI } from '@/services/supportApiService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -117,14 +120,148 @@ const AdminServiceManagementDashboard = () => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
 
+  // Vendor Assignment State
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [isAssignEngineerOpen, setIsAssignEngineerOpen] = useState(false);
+  const [assignedEngineer, setAssignedEngineer] = useState('');
+  const [assignmentNotes, setAssignmentNotes] = useState('');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
+  const [priority, setPriority] = useState('medium');
+  const [isAssigning, setIsAssigning] = useState(false);
+
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const response = await adminApiService.getVendors({ limit: 100 });
+        if (response.success && response.data) {
+          const activeVendors = response.data.vendors.filter((vendor: any) =>
+            vendor.status === 'active' && vendor.verificationStatus === 'verified'
+          );
+          setVendors(activeVendors);
+        }
+      } catch (error) {
+        console.error('Error fetching vendors:', error);
+      }
+    };
+    fetchVendors();
+  }, []);
+
+  const getAvailableVendors = () => {
+    return vendors;
+  };
+
+  const handleAssignClick = (booking: ServiceManagementBooking) => {
+    setSelectedBooking(booking);
+
+    // Determine current vendor ID
+    let currentVendorId = '';
+
+    // Handle Support Ticket assignment structure (ticket.assignedTo is ObjectId usually)
+    // OR Booking assignment structure (booking.vendor.vendorId is custom string)
+
+    if (booking.isSupportTicket) {
+      if (booking.vendor?.vendorId) {
+        const v = booking.vendor.vendorId;
+        // @ts-ignore
+        currentVendorId = typeof v === 'object' ? (v.vendorId || v._id) : v;
+      }
+    } else {
+      if (booking.vendor?.vendorId) {
+        const v = booking.vendor.vendorId;
+        // @ts-ignore
+        currentVendorId = typeof v === 'object' ? (v.vendorId || v._id) : v;
+      }
+    }
+
+    setAssignedEngineer(currentVendorId || '');
+    setAssignmentNotes('');
+
+    // Set date defaults
+    const dateStr = booking.scheduling?.scheduledDate
+      ? new Date(booking.scheduling.scheduledDate).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0];
+    setScheduledDate(dateStr);
+
+    // Set time defaults
+    const timeStr = booking.scheduling?.scheduledTime ||
+      (booking.scheduling?.preferredTimeSlot && booking.scheduling.preferredTimeSlot.includes(':')
+        ? booking.scheduling.preferredTimeSlot
+        : '09:00');
+    setScheduledTime(timeStr);
+
+    setPriority(booking.priority || 'medium');
+    setIsAssignEngineerOpen(true);
+  };
+
+  const handleCloseAssignEngineer = () => {
+    setIsAssignEngineerOpen(false);
+    setSelectedBooking(null);
+    setAssignedEngineer('');
+    setAssignmentNotes('');
+    setScheduledDate('');
+    setScheduledTime('');
+  };
+
+  const handleSubmitAssignment = async () => {
+    if (!selectedBooking || !assignedEngineer) return;
+
+    setIsAssigning(true);
+    try {
+      let response;
+      const isTicket = selectedBooking.isSupportTicket;
+      const id = isTicket ? selectedBooking.supportTicketId : selectedBooking._id;
+
+      if (!id) throw new Error("ID not found");
+
+      if (isTicket) {
+        // Support Ticket Assignment
+        response = await adminSupportTicketAPI.assignVendor(
+          id,
+          assignedEngineer,
+          scheduledDate,
+          scheduledTime,
+          priority,
+          assignmentNotes
+        );
+      } else {
+        // Booking Assignment
+        response = await adminBookingApi.assignVendor(
+          id,
+          assignedEngineer,
+          scheduledDate,
+          scheduledTime,
+          priority,
+          assignmentNotes
+        );
+      }
+
+      if (response && (response.success || response.data)) {
+        fetchBookings(); // Refresh list
+        handleCloseAssignEngineer();
+      } else {
+        console.error("Assignment failed", response);
+        // Could add toast here
+      }
+    } catch (error) {
+      console.error("Error assigning vendor:", error);
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
   const fetchBookings = async () => {
     try {
       setLoading(true);
 
       // Fetch bookings and support tickets in parallel
+      // We catch support ticket errors so they don't block the main dashboard (e.g. if permissions are missing)
       const [bookingsResponse, supportTicketsResponse] = await Promise.all([
         adminBookingApi.getAllBookings(),
-        adminSupportTicketAPI.getAllTickets(),
+        adminSupportTicketAPI.getAllTickets().catch(err => {
+          console.warn('Failed to fetch support tickets:', err);
+          return { data: { tickets: [] } };
+        }),
       ]);
 
       if (!bookingsResponse.success || !bookingsResponse.data?.bookings) {
@@ -747,6 +884,13 @@ const AdminServiceManagementDashboard = () => {
                             <Eye className="w-3 h-3 mr-1" />
                             View
                           </button>
+                          <button
+                            onClick={() => handleAssignClick(booking)}
+                            className="text-purple-600 hover:text-purple-900 flex items-center"
+                          >
+                            <UserPlus className="w-3 h-3 mr-1" />
+                            Assign
+                          </button>
                           {booking.completionData?.spareParts && booking.completionData.spareParts.length > 0 && (
                             <button
                               onClick={() => handleViewParts(booking)}
@@ -1079,8 +1223,112 @@ const AdminServiceManagementDashboard = () => {
             />
           </div>
         </div>
-      )}
+        </div>
+  )
+}
+
+{/* Assign Vendor Dialog */ }
+<Dialog open={isAssignEngineerOpen} onOpenChange={handleCloseAssignEngineer}>
+  <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle className="text-lg font-bold text-gray-900">
+        {selectedBooking?.vendor?.vendorId ? 'Reassign Vendor' : 'Assign Vendor'}
+      </DialogTitle>
+    </DialogHeader>
+
+    <div className="space-y-4 py-2">
+      <div>
+        <Label className="text-xs font-medium text-gray-700">Select Vendor</Label>
+        <Select value={assignedEngineer} onValueChange={setAssignedEngineer}>
+          <SelectTrigger className="mt-1 w-full">
+            <SelectValue placeholder="Choose a vendor" />
+          </SelectTrigger>
+          <SelectContent>
+            {vendors.length > 0 ? (
+              vendors.map((vendor) => (
+                <SelectItem key={vendor._id} value={vendor.vendorId}>
+                  <div className="flex flex-col text-left">
+                    <span className="font-medium text-sm">
+                      {vendor.firstName} {vendor.lastName}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {vendor.vendorId} | {vendor.specialty || 'General'}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="none" disabled>No active vendors found</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs font-medium text-gray-700">Date</Label>
+          <Input
+            type="date"
+            value={scheduledDate}
+            onChange={(e) => setScheduledDate(e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label className="text-xs font-medium text-gray-700">Time</Label>
+          <Select value={scheduledTime} onValueChange={setScheduledTime}>
+            <SelectTrigger className="mt-1 w-full">
+              <SelectValue placeholder="Time" />
+            </SelectTrigger>
+            <SelectContent>
+              {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'].map(t => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs font-medium text-gray-700">Priority</Label>
+        <Select value={priority} onValueChange={setPriority}>
+          <SelectTrigger className="mt-1 w-full">
+            <SelectValue placeholder="Priority" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="low">Low</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="high">High</SelectItem>
+            <SelectItem value="urgent">Urgent</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label className="text-xs font-medium text-gray-700">Notes</Label>
+        <Input
+          value={assignmentNotes}
+          onChange={(e) => setAssignmentNotes(e.target.value)}
+          placeholder="Instructions for vendor..."
+          className="mt-1"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 mt-4">
+        <Button variant="outline" onClick={handleCloseAssignEngineer} disabled={isAssigning}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmitAssignment} disabled={!assignedEngineer || isAssigning}>
+          {isAssigning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Assign
+        </Button>
+      </div>
     </div>
+  </DialogContent>
+</Dialog>
+
+    </div >
   );
 };
 
