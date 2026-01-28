@@ -17,39 +17,36 @@ const createSupportTicket = asyncHandler(async (req, res) => {
     description
   } = req.body;
 
-  const userId = req.user.userId || req.user._id;
+  // Determine user details (Authenticated vs Guest)
+  let userData = {};
 
-  // Validate required fields
-  if (!supportType || !subject || !description) {
-    return res.status(400).json({
-      success: false,
-      message: 'Support type, subject, and description are required'
-    });
-  }
-
-  // Validate case ID for service and product types
-  if ((supportType === 'service' || supportType === 'product') && !caseId) {
-    return res.status(400).json({
-      success: false,
-      message: 'Case ID is required for service and product warranty claims'
-    });
-  }
-
-  // Validate subscription ID for AMC claims
-  if (supportType === 'amc' && !subscriptionId) {
-    return res.status(400).json({
-      success: false,
-      message: 'Subscription ID is required for AMC claims'
-    });
-  }
-
-  // Get user details
-  const user = await User.findById(userId).select('email name phone');
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: 'User not found'
-    });
+  if (req.user && (req.user.userId || req.user._id)) {
+    // Authenticated User
+    const dbUser = await User.findById(req.user.userId || req.user._id).select('email name phone');
+    if (!dbUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    userData = {
+      userId: dbUser._id,
+      email: dbUser.email,
+      name: dbUser.name,
+      phone: dbUser.phone
+    };
+  } else {
+    // Guest User - Validate required fields
+    const { name, email, phone } = req.body;
+    if (!name || !email || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email, and phone are required for guest support tickets'
+      });
+    }
+    userData = {
+      userId: null,
+      email,
+      name,
+      phone
+    };
   }
 
   // Determine ticket type based on support type
@@ -69,11 +66,11 @@ const createSupportTicket = asyncHandler(async (req, res) => {
   }
 
   // Create support ticket
-  const supportTicket = new SupportTicket({
-    userId,
-    userEmail: user.email,
-    userName: user.name || 'Unknown User',
-    userPhone: user.phone,
+  constXYSupportTicket = new SupportTicket({
+    userId: userData.userId,
+    userEmail: userData.email,
+    userName: userData.name || 'Guest User',
+    userPhone: userData.phone,
     supportType,
     type: ticketType,
     caseId: caseId || null,
@@ -86,6 +83,9 @@ const createSupportTicket = asyncHandler(async (req, res) => {
       ipAddress: req.ip || req.connection.remoteAddress
     }
   });
+
+  const supportTicket = constXYSupportTicket; // Re-assigning to keep variable name consistent with downstream code
+
 
   await supportTicket.save();
 

@@ -51,7 +51,10 @@ const Support = () => {
     subject: "",
     category: "",
     priority: "",
-    description: ""
+    description: "",
+    guestName: "",
+    guestEmail: "",
+    guestPhone: ""
   });
   const [userTickets, setUserTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -501,7 +504,7 @@ const Support = () => {
       // Ensure we have completionData from any source
       // Handle case where completionData might be a string (JSON) or object
       let completionData = fullTicket.completionData || ticket.completionData || null;
-      
+
       // If completionData is a string, try to parse it
       if (typeof completionData === 'string') {
         try {
@@ -510,7 +513,7 @@ const Support = () => {
           console.warn('Could not parse completionData as JSON:', e);
         }
       }
-      
+
       // If completionData is null or undefined, try to get it from the raw ticket
       if (!completionData) {
         // Try accessing from the raw MongoDB document structure
@@ -519,7 +522,7 @@ const Support = () => {
           completionData = rawCompletionData;
         }
       }
-      
+
       const invoiceData = {
         ticketId: fullTicket.id,
         subject: fullTicket.subject,
@@ -665,7 +668,7 @@ const Support = () => {
       // Use exact same access pattern as AdminSupportManagement: completionData?.resolutionNote
       // Direct access - simplest and most reliable
       let resolutionNote: string | null = null;
-      
+
       // Try direct access from completionData (exact same as AdminSupportManagement)
       if (invoiceData.completionData?.resolutionNote) {
         resolutionNote = invoiceData.completionData.resolutionNote;
@@ -674,7 +677,7 @@ const Support = () => {
       } else if (ticket.completionData?.resolutionNote) {
         resolutionNote = ticket.completionData.resolutionNote;
       }
-      
+
       // Clean and validate
       if (resolutionNote && typeof resolutionNote === 'string') {
         resolutionNote = resolutionNote.trim();
@@ -684,7 +687,7 @@ const Support = () => {
       } else {
         resolutionNote = null;
       }
-      
+
       // Comprehensive debug logging
       console.log('📝 Resolution Note Debug - COMPREHENSIVE:', {
         'Step 1 - invoiceData.completionData exists': !!invoiceData.completionData,
@@ -704,7 +707,7 @@ const Support = () => {
         'Full fullTicket.completionData JSON': JSON.stringify(fullTicket.completionData, null, 2),
         'Full ticket.completionData JSON': JSON.stringify(ticket.completionData, null, 2)
       });
-      
+
       // Always show resolution note section if completionData exists (same as service management)
       if (invoiceData.completionData || fullTicket.completionData || ticket.completionData) {
         doc.setFontSize(14);
@@ -714,7 +717,7 @@ const Support = () => {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         yPosition += 5;
-        
+
         if (resolutionNote && resolutionNote.trim() !== '') {
           // Split long text into multiple lines if needed
           const noteLines = doc.splitTextToSize(resolutionNote.trim(), pageWidth - 40);
@@ -735,7 +738,7 @@ const Support = () => {
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(100, 100, 100);
       yPosition = addText('Thank you for using FixFly services!', pageWidth / 2, pageHeight - 5, undefined, 'center');
-      yPosition = addText('For any queries, contact us at info@getfixfly.com', pageWidth/2 , pageHeight - 2, undefined, 'center');
+      yPosition = addText('For any queries, contact us at info@getfixfly.com', pageWidth / 2, pageHeight - 2, undefined, 'center');
 
       // Save the PDF
       doc.save(`FixFly_Invoice_${invoiceData.ticketId}.pdf`);
@@ -1084,23 +1087,33 @@ const Support = () => {
 
   // Handle form submission
   const handleSubmitTicket = async () => {
-    // Check if user is logged in
-    if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please log in to submit a support ticket",
-        variant: "destructive",
-        duration: 3000,
-      });
-      // Redirect to login page
-      window.location.href = '/login';
-      return;
-    }
+    // Check if user is logged in - REMOVED strictly requirement, now checking guest fields
+    // if (!user) {
+    //   toast({
+    //     title: "Login Required",
+    //     description: "Please log in to submit a support ticket",
+    //     variant: "destructive",
+    //     duration: 3000,
+    //   });
+    //   // Redirect to login page
+    //   window.location.href = '/login';
+    //   return;
+    // }
 
     if (!supportType || !ticketForm.subject || !ticketForm.description) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+
+    if (!user && (!ticketForm.guestName || !ticketForm.guestEmail || !ticketForm.guestPhone)) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide your contact details",
         variant: "destructive",
         duration: 3000,
       });
@@ -1134,7 +1147,13 @@ const Support = () => {
         caseId: caseId || null,
         subscriptionId: selectedSubscriptionId || null,
         subject: ticketForm.subject,
-        description: ticketForm.description
+        description: ticketForm.description,
+        // Add guest details if not logged in
+        ...(!user && {
+          name: ticketForm.guestName,
+          email: ticketForm.guestEmail,
+          phone: ticketForm.guestPhone
+        })
       };
 
       const response = await supportTicketAPI.createTicket(ticketData);
@@ -1156,7 +1175,10 @@ const Support = () => {
           subject: "",
           category: "",
           priority: "",
-          description: ""
+          description: "",
+          guestName: "",
+          guestEmail: "",
+          guestPhone: ""
         });
 
         toast({
@@ -1310,38 +1332,8 @@ const Support = () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* New Ticket Tab */}
             <TabsContent value="new-ticket" className="space-y-4 md:space-y-6">
-              {!user ? (
-                /* Login Required Message */
-                <Card>
-                  <CardContent className="pt-8 pb-8">
-                    <div className="text-center space-y-6">
-                      <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="h-8 w-8 text-blue-600" />
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-xl md:text-2xl font-semibold">Login Required</h3>
-                        <p className="text-muted-foreground max-w-md mx-auto">
-                          Please log in to submit a support ticket. This helps us track your requests and provide better assistance.
-                        </p>
-                      </div>
-                      <div className="space-y-3">
-                        <Button
-                          onClick={() => window.location.href = '/login'}
-                          className="bg-primary hover:bg-primary/90 w-full md:w-auto"
-                        >
-                          <User className="h-4 w-4 mr-2" />
-                          Login to Submit Ticket
-                        </Button>
-                        <p className="text-sm text-muted-foreground">
-                          Don't have an account? <a href="/register" className="text-primary hover:underline">Sign up here</a>
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : !showThankYou ? (
+              {!showThankYou ? (
                 <Card>
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
@@ -1353,7 +1345,6 @@ const Support = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 md:space-y-6">
-                    {/* Support Type Selection */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Type of Support *</label>
                       <Select value={supportType} onValueChange={handleSupportTypeChange}>
@@ -1368,6 +1359,40 @@ const Support = () => {
                         </SelectContent>
                       </Select>
                     </div>
+
+                    {/* Guest User Fields */}
+                    {!user && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Your Name *</label>
+                          <Input
+                            placeholder="Enter your full name"
+                            className="w-full"
+                            value={ticketForm.guestName}
+                            onChange={(e) => setTicketForm({ ...ticketForm, guestName: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Phone Number *</label>
+                          <Input
+                            placeholder="Enter your phone number"
+                            className="w-full"
+                            value={ticketForm.guestPhone}
+                            onChange={(e) => setTicketForm({ ...ticketForm, guestPhone: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                          <label className="text-sm font-medium">Email Address *</label>
+                          <Input
+                            placeholder="Enter your email address"
+                            type="email"
+                            className="w-full"
+                            value={ticketForm.guestEmail}
+                            onChange={(e) => setTicketForm({ ...ticketForm, guestEmail: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Case ID Field - Only for Service and Product */}
                     {showCaseIdField && (
@@ -1498,29 +1523,29 @@ const Support = () => {
             {/* My Tickets Tab */}
             <TabsContent value="my-tickets" className="space-y-4 md:space-y-6">
               {!user ? (
-                /* Login Required Message */
+                /* Guest Access Message */
                 <Card>
                   <CardContent className="pt-8 pb-8">
                     <div className="text-center space-y-6">
                       <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="h-8 w-8 text-blue-600" />
+                        <MessageSquare className="h-8 w-8 text-blue-600" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-xl md:text-2xl font-semibold">Login Required</h3>
+                        <h3 className="text-xl md:text-2xl font-semibold">Track Your Tickets</h3>
                         <p className="text-muted-foreground max-w-md mx-auto">
-                          Please log in to view your support tickets and track their status.
+                          Ticket history is available for registered users. As a guest, please check your email for updates on your submitted tickets.
                         </p>
                       </div>
                       <div className="space-y-3">
                         <Button
-                          onClick={() => window.location.href = '/login'}
+                          onClick={() => setActiveTab("new-ticket")}
                           className="bg-primary hover:bg-primary/90 w-full md:w-auto"
                         >
-                          <User className="h-4 w-4 mr-2" />
-                          Login to View Tickets
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create New Ticket
                         </Button>
-                        <p className="text-sm text-muted-foreground">
-                          Don't have an account? <a href="/register" className="text-primary hover:underline">Sign up here</a>
+                        <p className="text-sm text-muted-foreground pt-2">
+                          Have an account? <a href="/login" className="text-primary hover:underline">Login to view history</a>
                         </p>
                       </div>
                     </div>
