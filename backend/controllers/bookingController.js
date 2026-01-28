@@ -120,13 +120,13 @@ const createBooking = asyncHandler(async (req, res) => {
     console.log('Request body:', JSON.stringify(req.body, null, 2));
     console.log('Authenticated user:', req.user?.userId);
 
-    // Check if user is authenticated
-    if (!req.user || !req.user.userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required. Please login to create a booking.'
-      });
-    }
+    // Check if user is authenticated - REMOVED to allow guest bookings
+    // if (!req.user || !req.user.userId) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     message: 'Authentication required. Please login to create a booking.'
+    //   });
+    // }
 
     const {
       customer,
@@ -174,7 +174,7 @@ const createBooking = asyncHandler(async (req, res) => {
     // Create booking data
     // Create booking data
     const bookingData = {
-      user: req.user.userId, // Link booking to authenticated user
+      user: req.user ? req.user.userId : null, // Link booking to authenticated user if available
       customer: {
         name: customer.name,
         email: customer.email,

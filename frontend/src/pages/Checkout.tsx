@@ -43,7 +43,7 @@ const Checkout = () => {
     address: {
       street: user?.address?.street || "",
       city: user?.address?.city || "",
-      state: user?.address?.state || "",
+      state: user?.address?.state || "N/A", // Default state if not provided
       pincode: user?.address?.pincode || ""
     },
     notes: "",
@@ -263,11 +263,11 @@ const Checkout = () => {
       // Validate required fields
       if (!customerData.name || !customerData.email || !customerData.phone ||
         !customerData.address.street || !customerData.address.city ||
-        !customerData.address.state || !customerData.address.pincode ||
-        !customerData.notes || !customerData.scheduledDate || !customerData.scheduledTime) {
+        !customerData.address.pincode ||
+        !customerData.scheduledDate) {
         toast({
           title: "Missing Information",
-          description: "Please fill in all required fields (Name, Email, Phone, Address, City, State, Pincode, Issue Description, Schedule Date, Schedule Time)",
+          description: "Please fill in all required fields (Name, Email, Phone, Address, City, Pincode, Schedule Date)",
           variant: "destructive"
         });
         setLoading(false);
@@ -301,7 +301,7 @@ const Checkout = () => {
         },
         scheduling: {
           preferredDate: customerData.scheduledDate,
-          preferredTimeSlot: customerData.scheduledTime
+          preferredTimeSlot: customerData.scheduledTime || "Flexible" // Default if not selected
         },
         notes: customerData.notes || "Booking created from checkout"
       };
@@ -442,8 +442,8 @@ const Checkout = () => {
                 />
               </div>
 
-              {/* State */}
-              <div className="space-y-2">
+              {/* State - Hidden and set to defaults */}
+              {/* <div className="space-y-2">
                 <Label htmlFor="state" className="flex items-center space-x-2">
                   <span>State *</span>
                 </Label>
@@ -458,7 +458,7 @@ const Checkout = () => {
                   placeholder="Enter your state"
                   required
                 />
-              </div>
+              </div> */}
 
               {/* Pincode */}
               <div className="space-y-2">
@@ -481,7 +481,7 @@ const Checkout = () => {
 
             {/* Issue Description */}
             <div className="space-y-2">
-              <Label htmlFor="notes">Issue Description *</Label>
+              <Label htmlFor="notes">Issue Description (Optional)</Label>
               <Textarea
                 id="notes"
                 value={customerData.notes}
@@ -492,7 +492,6 @@ const Checkout = () => {
                 placeholder="Describe the issue or problem you're facing..."
                 rows={4}
                 className="resize-none"
-                required
               />
             </div>
 
@@ -516,7 +515,7 @@ const Checkout = () => {
 
               {/* Schedule Time */}
               <div className="space-y-2">
-                <Label htmlFor="scheduledTime">Schedule Time *</Label>
+                <Label htmlFor="scheduledTime">Schedule Time (Optional)</Label>
                 <select
                   id="scheduledTime"
                   value={customerData.scheduledTime}
@@ -525,9 +524,8 @@ const Checkout = () => {
                     scheduledTime: e.target.value
                   }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
                 >
-                  <option value="">Select time slot</option>
+                  <option value="">Select time slot (Optional)</option>
                   {timeSlots.map((slot) => (
                     <option
                       key={slot}
