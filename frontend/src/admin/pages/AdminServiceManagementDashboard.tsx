@@ -130,6 +130,12 @@ const AdminServiceManagementDashboard = () => {
   const [priority, setPriority] = useState('medium');
   const [isAssigning, setIsAssigning] = useState(false);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const ITEMS_PER_PAGE = 10;
+
   useEffect(() => {
     const fetchVendors = async () => {
       try {
@@ -255,12 +261,23 @@ const AdminServiceManagementDashboard = () => {
       setLoading(true);
 
       // Fetch bookings and support tickets in parallel
-      // We catch support ticket errors so they don't block the main dashboard (e.g. if permissions are missing)
       const [bookingsResponse, supportTicketsResponse] = await Promise.all([
-        adminBookingApi.getAllBookings(),
-        adminSupportTicketAPI.getAllTickets().catch(err => {
+        adminBookingApi.getAllBookings({
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          status: statusFilter === 'all' ? undefined : statusFilter,
+          paymentStatus: paymentStatusFilter === 'all' ? undefined : (paymentStatusFilter === 'payment_done' ? 'completed' : paymentStatusFilter),
+          search: searchTerm || undefined
+        }),
+        adminSupportTicketAPI.getAllTickets({
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          status: statusFilter === 'all' ? undefined : (statusFilter === 'pending' ? 'Submitted' : (statusFilter === 'completed' ? 'Resolved' : statusFilter)),
+          priority: priorityFilter === 'all' ? undefined : priorityFilter,
+          search: searchTerm || undefined
+        }).catch(err => {
           console.warn('Failed to fetch support tickets:', err);
-          return { data: { tickets: [] } };
+          return { data: { tickets: [], pagination: { totalPages: 0, totalTickets: 0 } } };
         }),
       ]);
 
@@ -485,6 +502,15 @@ const AdminServiceManagementDashboard = () => {
         }
       );
       setBookings(combined);
+
+      // Set pagination info
+      const bookingsTotalPages = bookingsResponse.data?.pagination?.totalPages || 1;
+      const ticketsTotalPages = supportTicketsResponse?.data?.pagination?.totalPages || 1;
+      setTotalPages(Math.max(bookingsTotalPages, ticketsTotalPages));
+
+      const bookingsTotalCount = bookingsResponse.data?.pagination?.totalBookings || 0;
+      const ticketsTotalCount = supportTicketsResponse?.data?.pagination?.totalTickets || 0;
+      setTotalItems(bookingsTotalCount + ticketsTotalCount);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       setError('Failed to fetch bookings');
@@ -495,7 +521,7 @@ const AdminServiceManagementDashboard = () => {
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [currentPage, statusFilter, priorityFilter, vendorStatusFilter, paymentModeFilter, paymentStatusFilter, searchTerm]);
 
   // Listen for booking updates
   useEffect(() => {
@@ -714,7 +740,10 @@ const AdminServiceManagementDashboard = () => {
                   type="text"
                   placeholder="Search bookings..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -722,7 +751,10 @@ const AdminServiceManagementDashboard = () => {
               {/* Status Filter */}
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
@@ -736,7 +768,10 @@ const AdminServiceManagementDashboard = () => {
               {/* Priority Filter */}
               <select
                 value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
+                onChange={(e) => {
+                  setPriorityFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Priority</option>
@@ -748,7 +783,10 @@ const AdminServiceManagementDashboard = () => {
               {/* Vendor Status Filter */}
               <select
                 value={vendorStatusFilter}
-                onChange={(e) => setVendorStatusFilter(e.target.value)}
+                onChange={(e) => {
+                  setVendorStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Vendor Status</option>
@@ -760,7 +798,10 @@ const AdminServiceManagementDashboard = () => {
               {/* Payment Mode Filter */}
               <select
                 value={paymentModeFilter}
-                onChange={(e) => setPaymentModeFilter(e.target.value)}
+                onChange={(e) => {
+                  setPaymentModeFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Payment Modes</option>
@@ -771,7 +812,10 @@ const AdminServiceManagementDashboard = () => {
               {/* Payment Status Filter */}
               <select
                 value={paymentStatusFilter}
-                onChange={(e) => setPaymentStatusFilter(e.target.value)}
+                onChange={(e) => {
+                  setPaymentStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Payment Status</option>
@@ -914,6 +958,41 @@ const AdminServiceManagementDashboard = () => {
               <Package className="w-5 h-5 text-gray-400 mx-auto mb-1" />
               <h3 className="text-xs font-medium text-gray-900 mb-1">No bookings found</h3>
               <p className="text-xs text-gray-500">Try adjusting your search or filter criteria.</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalItems > 0 && (
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 px-2 pb-4">
+              <p className="text-xs text-gray-600">
+                Showing {(currentPage - 1) * (ITEMS_PER_PAGE * 2) + 1}-{(currentPage - 1) * (ITEMS_PER_PAGE * 2) + bookings.length} of {totalItems} items
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  className="h-8 text-xs"
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-medium text-gray-900 px-2 py-1 bg-gray-100 rounded">
+                    {currentPage}
+                  </span>
+                  <span className="text-xs text-gray-500">of {totalPages}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  className="h-8 text-xs"
+                >
+                  Next
+                </Button>
+              </div>
             </div>
           )}
         </div>

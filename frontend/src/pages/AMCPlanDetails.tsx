@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Check, 
-  Star, 
-  Shield, 
-  Clock, 
+import {
+  Check,
+  Star,
+  Shield,
+  Clock,
   Headphones,
   Wrench,
   Zap,
@@ -33,7 +33,7 @@ const AMCPlanDetails = () => {
   const { planId } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  
+
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +49,7 @@ const AMCPlanDetails = () => {
     try {
       setLoading(true);
       const response = await getAMCPlan(planId);
-      
+
       if (response.success && response.data) {
         setPlan(response.data.plan);
         setUserHasActiveSubscription(response.data.userHasActiveSubscription || false);
@@ -66,11 +66,13 @@ const AMCPlanDetails = () => {
   };
 
   const handleSubscribe = () => {
+    /*
     if (!isAuthenticated) {
       toast.error("Please login to subscribe to AMC plans");
-      navigate('/login');
+      navigate('/');
       return;
     }
+    */
 
     if (userHasActiveSubscription) {
       toast.info("You already have an active subscription for this plan");
@@ -164,9 +166,9 @@ const AMCPlanDetails = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button 
-                onClick={() => navigate('/amc')} 
-                variant="ghost" 
+              <Button
+                onClick={() => navigate('/amc')}
+                variant="ghost"
                 size="sm"
                 className="text-gray-600 hover:text-gray-900"
               >
@@ -203,8 +205,8 @@ const AMCPlanDetails = () => {
             {plan.image && (
               <Card>
                 <CardContent className="p-0">
-                  <img 
-                    src={plan.image} 
+                  <img
+                    src={plan.image}
                     alt={plan.name}
                     className="w-full h-64 object-cover rounded-t-lg"
                   />
@@ -272,10 +274,10 @@ const AMCPlanDetails = () => {
           <div className="space-y-6">
             {/* Pricing Card */}
             <Card className="sticky top-8">
-              
+
               <CardContent className="space-y-4">
                 <div className="text-center">
-                  
+
                   {userHasActiveSubscription ? (
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center justify-center mb-2">
@@ -285,7 +287,7 @@ const AMCPlanDetails = () => {
                       <p className="text-sm text-green-700">You already have an active subscription for this plan.</p>
                     </div>
                   ) : (
-                    <Button 
+                    <Button
                       onClick={handleSubscribe}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-sm font-semibold"
                       size="lg"

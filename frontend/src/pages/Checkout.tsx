@@ -27,7 +27,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { user, isAuthenticated, refreshUserData } = useAuth();
+  const { user, isAuthenticated, refreshUserData, login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
   // First-time user free service feature has been removed
@@ -225,6 +225,19 @@ const Checkout = () => {
       }
 
       const booking = response.data.booking;
+
+      // Save user info for "My Profile" (Guest Login)
+      const guestUser = {
+        id: booking.customer.id || 'guest_' + Date.now(),
+        name: booking.customer.name,
+        email: booking.customer.email,
+        phone: booking.customer.phone,
+        role: 'user',
+        address: booking.customer.address
+      };
+
+      // Locally "log in" the guest so their info shows in profile
+      login(guestUser as any, 'guest_token');
 
       // Navigate IMMEDIATELY to booking page - instant booking
       navigate('/booking', {

@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, CalendarClock, MapPin, Mail, Phone, FileText } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Create API instance if not imported
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -32,6 +33,7 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
     productName
 }) => {
     const { toast } = useToast();
+    const { login } = useAuth();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
@@ -87,6 +89,25 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
             const response = await axios.post(`${API_URL}/bookings/quick`, payload);
 
             if (response.data.success) {
+                // Save user info for "My Profile" (Guest Login)
+                const guestUser = {
+                    id: response.data.booking?.customer?.id || 'guest_' + Date.now(),
+                    name: formData.email.split('@')[0], // Use email prefix as name for guest
+                    email: formData.email,
+                    phone: formData.phone,
+                    role: 'user',
+                    address: {
+                        street: formData.address,
+                        city: '',
+                        state: '',
+                        pincode: '',
+                        landmark: ''
+                    }
+                };
+
+                // Locally "log in" the guest so their info shows in profile
+                login(guestUser as any, 'guest_token');
+
                 toast({
                     title: "Booking Successful! 🎉",
                     description: "Your booking has been confirmed. You will receive details shortly via WhatsApp and Email.",

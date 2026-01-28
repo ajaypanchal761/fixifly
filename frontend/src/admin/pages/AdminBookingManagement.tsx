@@ -89,6 +89,7 @@ const AdminBookingManagement = () => {
         limit: ITEMS_PER_PAGE,
         status: statusFilter === 'all' ? undefined : statusFilter,
         paymentStatus: paymentStatusFilter === 'all' ? undefined : paymentStatusFilter,
+        service: serviceFilter === 'all' ? undefined : serviceFilter,
         search: searchTerm || undefined,
         sortBy,
         sortOrder
@@ -400,51 +401,6 @@ const AdminBookingManagement = () => {
     return 'pending';
   };
 
-  const filteredBookings = bookings.filter(booking => {
-    const customerName = booking.customer?.name || '';
-    const serviceNames = booking.services?.map(service => service.serviceName).join(' ') || '';
-
-    // Inline vendor name logic to avoid function dependency
-    let vendorName = 'Not Assigned';
-    if (booking.vendor?.vendorId) {
-      const vendorId = booking.vendor.vendorId;
-      if (typeof vendorId === 'object' && vendorId !== null) {
-        const vendor = vendorId as any;
-        if (vendor.firstName && vendor.lastName) {
-          vendorName = `${vendor.firstName} ${vendor.lastName}`;
-        } else {
-          vendorName = 'Assigned Vendor';
-        }
-      } else {
-        const vendor = vendors.find(v => (v.id || v._id) === vendorId);
-        if (vendor) {
-          if (vendor.firstName && vendor.lastName) {
-            vendorName = `${vendor.firstName} ${vendor.lastName}`;
-          } else {
-            vendorName = vendor.name || 'Unknown Vendor';
-          }
-        } else {
-          vendorName = 'Unknown Vendor';
-        }
-      }
-    }
-
-    const bookingId = booking._id || '';
-    const bookingReference = booking.bookingReference || `FIX${bookingId.toString().substring(bookingId.toString().length - 8).toUpperCase()}`;
-
-    const matchesSearch = customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      serviceNames.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bookingReference.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
-    const matchesService = serviceFilter === 'all' || serviceNames.includes(serviceFilter);
-
-    const matchesPaymentStatus = paymentStatusFilter === 'all' ||
-      (paymentStatusFilter === 'free' ? booking.pricing?.isFirstTimeUser :
-        getPaymentStatus(booking) === paymentStatusFilter);
-    return matchesSearch && matchesStatus && matchesService && matchesPaymentStatus;
-  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -1134,12 +1090,18 @@ const AdminBookingManagement = () => {
                   <Input
                     placeholder="Search bookings by customer, service, vendor, or booking ID..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     className="pl-10 text-sm"
                   />
                 </div>
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={(value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
@@ -1154,7 +1116,10 @@ const AdminBookingManagement = () => {
                   <SelectItem value="declined">Declined</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
+              <Select value={paymentStatusFilter} onValueChange={(value) => {
+                setPaymentStatusFilter(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by payment" />
                 </SelectTrigger>
@@ -1169,7 +1134,10 @@ const AdminBookingManagement = () => {
                   <SelectItem value="free">Free (First-time Users)</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={serviceFilter} onValueChange={setServiceFilter}>
+              <Select value={serviceFilter} onValueChange={(value) => {
+                setServiceFilter(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Filter by service" />
                 </SelectTrigger>
@@ -1183,6 +1151,7 @@ const AdminBookingManagement = () => {
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={(value) => {
+                setCurrentPage(1);
                 if (value === 'newest') {
                   setSortBy('createdAt');
                   setSortOrder('desc');
@@ -1214,7 +1183,7 @@ const AdminBookingManagement = () => {
         {/* Bookings Table */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Bookings ({filteredBookings.length})</CardTitle>
+            <CardTitle className="text-lg">Bookings ({totalBookings})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -1236,7 +1205,7 @@ const AdminBookingManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBookings.map((booking) => (
+                {bookings.map((booking) => (
                   <TableRow key={booking._id}>
                     <TableCell>
                       <div>

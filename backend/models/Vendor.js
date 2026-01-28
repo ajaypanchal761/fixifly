@@ -10,7 +10,7 @@ const vendorSchema = new mongoose.Schema({
     minlength: [2, 'First name must be at least 2 characters long'],
     maxlength: [30, 'First name cannot exceed 30 characters']
   },
-  
+
   lastName: {
     type: String,
     required: [true, 'Last name is required'],
@@ -18,31 +18,31 @@ const vendorSchema = new mongoose.Schema({
     minlength: [2, 'Last name must be at least 2 characters long'],
     maxlength: [30, 'Last name cannot exceed 30 characters']
   },
-  
+
   email: {
     type: String,
     required: [true, 'Email is required'],
     unique: true,
     lowercase: true,
     trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email address']
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/, 'Please enter a valid email address']
   },
-  
+
   phone: {
     type: String,
     required: [true, 'Phone number is required'],
     unique: true,
     trim: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         // Remove all non-digit characters
         let digits = v.replace(/\D/g, '');
-        
+
         // Remove leading 0 if present (common mistake)
         if (digits.length === 11 && digits.startsWith('0')) {
           digits = digits.substring(1);
         }
-        
+
         // Check if it's a valid 10-digit number
         return digits.length === 10;
       },
@@ -55,15 +55,15 @@ const vendorSchema = new mongoose.Schema({
     required: [true, 'Alternate phone number is required'],
     trim: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         // Remove all non-digit characters
         let digits = v.replace(/\D/g, '');
-        
+
         // Remove leading 0 if present (common mistake)
         if (digits.length === 11 && digits.startsWith('0')) {
           digits = digits.substring(1);
         }
-        
+
         // Check if it's a valid 10-digit number
         return digits.length === 10;
       },
@@ -84,15 +84,15 @@ const vendorSchema = new mongoose.Schema({
     required: [true, 'Home phone number is required'],
     trim: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         // Remove all non-digit characters
         let digits = v.replace(/\D/g, '');
-        
+
         // Remove leading 0 if present (common mistake)
         if (digits.length === 11 && digits.startsWith('0')) {
           digits = digits.substring(1);
         }
-        
+
         // Check if it's a valid 10-digit number
         return digits.length === 10;
       },
@@ -106,7 +106,7 @@ const vendorSchema = new mongoose.Schema({
     trim: true,
     maxlength: [500, 'Current address cannot exceed 500 characters']
   },
-  
+
   // Unique Vendor ID
   vendorId: {
     type: String,
@@ -114,7 +114,7 @@ const vendorSchema = new mongoose.Schema({
     required: true,
     match: [/^[1-9]\d{2}$/, 'Vendor ID must be a 3-digit number starting from 1']
   },
-  
+
   // Authentication
   password: {
     type: String,
@@ -122,7 +122,7 @@ const vendorSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters long'],
     select: false // Don't include password in queries by default
   },
-  
+
   // OTP for forgot password
   forgotPasswordOTP: {
     code: {
@@ -134,13 +134,13 @@ const vendorSchema = new mongoose.Schema({
       default: null
     }
   },
-  
+
   role: {
     type: String,
     enum: ['vendor'],
     default: 'vendor'
   },
-  
+
   // Service Information
   serviceCategories: [{
     type: String,
@@ -158,13 +158,13 @@ const vendorSchema = new mongoose.Schema({
       'Cleaning'
     ]
   }],
-  
+
   customServiceCategory: {
     type: String,
     trim: true,
     maxlength: [100, 'Custom service category cannot exceed 100 characters']
   },
-  
+
   experience: {
     type: String,
     enum: [
@@ -176,7 +176,7 @@ const vendorSchema = new mongoose.Schema({
     ],
     required: [true, 'Experience level is required']
   },
-  
+
   // Location Information
   address: {
     street: {
@@ -198,7 +198,7 @@ const vendorSchema = new mongoose.Schema({
       type: String,
       trim: true,
       validate: {
-        validator: function(v) {
+        validator: function (v) {
           // Allow empty string or valid 6-digit pincode
           return !v || /^[1-9][0-9]{5}$/.test(v);
         },
@@ -235,42 +235,42 @@ const vendorSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
-  
+
   // Profile Information
   profileImage: {
     type: String,
     default: null
   },
-  
+
   // Business Information
   specialty: {
     type: String,
     trim: true,
     maxlength: [100, 'Specialty cannot exceed 100 characters']
   },
-  
+
   bio: {
     type: String,
     trim: true,
     maxlength: [500, 'Bio cannot exceed 500 characters']
   },
-  
+
   // Verification Status
   isEmailVerified: {
     type: Boolean,
     default: false
   },
-  
+
   isPhoneVerified: {
     type: Boolean,
     default: false
   },
-  
+
   isProfileComplete: {
     type: Boolean,
     default: false
   },
-  
+
   isApproved: {
     type: Boolean,
     default: false
@@ -325,18 +325,18 @@ const vendorSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
-  
+
   // Account Status
   isActive: {
     type: Boolean,
     default: true  // Instant activation - vendor account is active immediately upon creation
   },
-  
+
   isBlocked: {
     type: Boolean,
     default: false
   },
-  
+
   // Rating and Reviews
   rating: {
     average: {
@@ -350,7 +350,7 @@ const vendorSchema = new mongoose.Schema({
       default: 0
     }
   },
-  
+
   // Statistics
   stats: {
     totalTasks: {
@@ -378,7 +378,7 @@ const vendorSchema = new mongoose.Schema({
       default: Date.now
     }
   },
-  
+
   // Preferences
   preferences: {
     notifications: {
@@ -414,7 +414,7 @@ const vendorSchema = new mongoose.Schema({
       enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     }]
   },
-  
+
   // Wallet Information
   wallet: {
     currentBalance: {
@@ -483,7 +483,7 @@ const vendorSchema = new mongoose.Schema({
         default: null
       }
     },
-    
+
     lastSubscriptionUpdate: {
       type: Date,
       default: null
@@ -549,16 +549,16 @@ const vendorSchema = new mongoose.Schema({
 });
 
 // Virtual for full name
-vendorSchema.virtual('fullName').get(function() {
+vendorSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
 // Virtual for formatted phone
-vendorSchema.virtual('formattedPhone').get(function() {
+vendorSchema.virtual('formattedPhone').get(function () {
   if (!this.phone || typeof this.phone !== 'string') {
     return this.phone || '';
   }
-  
+
   if (this.phone.startsWith('+91')) {
     return `+91 ${this.phone.slice(3, 8)} ${this.phone.slice(8)}`;
   } else if (this.phone.startsWith('91')) {
@@ -577,10 +577,10 @@ vendorSchema.index({ 'serviceLocations.from': 1, 'serviceLocations.to': 1 });
 vendorSchema.index({ isActive: 1, isApproved: 1 });
 
 // Pre-save middleware to hash password
-vendorSchema.pre('save', async function(next) {
+vendorSchema.pre('save', async function (next) {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) return next();
-  
+
   try {
     // Hash password with cost of 12
     const salt = await bcrypt.genSalt(12);
@@ -592,12 +592,12 @@ vendorSchema.pre('save', async function(next) {
 });
 
 // Instance method to check password
-vendorSchema.methods.comparePassword = async function(candidatePassword) {
+vendorSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 // Method to generate OTP for forgot password
-vendorSchema.methods.generateForgotPasswordOTP = function() {
+vendorSchema.methods.generateForgotPasswordOTP = function () {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   this.forgotPasswordOTP = {
     code: otp,
@@ -607,20 +607,20 @@ vendorSchema.methods.generateForgotPasswordOTP = function() {
 };
 
 // Method to verify OTP for forgot password
-vendorSchema.methods.verifyForgotPasswordOTP = function(otpCode) {
+vendorSchema.methods.verifyForgotPasswordOTP = function (otpCode) {
   if (!this.forgotPasswordOTP || !this.forgotPasswordOTP.code || !this.forgotPasswordOTP.expiresAt) {
     return false;
   }
-  
+
   if (new Date() > this.forgotPasswordOTP.expiresAt) {
     return false; // OTP expired
   }
-  
+
   return this.forgotPasswordOTP.code === otpCode;
 };
 
 // Method to clear OTP for forgot password
-vendorSchema.methods.clearForgotPasswordOTP = function() {
+vendorSchema.methods.clearForgotPasswordOTP = function () {
   this.forgotPasswordOTP = {
     code: null,
     expiresAt: null
@@ -628,13 +628,13 @@ vendorSchema.methods.clearForgotPasswordOTP = function() {
 };
 
 // Instance method to update last login
-vendorSchema.methods.updateLastLogin = function() {
+vendorSchema.methods.updateLastLogin = function () {
   this.stats.lastLoginAt = new Date();
   return this.save({ validateBeforeSave: false });
 };
 
 // Instance method to update rating
-vendorSchema.methods.updateRating = function(newRating) {
+vendorSchema.methods.updateRating = function (newRating) {
   const totalRating = (this.rating.average * this.rating.count) + newRating;
   this.rating.count += 1;
   this.rating.average = totalRating / this.rating.count;
@@ -642,12 +642,12 @@ vendorSchema.methods.updateRating = function(newRating) {
 };
 
 // Instance method to check if profile is complete
-vendorSchema.methods.checkProfileComplete = function() {
+vendorSchema.methods.checkProfileComplete = function () {
   const requiredFields = [
-    'firstName', 'lastName', 'email', 'phone', 'serviceCategories', 
+    'firstName', 'lastName', 'email', 'phone', 'serviceCategories',
     'experience', 'address.city', 'address.state', 'address.pincode'
   ];
-  
+
   const isComplete = requiredFields.every(field => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
@@ -655,111 +655,111 @@ vendorSchema.methods.checkProfileComplete = function() {
     }
     return this[field];
   });
-  
+
   this.isProfileComplete = isComplete;
   return isComplete;
 };
 
 // Instance method to add service location
-vendorSchema.methods.addServiceLocation = function(from, to) {
+vendorSchema.methods.addServiceLocation = function (from, to) {
   // Check if location already exists
   const existingLocation = this.serviceLocations.find(
-    loc => loc.from.toLowerCase() === from.toLowerCase() && 
-           loc.to.toLowerCase() === to.toLowerCase()
+    loc => loc.from.toLowerCase() === from.toLowerCase() &&
+      loc.to.toLowerCase() === to.toLowerCase()
   );
-  
+
   if (existingLocation) {
     throw new Error('Service location already exists');
   }
-  
+
   this.serviceLocations.push({
     from: from.trim(),
     to: to.trim(),
     isActive: true,
     addedAt: new Date()
   });
-  
+
   return this.save();
 };
 
 // Instance method to remove service location
-vendorSchema.methods.removeServiceLocation = function(locationId) {
+vendorSchema.methods.removeServiceLocation = function (locationId) {
   this.serviceLocations = this.serviceLocations.filter(
     loc => loc._id.toString() !== locationId
   );
-  
+
   return this.save();
 };
 
 // Instance method to update service location
-vendorSchema.methods.updateServiceLocation = function(locationId, from, to, isActive = true) {
+vendorSchema.methods.updateServiceLocation = function (locationId, from, to, isActive = true) {
   const location = this.serviceLocations.id(locationId);
-  
+
   if (!location) {
     throw new Error('Service location not found');
   }
-  
+
   // Check if updated location already exists (excluding current one)
   const existingLocation = this.serviceLocations.find(
     loc => loc._id.toString() !== locationId &&
-           loc.from.toLowerCase() === from.toLowerCase() && 
-           loc.to.toLowerCase() === to.toLowerCase()
+      loc.from.toLowerCase() === from.toLowerCase() &&
+      loc.to.toLowerCase() === to.toLowerCase()
   );
-  
+
   if (existingLocation) {
     throw new Error('Service location already exists');
   }
-  
+
   location.from = from.trim();
   location.to = to.trim();
   location.isActive = isActive;
-  
+
   return this.save();
 };
 
 // Static method to generate unique 3-digit vendor ID
-vendorSchema.statics.generateVendorId = async function() {
+vendorSchema.statics.generateVendorId = async function () {
   let vendorId;
   let isUnique = false;
-  
+
   while (!isUnique) {
     // Generate a random 3-digit number starting from 100
     vendorId = Math.floor(Math.random() * 900) + 100;
     vendorId = vendorId.toString();
-    
+
     // Check if this ID already exists
     const existingVendor = await this.findOne({ vendorId });
     if (!existingVendor) {
       isUnique = true;
     }
   }
-  
+
   return vendorId;
 };
 
 // Instance method to add deposit to wallet
-vendorSchema.methods.addDeposit = async function(amount, transactionId, razorpayOrderId = null, razorpayPaymentId = null, razorpaySignature = null) {
+vendorSchema.methods.addDeposit = async function (amount, transactionId, razorpayOrderId = null, razorpayPaymentId = null, razorpaySignature = null) {
   const WalletTransaction = require('./WalletTransaction');
-  
+
   const balanceBefore = this.wallet.currentBalance;
   const balanceAfter = balanceBefore + amount;
-  
+
   // Update vendor wallet
   this.wallet.currentBalance = balanceAfter;
   this.wallet.lastTransactionAt = new Date();
-  
+
   if (!this.wallet.hasInitialDeposit) {
     this.wallet.hasInitialDeposit = true;
     this.wallet.initialDepositAmount = amount;
   }
-  
+
   // Find and update the existing pending transaction instead of creating a new one
   const existingTransaction = await WalletTransaction.findOne({
     transactionId: transactionId,
     vendorId: this.vendorId,
     status: 'pending'
   });
-  
+
   if (existingTransaction) {
     // Update the existing pending transaction
     existingTransaction.amount = amount;
@@ -770,7 +770,7 @@ vendorSchema.methods.addDeposit = async function(amount, transactionId, razorpay
     existingTransaction.balanceBefore = balanceBefore;
     existingTransaction.balanceAfter = balanceAfter;
     existingTransaction.processedBy = 'system';
-    
+
     await existingTransaction.save();
   } else {
     // Fallback: create new transaction if pending one not found
@@ -789,28 +789,28 @@ vendorSchema.methods.addDeposit = async function(amount, transactionId, razorpay
       balanceAfter: balanceAfter,
       processedBy: 'system'
     });
-    
+
     await transaction.save();
   }
-  
+
   return this.save();
 };
 
 // Instance method to add withdrawal from wallet
-vendorSchema.methods.addWithdrawal = async function(amount, transactionId, description = 'Wallet withdrawal') {
+vendorSchema.methods.addWithdrawal = async function (amount, transactionId, description = 'Wallet withdrawal') {
   const WalletTransaction = require('./WalletTransaction');
-  
+
   if (this.wallet.currentBalance < amount) {
     throw new Error('Insufficient balance');
   }
-  
+
   const balanceBefore = this.wallet.currentBalance;
   const balanceAfter = balanceBefore - amount;
-  
+
   // Update vendor wallet
   this.wallet.currentBalance = balanceAfter;
   this.wallet.lastTransactionAt = new Date();
-  
+
   // Create wallet transaction record
   const transaction = new WalletTransaction({
     vendor: this._id,
@@ -824,22 +824,22 @@ vendorSchema.methods.addWithdrawal = async function(amount, transactionId, descr
     balanceAfter: balanceAfter,
     processedBy: 'system'
   });
-  
+
   await transaction.save();
   return this.save();
 };
 
 // Instance method to add earning to wallet
-vendorSchema.methods.addEarning = async function(amount, transactionId, description = 'Service earning', metadata = {}) {
+vendorSchema.methods.addEarning = async function (amount, transactionId, description = 'Service earning', metadata = {}) {
   const WalletTransaction = require('./WalletTransaction');
-  
+
   const balanceBefore = this.wallet.currentBalance;
   const balanceAfter = balanceBefore + amount;
-  
+
   // Update vendor wallet
   this.wallet.currentBalance = balanceAfter;
   this.wallet.lastTransactionAt = new Date();
-  
+
   // Create wallet transaction record
   const transaction = new WalletTransaction({
     vendor: this._id,
@@ -854,22 +854,22 @@ vendorSchema.methods.addEarning = async function(amount, transactionId, descript
     processedBy: 'system',
     metadata: metadata
   });
-  
+
   await transaction.save();
   return this.save();
 };
 
 // Instance method to add penalty to wallet
-vendorSchema.methods.addPenalty = async function(amount, transactionId, description = 'Penalty', metadata = {}) {
+vendorSchema.methods.addPenalty = async function (amount, transactionId, description = 'Penalty', metadata = {}) {
   const WalletTransaction = require('./WalletTransaction');
-  
+
   const balanceBefore = this.wallet.currentBalance;
   const balanceAfter = Math.max(0, balanceBefore - amount); // Don't allow negative balance
-  
+
   // Update vendor wallet
   this.wallet.currentBalance = balanceAfter;
   this.wallet.lastTransactionAt = new Date();
-  
+
   // Create wallet transaction record
   const transaction = new WalletTransaction({
     vendor: this._id,
@@ -884,42 +884,42 @@ vendorSchema.methods.addPenalty = async function(amount, transactionId, descript
     processedBy: 'system',
     metadata: metadata
   });
-  
+
   await transaction.save();
   return this.save();
 };
 
 // Static method to find vendors by location and service
-vendorSchema.statics.findByLocationAndService = function(city, pincode, serviceCategory) {
+vendorSchema.statics.findByLocationAndService = function (city, pincode, serviceCategory) {
   const query = {
     isActive: true,
     isApproved: true,
     'address.city': new RegExp(city, 'i')
   };
-  
+
   if (pincode) {
     query['address.pincode'] = pincode;
   }
-  
+
   if (serviceCategory) {
     query.serviceCategories = serviceCategory;
   }
-  
+
   return this.find(query).select('-password');
 };
 
 // Instance method to check if vendor can accept tasks (mandatory deposit requirement)
-vendorSchema.methods.canAcceptNewTasks = async function() {
+vendorSchema.methods.canAcceptNewTasks = async function () {
   // If vendor has never been assigned a task, they can accept
   if (!this.wallet.firstTaskAssignedAt) {
     return true;
   }
-  
+
   // If vendor has already made mandatory deposit, they can accept
   if (this.wallet.hasMandatoryDeposit) {
     return true;
   }
-  
+
   // Check if vendor has initial deposit (₹3999) - if yes, they can accept
   if (this.wallet.hasInitialDeposit) {
     // Auto-mark mandatory deposit as completed if they have initial deposit
@@ -930,15 +930,15 @@ vendorSchema.methods.canAcceptNewTasks = async function() {
     }
     return true;
   }
-  
+
   // Check wallet balance from VendorWallet model
   const VendorWallet = require('./VendorWallet');
   const vendorWallet = await VendorWallet.findOne({ vendorId: this.vendorId });
-  
+
   if (vendorWallet) {
     const currentBalance = vendorWallet.currentBalance || 0;
     const totalDeposits = vendorWallet.totalDeposits || 0;
-    
+
     // If vendor has ₹2000 or more in balance, they can accept tasks
     if (currentBalance >= 2000 || totalDeposits >= 2000) {
       // Auto-mark mandatory deposit as completed
@@ -950,13 +950,13 @@ vendorSchema.methods.canAcceptNewTasks = async function() {
       return true;
     }
   }
-  
+
   // If vendor has been assigned a task but hasn't made mandatory deposit, they cannot accept
   return false;
 };
 
 // Instance method to mark first task assignment
-vendorSchema.methods.markFirstTaskAssignment = function() {
+vendorSchema.methods.markFirstTaskAssignment = function () {
   if (!this.wallet.firstTaskAssignedAt) {
     this.wallet.firstTaskAssignedAt = new Date();
     this.wallet.canAcceptTasks = false; // Cannot accept until mandatory deposit is made
@@ -966,7 +966,7 @@ vendorSchema.methods.markFirstTaskAssignment = function() {
 };
 
 // Instance method to mark mandatory deposit as completed
-vendorSchema.methods.markMandatoryDepositCompleted = function(amount) {
+vendorSchema.methods.markMandatoryDepositCompleted = function (amount) {
   this.wallet.hasMandatoryDeposit = true;
   this.wallet.mandatoryDepositAmount = amount;
   this.wallet.canAcceptTasks = true;
@@ -974,15 +974,15 @@ vendorSchema.methods.markMandatoryDepositCompleted = function(amount) {
 };
 
 // Instance method to update vendor rating
-vendorSchema.methods.updateRating = async function() {
+vendorSchema.methods.updateRating = async function () {
   const Review = require('./Review');
-  
+
   // Get all reviews for this vendor
-  const reviews = await Review.find({ 
-    vendorId: this._id, 
-    status: 'approved' 
+  const reviews = await Review.find({
+    vendorId: this._id,
+    status: 'approved'
   });
-  
+
   if (reviews.length === 0) {
     // No reviews, reset rating
     this.rating.average = 0;
@@ -995,27 +995,27 @@ vendorSchema.methods.updateRating = async function() {
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     this.rating.average = Math.round((totalRating / reviews.length) * 10) / 10; // Round to 1 decimal
     this.rating.totalReviews = reviews.length;
-    
+
     // Calculate rating distribution
     const distribution = new Map([
       ['1', 0], ['2', 0], ['3', 0], ['4', 0], ['5', 0]
     ]);
-    
+
     reviews.forEach(review => {
       const rating = review.rating.toString();
       distribution.set(rating, (distribution.get(rating) || 0) + 1);
     });
-    
+
     this.rating.ratingDistribution = distribution;
   }
-  
+
   return this.save();
 };
 
 // Transform JSON output
 vendorSchema.set('toJSON', {
   virtuals: true,
-  transform: function(doc, ret) {
+  transform: function (doc, ret) {
     delete ret.password;
     delete ret.__v;
     return ret;

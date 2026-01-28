@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, Suspense } from "react";
 // Import mandatory deposit handler to fix the error
 import "./services/mandatoryDepositHandler";
@@ -109,6 +109,8 @@ const AppContent = () => {
           <Route path="/laptop-service" element={<LaptopService />} />
           <Route path="/service/:serviceType" element={<LaptopService />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="/signup" element={<Navigate to="/" replace />} />
 
           {/* ================== ADMIN AUTH ROUTES ================== */}
           <Route path="/admin/login" element={<AdminLogin />} />

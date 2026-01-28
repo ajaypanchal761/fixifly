@@ -47,7 +47,7 @@ const AMCSubscribe = () => {
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormData & { guestName?: string; guestEmail?: string; guestPhone?: string }>({
     deviceType: "",
     quantity: 1,
     devices: [{
@@ -56,7 +56,10 @@ const AMCSubscribe = () => {
       modelNumber: "",
       brand: "",
       serialNumberPhoto: null
-    }]
+    }],
+    guestName: "",
+    guestEmail: "",
+    guestPhone: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -96,11 +99,13 @@ const AMCSubscribe = () => {
   }, [planId]); // Only depend on planId
 
   useEffect(() => {
+    /* 
     if (!isAuthenticated) {
       toast.error("Please login to subscribe to AMC plans");
-      navigate('/login');
+      navigate('/');
       return;
     }
+    */
 
     if (planId) {
       fetchPlanDetails();
@@ -181,6 +186,22 @@ const AMCSubscribe = () => {
 
     if (formData.quantity < 1) {
       newErrors.quantity = 'At least 1 device is required';
+    }
+
+    if (!isAuthenticated) {
+      if (!formData.guestName?.trim()) {
+        newErrors.guestName = 'Name is required';
+      }
+      if (!formData.guestEmail?.trim()) {
+        newErrors.guestEmail = 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(formData.guestEmail)) {
+        newErrors.guestEmail = 'Invalid email address';
+      }
+      if (!formData.guestPhone?.trim()) {
+        newErrors.guestPhone = 'Phone number is required';
+      } else if (!/^\d{10}$/.test(formData.guestPhone.replace(/\D/g, ''))) {
+        newErrors.guestPhone = 'Invalid 10-digit phone number';
+      }
     }
 
     formData.devices.forEach((device, index) => {
@@ -282,7 +303,12 @@ const AMCSubscribe = () => {
         planId: planId,
         devices: devicesWithUploadedImages,
         paymentMethod: 'online',
-        autoRenewal: false
+        autoRenewal: false,
+        ...(!isAuthenticated && {
+          guestName: formData.guestName,
+          guestEmail: formData.guestEmail,
+          guestPhone: formData.guestPhone
+        })
       };
 
       console.log('Submitting subscription data with uploaded images:', subscriptionData);
@@ -741,14 +767,65 @@ const AMCSubscribe = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Shield className="h-5 w-5 mr-2 text-blue-600" />
-                  Device Information
+                  Subscription Details
                 </CardTitle>
                 <CardDescription>
-                  Please provide details for all devices you want to include in your AMC plan
+                  Please provide your contact information and device details
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Guest User Information */}
+                  {!isAuthenticated && (
+                    <div className="space-y-4 p-4 bg-blue-50/50 rounded-lg border border-blue-100">
+                      <h3 className="font-semibold text-blue-900 mb-2">Contact Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="guestName">Full Name *</Label>
+                          <Input
+                            id="guestName"
+                            value={formData.guestName}
+                            onChange={(e) => handleInputChange('guestName' as any, e.target.value)}
+                            placeholder="Enter your full name"
+                            className={errors.guestName ? 'border-red-500' : ''}
+                          />
+                          {errors.guestName && (
+                            <p className="text-sm text-red-500">{errors.guestName}</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="guestEmail">Email Address *</Label>
+                          <Input
+                            id="guestEmail"
+                            type="email"
+                            value={formData.guestEmail}
+                            onChange={(e) => handleInputChange('guestEmail' as any, e.target.value)}
+                            placeholder="email@example.com"
+                            className={errors.guestEmail ? 'border-red-500' : ''}
+                          />
+                          {errors.guestEmail && (
+                            <p className="text-sm text-red-500">{errors.guestEmail}</p>
+                          )}
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor="guestPhone">Phone Number *</Label>
+                          <Input
+                            id="guestPhone"
+                            type="tel"
+                            value={formData.guestPhone}
+                            onChange={(e) => handleInputChange('guestPhone' as any, e.target.value)}
+                            placeholder="10-digit phone number"
+                            maxLength={10}
+                            className={errors.guestPhone ? 'border-red-500' : ''}
+                          />
+                          {errors.guestPhone && (
+                            <p className="text-sm text-red-500">{errors.guestPhone}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Device Type Selection */}
                   <div className="space-y-2">
                     <Label htmlFor="deviceType">Device Type *</Label>

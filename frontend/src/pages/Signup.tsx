@@ -46,6 +46,31 @@ const Signup = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    // Special handling for phone number
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '');
+      if (numericValue.length <= 10) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: numericValue
+        }));
+      }
+      return;
+    }
+
+    // Special handling for OTP
+    if (name === 'otp') {
+      const numericValue = value.replace(/\D/g, '');
+      if (numericValue.length <= 6) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: numericValue
+        }));
+      }
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -73,7 +98,7 @@ const Signup = () => {
         if (savedToken) {
           return savedToken;
         }
-        
+
         // Try to register and get FCM token
         try {
           const token = await registerFCMToken(false);
@@ -301,6 +326,7 @@ const Signup = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     className="pl-10 h-12 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg transition-all duration-200"
+                    maxLength={10}
                     required
                   />
                 </div>

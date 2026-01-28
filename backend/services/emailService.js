@@ -2438,7 +2438,7 @@ class EmailService {
                 <strong>Safety Tip:</strong> Verify the engineer's identity using the booking reference number upon arrival.
               </p>
 
-              <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/user/bookings" class="btn">View Booking Details</a>
+              <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking" class="btn">View Booking Details</a>
             </div>
           </div>
 
@@ -2469,7 +2469,7 @@ class EmailService {
       Amount: ₹${booking.pricing.totalAmount}
       
       Track your service and view details in your dashboard:
-      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/user/bookings
+      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking
       
       Need help? Contact support at 022-6964-7030
       
@@ -2600,7 +2600,7 @@ class EmailService {
               <div style="text-align: center; margin-top: 30px; background-color: #fce7f3; padding: 20px; border-radius: 8px; border: 1px dashed #db2777;">
                 <h3 style="margin: 0 0 10px; color: #be185d;">🌟 How was your experience?</h3>
                 <p style="margin: 0 0 20px; color: #9d174d; font-size: 14px;">Your feedback helps us improve our service.</p>
-                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/user/bookings?tab=completed&ratingBookingId=${booking._id}" style="display: inline-block; background: #db2777; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Rate Your Service</a>
+                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking?tab=completed&ratingBookingId=${booking._id}" style="display: inline-block; background: #db2777; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Rate Your Service</a>
               </div>
 
             </div>
@@ -2635,7 +2635,7 @@ class EmailService {
       
       RATE YOUR SERVICE:
       Please take a moment to rate your experience:
-      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/user/bookings?tab=completed&ratingBookingId=${booking._id}
+      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking?tab=completed&ratingBookingId=${booking._id}
       
       Thank you for choosing Fixfly!
     `;

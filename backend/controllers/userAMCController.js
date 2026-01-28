@@ -179,8 +179,14 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
     planId,
     devices,
     paymentMethod = 'online',
-    autoRenewal = false
+    autoRenewal = false,
+    guestName,
+    guestEmail,
+    guestPhone
   } = req.body;
+
+  console.log('AMC Subscription request body:', req.body);
+  console.log('User from request:', req.user);
 
   // Validation
   if (!planId || !devices || !Array.isArray(devices) || devices.length === 0) {
@@ -231,42 +237,101 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
     }
   }
 
-  // Calculate total amount with GST
-  const baseAmount = plan.price * devices.length;
-  const gstRate = 0.18; // 18% GST
-  const gstAmount = baseAmount * gstRate;
-  const totalAmount = baseAmount + gstAmount;
+  // Handle user details (Linked user or guest)
+  let user;
+  let userId;
+  let userName;
+  let userEmail;
+  let userPhone;
 
-  // Fetch user details to store in subscription
-  const user = await User.findById(req.user.userId).select('name email phone');
-  if (!user) {
-    return res.status(404).json({
+  if (req.user && req.user.userId) {
+    // Authenticated user
+    user = await User.findById(req.user.userId).select('name email phone');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Authenticated user not found'
+      });
+    }
+    userId = user._id;
+    userName = user.name;
+    userEmail = user.email;
+    userPhone = user.phone;
+  } else if (guestEmail && guestPhone) {
+    // Guest flow
+    console.log('Guest subscription flow for:', guestEmail, guestPhone);
+
+    // Normalize phone for searching
+    let normalizedPhone = guestPhone.replace(/\D/g, '');
+    if (normalizedPhone.length === 10) normalizedPhone = `+91${normalizedPhone}`;
+
+    // Try to find existing user by email or phone
+    user = await User.findOne({
+      $or: [
+        { email: guestEmail.toLowerCase() },
+        { phone: normalizedPhone }
+      ]
+    });
+
+    if (user) {
+      console.log('Found existing user for guest subscription:', user._id);
+      userId = user._id;
+      userName = user.name || guestName;
+      userEmail = user.email;
+      userPhone = user.phone;
+    } else {
+      // Create new "guest" user
+      console.log('Creating new user for guest subscription');
+      user = await User.create({
+        name: guestName,
+        email: guestEmail.toLowerCase(),
+        phone: guestPhone, // Pre-save middleware will format it
+        role: 'user',
+        isPhoneVerified: false,
+        isActive: true
+      });
+      userId = user._id;
+      userName = guestName;
+      userEmail = guestEmail.toLowerCase();
+      userPhone = user.phone;
+    }
+  } else {
+    return res.status(401).json({
       success: false,
-      message: 'User not found'
+      message: 'Authentication required or guest information missing'
     });
   }
 
-  console.log('Creating AMC subscription with payment integration:', {
-    baseAmount,
-    gstAmount,
-    totalAmount,
-    gstRate,
-    userId: req.user.userId,
-    userName: user.name,
-    userEmail: user.email,
-    userPhone: user.phone,
+  console.log('Preparing AMC subscription for user:', {
+    userId,
+    userName,
+    userEmail,
+    userPhone,
     planId,
     planName: plan.name,
     deviceCount: devices.length,
     paymentMethod
   });
 
+  // Calculate total amount with GST
+  const baseAmount = plan.price * devices.length;
+  const gstRate = 0.18; // 18% GST
+  const gstAmount = baseAmount * gstRate;
+  const totalAmount = baseAmount + gstAmount;
+
+  console.log('Calculated amounts:', {
+    baseAmount,
+    gstAmount,
+    totalAmount,
+    gstRate
+  });
+
   // Create subscription with pending payment status
   const subscriptionData = {
-    userId: req.user.userId,
-    userName: user.name,
-    userEmail: user.email,
-    userPhone: user.phone,
+    userId: userId,
+    userName: userName,
+    userEmail: userEmail,
+    userPhone: userPhone,
     planId: planId,
     planName: plan.name,
     planPrice: plan.price,
@@ -292,7 +357,7 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
   console.log('Creating subscription with data:', subscriptionData);
 
   const subscription = await AMCSubscription.create(subscriptionData);
-  
+
   // Immediately verify the subscription was created
   console.log('Verifying subscription creation...');
   const verifySubscription = await AMCSubscription.findById(subscription._id);
@@ -334,7 +399,7 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
 
       console.log('Creating Razorpay order with data:', orderData);
       razorpayOrder = await RazorpayService.createOrder(orderData);
-      
+
       // Update subscription with Razorpay order ID
       subscription.razorpayOrderId = razorpayOrder.id;
       await subscription.save();
@@ -344,7 +409,7 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
       console.error('Failed to create Razorpay order:', error);
       // Delete the subscription if payment order creation fails
       await AMCSubscription.deleteOne({ _id: subscription._id });
-      
+
       return res.status(500).json({
         success: false,
         message: 'Failed to create payment order. Please try again.',
@@ -357,7 +422,7 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
   await subscription.populate('planId', 'name price benefits features');
 
   logger.info('AMC subscription created successfully', {
-    userId: req.user.userId,
+    userId: userId,
     subscriptionId: subscription.subscriptionId,
     planName: plan.name,
     status: subscription.status,
@@ -367,7 +432,7 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
   // Prepare response
   const subscriptionResponse = subscription.toObject();
   subscriptionResponse._id = subscription._id.toString();
-  
+
   const responseData = {
     subscription: subscriptionResponse
   };
@@ -399,7 +464,7 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: paymentMethod === 'online' 
+    message: paymentMethod === 'online'
       ? 'AMC subscription created successfully! Please complete the payment to activate your subscription.'
       : 'AMC subscription created successfully!',
     data: responseData
@@ -411,10 +476,10 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
 // @access  Private (User)
 const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
   const { id: subscriptionId } = req.params;
-  const { 
-    razorpayOrderId, 
-    razorpayPaymentId, 
-    razorpaySignature 
+  const {
+    razorpayOrderId,
+    razorpayPaymentId,
+    razorpaySignature
   } = req.body;
 
   console.log('=== PAYMENT VERIFICATION REQUEST ===');
@@ -454,10 +519,10 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
 
   // Import mongoose for ObjectId conversion
   const mongoose = require('mongoose');
-  
+
   // Try to find subscription with proper ObjectId conversion
   let subscription;
-  
+
   try {
     // Convert subscriptionId to ObjectId and find subscription
     const objectId = new mongoose.Types.ObjectId(subscriptionId);
@@ -466,12 +531,17 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
       convertedId: objectId,
       isValidObjectId: mongoose.Types.ObjectId.isValid(subscriptionId)
     });
-    
-    subscription = await AMCSubscription.findOne({
-      _id: objectId,
-      userId: req.user.userId
-    });
-    
+
+    // Build query
+    const query = { _id: objectId };
+
+    // Only filter by userId if user is authenticated
+    if (req.user && req.user.userId) {
+      query.userId = req.user.userId;
+    }
+
+    subscription = await AMCSubscription.findOne(query);
+
     console.log('Found subscription:', subscription ? 'YES' : 'NO');
     if (subscription) {
       console.log('Subscription details:', {
@@ -493,7 +563,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
   if (!subscription) {
     console.log('Subscription not found for user:', req.user.userId);
     console.log('Attempting to find subscription without user filter...');
-    
+
     // Try to find subscription without user filter for debugging
     const anySubscription = await AMCSubscription.findById(subscriptionId);
     console.log('Found any subscription:', anySubscription ? 'YES' : 'NO');
@@ -506,7 +576,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
         paymentStatus: anySubscription.paymentStatus
       });
     }
-    
+
     return res.status(404).json({
       success: false,
       message: 'AMC subscription not found'
@@ -532,7 +602,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
 
   try {
     console.log('Starting payment verification process...');
-    
+
     // Verify payment signature
     console.log('Verifying payment signature...');
     const isSignatureValid = RazorpayService.verifyPaymentSignature(
@@ -550,7 +620,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
         razorpayOrderId,
         razorpayPaymentId
       });
-      
+
       return res.status(400).json({
         success: false,
         message: 'Payment verification failed - invalid signature'
@@ -584,10 +654,10 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
     // Send AMC purchase confirmation email
     try {
       const emailService = require('../services/emailService');
-      
+
       // Populate plan details for email
       await subscription.populate('planId', 'name benefits features');
-      
+
       // Prepare email data
       const subscriptionData = {
         subscriptionId: subscription.subscriptionId,
@@ -599,18 +669,18 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
         endDate: subscription.endDate,
         devices: subscription.devices
       };
-      
+
       const planData = {
         name: subscription.planId.name,
         benefits: subscription.planId.benefits,
         features: subscription.planId.features
       };
-      
+
       const userData = {
         name: subscription.userName,
         email: subscription.userEmail
       };
-      
+
       console.log('Sending AMC purchase confirmation email...');
       console.log('Email data debug:', {
         subscriptionData,
@@ -621,13 +691,13 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
         userName: subscription.userName,
         userEmail: subscription.userEmail
       });
-      
+
       const emailResult = await emailService.sendAMCPurchaseConfirmation(
         subscriptionData,
         planData,
         userData
       );
-      
+
       if (emailResult.success) {
         console.log('AMC confirmation email sent successfully:', emailResult.messageId);
         logger.info('AMC confirmation email sent', {
@@ -676,7 +746,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
       razorpayPaymentId,
       error: error.message
     });
-    
+
     return res.status(500).json({
       success: false,
       message: 'Payment verification failed. Please contact support.',
@@ -794,7 +864,7 @@ const cancelAMCSubscription = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: 'AMC subscription cancelled successfully',
-    data: { 
+    data: {
       subscription,
       refundAmount,
       refundStatus: refundAmount > 0 ? 'pending' : null
@@ -942,7 +1012,7 @@ const getAMCServiceHistory = asyncHandler(async (req, res) => {
     });
   }
 
-  const serviceHistory = subscription.serviceHistory.sort((a, b) => 
+  const serviceHistory = subscription.serviceHistory.sort((a, b) =>
     new Date(b.serviceDate) - new Date(a.serviceDate)
   );
 
@@ -980,13 +1050,13 @@ const getAMCUsage = asyncHandler(async (req, res) => {
     callSupport: {
       used: subscription.usage.callSupport.used,
       limit: subscription.usage.callSupport.limit,
-      remaining: subscription.usage.callSupport.limit === 'unlimited' ? 'unlimited' : 
+      remaining: subscription.usage.callSupport.limit === 'unlimited' ? 'unlimited' :
         (subscription.usage.callSupport.limit - subscription.usage.callSupport.used)
     },
     remoteSupport: {
       used: subscription.usage.remoteSupport.used,
       limit: subscription.usage.remoteSupport.limit,
-      remaining: subscription.usage.remoteSupport.limit === 'unlimited' ? 'unlimited' : 
+      remaining: subscription.usage.remoteSupport.limit === 'unlimited' ? 'unlimited' :
         (subscription.usage.remoteSupport.limit - subscription.usage.remoteSupport.used)
     },
     homeVisits: {
@@ -1025,7 +1095,7 @@ module.exports = {
   // AMC Plans
   getAMCPlans,
   getAMCPlan,
-  
+
   // AMC Subscriptions
   getUserAMCSubscriptions,
   getUserAMCSubscription,
@@ -1034,11 +1104,11 @@ module.exports = {
   updateAMCSubscription,
   cancelAMCSubscription,
   renewAMCSubscription,
-  
+
   // AMC Services
   requestAMCService,
   getAMCServiceHistory,
-  
+
   // Usage Tracking
   getAMCUsage
 };
@@ -1048,31 +1118,31 @@ module.exports = {
 // @access  Private (User)
 const debugSubscription = asyncHandler(async (req, res) => {
   const { id: subscriptionId } = req.params;
-  
+
   console.log('=== DEBUG SUBSCRIPTION LOOKUP ===');
   console.log('Subscription ID:', subscriptionId);
   console.log('User ID:', req.user?.userId);
-  
+
   try {
     // Try to find subscription with user filter
     const subscription = await AMCSubscription.findOne({
       _id: subscriptionId,
       userId: req.user.userId
     });
-    
+
     console.log('Found subscription with user filter:', subscription ? 'YES' : 'NO');
-    
+
     // Try to find subscription without user filter
     const anySubscription = await AMCSubscription.findById(subscriptionId);
     console.log('Found subscription without user filter:', anySubscription ? 'YES' : 'NO');
-    
+
     // Get all subscriptions for this user
     const userSubscriptions = await AMCSubscription.find({
       userId: req.user.userId
     });
-    
+
     console.log('Total subscriptions for user:', userSubscriptions.length);
-    
+
     res.json({
       success: true,
       data: {

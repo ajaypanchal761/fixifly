@@ -2824,7 +2824,9 @@ const createQuickBooking = asyncHandler(async (req, res) => {
       payment: {
         status: 'pending',
         method: 'cash' // Default to cash/pay later
-      }
+      },
+      paymentMode: 'cash',
+      paymentStatus: 'pending'
     };
 
     const booking = await Booking.create(bookingData);

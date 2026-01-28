@@ -29,25 +29,12 @@ interface SparePart {
 const VendorClosedTask = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
-  // Show 404 error on desktop - must be before any other hooks
-  if (!isMobile) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Page Not Found</h1>
-          <p className="text-gray-600">This page is only available on mobile devices.</p>
-        </div>
-      </div>
-    );
-  }
-
   const navigate = useNavigate();
   const { taskId } = useParams();
 
-  const [task, setTask] = useState(null);
+  const [task, setTask] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [resolutionNote, setResolutionNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cash' | ''>('');
   const [includeGST, setIncludeGST] = useState(false);
@@ -61,6 +48,18 @@ const VendorClosedTask = () => {
 
   // Refs for file inputs - one per spare part for APK compatibility
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+
+  // Show 404 error on desktop - must be AFTER all hooks
+  if (!isMobile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Page Not Found</h1>
+          <p className="text-gray-600">This page is only available on mobile devices.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch task details from API
   const fetchTaskDetails = async () => {
@@ -248,23 +247,21 @@ const VendorClosedTask = () => {
 
   // Calculate GST amount (18% of billing amount)
   const calculateGSTAmount = () => {
-    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
     if (!includeGST) return 0;
     return billingAmountValue * 0.18; // 18% GST on base amount
   };
 
   // Calculate GST-excluded amount (base amount without GST)
   const calculateGSTExcludedAmount = () => {
-    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
     if (!includeGST) return billingAmountValue;
     return billingAmountValue; // Base amount (GST-excluded)
   };
 
-  // Calculate total billing amount (base amount + GST if GST is included)
+  // Calculate total billing amount (base amount + GST if GST is included + spares + visiting)
   const calculateBillingTotal = () => {
-    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
-    if (!includeGST) return billingAmountValue;
-    return billingAmountValue + (billingAmountValue * 0.18); // Base amount + 18% GST
+    return calculateTotal() + 130;
   };
 
   // Loading state
@@ -607,18 +604,17 @@ const VendorClosedTask = () => {
   };
 
   const calculateTotal = () => {
-    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
     const sparePartsTotal = spareParts.reduce((sum, part) => {
-      const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
+      const amount = parseFloat(String(part.amount).replace(/[₹,]/g, '')) || 0;
       return sum + amount;
     }, 0);
 
-    // If GST is included, billing amount is already GST-inclusive
-    if (includeGST) {
-      return billingAmountValue; // Billing amount is already GST-inclusive
-    }
+    const totalService = includeGST
+      ? billingAmountValue + (billingAmountValue * 0.18)
+      : billingAmountValue;
 
-    return billingAmountValue; // Billing amount only
+    return totalService + sparePartsTotal;
   };
 
 
@@ -640,14 +636,14 @@ const VendorClosedTask = () => {
   const calculateRequiredWalletAmount = (): number => {
     if (paymentMethod !== 'cash') return 0;
 
-    const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+    const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
     const spareAmountValue = spareParts.reduce((sum, part) => {
-      return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+      return sum + (parseFloat(String(part.amount).replace(/[₹,]/g, '')) || 0);
     }, 0);
     const travellingAmountValue = 130; // Fixed travelling amount
 
     const calculation = calculateCashCollectionDeduction({
-      billingAmount: billingAmountValue,
+      billingAmount: calculateTotal() + 130, // Pass the Grand Total
       spareAmount: spareAmountValue,
       travellingAmount: travellingAmountValue,
       bookingAmount: 0,
@@ -830,7 +826,7 @@ const VendorClosedTask = () => {
       setIsCompleting(true);
 
       // Validate billing amount value
-      const billingAmountValue = billingAmount ? parseFloat(billingAmount.replace(/[₹,]/g, '')) || 0 : 0;
+      const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
       if (billingAmountValue <= 0) {
         alert('Please enter a valid billing amount greater than 0');
         setIsCompleting(false);

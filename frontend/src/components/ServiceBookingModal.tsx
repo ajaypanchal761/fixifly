@@ -89,7 +89,7 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
       // Default slots if no date selected
       return [
         "9:00 AM - 11:00 AM",
-        "11:00 AM - 1:00 PM", 
+        "11:00 AM - 1:00 PM",
         "1:00 PM - 3:00 PM",
         "3:00 PM - 5:00 PM",
         "5:00 PM - 7:00 PM",
@@ -99,7 +99,7 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
     // Generate dynamic slots for entire day (24 hours) - max 12 slots for full day coverage
     return generateDynamicTimeSlots(formData.preferredDate, 2, 12);
   };
-  
+
   const timeSlots = getTimeSlots();
 
   const urgencyOptions = [
@@ -111,21 +111,21 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => {
       const newFormData = { ...prev, [field]: value };
-      
+
       // If date is changed, check if current time slot is still valid
       if (field === 'preferredDate' && prev.preferredTime) {
         const availableSlots = generateDynamicTimeSlots(value, 2, 6);
         const isSlotAvailable = availableSlots.includes(prev.preferredTime);
-        
+
         // If current time slot is not available, clear it
         if (!isSlotAvailable) {
           newFormData.preferredTime = "";
         }
       }
-      
+
       return newFormData;
     });
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -182,17 +182,17 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // Here you would typically send the data to your backend
       console.log("Booking data:", {
         service: service,
         ...formData
       });
-      
+
       // Close modal and navigate to booking page with form data
       onClose();
       navigate('/booking', {
@@ -212,7 +212,7 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
           fromServiceModal: true
         }
       });
-      
+
     } catch (error) {
       console.error("Booking failed:", error);
       alert("Booking failed. Please try again.");
@@ -245,8 +245,8 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
 
   if (showThankYou) {
     return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto rounded-xl mt-16">
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="w-[95vw] max-w-md mx-auto rounded-xl mt-16">
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,7 +257,7 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
             <p className="text-gray-600 mb-6">
               Your service booking has been confirmed. Our technician will contact you soon to schedule the visit.
             </p>
-            <Button 
+            <Button
               onClick={handleCloseThankYou}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
             >
@@ -278,260 +278,259 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
               Book Service
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-6 px-6 pb-32">
-          {/* Service Details Card */}
-          <Card className="border-2 border-blue-100">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={service.image} 
-                    alt={service.name}
-                    className="w-full h-full object-cover rounded-xl"
-                  />
+            {/* Service Details Card */}
+            <Card className="border-2 border-blue-100">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center overflow-hidden">
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900">{service.name}</h3>
+                    <p className="text-gray-600 text-sm">{service.subtitle}</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                        {service.speciality}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900">{service.name}</h3>
-                  <p className="text-gray-600 text-sm">{service.subtitle}</p>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                      {service.speciality}
-                    </span>
+              </CardContent>
+            </Card>
+
+            {/* Customer Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center space-x-2">
+                <User className="h-5 w-5 text-blue-600" />
+                <span>Customer Information</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="customerName">Full Name *</Label>
+                  <Input
+                    id="customerName"
+                    value={formData.customerName}
+                    onChange={(e) => handleInputChange("customerName", e.target.value)}
+                    placeholder="Enter your full name"
+                    className={errors.customerName ? "border-red-500" : ""}
+                    readOnly={isAuthenticated && user?.name ? true : false}
+                    style={isAuthenticated && user?.name ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
+                  />
+                  {errors.customerName && <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="phoneNumber">Phone Number *</Label>
+                  <Input
+                    id="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                    placeholder="Enter 10-digit phone number"
+                    className={errors.phoneNumber ? "border-red-500" : ""}
+                    readOnly={isAuthenticated && user?.phone ? true : false}
+                    style={isAuthenticated && user?.phone ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
+                  />
+                  {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    placeholder="Enter your email"
+                    className={errors.email ? "border-red-500" : ""}
+                    readOnly={isAuthenticated && user?.email ? true : false}
+                    style={isAuthenticated && user?.email ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
+                  />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Address Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center space-x-2">
+                <MapPin className="h-5 w-5 text-blue-600" />
+                <span>Service Address</span>
+              </h3>
+
+              <div>
+                <Label htmlFor="address">Full Address *</Label>
+                <Textarea
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  placeholder="Enter complete address with landmarks"
+                  className={errors.address ? "border-red-500" : ""}
+                  rows={3}
+                />
+                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="city">City *</Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
+                    placeholder="Enter city name"
+                    className={errors.city ? "border-red-500" : ""}
+                  />
+                  {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="pincode">Pincode *</Label>
+                  <Input
+                    id="pincode"
+                    value={formData.pincode}
+                    onChange={(e) => handleInputChange("pincode", e.target.value)}
+                    placeholder="Enter 6-digit pincode"
+                    className={errors.pincode ? "border-red-500" : ""}
+                  />
+                  {errors.pincode && <p className="text-red-500 text-sm mt-1">{errors.pincode}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Service Details */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center space-x-2">
+                <MessageCircle className="h-5 w-5 text-blue-600" />
+                <span>Service Details</span>
+              </h3>
+
+              <div>
+                <Label htmlFor="serviceType">Service Type *</Label>
+                <Input
+                  id="serviceType"
+                  value={formData.serviceType}
+                  onChange={(e) => handleInputChange("serviceType", e.target.value)}
+                  placeholder="e.g., Laptop screen repair, Software installation"
+                  className={errors.serviceType ? "border-red-500" : ""}
+                />
+                {errors.serviceType && <p className="text-red-500 text-sm mt-1">{errors.serviceType}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="issueDescription">Issue Description *</Label>
+                <Textarea
+                  id="issueDescription"
+                  value={formData.issueDescription}
+                  onChange={(e) => handleInputChange("issueDescription", e.target.value)}
+                  placeholder="Describe the issue in detail"
+                  className={errors.issueDescription ? "border-red-500" : ""}
+                  rows={4}
+                />
+                {errors.issueDescription && <p className="text-red-500 text-sm mt-1">{errors.issueDescription}</p>}
+              </div>
+            </div>
+
+            {/* Scheduling */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center space-x-2">
+                <Calendar className="h-5 w-5 text-blue-600" />
+                <span>Preferred Schedule</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="preferredDate">Preferred Date *</Label>
+                  <Input
+                    id="preferredDate"
+                    type="date"
+                    value={formData.preferredDate}
+                    onChange={(e) => handleInputChange("preferredDate", e.target.value)}
+                    min={today}
+                    className={errors.preferredDate ? "border-red-500" : ""}
+                  />
+                  {errors.preferredDate && <p className="text-red-500 text-sm mt-1">{errors.preferredDate}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="preferredTime">Preferred Time Slot *</Label>
+                  <Select value={formData.preferredTime} onValueChange={(value) => handleInputChange("preferredTime", value)}>
+                    <SelectTrigger className={errors.preferredTime ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Select time slot" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeSlots.map((slot) => (
+                        <SelectItem
+                          key={slot}
+                          value={slot}
+                        >
+                          {slot}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.preferredTime && <p className="text-red-500 text-sm mt-1">{errors.preferredTime}</p>}
+                </div>
+              </div>
+
+              <div>
+                <Label>Urgency Level</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {urgencyOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleInputChange("urgency", option.value)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${formData.urgency === option.value
+                          ? option.color
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Service Delay Notice */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+                <div className="flex items-start space-x-2">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-amber-800">
+                      <strong>Service Notice:</strong> Due to high service demand, there might be a slight delay. We appreciate your cooperation.
+                    </p>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Customer Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center space-x-2">
-              <User className="h-5 w-5 text-blue-600" />
-              <span>Customer Information</span>
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="customerName">Full Name *</Label>
-                <Input
-                  id="customerName"
-                  value={formData.customerName}
-                  onChange={(e) => handleInputChange("customerName", e.target.value)}
-                  placeholder="Enter your full name"
-                  className={errors.customerName ? "border-red-500" : ""}
-                  readOnly={isAuthenticated && user?.name ? true : false}
-                  style={isAuthenticated && user?.name ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
-                />
-                {errors.customerName && <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>}
-              </div>
-              
-              <div>
-                <Label htmlFor="phoneNumber">Phone Number *</Label>
-                <Input
-                  id="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-                  placeholder="Enter 10-digit phone number"
-                  className={errors.phoneNumber ? "border-red-500" : ""}
-                  readOnly={isAuthenticated && user?.phone ? true : false}
-                  style={isAuthenticated && user?.phone ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
-                />
-                {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
-              </div>
-              
-              <div>
-                <Label htmlFor="email">Email Address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  placeholder="Enter your email"
-                  className={errors.email ? "border-red-500" : ""}
-                  readOnly={isAuthenticated && user?.email ? true : false}
-                  style={isAuthenticated && user?.email ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
-                />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-              </div>
+            {/* Submit Button */}
+            <div className="flex justify-center pb-8">
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Booking...</span>
+                  </div>
+                ) : (
+                  "Confirm Booking"
+                )}
+              </Button>
             </div>
-          </div>
-
-          {/* Address Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center space-x-2">
-              <MapPin className="h-5 w-5 text-blue-600" />
-              <span>Service Address</span>
-            </h3>
-            
-            <div>
-              <Label htmlFor="address">Full Address *</Label>
-              <Textarea
-                id="address"
-                value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
-                placeholder="Enter complete address with landmarks"
-                className={errors.address ? "border-red-500" : ""}
-                rows={3}
-              />
-              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="city">City *</Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => handleInputChange("city", e.target.value)}
-                  placeholder="Enter city name"
-                  className={errors.city ? "border-red-500" : ""}
-                />
-                {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
-              </div>
-              
-              <div>
-                <Label htmlFor="pincode">Pincode *</Label>
-                <Input
-                  id="pincode"
-                  value={formData.pincode}
-                  onChange={(e) => handleInputChange("pincode", e.target.value)}
-                  placeholder="Enter 6-digit pincode"
-                  className={errors.pincode ? "border-red-500" : ""}
-                />
-                {errors.pincode && <p className="text-red-500 text-sm mt-1">{errors.pincode}</p>}
-              </div>
-            </div>
-          </div>
-
-          {/* Service Details */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center space-x-2">
-              <MessageCircle className="h-5 w-5 text-blue-600" />
-              <span>Service Details</span>
-            </h3>
-            
-            <div>
-              <Label htmlFor="serviceType">Service Type *</Label>
-              <Input
-                id="serviceType"
-                value={formData.serviceType}
-                onChange={(e) => handleInputChange("serviceType", e.target.value)}
-                placeholder="e.g., Laptop screen repair, Software installation"
-                className={errors.serviceType ? "border-red-500" : ""}
-              />
-              {errors.serviceType && <p className="text-red-500 text-sm mt-1">{errors.serviceType}</p>}
-            </div>
-            
-            <div>
-              <Label htmlFor="issueDescription">Issue Description *</Label>
-              <Textarea
-                id="issueDescription"
-                value={formData.issueDescription}
-                onChange={(e) => handleInputChange("issueDescription", e.target.value)}
-                placeholder="Describe the issue in detail"
-                className={errors.issueDescription ? "border-red-500" : ""}
-                rows={4}
-              />
-              {errors.issueDescription && <p className="text-red-500 text-sm mt-1">{errors.issueDescription}</p>}
-            </div>
-          </div>
-
-          {/* Scheduling */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center space-x-2">
-              <Calendar className="h-5 w-5 text-blue-600" />
-              <span>Preferred Schedule</span>
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="preferredDate">Preferred Date *</Label>
-                <Input
-                  id="preferredDate"
-                  type="date"
-                  value={formData.preferredDate}
-                  onChange={(e) => handleInputChange("preferredDate", e.target.value)}
-                  min={today}
-                  className={errors.preferredDate ? "border-red-500" : ""}
-                />
-                {errors.preferredDate && <p className="text-red-500 text-sm mt-1">{errors.preferredDate}</p>}
-              </div>
-              
-              <div>
-                <Label htmlFor="preferredTime">Preferred Time Slot *</Label>
-                <Select value={formData.preferredTime} onValueChange={(value) => handleInputChange("preferredTime", value)}>
-                  <SelectTrigger className={errors.preferredTime ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Select time slot" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeSlots.map((slot) => (
-                      <SelectItem 
-                        key={slot} 
-                        value={slot}
-                      >
-                        {slot}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.preferredTime && <p className="text-red-500 text-sm mt-1">{errors.preferredTime}</p>}
-              </div>
-            </div>
-            
-            <div>
-              <Label>Urgency Level</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {urgencyOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => handleInputChange("urgency", option.value)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      formData.urgency === option.value
-                        ? option.color
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Service Delay Notice */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
-              <div className="flex items-start space-x-2">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm text-amber-800">
-                    <strong>Service Notice:</strong> Due to high service demand, there might be a slight delay. We appreciate your cooperation.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-           {/* Submit Button */}
-           <div className="flex justify-center pb-8">
-            <Button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Booking...</span>
-                </div>
-              ) : (
-                "Confirm Booking"
-              )}
-            </Button>
-          </div>
           </div>
         </div>
       </DialogContent>

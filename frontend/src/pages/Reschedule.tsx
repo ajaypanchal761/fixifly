@@ -9,7 +9,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import bookingApi, { type Booking } from "@/services/bookingApi";
-import { 
+import {
   Calendar,
   Clock,
   ArrowLeft,
@@ -24,17 +24,17 @@ const Reschedule = () => {
   const { id } = useParams();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
-  
+
   const [booking, setBooking] = useState<Booking | null>(location.state?.booking || null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Form state
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [reason, setReason] = useState("");
-  
+
   // Time slots
   const timeSlots = [
     { value: "09:00", label: "9:00 AM" },
@@ -69,9 +69,9 @@ const Reschedule = () => {
         try {
           setLoading(true);
           setError(null);
-          
+
           const response = await bookingApi.getBookingById(id);
-          
+
           if (response.success && response.data?.booking) {
             setBooking(response.data.booking);
           } else {
@@ -102,7 +102,7 @@ const Reschedule = () => {
         const date = new Date(currentDate);
         setNewDate(date.toISOString().split('T')[0]);
       }
-      
+
       // Set current scheduled time or preferred time slot as default
       const currentTime = booking.scheduling.scheduledTime || booking.scheduling.preferredTimeSlot;
       if (currentTime) {
@@ -122,7 +122,7 @@ const Reschedule = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!booking) {
       toast({
         title: "Error",
@@ -143,20 +143,20 @@ const Reschedule = () => {
 
     try {
       setSubmitting(true);
-      
+
       const response = await bookingApi.rescheduleBookingByUser(booking._id, {
         newDate,
         newTime,
         reason: reason.trim()
       });
-      
+
       if (response.success) {
         toast({
           title: "Booking Rescheduled",
           description: "Your booking has been rescheduled successfully. The engineer will be notified of the new schedule.",
           variant: "default"
         });
-        
+
         // Navigate back to bookings page
         navigate('/booking');
       } else {
@@ -186,8 +186,8 @@ const Reschedule = () => {
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">Login Required</h2>
             <p className="text-gray-600 mb-4">Please login to reschedule your booking</p>
-            <Button onClick={() => navigate('/login')} className="w-full">
-              Login Now
+            <Button onClick={() => navigate('/')} className="w-full">
+              Go to Home page
             </Button>
           </CardContent>
         </Card>
@@ -256,8 +256,8 @@ const Reschedule = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => navigate('/booking')}
               className="p-2"
@@ -289,38 +289,38 @@ const Reschedule = () => {
                   {(booking as any).bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`}
                 </span>
               </div>
-              
+
               <div>
                 <span className="text-sm font-medium text-gray-600">Service:</span>
                 <span className="ml-2 text-gray-900">
                   {booking.services.map(s => s.serviceName).join(', ')}
                 </span>
               </div>
-              
+
               <div>
                 <span className="text-sm font-medium text-gray-600">Current Date:</span>
                 <span className="ml-2 text-gray-900">
-                  {booking.scheduling.scheduledDate 
+                  {booking.scheduling.scheduledDate
                     ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
                     : new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')
                   }
                 </span>
               </div>
-              
+
               <div>
                 <span className="text-sm font-medium text-gray-600">Current Time:</span>
                 <span className="ml-2 text-gray-900">
-                  {booking.scheduling.scheduledTime 
+                  {booking.scheduling.scheduledTime
                     ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true
-                      })
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })
                     : booking.scheduling.preferredTimeSlot
                   }
                 </span>
               </div>
-              
+
               <div>
                 <span className="text-sm font-medium text-gray-600">Status:</span>
                 <span className="ml-2 text-gray-900 capitalize">{booking.status.replace('_', ' ')}</span>

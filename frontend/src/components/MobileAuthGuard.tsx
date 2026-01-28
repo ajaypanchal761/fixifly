@@ -21,7 +21,8 @@ const PUBLIC_ROUTES = [
   '/about',
   '/rate-us',
   '/rate',
-  '/support'
+  '/support',
+  '/profile'
 ];
 
 const MobileAuthGuard: React.FC<MobileAuthGuardProps> = ({ children }) => {
@@ -65,12 +66,12 @@ const MobileAuthGuard: React.FC<MobileAuthGuardProps> = ({ children }) => {
     // If not authenticated and not on a public route and not already on auth page
     if (!isAuthenticated && !isPublicRoute && !isAuthPage) {
       hasRedirectedRef.current = true;
-      // Use timeout to prevent immediate re-trigger and allow state to settle
-      redirectTimeoutRef.current = setTimeout(() => {
-        if (location.pathname !== '/login') {
-          navigate('/login', { replace: true });
-        }
-      }, 50);
+      // No automatic redirect to login in guest-only flow
+      // redirectTimeoutRef.current = setTimeout(() => {
+      //   if (location.pathname !== '/login') {
+      //     navigate('/login', { replace: true });
+      //   }
+      // }, 50);
     }
 
     return () => {

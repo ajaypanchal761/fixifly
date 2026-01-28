@@ -160,6 +160,7 @@ const Header = () => {
 
   const navItems = [
     { name: "Home", href: "/", icon: Home },
+    { name: "My Profile", href: "/profile", icon: User },
     { name: "Booking", href: "/booking", icon: Calendar },
     { name: "AMC", href: "/amc", icon: Wrench },
     { name: "Support", href: "/support", icon: Phone },
@@ -469,6 +470,7 @@ const Header = () => {
           paddingBottom: isMobile ? '100px' : '16px' // Extra space for mobile bottom nav
         }}>
           {[
+            { name: "My Profile", icon: User, href: "/profile" },
             { name: "Services Booking T&C", icon: FileText, href: "/terms-conditions" },
             { name: "Privacy Policy", icon: ShieldCheck, href: "/privacy-policy" },
             { name: "Cancellation & Refund ", icon: RefreshCw, href: "/cancellation-refund-policy" },
@@ -507,8 +509,6 @@ const Header = () => {
 
           {/* Authentication Buttons */}
           <Divider sx={{ margin: isMobile ? '8px 0' : '-2px 0' }} />
-
-
 
           {/* Download App and Rate Us Buttons - Mobile Only */}
           {isMobile && (

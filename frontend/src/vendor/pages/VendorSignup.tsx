@@ -154,6 +154,19 @@ const VendorSignup = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+
+    // Special handling for phone numbers
+    if (['phone', 'alternatePhone', 'homePhone'].includes(name)) {
+      const numericValue = value.replace(/\D/g, '');
+      if (numericValue.length <= 10) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: numericValue
+        }));
+      }
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -400,7 +413,7 @@ const VendorSignup = () => {
             if (savedToken) {
               return savedToken;
             }
-            
+
             // Try to register and get FCM token
             try {
               const token = await registerFCMToken(false);

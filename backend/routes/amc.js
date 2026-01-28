@@ -7,14 +7,14 @@ const {
   updateAMCPlan,
   deleteAMCPlan,
   seedAMCPlans,
-  
+
   // AMC Subscriptions
   getAMCSubscriptions,
   getAMCSubscription,
   updateAMCSubscriptionStatus,
   updateAMCSubscriptionUsage,
   addServiceToSubscription,
-  
+
   // Statistics
   getAMCStats
 } = require('../controllers/adminAMCController');
@@ -23,7 +23,7 @@ const {
   // AMC Plans
   getAMCPlans: getUserAMCPlans,
   getAMCPlan: getUserAMCPlan,
-  
+
   // AMC Subscriptions
   getUserAMCSubscriptions,
   getUserAMCSubscription,
@@ -32,14 +32,14 @@ const {
   updateAMCSubscription,
   cancelAMCSubscription,
   renewAMCSubscription,
-  
+
   // AMC Services
   requestAMCService,
   getAMCServiceHistory,
-  
+
   // Usage Tracking
   getAMCUsage,
-  
+
   // Debug
   debugSubscription
 } = require('../controllers/userAMCController');
@@ -50,7 +50,8 @@ const {
 } = require('../middleware/adminAuth');
 
 const {
-  protect: protectUser
+  protect: protectUser,
+  optionalAuth
 } = require('../middleware/auth');
 
 const router = express.Router();
@@ -84,7 +85,7 @@ router.get('/plans/:id', getUserAMCPlan);
 // User AMC Subscriptions
 router.get('/subscriptions', protectUser, getUserAMCSubscriptions);
 router.get('/subscriptions/:id', protectUser, getUserAMCSubscription);
-router.post('/subscriptions', protectUser, createAMCSubscription);
+router.post('/subscriptions', optionalAuth, createAMCSubscription);
 
 // Debug route to test payment verification endpoint
 router.post('/subscriptions/:id/verify-payment', (req, res, next) => {
@@ -95,7 +96,7 @@ router.post('/subscriptions/:id/verify-payment', (req, res, next) => {
   console.log('Body:', req.body);
   console.log('Headers:', req.headers);
   next();
-}, protectUser, verifyAMCSubscriptionPayment);
+}, optionalAuth, verifyAMCSubscriptionPayment);
 
 router.put('/subscriptions/:id', protectUser, updateAMCSubscription);
 router.post('/subscriptions/:id/cancel', protectUser, cancelAMCSubscription);

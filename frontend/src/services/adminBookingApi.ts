@@ -146,15 +146,15 @@ class AdminBookingApi {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     // Get admin token from localStorage and validate it
     const token = localStorage.getItem('adminToken');
-    
+
     if (!token || typeof token !== 'string' || token.trim() === '' || token === 'undefined' || token === 'null') {
       console.warn('No valid admin token found in Admin Booking API request');
       throw new Error('No valid authentication token found. Please login again.');
     }
-    
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -167,7 +167,7 @@ class AdminBookingApi {
     try {
       console.log('Admin Booking API request:', url);
       const response = await fetch(url, config);
-      
+
       console.log('Admin Booking API response status:', response.status);
 
       if (!response.ok) {
@@ -179,7 +179,7 @@ class AdminBookingApi {
           localStorage.removeItem('adminData');
           throw new Error('Authentication expired. Please login again.');
         }
-        
+
         const data = await response.json().catch(() => ({}));
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
@@ -198,17 +198,19 @@ class AdminBookingApi {
     limit?: number;
     status?: string;
     paymentStatus?: string;
+    service?: string;
     search?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
   } = {}): Promise<ApiResponse<BookingsResponse>> {
     try {
       const queryParams = new URLSearchParams();
-      
+
       if (params.page) queryParams.append('page', params.page.toString());
       if (params.limit) queryParams.append('limit', params.limit.toString());
       if (params.status) queryParams.append('status', params.status);
       if (params.paymentStatus) queryParams.append('paymentStatus', params.paymentStatus);
+      if (params.service) queryParams.append('service', params.service);
       if (params.search) queryParams.append('search', params.search);
       if (params.sortBy) queryParams.append('sortBy', params.sortBy);
       if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
@@ -321,7 +323,7 @@ class AdminBookingApi {
       if (scheduledTime) requestBody.scheduledTime = scheduledTime;
       if (priority) requestBody.priority = priority;
       if (notes) requestBody.notes = notes;
-      
+
       const response = await this.request<{ booking: Booking; bookingReference: string }>(`/admin/bookings/${bookingId}/assign-vendor`, {
         method: 'PATCH',
         body: JSON.stringify(requestBody)

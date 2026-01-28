@@ -38,13 +38,13 @@ const bookingSchema = new mongoose.Schema({
       required: [true, 'Customer email is required'],
       trim: true,
       lowercase: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/, 'Please enter a valid email']
     },
     phone: {
       type: String,
       required: [true, 'Customer phone is required'],
       trim: true,
-      match: [/^[0-9]{10}$/, 'Please enter a valid 10-digit phone number']
+      match: [/^(\+91|91)?[0-9]{10}$/, 'Please enter a valid phone number']
     },
     address: {
       street: {

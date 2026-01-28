@@ -33,14 +33,12 @@ supportApiService.interceptors.response.use(
       // Handle unauthorized access - only redirect if not already on login page
       localStorage.removeItem('accessToken');
       localStorage.removeItem('userData');
-      
+
       // Only redirect if not already on login or register page
       const currentPath = window.location.pathname;
       if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
-        // Add a small delay to allow the error to be handled by the component first
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 100);
+        // Just log the error, don't redirect to non-existent /login
+        console.warn('Unauthorized access detected, but login page is disabled.');
       }
     }
     return Promise.reject(error);
@@ -58,7 +56,7 @@ export const supportTicketAPI = {
       return response.data;
     } catch (error) {
       console.error('Error creating ticket:', error);
-      
+
       // Log detailed error information for debugging
       if (error.response) {
         console.error('Error response:', {
@@ -93,10 +91,10 @@ export const supportTicketAPI = {
 
       // Handle HTTP errors (response received but with error status)
       const { status, data } = error.response;
-      
+
       // Extract error message from different possible locations
       let errorMessage = data?.message || data?.error || 'Failed to create support ticket';
-      
+
       // Handle validation errors
       if (status === 400) {
         if (data?.errors && Array.isArray(data.errors)) {
@@ -122,7 +120,7 @@ export const supportTicketAPI = {
       } else if (status >= 500) {
         errorMessage = errorMessage || `Server error (${status}). Please try again later.`;
       }
-      
+
       throw new Error(errorMessage);
     }
   },
@@ -133,7 +131,7 @@ export const supportTicketAPI = {
       console.log('Fetching user tickets...');
       const token = localStorage.getItem('accessToken');
       console.log('Token exists:', !!token);
-      
+
       const response = await supportApiService.get('/support-tickets');
       console.log('Tickets response:', response.data);
       return response.data;
@@ -141,7 +139,7 @@ export const supportTicketAPI = {
       console.error('Error fetching tickets:', error);
       console.error('Error response:', error.response?.data);
       console.error('Error status:', error.response?.status);
-      
+
       if (error.response?.status === 401) {
         throw new Error('Authentication failed. Please login again.');
       } else if (error.response?.status === 404) {

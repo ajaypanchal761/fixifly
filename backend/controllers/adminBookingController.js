@@ -18,6 +18,7 @@ const getAllBookings = asyncHandler(async (req, res) => {
       limit = 10,
       status,
       paymentStatus,
+      service,
       search,
       sortBy = 'createdAt',
       sortOrder = 'desc'
@@ -33,7 +34,16 @@ const getAllBookings = asyncHandler(async (req, res) => {
     }
 
     if (paymentStatus) {
-      filter['payment.status'] = paymentStatus;
+      // Support filtering by both payment.status and the top-level paymentStatus field
+      filter.$or = filter.$or || [];
+      filter.$or.push(
+        { 'payment.status': paymentStatus },
+        { 'paymentStatus': paymentStatus }
+      );
+    }
+
+    if (service) {
+      filter['services.serviceName'] = { $regex: service, $options: 'i' };
     }
 
     if (search) {

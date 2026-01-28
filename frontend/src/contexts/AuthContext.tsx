@@ -329,7 +329,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const refreshUserData = async () => {
-    if (!token) return;
+    if (!token || token === 'guest_token') return;
 
     try {
       // Import apiService dynamically to avoid circular dependency
@@ -375,6 +375,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkTokenValidity = () => {
     const token = localStorage.getItem('accessToken');
     if (!token) return false;
+    if (token === 'guest_token') return true;
 
     try {
       // Basic token format check (JWT tokens have 3 parts separated by dots)

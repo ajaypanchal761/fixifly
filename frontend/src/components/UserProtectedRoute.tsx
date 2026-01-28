@@ -18,7 +18,7 @@ const UserProtectedRoute: React.FC<UserProtectedRouteProps> = ({ children }) => 
         console.warn('UserProtectedRoute: Loading timeout reached, forcing stop');
         setForceStopLoading(true);
       }, 5000);
-      
+
       return () => clearTimeout(timeoutId);
     } else {
       setForceStopLoading(false);
@@ -35,8 +35,8 @@ const UserProtectedRoute: React.FC<UserProtectedRouteProps> = ({ children }) => 
   }
 
   if (!isAuthenticated) {
-    // Redirect to login page with return url
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Redirect to home page instead of non-existent login page
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

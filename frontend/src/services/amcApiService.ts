@@ -33,12 +33,11 @@ amcApi.interceptors.request.use(
         if (parts.length === 3) {
           const payload = JSON.parse(atob(parts[1]));
           const currentTime = Math.floor(Date.now() / 1000);
-          
+
           if (payload.exp && payload.exp < currentTime) {
             console.log('Token expired, removing from localStorage');
             localStorage.removeItem('accessToken');
             localStorage.removeItem('userData');
-            window.location.href = '/login';
             return Promise.reject(new Error('Token expired'));
           }
         }
@@ -46,10 +45,9 @@ amcApi.interceptors.request.use(
         console.log('Invalid token format, removing from localStorage');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('userData');
-        window.location.href = '/login';
         return Promise.reject(new Error('Invalid token'));
       }
-      
+
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -66,13 +64,12 @@ amcApi.interceptors.response.use(
     if (error.response?.status === 401) {
       // Only logout if it's a token-related error, not other 401 errors
       const errorMessage = error.response?.data?.message || '';
-      
+
       if (errorMessage.includes('token') || errorMessage.includes('authorized') || errorMessage.includes('expired')) {
         console.log('Token expired or invalid, logging out user');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userData');
-        window.location.href = '/login';
       } else {
         console.log('401 error but not token-related:', errorMessage);
         // Don't logout for other 401 errors
@@ -132,7 +129,7 @@ export const createAMCSubscription = async (subscriptionData) => {
     console.error('API Error:', error);
     console.error('Error response:', error.response?.data);
     console.error('Error status:', error.response?.status);
-    
+
     const errorMessage = error.response?.data?.message || error.message || 'Failed to create AMC subscription';
     throw new Error(errorMessage);
   }
@@ -148,7 +145,7 @@ export const verifyAMCSubscriptionPayment = async (subscriptionId, paymentData) 
     console.error('Payment verification error:', error);
     console.error('Error response:', error.response?.data);
     console.error('Error status:', error.response?.status);
-    
+
     const errorMessage = error.response?.data?.message || error.message || 'Failed to verify payment';
     throw new Error(errorMessage);
   }
@@ -448,7 +445,7 @@ export default {
   requestAMCService,
   getAMCServiceHistory,
   getAMCUsage,
-  
+
   // Admin AMC Services
   getAdminAMCPlans,
   getAdminAMCPlan,
@@ -461,7 +458,7 @@ export default {
   updateAdminAMCSubscriptionStatus,
   addAdminAMCService,
   getAdminAMCStats,
-  
+
   // Utility Functions
   formatAMCPlan,
   formatAMCSubscription,
