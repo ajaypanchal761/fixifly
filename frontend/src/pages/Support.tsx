@@ -1088,17 +1088,7 @@ const Support = () => {
   // Handle form submission
   const handleSubmitTicket = async () => {
     // Check if user is logged in - REMOVED strictly requirement, now checking guest fields
-    // if (!user) {
-    //   toast({
-    //     title: "Login Required",
-    //     description: "Please log in to submit a support ticket",
-    //     variant: "destructive",
-    //     duration: 3000,
-    //   });
-    //   // Redirect to login page
-    //   window.location.href = '/login';
-    //   return;
-    // }
+    // Check for explicit guest/user validation handled below
 
     if (!supportType || !ticketForm.subject || !ticketForm.description) {
       toast({

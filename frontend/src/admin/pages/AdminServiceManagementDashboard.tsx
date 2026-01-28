@@ -1223,110 +1223,108 @@ const AdminServiceManagementDashboard = () => {
             />
           </div>
         </div>
-        </div>
-  )
-}
+      )}
 
-{/* Assign Vendor Dialog */ }
-<Dialog open={isAssignEngineerOpen} onOpenChange={handleCloseAssignEngineer}>
-  <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-    <DialogHeader>
-      <DialogTitle className="text-lg font-bold text-gray-900">
-        {selectedBooking?.vendor?.vendorId ? 'Reassign Vendor' : 'Assign Vendor'}
-      </DialogTitle>
-    </DialogHeader>
+      {/* Assign Vendor Dialog */}
+      <Dialog open={isAssignEngineerOpen} onOpenChange={handleCloseAssignEngineer}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-gray-900">
+              {selectedBooking?.vendor?.vendorId ? 'Reassign Vendor' : 'Assign Vendor'}
+            </DialogTitle>
+          </DialogHeader>
 
-    <div className="space-y-4 py-2">
-      <div>
-        <Label className="text-xs font-medium text-gray-700">Select Vendor</Label>
-        <Select value={assignedEngineer} onValueChange={setAssignedEngineer}>
-          <SelectTrigger className="mt-1 w-full">
-            <SelectValue placeholder="Choose a vendor" />
-          </SelectTrigger>
-          <SelectContent>
-            {vendors.length > 0 ? (
-              vendors.map((vendor) => (
-                <SelectItem key={vendor._id} value={vendor.vendorId}>
-                  <div className="flex flex-col text-left">
-                    <span className="font-medium text-sm">
-                      {vendor.firstName} {vendor.lastName}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {vendor.vendorId} | {vendor.specialty || 'General'}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))
-            ) : (
-              <SelectItem value="none" disabled>No active vendors found</SelectItem>
-            )}
-          </SelectContent>
-        </Select>
-      </div>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label className="text-xs font-medium text-gray-700">Select Vendor</Label>
+              <Select value={assignedEngineer} onValueChange={setAssignedEngineer}>
+                <SelectTrigger className="mt-1 w-full">
+                  <SelectValue placeholder="Choose a vendor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vendors.length > 0 ? (
+                    vendors.map((vendor) => (
+                      <SelectItem key={vendor._id} value={vendor.vendorId}>
+                        <div className="flex flex-col text-left">
+                          <span className="font-medium text-sm">
+                            {vendor.firstName} {vendor.lastName}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {vendor.vendorId} | {vendor.specialty || 'General'}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="none" disabled>No active vendors found</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs font-medium text-gray-700">Date</Label>
-          <Input
-            type="date"
-            value={scheduledDate}
-            onChange={(e) => setScheduledDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <Label className="text-xs font-medium text-gray-700">Time</Label>
-          <Select value={scheduledTime} onValueChange={setScheduledTime}>
-            <SelectTrigger className="mt-1 w-full">
-              <SelectValue placeholder="Time" />
-            </SelectTrigger>
-            <SelectContent>
-              {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'].map(t => (
-                <SelectItem key={t} value={t}>{t}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-medium text-gray-700">Date</Label>
+                <Input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-medium text-gray-700">Time</Label>
+                <Select value={scheduledTime} onValueChange={setScheduledTime}>
+                  <SelectTrigger className="mt-1 w-full">
+                    <SelectValue placeholder="Time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'].map(t => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-      <div>
-        <Label className="text-xs font-medium text-gray-700">Priority</Label>
-        <Select value={priority} onValueChange={setPriority}>
-          <SelectTrigger className="mt-1 w-full">
-            <SelectValue placeholder="Priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low">Low</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="high">High</SelectItem>
-            <SelectItem value="urgent">Urgent</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+            <div>
+              <Label className="text-xs font-medium text-gray-700">Priority</Label>
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger className="mt-1 w-full">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-      <div>
-        <Label className="text-xs font-medium text-gray-700">Notes</Label>
-        <Input
-          value={assignmentNotes}
-          onChange={(e) => setAssignmentNotes(e.target.value)}
-          placeholder="Instructions for vendor..."
-          className="mt-1"
-        />
-      </div>
+            <div>
+              <Label className="text-xs font-medium text-gray-700">Notes</Label>
+              <Input
+                value={assignmentNotes}
+                onChange={(e) => setAssignmentNotes(e.target.value)}
+                placeholder="Instructions for vendor..."
+                className="mt-1"
+              />
+            </div>
 
-      <div className="flex justify-end gap-2 mt-4">
-        <Button variant="outline" onClick={handleCloseAssignEngineer} disabled={isAssigning}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmitAssignment} disabled={!assignedEngineer || isAssigning}>
-          {isAssigning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Assign
-        </Button>
-      </div>
-    </div>
-  </DialogContent>
-</Dialog>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={handleCloseAssignEngineer} disabled={isAssigning}>
+                Cancel
+              </Button>
+              <Button onClick={handleSubmitAssignment} disabled={!assignedEngineer || isAssigning}>
+                {isAssigning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Assign
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div >
   );

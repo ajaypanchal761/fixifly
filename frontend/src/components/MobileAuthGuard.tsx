@@ -20,7 +20,8 @@ const PUBLIC_ROUTES = [
   '/tips',
   '/about',
   '/rate-us',
-  '/rate'
+  '/rate',
+  '/support'
 ];
 
 const MobileAuthGuard: React.FC<MobileAuthGuardProps> = ({ children }) => {
