@@ -656,16 +656,50 @@ const getBookingById = asyncHandler(async (req, res) => {
 // @access  Public
 const getBookingsByCustomer = asyncHandler(async (req, res) => {
   try {
-    const { email } = req.params;
+    const { email } = req.params; // This parameter acts as an identifier (email or phone)
     const { page = 1, limit = 10 } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    const isEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(email);
+    const { phone } = req.query;
+
+    let query = {};
+
+    if (isEmail) {
+      query = { 'customer.email': email.toLowerCase().trim() };
+
+      // If phone is also provided, search for both
+      if (phone) {
+        const cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.length >= 10) {
+          const phoneSuffix = cleanPhone.slice(-10);
+          query = {
+            $or: [
+              { 'customer.email': email.toLowerCase().trim() },
+              { 'customer.phone': new RegExp(phoneSuffix + '$') }
+            ]
+          };
+        }
+      }
+    } else {
+      // Identifier is likely a phone number
+      const cleanPhone = email.replace(/\D/g, '');
+      if (cleanPhone.length >= 10) {
+        const phoneSuffix = cleanPhone.slice(-10);
+        query = {
+          $or: [
+            { 'customer.email': email.toLowerCase().trim() },
+            { 'customer.phone': new RegExp(phoneSuffix + '$') }
+          ]
+        };
+      } else {
+        query = { 'customer.email': email.toLowerCase().trim() };
+      }
+    }
+
     // Get all bookings for the customer
-    // Users should see all their bookings, including those declined by vendors
-    const bookings = await Booking.find({
-      'customer.email': email
-    })
+    const bookings = await Booking.find(query)
       .select('customer services pricing scheduling status priority vendor vendorResponse notes assignmentNotes completionData paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -695,9 +729,7 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
       }
     }
 
-    const totalBookings = await Booking.countDocuments({
-      'customer.email': email
-    });
+    const totalBookings = await Booking.countDocuments(query);
     const totalPages = Math.ceil(totalBookings / parseInt(limit));
 
     logger.info(`Customer bookings retrieved: ${bookings.length} for ${email}`, {
@@ -1053,7 +1085,7 @@ const createBookingWithPayment = asyncHandler(async (req, res) => {
       })),
       pricing: {
         subtotal: finalPricing.subtotal,
-        serviceFee: finalPricing.serviceFee || 100,
+        serviceFee: finalPricing.serviceFee || 0,
         totalAmount: finalPricing.totalAmount,
       },
       scheduling: {
@@ -1673,7 +1705,9 @@ const completeTask = asyncHandler(async (req, res) => {
         totalAmount: totalAmount, // Use valid number
 
         includeGST: completionData.includeGST || false,
-        gstAmount: completionData.gstAmount || 0
+        gstAmount: completionData.gstAmount || 0,
+        paymentProofImage: completionData.paymentProofImage || null,
+        deviceSerialImage: completionData.deviceSerialImage || null
       },
       'tracking.updatedAt': new Date()
     };
@@ -2793,8 +2827,8 @@ const createQuickBooking = asyncHandler(async (req, res) => {
     // Mock pricing if not fully provided
     const pricing = {
       subtotal: totalAmount,
-      serviceFee: 100, // Standard fee
-      totalAmount: totalAmount + 100
+      serviceFee: 0, // Standard fee removed
+      totalAmount: totalAmount
     };
 
     // Construct scheduling
@@ -2807,9 +2841,9 @@ const createQuickBooking = asyncHandler(async (req, res) => {
     const bookingData = {
       user: user._id,
       customer: {
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
+        name: req.body.name || user.name || name,
+        email: email || user.email,
+        phone: phone || user.phone,
         address: parsedAddress
       },
       services: bookingServices.map(s => ({

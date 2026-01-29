@@ -292,6 +292,12 @@ const bookingSchema = new mongoose.Schema({
     gstAmount: {
       type: Number,
       default: 0
+    },
+    paymentProofImage: {
+      type: String
+    },
+    deviceSerialImage: {
+      type: String
     }
   },
 

@@ -120,11 +120,26 @@ const getAllBookings = asyncHandler(async (req, res) => {
 
     // Calculate statistics
     const stats = await Booking.aggregate([
+      { $match: filter },
       {
         $group: {
           _id: null,
           totalBookings: { $sum: 1 },
-          totalRevenue: { $sum: '$pricing.totalAmount' },
+          totalRevenue: {
+            $sum: {
+              $cond: [
+                {
+                  $or: [
+                    { $eq: ['$status', 'completed'] },
+                    { $eq: ['$payment.status', 'completed'] },
+                    { $in: ['$paymentStatus', ['payment_done', 'collected']] }
+                  ]
+                },
+                { $ifNull: ['$pricing.totalAmount', 0] },
+                0
+              ]
+            }
+          },
           pendingBookings: {
             $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
           },

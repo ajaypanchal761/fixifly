@@ -228,7 +228,7 @@ const Checkout = () => {
 
       // Save user info for "My Profile" (Guest Login)
       const guestUser = {
-        id: booking.customer.id || 'guest_' + Date.now(),
+        id: (booking.customer as any).id || (booking.customer as any)._id || 'guest_' + Date.now(),
         name: booking.customer.name,
         email: booking.customer.email,
         phone: booking.customer.phone,
@@ -376,8 +376,6 @@ const Checkout = () => {
                   value={customerData.name}
                   onChange={(e) => setCustomerData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter your full name"
-                  readOnly={isAuthenticated && user?.name ? true : false}
-                  className={isAuthenticated && user?.name ? "bg-gray-100 cursor-not-allowed" : ""}
                 />
               </div>
 
@@ -393,8 +391,6 @@ const Checkout = () => {
                   value={customerData.email}
                   onChange={(e) => setCustomerData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="Enter your email"
-                  readOnly={isAuthenticated && user?.email ? true : false}
-                  className={isAuthenticated && user?.email ? "bg-gray-100 cursor-not-allowed" : ""}
                 />
               </div>
 
@@ -413,8 +409,6 @@ const Checkout = () => {
                     setCustomerData(prev => ({ ...prev, phone: formatted }));
                   }}
                   placeholder="+91 98765 43210"
-                  readOnly={isAuthenticated && user?.phone ? true : false}
-                  className={isAuthenticated && user?.phone ? "bg-gray-100 cursor-not-allowed" : ""}
                 />
               </div>
 

@@ -619,6 +619,8 @@ class VendorApiService {
         includeGST: completionData.includeGST,
         gstAmount: completionData.gstAmount,
         totalAmount: completionData.totalAmount,
+        paymentProofImage: (completionData as any).paymentProofImage || null,
+        deviceSerialImage: (completionData as any).deviceSerialImage || null,
         completedAt: new Date().toISOString()
       }
     };
@@ -757,6 +759,8 @@ class VendorApiService {
           gstAmount: completionData.gstAmount || 0,
           travelingAmount: completionData.travelingAmount || '0',
           billingAmount: completionData.billingAmount || 0,
+          paymentProofImage: (completionData as any).paymentProofImage || null,
+          deviceSerialImage: (completionData as any).deviceSerialImage || null,
           completedAt: new Date().toISOString()
         }
       }),

@@ -97,23 +97,23 @@ class BookingApi {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     console.log('Booking API making request to:', url);
     console.log('Base URL:', this.baseURL);
     console.log('API_BASE_URL:', API_BASE_URL);
-    
+
     // Get authentication token from localStorage
     const token = localStorage.getItem('accessToken');
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers,
     };
-    
+
     // Add authorization header if token exists
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     const config: RequestInit = {
       ...options,
       headers,
@@ -122,7 +122,7 @@ class BookingApi {
     try {
       console.log('Booking API request config:', config);
       const response = await fetch(url, config);
-      
+
       console.log('Booking API response status:', response.status);
       console.log('Booking API response ok:', response.ok);
 
@@ -178,10 +178,14 @@ class BookingApi {
     }
   }
 
-  // Get bookings by customer email
-  async getBookingsByCustomer(email: string, page: number = 1, limit: number = 10): Promise<ApiResponse<{ bookings: Booking[]; pagination: any }>> {
+  // Get bookings by customer email or phone
+  async getBookingsByCustomer(identifier: string, page: number = 1, limit: number = 10, phone?: string): Promise<ApiResponse<{ bookings: Booking[]; pagination: any }>> {
     try {
-      const response = await this.request<{ bookings: Booking[]; pagination: any }>(`/bookings/customer/${email}?page=${page}&limit=${limit}`);
+      let url = `/bookings/customer/${identifier}?page=${page}&limit=${limit}`;
+      if (phone) {
+        url += `&phone=${encodeURIComponent(phone)}`;
+      }
+      const response = await this.request<{ bookings: Booking[]; pagination: any }>(url);
       return response;
     } catch (error) {
       console.error('Error fetching customer bookings:', error);
@@ -316,12 +320,12 @@ class BookingApi {
 const bookingApi = new BookingApi();
 
 export default bookingApi;
-export type { 
-  BookingService as BookingApiService, 
-  CustomerInfo as BookingCustomerInfo, 
-  BookingPricing as BookingApiPricing, 
-  BookingScheduling as BookingApiScheduling, 
-  BookingData as BookingApiData, 
-  Booking as BookingApiBooking, 
-  ApiResponse as BookingApiResponse 
+export type {
+  BookingService as BookingApiService,
+  CustomerInfo as BookingCustomerInfo,
+  BookingPricing as BookingApiPricing,
+  BookingScheduling as BookingApiScheduling,
+  BookingData as BookingApiData,
+  Booking as BookingApiBooking,
+  ApiResponse as BookingApiResponse
 };

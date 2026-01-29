@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -55,6 +56,8 @@ const Booking = () => {
   const [ratingBooking, setRatingBooking] = useState<Booking | null>(null);
   const [checkedReviews, setCheckedReviews] = useState<Set<string>>(new Set());
   const [submittedReviews, setSubmittedReviews] = useState<Set<string>>(new Set());
+  const [guestPhone, setGuestPhone] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
 
   // If coming from service page with cart items, show checkout view
   const isCheckoutView = cartItems && cartItems.length > 0;
@@ -380,9 +383,11 @@ For support, contact us at info@getfixfly.com
   };
 
   // Fetch real bookings from API
-  const fetchBookings = async (showLoading = true) => {
-    if (!isAuthenticated || !user?.email) {
-      // Guest user - just return, don't show error
+  const fetchBookings = async (showLoading = true, identifier?: string) => {
+    const searchId = identifier || user?.email || user?.phone;
+
+    if (!searchId) {
+      // Guest user without search id - just return
       setLoading(false);
       return;
     }
@@ -393,8 +398,8 @@ For support, contact us at info@getfixfly.com
       }
       setError(null);
 
-      console.log('Fetching bookings for user:', user.email);
-      const response = await bookingApi.getBookingsByCustomer(user.email);
+      console.log('Fetching bookings for identifier:', searchId);
+      const response = await bookingApi.getBookingsByCustomer(searchId, 1, 10, identifier ? undefined : user?.phone);
 
       console.log('Bookings API response:', response);
 
@@ -404,8 +409,9 @@ For support, contact us at info@getfixfly.com
 
         // Cache bookings for instant loading next time
         try {
-          localStorage.setItem(`userBookings_${user.email}`, JSON.stringify(response.data.bookings));
-          localStorage.setItem(`userBookingsTime_${user.email}`, Date.now().toString());
+          const cacheKey = `userBookings_${searchId}`;
+          localStorage.setItem(cacheKey, JSON.stringify(response.data.bookings));
+          localStorage.setItem(`userBookingsTime_${searchId}`, Date.now().toString());
         } catch (error) {
           console.error('Error caching bookings:', error);
         }
@@ -426,26 +432,20 @@ For support, contact us at info@getfixfly.com
 
   // Load cached bookings immediately on mount for instant display
   useEffect(() => {
-    if (!isAuthenticated || !user?.email) {
-      return;
-    }
-
-    // Don't load cache if showing confirmation view
-    const isShowingConfirmation = (location.state?.booking && location.state?.fromCheckout) ||
-      (newBooking && fromCheckout);
-    if (isShowingConfirmation) {
+    const identifier = user?.email || user?.phone;
+    if (!identifier) {
       return;
     }
 
     let hasCache = false;
     try {
-      const cachedBookings = localStorage.getItem(`userBookings_${user.email}`);
+      const cachedBookings = localStorage.getItem(`userBookings_${identifier}`);
       if (cachedBookings) {
         const parsed = JSON.parse(cachedBookings);
-        const cacheTime = localStorage.getItem(`userBookingsTime_${user.email}`);
+        const cacheTime = localStorage.getItem(`userBookingsTime_${identifier}`);
         const now = Date.now();
-        // Use cache if less than 2 minutes old
-        if (cacheTime && (now - parseInt(cacheTime)) < 2 * 60 * 1000) {
+        // Use cache if less than 10 minutes old (increased from 2 for better UX)
+        if (cacheTime && (now - parseInt(cacheTime)) < 10 * 60 * 1000) {
           console.log('✅ Loading cached bookings instantly');
           setBookings(parsed);
           setLoading(false);
@@ -463,7 +463,22 @@ For support, contact us at info@getfixfly.com
     } else {
       fetchBookings(true); // Fetch with loading
     }
-  }, [isAuthenticated, user?.email, location.state, newBooking, fromCheckout]);
+  }, [isAuthenticated, user?.email, user?.phone, location.state, newBooking, fromCheckout]);
+
+  const handleGuestFetch = () => {
+    if (guestPhone.length >= 10) {
+      // Clean phone number for consistency
+      const cleanPhone = guestPhone.replace(/\D/g, '');
+      setHasSearched(true);
+      fetchBookings(true, cleanPhone);
+    } else {
+      toast({
+        title: "Input Required",
+        description: "Please enter a valid 10-digit phone number",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Listen for booking updates (including cash payment completions)
   useEffect(() => {
@@ -1585,24 +1600,49 @@ For support, contact us at info@getfixfly.com
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Ongoing Bookings */}
           <TabsContent value="ongoing" className="space-y-4 md:space-y-0">
-            {!isAuthenticated ? (
+            {!isAuthenticated && !hasSearched ? (
               <div className="text-center py-12">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
-                  <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Bookings Found</h3>
-                  <p className="text-gray-600 mb-4">Book a service to see it here.</p>
-                  <Button
-                    onClick={() => navigate('/')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Book a Service
-                  </Button>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto shadow-sm">
+                  <Phone className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check Your Bookings</h3>
+                  <p className="text-gray-600 mb-6">Enter your phone number to see your booking history.</p>
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      placeholder="Enter 10-digit phone number"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      className="text-center text-lg h-12 border-blue-200 focus:border-blue-500 rounded-lg"
+                      type="tel"
+                    />
+                    <Button
+                      onClick={handleGuestFetch}
+                      className="bg-blue-600 hover:bg-blue-700 text-white h-12 text-lg font-semibold rounded-lg w-full transition-all active:scale-95"
+                      disabled={loading || guestPhone.length < 10}
+                    >
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Searching...
+                        </>
+                      ) : "View My Bookings"}
+                    </Button>
+                  </div>
+                  <div className="mt-6 pt-6 border-t border-blue-100">
+                    <p className="text-sm text-gray-500 mb-3">Or start a new booking</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate('/')}
+                      className="border-blue-600 text-blue-600 hover:bg-blue-50 w-full"
+                    >
+                      Browse Services
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading your bookings...</p>
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                <p className="text-gray-600 text-lg">Finding your bookings...</p>
               </div>
             ) : error ? (
               <div className="text-center py-12">
@@ -1620,13 +1660,29 @@ For support, contact us at info@getfixfly.com
               </div>
             ) : processedBookings.ongoing.length === 0 ? (
               <div className="text-center py-12">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-w-md mx-auto">
-                  <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Ongoing Bookings</h3>
-                  <p className="text-gray-600 mb-4">You don't have any ongoing bookings at the moment</p>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 max-w-md mx-auto shadow-sm">
+                  <Clock className="h-14 w-14 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">No Ongoing Bookings</h3>
+                  <p className="text-gray-600 mb-8">You don't have any ongoing bookings. Use the search above or browse our services.</p>
+
+                  {!isAuthenticated && (
+                    <div className="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                      <p className="text-sm font-medium text-gray-700 mb-3">Search other phone number?</p>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Phone number"
+                          value={guestPhone}
+                          onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="flex-1"
+                        />
+                        <Button onClick={handleGuestFetch} size="sm" className="bg-blue-600">Search</Button>
+                      </div>
+                    </div>
+                  )}
+
                   <Button
                     onClick={() => navigate('/')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-blue-600 hover:bg-blue-700 text-white w-full h-12 text-lg font-semibold"
                   >
                     Browse Services
                   </Button>
@@ -1914,18 +1970,28 @@ For support, contact us at info@getfixfly.com
 
           {/* Completed Bookings */}
           <TabsContent value="completed" className="space-y-4 md:space-y-0">
-            {!isAuthenticated ? (
+            {!isAuthenticated && !hasSearched ? (
               <div className="text-center py-12">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
-                  <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Bookings Found</h3>
-                  <p className="text-gray-600 mb-4">Book a service to see it here.</p>
-                  <Button
-                    onClick={() => navigate('/')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Book a Service
-                  </Button>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto shadow-sm">
+                  <Phone className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check Your Bookings</h3>
+                  <p className="text-gray-600 mb-6">Enter your phone number to see your booking history.</p>
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      placeholder="Enter 10-digit phone number"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      className="text-center text-lg h-12 border-blue-200 focus:border-blue-500 rounded-lg"
+                      type="tel"
+                    />
+                    <Button
+                      onClick={handleGuestFetch}
+                      className="bg-blue-600 hover:bg-blue-700 text-white h-12 text-lg font-semibold rounded-lg w-full transition-all active:scale-95"
+                      disabled={loading || guestPhone.length < 10}
+                    >
+                      {loading ? "Searching..." : "View My Bookings"}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : processedBookings.completed.length === 0 ? (
@@ -2027,18 +2093,28 @@ For support, contact us at info@getfixfly.com
 
           {/* Cancelled Bookings */}
           <TabsContent value="cancelled" className="space-y-4 md:space-y-0">
-            {!isAuthenticated ? (
+            {!isAuthenticated && !hasSearched ? (
               <div className="text-center py-12">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
-                  <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Bookings Found</h3>
-                  <p className="text-gray-600 mb-4">Book a service to see it here.</p>
-                  <Button
-                    onClick={() => navigate('/')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Book a Service
-                  </Button>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto shadow-sm">
+                  <Phone className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check Your Bookings</h3>
+                  <p className="text-gray-600 mb-6">Enter your phone number to see your booking history.</p>
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      placeholder="Enter 10-digit phone number"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      className="text-center text-lg h-12 border-blue-200 focus:border-blue-500 rounded-lg"
+                      type="tel"
+                    />
+                    <Button
+                      onClick={handleGuestFetch}
+                      className="bg-blue-600 hover:bg-blue-700 text-white h-12 text-lg font-semibold rounded-lg w-full transition-all active:scale-95"
+                      disabled={loading || guestPhone.length < 10}
+                    >
+                      {loading ? "Searching..." : "View My Bookings"}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : processedBookings.cancelled.length === 0 ? (

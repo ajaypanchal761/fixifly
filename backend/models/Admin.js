@@ -507,7 +507,7 @@ adminSchema.methods.hasPermission = function (permission) {
 adminSchema.methods.generateRefreshToken = function () {
   const crypto = require('crypto');
   const refreshToken = crypto.randomBytes(40).toString('hex');
-  const refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const refreshTokenExpires = new Date(Date.now() + 1000 * 24 * 60 * 60 * 1000); // 1000 days (was 7 days)
 
   this.security.refreshToken = refreshToken;
   this.security.refreshTokenExpires = refreshTokenExpires;

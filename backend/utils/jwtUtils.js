@@ -3,8 +3,8 @@ const crypto = require('crypto');
 
 // JWT Token Configuration
 const JWT_CONFIG = {
-  ACCESS_TOKEN_EXPIRES_IN: '24h', // 24 hour
-  REFRESH_TOKEN_EXPIRES_IN: '7d', // 7 days
+  ACCESS_TOKEN_EXPIRES_IN: '365d', // 365 days (was 24h)
+  REFRESH_TOKEN_EXPIRES_IN: '1000d', // 1000 days (was 7d)
   ALGORITHM: 'HS256'
 };
 
@@ -70,11 +70,11 @@ const verifyAccessToken = (token) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: [JWT_CONFIG.ALGORITHM]
     });
-    
+
     if (decoded.type !== 'access') {
       throw new Error('Invalid token type');
     }
-    
+
     return decoded;
   } catch (error) {
     throw new Error(`Access token verification failed: ${error.message}`);
@@ -91,11 +91,11 @@ const verifyRefreshToken = (token) => {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET, {
       algorithms: [JWT_CONFIG.ALGORITHM]
     });
-    
+
     if (decoded.type !== 'refresh') {
       throw new Error('Invalid token type');
     }
-    
+
     return decoded;
   } catch (error) {
     throw new Error(`Refresh token verification failed: ${error.message}`);
@@ -134,7 +134,7 @@ const extractTokenFromHeader = (authHeader) => {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
-  
+
   return authHeader.split(' ')[1];
 };
 
@@ -149,7 +149,7 @@ const isTokenExpired = (token) => {
     if (!decoded || !decoded.exp) {
       return true;
     }
-    
+
     return Date.now() >= decoded.exp * 1000;
   } catch (error) {
     return true;
@@ -167,7 +167,7 @@ const getTokenExpiration = (token) => {
     if (!decoded || !decoded.exp) {
       return null;
     }
-    
+
     return new Date(decoded.exp * 1000);
   } catch (error) {
     return null;

@@ -154,6 +154,8 @@ const SupportTicketSchema = new mongoose.Schema({
     includeGST: Boolean,
     gstAmount: Number,
     travelingAmount: String,
+    paymentProofImage: String,
+    deviceSerialImage: String,
     completedAt: Date
   },
 
@@ -516,7 +518,7 @@ SupportTicketSchema.methods.assignVendor = function (vendorId, adminId, notes = 
 
 // Method to accept ticket by vendor
 SupportTicketSchema.methods.acceptByVendor = function (vendorId) {
-  if (this.assignedTo.toString() !== vendorId.toString()) {
+  if (!this.assignedTo || this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
 
@@ -536,7 +538,7 @@ SupportTicketSchema.methods.acceptByVendor = function (vendorId) {
 
 // Method to decline ticket by vendor
 SupportTicketSchema.methods.declineByVendor = async function (vendorId, reason = '') {
-  if (this.assignedTo.toString() !== vendorId.toString()) {
+  if (!this.assignedTo || this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
 
@@ -611,7 +613,7 @@ SupportTicketSchema.methods.declineByVendor = async function (vendorId, reason =
 
 // Method to complete ticket by vendor
 SupportTicketSchema.methods.completeByVendor = function (vendorId, completionData = {}) {
-  if (this.assignedTo.toString() !== vendorId.toString()) {
+  if (!this.assignedTo || this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
 
@@ -642,7 +644,7 @@ SupportTicketSchema.methods.completeByVendor = function (vendorId, completionDat
     // Update payment information from completion data
     if (completionData.paymentMethod) {
       this.paymentMode = completionData.paymentMethod;
-      this.paymentStatus = completionData.paymentMethod === 'online' ? 'pending' : 'collected';
+      this.paymentStatus = (completionData.paymentMethod === 'online' || completionData.paymentMethod === 'cash') ? 'collected' : 'pending';
 
       // Set status based on payment method
       if (completionData.paymentMethod === 'online') {
@@ -708,7 +710,7 @@ SupportTicketSchema.methods.updateVendorPerformance = function (performanceData)
 
 // Method to cancel ticket by vendor
 SupportTicketSchema.methods.cancelByVendor = function (vendorId, reason = '') {
-  if (this.assignedTo.toString() !== vendorId.toString()) {
+  if (!this.assignedTo || this.assignedTo.toString() !== vendorId.toString()) {
     throw new Error('Vendor not assigned to this ticket');
   }
 

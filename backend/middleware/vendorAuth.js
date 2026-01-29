@@ -29,15 +29,15 @@ const protectVendor = asyncHandler(async (req, res, next) => {
       if (decoded.vendorId) {
         // Ensure vendorId is a valid MongoDB ObjectId
         let vendorIdToSearch = decoded.vendorId;
-        
+
         // Convert string to ObjectId if needed
         if (typeof vendorIdToSearch === 'string' && mongoose.Types.ObjectId.isValid(vendorIdToSearch)) {
           vendorIdToSearch = new mongoose.Types.ObjectId(vendorIdToSearch);
         }
-        
+
         // Try to find vendor by _id (MongoDB ObjectId)
         vendor = await Vendor.findById(vendorIdToSearch);
-        
+
         // If not found by _id and vendorId is a string, try to find by vendorId field
         if (!vendor && typeof decoded.vendorId === 'string') {
           vendor = await Vendor.findOne({ vendorId: decoded.vendorId });
@@ -45,7 +45,7 @@ const protectVendor = asyncHandler(async (req, res, next) => {
       }
 
       if (!vendor) {
-        logger.warn('Vendor not found for token', { 
+        logger.warn('Vendor not found for token', {
           vendorId: decoded.vendorId,
           vendorIdType: typeof decoded.vendorId,
           isObjectIdValid: decoded.vendorId ? mongoose.Types.ObjectId.isValid(decoded.vendorId) : false,
@@ -88,13 +88,13 @@ const protectVendor = asyncHandler(async (req, res, next) => {
 
       next();
     } catch (error) {
-      logger.error('Token verification failed', { 
+      logger.error('Token verification failed', {
         error: error.message,
         tokenPrefix: token ? token.substring(0, 20) + '...' : 'null',
         tokenLength: token ? token.length : 0,
         endpoint: req.originalUrl
       });
-      
+
       let errorMessage = 'Not authorized, token failed';
       if (error.name === 'JsonWebTokenError') {
         errorMessage = 'Invalid token format';
@@ -103,7 +103,7 @@ const protectVendor = asyncHandler(async (req, res, next) => {
       } else if (error.name === 'NotBeforeError') {
         errorMessage = 'Token not active yet';
       }
-      
+
       return res.status(401).json({
         success: false,
         message: errorMessage,
@@ -184,7 +184,7 @@ const requireCompleteProfile = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const vendor = await Vendor.findById(req.vendor.vendorId);
+    const vendor = await Vendor.findById(req.vendor._id);
 
     if (!vendor) {
       return res.status(404).json({
@@ -227,7 +227,7 @@ const requireApproval = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const vendor = await Vendor.findById(req.vendor.vendorId);
+    const vendor = await Vendor.findById(req.vendor._id);
 
     if (!vendor) {
       return res.status(404).json({
@@ -263,12 +263,12 @@ const requireApproval = asyncHandler(async (req, res, next) => {
 // Helper function to get missing profile fields
 const getMissingFields = (vendor) => {
   const requiredFields = [
-    'firstName', 'lastName', 'email', 'phone', 'serviceCategories', 
+    'firstName', 'lastName', 'email', 'phone', 'serviceCategories',
     'experience', 'address.city', 'address.state', 'address.pincode'
   ];
-  
+
   const missingFields = [];
-  
+
   requiredFields.forEach(field => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
@@ -281,7 +281,7 @@ const getMissingFields = (vendor) => {
       }
     }
   });
-  
+
   return missingFields;
 };
 

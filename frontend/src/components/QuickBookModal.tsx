@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +33,7 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
     productName
 }) => {
     const { toast } = useToast();
-    const { login } = useAuth();
+    const { user, login } = useAuth();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
@@ -42,6 +42,20 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
         preferredTime: '',
         issueNote: ''
     });
+
+    // Pre-fill form if user data exists
+    useEffect(() => {
+        if (isOpen && user) {
+            setFormData(prev => ({
+                ...prev,
+                email: user.email || prev.email,
+                phone: user.phone ? user.phone.replace(/\D/g, '').replace(/^91/, '') : prev.phone,
+                address: user.address?.street ?
+                    `${user.address.street}${user.address.city ? `, ${user.address.city}` : ''}${user.address.state ? `, ${user.address.state}` : ''}${user.address.pincode ? ` - ${user.address.pincode}` : ''}`
+                    : prev.address
+            }));
+        }
+    }, [isOpen, user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;

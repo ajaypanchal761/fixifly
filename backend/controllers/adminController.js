@@ -703,7 +703,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       $and: [
         {
           $or: [
-            { status: { $in: ['completed', 'confirmed', 'in_progress', 'waiting_for_engineer', 'pending'] } },
+            { status: 'completed' },
             { 'payment.status': 'completed' },
             { paymentStatus: { $in: ['payment_done', 'collected'] } }
           ]

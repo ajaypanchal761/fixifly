@@ -70,7 +70,7 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
         ...prev,
         customerName: user.name || prev.customerName,
         email: user.email || prev.email,
-        phoneNumber: user.phone || prev.phoneNumber,
+        phoneNumber: user.phone ? user.phone.replace(/\D/g, '').replace(/^91/, '') : prev.phoneNumber,
         address: user.address?.street || prev.address,
         city: prev.city || user.address?.city || selectedCity?.name || "",
         pincode: user.address?.pincode || prev.pincode
@@ -320,8 +320,6 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                     onChange={(e) => handleInputChange("customerName", e.target.value)}
                     placeholder="Enter your full name"
                     className={errors.customerName ? "border-red-500" : ""}
-                    readOnly={isAuthenticated && user?.name ? true : false}
-                    style={isAuthenticated && user?.name ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
                   />
                   {errors.customerName && <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>}
                 </div>
@@ -334,8 +332,6 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                     onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
                     placeholder="Enter 10-digit phone number"
                     className={errors.phoneNumber ? "border-red-500" : ""}
-                    readOnly={isAuthenticated && user?.phone ? true : false}
-                    style={isAuthenticated && user?.phone ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
                   />
                   {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
                 </div>
@@ -349,8 +345,6 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     placeholder="Enter your email"
                     className={errors.email ? "border-red-500" : ""}
-                    readOnly={isAuthenticated && user?.email ? true : false}
-                    style={isAuthenticated && user?.email ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
                   />
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
@@ -487,8 +481,8 @@ const ServiceBookingModal = ({ isOpen, onClose, service, selectedCity }: Service
                       key={option.value}
                       onClick={() => handleInputChange("urgency", option.value)}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${formData.urgency === option.value
-                          ? option.color
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        ? option.color
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`}
                     >
                       {option.label}

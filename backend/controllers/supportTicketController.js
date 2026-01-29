@@ -3,6 +3,7 @@ const { logger } = require('../utils/logger');
 const SupportTicket = require('../models/SupportTicket');
 const User = require('../models/User');
 const Admin = require('../models/Admin');
+const Booking = require('../models/Booking');
 const emailService = require('../services/emailService');
 
 // @desc    Create a new support ticket
@@ -950,12 +951,20 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
       });
     }
 
-    // Store original scheduling data
+    // Store original scheduling data safely
     const originalDate = ticket.scheduledDate;
     const originalTime = ticket.scheduledTime;
 
-    // Update with new schedule
-    ticket.scheduledDate = new Date(newDate);
+    // Validate and update with new schedule
+    const validatedNewDate = new Date(newDate);
+    if (isNaN(validatedNewDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid date provided for rescheduling'
+      });
+    }
+
+    ticket.scheduledDate = validatedNewDate;
     ticket.scheduledTime = newTime;
     ticket.scheduleNotes = reason || 'Rescheduled by vendor';
 
@@ -967,7 +976,7 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
       isRescheduled: true,
       originalDate: originalDate,
       originalTime: originalTime,
-      rescheduledDate: new Date(newDate),
+      rescheduledDate: validatedNewDate,
       rescheduledTime: newTime,
       rescheduleReason: reason || 'Rescheduled by vendor',
       rescheduledAt: new Date(),
@@ -1801,45 +1810,63 @@ const getVendorSupportTickets = asyncHandler(async (req, res) => {
     filter
   });
 
-  const formattedTickets = tickets.map(ticket => ({
-    id: ticket.ticketId,
-    customerName: ticket.userName,
-    customerEmail: ticket.userEmail,
-    customerPhone: ticket.userPhone,
-    address: ticket.userId?.address?.street || ticket.userId?.address || 'Not provided',
-    street: ticket.userId?.address?.street || 'Not provided',
-    city: ticket.userId?.address?.city || 'Not provided',
-    state: ticket.userId?.address?.state || 'Not provided',
-    pincode: ticket.userId?.address?.pincode || 'Not provided',
-    landmark: ticket.userId?.address?.landmark || 'Not provided',
-    userId: ticket.userId, // Include full user object for address access
-    subject: ticket.subject,
-    category: ticket.type,
-    status: ticket.status,
-    priority: ticket.priority,
-    vendorStatus: ticket.vendorStatus || 'Pending',
-    paymentMode: ticket.paymentMode || null,
-    paymentStatus: ticket.paymentStatus || null,
-    created: ticket.formattedCreatedAt,
-    lastUpdate: ticket.lastUpdate,
-    responses: ticket.responseCount,
-    caseId: ticket.caseId,
-    description: ticket.description,
-    scheduledDate: ticket.scheduledDate,
-    scheduledTime: ticket.scheduledTime,
-    scheduleNotes: ticket.scheduleNotes,
-    assignedAt: ticket.assignedAt,
-    assignedBy: ticket.assignedBy,
-    vendorAcceptedAt: ticket.vendorAcceptedAt,
-    vendorDeclinedAt: ticket.vendorDeclinedAt,
-    vendorDeclineReason: ticket.vendorDeclineReason,
-    vendorCompletedAt: ticket.vendorCompletedAt,
-    assignedVendor: ticket.assignedTo ? `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}` : null,
-    vendorAssignmentHistory: ticket.vendorAssignmentHistory,
-    vendorCommunications: ticket.vendorCommunications,
-    vendorPerformance: ticket.vendorPerformance,
-    completionData: ticket.completionData
-  }));
+  // Fetch bookings for guest tickets to show addresses in list if possible
+  const guestTickets = tickets.filter(t => !t.userId && t.caseId);
+  const bookingMap = new Map();
+  if (guestTickets.length > 0) {
+    try {
+      const caseIds = guestTickets.map(t => t.caseId);
+      const bookings = await Booking.find({ bookingReference: { $in: caseIds } }).select('bookingReference customer.address');
+      bookings.forEach(b => bookingMap.set(b.bookingReference, b.customer?.address));
+    } catch (err) {
+      console.warn('Error pre-fetching bookings for guest tickets:', err.message);
+    }
+  }
+
+  const formattedTickets = tickets.map(ticket => {
+    const guestAddress = !ticket.userId && ticket.caseId ? bookingMap.get(ticket.caseId) : null;
+
+    return {
+      id: ticket.ticketId,
+      customerName: ticket.userName,
+      customerEmail: ticket.userEmail,
+      customerPhone: ticket.userPhone,
+      address: ticket.userId?.address?.street || ticket.userId?.address ||
+        (guestAddress ? `${guestAddress.street}, ${guestAddress.city}` : (ticket.caseId ? 'View details for address' : 'Not provided')),
+      street: ticket.userId?.address?.street || guestAddress?.street || 'Not provided',
+      city: ticket.userId?.address?.city || guestAddress?.city || 'Not provided',
+      state: ticket.userId?.address?.state || guestAddress?.state || 'Not provided',
+      pincode: ticket.userId?.address?.pincode || guestAddress?.pincode || 'Not provided',
+      landmark: ticket.userId?.address?.landmark || 'Not provided',
+      userId: ticket.userId, // Include full user object for address access
+      subject: ticket.subject,
+      category: ticket.type,
+      status: ticket.status,
+      priority: ticket.priority,
+      vendorStatus: ticket.vendorStatus || 'Pending',
+      paymentMode: ticket.paymentMode || null,
+      paymentStatus: ticket.paymentStatus || null,
+      created: ticket.formattedCreatedAt,
+      lastUpdate: ticket.lastUpdate,
+      responses: ticket.responseCount,
+      caseId: ticket.caseId,
+      description: ticket.description,
+      scheduledDate: ticket.scheduledDate,
+      scheduledTime: ticket.scheduledTime,
+      scheduleNotes: ticket.scheduleNotes,
+      assignedAt: ticket.assignedAt,
+      assignedBy: ticket.assignedBy,
+      vendorAcceptedAt: ticket.vendorAcceptedAt,
+      vendorDeclinedAt: ticket.vendorDeclinedAt,
+      vendorDeclineReason: ticket.vendorDeclineReason,
+      vendorCompletedAt: ticket.vendorCompletedAt,
+      assignedVendor: ticket.assignedTo ? `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}` : null,
+      vendorAssignmentHistory: ticket.vendorAssignmentHistory,
+      vendorCommunications: ticket.vendorCommunications,
+      vendorPerformance: ticket.vendorPerformance,
+      completionData: ticket.completionData
+    };
+  });
 
   res.json({
     success: true,
@@ -1875,6 +1902,17 @@ const getVendorSupportTicket = asyncHandler(async (req, res) => {
       success: false,
       message: 'Support ticket not found'
     });
+  }
+
+  // Fetch booking if it's a guest ticket and has caseId
+  let booking = null;
+  if (!ticket.userId && ticket.caseId) {
+    try {
+      booking = await Booking.findOne({ bookingReference: ticket.caseId }) ||
+        (mongoose.Types.ObjectId.isValid(ticket.caseId) ? await Booking.findById(ticket.caseId) : null);
+    } catch (err) {
+      console.warn('Error fetching associated booking for support ticket:', err.message);
+    }
   }
 
   // Check if vendor is assigned to this ticket
@@ -1915,17 +1953,17 @@ const getVendorSupportTicket = asyncHandler(async (req, res) => {
     completionData: ticket.completionData,
     rescheduleData: ticket.rescheduleData,
     rescheduleInfo: ticket.rescheduleInfo,
-    // Customer information
-    customerName: ticket.userId ? `${ticket.userId.firstName} ${ticket.userId.lastName}` : 'Unknown',
-    customerEmail: ticket.userId?.email || 'Unknown',
-    customerPhone: ticket.userId?.phone || 'Unknown',
-    customerAddress: ticket.userId?.address || null,
-    // Address details
-    street: ticket.userId?.address?.street || ticket.street || null,
-    city: ticket.userId?.address?.city || ticket.city || null,
-    state: ticket.userId?.address?.state || ticket.state || null,
-    pincode: ticket.userId?.address?.pincode || ticket.pincode || null,
-    landmark: ticket.userId?.address?.landmark || ticket.landmark || null,
+    // Customer information - Handle both authenticated and guest users
+    customerName: ticket.userId ? `${ticket.userId.firstName} ${ticket.userId.lastName}` : (ticket.userName || 'Guest User'),
+    customerEmail: ticket.userId?.email || ticket.userEmail || 'Unknown',
+    customerPhone: ticket.userId?.phone || ticket.userPhone || 'Unknown',
+    customerAddress: ticket.userId?.address || (booking?.customer?.address) || null,
+    // Address details - Prefer user profile, then booking, then ticket fields if they existed
+    street: ticket.userId?.address?.street || booking?.customer?.address?.street || null,
+    city: ticket.userId?.address?.city || booking?.customer?.address?.city || null,
+    state: ticket.userId?.address?.state || booking?.customer?.address?.state || null,
+    pincode: ticket.userId?.address?.pincode || booking?.customer?.address?.pincode || null,
+    landmark: ticket.userId?.address?.landmark || null,
     // User ID for reference
     userId: ticket.userId
   };
@@ -2226,7 +2264,9 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
 
     const parsedBillingAmount = parseFloat(billingAmount) || 0;
     const spareAmount = spareParts?.reduce((sum, part) => {
-      return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+      // Safely handle amount string formatting
+      const amountStr = String(part.amount || '0').replace(/[₹,]/g, '');
+      return sum + (parseFloat(amountStr) || 0);
     }, 0) || 0;
     const travellingAmount = parseFloat(completionData?.travelingAmount || completionData?.travellingAmount || '0') || 0;
 
@@ -2298,11 +2338,27 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
           spareAmount
         });
       } else if (paymentMethod === 'online') {
-        console.log('🔧 WALLET DEBUG: Online payment detected - vendor wallet will be credited after payment verification');
-        // For online payments, don't credit wallet immediately
-        // Wallet will be credited after payment verification via /api/support-tickets/payment/verify
-        console.log('🔧 WALLET DEBUG: Skipping immediate wallet credit for online payment');
-        console.log('🔧 WALLET DEBUG: Vendor earning will be processed after user payment verification');
+        // For online QR payments, credit wallet immediately upon vendor verification (uploading proof)
+        console.log('🔧 WALLET DEBUG: Online (QR) payment detected - crediting vendor wallet');
+
+        await vendorWallet.addEarning({
+          caseId: ticket.ticketId,
+          billingAmount: parsedBillingAmount,
+          spareAmount,
+          travellingAmount,
+          bookingAmount: 0,
+          paymentMethod: 'online',
+          gstIncluded: includeGST || false,
+          gstAmount: completionData?.gstAmount || 0,
+          description: `Support ticket completion earning - ${ticket.ticketId}`
+        });
+
+        logger.info('Support ticket earning added to vendor wallet (Online QR)', {
+          vendorId: vendorId,
+          ticketId: ticket.ticketId,
+          billingAmount: parsedBillingAmount,
+          spareAmount
+        });
       } else {
         console.log('🔧 WALLET DEBUG: Unknown payment method:', paymentMethod);
       }
@@ -2457,7 +2513,9 @@ const verifySupportTicketPayment = asyncHandler(async (req, res) => {
           const completionData = ticket.completionData;
           const billingAmount = parseFloat(completionData.billingAmount) || 0;
           const spareAmount = completionData.spareParts?.reduce((sum, part) => {
-            return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+            // Safely handle amount string formatting
+            const amountStr = String(part.amount || '0').replace(/[₹,]/g, '');
+            return sum + (parseFloat(amountStr) || 0);
           }, 0) || 0;
           const travellingAmount = parseFloat(completionData.travelingAmount || completionData.travellingAmount || '0') || 0;
 
