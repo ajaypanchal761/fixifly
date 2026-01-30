@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +35,7 @@ import {
 const Booking = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("ongoing");
   const [cartItems, setCartItems] = useState<{ id: number, title: string, price: number, image: string }[]>(location.state?.cartItems || []);
@@ -431,7 +431,7 @@ For support, contact us at info@getfixfly.com
   };
 
   // Load cached bookings immediately on mount for instant display
-  useEffect(() => {
+  useLayoutEffect(() => {
     const identifier = user?.email || user?.phone;
     if (!identifier) {
       return;
@@ -465,11 +465,25 @@ For support, contact us at info@getfixfly.com
     }
   }, [isAuthenticated, user?.email, user?.phone, location.state, newBooking, fromCheckout]);
 
+  // Restore guest search on mount
+  useEffect(() => {
+    if (!isAuthenticated && !user) {
+      const lastGuestPhone = localStorage.getItem('lastGuestPhone');
+      if (lastGuestPhone) {
+        setGuestPhone(lastGuestPhone);
+        setHasSearched(true);
+        // Small delay to allow UI to settle
+        setTimeout(() => fetchBookings(true, lastGuestPhone), 100);
+      }
+    }
+  }, [isAuthenticated, user]);
+
   const handleGuestFetch = () => {
     if (guestPhone.length >= 10) {
       // Clean phone number for consistency
       const cleanPhone = guestPhone.replace(/\D/g, '');
       setHasSearched(true);
+      localStorage.setItem('lastGuestPhone', cleanPhone);
       fetchBookings(true, cleanPhone);
     } else {
       toast({
@@ -586,6 +600,18 @@ For support, contact us at info@getfixfly.com
     completed: processedBookings.completed.length,
     cancelled: processedBookings.cancelled.length
   });
+
+  // Auto-switch tab if ongoing is empty but other tabs have data
+  useEffect(() => {
+    if (loading) return;
+
+    // Only switch if we have bookings but none in current tab
+    if (bookings.length > 0 && processedBookings[activeTab as keyof typeof processedBookings].length === 0) {
+      if (processedBookings.ongoing.length > 0) setActiveTab('ongoing');
+      else if (processedBookings.completed.length > 0) setActiveTab('completed');
+      else if (processedBookings.cancelled.length > 0) setActiveTab('cancelled');
+    }
+  }, [bookings, loading]);
 
   const getStatusIcon = (status: string, booking?: any) => {
     // Check if vendor has declined
@@ -1600,7 +1626,12 @@ For support, contact us at info@getfixfly.com
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Ongoing Bookings */}
           <TabsContent value="ongoing" className="space-y-4 md:space-y-0">
-            {!isAuthenticated && !hasSearched ? (
+            {authLoading ? (
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                <p className="text-gray-600 text-lg">Checking account status...</p>
+              </div>
+            ) : !isAuthenticated && !hasSearched ? (
               <div className="text-center py-12">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto shadow-sm">
                   <Phone className="h-12 w-12 text-blue-600 mx-auto mb-4" />
@@ -1639,7 +1670,7 @@ For support, contact us at info@getfixfly.com
                   </div>
                 </div>
               </div>
-            ) : loading ? (
+            ) : (loading || isInitialLoad) ? (
               <div className="text-center py-20">
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
                 <p className="text-gray-600 text-lg">Finding your bookings...</p>
@@ -1970,7 +2001,12 @@ For support, contact us at info@getfixfly.com
 
           {/* Completed Bookings */}
           <TabsContent value="completed" className="space-y-4 md:space-y-0">
-            {!isAuthenticated && !hasSearched ? (
+            {authLoading ? (
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                <p className="text-gray-600 text-lg">Checking account status...</p>
+              </div>
+            ) : !isAuthenticated && !hasSearched ? (
               <div className="text-center py-12">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto shadow-sm">
                   <Phone className="h-12 w-12 text-blue-600 mx-auto mb-4" />
@@ -2093,7 +2129,12 @@ For support, contact us at info@getfixfly.com
 
           {/* Cancelled Bookings */}
           <TabsContent value="cancelled" className="space-y-4 md:space-y-0">
-            {!isAuthenticated && !hasSearched ? (
+            {authLoading ? (
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                <p className="text-gray-600 text-lg">Checking account status...</p>
+              </div>
+            ) : !isAuthenticated && !hasSearched ? (
               <div className="text-center py-12">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto shadow-sm">
                   <Phone className="h-12 w-12 text-blue-600 mx-auto mb-4" />

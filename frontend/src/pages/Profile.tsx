@@ -8,6 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import apiService from '@/services/api';
 
+import bookingApi from '@/services/bookingApi';
+
+
 interface UserProfile {
   id: string;
   name: string;
@@ -50,7 +53,6 @@ const Profile = () => {
     }
   });
 
-
   // Load user profile on component mount
   useEffect(() => {
     loadUserProfile();
@@ -77,7 +79,54 @@ const Profile = () => {
             }
           });
         } else {
-          // Set a default empty profile for new guests
+          // Check for persistent guest session
+          const lastGuestPhone = localStorage.getItem('lastGuestPhone');
+          if (lastGuestPhone) {
+            console.log('Fetching guest profile from bookings for:', lastGuestPhone);
+            try {
+              const response = await bookingApi.getBookingsByCustomer(lastGuestPhone, 1, 1, lastGuestPhone);
+              if (response.success && response.data?.bookings && response.data.bookings.length > 0) {
+                const latestBooking = response.data.bookings[0];
+                const customer = latestBooking.customer;
+
+                const guestProfile: UserProfile = {
+                  id: 'guest',
+                  name: customer.name,
+                  email: customer.email,
+                  phone: customer.phone,
+                  role: 'user',
+                  isPhoneVerified: false,
+                  isEmailVerified: false,
+                  address: customer.address ? {
+                    street: customer.address.street || '',
+                    city: customer.address.city || '',
+                    state: customer.address.state || '',
+                    pincode: customer.address.pincode || '',
+                    landmark: ''
+                  } : undefined
+                };
+
+                setUserProfile(guestProfile);
+                setFormData({
+                  name: customer.name || '',
+                  email: customer.email || '',
+                  address: {
+                    street: customer.address?.street || '',
+                    city: customer.address?.city || '',
+                    state: customer.address?.state || '',
+                    pincode: customer.address?.pincode || '',
+                    landmark: ''
+                  }
+                });
+                setIsLoading(false);
+                return;
+              }
+            } catch (error) {
+              console.error('Error fetching guest details:', error);
+            }
+          }
+
+          // Set a default empty profile for new guests if search failed
           setUserProfile({
             id: 'guest',
             name: 'Guest User',

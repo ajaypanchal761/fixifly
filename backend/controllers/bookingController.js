@@ -1329,6 +1329,16 @@ const acceptTask = asyncHandler(async (req, res) => {
       });
     }
 
+    // Check if task is already accepted
+    if (booking.vendorResponse && booking.vendorResponse.status === 'accepted') {
+      logger.info(`Task already accepted for booking ${bookingId} - skipping duplicate processing`);
+      return res.status(200).json({
+        success: true,
+        message: 'Task already accepted',
+        data: booking
+      });
+    }
+
     // Update booking with vendor response
     const updateData = {
       'vendorResponse.status': 'accepted',

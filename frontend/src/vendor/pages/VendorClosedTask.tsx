@@ -49,6 +49,17 @@ const VendorClosedTask = () => {
   // Refs for file inputs - one per spare part for APK compatibility
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
+  // New States for Online Payment QR Flow (Moved to top)
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [qrStep, setQrStep] = useState<'scan' | 'proof'>('scan');
+  const [tempTaskData, setTempTaskData] = useState<any>(null);
+  const [paymentProofImage, setPaymentProofImage] = useState<string | null>(null);
+  const paymentProofInputRef = useRef<HTMLInputElement>(null);
+
+  // Device Serial Number State (Moved to top)
+  const [deviceSerialImage, setDeviceSerialImage] = useState<string | null>(null);
+  const serialNumberInputRef = useRef<HTMLInputElement>(null);
+
   // Show 404 error on desktop - must be AFTER all hooks
   if (!isMobile) {
     return (
@@ -663,12 +674,7 @@ const VendorClosedTask = () => {
     handleNext();
   };
 
-  // New States for Online Payment QR Flow
-  const [showQRModal, setShowQRModal] = useState(false);
-  const [qrStep, setQrStep] = useState<'scan' | 'proof'>('scan');
-  const [tempTaskData, setTempTaskData] = useState<any>(null);
-  const [paymentProofImage, setPaymentProofImage] = useState<string | null>(null);
-  const paymentProofInputRef = useRef<HTMLInputElement>(null);
+  // New States for Online Payment QR Flow - MOVED TO TOP
 
   const handlePaymentProofCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -966,8 +972,7 @@ const VendorClosedTask = () => {
     }
   };
 
-  const [deviceSerialImage, setDeviceSerialImage] = useState<string | null>(null);
-  const serialNumberInputRef = useRef<HTMLInputElement>(null);
+  // Device Serial Number State - MOVED TO TOP
 
   const handleSerialImageCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
