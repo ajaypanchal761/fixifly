@@ -1048,10 +1048,16 @@ const VendorClosedTask = () => {
                 />
 
                 {deviceSerialImage ? (
-                  <div className="relative w-full h-48 p-2">
-                    <img src={deviceSerialImage} alt="Device Serial Number" className="w-full h-full object-contain rounded-md" />
-                    <div className="absolute inset-0 flex items-center justify-center transition-opacity">
-                      <span className="text-white font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full shadow-md">Retake Photo</span>
+                  <div className="relative w-full h-64 flex items-center justify-center overflow-hidden rounded-md bg-gray-50">
+                    <img
+                      src={deviceSerialImage}
+                      alt="Device Serial Number"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                      <span className="text-white font-medium bg-black/60 px-4 py-2 rounded-full shadow-lg backdrop-blur-sm">
+                        Retake Photo
+                      </span>
                     </div>
                   </div>
                 ) : (
