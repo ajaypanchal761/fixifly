@@ -109,7 +109,7 @@ class BotbeeService {
       // Use custom message text if provided, otherwise use default template text
 
       // Build template message text (Botbee requires message field even for templates)
-      let templateText = customMessageText || 'Thank Your For Using Fixfly. Your booking has been confirmed successfully. Hello, our team has received your service request. Our Team will Assigned Enginner shortly. Thank you for choosing Fixfly.';
+      let templateText = customMessageText || 'Thank You For Using Fixfly. Your booking has been confirmed successfully. Hello, our team has received your service request. Our Team will Assign Engineer shortly. Thank you for choosing Fixfly.';
 
       // Replace variables if any exist (only if custom message text not provided)
       if (!customMessageText && templateParams && Object.keys(templateParams).length > 0) {
@@ -383,7 +383,7 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
         const firstServiceName = booking.services?.[0]?.serviceName || 'Service';
 
         // Build template message with user name, booking ID, and service name
-        const templateMessage = `Thank Your For Using Fixfly.Your booking has been confirmed successfully. Hello ${customerName}, our team has received your service request for ${firstServiceName}. Your booking ID is ${bookingReference}. Our Team will Assigned Enginner shortly. Thank you for choosing Fixfly.`;
+        const templateMessage = `Thank You For Using Fixfly. Your booking has been confirmed successfully. Hello ${customerName}, our team has received your service request for ${firstServiceName}. Your booking ID is ${bookingReference}. Our Team will Assign Engineer shortly. Thank you for choosing Fixfly.`;
 
         const templateParams = {
           customer_name: customerName,
