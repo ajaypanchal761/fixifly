@@ -616,16 +616,16 @@ const VendorClosedTask = () => {
 
   const calculateTotal = () => {
     const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
-    const sparePartsTotal = spareParts.reduce((sum, part) => {
-      const amount = parseFloat(String(part.amount).replace(/[₹,]/g, '')) || 0;
-      return sum + amount;
-    }, 0);
+    // const sparePartsTotal = spareParts.reduce((sum, part) => {
+    //   const amount = parseFloat(String(part.amount).replace(/[₹,]/g, '')) || 0;
+    //   return sum + amount;
+    // }, 0);
 
     const totalService = includeGST
       ? billingAmountValue + (billingAmountValue * 0.18)
       : billingAmountValue;
 
-    return totalService + sparePartsTotal;
+    return totalService; // + sparePartsTotal; // Spare amount excluded from billing as per requirement
   };
 
 
@@ -654,8 +654,8 @@ const VendorClosedTask = () => {
     const travellingAmountValue = 130; // Fixed travelling amount
 
     const calculation = calculateCashCollectionDeduction({
-      billingAmount: calculateTotal() + 130, // Pass the Grand Total
-      spareAmount: spareAmountValue,
+      billingAmount: calculateTotal() + 130, // Pass the Grand Total (Service + Visiting)
+      spareAmount: 0, // spareAmountValue, // Spare amount excluded from deduction calculation as it's not billed to user
       travellingAmount: travellingAmountValue,
       bookingAmount: 0,
       gstIncluded: includeGST
@@ -1048,10 +1048,10 @@ const VendorClosedTask = () => {
                 />
 
                 {deviceSerialImage ? (
-                  <div className="relative w-full h-48">
+                  <div className="relative w-full h-48 p-2">
                     <img src={deviceSerialImage} alt="Device Serial Number" className="w-full h-full object-contain rounded-md" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-md opacity-0 hover:opacity-100 transition-opacity">
-                      <span className="text-white font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full">Retake Photo</span>
+                    <div className="absolute inset-0 flex items-center justify-center transition-opacity">
+                      <span className="text-white font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full shadow-md">Retake Photo</span>
                     </div>
                   </div>
                 ) : (
@@ -1200,12 +1200,14 @@ const VendorClosedTask = () => {
                 </div>
               </div>
 
+              {/* Spare Parts Total hidden from user billing
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Spare Parts Total</span>
                 <span className="text-sm font-medium text-gray-800">
                   ₹{spareParts.reduce((sum, part) => sum + (parseFloat(part.amount) || 0), 0).toLocaleString()}
                 </span>
               </div>
+              */}
 
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Visiting Charge</span>
