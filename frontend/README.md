@@ -4,6 +4,7 @@
 
 # feature
 ## How can I edit this code?
+# new feature
 
 There are several ways of editing your application.
 
