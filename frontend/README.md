@@ -2,7 +2,7 @@
 
 ## Project infos
 
-# feature
+# features
 ## How can I edit this code?
 # new featuress
 There are several ways of editing your application.
