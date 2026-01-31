@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema({
     street: {
       type: String,
       trim: true,
-      maxlength: [100, 'Street address cannot exceed 100 characters']
+      maxlength: [500, 'Street address cannot exceed 500 characters']
     },
     city: {
       type: String,
@@ -79,7 +79,7 @@ const userSchema = new mongoose.Schema({
     landmark: {
       type: String,
       trim: true,
-      maxlength: [100, 'Landmark cannot exceed 100 characters']
+      maxlength: [500, 'Landmark cannot exceed 500 characters']
     }
   },
 

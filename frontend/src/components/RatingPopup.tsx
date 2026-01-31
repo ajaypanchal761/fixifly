@@ -59,7 +59,7 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
       event.preventDefault();
       event.stopPropagation();
     }
-    
+
     setRating(value);
     setHoveredRating(0); // Clear hover state after click
   };
@@ -102,9 +102,14 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
 
     try {
       setIsSubmitting(true);
-      
-      const token = localStorage.getItem('accessToken');
-      
+
+      let token = localStorage.getItem('accessToken');
+
+      // Clean token if it has quotes (sometimes stored with quotes)
+      if (token && (token.startsWith('"') || token.startsWith("'"))) {
+        token = token.replace(/^["']|["']$/g, '');
+      }
+
       if (!token) {
         toast({
           title: "Authentication Required",
@@ -146,7 +151,7 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
       };
 
       await reviewService.createReview(reviewData, token);
-      
+
       toast({
         title: "Rating Submitted!",
         description: "Thank you for your feedback. Your rating has been submitted successfully.",
@@ -157,46 +162,46 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
       setRating(0);
       setComment('');
       setHoveredRating(0);
-      
+
       // Close popup and notify parent
       onClose();
       if (onRatingSubmitted) {
         onRatingSubmitted();
       }
-      
-      } catch (error: any) {
-        console.error('Error submitting rating:', error);
-        console.error('Error response:', error.response?.data);
-        console.error('Error status:', error.response?.status);
-        
-        const errorMessage = error.response?.data?.message || 
-                           error.response?.data?.errors?.join(', ') || 
-                           "Failed to submit rating. Please try again.";
-        
-        // Handle specific error cases
-        if (errorMessage.includes('already reviewed')) {
-          toast({
-            title: "Rating Already Submitted",
-            description: "You have already rated this service. Thank you for your feedback!",
-            variant: "default"
-          });
-          // Close the popup since rating was already submitted
-          onClose();
-          // Notify parent that rating was already submitted
-          if (onRatingSubmitted) {
-            onRatingSubmitted();
-          }
-          return;
-        }
-        
+
+    } catch (error: any) {
+      console.error('Error submitting rating:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+
+      const errorMessage = error.response?.data?.message ||
+        error.response?.data?.errors?.join(', ') ||
+        "Failed to submit rating. Please try again.";
+
+      // Handle specific error cases
+      if (errorMessage.includes('already reviewed')) {
         toast({
-          title: "Submission Failed",
-          description: errorMessage,
-          variant: "destructive"
+          title: "Rating Already Submitted",
+          description: "You have already rated this service. Thank you for your feedback!",
+          variant: "default"
         });
-      } finally {
-        setIsSubmitting(false);
+        // Close the popup since rating was already submitted
+        onClose();
+        // Notify parent that rating was already submitted
+        if (onRatingSubmitted) {
+          onRatingSubmitted();
+        }
+        return;
       }
+
+      toast({
+        title: "Submission Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSkip = () => {
@@ -207,7 +212,7 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
   };
 
   const displayRating = hoveredRating || rating;
-  
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -236,7 +241,7 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
               <div className="flex justify-center space-x-2 mb-3">
                 {[1, 2, 3, 4, 5].map((value) => {
                   const isFilled = displayRating > 0 && value <= displayRating;
-                  
+
                   return (
                     <button
                       key={value}
@@ -250,18 +255,17 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
                       onMouseEnter={() => setHoveredRating(value)}
                       onMouseLeave={() => setHoveredRating(0)}
                       className="focus:outline-none transition-all duration-200 hover:scale-110 p-1 cursor-pointer hover:bg-yellow-50 rounded-full active:scale-95"
-                      style={{ 
+                      style={{
                         pointerEvents: 'auto',
                         touchAction: 'manipulation'
                       }}
                       aria-label={`Rate ${value} star${value > 1 ? 's' : ''}`}
                     >
                       <Star
-                        className={`h-8 w-8 transition-all duration-200 ${
-                          isFilled 
-                            ? 'text-yellow-500 fill-yellow-500' 
+                        className={`h-8 w-8 transition-all duration-200 ${isFilled
+                            ? 'text-yellow-500 fill-yellow-500'
                             : 'text-gray-300 hover:text-yellow-300'
-                        }`}
+                          }`}
                         fill={isFilled ? 'currentColor' : 'none'}
                         strokeWidth={isFilled ? 0 : 1.5}
                       />

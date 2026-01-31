@@ -271,379 +271,11 @@ const VendorClosedTask = () => {
   };
 
   // Calculate total billing amount (base amount + GST if GST is included + spares + visiting)
+  // Calculate total billing amount (base amount + GST if GST is included + spares + visiting)
   const calculateBillingTotal = () => {
-    return calculateTotal() + 130;
+    return calculateTotal(); // Visiting charge already included in Final Billing Amount entered by user
   };
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="text-center">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-4" />
-                <p className="text-gray-600">Loading task details...</p>
-              </div>
-            </div>
-          </div>
-        </main>
-        <VendorBottomNav />
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
-          <div className="container mx-auto px-4 py-8">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">Error Loading Task</h1>
-              <p className="text-gray-600 mb-6">{error}</p>
-              <div className="space-x-4">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-                >
-                  Go Back
-                </button>
-                {error.includes('log in') ? (
-                  <button
-                    onClick={() => navigate('/vendor/login')}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                  >
-                    Go to Login
-                  </button>
-                ) : (
-                  <button
-                    onClick={fetchTaskDetails}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                  >
-                    Retry
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </main>
-        <VendorBottomNav />
-      </div>
-    );
-  }
-
-  // Task not found
-  if (!task) {
-    return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <VendorHeader />
-        <main className="flex-1 pb-24 md:pb-0 pt-16 md:pt-0 overflow-y-auto">
-          <div className="container mx-auto px-4 py-8">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">Task Not Found</h1>
-              <p className="text-gray-600 mb-6">The requested task could not be found.</p>
-              <button
-                onClick={() => navigate(-1)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-              >
-                Go Back
-              </button>
-            </div>
-          </div>
-        </main>
-        <VendorBottomNav />
-      </div>
-    );
-  }
-
-  const addSparePart = () => {
-    const newId = Math.max(...spareParts.map(p => p.id)) + 1;
-    setSpareParts([...spareParts, { id: newId, name: "", amount: "", photo: null, warranty: "" }]);
-  };
-
-  const removeSparePart = (id: number) => {
-    if (spareParts.length > 1) {
-      setSpareParts(spareParts.filter(part => part.id !== id));
-    }
-  };
-
-  const updateSparePart = (id: number, field: keyof SparePart, value: string) => {
-    setSpareParts(spareParts.map(part =>
-      part.id === id ? { ...part, [field]: value } : part
-    ));
-  };
-
-  // Detect if running in APK/WebView
-  const isAPKEnvironment = () => {
-    try {
-      if (typeof navigator === 'undefined') return false;
-      const userAgent = navigator.userAgent || '';
-      const isWebView = /wv|WebView/i.test(userAgent);
-      const hasFlutterBridge = typeof (window as any).flutter_inappwebview !== 'undefined' ||
-        typeof (window as any).Android !== 'undefined';
-      return isWebView || hasFlutterBridge;
-    } catch (error) {
-      return false;
-    }
-  };
-
-  // Compress image to reduce payload size
-  const compressImage = (base64String: string, maxWidth: number = 800, quality: number = 0.7): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      // Validate input
-      if (!base64String || typeof base64String !== 'string') {
-        reject(new Error('Invalid base64 string'));
-        return;
-      }
-
-      // Add timeout to prevent hanging
-      const timeout = setTimeout(() => {
-        reject(new Error('Image compression timeout'));
-      }, 10000); // 10 seconds timeout
-
-      const img = new Image();
-
-      img.onload = () => {
-        try {
-          clearTimeout(timeout);
-
-          // Validate image loaded successfully
-          if (img.width === 0 || img.height === 0) {
-            reject(new Error('Invalid image dimensions'));
-            return;
-          }
-
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          // Calculate new dimensions while maintaining aspect ratio
-          if (width > maxWidth) {
-            const ratio = maxWidth / width;
-            height = Math.round(height * ratio);
-            width = maxWidth;
-          }
-
-          // Ensure minimum dimensions (but don't force if image is smaller)
-          if (width < 50) width = 50;
-          if (height < 50) height = 50;
-
-          // Set canvas dimensions
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Could not get canvas context'));
-            return;
-          }
-
-          // Set image smoothing for better quality
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-
-          // Draw and compress
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Convert to JPEG with specified quality
-          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-
-          // Validate compressed result
-          if (!compressedBase64 || compressedBase64.length < 100) {
-            reject(new Error('Compression failed - result too small'));
-            return;
-          }
-
-          // Check if compression actually reduced size
-          const originalSize = base64String.length;
-          const compressedSize = compressedBase64.length;
-          const reductionPercent = ((1 - compressedSize / originalSize) * 100).toFixed(1);
-
-          console.log(`Image compression: ${(originalSize / 1024).toFixed(2)}KB -> ${(compressedSize / 1024).toFixed(2)}KB (${reductionPercent}% reduction)`);
-
-          resolve(compressedBase64);
-        } catch (error: any) {
-          clearTimeout(timeout);
-          reject(new Error(`Compression error: ${error.message || 'Unknown error'}`));
-        }
-      };
-
-      img.onerror = (error) => {
-        clearTimeout(timeout);
-        reject(new Error('Failed to load image for compression'));
-      };
-
-      // Set image source to trigger loading
-      img.src = base64String;
-    });
-  };
-
-  const handlePhotoCapture = async (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    // Validate file size before processing (max 10MB)
-    const maxFileSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxFileSize) {
-      alert('Image size is too large. Please capture a smaller image or use better lighting.');
-      event.target.value = '';
-      return;
-    }
-
-    try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64String = e.target?.result as string;
-        if (!base64String) {
-          alert('Failed to read image. Please try again.');
-          return;
-        }
-
-        // Compress image before storing
-        try {
-          let compressedImage = await compressImage(base64String, 800, 0.7);
-
-          // Check if compressed image is still too large (over 500KB base64)
-          const compressedSizeKB = compressedImage.length / 1024;
-          if (compressedSizeKB > 500) {
-            // Try more aggressive compression
-            console.log('Image still large, applying more aggressive compression...');
-            compressedImage = await compressImage(base64String, 600, 0.6);
-          }
-
-          // Final size check
-          const finalSizeKB = compressedImage.length / 1024;
-          if (finalSizeKB > 800) {
-            alert('Image is too large even after compression. Please try capturing again with better lighting.');
-            event.target.value = '';
-            return;
-          }
-
-          updateSparePart(id, 'photo', compressedImage);
-          console.log(`✅ Image captured and compressed: ${finalSizeKB.toFixed(2)}KB`);
-        } catch (compressError) {
-          console.error('Image compression failed:', compressError);
-          // Don't use original if compression fails - it's likely too large
-          alert('Failed to process image. Please try capturing again.');
-          event.target.value = '';
-        }
-      };
-
-      reader.onerror = () => {
-        console.error('FileReader error');
-        alert('Failed to read image. Please try again.');
-        event.target.value = '';
-      };
-
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error('Error reading file:', error);
-      alert('Failed to read image. Please try again.');
-      event.target.value = '';
-    }
-  };
-
-  // Function to trigger camera - works in both web and APK
-  const triggerCamera = (partId: number) => {
-    const isAPK = isAPKEnvironment();
-
-    if (isAPK) {
-      // For APK: Use the ref-based input that's already in DOM
-      const input = fileInputRefs.current[partId];
-      if (input) {
-        // Reset value to allow selecting same file again
-        input.value = '';
-        // Use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-          input.click();
-        }, 100);
-      } else {
-        console.error('File input ref not found for part:', partId);
-        // Fallback: create input dynamically
-        createDynamicInput(partId);
-      }
-    } else {
-      // For web: Use dynamic input creation (original method)
-      createDynamicInput(partId);
-    }
-  };
-
-  // Fallback method: Create input dynamically (for web or if ref fails)
-  const createDynamicInput = (partId: number) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.capture = 'environment'; // Force back camera
-    input.style.display = 'none';
-    input.style.position = 'absolute';
-    input.style.opacity = '0';
-    input.style.width = '1px';
-    input.style.height = '1px';
-
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          updateSparePart(partId, 'photo', event.target?.result as string);
-        };
-        reader.readAsDataURL(file);
-      }
-      // Clean up
-      if (document.body.contains(input)) {
-        document.body.removeChild(input);
-      }
-    };
-
-    input.oncancel = () => {
-      if (document.body.contains(input)) {
-        document.body.removeChild(input);
-      }
-    };
-
-    document.body.appendChild(input);
-    // Use setTimeout for better compatibility
-    setTimeout(() => {
-      input.click();
-    }, 50);
-  };
-
-  const calculateTotal = () => {
-    const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
-    // const sparePartsTotal = spareParts.reduce((sum, part) => {
-    //   const amount = parseFloat(String(part.amount).replace(/[₹,]/g, '')) || 0;
-    //   return sum + amount;
-    // }, 0);
-
-    const totalService = includeGST
-      ? billingAmountValue + (billingAmountValue * 0.18)
-      : billingAmountValue;
-
-    return totalService; // + sparePartsTotal; // Spare amount excluded from billing as per requirement
-  };
-
-
-
-
-  const handleCashPaymentClick = () => {
-    setShowCashWarning(true);
-  };
-
-  const handleCashWarningConfirm = () => {
-    setPaymentMethod('cash');
-    setIncludeGST(false); // Disable GST for cash payment
-    setShowCashWarning(false);
-    // Check wallet balance before proceeding with cash task completion
-    setIsWalletCheckOpen(true);
-  };
-
-  // Calculate required wallet amount for cash payment
   const calculateRequiredWalletAmount = (): number => {
     if (paymentMethod !== 'cash') return 0;
 
@@ -654,7 +286,7 @@ const VendorClosedTask = () => {
     const travellingAmountValue = 130; // Fixed travelling amount
 
     const calculation = calculateCashCollectionDeduction({
-      billingAmount: calculateTotal() + 130, // Pass the Grand Total (Service + Visiting)
+      billingAmount: calculateTotal(), // Pass the Grand Total (Service + Visiting) - Visiting included in user input
       spareAmount: 0, // spareAmountValue, // Spare amount excluded from deduction calculation as it's not billed to user
       travellingAmount: travellingAmountValue,
       bookingAmount: 0,
@@ -883,7 +515,7 @@ const VendorClosedTask = () => {
         includeGST: includeGST,
         gstAmount: includeGST ? calculateGSTAmount() : 0,
         totalAmount: calculateBillingTotal(), // Use total amount including GST
-        billingAmount: billingAmountForBackend, // Send GST-excluded amount for vendor calculation
+        billingAmount: String(billingAmountForBackend), // Send GST-excluded amount for vendor calculation as String
         travelingAmount: "130",
         deviceSerialImage: deviceSerialImage // Include device serial image
       };
@@ -1195,7 +827,7 @@ const VendorClosedTask = () => {
               <h3 className="text-sm font-medium text-gray-700 border-b pb-2">Billing Information</h3>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Service/Labor Charge</span>
+                <span className="text-sm text-gray-600">Final Billing Amount</span>
                 <div className="relative w-32">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                   <input
@@ -1208,25 +840,17 @@ const VendorClosedTask = () => {
                 </div>
               </div>
 
-              {/* Spare Parts Total hidden from user billing
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Spare Parts Total</span>
-                <span className="text-sm font-medium text-gray-800">
-                  ₹{spareParts.reduce((sum, part) => sum + (parseFloat(part.amount) || 0), 0).toLocaleString()}
-                </span>
+              <div className="flex justify-end -mt-3 mb-2">
+                <p className="text-[10px] text-gray-500">Traveling Amount 130 will Auto Adjust</p>
               </div>
-              */}
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Visiting Charge</span>
-                <span className="text-sm font-medium text-gray-800">₹130</span>
-              </div>
+              {/* Visiting Charge removed as per requirement - included in Auto Adjust logic */}
 
               <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
                 <span className="text-base font-bold text-gray-900">Total Amount</span>
                 <div className="text-right">
                   <span className="text-lg font-bold text-blue-600">
-                    ₹{(calculateTotal() + 130).toLocaleString()}
+                    ₹{calculateTotal().toLocaleString()}
                   </span>
                   {includeGST && (
                     <p className="text-xs text-gray-500">(Includes 18% GST)</p>

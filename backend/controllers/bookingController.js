@@ -716,8 +716,14 @@ const getBookingsByCustomer = asyncHandler(async (req, res) => {
 
         if (isAccepted) {
           // Vendor has accepted - populate vendor details
-          const vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
+          let vendor = await Vendor.findOne({ vendorId: booking.vendor.vendorId })
             .select('firstName lastName email phone');
+
+          // Fallback: If not found and looks like ObjectId, try findById
+          if (!vendor && typeof booking.vendor.vendorId === 'string' && booking.vendor.vendorId.match(/^[0-9a-fA-F]{24}$/)) {
+            vendor = await Vendor.findById(booking.vendor.vendorId).select('firstName lastName email phone');
+          }
+
           if (vendor) {
             booking.vendor.vendorId = vendor;
           }

@@ -133,7 +133,10 @@ const Booking = () => {
             console.log('Booking not in list, fetching specific booking...');
             const response = await bookingApi.getBookingById(ratingBookingId); // Assuming this API method exists
             if (response.success && response.data) {
-              bookingToRate = response.data;
+              // Handle response structure { booking: ..., bookingReference: ... }
+              // The API returns { booking: Booking, bookingReference: string }
+              // checking for .booking property to ensure we get the correct object
+              bookingToRate = (response.data as any).booking || response.data;
             }
           } catch (err) {
             console.error('Error fetching booking for rating:', err);

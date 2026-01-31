@@ -268,20 +268,20 @@ const sendPushNotification = async (tokens, payload) => {
       data: dataPayload,
       // Web push specific options
       webpush: {
-        notification: {
-          title: payload.title,
-          body: payload.body,
-          icon: payload.icon || '/favicon.png',
-          badge: '/favicon.png',
-          // Include image for web push
-          ...(payload.image && { image: payload.image }),
-          clickAction: payload.handlerName || 'message',
-          requireInteraction: payload.data?.priority === 'high' || payload.data?.type === 'booking_assignment' || payload.requireInteraction || false,
-          // Use consistent tag to prevent duplicate notifications
-          tag: notificationTag,
-          vibrate: payload.data?.type === 'booking_assignment' ? [200, 100, 200, 100, 200] : [200, 100, 200],
-          silent: false,
-        },
+        // notification: {
+        //   title: payload.title,
+        //   body: payload.body,
+        //   icon: payload.icon || '/favicon.png',
+        //   badge: '/favicon.png',
+        //   // Include image for web push
+        //   ...(payload.image && { image: payload.image }),
+        //   clickAction: payload.handlerName || 'message',
+        //   requireInteraction: payload.data?.priority === 'high' || payload.data?.type === 'booking_assignment' || payload.requireInteraction || false,
+        //   // Use consistent tag to prevent duplicate notifications
+        //   tag: notificationTag,
+        //   vibrate: payload.data?.type === 'booking_assignment' ? [200, 100, 200, 100, 200] : [200, 100, 200],
+        //   silent: false,
+        // },
         fcmOptions: {
           link: payload.link || '/',
         },
