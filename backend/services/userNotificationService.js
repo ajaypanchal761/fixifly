@@ -29,10 +29,10 @@ class UserNotificationService {
         type: data.type,
         bookingId: data.bookingId
       });
-      
+
       // Get user with FCM tokens (both web and mobile) - explicitly include fields with select: false
       const user = await User.findById(userId).select('+fcmTokens +fcmTokenMobile name email phone preferences');
-      
+
       if (!user) {
         console.log('❌ User not found:', userId);
         logger.warn('User not found for notification', { userId });
@@ -44,7 +44,13 @@ class UserNotificationService {
         ...(user.fcmTokens || []),
         ...(user.fcmTokenMobile || [])
       ];
-      const uniqueTokens = [...new Set(allTokens)];
+
+      // Remove duplicates and trim tokens
+      const uniqueTokens = [...new Set(
+        allTokens
+          .filter(t => t && typeof t === 'string' && t.trim().length > 0)
+          .map(t => t.trim())
+      )];
 
       console.log(`📊 User Details:`, {
         userId: user._id.toString(),
@@ -60,8 +66,8 @@ class UserNotificationService {
 
       if (uniqueTokens.length === 0) {
         console.log('❌ User has no FCM tokens - Cannot send notification');
-        logger.warn('User has no FCM tokens', { 
-          userId, 
+        logger.warn('User has no FCM tokens', {
+          userId,
           userEmail: user.email,
           userPhone: user.phone,
           webTokensCount: user.fcmTokens?.length || 0,
@@ -73,8 +79,8 @@ class UserNotificationService {
       // Check if user has push notifications enabled
       if (user.preferences?.notifications?.push === false) {
         console.log('⚠️ User has push notifications disabled in preferences');
-        logger.info('Push notifications disabled for user', { 
-          userId, 
+        logger.info('Push notifications disabled for user', {
+          userId,
           userEmail: user.email,
           userPhone: user.phone
         });
@@ -196,15 +202,15 @@ class UserNotificationService {
     try {
       console.log('🔔 UserNotificationService: Starting sendToMultipleUsers...');
       console.log(`📊 Sending to ${userIds.length} users`);
-      
+
       // Get users with FCM tokens (web or mobile)
       console.log(`🔍 Searching for users with IDs: ${userIds.slice(0, 3).join(', ')}${userIds.length > 3 ? '...' : ''}`);
-      
+
       // First get all users, then filter in memory (more reliable than complex MongoDB queries)
       const allUsers = await User.find({
         _id: { $in: userIds }
       }).select('+fcmTokens +fcmTokenMobile _id name email preferences');
-      
+
       // Filter users that have FCM tokens (web or mobile) and push notifications enabled
       const users = allUsers.filter(user => {
         const hasWebTokens = user.fcmTokens && Array.isArray(user.fcmTokens) && user.fcmTokens.length > 0;
@@ -234,9 +240,9 @@ class UserNotificationService {
           const pushEnabled = user.preferences?.notifications?.push !== false;
           console.log(`   ${index + 1}. ${user.name || 'No Name'} (${user.email || 'No Email'}) - Web: ${webTokens}, Mobile: ${mobileTokens}, Push Enabled: ${pushEnabled}`);
         });
-        
-        logger.warn('No users with FCM tokens found', { 
-          userIds, 
+
+        logger.warn('No users with FCM tokens found', {
+          userIds,
           totalUsersFound: allUsers.length,
           usersWithoutTokens: allUsers.length - users.length
         });

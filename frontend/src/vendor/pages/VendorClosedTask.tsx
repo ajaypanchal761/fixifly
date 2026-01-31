@@ -26,6 +26,35 @@ interface SparePart {
   warranty: string;
 }
 
+// Image compression utility
+const compressImage = (base64Str: string, maxWidth = 800, quality = 0.7): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = (maxWidth / width) * height;
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = (err) => reject(err);
+  });
+};
+
 const VendorClosedTask = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -304,6 +333,89 @@ const VendorClosedTask = () => {
     setIsWalletCheckOpen(false);
     // Proceed with task completion
     handleNext();
+  };
+
+  const calculateTotal = () => {
+    const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
+    const gstValue = includeGST ? billingAmountValue * 0.18 : 0;
+
+    const sparePartsTotal = spareParts.reduce((sum, part) => {
+      return sum + (parseFloat(String(part.amount).replace(/[₹,]/g, '')) || 0);
+    }, 0);
+
+    return billingAmountValue + gstValue + sparePartsTotal;
+  };
+
+  const addSparePart = () => {
+    const newId = spareParts.length > 0 ? Math.max(...spareParts.map(p => p.id)) + 1 : 1;
+    setSpareParts([...spareParts, { id: newId, name: "", amount: "", photo: null, warranty: "" }]);
+  };
+
+  const removeSparePart = (id: number) => {
+    if (spareParts.length > 1) {
+      setSpareParts(prev => prev.filter(p => p.id !== id));
+      // Clean up ref if needed, though react handles this mainly
+      if (fileInputRefs.current[id]) {
+        delete fileInputRefs.current[id];
+      }
+    }
+  };
+
+  const updateSparePart = (id: number, field: keyof SparePart, value: string) => {
+    setSpareParts(prev => prev.map(part =>
+      part.id === id ? { ...part, [field]: value } : part
+    ));
+  };
+
+  const triggerCamera = (id: number) => {
+    if (fileInputRefs.current[id]) {
+      fileInputRefs.current[id]?.click();
+    }
+  };
+
+  const handlePhotoCapture = async (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image size is too large. Please capture a smaller image.');
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64String = e.target?.result as string;
+        if (!base64String) {
+          alert('Failed to read image.');
+          return;
+        }
+
+        try {
+          const compressed = await compressImage(base64String);
+          setSpareParts(prev => prev.map(part =>
+            part.id === id ? { ...part, photo: compressed } : part
+          ));
+        } catch (compressError) {
+          console.error('Image compression failed:', compressError);
+          alert('Failed to process image. Please try again.');
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      alert('Failed to read image.');
+    }
+  };
+
+  const handleCashPaymentClick = () => {
+    setShowCashWarning(true);
+  };
+
+  const handleCashWarningConfirm = () => {
+    setPaymentMethod('cash');
+    setShowCashWarning(false);
   };
 
   // New States for Online Payment QR Flow - MOVED TO TOP

@@ -10,6 +10,7 @@ const adminNotificationService = require('../services/adminNotificationService')
 const userNotificationService = require('../services/userNotificationService');
 const emailService = require('../services/emailService');
 const botbeeService = require('../services/botbeeService');
+const jwt = require('jsonwebtoken');
 
 // Helper: send email to all active admins for booking events
 const notifyAdminsByEmail = async (subject, messageLines = []) => {
@@ -171,10 +172,44 @@ const createBooking = asyncHandler(async (req, res) => {
     // All users now pay regular pricing
     let finalPricing = { ...pricing };
 
+    // USER CREATION LOGIC FOR GUEST BOOKINGS
+    let userId = req.user ? req.user.userId : null;
+    let userObj = null;
+
+    if (!userId && customer && (customer.email || customer.phone)) {
+      try {
+        // Try to find existing user
+        let user = await User.findByPhoneOrEmail(customer.phone || customer.email);
+
+        if (!user) {
+          console.log('Creating new user for guest booking');
+          // Create new user
+          user = await User.create({
+            name: customer.name || 'Guest User',
+            email: customer.email || `guest${Date.now()}@fixfly.text`,
+            phone: customer.phone,
+            address: customer.address || {},
+            role: 'user',
+            isActive: true,
+            isPhoneVerified: false,
+            isEmailVerified: false,
+            password: Math.random().toString(36).slice(-8)
+          });
+        }
+
+        userId = user._id;
+        userObj = user;
+        console.log('Guest booking assigned to user:', userId);
+      } catch (err) {
+        console.error('Error finding/creating user for guest booking:', err);
+        // Continue without failing
+      }
+    }
+
     // Create booking data
     // Create booking data
     const bookingData = {
-      user: req.user ? req.user.userId : null, // Link booking to authenticated user if available
+      user: userId, // Link booking to authenticated or guest user
       customer: {
         name: customer.name,
         email: customer.email,
@@ -504,13 +539,28 @@ const createBooking = asyncHandler(async (req, res) => {
       // Don't fail the booking creation if notification fails
     }
 
+    // Prepare response data
+    const responseData = {
+      booking,
+      bookingReference: booking.bookingReference
+    };
+
+    // If we created/found a user for a guest booking, return the token
+    if (!req.user && userObj) {
+      responseData.token = jwt.sign({ userId: userObj._id }, process.env.JWT_SECRET || 'your-secret-key', { expiresIn: '30d' });
+      responseData.user = {
+        id: userObj._id,
+        name: userObj.name,
+        email: userObj.email,
+        phone: userObj.phone,
+        role: userObj.role
+      };
+    }
+
     res.status(201).json({
       success: true,
       message: 'Booking created successfully',
-      data: {
-        booking,
-        bookingReference: booking.bookingReference
-      }
+      data: responseData
     });
   } catch (error) {
     console.error('=== BOOKING CREATION ERROR ===');
@@ -2921,7 +2971,16 @@ const createQuickBooking = asyncHandler(async (req, res) => {
       message: 'Booking created successfully',
       data: {
         bookingId: booking._id,
-        reference: booking.bookingReference
+        reference: booking.bookingReference,
+        token: jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your-secret-key', { expiresIn: '30d' }),
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          address: user.address
+        }
       }
     });
 

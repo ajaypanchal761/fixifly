@@ -227,7 +227,9 @@ const Checkout = () => {
       const booking = response.data.booking;
 
       // Save user info for "My Profile" (Guest Login)
-      const guestUser = {
+      const responseData = response.data as any;
+
+      const guestUser = responseData.user || {
         id: (booking.customer as any).id || (booking.customer as any)._id || 'guest_' + Date.now(),
         name: booking.customer.name,
         email: booking.customer.email,
@@ -236,8 +238,10 @@ const Checkout = () => {
         address: booking.customer.address
       };
 
+      const token = responseData.token || 'guest_token';
+
       // Locally "log in" the guest so their info shows in profile
-      login(guestUser as any, 'guest_token');
+      login(guestUser as any, token);
 
       // Navigate IMMEDIATELY to booking page - instant booking
       navigate('/booking', {

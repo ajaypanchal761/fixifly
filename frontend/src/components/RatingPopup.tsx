@@ -105,12 +105,17 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
 
       let token = localStorage.getItem('accessToken');
 
-      // Clean token if it has quotes (sometimes stored with quotes)
-      if (token && (token.startsWith('"') || token.startsWith("'"))) {
-        token = token.replace(/^["']|["']$/g, '');
+      // Robust token cleaning
+      if (token) {
+        token = token.trim();
+        // Remove quotes if present at both start and end
+        if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
+          token = token.slice(1, -1);
+        }
       }
 
-      if (!token) {
+      // Check for invalid token strings that might be stored literally
+      if (!token || token === 'undefined' || token === 'null') {
         toast({
           title: "Authentication Required",
           description: "Please login to submit a rating.",
@@ -263,8 +268,8 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
                     >
                       <Star
                         className={`h-8 w-8 transition-all duration-200 ${isFilled
-                            ? 'text-yellow-500 fill-yellow-500'
-                            : 'text-gray-300 hover:text-yellow-300'
+                          ? 'text-yellow-500 fill-yellow-500'
+                          : 'text-gray-300 hover:text-yellow-300'
                           }`}
                         fill={isFilled ? 'currentColor' : 'none'}
                         strokeWidth={isFilled ? 0 : 1.5}

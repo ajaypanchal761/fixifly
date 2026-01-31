@@ -690,8 +690,13 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         notificationSettings: vendor.notificationSettings
       });
 
-      // Use mobile/webview tokens only (web tokens removed)
-      const uniqueTokens = [...(vendor?.fcmTokenMobile || [])];
+      // Use unique mobile/webview tokens (web tokens removed)
+      const allMobileTokens = vendor?.fcmTokenMobile || [];
+      const uniqueTokens = [...new Set(
+        allMobileTokens
+          .filter(t => t && typeof t === 'string' && t.trim().length > 0)
+          .map(t => t.trim())
+      )];
 
       // Check if push notifications are enabled (default to true if not set)
       const pushNotificationsEnabled = vendor.notificationSettings?.pushNotifications !== false;

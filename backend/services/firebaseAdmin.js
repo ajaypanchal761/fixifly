@@ -197,8 +197,12 @@ const sendPushNotification = async (tokens, payload) => {
     // Ensure tokens is an array
     const tokenArray = Array.isArray(tokens) ? tokens : [tokens];
 
-    // Remove null/undefined/empty tokens and unique-ify
-    const validTokens = [...new Set(tokenArray.filter(token => token && token.trim().length > 0))];
+    // Remove null/undefined/empty tokens, trim them, and unique-ify
+    const validTokens = [...new Set(
+      tokenArray
+        .filter(token => token && typeof token === 'string' && token.trim().length > 0)
+        .map(token => token.trim())
+    )];
 
     if (validTokens.length === 0) {
       logger.warn('No valid FCM tokens provided');
@@ -236,6 +240,14 @@ const sendPushNotification = async (tokens, payload) => {
       return stringified;
     };
 
+    // Generate consistent tag/notification ID to prevent duplicates
+    // Use bookingId or type to ensure same notification type gets same tag
+    const notificationTag = payload.data?.bookingId
+      ? `booking_${String(payload.data.bookingId)}`
+      : payload.data?.type
+        ? `type_${String(payload.data.type)}`
+        : `notif_${payload.data?.notificationId || Date.now()}`;
+
     // Prepare data payload with all values as strings
     const dataPayload = stringifyData({
       ...(payload.data || {}),
@@ -245,43 +257,20 @@ const sendPushNotification = async (tokens, payload) => {
       type: payload.data?.type || 'general',
       title: payload.title,
       body: payload.body,
+      tag: notificationTag, // Include tag in data payload for client-side collapsing
       timestamp: new Date().toISOString(),
       // Include image in data payload
       ...(payload.image && { image: payload.image })
     });
-
-    // Generate consistent tag/notification ID to prevent duplicates
-    // Use bookingId or type to ensure same notification type gets same tag
-    const notificationTag = payload.data?.bookingId
-      ? `booking_${String(payload.data.bookingId)}`
-      : payload.data?.type
-        ? `type_${String(payload.data.type)}`
-        : `notif_${payload.data?.notificationId || Date.now()}`;
 
     // Create individual message for each token (like RentYatra - better for webview APK)
     // NOTE: Removed top-level 'notification' field to prevent duplicate notifications
     // Platform-specific notifications (webpush, android, apns) will handle display
     const messages = validTokens.map((token) => ({
       token,
-      // Removed top-level notification field to prevent duplicates
-      // Platform-specific notifications below will handle display
       data: dataPayload,
       // Web push specific options
       webpush: {
-        // notification: {
-        //   title: payload.title,
-        //   body: payload.body,
-        //   icon: payload.icon || '/favicon.png',
-        //   badge: '/favicon.png',
-        //   // Include image for web push
-        //   ...(payload.image && { image: payload.image }),
-        //   clickAction: payload.handlerName || 'message',
-        //   requireInteraction: payload.data?.priority === 'high' || payload.data?.type === 'booking_assignment' || payload.requireInteraction || false,
-        //   // Use consistent tag to prevent duplicate notifications
-        //   tag: notificationTag,
-        //   vibrate: payload.data?.type === 'booking_assignment' ? [200, 100, 200, 100, 200] : [200, 100, 200],
-        //   silent: false,
-        // },
         fcmOptions: {
           link: payload.link || '/',
         },
@@ -303,13 +292,6 @@ const sendPushNotification = async (tokens, payload) => {
           // Use consistent tag to prevent duplicate notifications
           tag: notificationTag,
         },
-        data: stringifyData({
-          ...(payload.data || {}),
-          click_action: payload.link || 'FLUTTER_NOTIFICATION_CLICK',
-          handlerName: payload.handlerName || '',
-          // Include image in Android data
-          ...(payload.image && { image: payload.image })
-        }),
       },
       // iOS specific options
       apns: {
@@ -556,8 +538,12 @@ const sendPushNotificationToUser = async (userId, payload) => {
       ...(user.fcmTokenMobile || [])
     ];
 
-    // Remove duplicates
-    const uniqueTokens = [...new Set(allTokens)];
+    // Remove duplicates and trim tokens
+    const uniqueTokens = [...new Set(
+      allTokens
+        .filter(t => t && typeof t === 'string' && t.trim().length > 0)
+        .map(t => t.trim())
+    )];
 
     console.log(`📱 === FCM Tokens for user ${userId} ===`);
     console.log('Token Details:', {

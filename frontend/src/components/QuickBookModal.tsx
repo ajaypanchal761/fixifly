@@ -114,8 +114,14 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
 
             if (response.data.success) {
                 // Save user info for "My Profile" (Guest Login)
-                const guestUser = {
-                    id: response.data.booking?.customer?.id || 'guest_' + Date.now(),
+                // Use backend returned user and token if available
+                const responseData = response.data.data || {};
+
+                const guestUser = responseData.user ? {
+                    ...responseData.user,
+                    id: responseData.user.id || responseData.user._id // handle both id formats
+                } : {
+                    id: 'guest_' + Date.now(),
                     name: formData.email.split('@')[0], // Use email prefix as name for guest
                     email: formData.email,
                     phone: formData.phone,
@@ -129,8 +135,10 @@ const QuickBookModal: React.FC<QuickBookModalProps> = ({
                     }
                 };
 
+                const token = responseData.token || 'guest_token';
+
                 // Locally "log in" the guest so their info shows in profile
-                login(guestUser as any, 'guest_token');
+                login(guestUser as any, token);
 
                 toast({
                     title: "Booking Successful! 🎉",

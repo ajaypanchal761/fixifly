@@ -33,7 +33,7 @@ const sendPushNotification = async (fcmToken, notification, data = {}) => {
     };
 
     const result = await firebaseAdminSendPush(fcmToken, payload);
-    
+
     // Convert result format to match expected format
     if (result.success === false) {
       return {
@@ -79,8 +79,12 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
       };
     }
 
-    // Remove duplicates and invalid tokens
-    const validTokens = [...new Set(fcmTokens.filter(token => token && token.trim().length > 0))];
+    // Remove duplicates and invalid tokens, ensuring tokens are trimmed
+    const validTokens = [...new Set(
+      (fcmTokens || [])
+        .filter(token => token && typeof token === 'string' && token.trim().length > 0)
+        .map(token => token.trim())
+    )];
 
     if (validTokens.length === 0) {
       logger.warn('No valid FCM tokens provided for multicast push notification');
@@ -157,7 +161,7 @@ const sendMulticastPushNotification = async (fcmTokens, notification, data = {})
 const sendToAllVendors = async (notification, data = {}) => {
   try {
     const Vendor = require('../models/Vendor');
-    
+
     // Get all active vendors with FCM tokens
     const vendors = await Vendor.find({
       isActive: true,
