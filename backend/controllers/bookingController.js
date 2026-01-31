@@ -2194,6 +2194,19 @@ const cancelBooking = asyncHandler(async (req, res) => {
       buildBookingSummaryLines(updatedBooking, { showBookingId: true, vendorInfo: vendorName, details: `Reason: ${reason.trim()}` })
     );
 
+    // Send cancellation email to user
+    try {
+      await emailService.sendBookingCancelledEmail(updatedBooking, {
+        reason: reason.trim(),
+        cancelledBy: 'vendor',
+        vendorName: vendorName
+      });
+      logger.info(`Cancellation email sent to user for booking: ${updatedBooking.bookingReference}`);
+    } catch (emailError) {
+      logger.error('Failed to send cancellation email to user:', emailError);
+      // Don't fail the request if email fails
+    }
+
     res.json({
       success: true,
       message: 'Booking cancelled successfully',

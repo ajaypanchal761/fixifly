@@ -1120,6 +1120,20 @@ const updateSupportTicket = asyncHandler(async (req, res) => {
       reason: reason
     });
 
+    // Send reschedule email to user
+    try {
+      await emailService.sendSupportTicketRescheduledEmail(ticket, {
+        newDate,
+        newTime,
+        reason,
+        rescheduledBy: 'vendor'
+      });
+      logger.info(`Reschedule email sent to user for ticket: ${ticket.ticketId}`);
+    } catch (emailError) {
+      logger.error('Failed to send reschedule email to user:', emailError);
+      // Don't fail the request if email fails
+    }
+
     return res.json({
       success: true,
       message: 'Support ticket rescheduled successfully',
@@ -2387,6 +2401,15 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
     // For online payments, don't fail the completion since wallet will be credited after payment
   }
 
+  // Send completion email to user
+  try {
+    await emailService.sendSupportTicketCompletionEmail(ticket);
+    logger.info(`Completion email sent to user for ticket: ${ticket.ticketId}`);
+  } catch (emailError) {
+    logger.error('Failed to send completion email to user:', emailError);
+    // Don't fail the request if email fails
+  }
+
   res.json({
     success: true,
     message: 'Support ticket completed successfully',
@@ -2648,6 +2671,19 @@ const cancelSupportTicket = asyncHandler(async (req, res) => {
   // Update cancellation data with vendor name
   ticket.cancellationData.cancelledByVendor.vendorName = vendorName;
   await ticket.save();
+
+  // Send cancellation email to user
+  try {
+    await emailService.sendSupportTicketCancelledEmail(ticket, {
+      reason: reason.trim(),
+      cancelledBy: 'vendor',
+      vendorName: vendorName
+    });
+    logger.info(`Cancellation email sent to user for ticket: ${ticket.ticketId}`);
+  } catch (emailError) {
+    logger.error('Failed to send cancellation email to user:', emailError);
+    // Don't fail the request if email fails
+  }
 
   res.json({
     success: true,

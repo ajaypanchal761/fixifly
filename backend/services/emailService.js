@@ -2647,6 +2647,522 @@ class EmailService {
       text: text
     });
   }
+
+  /**
+   * Send booking cancelled email to user
+   */
+  async sendBookingCancelledEmail(booking, cancellationInfo) {
+    if (!this.isEmailConfigured()) return { success: false, message: 'Email service not configured' };
+
+    try {
+      const { customer, bookingReference } = booking;
+      const { reason, cancelledBy } = cancellationInfo;
+      const vendorName = cancellationInfo.vendorName;
+
+      const subject = `Booking Cancelled - ${bookingReference} | Fixfly`;
+
+      const cancelledByText = cancelledBy === 'vendor' ? 'Service Engineer' : (cancelledBy === 'admin' ? 'Support Team' : 'You');
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Booking Cancelled</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #fca5a5; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            .header { background: #DC2626; color: white; padding: 24px; text-align: center; }
+            .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+            .content { padding: 32px 24px; }
+            .details-box { background: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; padding: 20px; margin: 20px 0; }
+            .detail-row { margin-bottom: 12px; font-size: 14px; }
+            .detail-label { color: #991b1b; font-weight: 600; }
+            .detail-value { color: #7f1d1d; }
+            .footer { margin-top: 24px; text-align: center; color: #7f1d1d; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="card">
+              <div class="header">
+                <h1>Booking Cancelled</h1>
+                <p>Booking #${bookingReference}</p>
+              </div>
+              
+              <div class="content">
+                <p>Hello ${customer.name},</p>
+                <p>We regret to inform you that your booking has been cancelled.</p>
+
+                <div class="details-box">
+                  <div class="detail-row">
+                    <span class="detail-label">Cancelled By:</span>
+                    <span class="detail-value">${cancelledByText} ${vendorName ? `(${vendorName})` : ''}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Reason:</span>
+                    <span class="detail-value">${reason || 'No reason provided'}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Date:</span>
+                    <span class="detail-value">${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  </div>
+                </div>
+
+                <p>If you have any questions or believe this was a mistake, please contact our support team immediately.</p>
+                
+                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking" style="display: inline-block; background: #DC2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 16px;">View Booking Status</a>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Need help? Call us at 022-6964-7030</p>
+              <p>&copy; ${new Date().getFullYear()} Fixfly Services. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const text = `
+        Booking Cancelled - #${bookingReference}
+        
+        Hello ${customer.name},
+        
+        Your booking has been cancelled.
+        
+        CANCELLATION DETAILS:
+        Cancelled By: ${cancelledByText} ${vendorName ? `(${vendorName})` : ''}
+        Reason: ${reason || 'No reason provided'}
+        Date: ${new Date().toLocaleDateString('en-IN')}
+        
+        View details: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking
+        
+        Fixfly Team
+      `;
+
+      return await this.sendEmail({
+        to: customer.email,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+    } catch (error) {
+      const { logger } = require('../utils/logger');
+      logger.error('Failed to send booking cancelled email:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send support ticket rescheduled email to user
+   */
+  async sendSupportTicketRescheduledEmail(ticket, rescheduleInfo) {
+    if (!this.isEmailConfigured()) return { success: false, message: 'Email service not configured' };
+
+    try {
+      const { ticketId, subject: ticketSubject } = ticket;
+      const userEmail = ticket.userEmail || ticket.userId?.email;
+      const userName = ticket.userName || (ticket.userId ? `${ticket.userId.firstName} ${ticket.userId.lastName}` : 'Customer');
+
+      if (!userEmail) {
+        throw new Error('No user email found for ticket');
+      }
+
+      const { newDate, newTime, reason, rescheduledBy } = rescheduleInfo;
+      const rescheduledByText = rescheduledBy === 'vendor' ? 'Service Engineer' : 'Support Team';
+
+      const subject = `Support Ticket Rescheduled - ${ticketId} | Fixfly`;
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Support Ticket Rescheduled</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #fffbeb; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            .header { background: #F59E0B; color: white; padding: 24px; text-align: center; }
+            .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+            .content { padding: 32px 24px; }
+            .details-box { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 20px; margin: 20px 0; }
+            .detail-row { margin-bottom: 12px; font-size: 14px; }
+            .detail-label { color: #92400e; font-weight: 600; }
+            .detail-value { color: #78350f; }
+            .footer { margin-top: 24px; text-align: center; color: #92400e; font-size: 12px; }
+            .btn { display: inline-block; background: #F59E0B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 16px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="card">
+              <div class="header">
+                <h1>Service Rescheduled</h1>
+                <p>Ticket #${ticketId}</p>
+              </div>
+              
+              <div class="content">
+                <p>Hello ${userName},</p>
+                <p>Your support ticket service visit has been rescheduled.</p>
+
+                <div class="details-box">
+                   <div class="detail-row">
+                    <span class="detail-label">Service:</span>
+                    <span class="detail-value">${ticketSubject}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">New Date:</span>
+                    <span class="detail-value">${new Date(newDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">New Time:</span>
+                    <span class="detail-value">${newTime}</span>
+                  </div>
+                   <div class="detail-row">
+                    <span class="detail-label">Rescheduled By:</span>
+                    <span class="detail-value">${rescheduledByText}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Reason:</span>
+                    <span class="detail-value">${reason || 'Operational requirements'}</span>
+                  </div>
+                </div>
+
+                <p>We apologize for any inconvenience caused.</p>
+                
+                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support" class="btn">View Ticket Details</a>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Need help? Call us at 022-6964-7030</p>
+              <p>&copy; ${new Date().getFullYear()} Fixfly Services. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const text = `
+        Service Rescheduled - #${ticketId}
+        
+        Hello ${userName},
+        
+        Your support ticket service visit has been rescheduled.
+        
+        NEW SCHEDULE:
+        Date: ${new Date(newDate).toLocaleDateString('en-IN')}
+        Time: ${newTime}
+        Reason: ${reason || 'Operational requirements'}
+        
+        View details: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support
+        
+        Fixfly Team
+      `;
+
+      return await this.sendEmail({
+        to: userEmail,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+    } catch (error) {
+      const { logger } = require('../utils/logger');
+      logger.error('Failed to send ticket reschedule email:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send support ticket completion email to user (Receipt)
+   */
+  async sendSupportTicketCompletionEmail(ticket) {
+    if (!this.isEmailConfigured()) return { success: false, message: 'Email service not configured' };
+
+    try {
+      const { ticketId, subject: ticketSubject } = ticket;
+      const userEmail = ticket.userEmail || ticket.userId?.email;
+      const userName = ticket.userName || (ticket.userId ? `${ticket.userId.firstName} ${ticket.userId.lastName}` : 'Customer');
+
+      if (!userEmail) {
+        throw new Error('No user email found for ticket');
+      }
+
+      const completionData = ticket.completionData || {};
+      const {
+        resolutionNote,
+        billingAmount,
+        spareParts,
+        paymentMethod,
+        totalAmount,
+        includeGST,
+        gstAmount
+      } = completionData;
+
+      const subject = `Service Completed - Receipt #${ticketId} | Fixfly`;
+      const completedDate = new Date().toLocaleDateString('en-IN', {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+
+      const sparePartsHtml = spareParts && spareParts.length > 0
+        ? spareParts.map(part => `
+            <div class="detail-row">
+              <span class="detail-label">${part.name} (Spare)</span>
+              <span class="detail-value">₹${part.amount}</span>
+            </div>`).join('')
+        : '';
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Service Receipt</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f3f4f6; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            .header { background: #10B981; color: white; padding: 24px; text-align: center; }
+            .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+            .content { padding: 32px 24px; }
+            .amount-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+            .amount-title { color: #166534; font-size: 14px; margin-bottom: 4px; }
+            .amount-value { color: #15803d; font-size: 32px; font-weight: 700; }
+            .details-section { margin-top: 24px; }
+            .section-title { font-size: 16px; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px; }
+            .detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+            .detail-label { color: #6b7280; }
+            .detail-value { color: #1f2937; font-weight: 500; }
+            .note-box { background: #eff6ff; border-left: 4px solid #3B82F6; padding: 16px; margin-top: 24px; border-radius: 4px; }
+            .footer { margin-top: 24px; text-align: center; color: #94a3b8; font-size: 12px; }
+            .btn { display: inline-block; background: #DB2777; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="card">
+              <div class="header">
+                <h1>Service Completed</h1>
+                <p>Receipt #${ticketId}</p>
+              </div>
+              
+              <div class="content">
+                <p>Hello ${userName},</p>
+                <p>Your support ticket has been resolved and service is completed. Here is your digital receipt.</p>
+
+                <div class="amount-box">
+                  <div class="amount-title">TOTAL AMOUNT</div>
+                  <div class="amount-value">₹${billingAmount || totalAmount || 0}</div>
+                  <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}</div>
+                </div>
+
+                <div class="note-box">
+                  <h4 style="margin: 0 0 8px; color: #1e40af;">📝 Resolution Note</h4>
+                  <p style="margin: 0; color: #1e3a8a;">${resolutionNote || 'Ticket resolved successfully.'}</p>
+                </div>
+
+                <div class="details-section">
+                  <div class="section-title">Billing Details</div>
+                  
+                  <div class="detail-row">
+                    <span class="detail-label">Service Request</span>
+                    <span class="detail-value">${ticketSubject}</span>
+                  </div>
+                  
+                  ${sparePartsHtml}
+
+                  ${includeGST ? `
+                   <div class="detail-row">
+                    <span class="detail-label">GST (Included)</span>
+                    <span class="detail-value">₹${gstAmount || 0}</span>
+                  </div>` : ''}
+                   
+                  <div class="detail-row" style="border-top: 1px dashed #e5e7eb; padding-top: 12px; margin-top: 12px;">
+                    <span class="detail-label" style="font-weight: 600; color: #374151;">Net Total</span>
+                    <span class="detail-value" style="font-weight: 600; font-size: 16px;">₹${billingAmount || totalAmount || 0}</span>
+                  </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support" class="btn">Rate Your Service</a>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Date: ${completedDate}</p>
+              <p>Thank you for choosing Fixfly Services!</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const text = `
+        Service Completed - Receipt #${ticketId}
+        
+        Hello ${userName},
+        
+        Your support ticket service has been completed successfully.
+        
+        TOTAL AMOUNT: ₹${billingAmount || totalAmount || 0}
+        Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}
+        
+        RESOLUTION NOTE:
+        ${resolutionNote || 'Ticket resolved successfully.'}
+        
+        BILLING DETAILS:
+        Service: ${ticketSubject}
+        ${spareParts && spareParts.length > 0 ? `Spare Parts: ${spareParts.map(p => `${p.name} (₹${p.amount})`).join(', ')}\n` : ''}
+        
+        RATE YOUR SERVICE:
+        Please take a moment to rate your experience:
+        ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support
+        
+        Thank you for choosing Fixfly!
+      `;
+
+      return await this.sendEmail({
+        to: userEmail,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+    } catch (error) {
+      const { logger } = require('../utils/logger');
+      logger.error('Failed to send ticket completion email:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send support ticket cancelled email to user
+   */
+  async sendSupportTicketCancelledEmail(ticket, cancellationInfo) {
+    if (!this.isEmailConfigured()) return { success: false, message: 'Email service not configured' };
+
+    try {
+      const { ticketId, subject: ticketSubject } = ticket;
+      const userEmail = ticket.userEmail || ticket.userId?.email;
+      const userName = ticket.userName || (ticket.userId ? `${ticket.userId.firstName} ${ticket.userId.lastName}` : 'Customer');
+
+      if (!userEmail) {
+        throw new Error('No user email found for ticket');
+      }
+
+      const { reason, cancelledBy, vendorName } = cancellationInfo;
+      const cancelledByText = cancelledBy === 'vendor' ? 'Service Engineer' : (cancelledBy === 'admin' ? 'Support Team' : 'You');
+
+      const subject = `Support Ticket Cancelled - ${ticketId} | Fixfly`;
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Support Ticket Cancelled</title>
+          <style>
+             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #fca5a5; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            .header { background: #DC2626; color: white; padding: 24px; text-align: center; }
+            .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+            .content { padding: 32px 24px; }
+            .details-box { background: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; padding: 20px; margin: 20px 0; }
+            .detail-row { margin-bottom: 12px; font-size: 14px; }
+            .detail-label { color: #991b1b; font-weight: 600; }
+            .detail-value { color: #7f1d1d; }
+            .footer { margin-top: 24px; text-align: center; color: #7f1d1d; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="card">
+              <div class="header">
+                <h1>Service Cancelled</h1>
+                <p>Ticket #${ticketId}</p>
+              </div>
+              
+              <div class="content">
+                <p>Hello ${userName},</p>
+                <p>We regret to inform you that your support ticket request has been cancelled.</p>
+
+                <div class="details-box">
+                  <div class="detail-row">
+                    <span class="detail-label">Service Request:</span>
+                    <span class="detail-value">${ticketSubject}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Cancelled By:</span>
+                    <span class="detail-value">${cancelledByText} ${vendorName ? `(${vendorName})` : ''}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Reason:</span>
+                    <span class="detail-value">${reason || 'No reason provided'}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Date:</span>
+                    <span class="detail-value">${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  </div>
+                </div>
+
+                <p>If you believe this is an error, please contact our support team immediately.</p>
+                
+                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support" style="display: inline-block; background: #DC2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 16px;">View Ticket Status</a>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Need help? Call us at 022-6964-7030</p>
+              <p>&copy; ${new Date().getFullYear()} Fixfly Services. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const text = `
+        Support Ticket Cancelled - #${ticketId}
+        
+        Hello ${userName},
+        
+        Your support ticket request has been cancelled.
+        
+        CANCELLATION DETAILS:
+        Service: ${ticketSubject}
+        Cancelled By: ${cancelledByText} ${vendorName ? `(${vendorName})` : ''}
+        Reason: ${reason || 'No reason provided'}
+        Date: ${new Date().toLocaleDateString('en-IN')}
+        
+        View details: ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support
+        
+        Fixfly Team
+      `;
+
+      return await this.sendEmail({
+        to: userEmail,
+        subject: subject,
+        html: html,
+        text: text
+      });
+
+    } catch (error) {
+      const { logger } = require('../utils/logger');
+      logger.error('Failed to send ticket cancellation email:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // Create singleton instance
