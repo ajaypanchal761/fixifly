@@ -7,8 +7,8 @@ const createTransporter = () => {
   const transporter = nodemailer.createTransporter({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER || 'Getfixfly@gmail.com',
-      pass: process.env.EMAIL_PASS || 'jfcc mxvu qnjp bssj'
+      user: process.env.SMTP_USER || process.env.EMAIL_USER || 'Getfixfly@gmail.com',
+      pass: (process.env.SMTP_PASS || process.env.EMAIL_PASS || 'jfcc mxvu qnjp bssj').replace(/\s+/g, '')
     }
   });
 

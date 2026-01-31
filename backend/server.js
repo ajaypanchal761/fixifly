@@ -1,8 +1,13 @@
 const express = require('express');
+// Forced restart for env update
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
+// Load environment variables
+// Prioritize .env file (development)
+require('dotenv').config();
+// Fallback to production.env if variables are missing
 require('dotenv').config({ path: './config/production.env' });
 
 // Set Razorpay environment variables if not set (Live Credentials)

@@ -1145,6 +1145,8 @@ const VendorClosedTask = () => {
                           <option value="3 Months">3 Months</option>
                           <option value="6 Months">6 Months</option>
                           <option value="1 Year">1 Year</option>
+                          <option value="3 Years">3 Years</option>
+                          <option value="5 Years">5 Years</option>
                         </select>
                       </div>
                     </div>
@@ -1287,24 +1289,24 @@ const VendorClosedTask = () => {
       <Dialog open={showQRModal} onOpenChange={(open) => {
         if (!open) { setShowQRModal(false); setQrStep('scan'); }
       }}>
-        <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-white">
+        <DialogContent className="sm:max-w-md p-0 bg-white max-h-[90vh] overflow-y-auto">
           {qrStep === 'scan' ? (
             <div className="flex flex-col items-center">
-              <div className="w-full bg-yellow-400 py-4 text-center">
+              <div className="w-full bg-yellow-400 py-4 text-center sticky top-0 z-10">
                 <h2 className="text-xl font-bold text-black">Accept Payment Now</h2>
               </div>
 
               <div className="p-8 flex flex-col items-center">
-                <div className="w-64 h-64 border-4 border-yellow-200 rounded-lg p-2 mb-6">
+                <div className="w-64 h-64 border-4 border-yellow-200 rounded-lg p-2 mb-6 shadow-sm">
                   {/* Placeholder QR Code - In production use actual QR image */}
                   <div className="w-full h-full bg-white flex items-center justify-center relative">
                     <img
-                      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=fixifly@upi&pn=Fixifly Services&mc=0000&tid=cxnkj342&tr=4353&tn=ServicePayment&am=0&cu=INR"
+                      src="/qrcode_payment.png"
                       alt="Company QR Code"
                       className="w-full h-full object-contain"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-white p-1 rounded-full">
+                      <div className="bg-white p-1 rounded-full shadow-md">
                         <div className="text-blue-500 font-bold text-xs">FIXFLY</div>
                       </div>
                     </div>
@@ -1313,7 +1315,7 @@ const VendorClosedTask = () => {
 
                 <Button
                   onClick={() => setQrStep('proof')}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-lg py-6 rounded-full font-bold mb-3"
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-lg py-6 rounded-full font-bold mb-3 shadow-md"
                 >
                   Payment Completed
                 </Button>
@@ -1324,15 +1326,17 @@ const VendorClosedTask = () => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center">
-              <div className="w-full bg-gradient-to-r from-blue-500 to-purple-600 py-4 text-center">
+            <div className="flex flex-col items-center w-full">
+              <div className="w-full bg-gradient-to-r from-blue-500 to-purple-600 py-4 text-center sticky top-0 z-10">
                 <h2 className="text-xl font-bold text-white">Upload Payment Proof</h2>
               </div>
 
               <div className="p-6 w-full flex flex-col items-center">
                 <div
                   onClick={triggerPaymentProofCamera}
-                  className="w-full bg-blue-50 rounded-xl border-2 border-dashed border-blue-300 p-6 mb-6 cursor-pointer flex flex-col items-center justify-center min-h-[180px]"
+                  className={`w-full bg-blue-50 rounded-xl border-2 border-dashed border-blue-300 p-4 mb-6 cursor-pointer flex flex-col items-center justify-center transition-all ${paymentProofImage ? 'border-solid border-blue-500' : ''
+                    }`}
+                  style={{ minHeight: '200px' }}
                 >
                   <input
                     type="file"
@@ -1344,34 +1348,53 @@ const VendorClosedTask = () => {
                   />
 
                   {paymentProofImage ? (
-                    <div className="relative w-full h-48">
-                      <img src={paymentProofImage} alt="Payment Proof" className="w-full h-full object-contain rounded-md" />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-md opacity-0 hover:opacity-100 transition-opacity">
-                        <span className="text-white font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full">Retake Screenshot</span>
+                    <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+                      <img
+                        src={paymentProofImage}
+                        alt="Payment Proof"
+                        className="w-full h-full object-contain"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity">
+                        <span className="text-white font-medium bg-black bg-opacity-60 px-4 py-2 rounded-full backdrop-blur-sm">
+                          Retake Screenshot
+                        </span>
+                      </div>
+                      <div className="absolute bottom-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full shadow-sm flex items-center">
+                        <Camera className="w-3 h-3 mr-1" />
+                        Uploaded
                       </div>
                     </div>
                   ) : (
-                    <>
-                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600">
+                    <div className="flex flex-col items-center py-8">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600 shadow-sm animate-pulse">
                         <Camera className="w-8 h-8" />
                       </div>
-                      <h3 className="text-lg font-bold text-blue-600 mb-1">Screenshot</h3>
-                      <p className="text-sm text-gray-500 text-center">Upload Payment Success Screenshot</p>
-                    </>
+                      <h3 className="text-lg font-bold text-blue-600 mb-1">Take Photo</h3>
+                      <p className="text-sm text-gray-500 text-center max-w-[200px]">
+                        Capture or upload payment success screenshot
+                      </p>
+                    </div>
                   )}
                 </div>
 
                 <Button
                   onClick={handleFinalOnlineSubmission}
                   disabled={!paymentProofImage || isCompleting}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-6 rounded-full font-bold mb-2 disabled:opacity-70"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-6 rounded-full font-bold mb-2 disabled:opacity-70 shadow-lg"
                 >
                   {isCompleting ? (
-                    <><Loader2 className="w-5 h-5 animate-spin mr-2" /> PROCESSING...</>
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      <span>PROCESSING...</span>
+                    </div>
                   ) : (
-                    'CLOSED TASK'
+                    'CLOSE TASK'
                   )}
                 </Button>
+
+                <p className="text-xs text-gray-400 mt-2 text-center">
+                  Make sure payment details are clearly visible
+                </p>
               </div>
             </div>
           )}

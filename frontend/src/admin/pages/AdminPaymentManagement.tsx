@@ -114,8 +114,8 @@ const AdminPaymentManagement = () => {
       if (response.success && response.data?.bookings) {
         // Filter only bookings with payment data (both initial payments and spare parts payments)
         const paymentRecords = response.data.bookings
-          .filter((booking: any) => 
-            booking.payment?.razorpayPaymentId || 
+          .filter((booking: any) =>
+            booking.payment?.razorpayPaymentId ||
             booking.payment?.transactionId ||
             booking.completionData?.totalAmount
           )
@@ -140,7 +140,7 @@ const AdminPaymentManagement = () => {
             createdAt: booking.createdAt,
             updatedAt: booking.updatedAt
           }));
-        
+
         setPayments(paymentRecords);
       }
     } catch (error) {
@@ -161,44 +161,40 @@ const AdminPaymentManagement = () => {
     // This matches: payment.payment?.razorpayPaymentId || payment.payment?.transactionId
     const displayedPaymentId = payment.payment?.razorpayPaymentId || payment.payment?.transactionId || '';
     const paymentIdString = displayedPaymentId.toString();
-    
+
     // Priority 1: Check Payment ID prefix - most reliable indicator
     // If Payment ID starts with "CASH_" → Cash payment
     if (paymentIdString && paymentIdString.startsWith('CASH_')) {
       return 'cash';
     }
-    
+
     // If Payment ID starts with "pay_" → Online payment (Razorpay)
     if (paymentIdString && paymentIdString.startsWith('pay_')) {
       return 'online';
     }
-    
-    // Priority 2: Check payment method
+
+    // Priority 2: Check explicit paymentMode (set by backend on task completion)
+    // This represents the ACTUAL payment method used at the end of the service
+    if (payment.paymentMode === 'online') return 'online';
+    if (payment.paymentMode === 'cash') return 'cash';
+
+    // Priority 3: Check completion data payment method (also set during task completion)
+    if (payment.completionData?.paymentMethod === 'online') return 'online';
+    if (payment.completionData?.paymentMethod === 'cash') return 'cash';
+
+    // Priority 4: Check initial booking payment method (set at checkout)
     if (payment.payment?.method === 'cash') {
       return 'cash';
     }
-    
-    // Priority 3: Check completion data payment method
-    if (payment.completionData?.paymentMethod === 'cash') {
-      return 'cash';
-    }
-    
-    if (payment.completionData?.paymentMethod === 'online') {
-      return 'online';
-    }
-    
-    // Priority 4: Check if paymentMode is explicitly set
-    if (payment.paymentMode) {
-      return payment.paymentMode;
-    }
-    
+
     // Priority 5: Default to online if razorpayPaymentId exists (and doesn't start with CASH_)
     const razorpayPaymentId = payment.payment?.razorpayPaymentId || '';
     if (razorpayPaymentId && razorpayPaymentId.toString().trim() !== '' && !razorpayPaymentId.toString().startsWith('CASH_')) {
       return 'online';
     }
-    
-    return '';
+
+    // Default fallback
+    return payment.payment?.method || '';
   };
 
   useEffect(() => {
@@ -208,18 +204,18 @@ const AdminPaymentManagement = () => {
   // Filter payments
   const filteredPayments = useMemo(() => {
     return payments.filter(payment => {
-      const matchesSearch = 
+      const matchesSearch =
         payment.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.bookingReference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.payment?.razorpayPaymentId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.payment?.transactionId?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
       const matchesPaymentStatus = paymentStatusFilter === 'all' || payment.paymentStatus === paymentStatusFilter;
       const matchesPaymentMode = paymentModeFilter === 'all' || getPaymentMode(payment) === paymentModeFilter;
-      
+
       return matchesSearch && matchesStatus && matchesPaymentStatus && matchesPaymentMode;
     });
   }, [payments, searchTerm, statusFilter, paymentStatusFilter, paymentModeFilter]);
@@ -261,12 +257,12 @@ const AdminPaymentManagement = () => {
       if (bookingStatus === 'completed') {
         return <Badge className="bg-green-100 text-green-800">Collected</Badge>;
       }
-      
+
       // Priority 2: Check if payment.status is completed (set when task is completed with cash)
       if (paymentStatus === 'completed') {
         return <Badge className="bg-green-100 text-green-800">Collected</Badge>;
       }
-      
+
       // Priority 3: Check explicit payment status field
       switch (status) {
         case 'collected':
@@ -328,7 +324,7 @@ const AdminPaymentManagement = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
-      
+
       <main className="ml-72 pt-32 p-6">
         {/* Page Header */}
         <div className="mb-4">
@@ -353,7 +349,7 @@ const AdminPaymentManagement = () => {
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
               <CardTitle className="text-xs font-medium">Total Revenue</CardTitle>
@@ -372,7 +368,7 @@ const AdminPaymentManagement = () => {
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
               <CardTitle className="text-xs font-medium">Online Payments</CardTitle>
@@ -387,7 +383,7 @@ const AdminPaymentManagement = () => {
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
               <CardTitle className="text-xs font-medium">Cash Payments</CardTitle>
@@ -433,7 +429,7 @@ const AdminPaymentManagement = () => {
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
                 <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Payment Status" />
@@ -446,7 +442,7 @@ const AdminPaymentManagement = () => {
                   <SelectItem value="not_collected">Not Collected</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={paymentModeFilter} onValueChange={setPaymentModeFilter}>
                 <SelectTrigger className="w-full md:w-40">
                   <SelectValue placeholder="Payment Mode" />
@@ -519,9 +515,9 @@ const AdminPaymentManagement = () => {
                             {(() => {
                               const serviceCharges = parseFloat(payment.completionData?.billingAmount || payment.billingAmount || '0') || 0;
                               return serviceCharges > 0 ? (
-                              <>
-                                <div className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded mb-1 inline-block">
-                                  {(payment.paymentStatus === 'payment_done' || payment.paymentStatus === 'collected') ? 'Paid' : 'Pending'}
+                                <>
+                                  <div className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded mb-1 inline-block">
+                                    {(payment.paymentStatus === 'payment_done' || payment.paymentStatus === 'collected') ? 'Paid' : 'Pending'}
                                   </div>
                                   <div>₹{serviceCharges}</div>
                                 </>
@@ -538,7 +534,7 @@ const AdminPaymentManagement = () => {
                                 <div className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded mb-1 inline-block">
                                   Spare Parts Amount
                                 </div>
-                                <div>₹{payment.completionData.spareParts.reduce((sum: number, part: any) => 
+                                <div>₹{payment.completionData.spareParts.reduce((sum: number, part: any) =>
                                   sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
                                 )}</div>
                               </>
@@ -552,7 +548,7 @@ const AdminPaymentManagement = () => {
                         </TableCell>
                         <TableCell>
                           {getPaymentStatusBadge(
-                            payment.paymentStatus || '', 
+                            payment.paymentStatus || '',
                             getPaymentMode(payment),
                             payment.status,
                             payment.payment?.status
@@ -622,8 +618,8 @@ const AdminPaymentManagement = () => {
                   <div>
                     <Label className="text-xs text-gray-500">Spare Parts</Label>
                     <p className="font-medium text-orange-600">
-                      ₹{selectedPayment.completionData?.spareParts ? 
-                        selectedPayment.completionData.spareParts.reduce((sum: number, part: any) => 
+                      ₹{selectedPayment.completionData?.spareParts ?
+                        selectedPayment.completionData.spareParts.reduce((sum: number, part: any) =>
                           sum + parseInt(part.amount.replace(/[₹,]/g, '')), 0
                         ) : 0}
                     </p>
@@ -657,8 +653,8 @@ const AdminPaymentManagement = () => {
                         <div key={index} className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded text-xs">
                           <div className="w-8 h-5 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
                             {part.photo ? (
-                              <img 
-                                src={part.photo} 
+                              <img
+                                src={part.photo}
                                 alt={part.name}
                                 className="w-full h-full object-cover"
                               />

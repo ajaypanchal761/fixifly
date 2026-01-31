@@ -15,7 +15,7 @@ class EmailService {
     try {
       // Trim whitespace from credentials
       const smtpUser = process.env.SMTP_USER ? process.env.SMTP_USER.trim() : null;
-      const smtpPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.trim() : null;
+      const smtpPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : null;
 
       const smtpConfig = {
         host: process.env.SMTP_HOST || 'smtp.gmail.com',

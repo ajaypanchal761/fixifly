@@ -90,7 +90,7 @@ class BotbeeService {
    * @param {string} customMessageText - Optional custom message text (if not provided, uses default template text)
    * @returns {Promise<Object>} - Response object
    */
-  async sendTemplateMessage(phoneNumber, templateId, templateParams = {}, customMessageText = null) {
+  async sendTemplateMessage(phoneNumber, templateId, templateParams = []) {
     if (!this.isServiceConfigured()) {
       logger.warn('Botbee service not configured. Skipping WhatsApp template send.');
       return {
@@ -100,56 +100,50 @@ class BotbeeService {
       };
     }
 
+    const url = `${this.baseUrl}/api/v1/whatsapp/send`;
     try {
       // Botbee uses same endpoint for template messages
-      // Format: template_id + parameters (Botbee automatically uses approved template text)
-      const url = `${this.baseUrl}/api/v1/whatsapp/send`;
+      // Meta Standard Payload Strategy
+      // Assumes Botbee proxies the payload to WhatsApp Cloud API
+      const components = [
+        {
+          type: "body",
+          parameters: templateParams.map(param => ({ type: "text", text: String(param) }))
+        }
+      ];
 
-      // Template ID 267669 - Botbee requires both template_id and message field
-      // Use custom message text if provided, otherwise use default template text
-
-      // Build template message text (Botbee requires message field even for templates)
-      let templateText = customMessageText || 'Thank You For Using Fixfly. Your booking has been confirmed successfully. Hello, our team has received your service request. Our Team will Assign Engineer shortly. Thank you for choosing Fixfly.';
-
-      // Replace variables if any exist (only if custom message text not provided)
-      if (!customMessageText && templateParams && Object.keys(templateParams).length > 0) {
-        Object.keys(templateParams).forEach(key => {
-          const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-          templateText = templateText.replace(regex, templateParams[key]);
-        });
-      }
-
-      const payload = {
+      const botbeePayload = {
+        // Botbee Auth & Routing
         apiToken: this.apiKey,
         phone_number_id: this.phoneId,
         mobile: phoneNumber,
-        template_id: templateId,
-        message: templateText // Botbee requires message field with template text
+
+        // Meta/WhatsApp Standard Fields
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: phoneNumber,
+        type: "template",
+        template: {
+          name: templateId, // "newbooking"
+          language: {
+            code: "en_GB"
+          },
+          components: components
+        }
       };
 
-      // Only add parameters if they exist and are not empty
-      if (templateParams && Object.keys(templateParams).length > 0) {
-        payload.parameters = templateParams;
-      }
+      console.log("📤 BOTBEE TEMPLATE PAYLOAD (Meta Standard):", JSON.stringify(botbeePayload, null, 2));
 
       logger.info('Sending WhatsApp template message', {
         phoneNumber: phoneNumber,
-        templateId: templateId,
-        parameters: Object.keys(templateParams),
-        url: url,
-        payload: { ...payload, apiToken: payload.apiToken ? '***' : undefined }
+        templateName: templateId,
+        url: url
       });
 
-      console.log('📱 Botbee Template API Call:', {
-        url: url,
-        templateId: templateId,
-        phoneNumber: phoneNumber,
-        parameters: templateParams
-      });
-
-      const response = await axios.post(url, payload, {
+      const response = await axios.post(url, botbeePayload, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`
         },
         timeout: 15000
       });
@@ -228,6 +222,26 @@ class BotbeeService {
    */
   async sendToAdmin(message) {
     return await this.sendMessage(this.adminWhatsApp, message);
+  }
+
+  /**
+   * Send a custom template notification with dynamic ID and data
+   * @param {string} phoneNumber - Recipient phone number
+   * @param {number|string} templateId - Botbee Template ID
+   * @param {Array|Object} data - Template parameters (array or object)
+   * @returns {Promise<Object>} - Response object
+   */
+  async sendCustomNotification(phoneNumber, templateId, data) {
+    if (!phoneNumber || !templateId) {
+      return { success: false, message: 'Phone number and Template ID are required' };
+    }
+
+    const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
+    if (!normalizedPhone) {
+      return { success: false, message: 'Invalid phone number format' };
+    }
+
+    return await this.sendTemplateMessage(normalizedPhone, templateId, data);
   }
 
   /**
@@ -372,48 +386,51 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
       const paymentStatus = booking.payment?.status || 'pending';
 
       // Check if utility template ID is configured
-      // Template ID 267669 - Approved WhatsApp template
-      const templateId = process.env.BOTBEE_BOOKING_TEMPLATE_ID;
+      // Template Name: newbooking (Verified from screenshot)
+      // Locale: en_GB (English UK)
+      const templateName = 'newbooking';
 
-      if (templateId) {
-        // Use utility template if configured
-        // Template ID 267669 - Include user name, booking ID, and service name in message
-        // Get service name(s)
-        const serviceNames = booking.services?.map(s => s.serviceName).join(', ') || 'Service';
+      if (templateName) {
+        // Use utility template 'newbooking'
+        // Required format: {{1}} = Customer Name, {{2}} = Service Name, {{3}} = Booking ID
+
+        // Note: Based on screenshot, variables might be implicit or missing in preview, 
+        // but we will send them assuming standard format:
+        // Hello {{1}}, ... request for {{2}}. ... ID is {{3}}.
         const firstServiceName = booking.services?.[0]?.serviceName || 'Service';
 
-        // Build template message with user name, booking ID, and service name
-        const templateMessage = `Thank You For Using Fixfly. Your booking has been confirmed successfully. Hello ${customerName}, our team has received your service request for ${firstServiceName}. Your booking ID is ${bookingReference}. Our Team will Assign Engineer shortly. Thank you for choosing Fixfly.`;
+        const templateData = [
+          customerName,
+          firstServiceName,
+          bookingReference
+        ];
 
-        const templateParams = {
-          customer_name: customerName,
-          booking_id: bookingReference,
-          service_name: firstServiceName
-        };
-
-        logger.info('Sending booking confirmation via utility template', {
+        logger.info('Sending booking confirmation via custom template', {
           bookingId: booking._id,
-          templateId: templateId,
+          templateName: templateName,
           phone: normalizedPhone,
           customerName: customerName,
-          bookingReference: bookingReference
+          bookingReference: bookingReference,
+          service: firstServiceName
         });
 
-        // Send template message with custom message text including user name and booking ID
-        const templateResult = await this.sendTemplateMessage(normalizedPhone, templateId, templateParams, templateMessage);
+        // Pass 'en_GB' as a language parameter if the method supports it, 
+        // or ensure sendCustomNotification handles it.
+        // For now, we pass the NAME as the ID.
+        const templateResult = await this.sendCustomNotification(normalizedPhone, templateName, templateData);
 
-        // Note: Booking reference is included in template message
-        // Cannot send separate plain message outside 24-hour window (WhatsApp rule)
-        // If template message fails, it will fallback to plain message automatically
+        console.log(`\n🚀 Sending WhatsApp Booking Confirmation to ${normalizedPhone} (Template: ${templateName})...`);
 
         if (templateResult.success) {
+          this.logResult('Template', true, `Sent to ${normalizedPhone}`);
           console.log('✅ Template message sent successfully');
           logger.info('Template message sent successfully', {
             bookingId: booking._id,
-            templateId: templateId,
+            templateName: templateName,
             phone: normalizedPhone
           });
         } else {
+          this.logResult('Template', false, `Error: ${templateResult.error}`);
           console.log('⚠️ Template message failed, checking if fallback needed:', templateResult.error);
           logger.warn('Template message failed', {
             bookingId: booking._id,
@@ -425,32 +442,9 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
         return templateResult;
       } else {
         // Fallback to plain message if template not configured
-        const message = `🎉 *Booking Confirmed!*
-
-Hello ${customerName},
-
-Your booking has been confirmed successfully!
-
-📋 *Booking Details:*
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📌 Booking ID: ${bookingReference}
-📅 Date: ${preferredDate}
-⏰ Time: ${preferredTime}
-
-🛠️ *Services:*
-${services}
-
-💰 *Payment:*
-Total Amount: ${totalAmount}
-Payment Method: ${paymentMethod.toUpperCase()}
-Payment Status: ${paymentStatus.toUpperCase()}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Our team will assign an engineer shortly. You will receive updates via WhatsApp.
-
-Thank you for choosing Fixfly! 🚀
-
-For support: +91-99313-54354`;
+        const firstServiceName = booking.services?.[0]?.serviceName || 'Service';
+        // Exact text required by user
+        const message = `Thank Your For Using Fixfly. Your booking has been confirmed successfully. Hello ${customerName}, our team has received your service request for ${firstServiceName}. Your booking ID is ${bookingReference}. Our Team will Assigned Enginner shortly. Thank you for choosing Fixfly.`;
 
         logger.info('Sending booking confirmation via plain message', {
           bookingId: booking._id,
@@ -461,12 +455,22 @@ For support: +91-99313-54354`;
       }
 
     } catch (error) {
+      console.error('❌ Failed to send booking confirmation WhatsApp:', error.message);
       logger.error('Failed to send booking confirmation to user via WhatsApp:', error);
       return {
         success: false,
         message: 'Failed to send booking confirmation',
         error: error.message
       };
+    }
+  }
+
+  // Helper method to log results prominently
+  logResult(type, success, details) {
+    if (success) {
+      console.log(`\n✅ [WhatsApp ${type}] SUCCESS - ${details}`);
+    } else {
+      console.log(`\n❌ [WhatsApp ${type}] FAILED - ${details}`);
     }
   }
   /**

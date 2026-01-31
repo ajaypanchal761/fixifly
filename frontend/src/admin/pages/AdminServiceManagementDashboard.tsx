@@ -297,7 +297,7 @@ const AdminServiceManagementDashboard = () => {
 
         // Payment mode detection - prioritize cash payments
         // Get all payment-related data with comprehensive checks
-        const rawPaymentMethod = booking.payment?.method || (booking as any).paymentMode || '';
+        const rawPaymentMethod = (booking as any).paymentMode || booking.payment?.method || '';
         const paymentMethod = String(rawPaymentMethod).toLowerCase().trim();
         const razorpayPaymentId = booking.payment?.razorpayPaymentId;
         const razorpayOrderId = booking.payment?.razorpayOrderId;
@@ -315,10 +315,13 @@ const AdminServiceManagementDashboard = () => {
         // Determine payment mode with strict logic - CASH FIRST approach
         let detectedPaymentMode = 'online'; // default (will be overridden if conditions match)
 
-        // STEP 1: Check explicit paymentMode field (highest priority - set by backend on task completion)
+        // STEP 1: Check explicit paymentMode field or completionData (highest priority - set by backend on task completion)
         if ((booking as any).paymentMode) {
           detectedPaymentMode = String((booking as any).paymentMode).toLowerCase().trim();
           console.log(`✅ STEP 1: Using explicit paymentMode: ${detectedPaymentMode}`, booking.bookingReference);
+        } else if (booking.completionData?.paymentMethod) {
+          detectedPaymentMode = String(booking.completionData.paymentMethod).toLowerCase().trim();
+          console.log(`✅ STEP 1: Using completionData paymentMethod: ${detectedPaymentMode}`, booking.bookingReference);
         }
         // STEP 2: Check if payment method is explicitly 'cash'
         else if (paymentMethod === 'cash') {
@@ -395,17 +398,9 @@ const AdminServiceManagementDashboard = () => {
           });
         }
 
-        // FINAL SAFETY CHECK: If still showing online but should be cash, force it
-        // This is a last resort to ensure pending bookings without Razorpay are cash
-        if (detectedPaymentMode === 'online' && isPending && !hasRazorpayId && !hasRazorpayOrderId) {
-          console.warn('⚠️ FORCING CASH: Detected online but should be cash!', {
-            bookingReference: booking.bookingReference,
-            detectedPaymentMode,
-            isPending,
-            hasRazorpayId,
-            hasRazorpayOrderId
-          });
-          detectedPaymentMode = 'cash';
+        // FINAL SAFETY CHECK: Fallback to cash only if no other indicator is present
+        if (!detectedPaymentMode) {
+          detectedPaymentMode = 'online'; // Default back to online if nothing detected
         }
 
         return {

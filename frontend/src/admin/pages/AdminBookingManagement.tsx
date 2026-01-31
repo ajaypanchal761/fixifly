@@ -812,7 +812,7 @@ const AdminBookingManagement = () => {
       })(),
 
       // Payment information
-      paymentMode: booking.paymentMode || '',
+      paymentMode: (booking.completionData?.paymentMethod || booking.paymentMode || '').toLowerCase(),
       paymentAmount: booking.completionData?.totalAmount || 0,
 
       // Completion data
@@ -2091,7 +2091,7 @@ const AdminBookingManagement = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Mode</Label>
-                      <div className="mt-1">{getPaymentModeBadge(selectedBooking.payment?.method || 'card')}</div>
+                      <div className="mt-1">{getPaymentModeBadge((selectedBooking as any).paymentMode || selectedBooking.payment?.method || 'card')}</div>
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground">Payment Status</Label>
@@ -2112,7 +2112,7 @@ const AdminBookingManagement = () => {
                             )}
                           </div>
                         ) : (
-                          <p>₹{selectedBooking.pricing.totalAmount}</p>
+                          <p>₹{(selectedBooking as any).completionData?.billingAmount ?? selectedBooking.pricing.totalAmount}</p>
                         )}
                       </div>
                     </div>
@@ -2168,6 +2168,21 @@ const AdminBookingManagement = () => {
                     <h3 className="text-sm font-semibold mb-1">Resolution Note</h3>
                     <div className="bg-gray-50 p-2 rounded">
                       <p className="text-xs text-gray-700">{(selectedBooking as any).completionData.resolutionNote}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Device Serial Number Image */}
+                {(selectedBooking as any).completionData?.deviceSerialImage && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-1">Device Serial Number / Proof</h3>
+                    <div className="mt-1">
+                      <img
+                        src={(selectedBooking as any).completionData.deviceSerialImage}
+                        alt="Device Serial Number"
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => handleImageClick((selectedBooking as any).completionData.deviceSerialImage)}
+                      />
                     </div>
                   </div>
                 )}
