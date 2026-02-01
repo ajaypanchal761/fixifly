@@ -7,8 +7,8 @@ const createTransporter = () => {
   const transporter = nodemailer.createTransporter({
     service: 'gmail',
     auth: {
-      user: process.env.SMTP_USER || process.env.EMAIL_USER || 'Getfixfly@gmail.com',
-      pass: (process.env.SMTP_PASS || process.env.EMAIL_PASS || 'jfcc mxvu qnjp bssj').replace(/\s+/g, '')
+      user: process.env.SMTP_USER || process.env.EMAIL_USER || 'fixfly.app@gmail.com',
+      pass: (process.env.SMTP_PASS || process.env.EMAIL_PASS || 'dchn ysbg vjzy cpps').replace(/\s+/g, '')
     }
   });
 
@@ -21,7 +21,7 @@ const sendInvoiceEmail = async (to, subject, content, ticketId) => {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'Getfixfly@gmail.com',
+      from: process.env.EMAIL_USER || 'fixfly.app@gmail.com',
       to: to,
       subject: subject,
       text: content,
@@ -69,7 +69,7 @@ const sendNotificationEmail = async (to, subject, message) => {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'Getfixfly@gmail.com',
+      from: process.env.EMAIL_USER || 'fixfly.app@gmail.com',
       to: to,
       subject: subject,
       text: message,

@@ -5,9 +5,9 @@ const reviewSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'User ID is required']
+    required: false
   },
-  
+
   // Service category being reviewed
   category: {
     type: String,
@@ -36,7 +36,7 @@ const reviewSchema = new mongoose.Schema({
       'Data Specialist'
     ]
   },
-  
+
   // Rating (1-5 stars)
   rating: {
     type: Number,
@@ -44,7 +44,7 @@ const reviewSchema = new mongoose.Schema({
     min: [1, 'Rating must be at least 1'],
     max: [5, 'Rating cannot exceed 5']
   },
-  
+
   // Review comment
   comment: {
     type: String,
@@ -53,47 +53,47 @@ const reviewSchema = new mongoose.Schema({
     minlength: [10, 'Comment must be at least 10 characters long'],
     maxlength: [500, 'Comment cannot exceed 500 characters']
   },
-  
+
   // Optional: Link to specific booking/service
   bookingId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Booking',
     required: false
   },
-  
+
   // Optional: Link to specific vendor/card
   cardId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Card',
     required: false
   },
-  
+
   // Optional: Link to specific vendor
   vendorId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Vendor',
     required: false
   },
-  
+
   // Review status
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected', 'hidden'],
     default: 'approved'
   },
-  
+
   // Likes/helpful votes
   likes: {
     type: Number,
     default: 0
   },
-  
+
   // Users who liked this review
   likedBy: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  
+
   // Admin response to the review
   adminResponse: {
     message: {
@@ -109,7 +109,7 @@ const reviewSchema = new mongoose.Schema({
       type: Date
     }
   },
-  
+
   // Review metadata
   metadata: {
     source: {
@@ -120,18 +120,18 @@ const reviewSchema = new mongoose.Schema({
     userAgent: String,
     ipAddress: String
   },
-  
+
   // Flags
   isVerified: {
     type: Boolean,
     default: false // True if user has completed a booking
   },
-  
+
   isFeatured: {
     type: Boolean,
     default: false // Admin can feature good reviews
   },
-  
+
   isAnonymous: {
     type: Boolean,
     default: false // User can choose to be anonymous
@@ -160,44 +160,44 @@ reviewSchema.index({ vendorId: 1, status: 1, createdAt: -1 });
 reviewSchema.index({ bookingId: 1, userId: 1 });
 
 // Virtual for user initials
-reviewSchema.virtual('userInitials').get(function() {
+reviewSchema.virtual('userInitials').get(function () {
   if (!this.populated('userId') || !this.userId.name) {
     return 'U';
   }
-  
+
   const name = this.userId.name.trim();
   const words = name.split(' ');
-  
+
   if (words.length >= 2) {
     return (words[0][0] + words[1][0]).toUpperCase();
   } else if (words.length === 1) {
     return words[0][0].toUpperCase();
   }
-  
+
   return 'U';
 });
 
 // Virtual for user display name
-reviewSchema.virtual('userDisplayName').get(function() {
+reviewSchema.virtual('userDisplayName').get(function () {
   if (this.isAnonymous) {
     return 'Anonymous User';
   }
-  
+
   if (!this.populated('userId') || !this.userId.name) {
     return 'User';
   }
-  
+
   return this.userId.name;
 });
 
 // Virtual for formatted date
-reviewSchema.virtual('formattedDate').get(function() {
+reviewSchema.virtual('formattedDate').get(function () {
   const now = new Date();
   const diffInMs = now - this.createdAt;
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
   const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
   const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  
+
   if (diffInMinutes < 60) {
     return diffInMinutes <= 1 ? 'Just now' : `${diffInMinutes} minutes ago`;
   } else if (diffInHours < 24) {
@@ -217,39 +217,39 @@ reviewSchema.virtual('formattedDate').get(function() {
 });
 
 // Virtual for rating text
-reviewSchema.virtual('ratingText').get(function() {
+reviewSchema.virtual('ratingText').get(function () {
   const ratingTexts = {
     1: 'Poor',
-    2: 'Fair', 
+    2: 'Fair',
     3: 'Good',
     4: 'Very Good',
     5: 'Excellent'
   };
-  
+
   return ratingTexts[this.rating] || 'Unknown';
 });
 
 // Pre-save middleware
-reviewSchema.pre('save', function(next) {
+reviewSchema.pre('save', function (next) {
   // Ensure user can't like their own review
   if (this.likedBy && this.likedBy.includes(this.userId)) {
     this.likedBy = this.likedBy.filter(id => !id.equals(this.userId));
   }
-  
+
   // Update likes count
   this.likes = this.likedBy ? this.likedBy.length : 0;
-  
+
   next();
 });
 
 // Instance methods
-reviewSchema.methods.toggleLike = function(userId) {
+reviewSchema.methods.toggleLike = function (userId) {
   if (!this.likedBy) {
     this.likedBy = [];
   }
-  
+
   const userIndex = this.likedBy.findIndex(id => id.equals(userId));
-  
+
   if (userIndex > -1) {
     // User already liked, remove like
     this.likedBy.splice(userIndex, 1);
@@ -257,38 +257,38 @@ reviewSchema.methods.toggleLike = function(userId) {
     // User hasn't liked, add like
     this.likedBy.push(userId);
   }
-  
+
   this.likes = this.likedBy.length;
   return this.save();
 };
 
-reviewSchema.methods.addAdminResponse = function(message, adminId) {
+reviewSchema.methods.addAdminResponse = function (message, adminId) {
   this.adminResponse = {
     message: message,
     respondedBy: adminId,
     respondedAt: new Date()
   };
-  
+
   return this.save();
 };
 
-reviewSchema.methods.updateStatus = function(status) {
+reviewSchema.methods.updateStatus = function (status) {
   this.status = status;
   return this.save();
 };
 
-reviewSchema.methods.toggleFeatured = function() {
+reviewSchema.methods.toggleFeatured = function () {
   this.isFeatured = !this.isFeatured;
   return this.save();
 };
 
 // Static methods
-reviewSchema.statics.getApprovedReviews = function(filters = {}, limit = 10, skip = 0) {
+reviewSchema.statics.getApprovedReviews = function (filters = {}, limit = 10, skip = 0) {
   const query = {
     status: 'approved',
     ...filters
   };
-  
+
   return this.find(query)
     .populate('userId', 'name profileImage')
     .populate('cardId', 'name speciality')
@@ -297,19 +297,19 @@ reviewSchema.statics.getApprovedReviews = function(filters = {}, limit = 10, ski
     .skip(skip);
 };
 
-reviewSchema.statics.getReviewsByCategory = function(category, limit = 10) {
+reviewSchema.statics.getReviewsByCategory = function (category, limit = 10) {
   return this.getApprovedReviews({ category }, limit);
 };
 
-reviewSchema.statics.getFeaturedReviews = function(limit = 5) {
+reviewSchema.statics.getFeaturedReviews = function (limit = 5) {
   return this.getApprovedReviews({ isFeatured: true }, limit);
 };
 
-reviewSchema.statics.getRecentReviews = function(limit = 10) {
+reviewSchema.statics.getRecentReviews = function (limit = 10) {
   return this.getApprovedReviews({}, limit);
 };
 
-reviewSchema.statics.getUserReviews = function(userId, limit = 10) {
+reviewSchema.statics.getUserReviews = function (userId, limit = 10) {
   return this.find({ userId })
     .populate('cardId', 'name speciality')
     .populate('vendorId', 'firstName lastName vendorId')
@@ -317,7 +317,7 @@ reviewSchema.statics.getUserReviews = function(userId, limit = 10) {
     .limit(limit);
 };
 
-reviewSchema.statics.getVendorReviews = function(vendorId, limit = 10) {
+reviewSchema.statics.getVendorReviews = function (vendorId, limit = 10) {
   return this.find({ vendorId, status: 'approved' })
     .populate('userId', 'name profileImage')
     .populate('bookingId', 'bookingReference services')
@@ -325,7 +325,7 @@ reviewSchema.statics.getVendorReviews = function(vendorId, limit = 10) {
     .limit(limit);
 };
 
-reviewSchema.statics.getVendorRatingStats = function(vendorId) {
+reviewSchema.statics.getVendorRatingStats = function (vendorId) {
   return this.aggregate([
     { $match: { vendorId: new mongoose.Types.ObjectId(vendorId), status: 'approved' } },
     {
@@ -341,7 +341,7 @@ reviewSchema.statics.getVendorRatingStats = function(vendorId) {
   ]);
 };
 
-reviewSchema.statics.getReviewStats = function() {
+reviewSchema.statics.getReviewStats = function () {
   return this.aggregate([
     {
       $group: {
@@ -364,7 +364,7 @@ reviewSchema.statics.getReviewStats = function() {
   ]);
 };
 
-reviewSchema.statics.getCategoryStats = function() {
+reviewSchema.statics.getCategoryStats = function () {
   return this.aggregate([
     {
       $match: { status: 'approved' }

@@ -15,7 +15,7 @@ const {
   toggleLikeReview,
   getReviewStats
 } = require('../controllers/reviewController');
-const { protect } = require('../middleware/auth');
+const { protect, optionalAuth } = require('../middleware/auth');
 
 // Public routes
 router.get('/', getReviews);
@@ -44,7 +44,7 @@ router.post('/test-auth', protect, (req, res) => {
 });
 
 // Protected routes (require authentication)
-router.post('/', protect, createReview);
+router.post('/', optionalAuth, createReview);
 router.put('/:id', protect, updateReview);
 router.delete('/:id', protect, deleteReview);
 router.post('/:id/like', protect, toggleLikeReview);

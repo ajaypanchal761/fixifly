@@ -337,13 +337,10 @@ const VendorClosedTask = () => {
 
   const calculateTotal = () => {
     const billingAmountValue = billingAmount ? parseFloat(String(billingAmount).replace(/[₹,]/g, '')) || 0 : 0;
-    const gstValue = includeGST ? billingAmountValue * 0.18 : 0;
 
-    const sparePartsTotal = spareParts.reduce((sum, part) => {
-      return sum + (parseFloat(String(part.amount).replace(/[₹,]/g, '')) || 0);
-    }, 0);
-
-    return billingAmountValue + gstValue + sparePartsTotal;
+    // Total Amount must match the Final Billing Amount precisely as per user request.
+    // GST and spare parts are recorded but do not increase this total.
+    return billingAmountValue;
   };
 
   const addSparePart = () => {

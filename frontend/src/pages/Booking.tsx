@@ -119,7 +119,7 @@ const Booking = () => {
       setActiveTab(tabParam);
     }
 
-    if (ratingBookingId && isAuthenticated) {
+    if (ratingBookingId) {
       console.log('🌟 Rating request from URL detected for booking:', ratingBookingId);
 
       const handleRatingRequest = async () => {

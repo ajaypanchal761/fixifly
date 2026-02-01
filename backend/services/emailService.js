@@ -152,9 +152,9 @@ class EmailService {
         to: mailOptions.to,
         subject: mailOptions.subject,
         from: mailOptions.from,
-        smtpUser: process.env.SMTP_USER || 'Getfixfly@gmail.com',
+        smtpUser: process.env.SMTP_USER || 'fixfly.app@gmail.com',
         smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
-        sendingFromAdmin: mailOptions.from.includes(process.env.SMTP_USER || 'Getfixfly@gmail.com')
+        sendingFromAdmin: mailOptions.from.includes(process.env.SMTP_USER || 'fixfly.app@gmail.com')
       });
 
       const result = await this.transporter.sendMail(mailOptions);

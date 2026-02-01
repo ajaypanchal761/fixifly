@@ -114,15 +114,19 @@ const RatingPopup: React.FC<RatingPopupProps> = ({
         }
       }
 
-      // Check for invalid token strings that might be stored literally
+      // Check for token - allow omission only if bookingId is present (guest rating via email)
       if (!token || token === 'undefined' || token === 'null') {
-        toast({
-          title: "Authentication Required",
-          description: "Please login to submit a rating.",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
+        if (!bookingId) {
+          toast({
+            title: "Authentication Required",
+            description: "Please login to submit a rating.",
+            variant: "destructive"
+          });
+          setIsSubmitting(false);
+          return;
+        }
+        // Use empty string as token for guest/link-based reviews
+        token = '';
       }
 
 

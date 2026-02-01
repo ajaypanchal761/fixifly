@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Review = require('../models/Review');
 const User = require('../models/User');
 const Card = require('../models/Card');
+const { Booking } = require('../models/Booking');
 const { asyncHandler } = require('../middleware/asyncHandler');
 // const { ErrorResponse } = require('../utils/errorResponse');
 
@@ -73,13 +74,13 @@ const getReviews = asyncHandler(async (req, res) => {
             const user = await User.findById(review.userId).select('name profileImage');
             review.userId = user;
           }
-          
+
           // Populate card data if cardId exists
           if (review.cardId) {
             const card = await Card.findById(review.cardId).select('name speciality');
             review.cardId = card;
           }
-          
+
           return review;
         } catch (error) {
           console.error('Error populating review data:', error);
@@ -131,8 +132,8 @@ const getFeaturedReviews = asyncHandler(async (req, res) => {
       status: 'approved',
       isFeatured: true
     })
-    .sort({ isFeatured: -1, createdAt: -1 })
-    .limit(parseInt(limit));
+      .sort({ isFeatured: -1, createdAt: -1 })
+      .limit(parseInt(limit));
 
     // Safely populate user and card data
     const populatedReviews = await Promise.all(
@@ -143,13 +144,13 @@ const getFeaturedReviews = asyncHandler(async (req, res) => {
             const user = await User.findById(review.userId).select('name profileImage');
             review.userId = user;
           }
-          
+
           // Populate card data if cardId exists
           if (review.cardId) {
             const card = await Card.findById(review.cardId).select('name speciality');
             review.cardId = card;
           }
-          
+
           return review;
         } catch (error) {
           console.error('Error populating featured review data:', error);
@@ -250,33 +251,38 @@ const createReview = asyncHandler(async (req, res) => {
     console.log('Authorization header:', req.headers.authorization);
     console.log('Authorization header type:', typeof req.headers.authorization);
     console.log('Authorization header value:', JSON.stringify(req.headers.authorization));
-    
-    const { category, rating, comment, cardId, vendorId, bookingId, isAnonymous } = req.body;
-    
-    // Log the request data for debugging
-    console.log('Review submission data:', {
-      category,
-      rating,
-      comment: comment ? comment.substring(0, 50) + '...' : 'No comment',
-      cardId,
-      vendorId,
-      bookingId,
-      isAnonymous,
-      userId: req.user?.userId,
-      authHeader: req.headers.authorization ? 'Present' : 'Missing',
-      userAgent: req.get('User-Agent')
-    });
 
-    // Check if user is authenticated
-    if (!req.user || !req.user.userId) {
-      console.log('Auth check failed:', { user: req.user, userId: req.user?.userId });
-      return res.status(401).json({
-        success: false,
-        message: 'User authentication required'
-      });
+    const { category, rating, comment, cardId, vendorId, bookingId, isAnonymous } = req.body;
+
+    // Allow authentication OR valid bookingId for guest reviews
+    let userId = req.user?.userId;
+
+    if (!userId) {
+      if (bookingId && mongoose.Types.ObjectId.isValid(bookingId)) {
+        // Find the booking to get the associated user
+        const booking = await Booking.findById(bookingId);
+        if (booking) {
+          userId = booking.user;
+          console.log('Unauthenticated review linked to booking user:', userId);
+        } else {
+          return res.status(404).json({
+            success: false,
+            message: 'Booking not found'
+          });
+        }
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: 'Authentication required'
+        });
+      }
     }
 
-    const userId = req.user.userId;
+    // Final check for userId (some old bookings might not be linked to user)
+    if (!userId) {
+      console.log('No userId found for review - using anonymous guest');
+      // We'll proceed with null userId, the review model should handle it or we use a fallback
+    }
 
     // Validate required fields
     if (!category) {
@@ -333,7 +339,6 @@ const createReview = asyncHandler(async (req, res) => {
     // Check if user already reviewed this specific booking
     if (bookingId) {
       const existingReview = await Review.findOne({
-        userId,
         bookingId
       });
 
@@ -347,7 +352,15 @@ const createReview = asyncHandler(async (req, res) => {
         });
       }
     } else {
-      // For general reviews (not linked to specific booking), check for recent reviews
+      // For general reviews (not linked to specific booking), authentication is mandatory
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Please login to submit a general review.'
+        });
+      }
+
+      // Check for recent reviews
       const existingReviewQuery = {
         userId,
         category,
@@ -421,7 +434,7 @@ const createReview = asyncHandler(async (req, res) => {
     }
     if (vendorId) {
       await review.populate('vendorId', 'firstName lastName vendorId');
-      
+
       // Update vendor rating after review submission
       try {
         const Vendor = require('../models/Vendor');
@@ -448,7 +461,7 @@ const createReview = asyncHandler(async (req, res) => {
       stack: error.stack,
       name: error.name
     });
-    
+
     // Check if it's a validation error
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map(err => err.message);
@@ -458,7 +471,7 @@ const createReview = asyncHandler(async (req, res) => {
         errors: validationErrors
       });
     }
-    
+
     // Check if it's a duplicate key error
     if (error.code === 11000) {
       return res.status(400).json({
@@ -466,7 +479,7 @@ const createReview = asyncHandler(async (req, res) => {
         message: 'Duplicate review detected'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error creating review',
@@ -701,7 +714,7 @@ const getReviewStats = asyncHandler(async (req, res) => {
 const getReviewsByBookingId = asyncHandler(async (req, res) => {
   try {
     const { bookingId } = req.params;
-    
+
     if (!bookingId) {
       return res.status(400).json({
         success: false,
