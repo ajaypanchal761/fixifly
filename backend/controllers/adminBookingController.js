@@ -58,18 +58,63 @@ const getAllBookings = asyncHandler(async (req, res) => {
 
       const vendorIds = matchingVendors.map(v => v.vendorId);
 
-      filter.$or = [
-        { 'customer.name': { $regex: search, $options: 'i' } },
-        { 'customer.email': { $regex: search, $options: 'i' } },
-        { 'customer.phone': { $regex: search, $options: 'i' } },
-        { 'payment.razorpayPaymentId': { $regex: search, $options: 'i' } },
-        { 'payment.razorpayOrderId': { $regex: search, $options: 'i' } },
-        { 'payment.transactionId': { $regex: search, $options: 'i' } },
-        { $expr: { $regexMatch: { input: { $toString: "$_id" }, regex: search, options: "i" } } },
-        // Search by vendor ID (direct match or from vendor lookup)
-        { 'vendor.vendorId': { $in: vendorIds } },
-        { 'vendor.vendorId': { $regex: search, $options: 'i' } }
-      ];
+      const searchFilter = {
+        $or: [
+          { 'customer.name': { $regex: search, $options: 'i' } },
+          { 'customer.email': { $regex: search, $options: 'i' } },
+          { 'customer.phone': { $regex: search, $options: 'i' } },
+          { 'customer.address.street': { $regex: search, $options: 'i' } },
+          { 'customer.address.city': { $regex: search, $options: 'i' } },
+          { 'customer.address.state': { $regex: search, $options: 'i' } },
+          { 'customer.address.pincode': { $regex: search, $options: 'i' } },
+          { 'services.serviceName': { $regex: search, $options: 'i' } },
+          { 'status': { $regex: search, $options: 'i' } },
+          { 'priority': { $regex: search, $options: 'i' } },
+          { 'paymentStatus': { $regex: search, $options: 'i' } },
+          { 'paymentMode': { $regex: search, $options: 'i' } },
+          { 'payment.status': { $regex: search, $options: 'i' } },
+          { 'payment.method': { $regex: search, $options: 'i' } },
+          { 'payment.razorpayPaymentId': { $regex: search, $options: 'i' } },
+          { 'payment.razorpayOrderId': { $regex: search, $options: 'i' } },
+          { 'payment.transactionId': { $regex: search, $options: 'i' } },
+          { 'vendorResponse.status': { $regex: search, $options: 'i' } },
+          { 'notes': { $regex: search, $options: 'i' } },
+          { 'assignmentNotes': { $regex: search, $options: 'i' } },
+          { 'completionData.resolutionNote': { $regex: search, $options: 'i' } },
+          { 'cancellationData.cancellationReason': { $regex: search, $options: 'i' } },
+          { $expr: { $regexMatch: { input: { $toString: "$_id" }, regex: search, options: "i" } } },
+          { $expr: { $regexMatch: { input: { $toString: "$pricing.totalAmount" }, regex: search, options: "i" } } },
+          {
+            $expr: {
+              $regexMatch: {
+                input: {
+                  $concat: [
+                    "FIX",
+                    { $toUpper: { $substrCP: [{ $toString: "$_id" }, 16, 8] } }
+                  ]
+                },
+                regex: search,
+                options: "i"
+              }
+            }
+          },
+          // Search by vendor ID (direct match or from vendor lookup)
+          { 'vendor.vendorId': { $in: vendorIds } },
+          { 'vendor.vendorId': { $regex: search, $options: 'i' } }
+        ]
+      };
+
+      if (filter.$or) {
+        // If we already have an OR filter (e.g. from paymentStatus), we must combine them with $and
+        const existingOr = filter.$or;
+        delete filter.$or;
+        filter.$and = [
+          { $or: existingOr },
+          searchFilter
+        ];
+      } else {
+        filter.$or = searchFilter.$or;
+      }
     }
 
     // Build sort object

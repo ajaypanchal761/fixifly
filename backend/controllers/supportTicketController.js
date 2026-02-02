@@ -67,7 +67,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
   }
 
   // Create support ticket
-  constXYSupportTicket = new SupportTicket({
+  const supportTicket = new SupportTicket({
     userId: userData.userId,
     userEmail: userData.email,
     userName: userData.name || 'Guest User',
@@ -85,15 +85,13 @@ const createSupportTicket = asyncHandler(async (req, res) => {
     }
   });
 
-  const supportTicket = constXYSupportTicket; // Re-assigning to keep variable name consistent with downstream code
-
 
   await supportTicket.save();
 
   // Send email notification to user about ticket submission
   try {
     const emailData = {
-      to: user.email,
+      to: userData.email,
       subject: `Support Ticket Submitted - ${supportTicket.ticketId}`,
       html: `
         <!DOCTYPE html>
@@ -125,7 +123,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
               <p>Thank you for contacting Fixfly Support</p>
             </div>
             <div class="content">
-              <h2>Hello ${user.name},</h2>
+              <h2>Hello ${userData.name},</h2>
               <p>We have successfully received your support ticket and our team will contact you soon.</p>
               
               <div class="ticket-info">
@@ -172,7 +170,7 @@ const createSupportTicket = asyncHandler(async (req, res) => {
       text: `
         Support Ticket Submitted Successfully - Fixfly
         
-        Hello ${user.name},
+        Hello ${userData.name},
         
         We have successfully received your support ticket and our team will contact you soon.
         
@@ -210,27 +208,27 @@ const createSupportTicket = asyncHandler(async (req, res) => {
     if (emailResult.success) {
       logger.info(`Ticket submission confirmation email sent: ${supportTicket.ticketId}`, {
         ticketId: supportTicket.ticketId,
-        userEmail: user.email,
-        userId: userId,
+        userEmail: userData.email,
+        userId: userData.userId,
         messageId: emailResult.messageId
       });
     } else {
       logger.warn(`Failed to send ticket submission confirmation email: ${supportTicket.ticketId}`, {
         ticketId: supportTicket.ticketId,
-        userEmail: user.email,
+        userEmail: userData.email,
         error: emailResult.error
       });
     }
   } catch (emailError) {
     logger.error(`Error sending ticket submission confirmation email: ${supportTicket.ticketId}`, {
       ticketId: supportTicket.ticketId,
-      userEmail: user.email,
+      userEmail: userData.email,
       error: emailError.message
     });
     // Don't fail the ticket creation if email fails
   }
 
-  logger.info(`New support ticket created: ${supportTicket.ticketId} by user: ${userId}`);
+  logger.info(`New support ticket created: ${supportTicket.ticketId} by user: ${userData.userId}`);
 
 
   res.status(201).json({
