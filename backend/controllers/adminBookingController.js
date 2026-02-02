@@ -20,6 +20,7 @@ const getAllBookings = asyncHandler(async (req, res) => {
       paymentStatus,
       service,
       search,
+      priority,
       sortBy = 'createdAt',
       sortOrder = 'desc'
     } = req.query;
@@ -46,13 +47,40 @@ const getAllBookings = asyncHandler(async (req, res) => {
       filter['services.serviceName'] = { $regex: service, $options: 'i' };
     }
 
+    if (priority) {
+      filter.priority = priority;
+    }
+
     if (search) {
       // Find vendors that match the search term (name or vendor ID)
+      const searchTerms = search.split(' ').filter(term => term.length > 0);
+
       const matchingVendors = await Vendor.find({
         $or: [
           { firstName: { $regex: search, $options: 'i' } },
           { lastName: { $regex: search, $options: 'i' } },
-          { vendorId: { $regex: search, $options: 'i' } }
+          { vendorId: { $regex: search, $options: 'i' } },
+          { phone: { $regex: search, $options: 'i' } },
+          {
+            $expr: {
+              $regexMatch: {
+                input: { $concat: ["$firstName", " ", "$lastName"] },
+                regex: search,
+                options: "i"
+              }
+            }
+          },
+          // Also match individual terms if it's a multi-word search
+          ...(searchTerms.length > 1 ? [
+            {
+              $and: searchTerms.map(term => ({
+                $or: [
+                  { firstName: { $regex: term, $options: 'i' } },
+                  { lastName: { $regex: term, $options: 'i' } }
+                ]
+              }))
+            }
+          ] : [])
         ]
       }).select('vendorId');
 

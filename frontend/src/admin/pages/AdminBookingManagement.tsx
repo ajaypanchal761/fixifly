@@ -44,6 +44,7 @@ const AdminBookingManagement = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,6 +92,7 @@ const AdminBookingManagement = () => {
         paymentStatus: paymentStatusFilter === 'all' ? undefined : paymentStatusFilter,
         service: serviceFilter === 'all' ? undefined : serviceFilter,
         search: searchTerm || undefined,
+        priority: priorityFilter === 'all' ? undefined : priorityFilter,
         sortBy,
         sortOrder
       });
@@ -322,7 +324,7 @@ const AdminBookingManagement = () => {
 
     console.log('Admin token found, fetching bookings...');
     fetchBookings();
-  }, [currentPage, statusFilter, paymentStatusFilter, serviceFilter, searchTerm, sortBy, sortOrder]);
+  }, [currentPage, statusFilter, paymentStatusFilter, serviceFilter, priorityFilter, searchTerm, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchStats();
@@ -1108,8 +1110,8 @@ const AdminBookingManagement = () => {
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="assigned">Assigned</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="waiting_for_engineer">Waiting for Engineer</SelectItem>
+                  <SelectItem value="confirmed">Confirmed / Assigned</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
@@ -1148,6 +1150,21 @@ const AdminBookingManagement = () => {
                       {service}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+              <Select value={priorityFilter} onValueChange={(value) => {
+                setPriorityFilter(value);
+                setCurrentPage(1);
+              }}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="All Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priority</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={(value) => {

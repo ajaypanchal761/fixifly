@@ -387,16 +387,12 @@ const AdminVendorWalletManagement = () => {
 
       const data = await response.json();
       if (data.success) {
-        // Update the wallet in the local state
-        setVendorWallets(prev => prev.map(wallet =>
-          wallet.vendorId === editingWallet.vendorId
-            ? { ...wallet, currentBalance: parseFloat(editForm.currentBalance) }
-            : wallet
-        ));
+        // Refresh the whole list to ensure all synchronized fields are correct
+        await fetchVendorWallets();
 
         setIsEditWalletOpen(false);
         setEditingWallet(null);
-        setEditForm({ currentBalance: '', description: '', adjustmentType: 'credit' });
+        setEditForm({ currentBalance: '', description: '' });
 
         // Show success message
         alert('Wallet balance updated successfully!');
@@ -980,7 +976,7 @@ const AdminVendorWalletManagement = () => {
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs font-medium text-muted-foreground">Current Balance</p>
+                            <p className="text-xs font-medium text-muted-foreground">Available Balance</p>
                             <p className="text-lg font-bold text-green-600">₹{selectedWallet.availableBalance.toLocaleString()}</p>
                           </div>
                           <Wallet className="h-6 w-6 text-green-500" />

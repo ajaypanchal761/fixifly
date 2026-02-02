@@ -200,6 +200,7 @@ class AdminBookingApi {
     paymentStatus?: string;
     service?: string;
     search?: string;
+    priority?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
   } = {}): Promise<ApiResponse<BookingsResponse>> {
@@ -212,6 +213,7 @@ class AdminBookingApi {
       if (params.paymentStatus) queryParams.append('paymentStatus', params.paymentStatus);
       if (params.service) queryParams.append('service', params.service);
       if (params.search) queryParams.append('search', params.search);
+      if (params.priority) queryParams.append('priority', params.priority);
       if (params.sortBy) queryParams.append('sortBy', params.sortBy);
       if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
 

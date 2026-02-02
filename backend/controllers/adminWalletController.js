@@ -500,10 +500,10 @@ const adjustVendorWallet = asyncHandler(async (req, res) => {
     const { currentBalance, description, adjustmentType } = req.body;
 
     // Validate input
-    if (!currentBalance || isNaN(parseFloat(currentBalance))) {
+    if (currentBalance === undefined || isNaN(parseFloat(currentBalance))) {
       return res.status(400).json({
         success: false,
-        message: 'Valid current balance is required'
+        message: 'Valid balance is required'
       });
     }
 
@@ -516,27 +516,45 @@ const adjustVendorWallet = asyncHandler(async (req, res) => {
       });
     }
 
-    const newBalance = parseFloat(currentBalance);
-    const oldBalance = vendorWallet.currentBalance;
-    const adjustmentAmount = newBalance - oldBalance;
+    // Find the vendor to sync balance
+    const vendor = await Vendor.findOne({ vendorId });
+
+    // The admin provides the "Target Available Balance" (what they see in the table)
+    const targetAvailableBalance = parseFloat(currentBalance);
+    const securityDeposit = vendorWallet.securityDeposit || 0;
+
+    // To make availableBalance = targetAvailableBalance,
+    // we need currentBalance = targetAvailableBalance + securityDeposit
+    const newTotalBalance = targetAvailableBalance + securityDeposit;
+    const oldTotalBalance = vendorWallet.currentBalance;
+    const adjustmentAmount = newTotalBalance - oldTotalBalance;
 
     // Update the wallet balance
-    vendorWallet.currentBalance = newBalance;
+    vendorWallet.currentBalance = newTotalBalance;
+    // availableBalance is updated via pre-save middleware in VendorWallet.js
     await vendorWallet.save();
 
-    // Add a transaction record for the adjustment
+    // Sync with Vendor model if exists
+    if (vendor && vendor.wallet) {
+      vendor.wallet.currentBalance = newTotalBalance;
+      vendor.wallet.lastTransactionAt = new Date();
+      await vendor.save({ validateBeforeSave: false });
+    }
+
+    // Add a transaction record for the adjustment in VendorWallet
     if (adjustmentAmount !== 0) {
       await vendorWallet.addManualAdjustment({
         amount: Math.abs(adjustmentAmount),
-        type: 'manual_adjustment', // Use valid enum value
-        description: description || `Admin balance adjustment: ${adjustmentAmount > 0 ? '+' : ''}₹${adjustmentAmount}`,
+        type: 'manual_adjustment',
+        description: description || `Admin set available balance to ₹${targetAvailableBalance.toLocaleString()} (Adjustment: ${adjustmentAmount > 0 ? '+' : ''}₹${adjustmentAmount.toLocaleString()})`,
         processedBy: req.admin?.id || 'admin',
         metadata: {
-          oldBalance,
-          newBalance,
+          targetAvailableBalance,
+          oldBalance: oldTotalBalance,
+          newBalance: newTotalBalance,
           adjustmentAmount,
           adjustmentType: adjustmentType || 'manual',
-          isCredit: adjustmentAmount > 0 // Track if it's a credit or debit
+          isCredit: adjustmentAmount > 0
         }
       });
     }
@@ -546,8 +564,8 @@ const adjustVendorWallet = asyncHandler(async (req, res) => {
 
     logger.info(`Admin adjusted vendor wallet balance`, {
       vendorId,
-      oldBalance,
-      newBalance,
+      oldBalance: oldTotalBalance,
+      newBalance: newTotalBalance,
       adjustmentAmount,
       adminId: req.admin?.id
     });
@@ -557,8 +575,9 @@ const adjustVendorWallet = asyncHandler(async (req, res) => {
       message: 'Wallet balance adjusted successfully',
       data: {
         vendorId,
-        oldBalance,
-        newBalance,
+        oldBalance: oldTotalBalance,
+        newBalance: newTotalBalance,
+        availableBalance: updatedWallet.availableBalance,
         adjustmentAmount,
         wallet: updatedWallet
       }
