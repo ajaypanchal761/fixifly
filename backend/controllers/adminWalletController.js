@@ -20,7 +20,7 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
 
     // Build query
     const query = {};
-    
+
     if (search) {
       query.$or = [
         { vendorId: { $regex: search, $options: 'i' } },
@@ -51,17 +51,17 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
       vendors.map(async (vendor) => {
         // Get vendor wallet data
         const vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
-        
+
         // Calculate online and cash collections from transactions
         const onlineCollected = vendorWallet?.transactions
           ?.filter(t => t.paymentMethod === 'online' && t.type === 'earning')
           ?.reduce((sum, t) => sum + t.amount, 0) || 0;
-        
+
         // Calculate cash collected from cash_collection transactions (sum of absolute amounts)
         const cashCollected = vendorWallet?.transactions
           ?.filter(t => t.type === 'cash_collection')
           ?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0;
-        
+
         return {
           id: vendor._id,
           vendorId: vendor.vendorId,
@@ -74,7 +74,7 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
           cashCollected: cashCollected,
           totalWithdrawals: vendorWallet?.totalWithdrawals || 0,
           totalDeposits: vendorWallet?.totalDeposits || 0,
-          securityDeposit: vendorWallet?.securityDeposit || 3999,
+          securityDeposit: vendorWallet?.securityDeposit || 0,
           availableBalance: vendorWallet?.availableBalance || 0,
           isActive: vendor.isActive,
           isApproved: vendor.isApproved,
@@ -130,24 +130,24 @@ const getVendorWalletDetails = asyncHandler(async (req, res) => {
 
     // Find vendor wallet
     const vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
-    
+
     // Get transactions from VendorWallet embedded array
     let transactions = [];
     let totalTransactionsCount = 0;
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     if (vendorWallet && vendorWallet.transactions && Array.isArray(vendorWallet.transactions)) {
       transactions = [...vendorWallet.transactions];
-      
+
       // Apply filters
       if (type && type !== 'all') {
         transactions = transactions.filter(t => t.type === type);
       }
-      
+
       if (status && status !== 'all') {
         transactions = transactions.filter(t => t.status === status);
       }
-      
+
       if (startDate || endDate) {
         transactions = transactions.filter(t => {
           const transactionDate = new Date(t.createdAt || t.timestamp || 0);
@@ -156,20 +156,20 @@ const getVendorWalletDetails = asyncHandler(async (req, res) => {
           return true;
         });
       }
-      
+
       // Sort by date (newest first)
       transactions.sort((a, b) => {
         const dateA = new Date(a.createdAt || a.timestamp || 0);
         const dateB = new Date(b.createdAt || b.timestamp || 0);
         return dateB - dateA;
       });
-      
+
       // Store total count before pagination
       totalTransactionsCount = transactions.length;
-      
+
       // Pagination
       transactions = transactions.slice(skip, skip + parseInt(limit));
-      
+
       // Format transactions
       transactions = transactions.map(txn => ({
         _id: txn._id || txn.transactionId,

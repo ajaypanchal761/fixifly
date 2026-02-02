@@ -2251,13 +2251,43 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
     includeGST = completionData.includeGST || false;
     gstAmount = completionData.gstAmount || 0;
     billingAmount = completionData.billingAmount || 0;
-    console.log('🔧 COMPLETION DEBUG: Extracted values:', {
-      paymentMethod,
-      billingAmount,
-      totalAmount,
-      includeGST,
-      sparePartsCount: spareParts.length
+  }
+
+
+  // Add wallet balance check for cash transactions (ONLY)
+  if (paymentMethod === 'cash') {
+    const VendorWallet = require('../models/VendorWallet');
+    const WalletCalculationService = require('../services/walletCalculationService');
+
+    const parsedBillingAmount = parseFloat(billingAmount) || 0;
+    const spareAmount = spareParts?.reduce((sum, part) => {
+      const amountStr = String(part.amount || '0').replace(/[₹,]/g, '');
+      return sum + (parseFloat(amountStr) || 0);
+    }, 0) || 0;
+    const travellingAmount = parseFloat(completionData?.travelingAmount || completionData?.travellingAmount || '0') || 0;
+
+    const calculation = WalletCalculationService.calculateCashCollectionDeduction({
+      billingAmount: parsedBillingAmount,
+      spareAmount,
+      travellingAmount,
+      gstIncluded: includeGST || false,
+      gstAmount: completionData?.gstAmount || 0
     });
+
+    if (calculation.calculatedAmount > 0) {
+      const vendorWallet = await VendorWallet.findOne({ vendorId: req.vendor.vendorId });
+
+      // Block if balance is 0 or less than the required commission (approx 50%)
+      if (!vendorWallet || vendorWallet.currentBalance <= 0 || vendorWallet.currentBalance < calculation.calculatedAmount) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please add money to your wallet first.',
+          error: 'INSUFFICIENT_WALLET_BALANCE',
+          currentBalance: vendorWallet ? vendorWallet.currentBalance : 0,
+          requiredAmount: calculation.calculatedAmount
+        });
+      }
+    }
   }
 
   // Use the new completeByVendor method (payment info is handled in the model)
@@ -2305,19 +2335,7 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
           gstAmount: completionData?.gstAmount || 0 // Pass GST amount from frontend
         });
 
-        // For billing <= 300, no wallet deduction is made, so skip wallet check
         if (calculation.calculatedAmount > 0) {
-          // Check if vendor has sufficient balance for cash collection deduction
-          if (vendorWallet.currentBalance < calculation.calculatedAmount) {
-            return res.status(400).json({
-              success: false,
-              message: `Insufficient wallet balance. You need at least ₹${calculation.calculatedAmount.toLocaleString()} to complete this cash task. Current balance: ₹${vendorWallet.currentBalance.toLocaleString()}`,
-              error: 'INSUFFICIENT_WALLET_BALANCE',
-              currentBalance: vendorWallet.currentBalance,
-              requiredAmount: calculation.calculatedAmount
-            });
-          }
-
           console.log('🔧 WALLET DEBUG: About to call addCashCollectionDeduction with:', {
             caseId: ticket.ticketId,
             billingAmount: parsedBillingAmount,

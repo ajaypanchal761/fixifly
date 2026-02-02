@@ -1747,6 +1747,40 @@ const completeTask = asyncHandler(async (req, res) => {
       isAuthorized: booking.vendor.vendorId === req.vendor.vendorId
     });
 
+    // Add wallet balance check for cash transactions (ONLY)
+    if (completionData.paymentMethod === 'cash') {
+      const WalletCalculationService = require('../services/walletCalculationService');
+      const billingAmount = parseFloat(completionData.billingAmount) || 0;
+      const spareAmount = (completionData.spareParts || []).reduce((sum, part) => {
+        return sum + (parseFloat(part.amount.replace(/[₹,]/g, '')) || 0);
+      }, 0);
+      const travellingAmount = parseFloat(completionData.travelingAmount) || 0;
+
+      const calculation = WalletCalculationService.calculateCashCollectionDeduction({
+        billingAmount,
+        spareAmount,
+        travellingAmount,
+        bookingAmount: 0,
+        gstIncluded: completionData.includeGST || false,
+        gstAmount: completionData.gstAmount || 0
+      });
+
+      if (calculation.calculatedAmount > 0) {
+        const vendorWallet = await VendorWallet.findOne({ vendorId: booking.vendor.vendorId });
+
+        // Block if balance is 0 or less than the required commission (approx 50%)
+        if (!vendorWallet || vendorWallet.currentBalance <= 0 || vendorWallet.currentBalance < calculation.calculatedAmount) {
+          return res.status(400).json({
+            success: false,
+            message: 'Please add money to your wallet first.',
+            error: 'INSUFFICIENT_WALLET_BALANCE',
+            currentBalance: vendorWallet ? vendorWallet.currentBalance : 0,
+            requiredAmount: calculation.calculatedAmount
+          });
+        }
+      }
+    }
+
     // Calculate spare parts total (for admin tracking)
     const sparePartsTotal = (completionData.spareParts || []).reduce((sum, part) => {
       const amount = parseFloat(part.amount.replace(/[₹,]/g, '')) || 0;
@@ -1853,16 +1887,6 @@ const completeTask = asyncHandler(async (req, res) => {
           console.log('Vendor wallet found:', !!vendorWallet);
 
           if (vendorWallet) {
-            // Check if vendor has sufficient balance for cash collection deduction
-            if (vendorWallet.currentBalance < calculation.calculatedAmount) {
-              return res.status(400).json({
-                success: false,
-                message: `Insufficient wallet balance. You need at least ₹${calculation.calculatedAmount.toLocaleString()} to complete this cash task. Current balance: ₹${vendorWallet.currentBalance.toLocaleString()}`,
-                error: 'INSUFFICIENT_WALLET_BALANCE',
-                currentBalance: vendorWallet.currentBalance,
-                requiredAmount: calculation.calculatedAmount
-              });
-            }
             await vendorWallet.addCashCollectionDeduction({
               caseId: updatedBooking.bookingReference || `CASE_${bookingId}`,
               billingAmount,

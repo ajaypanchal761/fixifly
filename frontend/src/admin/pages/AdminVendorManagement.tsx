@@ -255,9 +255,9 @@ const AdminVendorManagement = () => {
     }
   };
 
-  // Handle grant account access (enable without ₹3999 deposit)
+  // Handle grant account access (enable account)
   const handleGrantAccountAccess = async (vendorId: string) => {
-    if (!confirm('Are you sure you want to grant account access to this vendor? This will enable their account without requiring ₹3999 deposit. The vendor will receive instant access within 15 seconds.')) {
+    if (!confirm('Are you sure you want to grant account access to this vendor? This will enable their account. The vendor will receive instant access within 15 seconds.')) {
       return;
     }
 
@@ -265,7 +265,7 @@ const AdminVendorManagement = () => {
       await adminApiService.grantAccountAccess(vendorId);
       toast({
         title: "Success",
-        description: "Account access granted successfully! Vendor can now access all features without ₹3999 deposit. Changes will be applied automatically within 15 seconds.",
+        description: "Account access granted successfully! Vendor can now access all features. Changes will be applied automatically within 15 seconds.",
       });
       fetchVendors(); // Refresh the list
     } catch (err: any) {
@@ -839,10 +839,10 @@ const AdminVendorManagement = () => {
                     <div className="flex items-center gap-2 mt-1">
                       <Badge
                         className={`px-2 py-1 text-xs ${selectedVendor.status === 'active'
-                            ? 'bg-green-100 text-green-800 border-green-200'
-                            : selectedVendor.status === 'blocked'
-                              ? 'bg-red-100 text-red-800 border-red-200'
-                              : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                          ? 'bg-green-100 text-green-800 border-green-200'
+                          : selectedVendor.status === 'blocked'
+                            ? 'bg-red-100 text-red-800 border-red-200'
+                            : 'bg-yellow-100 text-yellow-800 border-yellow-200'
                           }`}
                       >
                         {selectedVendor.status.charAt(0).toUpperCase() + selectedVendor.status.slice(1)}
@@ -854,10 +854,10 @@ const AdminVendorManagement = () => {
                     <div className="flex items-center gap-2 mt-1">
                       <Badge
                         className={`px-2 py-1 text-xs ${selectedVendor.verificationStatus === 'verified'
-                            ? 'bg-green-100 text-green-800 border-green-200'
-                            : selectedVendor.verificationStatus === 'rejected'
-                              ? 'bg-red-100 text-red-800 border-red-200'
-                              : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                          ? 'bg-green-100 text-green-800 border-green-200'
+                          : selectedVendor.verificationStatus === 'rejected'
+                            ? 'bg-red-100 text-red-800 border-red-200'
+                            : 'bg-yellow-100 text-yellow-800 border-yellow-200'
                           }`}
                       >
                         {selectedVendor.verificationStatus.charAt(0).toUpperCase() + selectedVendor.verificationStatus.slice(1)}

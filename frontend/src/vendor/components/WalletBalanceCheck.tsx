@@ -128,6 +128,9 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
                 <AlertTriangle className="h-4 w-4 text-orange-600" />
                 <AlertDescription className="text-orange-800">
                   <div className="space-y-2">
+                    <p className="font-bold text-lg">
+                      Please add money to your wallet first.
+                    </p>
                     <p>
                       <strong>Insufficient Balance:</strong> You need at least ₹{requiredAmount} to {getActionText()}.
                     </p>
@@ -135,6 +138,7 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
                       Your current balance is ₹{walletBalance.toLocaleString()}.
                       You need to add ₹{shortfall.toLocaleString()} more.
                     </p>
+
                     {action === 'close_cash_task' && (
                       <p className="text-xs text-orange-700 mt-2">
                         <strong>Note:</strong> This amount will be deducted from your wallet for cash collection processing.

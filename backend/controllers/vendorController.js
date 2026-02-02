@@ -198,9 +198,9 @@ const registerVendor = asyncHandler(async (req, res) => {
         // Detect if this is from mobile app (Flutter/Android bridge)
         const flutterBridge = req.headers['x-flutter-bridge'] === 'true' || req.headers['x-is-mobile'] === 'true';
         const androidBridge = req.headers['x-android-bridge'] === 'true';
-        const isMobileApp = flutterBridge || androidBridge || 
+        const isMobileApp = flutterBridge || androidBridge ||
           (req.headers['user-agent'] && (
-            req.headers['user-agent'].toLowerCase().includes('wv') || 
+            req.headers['user-agent'].toLowerCase().includes('wv') ||
             req.headers['user-agent'].toLowerCase().includes('webview') ||
             req.headers['user-agent'].toLowerCase().includes('android') ||
             req.headers['user-agent'].toLowerCase().includes('mobile')
@@ -262,7 +262,7 @@ const registerVendor = asyncHandler(async (req, res) => {
             arrayLength: verifyVendor?.fcmTokenMobile?.length || 0,
             isArray: Array.isArray(verifyVendor?.fcmTokenMobile)
           });
-          
+
           // Retry with $addToSet
           try {
             await Vendor.findByIdAndUpdate(
@@ -273,7 +273,7 @@ const registerVendor = asyncHandler(async (req, res) => {
               },
               { new: true }
             );
-            
+
             const retryVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
             if (retryVendor && retryVendor.fcmTokenMobile && retryVendor.fcmTokenMobile.includes(fcmTokenToSave)) {
               logger.info(`✅ FCM mobile token saved successfully on retry during vendor registration ${vendor._id}`);
@@ -391,7 +391,7 @@ const createVerificationPayment = asyncHandler(async (req, res) => {
       });
     }
 
-    const amount = 3999 * 100; // Convert to paise
+    const amount = 0; // Remove verification fee
     const currency = 'INR';
 
     // Create Razorpay order
@@ -579,9 +579,9 @@ const loginVendor = asyncHandler(async (req, res) => {
         // Detect if this is from mobile app (Flutter/Android bridge)
         const flutterBridge = req.headers['x-flutter-bridge'] === 'true' || req.headers['x-is-mobile'] === 'true';
         const androidBridge = req.headers['x-android-bridge'] === 'true';
-        const isMobileApp = flutterBridge || androidBridge || 
+        const isMobileApp = flutterBridge || androidBridge ||
           (req.headers['user-agent'] && (
-            req.headers['user-agent'].toLowerCase().includes('wv') || 
+            req.headers['user-agent'].toLowerCase().includes('wv') ||
             req.headers['user-agent'].toLowerCase().includes('webview') ||
             req.headers['user-agent'].toLowerCase().includes('android') ||
             req.headers['user-agent'].toLowerCase().includes('mobile')
@@ -630,7 +630,7 @@ const loginVendor = asyncHandler(async (req, res) => {
         // Verify save
         const verifyVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
         const tokenSaved = verifyVendor && verifyVendor.fcmTokenMobile && Array.isArray(verifyVendor.fcmTokenMobile) && verifyVendor.fcmTokenMobile.includes(deviceToken);
-        
+
         if (tokenSaved) {
           logger.info(`✅ FCM mobile/webview token saved successfully for vendor ${vendor._id}`, {
             tokenCount: verifyVendor.fcmTokenMobile.length,
@@ -643,7 +643,7 @@ const loginVendor = asyncHandler(async (req, res) => {
             arrayLength: verifyVendor?.fcmTokenMobile?.length || 0,
             isArray: Array.isArray(verifyVendor?.fcmTokenMobile)
           });
-          
+
           // Retry with $addToSet
           try {
             await Vendor.findByIdAndUpdate(
@@ -654,7 +654,7 @@ const loginVendor = asyncHandler(async (req, res) => {
               },
               { new: true }
             );
-            
+
             const retryVendor = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
             if (retryVendor && retryVendor.fcmTokenMobile && retryVendor.fcmTokenMobile.includes(deviceToken)) {
               logger.info(`✅ FCM mobile token saved successfully on retry for vendor ${vendor._id}`);
@@ -689,17 +689,15 @@ const loginVendor = asyncHandler(async (req, res) => {
       vendorWallet = {
         vendorId: vendor.vendorId,
         currentBalance: 0,
-        securityDeposit: 3999,
+        securityDeposit: 0,
         availableBalance: 0,
         totalDeposits: 0,
         totalWithdrawals: 0
       };
     }
 
-    // Check hasInitialDeposit from vendor model first, then fallback to wallet calculation
-    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
-      (vendorWallet.currentBalance >= 3999) ||
-      (vendorWallet.totalDeposits >= 3999);
+    // Check hasInitialDeposit from vendor model
+    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || true; // Set to true as deposit not required anymore
 
     // Prepare vendor data for response
     const vendorData = {
@@ -730,7 +728,7 @@ const loginVendor = asyncHandler(async (req, res) => {
       wallet: {
         currentBalance: vendorWallet.currentBalance,
         hasInitialDeposit: hasInitialDeposit,
-        initialDepositAmount: hasInitialDeposit ? (vendor.wallet?.initialDepositAmount || 3999) : 0,
+        initialDepositAmount: vendor.wallet?.initialDepositAmount || 0,
         totalDeposits: vendorWallet.totalDeposits,
         totalWithdrawals: vendorWallet.totalWithdrawals
       }
@@ -785,16 +783,15 @@ const getVendorProfile = asyncHandler(async (req, res) => {
       vendorWallet = new VendorWallet({
         vendorId: vendor.vendorId,
         currentBalance: 0,
-        securityDeposit: 3999,
+        securityDeposit: 0,
         availableBalance: 0
       });
       await vendorWallet.save();
     }
 
     // Check hasInitialDeposit from vendor model first, then fallback to wallet calculation
-    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
-      (vendorWallet.currentBalance >= 3999) ||
-      (vendorWallet.totalDeposits >= 3999);
+    // Check hasInitialDeposit from vendor model
+    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || true;
 
     const vendorData = {
       id: vendor._id,
@@ -831,7 +828,7 @@ const getVendorProfile = asyncHandler(async (req, res) => {
       wallet: {
         currentBalance: vendorWallet.currentBalance,
         hasInitialDeposit: hasInitialDeposit,
-        initialDepositAmount: hasInitialDeposit ? (vendor.wallet?.initialDepositAmount || 3999) : 0,
+        initialDepositAmount: vendor.wallet?.initialDepositAmount || 0,
         totalDeposits: vendorWallet.totalDeposits,
         totalWithdrawals: vendorWallet.totalWithdrawals
       }
@@ -1614,10 +1611,10 @@ const createDepositOrder = asyncHandler(async (req, res) => {
       });
     }
 
-    if (isInitialDeposit && amount < 3999) {
+    if (isInitialDeposit && amount < 0) {
       return res.status(400).json({
         success: false,
-        message: 'Minimum initial deposit amount is ₹3,999'
+        message: 'Invalid deposit amount'
       });
     }
 
@@ -1920,7 +1917,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
         wallet = new VendorWallet({
           vendorId: vendorWalletId,
           currentBalance: 0,
-          securityDeposit: 4000,
+          securityDeposit: 0,
           availableBalance: 0
         });
         await wallet.save();
@@ -1929,7 +1926,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
         // If wallet creation fails (e.g., duplicate key error), try to fetch it again
         logger.error('Error creating wallet, attempting to fetch existing:', walletCreationError);
         wallet = await VendorWallet.findOne({ vendorId: vendorWalletId });
-        
+
         if (!wallet) {
           // If still no wallet, return error
           return res.status(500).json({
@@ -1957,7 +1954,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
       try {
         summary = {
           currentBalance: wallet.currentBalance || 0,
-          availableBalance: wallet.availableBalance || (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999),
+          availableBalance: wallet.availableBalance || (wallet.currentBalance || 0),
           totalEarnings: wallet.totalEarnings || 0,
           totalPenalties: wallet.totalPenalties || 0,
           totalWithdrawals: wallet.totalWithdrawals || 0,
@@ -2009,7 +2006,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
         availableBalance = wallet.availableForWithdrawal;
       } else {
         // Calculate manually: availableBalance = currentBalance - securityDeposit (minimum 0)
-        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999));
+        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 0));
       }
     } catch (balanceError) {
       logger.error('Error calculating available balance:', balanceError);
@@ -2021,7 +2018,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
       data: {
         wallet: {
           currentBalance: wallet.currentBalance || 0,
-          securityDeposit: wallet.securityDeposit || 3999,
+          securityDeposit: wallet.securityDeposit || 0,
           availableBalance: availableBalance,
           totalEarnings: wallet.totalEarnings || 0,
           totalPenalties: wallet.totalPenalties || 0,
@@ -2035,8 +2032,8 @@ const getVendorWallet = asyncHandler(async (req, res) => {
           totalTasksCancelled: wallet.totalTasksCancelled || 0,
           lastTransactionAt: wallet.lastTransactionAt || null,
           isActive: wallet.isActive !== undefined ? wallet.isActive : true,
-          hasInitialDeposit: (wallet.totalDeposits || 0) >= 3999 || (wallet.currentBalance || 0) >= 3999,
-          initialDepositAmount: wallet.totalDeposits || 0
+          hasInitialDeposit: true, // Deposit not required
+          initialDepositAmount: 0
         },
         summary: summary || {},
         recentTransactions: recentTransactions || []

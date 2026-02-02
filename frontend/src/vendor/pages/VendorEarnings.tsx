@@ -145,6 +145,7 @@ const VendorEarnings = () => {
           initialDepositAmount: 0,
           totalDeposits: 0,
           totalWithdrawals: 0,
+          securityDeposit: 0,
           summary: {
             totalEarnings: 0,
             totalWithdrawals: 0
@@ -229,7 +230,7 @@ const VendorEarnings = () => {
       if (data.success && data.data?.wallet) {
         const walletInfo = {
           currentBalance: data.data.wallet.currentBalance || 0,
-          hasInitialDeposit: data.data.wallet.hasInitialDeposit || (data.data.wallet.currentBalance >= 3999),
+          hasInitialDeposit: data.data.wallet.hasInitialDeposit || (data.data.wallet.currentBalance >= 0),
           initialDepositAmount: data.data.wallet.initialDepositAmount || 0,
           totalDeposits: data.data.wallet.totalDeposits || 0,
           totalWithdrawals: data.data.wallet.totalWithdrawals || 0,
@@ -900,7 +901,7 @@ const VendorEarnings = () => {
           setTimeout(() => refreshAfterDeposit(1), 1000);
 
           setIsDepositModalOpen(false);
-          setDepositAmount('3999');
+          setDepositAmount('');
           setIsProcessingDeposit(false);
         },
         (error) => {
@@ -1052,10 +1053,8 @@ const VendorEarnings = () => {
       return false;
     }
 
-    // Hide subscription transactions (₹3999)
-    if (transaction.amount === 3999 || transaction.amount === '3999') {
-      return false;
-    }
+    // Show all transactions now that 3999 system is gone
+    return true;
 
     // Hide subscription-related transactions
     if (transaction.type && (

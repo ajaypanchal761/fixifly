@@ -82,7 +82,7 @@ const getVendors = asyncHandler(async (req, res) => {
   const transformedVendors = await Promise.all(vendors.map(async (vendor) => {
     // Count bookings assigned to this vendor
     const bookingQuery = { 'vendor.vendorId': vendor.vendorId };
-    
+
     // Count total bookings, completed bookings, and pending bookings
     const [totalBookingsCount, completedBookingsCount, pendingBookingsCount] = await Promise.all([
       Booking.countDocuments(bookingQuery),
@@ -226,7 +226,7 @@ const getVendor = asyncHandler(async (req, res) => {
   // Get bookings count from Booking model
   const { Booking } = require('../models/Booking');
   const bookingQuery = { 'vendor.vendorId': vendor.vendorId };
-  
+
   const [totalBookingsCount, completedBookingsCount, pendingBookingsCount] = await Promise.all([
     Booking.countDocuments(bookingQuery),
     Booking.countDocuments({
@@ -354,13 +354,13 @@ const updateVendorStatus = asyncHandler(async (req, res) => {
   if (action === 'block') {
     try {
       const { sendMulticastPushNotification } = require('../services/firebasePushService');
-      
+
       // Get vendor with FCM tokens (mobile/webview only - web tokens removed)
       const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
-      
+
       // Use mobile/webview tokens only
       const uniqueTokens = [...(vendorWithTokens?.fcmTokenMobile || [])];
-      
+
       if (uniqueTokens.length > 0) {
         const notificationData = {
           title: 'Account Blocked',
@@ -422,7 +422,7 @@ const updateVendor = asyncHandler(async (req, res) => {
   // Update allowed fields
   const allowedUpdates = [
     'firstName', 'lastName', 'email', 'phone', 'serviceCategories', 'customServiceCategory',
-    'experience', 'address', 'specialty', 'bio', 'isEmailVerified', 
+    'experience', 'address', 'specialty', 'bio', 'isEmailVerified',
     'isPhoneVerified', 'isApproved', 'isActive', 'isBlocked'
   ];
 
@@ -510,7 +510,7 @@ const updateVendorRatings = asyncHandler(async (req, res) => {
   try {
     const vendors = await Vendor.find({});
     let updatedCount = 0;
-    
+
     for (const vendor of vendors) {
       try {
         await vendor.updateRating();
@@ -519,7 +519,7 @@ const updateVendorRatings = asyncHandler(async (req, res) => {
         console.error(`Error updating rating for vendor ${vendor.vendorId}:`, error.message);
       }
     }
-    
+
     res.json({
       success: true,
       message: `Successfully updated ratings for ${updatedCount} vendors`,
@@ -535,13 +535,13 @@ const updateVendorRatings = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Grant account access to vendor (Admin) - Enable account without ₹3999 deposit
+// @desc    Grant account access to vendor (Admin) - Enable account without deposit
 // @route   POST /api/admin/vendors/:id/grant-access
 // @access  Private (Admin with vendorManagement permission)
 const grantAccountAccess = asyncHandler(async (req, res) => {
   try {
     const vendor = await Vendor.findById(req.params.id);
-    
+
     if (!vendor) {
       return res.status(404).json({
         success: false,
@@ -551,29 +551,26 @@ const grantAccountAccess = asyncHandler(async (req, res) => {
 
     // Update vendor wallet to mark initial deposit as done
     vendor.wallet.hasInitialDeposit = true;
-    vendor.wallet.initialDepositAmount = 3999;
-    
+    vendor.wallet.initialDepositAmount = 0;
+
     // Also update VendorWallet model if it exists
     const VendorWallet = require('../models/VendorWallet');
     let vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
-    
+
     if (vendorWallet) {
       // Update wallet to reflect initial deposit
-      if (!vendorWallet.totalDeposits || vendorWallet.totalDeposits < 3999) {
-        vendorWallet.totalDeposits = 3999;
-      }
-      if (vendorWallet.currentBalance < 3999) {
-        vendorWallet.currentBalance = 3999;
+      if (vendorWallet.securityDeposit > 0) {
+        vendorWallet.securityDeposit = 0;
       }
       await vendorWallet.save();
     } else {
       // Create wallet if it doesn't exist
       vendorWallet = new VendorWallet({
         vendorId: vendor.vendorId,
-        currentBalance: 3999,
-        securityDeposit: 3999,
+        currentBalance: 0,
+        securityDeposit: 0,
         availableBalance: 0,
-        totalDeposits: 3999
+        totalDeposits: 0
       });
       await vendorWallet.save();
     }
@@ -582,23 +579,23 @@ const grantAccountAccess = asyncHandler(async (req, res) => {
     vendor.isActive = true;
     vendor.isApproved = true;
     vendor.isBlocked = false;
-    
+
     await vendor.save();
 
     // Send push notification to vendor about account access granted
     try {
       const { sendMulticastPushNotification } = require('../services/firebasePushService');
-      
+
       // Get vendor with FCM tokens
       const vendorWithTokens = await Vendor.findById(vendor._id).select('+fcmTokenMobile');
-      
+
       // Use mobile/webview tokens only
       const uniqueTokens = [...(vendorWithTokens?.fcmTokenMobile || [])];
-      
+
       if (uniqueTokens.length > 0) {
         const notificationData = {
           title: '✅ Account Access Granted',
-          body: 'Your account has been activated! You can now access all features without ₹3999 deposit.',
+          body: 'Your account has been activated! You can now access all features.',
           data: {
             type: 'account_access_granted',
             vendorId: vendor.vendorId,
@@ -634,8 +631,8 @@ const grantAccountAccess = asyncHandler(async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Account access granted successfully. Vendor can now access all features without ₹3999 deposit.',
-      data: { 
+      message: 'Account access granted successfully. Vendor can now access all features.',
+      data: {
         vendor: {
           id: vendor._id,
           vendorId: vendor.vendorId,

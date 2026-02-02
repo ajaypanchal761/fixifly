@@ -1294,7 +1294,7 @@ class AdminApiService {
     }
   }
 
-  // Grant account access to vendor (enable without ₹3999 deposit)
+  // Grant account access to vendor (enable account)
   async grantAccountAccess(vendorId: string): Promise<{
     success: boolean;
     message: string;

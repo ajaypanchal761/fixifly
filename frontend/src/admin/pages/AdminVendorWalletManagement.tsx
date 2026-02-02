@@ -376,7 +376,7 @@ const AdminVendorWalletManagement = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          currentBalance: parseFloat(editForm.currentBalance) + editingWallet.securityDeposit,
+          currentBalance: parseFloat(editForm.currentBalance),
           description: editForm.description
         })
       });
@@ -390,7 +390,7 @@ const AdminVendorWalletManagement = () => {
         // Update the wallet in the local state
         setVendorWallets(prev => prev.map(wallet =>
           wallet.vendorId === editingWallet.vendorId
-            ? { ...wallet, currentBalance: parseFloat(editForm.currentBalance) + editingWallet.securityDeposit }
+            ? { ...wallet, currentBalance: parseFloat(editForm.currentBalance) }
             : wallet
         ));
 

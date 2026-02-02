@@ -139,7 +139,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
               initialDepositAmount: 0,
               totalDeposits: 0,
               totalWithdrawals: 0,
-              securityDeposit: 3999
+              securityDeposit: 0
             }
           };
           setVendor(vendorWithWallet);
@@ -184,7 +184,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         initialDepositAmount: 0,
         totalDeposits: 0,
         totalWithdrawals: 0,
-        securityDeposit: 3999
+        securityDeposit: 0
       }
     };
 
@@ -289,8 +289,8 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
                       resolve(null);
                     }
                   }, 5000); // Increased timeout to 5 seconds
-                  
-                  messageListener = function(event: MessageEvent) {
+
+                  messageListener = function (event: MessageEvent) {
                     if (event.data && event.data.type === 'FCM_TOKEN') {
                       clearTimeout(timeout);
                       window.removeEventListener('message', messageListener!);
@@ -298,7 +298,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
                       resolve(event.data.token);
                     }
                   };
-                  
+
                   window.addEventListener('message', messageListener);
                 }
               }
@@ -315,14 +315,14 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
         getFCMTokenFromFlutter().then((fcmToken) => {
           const vendorEmail = vendorWithWallet.email;
-          
+
           console.log('📱 [Vendor] FCM Token Save Check:', {
             hasToken: !!fcmToken,
             hasEmail: !!vendorEmail,
             tokenPreview: fcmToken ? fcmToken.substring(0, 30) + '...' : 'null',
             emailValue: vendorEmail || 'null'
           });
-          
+
           if (fcmToken && vendorEmail) {
             saveMobileFCMToken(fcmToken, '', vendorEmail).then((success) => {
               if (success) {
@@ -338,7 +338,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
             if (!fcmToken) missingItems.push('FCM token');
             if (!vendorEmail) missingItems.push('email');
             console.warn(`⚠️ [Vendor] FCM token or email not available for mobile save. Missing: ${missingItems.join(', ')}`);
-            
+
             // If we have email but no token, try one more time after delay
             if (vendorEmail && !fcmToken) {
               console.log('⏳ [Vendor] Retrying FCM token retrieval in 3 seconds...');
@@ -437,7 +437,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         // Don't throw - just use existing cached data
         return;
       }
-      
+
       // Log other errors but don't break the app
       console.warn('⚠️ VendorContext: Error refreshing vendor data (non-critical):', error.message);
 

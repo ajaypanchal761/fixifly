@@ -10,7 +10,7 @@ const walletTransactionSchema = new mongoose.Schema({
   },
   caseId: {
     type: String,
-    required: function() {
+    required: function () {
       // caseId is required for all transaction types except deposit, manual_adjustment, and withdrawal_request
       return this.type !== 'deposit' && this.type !== 'manual_adjustment' && this.type !== 'withdrawal_request';
     }
@@ -40,7 +40,7 @@ const walletTransactionSchema = new mongoose.Schema({
   },
   billingAmount: {
     type: Number,
-    required: function() {
+    required: function () {
       // billingAmount is required for all transaction types except manual_adjustment and withdrawal_request
       return this.type !== 'manual_adjustment' && this.type !== 'withdrawal_request';
     }
@@ -67,7 +67,7 @@ const walletTransactionSchema = new mongoose.Schema({
   },
   calculatedAmount: {
     type: Number,
-    required: function() {
+    required: function () {
       // calculatedAmount is required for all transaction types except manual_adjustment and withdrawal_request
       return this.type !== 'manual_adjustment' && this.type !== 'withdrawal_request';
     }
@@ -105,8 +105,7 @@ const vendorWalletSchema = new mongoose.Schema({
   },
   securityDeposit: {
     type: Number,
-    default: 3999,
-    min: 3999
+    default: 0
   },
   availableBalance: {
     type: Number,
@@ -181,12 +180,12 @@ const vendorWalletSchema = new mongoose.Schema({
 });
 
 // Virtual for available balance (current balance - security deposit)
-vendorWalletSchema.virtual('availableForWithdrawal').get(function() {
+vendorWalletSchema.virtual('availableForWithdrawal').get(function () {
   return Math.max(0, this.currentBalance - this.securityDeposit);
 });
 
 // Method to add earning
-vendorWalletSchema.methods.addEarning = async function(transactionData) {
+vendorWalletSchema.methods.addEarning = async function (transactionData) {
   const {
     caseId,
     billingAmount,
@@ -200,9 +199,9 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
   } = transactionData;
 
   // Check for duplicate earning for the same case
-  const existingEarning = this.transactions.find(t => 
-    t.caseId === caseId && 
-    t.type === 'earning' && 
+  const existingEarning = this.transactions.find(t =>
+    t.caseId === caseId &&
+    t.type === 'earning' &&
     t.paymentMethod === paymentMethod
   );
 
@@ -280,7 +279,7 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
 
   // Ensure amount field always uses calculatedAmount (not billingAmount)
   transaction.amount = calculatedAmount;
-  
+
   this.transactions.push(transaction);
   this.currentBalance += calculatedAmount;
   this.totalEarnings += calculatedAmount;
@@ -291,7 +290,7 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
-  
+
   const monthlyEarning = this.monthlyEarnings.find(m => m.year === year && m.month === month);
   if (monthlyEarning) {
     monthlyEarning.amount += calculatedAmount;
@@ -304,7 +303,7 @@ vendorWalletSchema.methods.addEarning = async function(transactionData) {
 };
 
 // Method to add penalty
-vendorWalletSchema.methods.addPenalty = async function(penaltyData) {
+vendorWalletSchema.methods.addPenalty = async function (penaltyData) {
   const {
     caseId,
     type: penaltyType,
@@ -346,7 +345,7 @@ vendorWalletSchema.methods.addPenalty = async function(penaltyData) {
 };
 
 // Method to add task acceptance fee
-vendorWalletSchema.methods.addTaskAcceptanceFee = async function(taskData) {
+vendorWalletSchema.methods.addTaskAcceptanceFee = async function (taskData) {
   const {
     caseId,
     taskMRP,
@@ -375,7 +374,7 @@ vendorWalletSchema.methods.addTaskAcceptanceFee = async function(taskData) {
 };
 
 // Method to add cash collection deduction
-vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectionData) {
+vendorWalletSchema.methods.addCashCollectionDeduction = async function (collectionData) {
   const {
     caseId,
     billingAmount,
@@ -388,8 +387,8 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
   } = collectionData;
 
   // Check for duplicate cash collection for the same case
-  const existingCollection = this.transactions.find(t => 
-    t.caseId === caseId && 
+  const existingCollection = this.transactions.find(t =>
+    t.caseId === caseId &&
     t.type === 'cash_collection'
   );
 
@@ -446,7 +445,7 @@ vendorWalletSchema.methods.addCashCollectionDeduction = async function(collectio
 };
 
 // Method to add deposit
-vendorWalletSchema.methods.addDeposit = async function(depositData) {
+vendorWalletSchema.methods.addDeposit = async function (depositData) {
   const {
     amount,
     description = 'Wallet deposit',
@@ -474,7 +473,7 @@ vendorWalletSchema.methods.addDeposit = async function(depositData) {
 };
 
 // Method to add withdrawal
-vendorWalletSchema.methods.addWithdrawal = async function(withdrawalData) {
+vendorWalletSchema.methods.addWithdrawal = async function (withdrawalData) {
   const {
     amount,
     description = 'Wallet withdrawal',
@@ -508,7 +507,7 @@ vendorWalletSchema.methods.addWithdrawal = async function(withdrawalData) {
 };
 
 // Method to add refund
-vendorWalletSchema.methods.addRefund = async function(refundData) {
+vendorWalletSchema.methods.addRefund = async function (refundData) {
   const {
     caseId,
     amount,
@@ -538,7 +537,7 @@ vendorWalletSchema.methods.addRefund = async function(refundData) {
 };
 
 // Static method to get vendor wallet summary
-vendorWalletSchema.statics.getVendorSummary = async function(vendorId) {
+vendorWalletSchema.statics.getVendorSummary = async function (vendorId) {
   try {
     const wallet = await this.findOne({ vendorId });
     if (!wallet) {
@@ -565,11 +564,11 @@ vendorWalletSchema.statics.getVendorSummary = async function(vendorId) {
         availableBalance = wallet.availableBalance;
       } else {
         // Calculate manually if virtual property is not accessible
-        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999));
+        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 0));
       }
     } catch (balanceError) {
       // Fallback calculation
-      availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999));
+      availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 0));
     }
 
     return {
@@ -593,7 +592,7 @@ vendorWalletSchema.statics.getVendorSummary = async function(vendorId) {
 };
 
 // Static method to get recent transactions
-vendorWalletSchema.statics.getRecentTransactions = async function(vendorId, limit = 10) {
+vendorWalletSchema.statics.getRecentTransactions = async function (vendorId, limit = 10) {
   try {
     const wallet = await this.findOne({ vendorId });
     if (!wallet) {
@@ -635,7 +634,7 @@ vendorWalletSchema.statics.getRecentTransactions = async function(vendorId, limi
 };
 
 // Add manual adjustment transaction
-vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
+vendorWalletSchema.methods.addManualAdjustment = function (adjustmentData) {
   const {
     amount,
     type,
@@ -647,12 +646,12 @@ vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
 
   // Determine if this is a credit or debit based on metadata or amount
   const isCredit = metadata.isCredit !== undefined ? metadata.isCredit : amount > 0;
-  
+
   // For withdrawal_request, use status from metadata if provided, otherwise use the passed status
-  const transactionStatus = type === 'withdrawal_request' && metadata.status 
-    ? metadata.status 
+  const transactionStatus = type === 'withdrawal_request' && metadata.status
+    ? metadata.status
     : status;
-  
+
   const transaction = {
     transactionId: `ADJ_${this.vendorId}_${Date.now()}`,
     type: type, // Use the type as provided (including 'withdrawal_request')
@@ -683,7 +682,7 @@ vendorWalletSchema.methods.addManualAdjustment = function(adjustmentData) {
 };
 
 // Pre-save middleware to update available balance
-vendorWalletSchema.pre('save', function(next) {
+vendorWalletSchema.pre('save', function (next) {
   this.availableBalance = Math.max(0, this.currentBalance - this.securityDeposit);
   next();
 });

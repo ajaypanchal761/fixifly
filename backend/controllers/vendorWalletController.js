@@ -11,7 +11,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
     const { vendorId } = req.vendor;
 
     let wallet = await VendorWallet.findOne({ vendorId });
-    
+
     // Create wallet if it doesn't exist
     if (!wallet) {
       // Temporarily bypass wallet creation due to index issue
@@ -19,7 +19,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
       wallet = {
         vendorId,
         currentBalance: 0,
-        securityDeposit: 3999,
+        securityDeposit: 0,
         availableBalance: 0,
         totalDeposits: 0,
         totalWithdrawals: 0,
@@ -38,8 +38,8 @@ const getVendorWallet = asyncHandler(async (req, res) => {
     // Use default summary if wallet is not a real document
     const summary = wallet._id ? await VendorWallet.getVendorSummary(vendorId) : {
       currentBalance: wallet.currentBalance,
-      hasInitialDeposit: wallet.currentBalance >= 3999,
-      initialDepositAmount: wallet.currentBalance >= 3999 ? 3999 : 0,
+      hasInitialDeposit: wallet.currentBalance >= 0,
+      initialDepositAmount: wallet.currentBalance >= 0 ? 0 : 0,
       totalDeposits: wallet.totalDeposits,
       totalWithdrawals: wallet.totalWithdrawals,
       totalEarnings: wallet.totalEarnings,
@@ -51,7 +51,7 @@ const getVendorWallet = asyncHandler(async (req, res) => {
       totalTasksRejected: wallet.totalTasksRejected,
       totalTasksCancelled: wallet.totalTasksCancelled
     };
-    
+
     const allTransactions = (wallet.transactions || []).sort((a, b) => {
       // Sort by createdAt in descending order (latest first)
       const dateA = new Date(a.createdAt || a.timestamp || 0);

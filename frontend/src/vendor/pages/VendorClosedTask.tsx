@@ -13,6 +13,7 @@ import {
 import VendorHeader from "../components/VendorHeader";
 import VendorBottomNav from "../components/VendorBottomNav";
 import vendorApi from "@/services/vendorApi";
+import { useVendor } from "@/contexts/VendorContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import WalletBalanceCheck from "../components/WalletBalanceCheck";
@@ -60,6 +61,7 @@ const VendorClosedTask = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const { taskId } = useParams();
+  const { vendor } = useVendor();
 
   const [task, setTask] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -628,6 +630,23 @@ const VendorClosedTask = () => {
         travelingAmount: "130",
         deviceSerialImage: deviceSerialImage // Include device serial image
       };
+
+      // Add wallet balance check for cash transactions (ONLY)
+      if (paymentMethod === 'cash') {
+        const requiredAmount = calculateRequiredWalletAmount();
+        if (requiredAmount > 0) {
+          // Calculate display balance following same logic as WalletBalanceCheck component
+          const currentBalance = vendor?.wallet?.currentBalance || 0;
+          const securityDeposit = vendor?.wallet?.securityDeposit || 0;
+          const displayBalance = currentBalance > securityDeposit ? currentBalance - securityDeposit : 0;
+
+          if (displayBalance < requiredAmount && !isWalletCheckOpen) {
+            setIsWalletCheckOpen(true);
+            setIsCompleting(false);
+            return;
+          }
+        }
+      }
 
       // If Online Payment -> Open QR Modal
       if (paymentMethod === 'online') {
