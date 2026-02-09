@@ -18,9 +18,9 @@ class EmailService {
       const smtpPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : null;
 
       const smtpConfig = {
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT) || 587,
-        secure: process.env.SMTP_SECURE === 'true' || false,
+        host: process.env.SMTP_HOST || 'smtp.hostinger.com',
+        port: parseInt(process.env.SMTP_PORT) || 465,
+        secure: process.env.SMTP_SECURE === 'true' || true,
         auth: {
           user: smtpUser,
           pass: smtpPass
@@ -152,9 +152,9 @@ class EmailService {
         to: mailOptions.to,
         subject: mailOptions.subject,
         from: mailOptions.from,
-        smtpUser: process.env.SMTP_USER || 'fixfly.app@gmail.com',
-        smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
-        sendingFromAdmin: mailOptions.from.includes(process.env.SMTP_USER || 'fixfly.app@gmail.com')
+        smtpUser: process.env.SMTP_USER || 'info@getfixfly.com',
+        smtpHost: process.env.SMTP_HOST || 'smtp.hostinger.com',
+        sendingFromAdmin: mailOptions.from.includes(process.env.SMTP_USER || 'info@getfixfly.com')
       });
 
       const result = await this.transporter.sendMail(mailOptions);

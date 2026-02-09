@@ -152,10 +152,10 @@ async function sendDirectEmail() {
     console.error('');
     console.error('🔧 Troubleshooting tips:');
     console.error('1. Check your SMTP credentials in .env file');
-    console.error('2. Ensure 2FA is enabled and you\'re using an App Password for Gmail');
-    console.error('3. Verify your internet connection');
-    console.error('4. Check if your email provider allows SMTP access');
-    console.error('5. Make sure the App Password is correct (no spaces)');
+    console.error('2. Ensure SMTP is enabled for your Hostinger email account');
+    console.error('3. Verify SMTP_HOST is smtp.hostinger.com and SMTP_PORT is 465');
+    console.error('4. Check if your IP is blacklisted or if there are any restrictions on Hostinger side');
+    console.error('5. Make sure the password is correct in .env file');
   }
 }
 

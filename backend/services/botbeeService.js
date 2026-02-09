@@ -6,6 +6,7 @@ class BotbeeService {
     this.apiKey = process.env.BOTBEE_API_KEY;
     this.phoneId = process.env.BOTBEE_PHONE_ID;
     this.adminWhatsApp = process.env.ADMIN_WHATSAPP;
+    this.bookingTemplateId = process.env.BOTBEE_BOOKING_TEMPLATE_ID;
     this.baseUrl = process.env.BOTBEE_BASE || 'https://app.botbee.io';
     this.isConfigured = !!(this.apiKey && this.phoneId && this.adminWhatsApp);
   }
@@ -103,34 +104,36 @@ class BotbeeService {
     const url = `${this.baseUrl}/api/v1/whatsapp/send`;
     try {
       // Botbee uses same endpoint for template messages
-      // Meta Standard Payload Strategy
-      // Assumes Botbee proxies the payload to WhatsApp Cloud API
-      const components = [
-        {
-          type: "body",
-          parameters: templateParams.map(param => ({ type: "text", text: String(param) }))
-        }
-      ];
-
+      // Modified payload to match Botbee's expected format for templates
       const botbeePayload = {
-        // Botbee Auth & Routing
         apiToken: this.apiKey,
         phone_number_id: this.phoneId,
         mobile: phoneNumber,
-
-        // Meta/WhatsApp Standard Fields
-        messaging_product: "whatsapp",
-        recipient_type: "individual",
-        to: phoneNumber,
         type: "template",
-        template: {
-          name: templateId, // "newbooking"
-          language: {
-            code: "en_GB"
-          },
-          components: components
-        }
       };
+
+      // If templateId is a numeric ID (like in our config), use template_id
+      // Otherwise use the Meta-style template object as fallback
+      if (templateId && !isNaN(templateId)) {
+        botbeePayload.template_id = String(templateId);
+        botbeePayload.name = "newbooking"; // Hardcoded as fallback if ID needs context
+        botbeePayload.language = "en_GB";
+        botbeePayload.variables = templateParams;
+      } else {
+        // Fallback for named templates
+        const components = [
+          {
+            type: "body",
+            parameters: templateParams.map(param => ({ type: "text", text: String(param) }))
+          }
+        ];
+
+        botbeePayload.template = {
+          name: templateId,
+          language: { code: "en_GB" },
+          components: components
+        };
+      }
 
       console.log("📤 BOTBEE TEMPLATE PAYLOAD (Meta Standard):", JSON.stringify(botbeePayload, null, 2));
 
@@ -388,7 +391,8 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
       // Check if utility template ID is configured
       // Template Name: newbooking (Verified from screenshot)
       // Locale: en_GB (English UK)
-      const templateName = 'newbooking';
+      // Use configured template ID or fallback to name
+      const templateName = this.bookingTemplateId || 'newbooking';
 
       if (templateName) {
         // Use utility template 'newbooking'

@@ -38,7 +38,7 @@ class AutoRejectService {
   async checkAndAutoReject() {
     try {
       const now = new Date();
-      
+
       // Find bookings with pending vendor response that have passed the auto-reject time
       const pendingAssignments = await Booking.find({
         'vendorResponse.status': 'pending',
@@ -61,12 +61,12 @@ class AutoRejectService {
   async autoRejectBooking(booking) {
     try {
       const vendorId = booking.vendor.vendorId;
-      
+
       logger.info(`Auto-rejecting booking ${booking._id} for vendor ${vendorId}`);
 
       // Apply penalty to vendor wallet
       const wallet = await VendorWallet.findOne({ vendorId });
-      
+
       if (wallet) {
         const penaltyAmount = 100;
         // Check if wallet has balance > 0 - no penalty if balance is 0
@@ -83,6 +83,7 @@ class AutoRejectService {
             bookingId: booking._id,
             penaltyAmount: penaltyAmount
           });
+
         } else {
           logger.warn(`Auto-rejection penalty skipped for vendor ${vendorId} - balance is 0 or insufficient`, {
             vendorId,
@@ -141,5 +142,6 @@ class AutoRejectService {
 
 // Create singleton instance
 const autoRejectService = new AutoRejectService();
+
 
 module.exports = autoRejectService;

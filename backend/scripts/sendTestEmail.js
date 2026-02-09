@@ -18,25 +18,25 @@ async function sendTestEmail() {
     }
 
     console.log('✅ Email service is configured');
-    
+
     // Verify SMTP connection
     console.log('🔍 Verifying SMTP connection...');
     const isConnected = await emailService.verifyConnection();
-    
+
     if (!isConnected) {
       console.error('❌ SMTP connection verification failed');
       return;
     }
-    
+
     console.log('✅ SMTP connection verified successfully');
     console.log('');
 
     // Send test email
     const recipientEmail = 'panchalajay717@gmail.com';
     console.log(`📤 Sending test email to: ${recipientEmail}`);
-    
+
     const result = await emailService.sendTestEmail(recipientEmail);
-    
+
     if (result.success) {
       console.log('✅ Test email sent successfully!');
       console.log(`📧 Message ID: ${result.messageId}`);
@@ -55,9 +55,9 @@ async function sendTestEmail() {
     console.error('');
     console.error('🔧 Troubleshooting tips:');
     console.error('1. Check your SMTP credentials in .env file');
-    console.error('2. Ensure 2FA is enabled and you\'re using an App Password for Gmail');
-    console.error('3. Verify your internet connection');
-    console.error('4. Check if your email provider allows SMTP access');
+    console.error('2. Ensure SMTP is enabled for your Hostinger email account');
+    console.error('3. Verify SMTP_HOST is smtp.hostinger.com and SMTP_PORT is 465');
+    console.error('4. Check if your IP is blacklisted or if there are any restrictions on Hostinger side');
   }
 }
 

@@ -4,11 +4,13 @@ const nodemailer = require('nodemailer');
 const createTransporter = () => {
   // For development, we'll use Gmail SMTP
   // You can configure this with your email service
-  const transporter = nodemailer.createTransporter({
-    service: 'gmail',
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.hostinger.com',
+    port: parseInt(process.env.SMTP_PORT) || 465,
+    secure: process.env.SMTP_SECURE === 'true' || true,
     auth: {
-      user: process.env.SMTP_USER || process.env.EMAIL_USER || 'fixfly.app@gmail.com',
-      pass: (process.env.SMTP_PASS || process.env.EMAIL_PASS || 'dchn ysbg vjzy cpps').replace(/\s+/g, '')
+      user: process.env.SMTP_USER || 'info@getfixfly.com',
+      pass: (process.env.SMTP_PASS || 'Getfixfly!@#123').replace(/\s+/g, '')
     }
   });
 
@@ -21,7 +23,7 @@ const sendInvoiceEmail = async (to, subject, content, ticketId) => {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'fixfly.app@gmail.com',
+      from: process.env.SMTP_USER || 'info@getfixfly.com',
       to: to,
       subject: subject,
       text: content,
@@ -69,7 +71,7 @@ const sendNotificationEmail = async (to, subject, message) => {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'fixfly.app@gmail.com',
+      from: process.env.SMTP_USER || 'info@getfixfly.com',
       to: to,
       subject: subject,
       text: message,
