@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 const { logger } = require('../utils/logger');
+const { jsPDF } = require('jspdf');
+
 
 class EmailService {
   constructor() {
@@ -2640,12 +2642,63 @@ class EmailService {
       Thank you for choosing Fixfly!
     `;
 
+    // Generate PDF Receipt
+    let pdfBuffer = null;
+    try {
+      const doc = new jsPDF();
+      doc.setFontSize(22);
+      doc.text('FIXFLY - SERVICE RECEIPT', 105, 20, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(`Receipt #: ${bookingReference}`, 20, 40);
+      doc.text(`Date: ${completedDate}`, 20, 50);
+
+      doc.line(20, 55, 190, 55);
+
+      doc.setFontSize(14);
+      doc.text('Customer Details:', 20, 65);
+      doc.setFontSize(11);
+      doc.text(`Name: ${customer.name}`, 30, 75);
+      doc.text(`Email: ${customer.email || 'N/A'}`, 30, 85);
+
+      doc.setFontSize(14);
+      doc.text('Service Details:', 20, 100);
+      doc.setFontSize(11);
+      let yPos = 110;
+      booking.services.forEach(s => {
+        doc.text(`- ${s.serviceName}`, 30, yPos);
+        yPos += 10;
+      });
+
+      doc.setFontSize(14);
+      doc.text('Billing Summary:', 20, yPos + 10);
+      doc.setFontSize(11);
+      doc.text(`Subtotal: ₹${billingAmount}`, 30, yPos + 20);
+      if (travelingAmount > 0) doc.text(`Traveling: ₹${travelingAmount}`, 30, yPos + 30);
+      doc.text(`Total Amount: ₹${billingAmount}`, 30, yPos + 40);
+      doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, yPos + 50);
+
+      doc.setFontSize(10);
+      doc.text('Thank you for choosing Fixfly!', 105, 250, { align: 'center' });
+
+      pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+    } catch (pdfErr) {
+      logger.error('Failed to generate PDF for booking completion:', pdfErr);
+    }
+
     return await this.sendEmail({
       to: customer.email,
       subject: subject,
       html: html,
-      text: text
+      text: text,
+      attachments: pdfBuffer ? [
+        {
+          filename: `Receipt-${bookingReference}.pdf`,
+          content: pdfBuffer
+        }
+      ] : []
     });
+
   }
 
   /**
@@ -2743,12 +2796,46 @@ class EmailService {
         Fixfly Team
       `;
 
+      // Generate PDF Summary for Cancellation
+      let pdfBuffer = null;
+      try {
+        const doc = new jsPDF();
+        doc.setFontSize(22);
+        doc.text('FIXFLY - CANCELLATION SUMMARY', 105, 20, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text(`Booking #: ${bookingReference}`, 20, 40);
+        doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 20, 50);
+
+        doc.line(20, 55, 190, 55);
+
+        doc.setFontSize(14);
+        doc.text('Cancellation Details:', 20, 65);
+        doc.setFontSize(11);
+        doc.text(`Cancelled By: ${cancelledByText} ${vendorName ? `(${vendorName})` : ''}`, 30, 75);
+        doc.text(`Reason: ${reason || 'No reason provided'}`, 30, 85);
+
+        doc.setFontSize(10);
+        doc.text('Fixfly Services', 105, 250, { align: 'center' });
+
+        pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+      } catch (pdfErr) {
+        logger.error('Failed to generate PDF for booking cancellation:', pdfErr);
+      }
+
       return await this.sendEmail({
         to: customer.email,
         subject: subject,
         html: html,
-        text: text
+        text: text,
+        attachments: pdfBuffer ? [
+          {
+            filename: `Cancellation-${bookingReference}.pdf`,
+            content: pdfBuffer
+          }
+        ] : []
       });
+
 
     } catch (error) {
       const { logger } = require('../utils/logger');
@@ -3031,12 +3118,57 @@ class EmailService {
         Thank you for choosing Fixfly!
       `;
 
+      // Generate PDF Receipt for Support Ticket
+      let pdfBuffer = null;
+      try {
+        const doc = new jsPDF();
+        doc.setFontSize(22);
+        doc.text('FIXFLY - SERVICE RECEIPT', 105, 20, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text(`Receipt #: ${ticketId}`, 20, 40);
+        doc.text(`Date: ${completedDate}`, 20, 50);
+
+        doc.line(20, 55, 190, 55);
+
+        doc.setFontSize(14);
+        doc.text('Customer Details:', 20, 65);
+        doc.setFontSize(11);
+        doc.text(`Name: ${userName}`, 30, 75);
+        doc.text(`Email: ${userEmail || 'N/A'}`, 30, 85);
+
+        doc.setFontSize(14);
+        doc.text('Service Details:', 20, 100);
+        doc.setFontSize(11);
+        doc.text(`- ${ticketSubject}`, 30, 110);
+
+        doc.setFontSize(14);
+        doc.text('Billing Summary:', 20, 130);
+        doc.setFontSize(11);
+        doc.text(`Total Amount: ₹${billingAmount || totalAmount || 0}`, 30, 140);
+        doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, 150);
+
+        doc.setFontSize(10);
+        doc.text('Thank you for choosing Fixfly!', 105, 250, { align: 'center' });
+
+        pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+      } catch (pdfErr) {
+        logger.error('Failed to generate PDF for ticket completion:', pdfErr);
+      }
+
       return await this.sendEmail({
         to: userEmail,
         subject: subject,
         html: html,
-        text: text
+        text: text,
+        attachments: pdfBuffer ? [
+          {
+            filename: `Receipt-${ticketId}.pdf`,
+            content: pdfBuffer
+          }
+        ] : []
       });
+
 
     } catch (error) {
       const { logger } = require('../utils/logger');
@@ -3150,12 +3282,47 @@ class EmailService {
         Fixfly Team
       `;
 
+      // Generate PDF Summary for Ticket Cancellation
+      let pdfBuffer = null;
+      try {
+        const doc = new jsPDF();
+        doc.setFontSize(22);
+        doc.text('FIXFLY - CANCELLATION SUMMARY', 105, 20, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text(`Ticket #: ${ticketId}`, 20, 40);
+        doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 20, 50);
+
+        doc.line(20, 55, 190, 55);
+
+        doc.setFontSize(14);
+        doc.text('Cancellation Details:', 20, 65);
+        doc.setFontSize(11);
+        doc.text(`Service: ${ticketSubject}`, 30, 75);
+        doc.text(`Cancelled By: ${cancelledByText} ${vendorName ? `(${vendorName})` : ''}`, 30, 85);
+        doc.text(`Reason: ${reason || 'No reason provided'}`, 30, 95);
+
+        doc.setFontSize(10);
+        doc.text('Fixfly Services', 105, 250, { align: 'center' });
+
+        pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+      } catch (pdfErr) {
+        logger.error('Failed to generate PDF for ticket cancellation:', pdfErr);
+      }
+
       return await this.sendEmail({
         to: userEmail,
         subject: subject,
         html: html,
-        text: text
+        text: text,
+        attachments: pdfBuffer ? [
+          {
+            filename: `Cancellation-${ticketId}.pdf`,
+            content: pdfBuffer
+          }
+        ] : []
       });
+
 
     } catch (error) {
       const { logger } = require('../utils/logger');

@@ -4,7 +4,6 @@ const uploadController = require('../controllers/uploadController');
 const uploadMiddleware = require('../middleware/upload');
 const { protect } = require('../middleware/auth');
 
-
 /**
  * @route   POST /api/upload/image
  * @desc    Upload image to Cloudinary
