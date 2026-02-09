@@ -6,7 +6,7 @@ class BotbeeService {
     this.apiKey = process.env.BOTBEE_API_KEY;
     this.phoneId = process.env.BOTBEE_PHONE_ID;
     this.adminWhatsApp = process.env.ADMIN_WHATSAPP;
-    this.bookingTemplateId = process.env.BOTBEE_BOOKING_TEMPLATE_ID;
+    this.bookingTemplateId = process.env.BOTBEE_BOOKING_TEMPLATE_ID || '313747';
     this.baseUrl = process.env.BOTBEE_BASE || 'https://app.botbee.io';
     this.isConfigured = !!(this.apiKey && this.phoneId && this.adminWhatsApp);
   }
@@ -115,12 +115,50 @@ class BotbeeService {
       // If templateId is a numeric ID (like in our config), use template_id
       // Otherwise use the Meta-style template object as fallback
       if (templateId && !isNaN(templateId)) {
-        botbeePayload.template_id = String(templateId);
-        botbeePayload.name = "newbooking"; // Hardcoded as fallback if ID needs context
-        botbeePayload.language = "en_GB";
-        botbeePayload.variables = templateParams;
+        // Updated to use the specific format from user's curl request
+        // https://app.botbee.io/api/v1/whatsapp/send/template
+        const templateUri = `${this.baseUrl}/api/v1/whatsapp/send/template`;
+
+        // Use URLSearchParams for form-data format as seen in the curl example
+        const params = new URLSearchParams();
+        params.append('apiToken', this.apiKey);
+        params.append('phone_number_id', this.phoneId);
+        params.append('template_id', String(templateId));
+        params.append('phone_number', phoneNumber);
+
+        // Dynamically add template variables based on the curl format:
+        // templateVariable-[name]-[index]
+        // For booking: serviceName (1), bookingId (2)
+        if (Array.isArray(templateParams)) {
+          // Mapping array params to specific keys if needed, 
+          // but for booking we know the order: 0: customerName, 1: bookingReference
+          params.append('templateVariable-serviceName-1', String(templateParams[0] || 'Customer'));
+          params.append('templateVariable-bookingId-2', String(templateParams[1] || 'N/A'));
+        }
+
+        console.log("📤 BOTBEE DYNAMIC TEMPLATE REQUEST:", templateUri, params.toString());
+
+        const response = await axios.post(templateUri, params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          timeout: 15000
+        });
+
+        const isSuccess = response.status === 200 && (
+          String(response.data?.status) === '1' ||
+          response.data?.success === true
+        );
+
+        if (isSuccess) {
+          logger.info('WhatsApp dynamic template message sent successfully', { data: response.data });
+          return { success: true, message: 'Sent successfully', data: response.data };
+        } else {
+          logger.warn('WhatsApp dynamic template failed', { data: response.data });
+          return { success: false, message: response.data?.message || 'Failed', data: response.data };
+        }
       } else {
-        // Fallback for named templates
+        // Fallback for named templates (JSON format)
         const components = [
           {
             type: "body",
@@ -130,62 +168,30 @@ class BotbeeService {
 
         botbeePayload.template = {
           name: templateId,
-          language: { code: "en_GB" },
+          language: { code: "en_US" },
           components: components
         };
       }
 
-      console.log("📤 BOTBEE TEMPLATE PAYLOAD (Meta Standard):", JSON.stringify(botbeePayload, null, 2));
-
-      logger.info('Sending WhatsApp template message', {
-        phoneNumber: phoneNumber,
-        templateName: templateId,
-        url: url
-      });
+      // Log for fallback/named templates
+      console.log("📤 BOTBEE TEMPLATE PAYLOAD (JSON):", JSON.stringify(botbeePayload, null, 2));
 
       const response = await axios.post(url, botbeePayload, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
+          'Content-Type': 'application/json'
         },
         timeout: 15000
       });
 
-      // Botbee response format: { status: '1', message: 'Message sent successfully.', wa_message_id: '...' }
-      // Status '1' means success, Status '0' means some issue (but might still be sent)
       const isSuccess = response.status === 200 && (
-        response.data?.status === '1' || // Success
-        response.data?.status === 'success' ||
-        response.data?.success === true ||
-        response.data?.wa_message_id // If wa_message_id exists, message was sent
+        response.data?.status === '1' ||
+        response.data?.success === true
       );
 
       if (isSuccess) {
-        logger.info('WhatsApp template message sent successfully', {
-          status: response.status,
-          data: response.data
-        });
-
-        console.log('✅ Botbee Template Response:', response.data);
-
-        return {
-          success: true,
-          message: 'WhatsApp template message sent successfully',
-          data: response.data
-        };
+        return { success: true, message: 'Success', data: response.data };
       } else {
-        // If response indicates failure
-        logger.warn('WhatsApp template message response indicates failure', {
-          status: response.status,
-          data: response.data
-        });
-
-        return {
-          success: false,
-          message: 'WhatsApp template message failed',
-          error: response.data?.message || 'Unknown error',
-          data: response.data
-        };
+        return { success: false, message: response.data?.message || 'Failed', data: response.data };
       }
 
     } catch (error) {
@@ -374,8 +380,9 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
 
       const bookingReference = booking.bookingReference || `FIX${booking._id.toString().slice(-8).toUpperCase()}`;
       const customerName = booking.customer?.name || 'Customer';
+      const firstServiceName = booking.services?.[0]?.serviceName || 'Repair';
       const preferredDate = booking.scheduling?.preferredDate
-        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN', {
+        ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-US', {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
@@ -389,23 +396,17 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
       const paymentStatus = booking.payment?.status || 'pending';
 
       // Check if utility template ID is configured
-      // Template Name: newbooking (Verified from screenshot)
-      // Locale: en_GB (English UK)
+      // Template Name: 313747 (Updated based on user request)
+      // Locale: en_US (English US)
       // Use configured template ID or fallback to name
-      const templateName = this.bookingTemplateId || 'newbooking';
+      const templateName = this.bookingTemplateId || '313747';
 
       if (templateName) {
-        // Use utility template 'newbooking'
-        // Required format: {{1}} = Customer Name, {{2}} = Service Name, {{3}} = Booking ID
-
-        // Note: Based on screenshot, variables might be implicit or missing in preview, 
-        // but we will send them assuming standard format:
-        // Hello {{1}}, ... request for {{2}}. ... ID is {{3}}.
-        const firstServiceName = booking.services?.[0]?.serviceName || 'Service';
+        // Use utility template 
+        // Required format: {{1}} = Customer Name (#!serviceName!#), {{2}} = Booking ID (#!bookingId!#)
 
         const templateData = [
           customerName,
-          firstServiceName,
           bookingReference
         ];
 
@@ -418,7 +419,7 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
           service: firstServiceName
         });
 
-        // Pass 'en_GB' as a language parameter if the method supports it, 
+        // Pass 'en_US' as a language parameter if the method supports it, 
         // or ensure sendCustomNotification handles it.
         // For now, we pass the NAME as the ID.
         const templateResult = await this.sendCustomNotification(normalizedPhone, templateName, templateData);
@@ -446,9 +447,9 @@ Status: ${booking.status || 'waiting_for_engineer'}`;
         return templateResult;
       } else {
         // Fallback to plain message if template not configured
-        const firstServiceName = booking.services?.[0]?.serviceName || 'Service';
-        // Exact text required by user
-        const message = `Thank Your For Using Fixfly. Your booking has been confirmed successfully. Hello ${customerName}, our team has received your service request for ${firstServiceName}. Your booking ID is ${bookingReference}. Our Team will Assigned Enginner shortly. Thank you for choosing Fixfly.`;
+        // Exact text required by user:
+        // Thank Your For Using Fixfly.Your booking has been confirmed successfully. Hello #!serviceName!#, our team has received your service request for Repair. Your booking ID is #!bookingId!#. Our Team will Assigned Enginner shortly. Thank you for choosing Fixfly.
+        const message = `Thank Your For Using Fixfly.Your booking has been confirmed successfully. Hello ${customerName}, our team has received your service request for ${firstServiceName}. Your booking ID is ${bookingReference}. Our Team will Assigned Enginner shortly. Thank you for choosing Fixfly.`;
 
         logger.info('Sending booking confirmation via plain message', {
           bookingId: booking._id,
