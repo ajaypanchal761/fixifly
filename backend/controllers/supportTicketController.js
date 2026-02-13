@@ -2215,7 +2215,7 @@ const completeSupportTicket = asyncHandler(async (req, res) => {
   const { resolution, completionData } = req.body;
   const vendorId = req.vendor._id;
 
-  const ticket = await SupportTicket.findOne({ ticketId: id });
+  const ticket = await SupportTicket.findOne({ ticketId: id }).populate('assignedTo');
 
   if (!ticket) {
     return res.status(404).json({

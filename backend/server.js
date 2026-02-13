@@ -71,30 +71,40 @@ process.on('uncaughtException', (error) => {
 
 
 // Security middleware
-app.use(helmet());
+// CORS configuration - Must be before other middleware that might set headers
+const allowedOrigins = [
+  'https://getfixfly.com',
+  'https://www.getfixfly.com',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:8080'
+];
 
-// CORS configuration
 app.use(cors({
   origin: function (origin, callback) {
-    // Explicitly allowed origins
-    const allowedOrigins = [
-      'https://getfixfly.com',
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:8080'
-    ];
-
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Check if origin is in allowed list or is a subdomain of getfixfly.com
+    const isAllowed = allowedOrigins.indexOf(origin) !== -1 ||
+      origin.endsWith('.getfixfly.com');
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      // Allow other origins to maintain existing functionality (as requested)
+      // In production, we should be strict, but as requested, maintaining flexibility
       callback(null, true);
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'x-flutter-bridge', 'x-is-mobile', 'x-android-bridge']
+}));
+
+// Security middleware - Moved after CORS
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false, // Disable CSP for API to avoid interference
 }));
 
 
@@ -297,13 +307,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server only after database connection is established
+// Start server
 const startServer = async () => {
   try {
-    // Connect to MongoDB Atlas first
-    await connectDB();
-
     const PORT = process.env.PORT || 5000;
+
+    // Connect to MongoDB Atlas (don't block server start in production)
+    // Mongoose handles buffering internally
+    connectDB().catch(err => {
+      console.error('Initial MongoDB connection failed:', err.message);
+    });
 
     const server = app.listen(PORT, () => {
       // Start auto-reject service

@@ -2560,6 +2560,14 @@ class EmailService {
               <p>Hello ${customer.name},</p>
               <p>Your service has been successfully completed. Here is your digital receipt.</p>
 
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                <div style="font-size: 24px;">👨‍🔧</div>
+                <div>
+                  <div style="font-size: 14px; color: #64748b;">Assigned Engineer</div>
+                  <div style="font-weight: 600; color: #1e293b;">${booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName || ''} ${booking.vendor.vendorId.lastName || ''}`.trim() : 'N/A'}</div>
+                </div>
+              </div>
+
               <div class="amount-box">
                 <div class="amount-title">TOTAL AMOUNT</div>
                 <div class="amount-value">₹${billingAmount}</div>
@@ -2627,13 +2635,15 @@ class EmailService {
       TOTAL AMOUNT: ₹${billingAmount}
       Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}
       
+      ENGINEER:
+      ${booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName || ''} ${booking.vendor.vendorId.lastName || ''}`.trim() : 'N/A'}
+
       RESOLUTION NOTE:
       ${resolutionNote || 'No resolution note provided.'}
       
       BILLING DETAILS:
       ${booking.services.map(s => `- ${s.serviceName}`).join('\n')}
-      ${travelingAmount > 0 ? `Traveling Charges: ₹${travelingAmount}\n` : ''}
-      ${spareParts && spareParts.length > 0 ? `Spare Parts: ${spareParts.map(p => `${p.name} (₹${p.amount})`).join(', ')}\n` : ''}
+      ${spareParts && spareParts.length > 0 ? `Spare Parts: ${spareParts.map(p => `${p.name} (₹${p.amount})${p.warranty ? ` - ${p.warranty} Warranty` : ''}`).join(', ')}\n` : ''}
       
       RATE YOUR SERVICE:
       Please take a moment to rate your experience:
@@ -2651,35 +2661,63 @@ class EmailService {
 
       doc.setFontSize(12);
       doc.text(`Receipt #: ${bookingReference}`, 20, 40);
-      doc.text(`Date: ${completedDate}`, 20, 50);
+      doc.text(`Booking ID: ${bookingReference}`, 20, 50);
+      doc.text(`Date: ${completedDate}`, 20, 60);
 
-      doc.line(20, 55, 190, 55);
-
-      doc.setFontSize(14);
-      doc.text('Customer Details:', 20, 65);
-      doc.setFontSize(11);
-      doc.text(`Name: ${customer.name}`, 30, 75);
-      doc.text(`Email: ${customer.email || 'N/A'}`, 30, 85);
+      doc.line(20, 65, 190, 65);
 
       doc.setFontSize(14);
-      doc.text('Service Details:', 20, 100);
+      doc.text('Customer Details:', 20, 75);
       doc.setFontSize(11);
-      let yPos = 110;
+      doc.text(`Name: ${customer.name}`, 30, 85);
+      doc.text(`Email: ${customer.email || 'N/A'}`, 30, 95);
+
+      // Engineer Details
+      const engineerName = booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName || ''} ${booking.vendor.vendorId.lastName || ''}`.trim() : 'N/A';
+      doc.setFontSize(14);
+      doc.text('Engineer Details:', 20, 110);
+      doc.setFontSize(11);
+      doc.text(`Name: ${engineerName}`, 30, 120);
+
+      doc.setFontSize(14);
+      doc.text('Service Details:', 20, 135);
+      doc.setFontSize(11);
+      let yPos = 145;
       booking.services.forEach(s => {
         doc.text(`- ${s.serviceName}`, 30, yPos);
         yPos += 10;
       });
 
+      // Resolution Note
+      doc.setFontSize(14);
+      doc.text('Resolution Note:', 20, yPos + 5);
+      doc.setFontSize(11);
+      const splitNote = doc.splitTextToSize(resolutionNote || 'Ticket resolved successfully.', 160);
+      doc.text(splitNote, 30, yPos + 15);
+      yPos += 15 + (splitNote.length * 7);
+
+      // Spare Parts
+      if (spareParts && spareParts.length > 0) {
+        doc.setFontSize(14);
+        doc.text('Spare Parts & Warranty:', 20, yPos + 5);
+        doc.setFontSize(11);
+        yPos += 15;
+        spareParts.forEach(part => {
+          doc.text(`- ${part.name}: ₹${part.amount} ${part.warranty ? `(${part.warranty} Warranty)` : ''}`, 30, yPos);
+          yPos += 10;
+        });
+      }
+
       doc.setFontSize(14);
       doc.text('Billing Summary:', 20, yPos + 10);
       doc.setFontSize(11);
       doc.text(`Subtotal: ₹${billingAmount}`, 30, yPos + 20);
-      if (travelingAmount > 0) doc.text(`Traveling: ₹${travelingAmount}`, 30, yPos + 30);
-      doc.text(`Total Amount: ₹${billingAmount}`, 30, yPos + 40);
-      doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, yPos + 50);
+      // Traveling removed as per request
+      doc.text(`Total Amount: ₹${billingAmount}`, 30, yPos + 30);
+      doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, yPos + 40);
 
       doc.setFontSize(10);
-      doc.text('Thank you for choosing Fixfly!', 105, 250, { align: 'center' });
+      doc.text('Thank you for choosing Fixfly!', 105, 270, { align: 'center' });
 
       pdfBuffer = Buffer.from(doc.output('arraybuffer'));
     } catch (pdfErr) {
@@ -3001,7 +3039,7 @@ class EmailService {
       const sparePartsHtml = spareParts && spareParts.length > 0
         ? spareParts.map(part => `
             <div class="detail-row">
-              <span class="detail-label">${part.name} (Spare)</span>
+              <span class="detail-label">${part.name} (Spare)${part.warranty ? ` - <span style="color:#2563eb; font-size:12px;">(${part.warranty} Warranty)</span>` : ''}</span>
               <span class="detail-value">₹${part.amount}</span>
             </div>`).join('')
         : '';
@@ -3044,6 +3082,14 @@ class EmailService {
               <div class="content">
                 <p>Hello ${userName},</p>
                 <p>Your support ticket has been resolved and service is completed. Here is your digital receipt.</p>
+
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                  <div style="font-size: 24px;">👨‍🔧</div>
+                  <div>
+                    <div style="font-size: 14px; color: #64748b;">Assigned Engineer</div>
+                    <div style="font-weight: 600; color: #1e293b;">${ticket.assignedTo ? `${ticket.assignedTo.firstName || ''} ${ticket.assignedTo.lastName || ''}`.trim() : 'N/A'}</div>
+                  </div>
+                </div>
 
                 <div class="amount-box">
                   <div class="amount-title">TOTAL AMOUNT</div>
@@ -3104,12 +3150,15 @@ class EmailService {
         TOTAL AMOUNT: ₹${billingAmount || totalAmount || 0}
         Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}
         
+        ENGINEER:
+        ${ticket.assignedTo ? `${ticket.assignedTo.firstName || ''} ${ticket.assignedTo.lastName || ''}`.trim() : 'N/A'}
+
         RESOLUTION NOTE:
         ${resolutionNote || 'Ticket resolved successfully.'}
         
         BILLING DETAILS:
         Service: ${ticketSubject}
-        ${spareParts && spareParts.length > 0 ? `Spare Parts: ${spareParts.map(p => `${p.name} (₹${p.amount})`).join(', ')}\n` : ''}
+        ${spareParts && spareParts.length > 0 ? `Spare Parts: ${spareParts.map(p => `${p.name} (₹${p.amount})${p.warranty ? ` - ${p.warranty} Warranty` : ''}`).join(', ')}\n` : ''}
         
         RATE YOUR SERVICE:
         Please take a moment to rate your experience:
@@ -3127,29 +3176,60 @@ class EmailService {
 
         doc.setFontSize(12);
         doc.text(`Receipt #: ${ticketId}`, 20, 40);
-        doc.text(`Date: ${completedDate}`, 20, 50);
+        doc.text(`Booking ID: ${ticketId}`, 20, 50);
+        doc.text(`Date: ${completedDate}`, 20, 60);
 
-        doc.line(20, 55, 190, 55);
-
-        doc.setFontSize(14);
-        doc.text('Customer Details:', 20, 65);
-        doc.setFontSize(11);
-        doc.text(`Name: ${userName}`, 30, 75);
-        doc.text(`Email: ${userEmail || 'N/A'}`, 30, 85);
+        doc.line(20, 65, 190, 65);
 
         doc.setFontSize(14);
-        doc.text('Service Details:', 20, 100);
+        doc.text('Customer Details:', 20, 75);
         doc.setFontSize(11);
-        doc.text(`- ${ticketSubject}`, 30, 110);
+        doc.text(`Name: ${userName}`, 30, 85);
+        doc.text(`Email: ${userEmail || 'N/A'}`, 30, 95);
+
+        // Engineer Details
+        const engineerName = ticket.assignedTo ? `${ticket.assignedTo.firstName || ''} ${ticket.assignedTo.lastName || ''}`.trim() : 'N/A';
+        doc.setFontSize(14);
+        doc.text('Engineer Details:', 20, 110);
+        doc.setFontSize(11);
+        doc.text(`Name: ${engineerName}`, 30, 120);
 
         doc.setFontSize(14);
-        doc.text('Billing Summary:', 20, 130);
+        doc.text('Service Details:', 20, 135);
         doc.setFontSize(11);
-        doc.text(`Total Amount: ₹${billingAmount || totalAmount || 0}`, 30, 140);
-        doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, 150);
+        doc.text(`- ${ticketSubject}`, 30, 145);
+        let yPos = 155;
+
+        // Resolution Note
+        doc.setFontSize(14);
+        doc.text('Resolution Note:', 20, yPos + 5);
+        doc.setFontSize(11);
+        const splitNote = doc.splitTextToSize(resolutionNote || 'Ticket resolved successfully.', 160);
+        doc.text(splitNote, 30, yPos + 15);
+        yPos += 15 + (splitNote.length * 7);
+
+        // Spare Parts
+        if (spareParts && spareParts.length > 0) {
+          doc.setFontSize(14);
+          doc.text('Spare Parts & Warranty:', 20, yPos + 5);
+          doc.setFontSize(11);
+          yPos += 15;
+          spareParts.forEach(part => {
+            doc.text(`- ${part.name}: ₹${part.amount} ${part.warranty ? `(${part.warranty} Warranty)` : ''}`, 30, yPos);
+            yPos += 10;
+          });
+        }
+
+        doc.setFontSize(14);
+        doc.text('Billing Summary:', 20, yPos + 10);
+        doc.setFontSize(11);
+        doc.text(`Subtotal: ₹${billingAmount || totalAmount || 0}`, 30, yPos + 20);
+        // Traveling removed as per request
+        doc.text(`Total Amount: ₹${billingAmount || totalAmount || 0}`, 30, yPos + 30);
+        doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, yPos + 40);
 
         doc.setFontSize(10);
-        doc.text('Thank you for choosing Fixfly!', 105, 250, { align: 'center' });
+        doc.text('Thank you for choosing Fixfly!', 105, 270, { align: 'center' });
 
         pdfBuffer = Buffer.from(doc.output('arraybuffer'));
       } catch (pdfErr) {

@@ -371,13 +371,23 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
       });
     }
 
+    const updatePayload = {
+      status,
+      'tracking.updatedAt': new Date(),
+      ...(status === 'completed' && { 'tracking.completedAt': new Date() })
+    };
+
+    // If status is cancelled, set cancellation data
+    if (status === 'cancelled') {
+      updatePayload['cancellationData.isCancelled'] = true;
+      updatePayload['cancellationData.cancelledBy'] = 'admin';
+      updatePayload['cancellationData.cancelledAt'] = new Date();
+      updatePayload['cancellationData.cancellationReason'] = 'Status updated by Admin';
+    }
+
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
-      {
-        status,
-        'tracking.updatedAt': new Date(),
-        ...(status === 'completed' && { 'tracking.completedAt': new Date() })
-      },
+      updatePayload,
       { new: true, runValidators: true }
     ).lean();
 
@@ -711,7 +721,12 @@ const assignVendor = asyncHandler(async (req, res) => {
       // Reset vendor response when reassigning to new vendor
       'vendorResponse.status': 'pending',
       'vendorResponse.respondedAt': null,
-      'vendorResponse.responseNote': null
+      'vendorResponse.responseNote': null,
+      // Reset cancellation data if it was previously cancelled
+      'cancellationData.isCancelled': false,
+      'cancellationData.cancelledBy': null,
+      'cancellationData.cancelledAt': null,
+      'cancellationData.cancellationReason': null
     };
 
     // Add scheduled date and time if provided
@@ -1440,7 +1455,19 @@ const getBookingStats = asyncHandler(async (req, res) => {
 // @access  Admin
 const deleteBooking = asyncHandler(async (req, res) => {
   try {
-    const booking = await Booking.findByIdAndDelete(req.params.id);
+    // Instead of hard-deleting, we set status to cancelled
+    // This addresses the user's issue: "Admin booking cancel karta h to nhi hota h. Only delete hi hota h."
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: 'cancelled',
+        'cancellationData.isCancelled': true,
+        'cancellationData.cancelledBy': 'admin',
+        'cancellationData.cancelledAt': new Date(),
+        'cancellationData.cancellationReason': 'Cancelled via Delete action in Admin'
+      },
+      { new: true }
+    );
 
     if (!booking) {
       return res.status(404).json({
@@ -1449,20 +1476,20 @@ const deleteBooking = asyncHandler(async (req, res) => {
       });
     }
 
-    logger.info(`Admin deleted booking: ${booking.bookingReference}`, {
+    logger.info(`Admin performed soft delete (cancel) on booking: ${booking.bookingReference}`, {
       bookingId: booking._id,
       adminId: req.admin._id
     });
 
     res.json({
       success: true,
-      message: 'Booking deleted successfully'
+      message: 'Booking cancelled successfully (soft deleted)'
     });
   } catch (error) {
-    logger.error('Error deleting booking:', error);
+    logger.error('Error in deleteBooking (soft cancel):', error);
     res.status(500).json({
       success: false,
-      message: 'Error deleting booking',
+      message: 'Error cancelling booking',
       error: error.message
     });
   }
