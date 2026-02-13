@@ -112,7 +112,7 @@ const markAllNotificationsAsRead = asyncHandler(async (req, res) => {
 // @access  Private (Vendor)
 const getVendorSupportTickets = asyncHandler(async (req, res) => {
   const vendorId = req.vendor._id;
-  const { page = 1, limit = 10, status, priority, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+  const { page = 1, limit = 10, status, priority, search, sortBy = 'assignedAt', sortOrder = 'desc' } = req.query;
 
   // Build filter object
   const filter = { assignedTo: vendorId };
@@ -214,8 +214,8 @@ const getVendorDashboard = asyncHandler(async (req, res) => {
       vendorStatus: 'Pending'
     })
       .populate('userId', 'name email phone address')
-      .select('ticketId subject type priority createdAt userName userEmail userPhone description')
-      .sort({ createdAt: -1 })
+      .select('ticketId subject type priority createdAt userName userEmail userPhone description assignedAt')
+      .sort({ assignedAt: -1 })
       .limit(5);
 
     logger.info('Pending tickets found for vendor', {
@@ -608,7 +608,7 @@ const createBookingAssignmentNotification = async (vendorId, bookingData) => {
         if (bookingData.customer && bookingData.customer.email) {
           console.log('📧 Sending engineer assignment email to user:', bookingData.customer.email);
 
-          const emailService = new (require('../services/emailService'))();
+          const emailService = require('../services/emailService');
           const subject = `Engineer Assigned for your Booking #${bookingData.bookingReference || bookingData._id.toString().substring(0, 8).toUpperCase()}`;
 
           // Format date and time

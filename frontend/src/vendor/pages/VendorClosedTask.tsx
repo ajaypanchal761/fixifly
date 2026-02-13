@@ -27,32 +27,54 @@ interface SparePart {
   warranty: string;
 }
 
-// Image compression utility
-const compressImage = (base64Str: string, maxWidth = 800, quality = 0.7): Promise<string> => {
+// Improved Image compression utility to prevent memory crashes on mobile
+const compressImage = (file: File, maxWidth = 800, quality = 0.7): Promise<string> => {
   return new Promise((resolve, reject) => {
+    // Check if file is valid
+    if (!file || !file.type.startsWith('image/')) {
+      reject(new Error('Invalid file type'));
+      return;
+    }
+
     const img = new Image();
-    img.src = base64Str;
+    const objectUrl = URL.createObjectURL(file);
+
+    img.src = objectUrl;
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      let width = img.width;
-      let height = img.height;
+      try {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
 
-      if (width > maxWidth) {
-        height = (maxWidth / width) * height;
-        width = maxWidth;
-      }
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
 
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('Canvas context not available'));
-        return;
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('Canvas context not available'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const result = canvas.toDataURL('image/jpeg', quality);
+
+        // Cleanup memory
+        URL.revokeObjectURL(objectUrl);
+        resolve(result);
+      } catch (err) {
+        URL.revokeObjectURL(objectUrl);
+        reject(err);
       }
-      ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL('image/jpeg', quality));
     };
-    img.onerror = (err) => reject(err);
+    img.onerror = (err) => {
+      URL.revokeObjectURL(objectUrl);
+      reject(err);
+    };
   });
 };
 
@@ -376,35 +398,20 @@ const VendorClosedTask = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Image size is too large. Please capture a smaller image.');
-      event.target.value = '';
-      return;
-    }
-
+    // Show loading state or some feedback if needed
     try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64String = e.target?.result as string;
-        if (!base64String) {
-          alert('Failed to read image.');
-          return;
-        }
+      // Direct compression from file is much more memory efficient
+      const compressed = await compressImage(file, 800, 0.7);
 
-        try {
-          const compressed = await compressImage(base64String);
-          setSpareParts(prev => prev.map(part =>
-            part.id === id ? { ...part, photo: compressed } : part
-          ));
-        } catch (compressError) {
-          console.error('Image compression failed:', compressError);
-          alert('Failed to process image. Please try again.');
-        }
-      };
-      reader.readAsDataURL(file);
+      setSpareParts(prev => prev.map(part =>
+        part.id === id ? { ...part, photo: compressed } : part
+      ));
+
+      // Clear input so same file can be captured again if needed
+      event.target.value = '';
     } catch (error) {
-      console.error('Error reading file:', error);
-      alert('Failed to read image.');
+      console.error('Error processing image:', error);
+      alert('Failed to process image. Please try capturing again with a lower resolution.');
     }
   };
 
@@ -421,38 +428,16 @@ const VendorClosedTask = () => {
 
   const handlePaymentProofCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Image size is too large. Please capture a smaller image.');
-      event.target.value = '';
-      return;
-    }
+    if (!file) return;
 
     try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64String = e.target?.result as string;
-        if (!base64String) {
-          alert('Failed to read image.');
-          return;
-        }
-
-        try {
-          const compressedImage = await compressImage(base64String, 800, 0.7);
-          setPaymentProofImage(compressedImage);
-          console.log(`✅ Payment proof image captured`);
-        } catch (compressError) {
-          console.error('Image compression failed:', compressError);
-          alert('Failed to process image. Please try again.');
-        }
-      };
-      reader.readAsDataURL(file);
+      const compressedImage = await compressImage(file, 800, 0.7);
+      setPaymentProofImage(compressedImage);
+      console.log(`✅ Payment proof image captured efficiently`);
+      event.target.value = '';
     } catch (error) {
-      console.error('Error reading file:', error);
-      alert('Failed to read image.');
+      console.error('Error processing payment proof:', error);
+      alert('Failed to process image. Please try again.');
     }
   };
 
@@ -738,27 +723,13 @@ const VendorClosedTask = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Image size is too large. Please capture a smaller image.');
-      event.target.value = '';
-      return;
-    }
-
     try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64String = e.target?.result as string;
-        if (!base64String) { alert('Failed to read image.'); return; }
-        try {
-          const compressedImage = await compressImage(base64String, 800, 0.7);
-          setDeviceSerialImage(compressedImage);
-        } catch (compressError) {
-          alert('Failed to process image.');
-        }
-      };
-      reader.readAsDataURL(file);
+      const compressedImage = await compressImage(file, 800, 0.7);
+      setDeviceSerialImage(compressedImage);
+      event.target.value = '';
     } catch (error) {
-      alert('Failed to read image.');
+      console.error('Error processing serial photo:', error);
+      alert('Failed to process image.');
     }
   };
 

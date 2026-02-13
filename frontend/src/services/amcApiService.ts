@@ -1,17 +1,7 @@
 import axios from 'axios';
 
-// Normalize API base (ensure trailing /api exists exactly once)
-const configuredBase = (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000/api';
-const API_BASE_URL = (() => {
-  try {
-    let base = configuredBase.trim();
-    if (base.endsWith('/')) base = base.slice(0, -1);
-    if (!/\/api$/i.test(base)) base = `${base}/api`;
-    return base;
-  } catch {
-    return 'http://localhost:5000/api';
-  }
-})();
+import { normalizeApiUrl } from '../utils/apiUrl';
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 console.info('[amcApi] Using API base:', API_BASE_URL);
 
 // Create axios instance with default config

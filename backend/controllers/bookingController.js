@@ -940,7 +940,7 @@ const getBookingsByVendor = asyncHandler(async (req, res) => {
 
     const bookings = await Booking.find(query)
       .select('customer services pricing scheduling status priority vendor vendorResponse notes assignmentNotes completionData payment paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
-      .sort({ createdAt: -1 })
+      .sort({ 'vendor.assignedAt': -1 })
       .skip(skip)
       .limit(parseInt(limit))
       .lean();

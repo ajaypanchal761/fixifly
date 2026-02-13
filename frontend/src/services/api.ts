@@ -1,7 +1,7 @@
 // API service for Fixfly backend communication
 import { normalizeApiUrl } from '../utils/apiUrl';
 
-const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 
 // Debug API URL in production
 console.log('🔗 API_BASE_URL:', API_BASE_URL);
@@ -158,14 +158,16 @@ class ApiService {
       }
 
       // Handle network errors
-      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+      if (error.code === 'NETWORK_ERROR' || error.message.includes('fetch') || error.message.includes('Failed to fetch') || error.name === 'TypeError') {
         console.error('🌐 Network Error Details:', {
           url: url,
           baseURL: this.baseURL,
           environment: import.meta.env.MODE,
-          userAgent: navigator.userAgent
+          userAgent: navigator.userAgent,
+          errorName: error.name,
+          errorMessage: error.message
         });
-        throw new Error('Network error: Unable to connect to server. Please check your internet connection and try again.');
+        throw new Error(`Network error: Unable to connect to server at ${url}. Please ensure the backend is running and check your internet connection.`);
       }
 
       // Handle HTTP errors

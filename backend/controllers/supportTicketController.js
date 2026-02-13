@@ -801,8 +801,8 @@ const assignVendorToSupportTicket = asyncHandler(async (req, res) => {
       updateData.scheduleNotes = notes;
     }
 
-    // Update ticket status to In Progress when vendor is assigned
-    updateData.status = 'In Progress';
+    // Update ticket status to Submitted when vendor is assigned
+    updateData.status = 'Submitted';
 
     console.log('Update data before save:', updateData);
 

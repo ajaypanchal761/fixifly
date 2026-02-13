@@ -5,9 +5,16 @@
  * - Duplicate /api/api
  * - Missing /api
  */
-const FALLBACK_URL = 'http://localhost:5000/api';
+const FALLBACK_URL = '/api';
 
 const addProtocolIfMissing = (rawUrl: string): string => {
+  if (!rawUrl) return FALLBACK_URL;
+
+  // If it's a relative path, return as is
+  if (rawUrl.startsWith('/')) {
+    return rawUrl;
+  }
+
   if (/^https?:\/\//i.test(rawUrl)) {
     return rawUrl;
   }
@@ -21,8 +28,12 @@ const addProtocolIfMissing = (rawUrl: string): string => {
     return FALLBACK_URL;
   }
 
-  // Prefer http for localhost-style hosts to avoid SSL issues during development
-  if (/^(localhost|127\.0\.0\.1)/i.test(trimmed)) {
+  // Handle localhost, 127.0.0.1, or local IP addresses (192.168.x.x, 10.x.x.x, 172.x.x.x)
+  const isLocal = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/i.test(trimmed);
+  // Also check if it's any numeric IP with a port (e.g., 1.2.3.4:5000)
+  const isNumericIPWithPort = /^(\d{1,3}\.){3}\d{1,3}:\d+/.test(trimmed);
+
+  if (isLocal || isNumericIPWithPort) {
     return `http://${trimmed}`;
   }
 
@@ -37,6 +48,12 @@ export const normalizeApiUrl = (url: string): string => {
   const sanitized = url.trim();
   if (!sanitized) {
     return FALLBACK_URL;
+  }
+
+  // Special case for relative API paths (like "/api")
+  if (sanitized.startsWith('/')) {
+    // Ensure it doesn't end with a slash
+    return sanitized.replace(/\/+$/, '');
   }
 
   const withProtocol = addProtocolIfMissing(sanitized);
@@ -57,6 +74,11 @@ export const normalizeApiUrl = (url: string): string => {
     const normalized = parsed.toString().replace(/\/+$/, '');
     return normalized || FALLBACK_URL;
   } catch {
+    // If URL parsing fails but it started with http/https, maybe it's just invalid
+    // but we can try to return it sanitized
+    if (withProtocol.startsWith('http')) {
+      return withProtocol.replace(/\/+$/, '');
+    }
     return FALLBACK_URL;
   }
 };

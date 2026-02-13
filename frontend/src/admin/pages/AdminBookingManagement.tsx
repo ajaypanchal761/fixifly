@@ -929,21 +929,59 @@ const AdminBookingManagement = () => {
     setIsCompletedTaskDetailsOpen(true);
   };
 
-  const handleConfirmBooking = (bookingId: string) => {
-    setBookings(prev => prev.map(booking =>
-      booking._id === bookingId
-        ? { ...booking, status: 'confirmed' }
-        : booking
-    ));
+  const handleConfirmBooking = async (bookingId: string) => {
+    try {
+      const response = await adminBookingApi.updateBookingStatus(bookingId, 'confirmed');
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Booking confirmed successfully",
+          variant: "default"
+        });
+        fetchBookings();
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to confirm booking",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error confirming booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to confirm booking",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleCancelBooking = (bookingId: string) => {
+  const handleCancelBooking = async (bookingId: string) => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
-      setBookings(prev => prev.map(booking =>
-        booking._id === bookingId
-          ? { ...booking, status: 'cancelled', assignmentStatus: 'cancelled' }
-          : booking
-      ));
+      try {
+        const response = await adminBookingApi.updateBookingStatus(bookingId, 'cancelled');
+        if (response.success) {
+          toast({
+            title: "Success",
+            description: "Booking cancelled successfully",
+            variant: "default"
+          });
+          fetchBookings();
+        } else {
+          toast({
+            title: "Error",
+            description: response.message || "Failed to cancel booking",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        console.error('Error cancelling booking:', error);
+        toast({
+          title: "Error",
+          description: "Failed to cancel booking",
+          variant: "destructive"
+        });
+      }
     }
   };
 

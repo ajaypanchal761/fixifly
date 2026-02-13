@@ -1,6 +1,8 @@
 const { Booking } = require('../models/Booking');
 const Vendor = require('../models/Vendor');
 const User = require('../models/User');
+const SupportTicket = require('../models/SupportTicket');
+const WarrantyClaim = require('../models/WarrantyClaim');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { logger } = require('../utils/logger');
 const RazorpayService = require('../services/razorpayService');
@@ -611,104 +613,89 @@ const assignVendor = asyncHandler(async (req, res) => {
 
     // Validation: Check if vendor already has a task for the same date and time
     if (scheduledDate && scheduledTime) {
-      const scheduledDateObj = new Date(scheduledDate);
-      // Normalize date to start of day for comparison
-      const normalizedDate = new Date(scheduledDateObj);
-      normalizedDate.setHours(0, 0, 0, 0);
+      try {
+        const scheduledDateObj = new Date(scheduledDate);
+        if (isNaN(scheduledDateObj.getTime())) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid scheduled date format'
+          });
+        }
 
-      // Get end of day for date range query
-      const endOfDay = new Date(normalizedDate);
-      endOfDay.setHours(23, 59, 59, 999);
+        // Normalize date to start of day for comparison
+        const normalizedDate = new Date(scheduledDateObj);
+        normalizedDate.setHours(0, 0, 0, 0);
 
-      // 1. Check Booking Conflict (Uses Custom Vendor ID)
-      const conflictFilter = {
-        _id: { $ne: req.params.id },
-        'vendor.vendorId': vendorCustomId, // Uses Custom String ID
-        'scheduling.scheduledDate': {
-          $gte: normalizedDate,
-          $lte: endOfDay
-        },
-        'scheduling.scheduledTime': scheduledTime,
-        status: { $nin: ['cancelled', 'declined', 'completed'] },
-        // Only count as conflict if vendor hasn't declined it
-        $or: [
-          { 'vendorResponse.status': { $exists: false } },
-          { 'vendorResponse.status': null },
-          { 'vendorResponse.status': 'pending' },
-          { 'vendorResponse.status': 'accepted' }
-        ]
-      };
+        // Get end of day for date range query
+        const endOfDay = new Date(normalizedDate);
+        endOfDay.setHours(23, 59, 59, 999);
 
-      const conflictingBooking = await Booking.findOne(conflictFilter).select('bookingReference status vendorResponse.status');
+        // 1. Check Booking Conflict (Uses Custom Vendor ID)
+        const conflictFilter = {
+          _id: { $ne: req.params.id },
+          'vendor.vendorId': vendorCustomId,
+          'scheduling.scheduledDate': {
+            $gte: normalizedDate,
+            $lte: endOfDay
+          },
+          'scheduling.scheduledTime': scheduledTime,
+          status: { $nin: ['cancelled', 'declined', 'completed'] },
+          $or: [
+            { 'vendorResponse.status': { $exists: false } },
+            { 'vendorResponse.status': null },
+            { 'vendorResponse.status': 'pending' },
+            { 'vendorResponse.status': 'accepted' }
+          ]
+        };
 
-      if (conflictingBooking) {
-        logger.warn('Vendor conflict detected in bookings', {
-          vendorId: vendorCustomId,
-          scheduledDate: normalizedDate,
-          scheduledTime,
-          conflictingBooking: conflictingBooking.bookingReference,
-          conflictingStatus: conflictingBooking.status,
-          currentBookingId: req.params.id
+        const conflictingBooking = await Booking.findOne(conflictFilter).select('bookingReference status vendorResponse.status');
+
+        if (conflictingBooking) {
+          return res.status(400).json({
+            success: false,
+            message: `Vendor is already assigned to Booking ${conflictingBooking.bookingReference} (Status: ${conflictingBooking.status}) at the same date and time. Please choose a different time or vendor.`
+          });
+        }
+
+        // 2. Check Support Ticket Conflict (Uses Mongo ObjectId)
+        const conflictingTicket = await SupportTicket.findOne({
+          assignedTo: vendorMongoId,
+          scheduledDate: {
+            $gte: normalizedDate,
+            $lte: endOfDay
+          },
+          scheduledTime: scheduledTime,
+          status: { $nin: ['Resolved', 'Closed', 'Cancelled'] },
+          vendorStatus: { $nin: ['Declined', 'Cancelled'] }
+        }).select('ticketId status vendorStatus');
+
+        if (conflictingTicket) {
+          return res.status(400).json({
+            success: false,
+            message: `Vendor is already assigned to Support Ticket ${conflictingTicket.ticketId} (Status: ${conflictingTicket.status}) at the same date and time.`
+          });
+        }
+
+        // 3. Check Warranty Claim Conflict (Uses Mongo ObjectId)
+        const conflictingClaim = await WarrantyClaim.findOne({
+          assignedVendor: vendorMongoId,
+          scheduledDate: {
+            $gte: normalizedDate,
+            $lte: endOfDay
+          },
+          scheduledTime: scheduledTime,
+          status: { $nin: ['cancelled', 'rejected', 'completed'] }
         });
-        return res.status(400).json({
-          success: false,
-          message: `Vendor is already assigned to Booking ${conflictingBooking.bookingReference} (Status: ${conflictingBooking.status}) at the same date and time. Please choose a different time or vendor.`
-        });
-      }
 
-      // 2. Check Support Ticket Conflict (Uses Mongo ObjectId)
-      const SupportTicket = require('../models/SupportTicket');
-
-      const conflictingTicket = await SupportTicket.findOne({
-        assignedTo: vendorMongoId, // Uses ObjectId
-        scheduledDate: {
-          $gte: normalizedDate,
-          $lte: endOfDay
-        },
-        scheduledTime: scheduledTime,
-        status: { $nin: ['Resolved', 'Closed', 'Cancelled'] },
-        vendorStatus: { $nin: ['Declined', 'Cancelled'] }
-      }).select('ticketId status vendorStatus');
-
-      if (conflictingTicket) {
-        logger.warn('Vendor conflict detected in support tickets', {
-          vendorId: vendorCustomId,
-          scheduledDate: normalizedDate,
-          scheduledTime,
-          conflictingTicket: conflictingTicket.ticketId,
-          currentBookingId: req.params.id
-        });
-        return res.status(400).json({
-          success: false,
-          message: `Vendor is already assigned to Support Ticket ${conflictingTicket.ticketId} (Status: ${conflictingTicket.status}) at the same date and time.`
-        });
-      }
-
-      // 3. Check Warranty Claim Conflict (Uses Mongo ObjectId)
-      const WarrantyClaim = require('../models/WarrantyClaim');
-
-      const conflictingClaim = await WarrantyClaim.findOne({
-        assignedVendor: vendorMongoId, // Uses ObjectId
-        scheduledDate: {
-          $gte: normalizedDate,
-          $lte: endOfDay
-        },
-        scheduledTime: scheduledTime,
-        status: { $nin: ['cancelled', 'rejected', 'completed'] }
-      });
-
-      if (conflictingClaim) {
-        logger.warn('Vendor conflict detected with warranty claim', {
-          vendorId: vendorCustomId,
-          scheduledDate: normalizedDate,
-          scheduledTime,
-          conflictingClaimId: conflictingClaim._id,
-          currentBookingId: req.params.id
-        });
-        return res.status(400).json({
-          success: false,
-          message: 'Vendor is not available. Already assigned to a warranty claim at the same date and time.'
-        });
+        if (conflictingClaim) {
+          return res.status(400).json({
+            success: false,
+            message: 'Vendor is already assigned to a warranty claim at the same date and time.'
+          });
+        }
+      } catch (validationError) {
+        logger.error('Error during vendor assignment conflict check:', validationError);
+        // Continue but log the error
       }
     }
 
@@ -1450,24 +1437,12 @@ const getBookingStats = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Delete booking (soft delete)
+// @desc    Delete booking
 // @route   DELETE /api/admin/bookings/:id
 // @access  Admin
 const deleteBooking = asyncHandler(async (req, res) => {
   try {
-    // Instead of hard-deleting, we set status to cancelled
-    // This addresses the user's issue: "Admin booking cancel karta h to nhi hota h. Only delete hi hota h."
-    const booking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      {
-        status: 'cancelled',
-        'cancellationData.isCancelled': true,
-        'cancellationData.cancelledBy': 'admin',
-        'cancellationData.cancelledAt': new Date(),
-        'cancellationData.cancellationReason': 'Cancelled via Delete action in Admin'
-      },
-      { new: true }
-    );
+    const booking = await Booking.findByIdAndDelete(req.params.id);
 
     if (!booking) {
       return res.status(404).json({
@@ -1476,20 +1451,20 @@ const deleteBooking = asyncHandler(async (req, res) => {
       });
     }
 
-    logger.info(`Admin performed soft delete (cancel) on booking: ${booking.bookingReference}`, {
+    logger.info(`Admin permanently deleted booking: ${booking.bookingReference}`, {
       bookingId: booking._id,
       adminId: req.admin._id
     });
 
     res.json({
       success: true,
-      message: 'Booking cancelled successfully (soft deleted)'
+      message: 'Booking deleted successfully from database'
     });
   } catch (error) {
-    logger.error('Error in deleteBooking (soft cancel):', error);
+    logger.error('Error in deleteBooking:', error);
     res.status(500).json({
       success: false,
-      message: 'Error cancelling booking',
+      message: 'Error deleting booking',
       error: error.message
     });
   }

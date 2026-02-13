@@ -2490,13 +2490,13 @@ class EmailService {
    * Send booking completion email to user with receipt
    */
   async sendBookingCompletionEmail(booking) {
+    if (!this.isEmailConfigured()) return { success: false, message: 'Email service not configured' };
+
     const { customer, bookingReference, completionData } = booking;
     const {
       resolutionNote,
       billingAmount,
       spareParts,
-      sparePartsTotal,
-      travelingAmount,
       totalAmount,
       paymentMethod,
       gstAmount,
@@ -2514,14 +2514,6 @@ class EmailService {
       year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
     });
 
-    const sparePartsHtml = spareParts && spareParts.length > 0
-      ? spareParts.map(part => `
-          <div class="detail-row">
-            <span class="detail-label">${part.name} (Spare)</span>
-            <span class="detail-value">₹${part.amount}</span>
-          </div>`).join('')
-      : '';
-
     const html = `
       <!DOCTYPE html>
       <html>
@@ -2530,95 +2522,114 @@ class EmailService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Service Receipt</title>
         <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f3f4f6; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-          .header { background: #10B981; color: white; padding: 24px; text-align: center; }
-          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; }
+          .header { background: #059669; color: white; padding: 32px 24px; text-align: center; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.025em; }
+          .header p { margin: 8px 0 0; opacity: 0.9; font-size: 16px; }
           .content { padding: 32px 24px; }
-          .amount-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
-          .amount-title { color: #166534; font-size: 14px; margin-bottom: 4px; }
-          .amount-value { color: #15803d; font-size: 32px; font-weight: 700; }
-          .details-section { margin-top: 24px; }
-          .section-title { font-size: 16px; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px; }
-          .detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
-          .detail-label { color: #6b7280; }
-          .detail-value { color: #1f2937; font-weight: 500; }
-          .note-box { background: #eff6ff; border-left: 4px solid #3B82F6; padding: 16px; margin-top: 24px; border-radius: 4px; }
-          .footer { margin-top: 24px; text-align: center; color: #94a3b8; font-size: 12px; }
+          .status-badge { display: inline-block; background: #dcfce7; color: #065f46; padding: 6px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 24px; }
+          .section-title { font-size: 14px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 16px; }
+          .resolution-box { background: #ecfdf5; border: 1px solid #d1fae5; border-radius: 8px; padding: 20px; margin: 24px 0; }
+          .resolution-box h3 { margin: 0 0 8px; font-size: 14px; color: #059669; }
+          .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+          .detail-label { font-size: 14px; color: #475569; }
+          .detail-value { font-size: 14px; font-weight: 600; color: #1e293b; }
+          .total-row { display: flex; justify-content: space-between; padding: 20px 0; margin-top: 12px; border-top: 2px solid #059669; }
+          .total-label { font-size: 18px; font-weight: 700; color: #1e293b; }
+          .total-value { font-size: 24px; font-weight: 800; color: #059669; }
+          .footer { padding: 24px; text-align: center; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+          .footer p { margin: 4px 0; font-size: 12px; color: #64748b; }
+          .contact-btn { display: inline-block; background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 24px; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="card">
             <div class="header">
-              <h1>Service Completed</h1>
-              <p>Receipt #${bookingReference}</p>
+              <h1>Service Receipt</h1>
+              <p>Booking ID: ${bookingReference}</p>
             </div>
             
             <div class="content">
-              <p>Hello ${customer.name},</p>
-              <p>Your service has been successfully completed. Here is your digital receipt.</p>
+              <div class="status-badge">Service Completed</div>
+              
+              <p>Hello <strong>${customer.name}</strong>,</p>
+              <p>Your service request has been successfully completed. Below is the summary of the work done and the final billing details.</p>
 
-              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
-                <div style="font-size: 24px;">👨‍🔧</div>
-                <div>
-                  <div style="font-size: 14px; color: #64748b;">Assigned Engineer</div>
-                  <div style="font-weight: 600; color: #1e293b;">${booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName || ''} ${booking.vendor.vendorId.lastName || ''}`.trim() : 'N/A'}</div>
+              <div class="resolution-box">
+                <h3>Resolution Note</h3>
+                <p style="margin: 0; color: #065f46; font-style: italic;">"${resolutionNote || 'The service request was resolved successfully by our technician.'}"</p>
+              </div>
+
+              <div class="section-title">Booking Information</div>
+              <div style="margin-bottom: 32px;">
+                <div class="detail-row">
+                  <span class="detail-label">Service Type:</span>
+                  <span class="detail-value">${booking.services.map(s => s.serviceName).join(', ')}</span>
                 </div>
-              </div>
-
-              <div class="amount-box">
-                <div class="amount-title">TOTAL AMOUNT</div>
-                <div class="amount-value">₹${billingAmount}</div>
-                <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}</div>
-              </div>
-
-              <div class="note-box">
-                <h4 style="margin: 0 0 8px; color: #1e40af;">📝 Resolution Note</h4>
-                <p style="margin: 0; color: #1e3a8a;">${resolutionNote || 'No resolution note provided.'}</p>
-              </div>
-
-              <div class="details-section">
-                <div class="section-title">Billing Details</div>
-            ${booking.services.map(s => `
-                  <div class="detail-row">
-                    <span class="detail-label">${s.serviceName}</span>
-                    <span class="detail-value">-</span> 
-                  </div>`).join('')}
-                
-                ${spareParts && spareParts.length > 0
-        ? spareParts.map(part => `
-                      <div class="detail-row">
-                        <span class="detail-label">${part.name} (Spare)${part.warranty ? ` - <span style="color:#2563eb; font-size:12px;">(${part.warranty} Warranty)</span>` : ''}</span>
-                        <span class="detail-value">Included</span>
-                      </div>`).join('')
-        : ''}
-
-                ${gstIncluded ? `
-                 <div class="detail-row">
-                  <span class="detail-label">GST (Included)</span>
-                  <span class="detail-value">₹${gstAmount || 0}</span>
+                <div class="detail-row">
+                  <span class="detail-label">Service Engineer:</span>
+                  <span class="detail-value">${booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName || ''} ${booking.vendor.vendorId.lastName || ''}`.trim() : 'Fixfly Professional'}</span>
+                </div>
+                ${booking.vendor?.vendorId?.phone ? `
+                <div class="detail-row">
+                  <span class="detail-label">Engineer Phone:</span>
+                  <span class="detail-value">${booking.vendor.vendorId.phone}</span>
                 </div>` : ''}
-                 
-                <div class="detail-row" style="border-top: 1px dashed #e5e7eb; padding-top: 12px; margin-top: 12px;">
-                  <span class="detail-label" style="font-weight: 600; color: #374151;">Net Total</span>
-                  <span class="detail-value" style="font-weight: 600; font-size: 16px;">₹${billingAmount}</span>
+                <div class="detail-row">
+                  <span class="detail-label">Completion Date:</span>
+                  <span class="detail-value">${completedDate}</span>
                 </div>
               </div>
 
-              <div style="text-align: center; margin-top: 30px; background-color: #fce7f3; padding: 20px; border-radius: 8px; border: 1px dashed #db2777;">
-                <h3 style="margin: 0 0 10px; color: #be185d;">🌟 How was your experience?</h3>
-                <p style="margin: 0 0 20px; color: #9d174d; font-size: 14px;">Your feedback helps us improve our service.</p>
-                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking?tab=completed&ratingBookingId=${booking._id}" style="display: inline-block; background: #db2777; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Rate Your Service</a>
+              ${spareParts && spareParts.length > 0 ? `
+              <div class="section-title">Parts & Spares</div>
+              <div style="margin-bottom: 32px;">
+                ${spareParts.map(part => `
+                  <div class="detail-row">
+                    <span class="detail-label">
+                      ${part.name}
+                      ${part.warranty ? `<br><small style="color:#2563eb;">(${part.warranty} Warranty)</small>` : ''}
+                    </span>
+                    <span class="detail-value">Included</span>
+                  </div>`).join('')}
+              </div>` : ''}
+
+              <div class="section-title">Billing Summary</div>
+              <div class="detail-row">
+                <span class="detail-label">Service Charges:</span>
+                <span class="detail-value">₹${billingAmount || totalAmount || 0}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Payment Method:</span>
+                <span class="detail-value" style="text-transform: uppercase;">${paymentMethod || 'Cash'}</span>
+              </div>
+              
+              ${gstIncluded ? `
+              <div class="detail-row">
+                <span class="detail-label">GST (Included):</span>
+                <span class="detail-value">₹${gstAmount || 0}</span>
+              </div>` : ''}
+
+              <div class="total-row">
+                <span class="total-label">Total Amount Paid</span>
+                <span class="total-value">₹${totalAmount || billingAmount || 0}</span>
               </div>
 
+              <div style="text-align: center; margin-top: 40px; border-top: 1px dashed #e2e8f0; padding-top: 32px;">
+                <h3 style="margin: 0 0 8px; color: #1e293b;">How was your experience?</h3>
+                <p style="margin: 0 0 24px; color: #64748b; font-size: 14px;">Your feedback helps us provide better service.</p>
+                <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking?tab=completed&ratingBookingId=${booking._id}" class="contact-btn">Rate Your Service</a>
+              </div>
             </div>
-          </div>
 
-          <div class="footer">
-            <p>Date: ${completedDate}</p>
-            <p>Thank you for choosing Fixfly Services!</p>
+            <div class="footer">
+              <p><strong>Support Hotline:</strong> 022-6964-7030</p>
+              <p>Quick Help: Support hours 9 AM to 7 PM</p>
+              <p>&copy; ${new Date().getFullYear()} Fixfly Services. All rights reserved.</p>
+            </div>
           </div>
         </div>
       </body>
@@ -2626,28 +2637,18 @@ class EmailService {
     `;
 
     const text = `
-      Service Completed - Receipt #${bookingReference}
+      Service Receipt - Job Completed
+      Booking ID: ${bookingReference}
       
       Hello ${customer.name},
       
       Your service has been completed successfully.
       
-      TOTAL AMOUNT: ₹${billingAmount}
-      Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}
-      
-      ENGINEER:
-      ${booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName || ''} ${booking.vendor.vendorId.lastName || ''}`.trim() : 'N/A'}
-
-      RESOLUTION NOTE:
-      ${resolutionNote || 'No resolution note provided.'}
-      
-      BILLING DETAILS:
-      ${booking.services.map(s => `- ${s.serviceName}`).join('\n')}
-      ${spareParts && spareParts.length > 0 ? `Spare Parts: ${spareParts.map(p => `${p.name} (₹${p.amount})${p.warranty ? ` - ${p.warranty} Warranty` : ''}`).join(', ')}\n` : ''}
-      
-      RATE YOUR SERVICE:
-      Please take a moment to rate your experience:
-      ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/booking?tab=completed&ratingBookingId=${booking._id}
+      SUMMARY:
+      - Services: ${booking.services.map(s => s.serviceName).join(', ')}
+      - Engineer: ${booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}` : 'Fixfly Technician'}
+      - Total Amount: ₹${totalAmount || billingAmount || 0}
+      - Resolution: ${resolutionNote || 'Resolved successfully.'}
       
       Thank you for choosing Fixfly!
     `;
@@ -2655,69 +2656,77 @@ class EmailService {
     // Generate PDF Receipt
     let pdfBuffer = null;
     try {
+      const { jsPDF } = require('jspdf');
       const doc = new jsPDF();
-      doc.setFontSize(22);
-      doc.text('FIXFLY - SERVICE RECEIPT', 105, 20, { align: 'center' });
 
+      // Header
+      doc.setFillColor(5, 150, 105);
+      doc.rect(0, 0, 210, 40, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.text('FIXFLY RECEIPT', 105, 25, { align: 'center' });
+
+      // Content
+      doc.setTextColor(33, 33, 33);
       doc.setFontSize(12);
-      doc.text(`Receipt #: ${bookingReference}`, 20, 40);
-      doc.text(`Booking ID: ${bookingReference}`, 20, 50);
-      doc.text(`Date: ${completedDate}`, 20, 60);
+      doc.text(`Receipt #: ${bookingReference}`, 20, 50);
+      doc.text(`Booking ID: ${bookingReference}`, 20, 60);
+      doc.text(`Date: ${completedDate}`, 20, 70);
 
-      doc.line(20, 65, 190, 65);
+      doc.line(20, 75, 190, 75);
 
-      doc.setFontSize(14);
-      doc.text('Customer Details:', 20, 75);
+      doc.setFontSize(16);
+      doc.text('Customer Detail:', 20, 90);
       doc.setFontSize(11);
-      doc.text(`Name: ${customer.name}`, 30, 85);
-      doc.text(`Email: ${customer.email || 'N/A'}`, 30, 95);
+      doc.text(`Name: ${customer.name}`, 30, 100);
+      doc.text(`Email: ${customer.email || 'N/A'}`, 30, 110);
 
-      // Engineer Details
-      const engineerName = booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName || ''} ${booking.vendor.vendorId.lastName || ''}`.trim() : 'N/A';
-      doc.setFontSize(14);
-      doc.text('Engineer Details:', 20, 110);
+      doc.setFontSize(16);
+      doc.text('Service Information:', 20, 125);
       doc.setFontSize(11);
-      doc.text(`Name: ${engineerName}`, 30, 120);
+      doc.text(`Services: ${booking.services.map(s => s.serviceName).join(', ')}`, 30, 135);
+      const engrName = booking.vendor?.vendorId ? `${booking.vendor.vendorId.firstName} ${booking.vendor.vendorId.lastName}` : 'Fixfly Professional';
+      doc.text(`Engineer: ${engrName}`, 30, 145);
+      if (booking.vendor?.vendorId?.phone) {
+        doc.text(`Engineer Phone: ${booking.vendor.vendorId.phone}`, 30, 155);
+      }
 
-      doc.setFontSize(14);
-      doc.text('Service Details:', 20, 135);
-      doc.setFontSize(11);
-      let yPos = 145;
-      booking.services.forEach(s => {
-        doc.text(`- ${s.serviceName}`, 30, yPos);
-        yPos += 10;
-      });
+      let yPos = 170;
 
       // Resolution Note
-      doc.setFontSize(14);
-      doc.text('Resolution Note:', 20, yPos + 5);
+      doc.setFontSize(16);
+      doc.text('Resolution Note:', 20, yPos);
       doc.setFontSize(11);
-      const splitNote = doc.splitTextToSize(resolutionNote || 'Ticket resolved successfully.', 160);
-      doc.text(splitNote, 30, yPos + 15);
-      yPos += 15 + (splitNote.length * 7);
+      const splitNote = doc.splitTextToSize(resolutionNote || 'Service completed successfully.', 160);
+      doc.text(splitNote, 30, yPos + 10);
+      yPos += 10 + (splitNote.length * 7);
 
       // Spare Parts
       if (spareParts && spareParts.length > 0) {
-        doc.setFontSize(14);
+        doc.setFontSize(16);
         doc.text('Spare Parts & Warranty:', 20, yPos + 5);
         doc.setFontSize(11);
         yPos += 15;
         spareParts.forEach(part => {
-          doc.text(`- ${part.name}: ₹${part.amount} ${part.warranty ? `(${part.warranty} Warranty)` : ''}`, 30, yPos);
+          doc.text(`- ${part.name} ${part.warranty ? `(${part.warranty} Warranty)` : ''}`, 30, yPos);
           yPos += 10;
         });
       }
 
-      doc.setFontSize(14);
-      doc.text('Billing Summary:', 20, yPos + 10);
-      doc.setFontSize(11);
-      doc.text(`Subtotal: ₹${billingAmount}`, 30, yPos + 20);
-      // Traveling removed as per request
-      doc.text(`Total Amount: ₹${billingAmount}`, 30, yPos + 30);
-      doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, yPos + 40);
+      doc.line(20, yPos + 5, 190, yPos + 5);
+      yPos += 15;
 
+      doc.setFontSize(16);
+      doc.text('Billing Summary:', 20, yPos);
+      doc.setFontSize(11);
+      doc.text(`Subtotal: ₹${billingAmount || totalAmount || 0}`, 30, yPos + 10);
+      doc.text(`Total Amount: ₹${totalAmount || billingAmount || 0}`, 30, yPos + 20);
+      doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, yPos + 30);
+
+      // Footer
       doc.setFontSize(10);
-      doc.text('Thank you for choosing Fixfly!', 105, 270, { align: 'center' });
+      doc.setTextColor(100);
+      doc.text('Fixfly Services - Simplifying Your Life', 105, 280, { align: 'center' });
 
       pdfBuffer = Buffer.from(doc.output('arraybuffer'));
     } catch (pdfErr) {
@@ -3024,25 +3033,17 @@ class EmailService {
       const {
         resolutionNote,
         billingAmount,
+        totalAmount,
         spareParts,
         paymentMethod,
-        totalAmount,
-        includeGST,
-        gstAmount
+        completedAt
       } = completionData;
 
       const subject = `Service Completed - Receipt #${ticketId} | Fixfly`;
-      const completedDate = new Date().toLocaleDateString('en-IN', {
-        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
 
-      const sparePartsHtml = spareParts && spareParts.length > 0
-        ? spareParts.map(part => `
-            <div class="detail-row">
-              <span class="detail-label">${part.name} (Spare)${part.warranty ? ` - <span style="color:#2563eb; font-size:12px;">(${part.warranty} Warranty)</span>` : ''}</span>
-              <span class="detail-value">₹${part.amount}</span>
-            </div>`).join('')
-        : '';
+      const completedDate = completedAt
+        ? new Date(completedAt).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+        : new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
       const html = `
         <!DOCTYPE html>
@@ -3050,90 +3051,108 @@ class EmailService {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Service Receipt</title>
+          <title>Job Completion Receipt</title>
           <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f3f4f6; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-            .header { background: #10B981; color: white; padding: 24px; text-align: center; }
-            .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+            .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; }
+            .header { background: #059669; color: white; padding: 32px 24px; text-align: center; }
+            .header h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.025em; }
+            .header p { margin: 8px 0 0; opacity: 0.9; font-size: 16px; }
             .content { padding: 32px 24px; }
-            .amount-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
-            .amount-title { color: #166534; font-size: 14px; margin-bottom: 4px; }
-            .amount-value { color: #15803d; font-size: 32px; font-weight: 700; }
-            .details-section { margin-top: 24px; }
-            .section-title { font-size: 16px; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px; }
-            .detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
-            .detail-label { color: #6b7280; }
-            .detail-value { color: #1f2937; font-weight: 500; }
-            .note-box { background: #eff6ff; border-left: 4px solid #3B82F6; padding: 16px; margin-top: 24px; border-radius: 4px; }
-            .footer { margin-top: 24px; text-align: center; color: #94a3b8; font-size: 12px; }
-            .btn { display: inline-block; background: #DB2777; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+            .status-badge { display: inline-block; background: #dcfce7; color: #065f46; padding: 6px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 24px; }
+            .section-title { font-size: 14px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+            .resolution-box { background: #ecfdf5; border: 1px solid #d1fae5; border-radius: 8px; padding: 20px; margin: 24px 0; }
+            .resolution-box h3 { margin: 0 0 8px; font-size: 14px; color: #059669; }
+            .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+            .detail-label { font-size: 14px; color: #475569; }
+            .detail-value { font-size: 14px; font-weight: 600; color: #1e293b; }
+            .total-row { display: flex; justify-content: space-between; padding: 20px 0; margin-top: 12px; border-top: 2px solid #059669; }
+            .total-label { font-size: 18px; font-weight: 700; color: #1e293b; }
+            .total-value { font-size: 24px; font-weight: 800; color: #059669; }
+            .footer { padding: 24px; text-align: center; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+            .footer p { margin: 4px 0; font-size: 12px; color: #64748b; }
+            .contact-btn { display: inline-block; background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 24px; }
           </style>
         </head>
         <body>
           <div class="container">
             <div class="card">
               <div class="header">
-                <h1>Service Completed</h1>
-                <p>Receipt #${ticketId}</p>
+                <h1>Service Receipt</h1>
+                <p>Ticket ID: ${ticketId}</p>
               </div>
               
               <div class="content">
-                <p>Hello ${userName},</p>
-                <p>Your support ticket has been resolved and service is completed. Here is your digital receipt.</p>
+                <div class="status-badge">Resolved Successfully</div>
+                
+                <p>Hello <strong>${userName}</strong>,</p>
+                <p>Your support ticket has been resolved. Below is the summary of the work done and the final billing details.</p>
 
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
-                  <div style="font-size: 24px;">👨‍🔧</div>
-                  <div>
-                    <div style="font-size: 14px; color: #64748b;">Assigned Engineer</div>
-                    <div style="font-weight: 600; color: #1e293b;">${ticket.assignedTo ? `${ticket.assignedTo.firstName || ''} ${ticket.assignedTo.lastName || ''}`.trim() : 'N/A'}</div>
-                  </div>
+                <div class="resolution-box">
+                  <h3>Resolution Note</h3>
+                  <p style="margin: 0; color: #065f46; font-style: italic;">"${resolutionNote || 'The service request was resolved successfully by our technician.'}"</p>
                 </div>
 
-                <div class="amount-box">
-                  <div class="amount-title">TOTAL AMOUNT</div>
-                  <div class="amount-value">₹${billingAmount || totalAmount || 0}</div>
-                  <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}</div>
-                </div>
-
-                <div class="note-box">
-                  <h4 style="margin: 0 0 8px; color: #1e40af;">📝 Resolution Note</h4>
-                  <p style="margin: 0; color: #1e3a8a;">${resolutionNote || 'Ticket resolved successfully.'}</p>
-                </div>
-
-                <div class="details-section">
-                  <div class="section-title">Billing Details</div>
-                  
+                <div class="section-title">Support Case Info</div>
+                <div style="margin-bottom: 32px;">
                   <div class="detail-row">
-                    <span class="detail-label">Service Request</span>
+                    <span class="detail-label">Service Request:</span>
                     <span class="detail-value">${ticketSubject}</span>
                   </div>
-                  
-                  ${sparePartsHtml}
-
-                  ${includeGST ? `
-                   <div class="detail-row">
-                    <span class="detail-label">GST (Included)</span>
-                    <span class="detail-value">₹${gstAmount || 0}</span>
-                  </div>` : ''}
-                   
-                  <div class="detail-row" style="border-top: 1px dashed #e5e7eb; padding-top: 12px; margin-top: 12px;">
-                    <span class="detail-label" style="font-weight: 600; color: #374151;">Net Total</span>
-                    <span class="detail-value" style="font-weight: 600; font-size: 16px;">₹${billingAmount || totalAmount || 0}</span>
+                  <div class="detail-row">
+                    <span class="detail-label">Service Engineer:</span>
+                    <span class="detail-value">${ticket.assignedTo ? `${ticket.assignedTo.firstName || ''} ${ticket.assignedTo.lastName || ''}`.trim() : 'Fixfly Professional'}</span>
                   </div>
+                  ${ticket.assignedTo?.phone ? `
+                  <div class="detail-row">
+                    <span class="detail-label">Engineer Phone:</span>
+                    <span class="detail-value">${ticket.assignedTo.phone}</span>
+                  </div>` : ''}
+                  <div class="detail-row">
+                    <span class="detail-label">Resolution Date:</span>
+                    <span class="detail-value">${completedDate}</span>
+                  </div>
+                </div>
+
+                ${spareParts && spareParts.length > 0 ? `
+                <div class="section-title">Parts & Spares</div>
+                <div style="margin-bottom: 32px;">
+                  ${spareParts.map(part => `
+                    <div class="detail-row">
+                      <span class="detail-label">
+                        ${part.name}
+                        ${part.warranty ? `<br><small style="color:#2563eb;">(${part.warranty} Warranty)</small>` : ''}
+                      </span>
+                      <span class="detail-value">Included</span>
+                    </div>`).join('')}
+                </div>` : ''}
+
+                <div class="section-title">Billing Summary</div>
+                <div class="detail-row">
+                  <span class="detail-label">Subtotal:</span>
+                  <span class="detail-value">₹${billingAmount || totalAmount || 0}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Payment Method:</span>
+                  <span class="detail-value" style="text-transform: uppercase;">${paymentMethod || 'Cash'}</span>
+                </div>
+                
+                <div class="total-row">
+                  <span class="total-label">Total Amount</span>
+                  <span class="total-value">₹${totalAmount || billingAmount || 0}</span>
                 </div>
 
                 <div style="text-align: center;">
-                    <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support" class="btn">Rate Your Service</a>
+                  <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support/${ticketId}" class="contact-btn">View My Ticket</a>
                 </div>
-
               </div>
-            </div>
 
-            <div class="footer">
-              <p>Date: ${completedDate}</p>
-              <p>Thank you for choosing Fixfly Services!</p>
+              <div class="footer">
+                <p><strong>Support Hotline:</strong> 022-6964-7030</p>
+                <p>Quick Help: Support hours 9 AM to 7 PM</p>
+                <p>&copy; ${new Date().getFullYear()} Fixfly Services. All rights reserved.</p>
+              </div>
             </div>
           </div>
         </body>
@@ -3141,95 +3160,92 @@ class EmailService {
       `;
 
       const text = `
-        Service Completed - Receipt #${ticketId}
+        Service Receipt - Job Completed
+        Ticket ID: ${ticketId}
         
         Hello ${userName},
         
-        Your support ticket service has been completed successfully.
+        Your support ticket has been resolved successfully.
         
-        TOTAL AMOUNT: ₹${billingAmount || totalAmount || 0}
-        Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}
-        
-        ENGINEER:
-        ${ticket.assignedTo ? `${ticket.assignedTo.firstName || ''} ${ticket.assignedTo.lastName || ''}`.trim() : 'N/A'}
-
-        RESOLUTION NOTE:
-        ${resolutionNote || 'Ticket resolved successfully.'}
-        
-        BILLING DETAILS:
-        Service: ${ticketSubject}
-        ${spareParts && spareParts.length > 0 ? `Spare Parts: ${spareParts.map(p => `${p.name} (₹${p.amount})${p.warranty ? ` - ${p.warranty} Warranty` : ''}`).join(', ')}\n` : ''}
-        
-        RATE YOUR SERVICE:
-        Please take a moment to rate your experience:
-        ${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support
+        SUMMARY:
+        - Case: ${ticketSubject}
+        - Engineer: ${ticket.assignedTo ? `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}` : 'Fixfly Technician'}
+        - Total Amount: ₹${totalAmount || billingAmount || 0}
+        - Resolution: ${resolutionNote || 'Resolved successfully.'}
         
         Thank you for choosing Fixfly!
       `;
 
-      // Generate PDF Receipt for Support Ticket
+      // Generate PDF Receipt
       let pdfBuffer = null;
       try {
+        const { jsPDF } = require('jspdf');
         const doc = new jsPDF();
-        doc.setFontSize(22);
-        doc.text('FIXFLY - SERVICE RECEIPT', 105, 20, { align: 'center' });
 
+        // Header
+        doc.setFillColor(5, 150, 105);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text('FIXFLY RECEIPT', 105, 25, { align: 'center' });
+
+        // Content
+        doc.setTextColor(33, 33, 33);
         doc.setFontSize(12);
-        doc.text(`Receipt #: ${ticketId}`, 20, 40);
-        doc.text(`Booking ID: ${ticketId}`, 20, 50);
-        doc.text(`Date: ${completedDate}`, 20, 60);
+        doc.text(`Receipt #: ${ticketId}`, 20, 50);
+        doc.text(`Ticket ID: ${ticketId}`, 20, 60);
+        doc.text(`Date: ${completedDate}`, 20, 70);
 
-        doc.line(20, 65, 190, 65);
+        doc.line(20, 75, 190, 75);
 
-        doc.setFontSize(14);
-        doc.text('Customer Details:', 20, 75);
+        doc.setFontSize(16);
+        doc.text('Customer Detail:', 20, 90);
         doc.setFontSize(11);
-        doc.text(`Name: ${userName}`, 30, 85);
-        doc.text(`Email: ${userEmail || 'N/A'}`, 30, 95);
+        doc.text(`Name: ${userName}`, 30, 100);
+        doc.text(`Email: ${userEmail}`, 30, 110);
 
-        // Engineer Details
-        const engineerName = ticket.assignedTo ? `${ticket.assignedTo.firstName || ''} ${ticket.assignedTo.lastName || ''}`.trim() : 'N/A';
-        doc.setFontSize(14);
-        doc.text('Engineer Details:', 20, 110);
+        doc.setFontSize(16);
+        doc.text('Service Information:', 20, 125);
         doc.setFontSize(11);
-        doc.text(`Name: ${engineerName}`, 30, 120);
+        doc.text(`Subject: ${ticketSubject}`, 30, 135);
+        doc.text(`Engineer: ${ticket.assignedTo ? `${ticket.assignedTo.firstName} ${ticket.assignedTo.lastName}` : 'Fixfly Technician'}`, 30, 145);
 
-        doc.setFontSize(14);
-        doc.text('Service Details:', 20, 135);
-        doc.setFontSize(11);
-        doc.text(`- ${ticketSubject}`, 30, 145);
-        let yPos = 155;
+        let yPos = 160;
 
         // Resolution Note
-        doc.setFontSize(14);
-        doc.text('Resolution Note:', 20, yPos + 5);
+        doc.setFontSize(16);
+        doc.text('Resolution Note:', 20, yPos);
         doc.setFontSize(11);
         const splitNote = doc.splitTextToSize(resolutionNote || 'Ticket resolved successfully.', 160);
-        doc.text(splitNote, 30, yPos + 15);
-        yPos += 15 + (splitNote.length * 7);
+        doc.text(splitNote, 30, yPos + 10);
+        yPos += 10 + (splitNote.length * 7);
 
         // Spare Parts
         if (spareParts && spareParts.length > 0) {
-          doc.setFontSize(14);
+          doc.setFontSize(16);
           doc.text('Spare Parts & Warranty:', 20, yPos + 5);
           doc.setFontSize(11);
           yPos += 15;
           spareParts.forEach(part => {
-            doc.text(`- ${part.name}: ₹${part.amount} ${part.warranty ? `(${part.warranty} Warranty)` : ''}`, 30, yPos);
+            doc.text(`- ${part.name} ${part.warranty ? `(${part.warranty} Warranty)` : ''}`, 30, yPos);
             yPos += 10;
           });
         }
 
-        doc.setFontSize(14);
-        doc.text('Billing Summary:', 20, yPos + 10);
-        doc.setFontSize(11);
-        doc.text(`Subtotal: ₹${billingAmount || totalAmount || 0}`, 30, yPos + 20);
-        // Traveling removed as per request
-        doc.text(`Total Amount: ₹${billingAmount || totalAmount || 0}`, 30, yPos + 30);
-        doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, yPos + 40);
+        doc.line(20, yPos + 5, 190, yPos + 5);
+        yPos += 15;
 
+        doc.setFontSize(16);
+        doc.text('Billing Summary:', 20, yPos);
+        doc.setFontSize(11);
+        doc.text(`Subtotal: ₹${billingAmount || totalAmount || 0}`, 30, yPos + 10);
+        doc.text(`Total Amount: ₹${totalAmount || billingAmount || 0}`, 30, yPos + 20);
+        doc.text(`Payment Method: ${paymentMethod ? paymentMethod.toUpperCase() : 'N/A'}`, 30, yPos + 30);
+
+        // Footer
         doc.setFontSize(10);
-        doc.text('Thank you for choosing Fixfly!', 105, 270, { align: 'center' });
+        doc.setTextColor(100);
+        doc.text('Fixfly Services - Simplifying Your Life', 105, 280, { align: 'center' });
 
         pdfBuffer = Buffer.from(doc.output('arraybuffer'));
       } catch (pdfErr) {
@@ -3249,9 +3265,7 @@ class EmailService {
         ] : []
       });
 
-
     } catch (error) {
-      const { logger } = require('../utils/logger');
       logger.error('Failed to send ticket completion email:', error);
       return { success: false, error: error.message };
     }
@@ -3285,7 +3299,7 @@ class EmailService {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Support Ticket Cancelled</title>
           <style>
-             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #fca5a5; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #fca5a5; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
             .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
             .header { background: #DC2626; color: white; padding: 24px; text-align: center; }
@@ -3330,7 +3344,7 @@ class EmailService {
                 </div>
 
                 <p>If you believe this is an error, please contact our support team immediately.</p>
-                
+
                 <a href="${process.env.FRONTEND_URL || 'https://getfixfly.com'}/support" style="display: inline-block; background: #DC2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 16px;">View Ticket Status</a>
               </div>
             </div>
@@ -3365,6 +3379,7 @@ class EmailService {
       // Generate PDF Summary for Ticket Cancellation
       let pdfBuffer = null;
       try {
+        const { jsPDF } = require('jspdf');
         const doc = new jsPDF();
         doc.setFontSize(22);
         doc.text('FIXFLY - CANCELLATION SUMMARY', 105, 20, { align: 'center' });
@@ -3403,16 +3418,13 @@ class EmailService {
         ] : []
       });
 
-
     } catch (error) {
-      const { logger } = require('../utils/logger');
       logger.error('Failed to send ticket cancellation email:', error);
       return { success: false, error: error.message };
     }
   }
 }
 
-// Create singleton instance
 const emailService = new EmailService();
 
 module.exports = emailService;

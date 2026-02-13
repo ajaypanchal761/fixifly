@@ -108,6 +108,12 @@ app.use(helmet({
 }));
 
 
+// Request logger middleware for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Body parsers (GLOBAL)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

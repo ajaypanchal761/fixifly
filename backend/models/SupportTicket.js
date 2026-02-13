@@ -504,6 +504,12 @@ SupportTicketSchema.methods.assignVendor = function (vendorId, adminId, notes = 
   this.assignedBy = adminId;
   this.vendorStatus = 'Pending';
 
+  // NEW: Reset ticket status to Submitted if it was cancelled or closed
+  // This ensure the ticket appears as a "New Task" in the vendor app
+  if (['Cancelled', 'Closed', 'Resolved'].includes(this.status)) {
+    this.status = 'Submitted';
+  }
+
   // Add to assignment history
   this.vendorAssignmentHistory.push({
     vendorId: vendorId,
@@ -546,8 +552,9 @@ SupportTicketSchema.methods.declineByVendor = async function (vendorId, reason =
   this.vendorDeclinedAt = new Date();
   this.vendorDeclineReason = reason;
 
-  // Update ticket status to Cancelled
-  this.status = 'Cancelled';
+  // REMOVED: this.status = 'Cancelled';
+  // We keep the master status as is (Submitted or In Progress) 
+  // so it remains available for reassignment without being marked as globally cancelled.
   // Keep assignedTo to show in vendor's cancelled tab
   // this.assignedTo = null;
   // this.assignedAt = null;
