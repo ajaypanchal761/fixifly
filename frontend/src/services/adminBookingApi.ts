@@ -1,7 +1,5 @@
-// Admin Booking API service
-import { normalizeApiUrl } from '../utils/apiUrl';
-
-const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
+import { getApiBaseUrl } from '../utils/apiUrl';
+const API_BASE_URL = getApiBaseUrl();
 
 export interface Booking {
   _id: string;

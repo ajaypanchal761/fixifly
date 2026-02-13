@@ -1,8 +1,7 @@
 // Push Notification Service for Fixfly
 import { messaging, getToken, onMessage, VAPID_KEY, isValidVAPIDKey } from '../firebase';
-import { normalizeApiUrl } from '../utils/apiUrl';
-
-const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
+import { getApiBaseUrl } from '../utils/apiUrl';
+const API_BASE_URL = getApiBaseUrl();
 
 // Service worker registration
 let serviceWorkerRegistration: ServiceWorkerRegistration | null = null;

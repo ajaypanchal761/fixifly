@@ -98,7 +98,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'x-flutter-bridge', 'x-is-mobile', 'x-android-bridge']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'Pragma', 'x-flutter-bridge', 'x-is-mobile', 'x-android-bridge']
 }));
 
 // Security middleware - Moved after CORS

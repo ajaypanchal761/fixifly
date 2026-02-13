@@ -1,7 +1,5 @@
-// API service for Fixfly backend communication
-import { normalizeApiUrl } from '../utils/apiUrl';
-
-const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
+import { getApiBaseUrl } from '../utils/apiUrl';
+const API_BASE_URL = getApiBaseUrl();
 
 // Debug API URL in production
 console.log('🔗 API_BASE_URL:', API_BASE_URL);

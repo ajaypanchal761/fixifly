@@ -88,6 +88,21 @@ export const normalizeApiUrl = (url: string): string => {
  */
 export const getApiBaseUrl = (): string => {
   const envUrl = import.meta.env.VITE_API_URL;
-  return normalizeApiUrl(envUrl || 'http://localhost:5000/api');
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+  // If in production or running on network IP (e.g. mobile testing), 
+  // we prefer relative path proxy (/api) if VITE_API_URL is missing or local
+  if (import.meta.env.PROD || !isLocalhost) {
+    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
+      return '/api';
+    }
+  }
+
+  if (envUrl) {
+    return normalizeApiUrl(envUrl);
+  }
+
+  // Fallback for local development
+  return 'http://localhost:5000/api';
 };
 
