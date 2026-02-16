@@ -2170,21 +2170,26 @@ const declineSupportTicket = asyncHandler(async (req, res) => {
   }
 
   // Check if wallet has sufficient balance - prevent decline if balance < 100
-  if (wallet.currentBalance < penaltyAmount) {
-    logger.warn(`Support ticket decline blocked for vendor ${vendorId} - insufficient wallet balance`, {
+  // Calculate available balance (subtracting security deposit)
+  const securityDeposit = wallet.securityDeposit || 3999;
+  const availableBalance = Math.max(0, wallet.currentBalance - securityDeposit);
+
+  if (availableBalance < penaltyAmount) {
+    logger.warn(`Support ticket decline blocked for vendor ${vendorId} - insufficient available balance`, {
       vendorId,
       ticketId: ticket.ticketId,
       requiredAmount: penaltyAmount,
+      availableBalance: availableBalance,
       currentBalance: wallet.currentBalance
     });
 
     return res.status(400).json({
       success: false,
-      message: wallet.currentBalance === 0
+      message: availableBalance === 0
         ? 'Cannot decline ticket. Wallet balance is ₹0. Please add amount to your wallet first.'
-        : `Cannot decline ticket. Insufficient wallet balance. You need at least ₹${penaltyAmount} to decline this ticket. Current balance: ₹${wallet.currentBalance.toLocaleString()}. Please add amount to your wallet first.`,
+        : `Cannot decline ticket. Insufficient available balance. You need at least ₹${penaltyAmount} in your earnings to decline this ticket. Current available balance: ₹${availableBalance.toLocaleString()}. Please add amount to your wallet first.`,
       error: 'INSUFFICIENT_WALLET_BALANCE',
-      currentBalance: wallet.currentBalance,
+      currentBalance: availableBalance,
       requiredAmount: penaltyAmount
     });
   }

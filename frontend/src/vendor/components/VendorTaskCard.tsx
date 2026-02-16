@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Eye, 
-  MapPin, 
-  Clock, 
-  User, 
+import {
+  CheckCircle,
+  XCircle,
+  Eye,
+  MapPin,
+  Clock,
+  User,
   Phone,
   Calendar,
   AlertTriangle
@@ -79,19 +79,19 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       if (Array.isArray(value)) {
         return value.length > 0 ? value.join(', ') : fallback;
       }
-      
+
       // Check if it's an empty object
       if (Object.keys(value).length === 0) {
         console.warn('Empty object detected:', { value, taskId: task.id, taskCaseId: task.caseId });
         return fallback;
       }
-      
+
       // Try to extract string values from objects
       const stringValues = Object.values(value).filter(v => typeof v === 'string' && v.trim() !== '');
       if (stringValues.length > 0) {
         return stringValues.join(', ');
       }
-      
+
       console.error('Attempted to render object directly:', {
         value,
         type: typeof value,
@@ -111,8 +111,10 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   const [declineReason, setDeclineReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isWalletCheckOpen, setIsWalletCheckOpen] = useState(false);
-  const currentWalletBalance = vendor?.wallet?.currentBalance ?? 0;
-  
+  // Calculate available balance (subtracting security deposit)
+  const securityDeposit = vendor?.wallet?.securityDeposit ?? 3999;
+  const currentWalletBalance = Math.max(0, (vendor?.wallet?.currentBalance ?? 0) - securityDeposit);
+
   // Debug: Log task data to identify object issues
   useEffect(() => {
     console.log('VendorTaskCard - Task data received:', {
@@ -141,14 +143,14 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       vendorResponse: task.vendorResponse,
       isSupportTicket: task.isSupportTicket
     });
-    
+
     // Check each property for object types
     const checkProperty = (propName: string, value: any) => {
       if (typeof value === 'object' && value !== null) {
         console.warn(`⚠️ Property ${propName} is an object:`, value);
       }
     };
-    
+
     checkProperty('id', task.id);
     checkProperty('caseId', task.caseId);
     checkProperty('title', task.title);
@@ -167,7 +169,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
     checkProperty('bookingStatus', task.bookingStatus);
     checkProperty('vendorResponse', task.vendorResponse);
   }, [task]);
-  
+
   // Local state to track immediate status changes
   const [localTaskStatus, setLocalTaskStatus] = useState(task.vendorStatus || task.bookingStatus);
 
@@ -212,34 +214,34 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
     setIsProcessing(true);
     try {
       let response;
-      
+
       if (task.isSupportTicket) {
         response = await vendorApi.acceptSupportTicket(task.id);
       } else {
         response = await vendorApi.acceptTask(task.id);
       }
-      
+
       if (response.success) {
         toast({
           title: "Task Accepted",
           description: "You have successfully accepted this task. You can now view the details and start working on it.",
           variant: "default"
         });
-        
+
         // Immediately update local status for instant UI update
         setLocalTaskStatus(task.isSupportTicket ? 'Accepted' : 'in_progress');
-        
+
         onStatusUpdate(task.id, 'accepted');
         setIsAcceptModalOpen(false);
-        
+
         // Dispatch support ticket update event for admin interface
         if (task.isSupportTicket) {
-          window.dispatchEvent(new CustomEvent('supportTicketUpdated', { 
-            detail: { 
+          window.dispatchEvent(new CustomEvent('supportTicketUpdated', {
+            detail: {
               ticketId: task.id,
               type: 'accepted',
               vendorStatus: 'Accepted'
-            } 
+            }
           }));
         }
       } else {
@@ -256,10 +258,10 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       }
     } catch (error: any) {
       console.error('Error accepting task:', error);
-      
+
       // SIMPLE TEST - Show alert to verify catch block is working
       alert('CATCH BLOCK EXECUTED - Error: ' + error?.message);
-      
+
       // Check for mandatory deposit error using the custom property from vendorApi
       if (error?.isMandatoryDepositError || error?.message?.includes('Mandatory deposit')) {
         console.log('🚨 MANDATORY DEPOSIT ERROR DETECTED - SHOWING MODAL');
@@ -269,7 +271,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         alert('Modal state set to true - check if modal appears');
         return; // Exit early to prevent showing toast
       }
-      
+
       // Show generic error toast for other errors
       toast({
         title: "Error",
@@ -292,10 +294,10 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
     }
 
     setIsProcessingDeposit(true);
-    
+
     try {
       const depositAmount = 2000; // Mandatory deposit amount
-      
+
       await vendorDepositService.processDepositPayment(
         depositAmount,
         vendor.fullName,
@@ -322,7 +324,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
           // Close the modal
           setIsDepositRequiredModalOpen(false);
-          
+
           // Show success message
           toast({
             title: "Ready to Accept Tasks!",
@@ -367,12 +369,12 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   const handleWalletCheckProceed = async () => {
     setIsWalletCheckOpen(false);
     setIsProcessing(true);
-    
+
     try {
       console.log('handleWalletCheckProceed: Starting decline process for task:', task.id);
       let response;
       const skipPenalty = currentWalletBalance <= 0;
-      
+
       if (task.isSupportTicket) {
         console.log('handleWalletCheckProceed: Declining support ticket');
         response = await vendorApi.declineSupportTicket(task.id, declineReason);
@@ -380,36 +382,36 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
         console.log('handleWalletCheckProceed: Declining booking task');
         response = await vendorApi.declineTask(task.id, declineReason, { skipPenalty });
       }
-      
+
       if (response.success) {
         const penaltyMessage = skipPenalty
           ? ' No penalty has been applied because your wallet balance is ₹0.'
-          : (response.penalty?.applied 
+          : (response.penalty?.applied
             ? ` ₹${response.penalty.amount} penalty has been applied to your wallet.`
             : '');
-        
+
         toast({
           title: "Task Declined",
           description: `You have declined this task. The admin will be notified and may assign it to another vendor.${penaltyMessage}`,
           variant: "default"
         });
-        
+
         // Immediately update local status for instant UI update
         setLocalTaskStatus(task.isSupportTicket ? 'Declined' : 'declined');
-        
+
         onStatusUpdate(task.id, 'declined');
         setIsDeclineModalOpen(false);
         setDeclineReason('');
-        
+
         // Dispatch support ticket update event for admin interface
         if (task.isSupportTicket) {
-          window.dispatchEvent(new CustomEvent('supportTicketUpdated', { 
-            detail: { 
+          window.dispatchEvent(new CustomEvent('supportTicketUpdated', {
+            detail: {
               ticketId: task.id,
               type: 'declined',
               vendorStatus: 'Declined',
               reason: declineReason
-            } 
+            }
           }));
         }
       } else {
@@ -423,7 +425,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       }
     } catch (error: any) {
       console.error('handleWalletCheckProceed: Error declining task:', error);
-      
+
       // Handle insufficient wallet balance error
       let errorMessage = "An error occurred while declining the task. Please try again.";
       if (error?.error === 'INSUFFICIENT_WALLET_BALANCE' || error?.message?.includes('wallet balance') || error?.message?.includes('add amount')) {
@@ -431,7 +433,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
+
       // Check if task was already declined
       if (error.message && error.message.includes('already been declined')) {
         console.log('handleWalletCheckProceed: Task already declined, updating UI');
@@ -440,7 +442,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
           description: "This task has already been declined. Refreshing status...",
           variant: "default"
         });
-        
+
         // Update local status to reflect the declined state
         setLocalTaskStatus(task.isSupportTicket ? 'Declined' : 'declined');
         onStatusUpdate(task.id, 'declined');
@@ -467,30 +469,30 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
 
   // Use local status for immediate UI updates, fallback to task status
   const currentStatus = localTaskStatus || (task.isSupportTicket ? task.vendorStatus : task.bookingStatus);
-  
+
   // Check if task is declined by vendor (either manually or auto-rejected)
-  const isVendorDeclined = task.vendorResponse?.status === 'declined' || 
-                          (task.isSupportTicket ? task.vendorStatus === 'Declined' : false);
-  
-  const isTaskAccepted = task.isSupportTicket 
+  const isVendorDeclined = task.vendorResponse?.status === 'declined' ||
+    (task.isSupportTicket ? task.vendorStatus === 'Declined' : false);
+
+  const isTaskAccepted = task.isSupportTicket
     ? (currentStatus === 'Accepted' || currentStatus === 'Completed')
     : (currentStatus === 'in_progress' || currentStatus === 'completed');
-    
+
   // Check if task is completed/closed
-  const isTaskCompleted = task.isSupportTicket 
+  const isTaskCompleted = task.isSupportTicket
     ? (currentStatus === 'Completed')
     : (currentStatus === 'completed');
-    
-  const isTaskDeclined = isVendorDeclined || 
-    (task.isSupportTicket 
+
+  const isTaskDeclined = isVendorDeclined ||
+    (task.isSupportTicket
       ? (currentStatus === 'Declined' || currentStatus === 'Cancelled')
       : (currentStatus === 'declined'));
-    
-  const isTaskCancelled = task.isSupportTicket 
+
+  const isTaskCancelled = task.isSupportTicket
     ? (currentStatus === 'Cancelled')
     : (currentStatus === 'declined');
-    
-  const isTaskPending = task.isSupportTicket 
+
+  const isTaskPending = task.isSupportTicket
     ? (currentStatus === 'Pending')
     : !isVendorDeclined && (currentStatus === 'confirmed' || currentStatus === 'waiting_for_engineer');
 
@@ -513,7 +515,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="pt-0">
           <div className="space-y-3">
             {/* Customer Information */}
@@ -582,7 +584,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                   </div>
                 </>
               )}
-              
+
               {isTaskAccepted && (
                 <>
                   <Button
@@ -626,11 +628,11 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                 <h3 className="font-semibold text-green-800">Confirm Task Acceptance</h3>
               </div>
               <p className="text-sm text-green-700 mt-2">
-                By accepting this task, you agree to complete the service as described. 
+                By accepting this task, you agree to complete the service as described.
                 You will be able to view full details and start working on it.
               </p>
             </div>
-            
+
             <div className="space-y-2">
               <Label className="text-sm font-medium">Task Details:</Label>
               <div className="text-sm text-gray-600 space-y-1">
@@ -683,7 +685,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                 <h3 className="font-semibold text-red-800">Decline Task</h3>
               </div>
               <p className="text-sm text-red-700 mt-2">
-                Please provide a reason for declining this task. The admin will be notified 
+                Please provide a reason for declining this task. The admin will be notified
                 and may assign it to another vendor.
               </p>
             </div>
@@ -697,8 +699,8 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               <p className="text-sm text-orange-700 mt-2">
                 {currentWalletBalance > 0 ? (
                   <>
-                    <strong>Warning:</strong> Declining this task will result in a <strong>₹100 penalty</strong> 
-                    being deducted from your wallet balance. This penalty applies to all task rejections 
+                    <strong>Warning:</strong> Declining this task will result in a <strong>₹100 penalty</strong>
+                    being deducted from your wallet balance. This penalty applies to all task rejections
                     in your assigned area.
                   </>
                 ) : (
@@ -708,7 +710,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                 )}
               </p>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="declineReason" className="text-sm font-medium">
                 Reason for declining *
@@ -806,7 +808,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                   {(() => {
                     const currentStatus = task.bookingStatus || task.vendorStatus;
                     const isAccepted = currentStatus === 'Accepted' || currentStatus === 'in_progress' || currentStatus === 'completed';
-                    
+
                     if (isAccepted) {
                       return <p className="text-gray-600">{safeRender(task.phone)}</p>;
                     } else {
@@ -825,7 +827,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                       const state = address?.state || task.state;
                       const pincode = address?.pincode || task.pincode;
                       const landmark = address?.landmark || task.landmark;
-                      
+
                       if (street || city || state || pincode) {
                         return (
                           <div className="text-sm">
@@ -901,7 +903,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
               </div>
             )}
           </div>
-          
+
           {/* Close Button - Removed accept/reject buttons to avoid bottom nav overlap */}
           <div className="flex gap-3 p-4 border-t flex-shrink-0 bg-white mt-auto">
             <Button
@@ -952,7 +954,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
                 You need to make a mandatory deposit of ₹2000 to accept tasks. This deposit is required after your first task assignment.
               </p>
             </div>
-            
+
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-start">
                 <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" />
@@ -964,15 +966,15 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
             </div>
 
             <div className="flex flex-col space-y-2">
-              <Button 
+              <Button
                 onClick={handleMakeDeposit}
                 className="w-full bg-blue-600 hover:bg-blue-700"
                 disabled={isProcessingDeposit}
               >
                 {isProcessingDeposit ? 'Processing...' : 'Make Deposit Now'}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setIsDepositRequiredModalOpen(false)}
                 className="w-full"
               >
