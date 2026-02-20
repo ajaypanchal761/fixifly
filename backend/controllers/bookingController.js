@@ -117,9 +117,7 @@ const populateVendorData = async (booking) => {
 // @access  Private (requires authentication)
 const createBooking = asyncHandler(async (req, res) => {
   try {
-    console.log('=== BOOKING CREATION REQUEST ===');
-    console.log('Request body:', JSON.stringify(req.body, null, 2));
-    console.log('Authenticated user:', req.user?.userId);
+    logger.info('=== BOOKING CREATION REQUEST ===', { userId: req.user?.userId });
 
     // Check if user is authenticated - REMOVED to allow guest bookings
     // if (!req.user || !req.user.userId) {
@@ -139,12 +137,7 @@ const createBooking = asyncHandler(async (req, res) => {
 
     // Validate required fields
     if (!customer || !services || !pricing || !scheduling) {
-      console.log('Validation failed - missing required fields:', {
-        customer: !!customer,
-        services: !!services,
-        pricing: !!pricing,
-        scheduling: !!scheduling
-      });
+      logger.warn('Validation failed - missing required fields');
       return res.status(400).json({
         success: false,
         message: 'Customer information, services, pricing, and scheduling are required'
@@ -182,7 +175,7 @@ const createBooking = asyncHandler(async (req, res) => {
         let user = await User.findByPhoneOrEmail(customer.phone || customer.email);
 
         if (!user) {
-          console.log('Creating new user for guest booking');
+          logger.info('Creating new user for guest booking');
           // Create new user
           user = await User.create({
             name: customer.name || 'Guest User',
@@ -199,7 +192,7 @@ const createBooking = asyncHandler(async (req, res) => {
 
         userId = user._id;
         userObj = user;
-        console.log('Guest booking assigned to user:', userId);
+        logger.info('Guest booking assigned to user', { userId });
       } catch (err) {
         console.error('Error finding/creating user for guest booking:', err);
         // Continue without failing

@@ -680,21 +680,6 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     const activeAMCSubscriptions = activeAMCSubscriptionsResult.length > 0 ? activeAMCSubscriptionsResult[0].count : 0;
     const totalAMCAmount = activeAMCSubscriptionsResult.length > 0 ? activeAMCSubscriptionsResult[0].totalAmount : 0;
 
-    // First check what bookings exist
-    const allBookings = await Booking.find({}).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
-    console.log('🔍 ALL BOOKINGS IN DB:', JSON.stringify(allBookings, null, 2));
-
-    const completedBookings = await Booking.find({
-      status: 'completed'
-    }).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
-    console.log('🔍 COMPLETED BOOKINGS (status=completed):', JSON.stringify(completedBookings, null, 2));
-
-    const completedWithPayment = await Booking.find({
-      status: 'completed',
-      'payment.status': 'completed'
-    }).select('status payment paymentMode paymentStatus createdAt pricing completionData bookingReference').lean();
-    console.log('🔍 COMPLETED BOOKINGS WITH PAYMENT:', JSON.stringify(completedWithPayment, null, 2));
-
     // Reusable expressions for admin commission calculation
     // Match completed OR paid bookings that have billing/pricing data (more flexible status check)
     // Expanded status check to include paid/payment_done/collected to show full history as requested

@@ -43,47 +43,51 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get VendorWallet model
-    const VendorWallet = require('../models/VendorWallet');
+    // Get VendorWallet documents for all fetched vendors in one query
+    const vendorIds = vendors.map(v => v.vendorId);
+    const wallets = await VendorWallet.find({ vendorId: { $in: vendorIds } }).lean();
 
-    // Get wallet summaries for each vendor
-    const vendorsWithWallets = await Promise.all(
-      vendors.map(async (vendor) => {
-        // Get vendor wallet data
-        const vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
+    // Create a map for quick lookup
+    const walletsMap = wallets.reduce((acc, wallet) => {
+      acc[wallet.vendorId] = wallet;
+      return acc;
+    }, {});
 
-        // Calculate online and cash collections from transactions
-        const onlineCollected = vendorWallet?.transactions
-          ?.filter(t => t.paymentMethod === 'online' && t.type === 'earning')
-          ?.reduce((sum, t) => sum + t.amount, 0) || 0;
+    // Map vendors to include wallet information
+    const vendorsWithWallets = vendors.map((vendor) => {
+      const vendorWallet = walletsMap[vendor.vendorId];
 
-        // Calculate cash collected from cash_collection transactions (sum of absolute amounts)
-        const cashCollected = vendorWallet?.transactions
-          ?.filter(t => t.type === 'cash_collection')
-          ?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0;
+      // Calculate online and cash collections from transactions
+      const onlineCollected = vendorWallet?.transactions
+        ?.filter(t => t.paymentMethod === 'online' && t.type === 'earning')
+        ?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
 
-        return {
-          id: vendor._id,
-          vendorId: vendor.vendorId,
-          vendorName: `${vendor.firstName} ${vendor.lastName}`,
-          vendorEmail: vendor.email,
-          vendorPhone: vendor.phone,
-          currentBalance: vendorWallet?.currentBalance || 0,
-          totalEarnings: vendorWallet?.totalEarnings || 0,
-          onlineCollected: onlineCollected,
-          cashCollected: cashCollected,
-          totalWithdrawals: vendorWallet?.totalWithdrawals || 0,
-          totalDeposits: vendorWallet?.totalDeposits || 0,
-          securityDeposit: vendorWallet?.securityDeposit || 0,
-          availableBalance: vendorWallet?.availableBalance || 0,
-          isActive: vendor.isActive,
-          isApproved: vendor.isApproved,
-          lastTransaction: vendorWallet?.lastTransactionAt || null,
-          createdAt: vendor.createdAt,
-          updatedAt: vendor.updatedAt
-        };
-      })
-    );
+      // Calculate cash collected from cash_collection transactions (sum of absolute amounts)
+      const cashCollected = vendorWallet?.transactions
+        ?.filter(t => t.type === 'cash_collection')
+        ?.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0) || 0;
+
+      return {
+        id: vendor._id,
+        vendorId: vendor.vendorId,
+        vendorName: `${vendor.firstName} ${vendor.lastName}`,
+        vendorEmail: vendor.email,
+        vendorPhone: vendor.phone,
+        currentBalance: vendorWallet?.currentBalance || 0,
+        totalEarnings: vendorWallet?.totalEarnings || 0,
+        onlineCollected: onlineCollected,
+        cashCollected: cashCollected,
+        totalWithdrawals: vendorWallet?.totalWithdrawals || 0,
+        totalDeposits: vendorWallet?.totalDeposits || 0,
+        securityDeposit: vendorWallet?.securityDeposit || 0,
+        availableBalance: vendorWallet?.availableBalance || 0,
+        isActive: vendor.isActive,
+        isApproved: vendor.isApproved,
+        lastTransaction: vendorWallet?.lastTransactionAt || null,
+        createdAt: vendor.createdAt,
+        updatedAt: vendor.updatedAt
+      };
+    });
 
     const totalVendors = await Vendor.countDocuments(query);
 
@@ -521,7 +525,7 @@ const adjustVendorWallet = asyncHandler(async (req, res) => {
 
     // The admin provides the "Target Available Balance" (what they see in the table)
     const targetAvailableBalance = parseFloat(currentBalance);
-    const securityDeposit = vendorWallet.securityDeposit || 0;
+    const securityDeposit = vendorWallet.securityDeposit ?? 3999;
 
     // To make availableBalance = targetAvailableBalance,
     // we need currentBalance = targetAvailableBalance + securityDeposit

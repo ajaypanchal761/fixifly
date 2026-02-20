@@ -77,24 +77,40 @@ const getVendors = asyncHandler(async (req, res) => {
 
   const total = await Vendor.countDocuments(query);
 
-  // Get bookings count for each vendor from Booking model
+  // Get bookings count for all fetched vendors in one go
   const { Booking } = require('../models/Booking');
-  const transformedVendors = await Promise.all(vendors.map(async (vendor) => {
-    // Count bookings assigned to this vendor
-    const bookingQuery = { 'vendor.vendorId': vendor.vendorId };
+  const vendorIds = vendors.map(v => v.vendorId);
 
-    // Count total bookings, completed bookings, and pending bookings
-    const [totalBookingsCount, completedBookingsCount, pendingBookingsCount] = await Promise.all([
-      Booking.countDocuments(bookingQuery),
-      Booking.countDocuments({
-        ...bookingQuery,
-        status: 'completed'
-      }),
-      Booking.countDocuments({
-        ...bookingQuery,
-        status: { $in: ['pending', 'waiting_for_engineer', 'confirmed', 'in_progress'] }
-      })
-    ]);
+  const bookingStats = await Booking.aggregate([
+    { $match: { 'vendor.vendorId': { $in: vendorIds } } },
+    {
+      $group: {
+        _id: '$vendor.vendorId',
+        total: { $sum: 1 },
+        completed: {
+          $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+        },
+        pending: {
+          $sum: {
+            $cond: [
+              { $in: ['$status', ['pending', 'waiting_for_engineer', 'confirmed', 'in_progress']] },
+              1,
+              0
+            ]
+          }
+        }
+      }
+    }
+  ]);
+
+  // Create a map for quick lookup
+  const statsMap = bookingStats.reduce((acc, stat) => {
+    acc[stat._id] = stat;
+    return acc;
+  }, {});
+
+  const transformedVendors = vendors.map((vendor) => {
+    const stats = statsMap[vendor.vendorId] || { total: 0, completed: 0, pending: 0 };
 
     return {
       id: vendor._id,
@@ -103,7 +119,8 @@ const getVendors = asyncHandler(async (req, res) => {
       firstName: vendor.firstName,
       lastName: vendor.lastName,
       email: vendor.email,
-      phone: vendor.formattedPhone,
+      phone: vendor.phone,
+      formattedPhone: vendor.formattedPhone,
       alternatePhone: vendor.alternatePhone,
       fatherName: vendor.fatherName,
       homePhone: vendor.homePhone,
@@ -114,14 +131,17 @@ const getVendors = asyncHandler(async (req, res) => {
       joinDate: vendor.createdAt,
       status: vendor.isBlocked ? 'blocked' : (vendor.isActive ? 'active' : 'inactive'),
       verificationStatus: vendor.isApproved ? 'verified' : 'pending',
-      rating: vendor.rating.average || 0,
-      totalReviews: vendor.rating.totalReviews || 0,
-      totalBookings: totalBookingsCount || 0,
-      completedBookings: completedBookingsCount || 0,
-      pendingBookings: pendingBookingsCount || 0,
+      isActive: vendor.isActive,
+      isApproved: vendor.isApproved,
+      isBlocked: vendor.isBlocked,
+      rating: vendor.rating?.average || 0,
+      totalReviews: vendor.rating?.totalReviews || 0,
+      totalBookings: stats.total,
+      completedBookings: stats.completed,
+      pendingBookings: stats.pending,
       services: vendor.serviceCategories,
       customServiceCategory: vendor.customServiceCategory,
-      lastActive: vendor.stats.lastLoginAt,
+      lastActive: vendor.stats?.lastLoginAt,
       profileImage: vendor.profileImage,
       documents: vendor.documents,
       isEmailVerified: vendor.isEmailVerified,
@@ -133,7 +153,7 @@ const getVendors = asyncHandler(async (req, res) => {
       createdAt: vendor.createdAt,
       updatedAt: vendor.updatedAt
     };
-  }));
+  });
 
   res.json({
     success: true,

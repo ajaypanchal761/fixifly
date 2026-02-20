@@ -181,7 +181,7 @@ const vendorWalletSchema = new mongoose.Schema({
 
 // Virtual for available balance (current balance - security deposit)
 vendorWalletSchema.virtual('availableForWithdrawal').get(function () {
-  const securityDeposit = this.securityDeposit || 3999;
+  const securityDeposit = this.securityDeposit ?? 3999;
   return Math.max(0, this.currentBalance - securityDeposit);
 });
 
@@ -565,11 +565,11 @@ vendorWalletSchema.statics.getVendorSummary = async function (vendorId) {
         availableBalance = wallet.availableBalance;
       } else {
         // Calculate manually if virtual property is not accessible
-        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999));
+        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit ?? 3999));
       }
     } catch (balanceError) {
       // Fallback calculation
-      availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit || 3999));
+      availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit ?? 3999));
     }
 
     return {
@@ -684,7 +684,7 @@ vendorWalletSchema.methods.addManualAdjustment = function (adjustmentData) {
 
 // Pre-save middleware to update available balance
 vendorWalletSchema.pre('save', function (next) {
-  const securityDeposit = this.securityDeposit || 3999;
+  const securityDeposit = this.securityDeposit ?? 3999;
   this.availableBalance = Math.max(0, this.currentBalance - securityDeposit);
   next();
 });
