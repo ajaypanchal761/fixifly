@@ -525,7 +525,7 @@ const adjustVendorWallet = asyncHandler(async (req, res) => {
 
     // The admin provides the "Target Available Balance" (what they see in the table)
     const targetAvailableBalance = parseFloat(currentBalance);
-    const securityDeposit = vendorWallet.securityDeposit ?? 3999;
+    const securityDeposit = vendorWallet.securityDeposit ?? 0;
 
     // To make availableBalance = targetAvailableBalance,
     // we need currentBalance = targetAvailableBalance + securityDeposit

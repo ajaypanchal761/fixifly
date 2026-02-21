@@ -792,7 +792,7 @@ const VendorEarnings = () => {
     console.log('🔄 Calculated balance from transactions:', calculatedBalance);
   }
 
-  const actualSecurityDeposit = walletData.securityDeposit || (vendor?.wallet?.securityDeposit) || 3999;
+  const actualSecurityDeposit = walletData.securityDeposit || (vendor?.wallet?.securityDeposit) || 0;
   const availableBalance = Math.max(0, actualCurrentBalance - actualSecurityDeposit); // Available for withdrawal
   const withdrawableAmount = Math.max(0, availableBalance - 5000); // Amount above ₹5000 that can be withdrawn
   const totalWithdrawn = walletData.summary?.totalWithdrawals || 0;

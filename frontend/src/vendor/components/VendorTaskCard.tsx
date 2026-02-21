@@ -112,7 +112,7 @@ const VendorTaskCard: React.FC<VendorTaskCardProps> = ({ task, onStatusUpdate })
   const [isProcessing, setIsProcessing] = useState(false);
   const [isWalletCheckOpen, setIsWalletCheckOpen] = useState(false);
   // Calculate available balance (subtracting security deposit)
-  const securityDeposit = vendor?.wallet?.securityDeposit ?? 3999;
+  const securityDeposit = vendor?.wallet?.securityDeposit ?? 0;
   const currentWalletBalance = Math.max(0, (vendor?.wallet?.currentBalance ?? 0) - securityDeposit);
 
   // Debug: Log task data to identify object issues

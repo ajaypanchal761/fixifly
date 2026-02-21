@@ -584,7 +584,7 @@ SupportTicketSchema.methods.declineByVendor = async function (vendorId, reason =
   if (wallet) {
     const penaltyAmount = 100;
     // Check if wallet has sufficient available balance - no penalty if available balance is < penaltyAmount
-    const availableBalance = (wallet.availableBalance !== undefined) ? wallet.availableBalance : Math.max(0, wallet.currentBalance - (wallet.securityDeposit || 3999));
+    const availableBalance = (wallet.availableBalance !== undefined) ? wallet.availableBalance : Math.max(0, wallet.currentBalance - (wallet.securityDeposit || 0));
 
     if (availableBalance >= penaltyAmount) {
       console.log('🔧 PENALTY DEBUG: Applying penalty for task rejection', {

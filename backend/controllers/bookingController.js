@@ -1582,7 +1582,7 @@ const declineTask = asyncHandler(async (req, res) => {
     }
 
     // Calculate available balance (subtracting security deposit)
-    const securityDeposit = wallet.securityDeposit || 3999;
+    const securityDeposit = wallet.securityDeposit || 0;
     const availableBalance = Math.max(0, wallet.currentBalance - securityDeposit);
 
     // Check if wallet has sufficient balance - prevent decline if balance < 100
@@ -1770,7 +1770,7 @@ const completeTask = asyncHandler(async (req, res) => {
         if (!vendorWallet || vendorWallet.currentBalance <= 0 || vendorWallet.currentBalance < calculation.calculatedAmount) {
           return res.status(400).json({
             success: false,
-            message: 'Please add money to your wallet first.',
+            message: `Cannot close task. Insufficient wallet balance. Please add at least ₹${calculation.calculatedAmount} to your wallet first.`,
             error: 'INSUFFICIENT_WALLET_BALANCE',
             currentBalance: vendorWallet ? vendorWallet.currentBalance : 0,
             requiredAmount: calculation.calculatedAmount
