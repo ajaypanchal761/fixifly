@@ -33,8 +33,8 @@ const migrateWalletTransactions = async () => {
         vendorWallet = new VendorWallet({
           vendorId: vendor.vendorId,
           currentBalance: vendor.wallet?.currentBalance || 0,
-          securityDeposit: 3999,
-          availableBalance: Math.max(0, (vendor.wallet?.currentBalance || 0) - 3999)
+          securityDeposit: 0,
+          availableBalance: Math.max(0, (vendor.wallet?.currentBalance || 0))
         });
         await vendorWallet.save();
         console.log(`Created new VendorWallet for ${vendor.vendorId}`);
@@ -114,7 +114,7 @@ const migrateWalletTransactions = async () => {
       // Update vendor's wallet balance to match VendorWallet
       if (vendorWallet.currentBalance !== vendor.wallet?.currentBalance) {
         vendor.wallet.currentBalance = vendorWallet.currentBalance;
-        vendor.wallet.hasInitialDeposit = vendorWallet.currentBalance >= 3999;
+        vendor.wallet.hasInitialDeposit = vendorWallet.currentBalance > 0;
         await vendor.save();
         console.log(`Updated vendor ${vendor.vendorId} wallet balance to ${vendorWallet.currentBalance}`);
       }

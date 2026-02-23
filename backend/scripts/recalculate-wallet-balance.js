@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const VendorWallet = require('../models/VendorWallet');
+const Vendor = require('../models/Vendor');
 const { Booking } = require('../models/Booking');
 require('dotenv').config({ path: './config/production.env' });
 
@@ -12,7 +13,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 async function recalculateWalletBalance(vendorId) {
   try {
     console.log(`Recalculating wallet balance for vendor: ${vendorId}`);
-    
+
     // Find the vendor wallet
     const vendorWallet = await VendorWallet.findOne({ vendorId });
     if (!vendorWallet) {
@@ -47,20 +48,21 @@ async function recalculateWalletBalance(vendorId) {
         }
       }
 
-      // Recalculate using new formula
+      // Recalculate using production formula from VendorWallet.js
       let newAmount = 0;
       const billingAmount = transaction.billingAmount || 0;
       const spareAmount = transaction.spareAmount || 0;
       const travellingAmount = transaction.travellingAmount || 0;
+      const gstIncluded = transaction.gstIncluded || false;
+      const gstAmount = transaction.gstAmount || 0;
 
-      if (billingAmount <= 600) {
-        // For amounts > 300 and <= 600: (Billing - Spare - Travel) * 50% + Spare + Travel
+      if (billingAmount <= 300) {
+        // Special case for amounts <= 300: Full amount goes to vendor (including GST)
+        newAmount = billingAmount + gstAmount;
+      } else {
+        // For amounts > 300: (Billing - Spare - Travel) * 50% + Spare + Travel
         const baseAmount = billingAmount - spareAmount - travellingAmount;
         newAmount = (baseAmount * 0.5) + spareAmount + travellingAmount;
-      } else {
-        // New formula: (Billing - Spare - Travel - Booking) × 50% + Spare + Travel + Booking
-        const baseAmount = billingAmount - spareAmount - travellingAmount - bookingAmount;
-        newAmount = (baseAmount * 0.5) + spareAmount + travellingAmount + bookingAmount;
       }
 
       console.log(`Recalculated amount: ₹${newAmount}`);
@@ -70,7 +72,7 @@ async function recalculateWalletBalance(vendorId) {
       transaction.amount = newAmount;
       transaction.calculatedAmount = newAmount;
       transaction.bookingAmount = bookingAmount;
-      
+
       newTotalEarnings += newAmount;
       recalculatedTransactions.push({
         transactionId: transaction.transactionId,
@@ -81,23 +83,67 @@ async function recalculateWalletBalance(vendorId) {
       });
     }
 
-    // Update wallet totals
-    const oldBalance = vendorWallet.currentBalance;
-    const oldTotalEarnings = vendorWallet.totalEarnings;
-    const balanceDifference = newTotalEarnings - oldTotalEarnings;
+    // Final audit: sum ALL transactions in the wallet to ensure absolute consistency
+    let totalEarnings = 0;
+    let totalPenalties = 0;
+    let totalDeposits = 0;
+    let totalWithdrawals = 0;
+    let totalCashCollections = 0;
+    let totalTaskFees = 0;
+    let totalRefunds = 0;
+    let calculatedCurrentBalance = 0;
 
-    vendorWallet.currentBalance = oldBalance + balanceDifference;
-    vendorWallet.totalEarnings = newTotalEarnings;
+    for (const t of vendorWallet.transactions) {
+      const amount = t.amount || 0;
+      calculatedCurrentBalance += amount;
+
+      switch (t.type) {
+        case 'earning': totalEarnings += amount; break;
+        case 'penalty': totalPenalties += Math.abs(amount); break;
+        case 'deposit': totalDeposits += amount; break;
+        case 'withdrawal': totalWithdrawals += Math.abs(amount); break;
+        case 'cash_collection': totalCashCollections += Math.abs(amount); break;
+        case 'task_acceptance_fee': totalTaskFees += Math.abs(amount); break;
+        case 'refund': totalRefunds += amount; break;
+      }
+    }
+
+    const oldBalance = vendorWallet.currentBalance;
+
+    // Update VendorWallet
+    vendorWallet.currentBalance = Math.max(0, calculatedCurrentBalance);
+    vendorWallet.totalEarnings = totalEarnings;
+    vendorWallet.totalDeposits = totalDeposits;
+    vendorWallet.totalWithdrawals = totalWithdrawals;
+    vendorWallet.totalPenalties = totalPenalties;
+    vendorWallet.totalCashCollections = totalCashCollections;
+    vendorWallet.totalTaskAcceptanceFees = totalTaskFees;
+    vendorWallet.totalRefunds = totalRefunds;
+    vendorWallet.securityDeposit = 0; // Explicitly remove 3999 system
+    vendorWallet.lastTransactionAt = new Date();
 
     // Save the updated wallet
     await vendorWallet.save();
 
-    console.log(`\n=== RECALCULATION SUMMARY ===`);
+    // Sync with Vendor model
+    const vendor = await Vendor.findOne({ vendorId });
+    if (vendor && vendor.wallet) {
+      vendor.wallet.currentBalance = vendorWallet.currentBalance;
+      vendor.wallet.totalDeposits = totalDeposits;
+      vendor.wallet.totalWithdrawals = totalWithdrawals;
+      vendor.wallet.hasInitialDeposit = totalDeposits > 0;
+      await vendor.save({ validateBeforeSave: false });
+    }
+
+    console.log(`\n=== RECALCULATION & SYNC SUMMARY ===`);
+    console.log(`Vendor ID: ${vendorId}`);
     console.log(`Old balance: ₹${oldBalance}`);
     console.log(`New balance: ₹${vendorWallet.currentBalance}`);
-    console.log(`Balance difference: ₹${balanceDifference}`);
-    console.log(`Old total earnings: ₹${oldTotalEarnings}`);
-    console.log(`New total earnings: ₹${newTotalEarnings}`);
+    console.log(`Balance difference: ₹${vendorWallet.currentBalance - oldBalance}`);
+    console.log(`Total Earnings: ₹${totalEarnings}`);
+    console.log(`Total Deposits: ₹${totalDeposits}`);
+    console.log(`Security Deposit: ₹${vendorWallet.securityDeposit}`);
+    console.log(`Available Balance: ₹${vendorWallet.availableBalance}`);
 
     console.log(`\n=== TRANSACTION DETAILS ===`);
     recalculatedTransactions.forEach(t => {
