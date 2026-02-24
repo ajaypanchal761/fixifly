@@ -71,7 +71,7 @@ class VendorNotificationApi {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         // Handle authentication errors
         if (response.status === 401) {
@@ -84,11 +84,8 @@ class VendorNotificationApi {
             alert('You are blocked by admin. Please contact support for assistance.');
             window.location.href = '/vendor/login';
           } else {
-            // Clear invalid token
-            localStorage.removeItem('vendorToken');
-            localStorage.removeItem('vendorData');
-            // Redirect to login page
-            window.location.href = '/vendor/login';
+            // Rely on central context for redirect
+            console.warn('VendorNotificationApi: Unauthorized access detected (401)');
           }
         }
         throw new Error(data.message || 'Failed to fetch notifications');
@@ -110,7 +107,7 @@ class VendorNotificationApi {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         // Handle authentication errors
         if (response.status === 401) {
@@ -123,11 +120,8 @@ class VendorNotificationApi {
             alert('You are blocked by admin. Please contact support for assistance.');
             window.location.href = '/vendor/login';
           } else {
-            // Clear invalid token
-            localStorage.removeItem('vendorToken');
-            localStorage.removeItem('vendorData');
-            // Redirect to login page
-            window.location.href = '/vendor/login';
+            // Rely on central context for redirect
+            console.warn('VendorNotificationApi: Unauthorized access detected (401)');
           }
         }
         throw new Error(data.message || 'Failed to mark notification as read');
@@ -149,7 +143,7 @@ class VendorNotificationApi {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         // Handle authentication errors
         if (response.status === 401) {
@@ -162,11 +156,8 @@ class VendorNotificationApi {
             alert('You are blocked by admin. Please contact support for assistance.');
             window.location.href = '/vendor/login';
           } else {
-            // Clear invalid token
-            localStorage.removeItem('vendorToken');
-            localStorage.removeItem('vendorData');
-            // Redirect to login page
-            window.location.href = '/vendor/login';
+            // Rely on central context for redirect
+            console.warn('VendorNotificationApi: Unauthorized access detected (401)');
           }
         }
         throw new Error(data.message || 'Failed to mark all notifications as read');
@@ -188,7 +179,7 @@ class VendorNotificationApi {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         // Handle authentication errors
         if (response.status === 401) {
@@ -201,11 +192,8 @@ class VendorNotificationApi {
             alert('You are blocked by admin. Please contact support for assistance.');
             window.location.href = '/vendor/login';
           } else {
-            // Clear invalid token
-            localStorage.removeItem('vendorToken');
-            localStorage.removeItem('vendorData');
-            // Redirect to login page
-            window.location.href = '/vendor/login';
+            // Rely on central context for redirect
+            console.warn('VendorNotificationApi: Unauthorized access detected (401)');
           }
         }
         throw new Error(data.message || 'Failed to fetch unread count');
@@ -213,6 +201,7 @@ class VendorNotificationApi {
 
       return {
         success: true,
+        message: 'Unread count fetched successfully',
         data: {
           unreadCount: data.data?.pagination?.unreadCount || 0
         }

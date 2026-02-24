@@ -708,22 +708,34 @@ const VendorEarnings = () => {
     }
   }, [vendor?.vendorId, fetchWalletData, fetchTransactionHistory, checkPendingWithdrawalRequest]);
 
-  // Also fetch wallet data when vendor context changes
+  // Sync wallet data from vendor context
   useEffect(() => {
     if (vendor?.wallet && !isUpdatingFromAPI) {
-      console.log('🔄 Vendor wallet context updated:', vendor.wallet);
-      // Update local wallet data from vendor context
-      setWalletData({
-        currentBalance: vendor.wallet.currentBalance || 0,
-        hasInitialDeposit: vendor.wallet.hasInitialDeposit || false,
-        initialDepositAmount: vendor.wallet.initialDepositAmount || 0,
-        totalDeposits: vendor.wallet.totalDeposits || 0,
-        totalWithdrawals: vendor.wallet.totalWithdrawals || 0,
-        securityDeposit: vendor.wallet.securityDeposit || 0,
-        summary: {
-          totalEarnings: 0,
-          totalWithdrawals: vendor.wallet.totalWithdrawals || 0
+      console.log('🔄 VendorContext Wallet Data:', vendor.wallet);
+
+      setWalletData(prev => {
+        const newBalance = Number(vendor.wallet.currentBalance) || 0;
+        const newTotalWithdrawals = Number(vendor.wallet.totalWithdrawals) || 0;
+
+        // Only update if data actually changed to prevent render loops
+        if (prev.currentBalance === newBalance &&
+          prev.totalWithdrawals === newTotalWithdrawals &&
+          prev.securityDeposit === 0) {
+          return prev;
         }
+
+        return {
+          currentBalance: newBalance,
+          hasInitialDeposit: vendor.wallet.hasInitialDeposit || false,
+          initialDepositAmount: vendor.wallet.initialDepositAmount || 0,
+          totalDeposits: vendor.wallet.totalDeposits || 0,
+          totalWithdrawals: newTotalWithdrawals,
+          securityDeposit: 0, // Explicitly 0
+          summary: {
+            totalEarnings: prev.summary?.totalEarnings || 0,
+            totalWithdrawals: newTotalWithdrawals
+          }
+        };
       });
       setLoadingWallet(false);
     }
@@ -755,66 +767,46 @@ const VendorEarnings = () => {
   // Calculate wallet values from state
   const totalEarnings = walletData.summary?.totalEarnings || 0;
 
-  // Debug current balance calculation
-  console.log('=== CURRENT BALANCE CALCULATION ===');
-  console.log('walletData:', walletData);
-  console.log('walletData.currentBalance:', walletData.currentBalance);
-  console.log('typeof walletData.currentBalance:', typeof walletData.currentBalance);
+  // PRIMARY BALANCE LOGIC
+  // 1. Get balance from API State
+  const apiBalance = Number(walletData.currentBalance) || 0;
 
-  // Use actual balance from API with fallback to vendor context
-  let currentBalance = walletData.currentBalance !== undefined ? walletData.currentBalance : (vendor?.wallet?.currentBalance || 0);
+  // 2. Get balance from Context State (fallback)
+  const contextBalance = Number(vendor?.wallet?.currentBalance) || 0;
 
-  // If still 0, try to get from vendor context
-  if (currentBalance === 0 && vendor?.wallet?.currentBalance) {
-    currentBalance = vendor.wallet.currentBalance;
-    console.log('🔄 Using balance from vendor context:', currentBalance);
-  }
+  // 3. Calculate balance from transaction history (last resort fallback)
+  const calculatedBalance = transactionHistory.length > 0
+    ? transactionHistory.reduce((total, t) => total + (Number(t.amount) || 0), 0)
+    : 0;
 
-  console.log('Final currentBalance:', currentBalance);
-  console.log('walletData.currentBalance is undefined:', walletData.currentBalance === undefined);
-  console.log('Vendor ID:', vendor?.vendorId);
-  console.log('Using fallback logic for vendor:', vendor?.vendorId);
+  // Use the best available non-zero value, prioritizing API > Context > Calculation
+  // If all are zero, then it's actually zero
+  const finalBalance = apiBalance !== 0 ? apiBalance : (contextBalance !== 0 ? contextBalance : Math.max(0, calculatedBalance));
 
-  // Calculate actual balance from transaction history if wallet data doesn't have it
-  let actualCurrentBalance = currentBalance;
+  // Display balance is the final balance - NO SUBTRACTIONS
+  const availableBalance = finalBalance;
+  const withdrawableAmount = Math.max(0, availableBalance - 5000); // Only what's over 5k is withdrawable
 
-  if (actualCurrentBalance === 0 && transactionHistory.length > 0) {
-    // Calculate balance from transaction history
-    const calculatedBalance = transactionHistory.reduce((total, transaction) => {
-      if (transaction.amount > 0) {
-        return total + transaction.amount; // Add deposits/payments
-      } else {
-        return total + transaction.amount; // Subtract withdrawals/penalties
-      }
-    }, 0);
+  // Legacy variables for compatibility with logs/debug code below if needed
+  const actualCurrentBalance = finalBalance;
+  const actualSecurityDeposit = 0;
 
-    actualCurrentBalance = Math.max(0, calculatedBalance);
-    console.log('🔄 Calculated balance from transactions:', calculatedBalance);
-  }
+  console.log('💰 [WALLET RENDER] Calculation Result:', {
+    vendorId: vendor?.vendorId,
+    apiBalance,
+    contextBalance,
+    calculatedFromTransactions: calculatedBalance,
+    FINAL_DISPLAYED_BALANCE: availableBalance
+  });
 
-  const actualSecurityDeposit = 0; // Security deposit system removed
-  const availableBalance = actualCurrentBalance; // Available for withdrawal is now just the current balance
-  const withdrawableAmount = Math.max(0, availableBalance - 5000); // Amount above ₹5000 that can be withdrawn
-  const totalWithdrawn = walletData.summary?.totalWithdrawals || 0;
-
-  console.log('💰 Final Balance Calculation:');
-  console.log('- API Balance:', currentBalance);
-  console.log('- Calculated Balance:', actualCurrentBalance);
-  console.log('- Available Balance:', availableBalance);
-
-  // Check hasInitialDeposit from multiple sources - once deposit is made, always show Yes
   // For the new system, we treat all active vendors as having initial deposit cleared
-  const hasInitialDeposit = true; // Set to true as mandatory deposit is removed
+  const hasInitialDeposit = true;
 
   // Debug logging
-  console.log('=== CURRENT STATE ===');
+  console.log('=== WALLET DEBUG STATE ===');
   console.log('Vendor ID:', vendor?.vendorId);
-  console.log('Wallet data:', walletData);
-  console.log('Current balance:', actualCurrentBalance);
-  console.log('Has initial deposit:', hasInitialDeposit);
-  console.log('Loading wallet:', loadingWallet);
-
-
+  console.log('Wallet Data State:', walletData);
+  console.log('Loading Wallet:', loadingWallet);
 
 
 

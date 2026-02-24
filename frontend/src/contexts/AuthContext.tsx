@@ -347,12 +347,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error: any) {
       // Handle authorization/user not found errors - clear invalid token and logout
-      if (error?.message?.includes('Not authorized') ||
-        error?.message?.includes('user not found') ||
-        error?.message?.includes('User not found') ||
-        error?.status === 401) {
-        console.warn('⚠️ User not found or unauthorized - clearing invalid session');
-        logout();
+      // ONLY if it's a confirmed status 401, not just a string match in error message
+      if (error?.status === 401 || (error?.message && (error.message.includes('401') || error.message.includes('Not authorized')))) {
+        // Check if we are already on login page to avoid redirect loops
+        const isAuthPage = window.location.pathname.includes('/login') || window.location.pathname.includes('/signup');
+        if (!isAuthPage) {
+          console.warn('⚠️ User unauthorized during background refresh - logout scheduled');
+          // Small delay to allow other potential refresh attempts to finish
+          setTimeout(() => logout(), 500);
+        }
         return;
       }
 
@@ -367,7 +370,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       // For other errors, log but don't break the app
-      // The app will continue with cached data
       console.warn('⚠️ Error refreshing user data (non-critical):', error.message);
     }
   };

@@ -195,14 +195,22 @@ class VendorApiService {
             localStorage.removeItem('vendorToken');
             localStorage.removeItem('vendorData');
             // Show blocked message and redirect to login
-            alert('You are blocked by admin. Please contact support for assistance.');
+            alert('Your account has been blocked by admin. Please contact support.');
             window.location.href = '/vendor/login';
           } else {
-            // Clear invalid token
-            localStorage.removeItem('vendorToken');
-            localStorage.removeItem('vendorData');
-            // Redirect to login page
-            window.location.href = '/vendor/login';
+            // ONLY redirect if we are NOT on the login page already
+            // and if it's not a background request that failed once
+            const isLoginPage = window.location.pathname.includes('/vendor/login');
+
+            // For vendors, we don't have auto-refresh yet, so if it's 401, 
+            // the token is likely genuinely expired or invalid.
+            // But we check for network flags just in case.
+            if (!isLoginPage) {
+              console.warn('Session expired or invalid token - redirecting to login');
+              localStorage.removeItem('vendorToken');
+              localStorage.removeItem('vendorData');
+              window.location.href = '/vendor/login';
+            }
           }
         }
         // Handle mandatory deposit error directly in request method

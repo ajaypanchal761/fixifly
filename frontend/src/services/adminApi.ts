@@ -404,24 +404,6 @@ class AdminApiService {
   async makeAuthenticatedRequest(url: string, options: RequestInit = {}): Promise<Response> {
     let token = localStorage.getItem('adminToken');
 
-    // Check if token is expired and refresh if needed
-    if (token && this.isAccessTokenExpired(token)) {
-      try {
-        await this.refreshAccessToken();
-        token = localStorage.getItem('adminToken');
-      } catch (error: any) {
-        // Only redirect on actual auth failure, not on network errors
-        const isNetworkError = error.message?.includes('Failed to fetch') ||
-          error.message?.includes('NetworkError');
-
-        if (!isNetworkError) {
-          window.location.href = '/admin/login';
-          throw new Error('Session expired. Please login again.');
-        }
-        // For network errors, we'll try the request with the current token anyway
-      }
-    }
-
     const headers: Record<string, string> = {
       ...(options.headers as Record<string, string>),
     };
@@ -448,21 +430,18 @@ class AdminApiService {
 
         if (newToken) {
           // Retry the request with new token
-          const retryHeaders: Record<string, string> = {
+          const retryHeaders = {
             ...headers,
             'Authorization': `Bearer ${newToken}`
           };
-
           return await fetch(url, {
             ...options,
             headers: retryHeaders
           });
         }
-      } catch (error) {
-        // If refresh fails, clear auth data and redirect
-        // this.clearAuthData();
-        // window.location.href = '/admin/login';
-        console.warn('Token refresh failed on 401, but preventing auto-logout redirect');
+      } catch (refreshError) {
+        console.error('Token refresh failed during request, but avoiding aggressive redirect:', refreshError);
+        // Let the calling component or interceptor handle the final failure
       }
     }
 

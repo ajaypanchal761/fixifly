@@ -29,16 +29,20 @@ supportApiService.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Only handle 401 if it's an actual auth error from the server
     if (error.response?.status === 401) {
-      // Handle unauthorized access - only redirect if not already on login page
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('userData');
-
-      // Only redirect if not already on login or register page
       const currentPath = window.location.pathname;
-      if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
-        // Just log the error, don't redirect to non-existent /login
-        console.warn('Unauthorized access detected, but login page is disabled.');
+      const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register');
+
+      // Check if we should log out
+      // Don't log out if we are already on auth pages, or if it's a network error disguised as 401
+      if (!isAuthPage && !error.message?.includes('Network Error')) {
+        console.warn('Session might be expired (401 from Support API)');
+
+        // For now, we only log it. Users will be logged out by main AuthContext if needed.
+        // Deeply clearing localStorage here can break other active modules.
+        // localStorage.removeItem('accessToken');
+        // localStorage.removeItem('userData');
       }
     }
     return Promise.reject(error);

@@ -226,10 +226,7 @@ adminAmcApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Admin token expired, redirect to admin login
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminRefreshToken');
-      window.location.href = '/admin/login';
+      console.warn('Admin AMC API: Unauthorized (401), relying on central context.');
     }
     return Promise.reject(error);
   }

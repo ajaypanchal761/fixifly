@@ -41,7 +41,7 @@ class WithdrawalService {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -63,22 +63,17 @@ class WithdrawalService {
     try {
       console.log('Making withdrawal API request to:', url);
       console.log('Request config:', config);
-      
+
       const response = await fetch(url, config);
       console.log('Response status:', response.status);
-      
+
       const data = await response.json();
       console.log('Response data:', data);
 
       if (!response.ok) {
         // Handle authentication errors
         if (response.status === 401) {
-          console.error('Authentication failed:', data);
-          // Clear invalid token
-          localStorage.removeItem('vendorToken');
-          localStorage.removeItem('vendorData');
-          // Redirect to login page
-          window.location.href = '/vendor/login';
+          console.warn('Withdrawal API: Authentication failed (401), relying on central context.');
         }
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
