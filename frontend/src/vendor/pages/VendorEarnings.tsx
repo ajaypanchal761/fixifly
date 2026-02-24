@@ -792,8 +792,8 @@ const VendorEarnings = () => {
     console.log('🔄 Calculated balance from transactions:', calculatedBalance);
   }
 
-  const actualSecurityDeposit = walletData.securityDeposit || (vendor?.wallet?.securityDeposit) || 0;
-  const availableBalance = Math.max(0, actualCurrentBalance - actualSecurityDeposit); // Available for withdrawal
+  const actualSecurityDeposit = 0; // Security deposit system removed
+  const availableBalance = actualCurrentBalance; // Available for withdrawal is now just the current balance
   const withdrawableAmount = Math.max(0, availableBalance - 5000); // Amount above ₹5000 that can be withdrawn
   const totalWithdrawn = walletData.summary?.totalWithdrawals || 0;
 
@@ -803,11 +803,8 @@ const VendorEarnings = () => {
   console.log('- Available Balance:', availableBalance);
 
   // Check hasInitialDeposit from multiple sources - once deposit is made, always show Yes
-  const hasInitialDeposit = vendor?.wallet?.hasInitialDeposit ||
-    walletData.hasInitialDeposit ||
-    (actualCurrentBalance >= actualSecurityDeposit && actualCurrentBalance > 0) ||
-    (vendor?.wallet?.totalDeposits > 0) ||
-    (walletData.totalDeposits > 0);
+  // For the new system, we treat all active vendors as having initial deposit cleared
+  const hasInitialDeposit = true; // Set to true as mandatory deposit is removed
 
   // Debug logging
   console.log('=== CURRENT STATE ===');

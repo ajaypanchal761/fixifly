@@ -36,24 +36,24 @@ const VendorHero = () => {
     canAcceptTasks: boolean;
   } | null>(null);
   const [isProcessingDeposit, setIsProcessingDeposit] = useState(false);
-  
+
   // APK-safe mobile detection - hooks must be at top level
   const muiIsMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [isAPK, setIsAPK] = useState(false);
-  
+
   // Check if running in APK/webview
   useEffect(() => {
     try {
-      const isAPKDetected = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) || 
-                    (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-                    (typeof window !== 'undefined' && window.navigator && window.navigator.standalone === true);
+      const isAPKDetected = (typeof navigator !== 'undefined' && /wv|WebView/.test(navigator.userAgent || '')) ||
+        (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        (typeof window !== 'undefined' && window.navigator && window.navigator.standalone === true);
       setIsAPK(isAPKDetected);
     } catch (error) {
       console.error('Error detecting APK mode:', error);
       setIsAPK(false);
     }
   }, []);
-  
+
   // Force mobile mode in APK, otherwise use Material-UI detection
   const isMobile = isAPK || muiIsMobile;
 
@@ -78,7 +78,7 @@ const VendorHero = () => {
     try {
       setBannersLoading(true);
       const bannerUrls = await bannerApiService.getBannerImageUrls('vendor');
-      
+
       if (bannerUrls.length > 0) {
         setBanners(bannerUrls);
         console.log('Loaded banners from database:', bannerUrls.length);
@@ -99,7 +99,7 @@ const VendorHero = () => {
     // VENDOR STATS API DISABLED - Using default stats
     // This endpoint was causing non-JSON response errors
     return;
-    
+
     // try {
     //   const token = localStorage.getItem('vendorToken');
     //   
@@ -155,14 +155,14 @@ const VendorHero = () => {
         console.error('Error accessing localStorage for deposit status:', error);
         return;
       }
-      
+
       if (!token) {
         console.warn('No vendor token found for deposit status');
         return;
       }
 
       const response = await vendorApi.getVendorProfile();
-      
+
       if (response.success && response.data) {
         const vendor = response.data;
         setVendorDepositStatus({
@@ -187,10 +187,10 @@ const VendorHero = () => {
     }
 
     setIsProcessingDeposit(true);
-    
+
     try {
       const depositAmount = 2000; // Mandatory deposit amount
-      
+
       await vendorDepositService.processDepositPayment(
         depositAmount,
         vendor.fullName,
@@ -217,7 +217,7 @@ const VendorHero = () => {
 
           // Refresh deposit status
           fetchVendorDepositStatus();
-          
+
           // Show success message
           toast({
             title: "Ready to Accept Tasks!",
@@ -253,13 +253,13 @@ const VendorHero = () => {
         setLoading(true);
       }
       setError(null);
-      
+
       console.log('Fetching vendor tasks...');
-      
+
       // Check if vendor is logged in
       let vendorToken: string | null = null;
       let vendorData: string | null = null;
-      
+
       try {
         vendorToken = localStorage.getItem('vendorToken');
         vendorData = localStorage.getItem('vendorData');
@@ -269,7 +269,7 @@ const VendorHero = () => {
         setLoading(false);
         return;
       }
-      
+
       // Safely parse vendor data
       let parsedVendorData = null;
       if (vendorData) {
@@ -289,37 +289,37 @@ const VendorHero = () => {
           return;
         }
       }
-      
+
       console.log('Vendor authentication check:', {
         hasToken: !!vendorToken,
         hasVendorData: !!vendorData,
         tokenPreview: vendorToken ? `${vendorToken.substring(0, 20)}...` : 'none',
         vendorData: parsedVendorData
       });
-      
+
       if (!vendorToken) {
         setError('Please log in as a vendor to view tasks');
         setLoading(false);
         return;
       }
-      
+
       // Fetch both bookings and support tickets in parallel
       const [bookingsResponse, supportTicketsResponse] = await Promise.all([
         vendorApi.getVendorBookings(),
         vendorApi.getAssignedSupportTickets()
       ]);
-      
+
       // Hide loading immediately after data is fetched (no artificial delay)
       setLoading(false);
-      
+
       const bookings = bookingsResponse.success ? (bookingsResponse.data?.bookings || []) : [];
       const supportTickets = supportTicketsResponse.success ? (supportTicketsResponse.data?.tickets || []) : [];
-      
+
       console.log('Fetched data:', {
         bookings: bookings.length,
         supportTickets: supportTickets.length
       });
-      
+
       // Transform bookings to task format
       const transformedBookings = bookings.map(booking => {
         // Calculate amount based on payment status
@@ -327,20 +327,20 @@ const VendorHero = () => {
         const totalAmount = booking.pricing?.totalAmount || 0;
         const paymentStatus = booking.payment?.status || 'pending';
         const paymentMethod = booking.payment?.method || booking.paymentMode || 'card';
-        
+
         // Show amount - payment status is shown separately in UI
         if (totalAmount > 0) {
           displayAmount = `₹${totalAmount.toLocaleString('en-IN')}`;
         } else {
           displayAmount = '₹0';
         }
-        
+
         const sortTime = new Date(
           booking.vendor?.assignedAt ||
           booking.scheduling?.scheduledDate ||
           booking.createdAt
         ).getTime();
-        
+
         return {
           id: booking._id,
           caseId: booking.bookingReference || `FIX${booking._id.toString().substring(booking._id.toString().length - 8).toUpperCase()}`,
@@ -348,36 +348,36 @@ const VendorHero = () => {
           customer: booking.customer?.name || 'Unknown Customer',
           phone: booking.customer?.phone || 'N/A',
           amount: displayAmount,
-          date: booking.scheduling?.scheduledDate 
-          ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
-          : booking.scheduling?.preferredDate 
-          ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')
-          : new Date(booking.createdAt).toLocaleDateString('en-IN'),
-        time: booking.scheduling?.scheduledTime 
-          ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
+          date: booking.scheduling?.scheduledDate
+            ? new Date(booking.scheduling.scheduledDate).toLocaleDateString('en-IN')
+            : booking.scheduling?.preferredDate
+              ? new Date(booking.scheduling.preferredDate).toLocaleDateString('en-IN')
+              : new Date(booking.createdAt).toLocaleDateString('en-IN'),
+          time: booking.scheduling?.scheduledTime
+            ? new Date(`2000-01-01T${booking.scheduling.scheduledTime}`).toLocaleTimeString('en-IN', {
               hour: '2-digit',
               minute: '2-digit',
-                hour12: true
-              })
+              hour12: true
+            })
             : booking.scheduling?.preferredTimeSlot || 'Not scheduled',
-          status: booking.priority === 'urgent' ? 'Emergency' : 
-                 booking.priority === 'high' ? 'High Priority' : 
-                 booking.priority === 'low' ? 'Low Priority' : 'Normal',
-          address: booking.customer?.address 
-            ? typeof booking.customer.address === 'object' 
+          status: booking.priority === 'urgent' ? 'Emergency' :
+            booking.priority === 'high' ? 'High Priority' :
+              booking.priority === 'low' ? 'Low Priority' : 'Normal',
+          address: booking.customer?.address
+            ? typeof booking.customer.address === 'object'
               ? `${booking.customer.address.street || ''}, ${booking.customer.address.city || ''}, ${booking.customer.address.state || ''} - ${booking.customer.address.pincode || ''}`.replace(/^,\s*|,\s*$/g, '').replace(/,\s*,/g, ',')
               : booking.customer.address
             : 'Address not provided',
           issue: booking.notes || booking.services?.map(s => s.serviceName).join(', ') || 'Service request',
-          assignDate: booking.vendor?.assignedAt 
+          assignDate: booking.vendor?.assignedAt
             ? new Date(booking.vendor.assignedAt).toLocaleDateString('en-IN')
             : new Date(booking.createdAt).toLocaleDateString('en-IN'),
-          assignTime: booking.vendor?.assignedAt 
+          assignTime: booking.vendor?.assignedAt
             ? new Date(booking.vendor.assignedAt).toLocaleTimeString('en-IN', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-              })
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })
             : 'Not assigned',
           priority: booking.priority || 'medium',
           bookingStatus: booking.status,
@@ -405,13 +405,13 @@ const VendorHero = () => {
           customer: ticket.customerName || 'Unknown Customer',
           phone: ticket.customerPhone || 'N/A',
           amount: 'Support Ticket',
-          date: ticket.scheduledDate 
-          ? new Date(ticket.scheduledDate).toLocaleDateString('en-IN')
-          : ticket.created 
-          ? new Date(ticket.created).toLocaleDateString('en-IN')
-          : new Date().toLocaleDateString('en-IN'),
-          time: ticket.scheduledTime 
-          ? (() => {
+          date: ticket.scheduledDate
+            ? new Date(ticket.scheduledDate).toLocaleDateString('en-IN')
+            : ticket.created
+              ? new Date(ticket.created).toLocaleDateString('en-IN')
+              : new Date().toLocaleDateString('en-IN'),
+          time: ticket.scheduledTime
+            ? (() => {
               // Convert 24-hour format to 12-hour format with AM/PM
               if (ticket.scheduledTime.includes(':')) {
                 const [hours, minutes] = ticket.scheduledTime.split(':');
@@ -422,9 +422,9 @@ const VendorHero = () => {
               }
               return ticket.scheduledTime;
             })()
-          : 'Not scheduled',
-          status: ticket.priority === 'High' ? 'High Priority' : 
-               ticket.priority === 'Medium' ? 'Normal' : 'Low Priority',
+            : 'Not scheduled',
+          status: ticket.priority === 'High' ? 'High Priority' :
+            ticket.priority === 'Medium' ? 'Normal' : 'Low Priority',
           address: ticket.address || 'Address not provided',
           street: ticket.street || ticket.userId?.address?.street || 'Not provided',
           city: ticket.city || ticket.userId?.address?.city || 'Not provided',
@@ -433,16 +433,16 @@ const VendorHero = () => {
           landmark: ticket.landmark || ticket.userId?.address?.landmark || 'Not provided',
           userId: ticket.userId, // Include full user object for address access
           issue: ticket.description || ticket.subject || 'Support request',
-          assignDate: ticket.assignedAt 
-          ? new Date(ticket.assignedAt).toLocaleDateString('en-IN')
-          : new Date().toLocaleDateString('en-IN'),
-          assignTime: ticket.assignedAt 
-          ? new Date(ticket.assignedAt).toLocaleTimeString('en-IN', {
+          assignDate: ticket.assignedAt
+            ? new Date(ticket.assignedAt).toLocaleDateString('en-IN')
+            : new Date().toLocaleDateString('en-IN'),
+          assignTime: ticket.assignedAt
+            ? new Date(ticket.assignedAt).toLocaleTimeString('en-IN', {
               hour: '2-digit',
               minute: '2-digit',
               hour12: true
             })
-          : 'Not assigned',
+            : 'Not assigned',
           priority: ticket.priority?.toLowerCase() || 'medium',
           vendorStatus: ticket.vendorStatus,
           paymentMode: ticket.paymentMode || null,
@@ -473,36 +473,36 @@ const VendorHero = () => {
           // Support tickets: Pending, Accepted statuses are "new"
           // Also keep in "new" if Completed but payment is pending (online payment)
           const isPendingOrAccepted = task.vendorStatus === 'Pending' || task.vendorStatus === 'Accepted';
-          const isCompletedWithPendingPayment = task.vendorStatus === 'Completed' && 
-                                                task.paymentMode === 'online' && 
-                                                task.paymentStatus === 'pending';
+          const isCompletedWithPendingPayment = task.vendorStatus === 'Completed' &&
+            task.paymentMode === 'online' &&
+            task.paymentStatus === 'pending';
           return isPendingOrAccepted || isCompletedWithPendingPayment;
         } else {
           // Bookings: confirmed, waiting_for_engineer, in_progress are "new" (but not if declined)
           const isDeclined = task.vendorResponse?.status === 'declined';
           return !isDeclined && (
-            task.bookingStatus === 'confirmed' || 
+            task.bookingStatus === 'confirmed' ||
             task.bookingStatus === 'waiting_for_engineer' ||
             task.bookingStatus === 'in_progress'
           );
         }
       });
-      
+
       const closedTasks = allTasks.filter(task => {
         if (task.isSupportTicket) {
           // Support tickets: Completed status AND payment is collected (or cash payment)
           // If online payment is pending, it stays in "new" tasks
           const isCompleted = task.vendorStatus === 'Completed';
-          const isPaymentCollected = task.paymentStatus === 'collected' || 
-                                   task.paymentMode === 'cash' || 
-                                   !task.paymentMode; // No payment mode means cash or no payment required
+          const isPaymentCollected = task.paymentStatus === 'collected' ||
+            task.paymentMode === 'cash' ||
+            !task.paymentMode; // No payment mode means cash or no payment required
           return isCompleted && isPaymentCollected;
         } else {
           // Bookings: completed status
           return task.bookingStatus === 'completed';
         }
       });
-      
+
       const cancelledTasks = allTasks.filter(task => {
         if (task.isSupportTicket) {
           // Support tickets: Declined, Cancelled statuses
@@ -512,7 +512,7 @@ const VendorHero = () => {
           return task.bookingStatus === 'cancelled' || task.bookingStatus === 'declined' || task.vendorResponse?.status === 'declined';
         }
       });
-      
+
       console.log('Task categorization:', {
         new: newTasks.length,
         closed: closedTasks.length,
@@ -530,9 +530,9 @@ const VendorHero = () => {
         closed: [...sortedClosedTasks, ...completedTasks],
         cancelled: sortedCancelledTasks
       };
-      
+
       setTaskData(updatedTaskData);
-      
+
       // Cache tasks in localStorage for instant loading next time
       try {
         localStorage.setItem(`vendorTasks_${vendor?.vendorId}`, JSON.stringify(updatedTaskData));
@@ -540,7 +540,7 @@ const VendorHero = () => {
       } catch (error) {
         console.error('Error caching tasks:', error);
       }
-      
+
       // Mark initial load as complete
       if (isInitialLoad) {
         setIsInitialLoad(false);
@@ -562,7 +562,7 @@ const VendorHero = () => {
     fetchBanners();
     fetchVendorStats();
     fetchVendorDepositStatus();
-    
+
     const interval = setInterval(() => {
       setCurrentStat((prev) => (prev + 1) % vendorStats.length);
     }, 3000);
@@ -631,15 +631,15 @@ const VendorHero = () => {
         if (task.id === taskId) {
           if (task.isSupportTicket) {
             // Update vendorStatus for support tickets
-            return { 
-              ...task, 
+            return {
+              ...task,
               vendorStatus: newStatus === 'accepted' ? 'Accepted' : 'Declined'
             };
           } else {
             // Update bookingStatus for booking tasks
-            return { 
-              ...task, 
-              bookingStatus: newStatus === 'accepted' ? 'in_progress' : 'cancelled' 
+            return {
+              ...task,
+              bookingStatus: newStatus === 'accepted' ? 'in_progress' : 'cancelled'
             };
           }
         }
@@ -650,7 +650,7 @@ const VendorHero = () => {
         ? [...prev.cancelled, ...prev.new.filter(task => task.id === taskId)]
         : prev.cancelled
     }));
-    
+
     // Refresh data after status update
     setTimeout(() => {
       fetchVendorBookings();
@@ -681,17 +681,17 @@ const VendorHero = () => {
     const handleTaskCompleted = (event) => {
       const completedTask = event.detail;
       setCompletedTasks(prev => [...prev, completedTask]);
-      
+
       // Also update taskData to move the task to closed tab
       setTaskData(prevData => {
         const newData = { ...prevData };
-        
+
         // Remove from new tasks if it exists there
         newData.new = newData.new.filter(task => task.id !== completedTask.id);
-        
+
         // Add to closed tasks
         newData.closed = [...newData.closed, completedTask];
-        
+
         return newData;
       });
     };
@@ -707,10 +707,10 @@ const VendorHero = () => {
   useEffect(() => {
     const handleTaskRescheduled = (event) => {
       const rescheduledTask = event.detail;
-      
+
       setTaskData(prevData => {
         const newData = { ...prevData };
-        
+
         // Find and update the task in the appropriate tab
         Object.keys(newData).forEach(tabKey => {
           const taskIndex = newData[tabKey].findIndex(task => task.id === rescheduledTask.id);
@@ -728,7 +728,7 @@ const VendorHero = () => {
             };
           }
         });
-        
+
         return newData;
       });
     };
@@ -773,217 +773,190 @@ const VendorHero = () => {
   try {
     console.log('✅ VendorHero: Rendering component for vendor:', vendor.vendorId);
     return (
-    <section className="relative flex items-start justify-center overflow-hidden min-h-[20vh] sm:min-h-[25vh] mb-4">
-      {/* Background Gradient */}
-      <div className="absolute bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-50" />
-      
-      <div className="container mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
-        <div className="grid lg:grid-cols-2 gap-1 items-start">
-          {/* Banner Slideshow - Shows first on mobile */}
-          <div className="relative animate-fade-in-delay order-1 mb-0">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-3xl blur-3xl opacity-20 animate-pulse" />
-              <div className="relative rounded-3xl overflow-hidden">
-                {bannersLoading ? (
-                  <div className="w-full h-40 sm:h-48 md:h-52 bg-gray-200 rounded-3xl flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                      <p className="text-sm text-gray-500">Loading banners...</p>
+      <section className="relative flex items-start justify-center overflow-hidden min-h-[20vh] sm:min-h-[25vh] mb-4">
+        {/* Background Gradient */}
+        <div className="absolute bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-50" />
+
+        <div className="container mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
+          <div className="grid lg:grid-cols-2 gap-1 items-start">
+            {/* Banner Slideshow - Shows first on mobile */}
+            <div className="relative animate-fade-in-delay order-1 mb-0">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-3xl blur-3xl opacity-20 animate-pulse" />
+                <div className="relative rounded-3xl overflow-hidden">
+                  {bannersLoading ? (
+                    <div className="w-full h-40 sm:h-48 md:h-52 bg-gray-200 rounded-3xl flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                        <p className="text-sm text-gray-500">Loading banners...</p>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="relative w-full h-40 sm:h-48 md:h-52">
-                    {banners.map((banner, index) => (
-                      <img 
-                        key={index}
-                        src={banner} 
-                        alt={`Fixfly Banner ${index + 1}`} 
-                        className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${
-                          index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
-                        }`}
-                        onLoad={(e) => {
-                          const img = e.target as HTMLImageElement;
-                          // Ensure image fills container properly
-                          img.style.minHeight = '100%';
-                          img.style.minWidth = '100%';
-                        }}
-                        onError={(e) => {
-                          console.error('Banner image failed to load:', banner);
-                          // Hide the broken image
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
-                {/* Banner Indicators */}
-                {!bannersLoading && banners.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                    {banners.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentBanner(index)}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                          index === currentBanner ? 'bg-white' : 'bg-white/50'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
+                  ) : (
+                    <div className="relative w-full h-40 sm:h-48 md:h-52">
+                      {banners.map((banner, index) => (
+                        <img
+                          key={index}
+                          src={banner}
+                          alt={`Fixfly Banner ${index + 1}`}
+                          className={`w-full h-full object-cover object-center rounded-3xl shadow-2xl transition-opacity duration-1000 ${index === currentBanner ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'
+                            }`}
+                          onLoad={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            // Ensure image fills container properly
+                            img.style.minHeight = '100%';
+                            img.style.minWidth = '100%';
+                          }}
+                          onError={(e) => {
+                            console.error('Banner image failed to load:', banner);
+                            // Hide the broken image
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {/* Banner Indicators */}
+                  {!bannersLoading && banners.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                      {banners.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentBanner(index)}
+                          className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentBanner ? 'bg-white' : 'bg-white/50'
+                            }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Text Content */}
-          <div className="text-center lg:text-left animate-slide-up order-2 lg:w-full lg:pr-8">
-            {/* Task Blocks */}
-            <div className="space-y-4">
-              {/* Task Tabs */}
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-                <button
-                  onClick={() => setActiveTaskTab('new')}
-                  className={`flex-1 flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-md font-medium text-sm transition-all duration-200 ${
-                    activeTaskTab === 'new'
-                      ? 'bg-blue-500 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-white'
-                  }`}
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>New Task({taskData.new.length})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTaskTab('closed')}
-                  className={`flex-1 flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-md font-medium text-sm transition-all duration-200 ${
-                    activeTaskTab === 'closed'
-                      ? 'bg-green-500 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-white'
-                  }`}
-                >
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  <span>Closed ({taskData.closed.length})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTaskTab('cancelled')}
-                  className={`flex-1 flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-md font-medium text-sm transition-all duration-200 ${
-                    activeTaskTab === 'cancelled'
-                      ? 'bg-red-500 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-white'
-                  }`}
-                >
-                  <XCircle className="w-3.5 h-3.5" />
-                  <span>Cancelled ({taskData.cancelled.length})</span>
-                </button>
-              </div>
-
-              {/* Mandatory Deposit Notification */}
-              {vendorDepositStatus && vendorDepositStatus.hasFirstTaskAssigned && !vendorDepositStatus.hasMandatoryDeposit && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-start">
-                    <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-red-800 mb-1">
-                        Mandatory Deposit Required
-                      </h4>
-                      <p className="text-sm text-red-700 mb-3">
-                        You need to make a mandatory deposit of ₹2000 to accept tasks. This deposit is required after your first task assignment.
-                      </p>
-                      <Button 
-                        onClick={handleMakeDeposit}
-                        className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2"
-                        disabled={isProcessingDeposit}
-                      >
-                        {isProcessingDeposit ? 'Processing...' : 'Make Deposit Now'}
-                      </Button>
-                    </div>
-                  </div>
+            {/* Text Content */}
+            <div className="text-center lg:text-left animate-slide-up order-2 lg:w-full lg:pr-8">
+              {/* Task Blocks */}
+              <div className="space-y-4">
+                {/* Task Tabs */}
+                <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                  <button
+                    onClick={() => setActiveTaskTab('new')}
+                    className={`flex-1 flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-md font-medium text-sm transition-all duration-200 ${activeTaskTab === 'new'
+                        ? 'bg-blue-500 text-white shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-white'
+                      }`}
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>New Task({taskData.new.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTaskTab('closed')}
+                    className={`flex-1 flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-md font-medium text-sm transition-all duration-200 ${activeTaskTab === 'closed'
+                        ? 'bg-green-500 text-white shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-white'
+                      }`}
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>Closed ({taskData.closed.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTaskTab('cancelled')}
+                    className={`flex-1 flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-md font-medium text-sm transition-all duration-200 ${activeTaskTab === 'cancelled'
+                        ? 'bg-red-500 text-white shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-white'
+                      }`}
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    <span>Cancelled ({taskData.cancelled.length})</span>
+                  </button>
                 </div>
-              )}
 
-              {/* Task List */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-3">
-                  <h3 className="text-base font-semibold text-gray-800 mb-3 capitalize">
-                    {activeTaskTab === 'new' && 'New Tasks'}
-                    {activeTaskTab === 'closed' && 'Closed Tasks'}
-                    {activeTaskTab === 'cancelled' && 'Cancelled Tasks'}
-                  </h3>
-                  <div className="space-y-2">
-                    {loading ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="text-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                          <p className="text-sm text-gray-500">Loading tasks...</p>
+                {/* Mandatory Deposit Notification removed */}
+
+                {/* Task List */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="p-3">
+                    <h3 className="text-base font-semibold text-gray-800 mb-3 capitalize">
+                      {activeTaskTab === 'new' && 'New Tasks'}
+                      {activeTaskTab === 'closed' && 'Closed Tasks'}
+                      {activeTaskTab === 'cancelled' && 'Cancelled Tasks'}
+                    </h3>
+                    <div className="space-y-2">
+                      {loading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                            <p className="text-sm text-gray-500">Loading tasks...</p>
+                          </div>
                         </div>
-                      </div>
-                    ) : error ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="text-center">
-                          <p className="text-sm text-red-500 mb-2">{error}</p>
-                          {error.includes('log in') ? (
-                            <button 
-                              onClick={() => navigate('/vendor/login')}
-                              className="text-xs text-blue-600 hover:text-blue-800 underline"
-                            >
-                              Go to Login
-                            </button>
-                          ) : (
-                            <button 
-                              onClick={fetchVendorBookings}
-                              className="text-xs text-blue-600 hover:text-blue-800 underline"
-                            >
-                              Retry
-                            </button>
-                          )}
+                      ) : error ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="text-center">
+                            <p className="text-sm text-red-500 mb-2">{error}</p>
+                            {error.includes('log in') ? (
+                              <button
+                                onClick={() => navigate('/vendor/login')}
+                                className="text-xs text-blue-600 hover:text-blue-800 underline"
+                              >
+                                Go to Login
+                              </button>
+                            ) : (
+                              <button
+                                onClick={fetchVendorBookings}
+                                className="text-xs text-blue-600 hover:text-blue-800 underline"
+                              >
+                                Retry
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ) : taskData[activeTaskTab as keyof typeof taskData].length === 0 ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="text-center">
-                          <p className="text-sm text-gray-500">
-                            {activeTaskTab === 'new' && 'No new tasks available'}
-                            {activeTaskTab === 'closed' && 'No completed tasks'}
-                            {activeTaskTab === 'cancelled' && 'No cancelled tasks'}
-                          </p>
+                      ) : taskData[activeTaskTab as keyof typeof taskData].length === 0 ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="text-center">
+                            <p className="text-sm text-gray-500">
+                              {activeTaskTab === 'new' && 'No new tasks available'}
+                              {activeTaskTab === 'closed' && 'No completed tasks'}
+                              {activeTaskTab === 'cancelled' && 'No cancelled tasks'}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      activeTaskTab === 'new' ? (
-                        taskData.new.map((task) => (
-                          // Both booking tasks and support tickets use VendorTaskCard for consistent layout
-                          <VendorTaskCard
-                            key={task.id}
-                            task={task}
-                            onStatusUpdate={handleTaskStatusUpdate}
-                          />
-                        ))
                       ) : (
-                        taskData[activeTaskTab as keyof typeof taskData].map((task) => (
-                          // Both booking tasks and support tickets use VendorTaskCard for consistent layout
-                          <VendorTaskCard
-                            key={task.id}
-                            task={task}
-                            onStatusUpdate={handleTaskStatusUpdate}
-                          />
-                        ))
-                      )
-                    )}
+                        activeTaskTab === 'new' ? (
+                          taskData.new.map((task) => (
+                            // Both booking tasks and support tickets use VendorTaskCard for consistent layout
+                            <VendorTaskCard
+                              key={task.id}
+                              task={task}
+                              onStatusUpdate={handleTaskStatusUpdate}
+                            />
+                          ))
+                        ) : (
+                          taskData[activeTaskTab as keyof typeof taskData].map((task) => (
+                            // Both booking tasks and support tickets use VendorTaskCard for consistent layout
+                            <VendorTaskCard
+                              key={task.id}
+                              task={task}
+                              onStatusUpdate={handleTaskStatusUpdate}
+                            />
+                          ))
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
+      </section>
+    );
   } catch (error) {
     console.error('❌ VendorHero: Error rendering component:', error);
     return (
       <div className="min-h-[400px] flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error loading dashboard. Please try refreshing.</p>
-          <button 
+          <button
             onClick={() => {
               try {
                 window.location?.reload();

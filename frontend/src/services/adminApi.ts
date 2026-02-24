@@ -385,8 +385,17 @@ class AdminApiService {
       };
     } catch (error: any) {
       console.error('Token refresh error:', error);
-      // Clear auth data on refresh failure
-      this.clearAuthData();
+
+      // Only clear auth data if it's a legitimate 401/403 error from the server, 
+      // not on network errors (server down)
+      const isNetworkError = error.message?.includes('Failed to fetch') ||
+        error.message?.includes('NetworkError') ||
+        error.message?.includes('Network Error');
+
+      if (!isNetworkError) {
+        this.clearAuthData();
+      }
+
       throw new Error(error.message || 'Token refresh failed');
     }
   }
@@ -400,10 +409,16 @@ class AdminApiService {
       try {
         await this.refreshAccessToken();
         token = localStorage.getItem('adminToken');
-      } catch (error) {
-        // If refresh fails, redirect to login
-        window.location.href = '/admin/login';
-        throw new Error('Session expired. Please login again.');
+      } catch (error: any) {
+        // Only redirect on actual auth failure, not on network errors
+        const isNetworkError = error.message?.includes('Failed to fetch') ||
+          error.message?.includes('NetworkError');
+
+        if (!isNetworkError) {
+          window.location.href = '/admin/login';
+          throw new Error('Session expired. Please login again.');
+        }
+        // For network errors, we'll try the request with the current token anyway
       }
     }
 

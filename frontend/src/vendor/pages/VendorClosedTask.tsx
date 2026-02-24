@@ -620,10 +620,9 @@ const VendorClosedTask = () => {
       if (paymentMethod === 'cash') {
         const requiredAmount = calculateRequiredWalletAmount();
         if (requiredAmount > 0) {
-          // Calculate display balance following same logic as WalletBalanceCheck component
+          // Calculate display balance - security deposit system removed
           const currentBalance = vendor?.wallet?.currentBalance || 0;
-          const securityDeposit = vendor?.wallet?.securityDeposit || 0;
-          const displayBalance = currentBalance > securityDeposit ? currentBalance - securityDeposit : 0;
+          const displayBalance = currentBalance;
 
           if (displayBalance < requiredAmount && !isWalletCheckOpen) {
             setIsWalletCheckOpen(true);

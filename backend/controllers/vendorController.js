@@ -730,7 +730,8 @@ const loginVendor = asyncHandler(async (req, res) => {
         hasInitialDeposit: hasInitialDeposit,
         initialDepositAmount: vendor.wallet?.initialDepositAmount || 0,
         totalDeposits: vendorWallet.totalDeposits,
-        totalWithdrawals: vendorWallet.totalWithdrawals
+        totalWithdrawals: vendorWallet.totalWithdrawals,
+        securityDeposit: 0
       }
     };
 

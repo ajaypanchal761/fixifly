@@ -33,6 +33,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import adminApiService from '@/services/adminApi';
+import { getApiBaseUrl } from '@/utils/apiUrl';
 
 interface VendorWallet {
   id: string;
@@ -125,7 +126,7 @@ const AdminVendorWalletManagement = () => {
       setLoading(true);
       setError(null);
 
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const API_BASE_URL = getApiBaseUrl();
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/wallets`, {
         method: 'GET'
       });
@@ -199,7 +200,7 @@ const AdminVendorWalletManagement = () => {
   // Approve withdrawal request
   const approveWithdrawalRequest = async (requestId: string, adminNotes: string = '') => {
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const API_BASE_URL = getApiBaseUrl();
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/withdrawals/${requestId}/approve`, {
         method: 'PUT',
         headers: {
@@ -233,7 +234,7 @@ const AdminVendorWalletManagement = () => {
   // Decline withdrawal request
   const declineWithdrawalRequest = async (requestId: string, adminNotes: string = '') => {
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const API_BASE_URL = getApiBaseUrl();
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/withdrawals/${requestId}/decline`, {
         method: 'PUT',
         headers: {
@@ -293,7 +294,7 @@ const AdminVendorWalletManagement = () => {
   const fetchWalletDetails = async (vendorId: string) => {
     try {
       setLoadingTransactions(true);
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const API_BASE_URL = getApiBaseUrl();
       const response = await adminApiService.makeAuthenticatedRequest(
         `${API_BASE_URL}/admin/wallets/${vendorId}?limit=10`,
         {
@@ -369,7 +370,17 @@ const AdminVendorWalletManagement = () => {
     if (!editingWallet) return;
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      setLoading(true);
+      const API_BASE_URL = getApiBaseUrl();
+
+      // Ensure we have a valid token before proceeding
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        alert('Your session has expired. Please log in again.');
+        window.location.href = '/admin/login';
+        return;
+      }
+
       const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/wallets/${editingWallet.vendorId}/adjust`, {
         method: 'PUT',
         headers: {
@@ -377,7 +388,8 @@ const AdminVendorWalletManagement = () => {
         },
         body: JSON.stringify({
           currentBalance: parseFloat(editForm.currentBalance),
-          description: editForm.description
+          description: editForm.description,
+          adjustmentType: 'manual_balance_sync'
         })
       });
 
@@ -402,6 +414,8 @@ const AdminVendorWalletManagement = () => {
     } catch (error) {
       console.error('Error updating wallet:', error);
       alert('Failed to update wallet balance. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -409,7 +423,15 @@ const AdminVendorWalletManagement = () => {
     if (newTransaction.vendorId && newTransaction.amount && newTransaction.description) {
       try {
         setLoading(true);
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        const API_BASE_URL = getApiBaseUrl();
+
+        // Ensure we have a valid token before proceeding
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+          alert('Your session has expired. Please log in again.');
+          window.location.href = '/admin/login';
+          return;
+        }
 
         // Determine the backend type based on frontend selection
         // Backend expects: 'deposit', 'withdrawal', 'earning', 'penalty', 'refund', 'bonus'

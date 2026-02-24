@@ -20,11 +20,7 @@ const VendorDepositProtectedRoute = ({ children }: VendorDepositProtectedRoutePr
 
     if (!isLoading && isAuthenticated && vendor) {
       // Check if vendor has made the initial deposit - once deposit is made, always show Yes
-      // Check if vendor has made the initial deposit - once deposit is made, always show Yes
-      const securityDeposit = vendor.wallet?.securityDeposit || 0;
-      const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
-        // (vendor.wallet?.currentBalance >= securityDeposit) || // Removed balance check for verification
-        (vendor.wallet?.totalDeposits > 0);
+      const hasInitialDeposit = true; // Mandatory deposit system removed
 
       console.log('=== VENDOR DEPOSIT PROTECTED ROUTE DEBUG ===');
       console.log('Vendor ID:', vendor.vendorId);

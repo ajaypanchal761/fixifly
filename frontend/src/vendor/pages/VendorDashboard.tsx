@@ -60,9 +60,8 @@ const VendorDashboard = () => {
     const securityDeposit = vendor.wallet?.securityDeposit || 0;
 
     // Check if vendor has initial deposit (Verified Partner)
-    // We only rely on the explicit flag or total deposits, not current balance threshold
-    const hasInitialDeposit = vendor.wallet?.hasInitialDeposit ||
-      (vendor.wallet?.totalDeposits > 0);
+    // We treat all vendors as having initial deposit cleared in the new system
+    const hasInitialDeposit = true;
 
     console.log('🔄 VendorDashboard: hasInitialDeposit:', hasInitialDeposit);
     console.log('🔄 VendorDashboard: wallet data:', vendor.wallet);
