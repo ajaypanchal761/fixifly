@@ -764,49 +764,54 @@ const VendorEarnings = () => {
 
   console.log('✅ VendorEarnings: Mobile detected, rendering component');
 
-  // Calculate wallet values from state
-  const totalEarnings = walletData.summary?.totalEarnings || 0;
-
-  // PRIMARY BALANCE LOGIC
-  // 1. Get balance from API State
+  // ==================== WALLET BALANCE CALCULATION ====================
+  // 1. Get balance from API State (latest from fetchWalletData)
   const apiBalance = Number(walletData.currentBalance) || 0;
 
-  // 2. Get balance from Context State (fallback)
+  // 2. Get balance from Context State (fallback from VendorContext)
   const contextBalance = Number(vendor?.wallet?.currentBalance) || 0;
 
-  // 3. Calculate balance from transaction history (last resort fallback)
+  // 3. Calculate balance from transaction history (as a double-check)
   const calculatedBalance = transactionHistory.length > 0
     ? transactionHistory.reduce((total, t) => total + (Number(t.amount) || 0), 0)
     : 0;
 
-  // Use the best available non-zero value, prioritizing API > Context > Calculation
-  // If all are zero, then it's actually zero
-  const finalBalance = apiBalance !== 0 ? apiBalance : (contextBalance !== 0 ? contextBalance : Math.max(0, calculatedBalance));
+  // Use the best available value:
+  // We prioritize the API balance. If that's 0 but context has a balance, we use context.
+  // If both are 0 but transaction history shows a balance, we use that.
+  let finalBalance = apiBalance;
 
-  // Display balance is the final balance - NO SUBTRACTIONS
+  if (finalBalance === 0 && contextBalance !== 0) {
+    finalBalance = contextBalance;
+  }
+
+  if (finalBalance === 0 && calculatedBalance !== 0) {
+    // Only fallback to calculated if it's positive
+    finalBalance = Math.max(0, calculatedBalance);
+  }
+
+  // Define availableBalance - MUST MATCH finalBalance exactly
+  // No more 3999 or 1500 subtractions!
   const availableBalance = finalBalance;
-  const withdrawableAmount = Math.max(0, availableBalance - 5000); // Only what's over 5k is withdrawable
 
-  // Legacy variables for compatibility with logs/debug code below if needed
-  const actualCurrentBalance = finalBalance;
-  const actualSecurityDeposit = 0;
+  // Withdrawable amount is whatever is above ₹5,000
+  const withdrawableAmount = Math.max(0, availableBalance - 5000);
 
-  console.log('💰 [WALLET RENDER] Calculation Result:', {
+  console.log('💰 [WALLET DATA RECONCILIATION]', {
     vendorId: vendor?.vendorId,
-    apiBalance,
-    contextBalance,
-    calculatedFromTransactions: calculatedBalance,
-    FINAL_DISPLAYED_BALANCE: availableBalance
+    apiBalance: apiBalance,
+    contextBalance: contextBalance,
+    calculatedBalance: calculatedBalance,
+    FINAL_DISPLAYED_BALANCE: availableBalance,
+    withdrawable: withdrawableAmount
   });
 
-  // For the new system, we treat all active vendors as having initial deposit cleared
-  const hasInitialDeposit = true;
+  // Legacy variable compatibility
+  const actualCurrentBalance = availableBalance;
+  const actualSecurityDeposit = 0;
+  const hasInitialDeposit = true; // All vendors in current system are cleared
 
-  // Debug logging
-  console.log('=== WALLET DEBUG STATE ===');
-  console.log('Vendor ID:', vendor?.vendorId);
-  console.log('Wallet Data State:', walletData);
-  console.log('Loading Wallet:', loadingWallet);
+  // =====================================================================
 
 
 
