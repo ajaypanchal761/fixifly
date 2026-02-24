@@ -70,13 +70,12 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
       const currentBalance = vendorWallet?.currentBalance || 0;
       const securityDepositInDb = vendorWallet?.securityDeposit || 0;
 
-      // Available Balance = currentBalance - securityDeposit
-      // (securityDeposit = initial 3999 that vendor paid, excluded from available)
-      const availableBalance = Math.max(0, currentBalance - securityDepositInDb);
+      // System-wide change: Stop subtracting securityDeposit from available balance.
+      // This ensures that when a vendor adds 3999, it actually shows up in their balance.
+      const availableBalance = currentBalance;
 
-      // Total Deposits displayed = totalDeposits - securityDeposit
-      // (removes the initial 3999 security deposit from deposits column display)
-      const displayTotalDeposits = Math.max(0, (vendorWallet?.totalDeposits || 0) - securityDepositInDb);
+      // Total Deposits displayed = totalDeposits (no subtraction)
+      const displayTotalDeposits = vendorWallet?.totalDeposits || 0;
 
       return {
         id: vendor._id,
@@ -320,24 +319,35 @@ const addManualTransaction = asyncHandler(async (req, res) => {
     // Generate transaction ID
     const transactionId = `ADMIN_${vendor.vendorId}_${Date.now()}`;
 
+    // Find or create vendor wallet to keep it in sync
+    let vendorWallet = await VendorWallet.findOne({ vendorId: vendor.vendorId });
+    if (!vendorWallet) {
+      vendorWallet = new VendorWallet({ vendorId: vendor.vendorId });
+    }
+
     // Create transaction based on type
     let result;
     switch (type) {
       case 'deposit':
         result = await vendor.addDeposit(amount, transactionId);
+        await vendorWallet.addDeposit({ amount, transactionId, description });
         break;
       case 'withdrawal':
         result = await vendor.addWithdrawal(amount, transactionId, description);
+        await vendorWallet.addWithdrawal({ amount, transactionId, description });
         break;
       case 'earning':
         result = await vendor.addEarning(amount, transactionId, description);
+        await vendorWallet.addManualAdjustment({ amount, type: 'earning', description, metadata: { isCredit: true } });
         break;
       case 'penalty':
         result = await vendor.addPenalty(amount, transactionId, description);
+        await vendorWallet.addManualAdjustment({ amount, type: 'penalty', description });
         break;
       default:
         // For refund and bonus, treat as deposit
         result = await vendor.addDeposit(amount, transactionId);
+        await vendorWallet.addDeposit({ amount, transactionId, description });
     }
 
     // Update the transaction with admin notes

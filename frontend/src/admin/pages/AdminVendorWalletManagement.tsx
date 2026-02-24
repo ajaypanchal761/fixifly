@@ -405,51 +405,61 @@ const AdminVendorWalletManagement = () => {
     }
   };
 
-  const handleAddTransaction = () => {
+  const handleAddTransaction = async () => {
     if (newTransaction.vendorId && newTransaction.amount && newTransaction.description) {
-      const transaction: WalletTransaction = {
-        id: `txn_${Date.now()}`,
-        vendorId: newTransaction.vendorId,
-        type: newTransaction.type as 'credit' | 'debit',
-        amount: parseFloat(newTransaction.amount),
-        description: newTransaction.description,
-        reference: newTransaction.reference || `REF_${Date.now()}`,
-        status: 'completed',
-        createdAt: new Date().toISOString()
-      };
+      try {
+        setLoading(true);
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-      setWalletTransactions(prev => [transaction, ...prev]);
+        // Determine the backend type based on frontend selection
+        // Backend expects: 'deposit', 'withdrawal', 'earning', 'penalty', 'refund', 'bonus'
+        let backendType = newTransaction.type;
+        if (backendType === 'credit') backendType = 'deposit';
+        if (backendType === 'debit') backendType = 'withdrawal';
 
-      // Update wallet balance
-      setVendorWallets(prev => prev.map(wallet => {
-        if (wallet.vendorId === newTransaction.vendorId) {
-          const amount = parseFloat(newTransaction.amount);
-          return {
-            ...wallet,
-            currentBalance: newTransaction.type === 'credit'
-              ? wallet.currentBalance + amount
-              : wallet.currentBalance - amount,
-            totalEarnings: newTransaction.type === 'credit'
-              ? wallet.totalEarnings + amount
-              : wallet.totalEarnings,
-            totalWithdrawals: newTransaction.type === 'debit'
-              ? wallet.totalWithdrawals + amount
-              : wallet.totalWithdrawals,
-            lastTransaction: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
+        const response = await adminApiService.makeAuthenticatedRequest(
+          `${API_BASE_URL}/admin/wallets/${newTransaction.vendorId}/transactions`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              amount: parseFloat(newTransaction.amount),
+              type: backendType,
+              description: newTransaction.description,
+              adminNotes: newTransaction.reference
+            })
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return wallet;
-      }));
 
-      setNewTransaction({
-        vendorId: '',
-        type: 'credit',
-        amount: '',
-        description: '',
-        reference: ''
-      });
-      setIsAddTransactionOpen(false);
+        const data = await response.json();
+        if (data.success) {
+          // Refresh the data from backend
+          await fetchVendorWallets();
+
+          setNewTransaction({
+            vendorId: '',
+            type: 'credit',
+            amount: '',
+            description: '',
+            reference: ''
+          });
+          setIsAddTransactionOpen(false);
+          alert('Transaction added successfully!');
+        } else {
+          throw new Error(data.message || 'Failed to add transaction');
+        }
+      } catch (err) {
+        console.error('Error adding transaction:', err);
+        alert(err instanceof Error ? err.message : 'An error occurred while adding transaction');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -475,7 +485,16 @@ const AdminVendorWalletManagement = () => {
               </h1>
               <p className="text-sm text-muted-foreground">Manage vendor wallets, transactions, and payments</p>
             </div>
-
+            <div className="flex items-center gap-3">
+              <Button
+                size="sm"
+                onClick={() => setIsAddTransactionOpen(true)}
+                className="flex items-center"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Transaction
+              </Button>
+            </div>
           </div>
         </div>
 

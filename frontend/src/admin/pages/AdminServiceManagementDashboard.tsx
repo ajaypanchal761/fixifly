@@ -1225,6 +1225,7 @@ const AdminServiceManagementDashboard = () => {
       )}
 
       {/* Spare Parts Modal */}
+
       {isPartsModalOpen && selectedBooking && selectedBooking.completionData?.spareParts && selectedBooking.completionData.spareParts.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center pt-2 z-50">
           <div className="bg-white rounded-lg max-w-xl w-full max-h-[70vh] overflow-y-auto p-4">
@@ -1348,6 +1349,7 @@ const AdminServiceManagementDashboard = () => {
                   className="mt-1"
                 />
               </div>
+
               <div>
                 <Label className="text-xs font-medium text-gray-700">Time</Label>
                 <Select value={scheduledTime} onValueChange={setScheduledTime}>

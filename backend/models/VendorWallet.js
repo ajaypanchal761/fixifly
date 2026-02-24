@@ -179,10 +179,9 @@ const vendorWalletSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Virtual for available balance (current balance - security deposit)
+// Virtual for available balance (current balance) - security deposit subtraction removed
 vendorWalletSchema.virtual('availableForWithdrawal').get(function () {
-  const securityDeposit = this.securityDeposit ?? 0;
-  return Math.max(0, this.currentBalance - securityDeposit);
+  return Math.max(0, this.currentBalance);
 });
 
 // Method to add earning
@@ -481,10 +480,9 @@ vendorWalletSchema.methods.addWithdrawal = async function (withdrawalData) {
     transactionId = `WTH_${this.vendorId}_${Date.now()}`
   } = withdrawalData;
 
-  // Check if withdrawal amount is available (considering security deposit)
-  const availableAmount = this.currentBalance - this.securityDeposit;
-  if (amount > availableAmount) {
-    throw new Error('Insufficient balance for withdrawal. Security deposit cannot be withdrawn.');
+  // Check if withdrawal amount is available (no security deposit subtraction)
+  if (amount > this.currentBalance) {
+    throw new Error('Insufficient balance for withdrawal.');
   }
 
   const transaction = {
@@ -558,9 +556,8 @@ vendorWalletSchema.statics.getVendorSummary = async function (vendorId) {
       };
     }
 
-    // availableBalance = currentBalance - securityDeposit (security deposit excluded from available)
-    const securityDeposit = wallet.securityDeposit ?? 0;
-    const availableBalance = Math.max(0, (wallet.currentBalance || 0) - securityDeposit);
+    // availableBalance = currentBalance (security deposit system removed)
+    const availableBalance = wallet.currentBalance || 0;
 
     return {
       currentBalance: wallet.currentBalance || 0,
@@ -674,8 +671,8 @@ vendorWalletSchema.methods.addManualAdjustment = function (adjustmentData) {
 
 // Pre-save middleware to update available balance
 vendorWalletSchema.pre('save', function (next) {
-  const securityDeposit = this.securityDeposit ?? 0;
-  this.availableBalance = Math.max(0, this.currentBalance - securityDeposit);
+  // Available balance is now equal to current balance (security deposit system removed)
+  this.availableBalance = Math.max(0, this.currentBalance);
   next();
 });
 
