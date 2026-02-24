@@ -558,19 +558,9 @@ vendorWalletSchema.statics.getVendorSummary = async function (vendorId) {
       };
     }
 
-    // Calculate available balance safely (virtual property might not be accessible in all contexts)
-    let availableBalance = 0;
-    try {
-      if (wallet.availableBalance !== undefined && wallet.availableBalance !== null) {
-        availableBalance = wallet.availableBalance;
-      } else {
-        // Calculate manually if virtual property is not accessible
-        availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit ?? 0));
-      }
-    } catch (balanceError) {
-      // Fallback calculation
-      availableBalance = Math.max(0, (wallet.currentBalance || 0) - (wallet.securityDeposit ?? 0));
-    }
+    // availableBalance = currentBalance - securityDeposit (security deposit excluded from available)
+    const securityDeposit = wallet.securityDeposit ?? 0;
+    const availableBalance = Math.max(0, (wallet.currentBalance || 0) - securityDeposit);
 
     return {
       currentBalance: wallet.currentBalance || 0,

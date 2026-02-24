@@ -62,6 +62,7 @@ interface ServiceManagementBooking {
   scheduling: {
     scheduledDate: string;
     scheduledTime: string;
+    preferredTimeSlot?: string;
   };
   priority: string;
   status: string;

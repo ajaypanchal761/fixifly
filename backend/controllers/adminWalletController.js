@@ -67,20 +67,31 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
         ?.filter(t => t.type === 'cash_collection')
         ?.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0) || 0;
 
+      const currentBalance = vendorWallet?.currentBalance || 0;
+      const securityDepositInDb = vendorWallet?.securityDeposit || 0;
+
+      // Available Balance = currentBalance - securityDeposit
+      // (securityDeposit = initial 3999 that vendor paid, excluded from available)
+      const availableBalance = Math.max(0, currentBalance - securityDepositInDb);
+
+      // Total Deposits displayed = totalDeposits - securityDeposit
+      // (removes the initial 3999 security deposit from deposits column display)
+      const displayTotalDeposits = Math.max(0, (vendorWallet?.totalDeposits || 0) - securityDepositInDb);
+
       return {
         id: vendor._id,
         vendorId: vendor.vendorId,
         vendorName: `${vendor.firstName} ${vendor.lastName}`,
         vendorEmail: vendor.email,
         vendorPhone: vendor.phone,
-        currentBalance: vendorWallet?.currentBalance || 0,
+        currentBalance: currentBalance,
         totalEarnings: vendorWallet?.totalEarnings || 0,
         onlineCollected: onlineCollected,
         cashCollected: cashCollected,
         totalWithdrawals: vendorWallet?.totalWithdrawals || 0,
-        totalDeposits: vendorWallet?.totalDeposits || 0,
-        securityDeposit: vendorWallet?.securityDeposit || 0,
-        availableBalance: vendorWallet?.availableBalance || 0,
+        totalDeposits: displayTotalDeposits,
+        securityDeposit: 0,
+        availableBalance: availableBalance,
         isActive: vendor.isActive,
         isApproved: vendor.isApproved,
         lastTransaction: vendorWallet?.lastTransactionAt || null,
@@ -525,16 +536,16 @@ const adjustVendorWallet = asyncHandler(async (req, res) => {
 
     // The admin provides the "Target Available Balance" (what they see in the table)
     const targetAvailableBalance = parseFloat(currentBalance);
-    const securityDeposit = vendorWallet.securityDeposit ?? 0;
 
-    // To make availableBalance = targetAvailableBalance,
-    // we need currentBalance = targetAvailableBalance + securityDeposit
-    const newTotalBalance = targetAvailableBalance + securityDeposit;
+    // securityDeposit system is removed — treat it as 0 always
+    // currentBalance = targetAvailableBalance directly (no 3999 addition)
+    const newTotalBalance = targetAvailableBalance;
     const oldTotalBalance = vendorWallet.currentBalance;
     const adjustmentAmount = newTotalBalance - oldTotalBalance;
 
-    // Update the wallet balance
+    // Update the wallet balance and force securityDeposit to 0 (remove old 3999 data)
     vendorWallet.currentBalance = newTotalBalance;
+    vendorWallet.securityDeposit = 0;
     // availableBalance is updated via pre-save middleware in VendorWallet.js
     await vendorWallet.save();
 
