@@ -159,20 +159,31 @@ class AdminApiService {
         body: JSON.stringify(loginData)
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       console.log('Admin login response:', {
-        success: data.success,
-        hasData: !!data.data,
-        hasAccessToken: !!data.data?.accessToken,
-        hasRefreshToken: !!data.data?.refreshToken,
-        hasAdmin: !!data.data?.admin,
-        accessToken: data.data?.accessToken ? `${data.data.accessToken.substring(0, 20)}...` : 'missing',
-        refreshToken: data.data?.refreshToken ? `${data.data.refreshToken.substring(0, 20)}...` : 'missing'
+        success: data?.success,
+        hasData: !!data?.data,
+        hasAccessToken: !!data?.data?.accessToken,
+        hasRefreshToken: !!data?.data?.refreshToken,
+        hasAdmin: !!data?.data?.admin,
+        accessToken: data?.data?.accessToken ? `${data.data.accessToken.substring(0, 20)}...` : 'missing',
+        refreshToken: data?.data?.refreshToken ? `${data.data.refreshToken.substring(0, 20)}...` : 'missing'
       });
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+      // For login, don't throw on 4xx. Return a normalized error response instead.
+      if (!response.ok || !data?.success) {
+        const rawMessage = (data && data.message) || 'Invalid email or password';
+
+        // Normalize backend messages like "No token provided" → user-friendly text
+        const normalizedMessage = rawMessage.toLowerCase().includes('no token')
+          ? 'Invalid email or password'
+          : rawMessage;
+
+        return {
+          success: false,
+          message: normalizedMessage
+        } as AdminResponse;
       }
 
       // Store admin data and tokens

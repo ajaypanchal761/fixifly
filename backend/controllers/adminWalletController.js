@@ -38,7 +38,7 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
 
     // Get vendors with wallet information
     const vendors = await Vendor.find(query)
-      .select('vendorId firstName lastName email phone isActive isApproved')
+      .select('vendorId firstName lastName email phone isActive isApproved wallet.initialDepositAmount wallet.hasInitialDeposit')
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
@@ -57,6 +57,10 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
     const vendorsWithWallets = vendors.map((vendor) => {
       const vendorWallet = walletsMap[vendor.vendorId];
 
+      // Read old initial deposit information from Vendor model (legacy 3999 system)
+      const initialDepositAmount = vendor.wallet?.initialDepositAmount || 0;
+      const hasInitialDeposit = vendor.wallet?.hasInitialDeposit || false;
+
       // Calculate online and cash collections from transactions
       const onlineCollected = vendorWallet?.transactions
         ?.filter(t => t.paymentMethod === 'online' && t.type === 'earning')
@@ -74,8 +78,20 @@ const getAllVendorWallets = asyncHandler(async (req, res) => {
       // This ensures that when a vendor adds 3999, it actually shows up in their balance.
       const availableBalance = currentBalance;
 
-      // Total Deposits displayed = totalDeposits (no subtraction)
-      const displayTotalDeposits = vendorWallet?.totalDeposits || 0;
+      // Total Deposits displayed
+      let displayTotalDeposits = vendorWallet?.totalDeposits || 0;
+
+      // Legacy fix:
+      // Old system used an initial security deposit (typically ₹3,999).
+      // We want to hide that legacy deposit from "Total Deposits" in the admin UI
+      // without changing any actual wallet calculations or balances.
+      if (
+        hasInitialDeposit &&
+        initialDepositAmount >= 3999 &&               // treat only old 3999-style deposits as legacy
+        displayTotalDeposits >= initialDepositAmount  // safety check
+      ) {
+        displayTotalDeposits -= initialDepositAmount;
+      }
 
       return {
         id: vendor._id,

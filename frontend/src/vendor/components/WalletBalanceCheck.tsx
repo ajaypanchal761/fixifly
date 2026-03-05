@@ -63,7 +63,7 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
   }, [isOpen]);
 
   const hasSufficientBalance = walletBalance >= requiredAmount;
-  const shortfall = requiredAmount - walletBalance;
+  const shortfall = Math.max(0, requiredAmount - walletBalance);
 
   const getActionText = () => {
     switch (action) {
@@ -125,11 +125,12 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
                       Please add money to your wallet first.
                     </p>
                     <p>
-                      <strong>Insufficient Balance:</strong> You need at least ₹{requiredAmount} to {getActionText()}.
+                      <strong>Insufficient Balance:</strong>{' '}
+                      To {getActionText()}, your wallet balance must be at least ₹{requiredAmount.toLocaleString()}.
                     </p>
                     <p>
                       Your current balance is ₹{walletBalance.toLocaleString()}.
-                      You need to add ₹{shortfall.toLocaleString()} more.
+                      You need to add ₹{shortfall.toLocaleString()} more to reach the required amount.
                     </p>
 
                     {action === 'close_cash_task' && (
