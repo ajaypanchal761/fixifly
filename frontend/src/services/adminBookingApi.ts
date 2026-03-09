@@ -201,6 +201,8 @@ class AdminBookingApi {
     priority?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    // Optional: allow callers to skip expensive stats aggregation on backend
+    includeStats?: boolean;
   } = {}): Promise<ApiResponse<BookingsResponse>> {
     try {
       const queryParams = new URLSearchParams();
@@ -214,6 +216,9 @@ class AdminBookingApi {
       if (params.priority) queryParams.append('priority', params.priority);
       if (params.sortBy) queryParams.append('sortBy', params.sortBy);
       if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+      if (typeof params.includeStats === 'boolean') {
+        queryParams.append('includeStats', params.includeStats ? 'true' : 'false');
+      }
 
       const response = await this.request<BookingsResponse>(`/admin/bookings?${queryParams.toString()}`);
       return response;

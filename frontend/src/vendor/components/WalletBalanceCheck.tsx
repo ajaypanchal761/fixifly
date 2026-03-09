@@ -31,7 +31,7 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
   taskDetails,
   onDepositSuccess
 }) => {
-  const { vendor } = useVendor();
+  const { vendor, updateVendor } = useVendor();
   const { toast } = useToast();
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -48,6 +48,16 @@ const WalletBalanceCheck: React.FC<WalletBalanceCheckProps> = ({
 
         // Show actual wallet balance (no security deposit deduction)
         setWalletBalance(currentBalance);
+
+        // Also sync VendorContext wallet so entire app shows latest balance
+        if (vendor && updateVendor) {
+          updateVendor({
+            wallet: {
+              ...(vendor.wallet || {}),
+              currentBalance
+            }
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching wallet balance:', error);

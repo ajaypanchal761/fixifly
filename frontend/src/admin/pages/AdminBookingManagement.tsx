@@ -41,6 +41,8 @@ const AdminBookingManagement = () => {
   const { toast } = useToast();
   const ITEMS_PER_PAGE = 10;
   const [searchTerm, setSearchTerm] = useState('');
+  // Debounced search value so API call tabhi fire ho jab typing ruk jaye
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState('all');
@@ -81,6 +83,17 @@ const AdminBookingManagement = () => {
   // Vendors data - will be fetched from API
   const [vendors, setVendors] = useState([]);
 
+  // Debounce search term to avoid heavy backend calls on every key press
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
+
   // Fetch bookings from API
   const fetchBookings = async () => {
     try {
@@ -91,10 +104,13 @@ const AdminBookingManagement = () => {
         status: statusFilter === 'all' ? undefined : statusFilter,
         paymentStatus: paymentStatusFilter === 'all' ? undefined : paymentStatusFilter,
         service: serviceFilter === 'all' ? undefined : serviceFilter,
-        search: searchTerm || undefined,
+        // Use debounced value for lazy search loading
+        search: debouncedSearchTerm || undefined,
         priority: priorityFilter === 'all' ? undefined : priorityFilter,
         sortBy,
-        sortOrder
+        sortOrder,
+        // List API me heavy stats aggregation skip karein (stats separate endpoint se aa rahe hain)
+        includeStats: false
       });
 
       if (response.success && response.data) {

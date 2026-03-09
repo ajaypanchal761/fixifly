@@ -157,12 +157,13 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       }
     };
 
-    // Set a timeout to force loading to stop after 2 seconds (safety net for localStorage read)
+    // Set a timeout to force loading to stop after 1.5 seconds (safety net for localStorage read)
     // localStorage reads are instant, but timeout ensures app loads even if something goes wrong
+    // Reduced from 2 seconds to 1.5 seconds for faster app startup
     const timeoutId = setTimeout(() => {
-      console.warn('VendorContext: Loading timeout reached, forcing loading to stop');
+      console.warn('⚠️ VendorContext: Loading timeout reached, forcing loading to stop');
       setIsLoading(false);
-    }, 2000);
+    }, 1500);
 
     checkAuthStatus();
 
@@ -401,7 +402,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
     }
   };
 
-  // Refresh vendor data from API
+  // Refresh vendor data from API - with timeout protection to prevent hanging
   const refreshVendor = async () => {
     try {
       const token = localStorage.getItem('vendorToken');
@@ -411,17 +412,27 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
 
       console.log('🔄 VendorContext: Refreshing vendor data from API...');
 
-      // Use API service directly - it has built-in timeout with AbortController
-      const response = await vendorApiService.getVendorProfile();
+      // Wrap API call in Promise.race with timeout to prevent hanging
+      const refreshPromise = vendorApiService.getVendorProfile();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Refresh timeout after 25 seconds')), 25000);
+      });
+
+      const response = await Promise.race([refreshPromise, timeoutPromise]) as any;
 
       if (response.success && response.data?.vendor) {
         const updatedVendor = response.data.vendor;
         console.log('✅ VendorContext: Vendor data refreshed from API');
         console.log('Updated wallet data:', updatedVendor.wallet);
 
-        // Update localStorage and state
-        localStorage.setItem('vendorData', JSON.stringify(updatedVendor));
-        setVendor(updatedVendor);
+        // Only update if vendor ID hasn't changed (prevent infinite loops)
+        if (updatedVendor.id === vendor.id) {
+          // Update localStorage and state
+          localStorage.setItem('vendorData', JSON.stringify(updatedVendor));
+          setVendor(updatedVendor);
+        } else {
+          console.warn('⚠️ VendorContext: Vendor ID changed during refresh, skipping update to prevent loop');
+        }
 
         return Promise.resolve();
       }
@@ -429,6 +440,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       // Handle timeout and network errors - use cached data silently
       if (error?.message?.includes('timeout') ||
         error?.message?.includes('Request timeout') ||
+        error?.message?.includes('Refresh timeout') ||
         error?.message?.includes('Network error') ||
         error?.message?.includes('Failed to fetch') ||
         error?.name === 'TypeError' ||
@@ -447,6 +459,9 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
   };
 
   // Set up refresh when vendor is logged in (single refresh on mount + on notifications)
+  // Use ref to track if refresh is in progress to prevent multiple simultaneous refreshes
+  const isRefreshingRef = useRef(false);
+  
   useEffect(() => {
     if (!vendor) {
       // Clear interval when vendor logs out
@@ -454,6 +469,7 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
         clearInterval(refreshIntervalRef.current);
         refreshIntervalRef.current = null;
       }
+      isRefreshingRef.current = false;
       return;
     }
 
@@ -462,17 +478,33 @@ export const VendorProvider: React.FC<VendorProviderProps> = ({ children }) => {
       clearInterval(refreshIntervalRef.current);
     }
 
+    // Prevent multiple simultaneous refreshes
+    if (isRefreshingRef.current) {
+      console.log('⚠️ VendorContext: Refresh already in progress, skipping');
+      return;
+    }
+
     // Refresh in background after a short delay to avoid blocking initial render
     const refreshTimeoutId = setTimeout(() => {
-      refreshVendor();
+      if (!isRefreshingRef.current) {
+        isRefreshingRef.current = true;
+        refreshVendor().finally(() => {
+          isRefreshingRef.current = false;
+        });
+      }
     }, 100); // Small delay to let UI render first
     console.log('✅ VendorContext: Background refresh scheduled; UI loads instantly from cache');
 
     // Listen for account access granted notifications
     const handleAccountAccessGranted = (event: CustomEvent) => {
       console.log('🔄 VendorContext: Account access granted notification received');
-      // Refresh vendor data immediately
-      refreshVendor();
+      // Refresh vendor data immediately (but check if already refreshing)
+      if (!isRefreshingRef.current) {
+        isRefreshingRef.current = true;
+        refreshVendor().finally(() => {
+          isRefreshingRef.current = false;
+        });
+      }
     };
 
     // Listen for custom event

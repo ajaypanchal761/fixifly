@@ -101,18 +101,31 @@ const VendorEarnings = () => {
   // Note: Sample transaction logic removed - now calculating balance from actual transaction history
 
 
-  // Function to refresh vendor profile data from API
+  // Function to refresh vendor profile data from API - with timeout protection
   const refreshVendorProfile = async () => {
     try {
       console.log('🔄 Refreshing vendor profile from API...');
-      const profileResponse = await vendorApiService.getVendorProfile();
+      
+      // Add timeout protection to prevent hanging
+      const profilePromise = vendorApiService.getVendorProfile();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile refresh timeout after 25 seconds')), 25000);
+      });
+      
+      const profileResponse = await Promise.race([profilePromise, timeoutPromise]) as any;
+      
       if (profileResponse.success && profileResponse.data.vendor) {
         updateVendor(profileResponse.data.vendor);
         console.log('✅ Vendor profile refreshed successfully');
         console.log('Updated vendor wallet:', (profileResponse.data.vendor as any).wallet);
       }
-    } catch (error) {
-      console.error('❌ Failed to refresh vendor profile:', error);
+    } catch (error: any) {
+      // Handle timeout errors gracefully
+      if (error?.message?.includes('timeout') || error?.message?.includes('Refresh timeout')) {
+        console.warn('⚠️ Profile refresh timed out, using cached data');
+      } else {
+        console.error('❌ Failed to refresh vendor profile:', error);
+      }
     }
   };
 

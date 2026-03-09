@@ -28,7 +28,8 @@ interface SparePart {
 }
 
 // Improved Image compression utility to prevent memory crashes on mobile
-const compressImage = (file: File, maxWidth = 800, quality = 0.7): Promise<string> => {
+// NOTE: Keep this very lightweight – vendor app was restarting on image capture due to heavy processing.
+const compressImage = (file: File, maxWidth = 720, quality = 0.6): Promise<string> => {
   return new Promise((resolve, reject) => {
     // Check if file is valid
     if (!file || !file.type.startsWith('image/')) {
@@ -37,9 +38,15 @@ const compressImage = (file: File, maxWidth = 800, quality = 0.7): Promise<strin
     }
 
     const img = new Image();
+
+    // Extra safety: release memory when image is no longer needed
+    const cleanup = () => {
+      URL.revokeObjectURL(objectUrl);
+      img.onload = null;
+      img.onerror = null;
+    };
     const objectUrl = URL.createObjectURL(file);
 
-    img.src = objectUrl;
     img.onload = () => {
       try {
         const canvas = document.createElement('canvas');
@@ -55,7 +62,7 @@ const compressImage = (file: File, maxWidth = 800, quality = 0.7): Promise<strin
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          URL.revokeObjectURL(objectUrl);
+          cleanup();
           reject(new Error('Canvas context not available'));
           return;
         }
@@ -64,17 +71,19 @@ const compressImage = (file: File, maxWidth = 800, quality = 0.7): Promise<strin
         const result = canvas.toDataURL('image/jpeg', quality);
 
         // Cleanup memory
-        URL.revokeObjectURL(objectUrl);
+        cleanup();
         resolve(result);
       } catch (err) {
-        URL.revokeObjectURL(objectUrl);
+        cleanup();
         reject(err);
       }
     };
     img.onerror = (err) => {
-      URL.revokeObjectURL(objectUrl);
+      cleanup();
       reject(err);
     };
+
+    img.src = objectUrl;
   });
 };
 
@@ -339,8 +348,9 @@ const VendorClosedTask = () => {
     const travellingAmountValue = 130; // Fixed travelling amount
 
     const calculation = calculateCashCollectionDeduction({
-      billingAmount: calculateTotal(), // Pass the Grand Total (Service + Visiting) - Visiting included in user input
-      spareAmount: 0, // spareAmountValue, // Spare amount excluded from deduction calculation as it's not billed to user
+      // Use the same values that backend uses for wallet deduction calculation
+      billingAmount: billingAmountValue,
+      spareAmount: spareAmountValue,
       travellingAmount: travellingAmountValue,
       bookingAmount: 0,
       gstIncluded: includeGST
@@ -398,10 +408,19 @@ const VendorClosedTask = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Hard limit on raw file size to avoid mobile WebView crashes
+    const maxFileSizeMB = 5;
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > maxFileSizeMB) {
+      alert(`Image is too large (${fileSizeMB.toFixed(1)} MB). Please reduce camera resolution and try again.`);
+      event.target.value = '';
+      return;
+    }
+
     // Show loading state or some feedback if needed
     try {
       // Direct compression from file is much more memory efficient
-      const compressed = await compressImage(file, 800, 0.7);
+      const compressed = await compressImage(file);
 
       setSpareParts(prev => prev.map(part =>
         part.id === id ? { ...part, photo: compressed } : part
@@ -430,8 +449,16 @@ const VendorClosedTask = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    const maxFileSizeMB = 5;
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > maxFileSizeMB) {
+      alert(`Image is too large (${fileSizeMB.toFixed(1)} MB). Please reduce camera resolution and try again.`);
+      event.target.value = '';
+      return;
+    }
+
     try {
-      const compressedImage = await compressImage(file, 800, 0.7);
+      const compressedImage = await compressImage(file);
       setPaymentProofImage(compressedImage);
       console.log(`✅ Payment proof image captured efficiently`);
       event.target.value = '';
@@ -722,8 +749,16 @@ const VendorClosedTask = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    const maxFileSizeMB = 5;
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > maxFileSizeMB) {
+      alert(`Image is too large (${fileSizeMB.toFixed(1)} MB). Please reduce camera resolution and try again.`);
+      event.target.value = '';
+      return;
+    }
+
     try {
-      const compressedImage = await compressImage(file, 800, 0.7);
+      const compressedImage = await compressImage(file);
       setDeviceSerialImage(compressedImage);
       event.target.value = '';
     } catch (error) {

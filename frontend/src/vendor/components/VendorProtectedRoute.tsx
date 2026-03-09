@@ -77,14 +77,14 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
   }, [isAuthenticated, isLoading, navigate, hasTokenInStorage]);
 
   // If we have token but vendor not loaded yet (race condition), wait a bit more in APK
-  // Add timeout to prevent infinite loading
+  // Add timeout to prevent infinite loading - reduced to 2 seconds for faster recovery
   useEffect(() => {
     if (hasTokenInStorage && !vendor && !isLoading) {
-      // Set timeout to stop waiting after 3 seconds
+      // Set timeout to stop waiting after 2 seconds (reduced from 3)
       const timeoutId = setTimeout(() => {
-        console.warn('VendorProtectedRoute: Timeout waiting for vendor data, proceeding anyway');
+        console.warn('⚠️ VendorProtectedRoute: Timeout waiting for vendor data, proceeding anyway');
         setWaitTimeout(true);
-      }, 3000);
+      }, 2000);
       
       return () => clearTimeout(timeoutId);
     } else {
@@ -92,8 +92,24 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
     }
   }, [hasTokenInStorage, vendor, isLoading]);
 
-  // Show loading if context is still loading
-  if (isLoading) {
+  // Show loading if context is still loading - but with maximum timeout
+  const [maxLoadingTimeout, setMaxLoadingTimeout] = useState(false);
+  
+  useEffect(() => {
+    if (isLoading) {
+      // Force stop loading after 5 seconds maximum to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        console.warn('⚠️ VendorProtectedRoute: Maximum loading timeout reached, forcing stop');
+        setMaxLoadingTimeout(true);
+      }, 5000);
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setMaxLoadingTimeout(false);
+    }
+  }, [isLoading]);
+  
+  if (isLoading && !maxLoadingTimeout) {
     console.log('🔄 VendorProtectedRoute: Loading state', {
       isLoading,
       hasTokenInStorage,
@@ -109,7 +125,7 @@ const VendorProtectedRoute = ({ children }: VendorProtectedRouteProps) => {
     );
   }
   
-  if (hasTokenInStorage && !vendor && !waitTimeout) {
+  if (hasTokenInStorage && !vendor && !waitTimeout && !maxLoadingTimeout) {
     console.log('⏳ VendorProtectedRoute: Token found but vendor not loaded yet, waiting...');
     
     // In APK, give more time for vendor context to load

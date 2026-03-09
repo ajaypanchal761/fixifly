@@ -24,7 +24,9 @@ const getAllBookings = asyncHandler(async (req, res) => {
       search,
       priority,
       sortBy = 'createdAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      // Optional flag: when 'false', skip heavy stats aggregation to speed up listing
+      includeStats = 'true'
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -193,57 +195,8 @@ const getAllBookings = asyncHandler(async (req, res) => {
     const totalBookings = await Booking.countDocuments(filter);
     const totalPages = Math.ceil(totalBookings / parseInt(limit));
 
-    // Calculate statistics
-    const stats = await Booking.aggregate([
-      { $match: filter },
-      {
-        $group: {
-          _id: null,
-          totalBookings: { $sum: 1 },
-          totalRevenue: {
-            $sum: {
-              $cond: [
-                {
-                  $or: [
-                    { $eq: ['$status', 'completed'] },
-                    { $eq: ['$payment.status', 'completed'] },
-                    { $in: ['$paymentStatus', ['payment_done', 'collected']] }
-                  ]
-                },
-                { $ifNull: ['$pricing.totalAmount', 0] },
-                0
-              ]
-            }
-          },
-          pendingBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
-          },
-          waitingForEngineerBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'waiting_for_engineer'] }, 1, 0] }
-          },
-          confirmedBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] }
-          },
-          inProgressBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'in_progress'] }, 1, 0] }
-          },
-          completedBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
-          },
-          cancelledBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] }
-          },
-          paidBookings: {
-            $sum: { $cond: [{ $eq: ['$payment.status', 'completed'] }, 1, 0] }
-          },
-          pendingPayments: {
-            $sum: { $cond: [{ $eq: ['$payment.status', 'pending'] }, 1, 0] }
-          }
-        }
-      }
-    ]);
-
-    const bookingStats = stats[0] || {
+    // Calculate statistics (can be skipped for faster list loading)
+    let bookingStats = {
       totalBookings: 0,
       totalRevenue: 0,
       pendingBookings: 0,
@@ -255,6 +208,59 @@ const getAllBookings = asyncHandler(async (req, res) => {
       paidBookings: 0,
       pendingPayments: 0
     };
+
+    if (includeStats !== 'false') {
+      const stats = await Booking.aggregate([
+        { $match: filter },
+        {
+          $group: {
+            _id: null,
+            totalBookings: { $sum: 1 },
+            totalRevenue: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [
+                      { $eq: ['$status', 'completed'] },
+                      { $eq: ['$payment.status', 'completed'] },
+                      { $in: ['$paymentStatus', ['payment_done', 'collected']] }
+                    ]
+                  },
+                  { $ifNull: ['$pricing.totalAmount', 0] },
+                  0
+                ]
+              }
+            },
+            pendingBookings: {
+              $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
+            },
+            waitingForEngineerBookings: {
+              $sum: { $cond: [{ $eq: ['$status', 'waiting_for_engineer'] }, 1, 0] }
+            },
+            confirmedBookings: {
+              $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] }
+            },
+            inProgressBookings: {
+              $sum: { $cond: [{ $eq: ['$status', 'in_progress'] }, 1, 0] }
+            },
+            completedBookings: {
+              $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+            },
+            cancelledBookings: {
+              $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] }
+            },
+            paidBookings: {
+              $sum: { $cond: [{ $eq: ['$payment.status', 'completed'] }, 1, 0] }
+            },
+            pendingPayments: {
+              $sum: { $cond: [{ $eq: ['$payment.status', 'pending'] }, 1, 0] }
+            }
+          }
+        }
+      ]);
+
+      bookingStats = stats[0] || bookingStats;
+    }
 
     logger.info(`Admin retrieved bookings: ${bookings.length}`, {
       totalBookings,

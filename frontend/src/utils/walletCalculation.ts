@@ -45,7 +45,7 @@ export function calculateCashCollectionDeduction(params: CashCollectionParams): 
   let gstAmount = 0;
   let netBillingAmount = billingAmount;
 
-  // Calculate GST if included (billing amount is GST-exclusive, GST added on top)
+  // Calculate GST if included (for information only – backend deduction does not add GST)
   if (gstIncluded) {
     gstAmount = billingAmount * 0.18; // 18% GST on base amount
     netBillingAmount = billingAmount; // Base amount (GST-excluded)
@@ -58,11 +58,6 @@ export function calculateCashCollectionDeduction(params: CashCollectionParams): 
     // Cash collection: (Billing - Spare - Travel) * 50%
     const baseAmount = netBillingAmount - spareAmount - travellingAmount;
     calculatedAmount = baseAmount * 0.5;
-
-    // Add GST amount to cash collection deduction if GST is included
-    if (gstIncluded) {
-      calculatedAmount += gstAmount;
-    }
   }
 
 
