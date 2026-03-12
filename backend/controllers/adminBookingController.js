@@ -1329,7 +1329,13 @@ const processRefund = asyncHandler(async (req, res) => {
 // @access  Admin
 const getBookingStats = asyncHandler(async (req, res) => {
   try {
-    const { period = '30d' } = req.query;
+    // period can be:
+    // - 'all'  -> all-time stats (no date filter)
+    // - '7d'   -> last 7 days
+    // - '30d'  -> last 30 days
+    // - '90d'  -> last 90 days
+    // - '1y'   -> last 365 days
+    const { period = 'all' } = req.query;
 
     let dateFilter = {};
     const now = new Date();
@@ -1346,6 +1352,11 @@ const getBookingStats = asyncHandler(async (req, res) => {
         break;
       case '1y':
         dateFilter = { createdAt: { $gte: new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000) } };
+        break;
+      case 'all':
+      default:
+        // No date filter for all-time stats
+        dateFilter = {};
         break;
     }
 

@@ -363,7 +363,13 @@ class AdminBookingApi {
   }
 
   // Get booking statistics
-  async getBookingStats(period: '7d' | '30d' | '90d' | '1y' = '30d'): Promise<ApiResponse<BookingStats>> {
+  // period:
+  // - 'all' -> all-time stats
+  // - '7d'  -> last 7 days
+  // - '30d' -> last 30 days
+  // - '90d' -> last 90 days
+  // - '1y'  -> last 365 days
+  async getBookingStats(period: 'all' | '7d' | '30d' | '90d' | '1y' = 'all'): Promise<ApiResponse<BookingStats>> {
     try {
       const response = await this.request<BookingStats>(`/admin/bookings/stats?period=${period}`);
       return response;

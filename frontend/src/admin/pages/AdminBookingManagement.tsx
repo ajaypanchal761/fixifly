@@ -115,7 +115,6 @@ const AdminBookingManagement = () => {
 
       if (response.success && response.data) {
         setBookings(response.data.bookings);
-        setStats(response.data.stats);
         setTotalPages(response.data.pagination.totalPages);
         setTotalBookings(response.data.pagination.totalBookings);
       } else {
@@ -140,7 +139,8 @@ const AdminBookingManagement = () => {
   // Fetch booking statistics
   const fetchStats = async () => {
     try {
-      const response = await adminBookingApi.getBookingStats('30d');
+      // Use 'all' to show all-time booking stats in admin panel
+      const response = await adminBookingApi.getBookingStats('all');
       if (response.success && response.data) {
         setStats(response.data);
       }
@@ -340,7 +340,8 @@ const AdminBookingManagement = () => {
 
     console.log('Admin token found, fetching bookings...');
     fetchBookings();
-  }, [currentPage, statusFilter, paymentStatusFilter, serviceFilter, priorityFilter, searchTerm, sortBy, sortOrder]);
+  // NOTE: search ke liye debouncedSearchTerm use kar rahe hain taaki har keypress par API call na ho
+  }, [currentPage, statusFilter, paymentStatusFilter, serviceFilter, priorityFilter, debouncedSearchTerm, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchStats();

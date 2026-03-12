@@ -10,7 +10,7 @@ const createTransporter = () => {
     secure: process.env.SMTP_SECURE === 'true' || true,
     auth: {
       user: process.env.SMTP_USER || 'info@getfixfly.com',
-      pass: (process.env.SMTP_PASS || 'Getfixfly!@#123').replace(/\s+/g, '')
+      pass: (process.env.SMTP_PASS || 'FxFly!Secure92').replace(/\s+/g, '')
     }
   });
 
