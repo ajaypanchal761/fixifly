@@ -2,6 +2,21 @@ const nodemailer = require('nodemailer');
 const { logger } = require('../utils/logger');
 const { jsPDF } = require('jspdf');
 
+const normalizeSmtpValue = (value) => {
+  if (typeof value !== 'string') return null;
+
+  // Handle accidental wrapping quotes from process managers/env files.
+  return value.trim().replace(/^['"]|['"]$/g, '');
+};
+
+const resolveSecureFlag = (smtpPort) => {
+  if (typeof process.env.SMTP_SECURE === 'string') {
+    return process.env.SMTP_SECURE.toLowerCase() === 'true';
+  }
+
+  return smtpPort === 465;
+};
+
 
 class EmailService {
   constructor() {
@@ -15,14 +30,36 @@ class EmailService {
    */
   initializeTransporter() {
     try {
-      // Trim whitespace from credentials
-      const smtpUser = process.env.SMTP_USER ? process.env.SMTP_USER.trim() : null;
-      const smtpPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : null;
+      // Debug: Log raw env values (first few chars only for password)
+      const rawUser = process.env.SMTP_USER || '';
+      const rawPass = process.env.SMTP_PASS || '';
+      logger.info('SMTP Raw Environment Values', {
+        hasUser: !!rawUser,
+        hasPass: !!rawPass,
+        userPreview: rawUser ? `${rawUser.substring(0, 5)}...` : 'NOT SET',
+        userLength: rawUser.length,
+        passPreview: rawPass ? `${rawPass.substring(0, 3)}***` : 'NOT SET',
+        passLength: rawPass.length,
+        userHasQuotes: rawUser.startsWith('"') || rawUser.startsWith("'"),
+        passHasQuotes: rawPass.startsWith('"') || rawPass.startsWith("'")
+      });
+
+      const smtpPort = Number.parseInt(process.env.SMTP_PORT, 10) || 465;
+      const smtpUser = normalizeSmtpValue(process.env.SMTP_USER);
+      const smtpPass = normalizeSmtpValue(process.env.SMTP_PASS);
+
+      // Debug: Log normalized values
+      logger.info('SMTP Normalized Values', {
+        user: smtpUser ? `${smtpUser.substring(0, 5)}...` : 'NULL',
+        userLength: smtpUser ? smtpUser.length : 0,
+        passPreview: smtpPass ? `${smtpPass.substring(0, 3)}***` : 'NULL',
+        passLength: smtpPass ? smtpPass.length : 0
+      });
 
       const smtpConfig = {
         host: process.env.SMTP_HOST || 'smtp.hostinger.com',
-        port: parseInt(process.env.SMTP_PORT) || 465,
-        secure: process.env.SMTP_SECURE === 'true' || true,
+        port: smtpPort,
+        secure: resolveSecureFlag(smtpPort),
         auth: {
           user: smtpUser,
           pass: smtpPass
@@ -38,7 +75,9 @@ class EmailService {
           hasUser: !!smtpConfig.auth.user,
           hasPass: !!smtpConfig.auth.pass,
           userLength: smtpConfig.auth.user ? smtpConfig.auth.user.length : 0,
-          passLength: smtpConfig.auth.pass ? smtpConfig.auth.pass.length : 0
+          passLength: smtpConfig.auth.pass ? smtpConfig.auth.pass.length : 0,
+          rawUserExists: !!process.env.SMTP_USER,
+          rawPassExists: !!process.env.SMTP_PASS
         });
         return;
       }
@@ -47,9 +86,12 @@ class EmailService {
       logger.info('SMTP Configuration loaded', {
         host: smtpConfig.host,
         port: smtpConfig.port,
+        secure: smtpConfig.secure,
         user: smtpConfig.auth.user,
         passLength: smtpConfig.auth.pass.length,
-        passHasSpaces: smtpConfig.auth.pass.includes(' ')
+        passHasSpaces: smtpConfig.auth.pass.includes(' '),
+        passFirstChar: smtpConfig.auth.pass ? smtpConfig.auth.pass[0] : 'N/A',
+        passLastChar: smtpConfig.auth.pass ? smtpConfig.auth.pass[smtpConfig.auth.pass.length - 1] : 'N/A'
       });
 
       this.transporter = nodemailer.createTransport(smtpConfig);
@@ -86,13 +128,23 @@ class EmailService {
         code: error.code,
         responseCode: error.responseCode,
         command: error.command,
-        response: error.response
+        response: error.response,
+        troubleshooting: {
+          message: 'Check if SMTP credentials are correct in .env file',
+          commonIssues: [
+            'Password might be incorrect or expired',
+            'SMTP might be disabled in Hostinger email settings',
+            'Password might have extra quotes or spaces',
+            'Email account might be locked or suspended'
+          ]
+        }
       });
 
-      // Don't log the full error stack in production
-      if (process.env.NODE_ENV === 'development') {
-        logger.error('SMTP verification error details:', error);
-      }
+      // Always log full error details for debugging
+      logger.error('SMTP verification error details:', {
+        stack: error.stack,
+        fullError: error
+      });
 
       return false;
     }

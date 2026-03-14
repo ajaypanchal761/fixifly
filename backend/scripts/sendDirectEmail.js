@@ -1,6 +1,11 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+const normalizeSmtpValue = (value) => {
+  if (typeof value !== 'string') return null;
+  return value.trim().replace(/^['"]|['"]$/g, '');
+};
+
 async function sendDirectEmail() {
   try {
     console.log('🚀 Starting direct email test...');
@@ -12,13 +17,16 @@ async function sendDirectEmail() {
     console.log('');
 
     // Create transporter
+    const smtpPort = Number.parseInt(process.env.SMTP_PORT, 10) || 465;
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT),
-      secure: process.env.SMTP_SECURE === 'true',
+      port: smtpPort,
+      secure: typeof process.env.SMTP_SECURE === 'string'
+        ? process.env.SMTP_SECURE.toLowerCase() === 'true'
+        : smtpPort === 465,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : process.env.SMTP_PASS
+        user: normalizeSmtpValue(process.env.SMTP_USER),
+        pass: normalizeSmtpValue(process.env.SMTP_PASS)
       },
       tls: {
         rejectUnauthorized: false

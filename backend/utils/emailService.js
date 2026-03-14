@@ -1,16 +1,31 @@
 const nodemailer = require('nodemailer');
 
+const normalizeSmtpValue = (value) => {
+  if (typeof value !== 'string') return null;
+  return value.trim().replace(/^['"]|['"]$/g, '');
+};
+
+const resolveSecureFlag = (smtpPort) => {
+  if (typeof process.env.SMTP_SECURE === 'string') {
+    return process.env.SMTP_SECURE.toLowerCase() === 'true';
+  }
+
+  return smtpPort === 465;
+};
+
 // Create transporter for email sending
 const createTransporter = () => {
-  // For development, we'll use Gmail SMTP
-  // You can configure this with your email service
+  const smtpPort = Number.parseInt(process.env.SMTP_PORT, 10) || 465;
+  const smtpUser = normalizeSmtpValue(process.env.SMTP_USER) || 'info@getfixfly.com';
+  const smtpPass = normalizeSmtpValue(process.env.SMTP_PASS) || '786@Getfixfly.com';
+
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.hostinger.com',
-    port: parseInt(process.env.SMTP_PORT) || 465,
-    secure: process.env.SMTP_SECURE === 'true' || true,
+    port: smtpPort,
+    secure: resolveSecureFlag(smtpPort),
     auth: {
-      user: process.env.SMTP_USER || 'info@getfixfly.com',
-      pass: (process.env.SMTP_PASS || 'FxFly!Secure92').replace(/\s+/g, '')
+      user: smtpUser,
+      pass: smtpPass
     }
   });
 
