@@ -378,25 +378,26 @@ const AMCSubscribe = () => {
         console.log('Debug - Token available:', !!token);
         console.log('Debug - Subscription ID:', subscriptionId);
 
-        const debugResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/amc/subscriptions/${subscriptionId}/debug`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+        if (token) {
+          const debugResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/amc/subscriptions/${subscriptionId}/debug`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          console.log('Debug response status:', debugResponse.status);
+          console.log('Debug response headers:', debugResponse.headers);
+
+          if (!debugResponse.ok) {
+            const errorText = await debugResponse.text();
+            console.error('Debug response error:', errorText);
+          } else {
+            const debugData = await debugResponse.json();
+            console.log('Debug subscription data:', debugData);
           }
-        });
-
-        console.log('Debug response status:', debugResponse.status);
-        console.log('Debug response headers:', debugResponse.headers);
-
-        if (!debugResponse.ok) {
-          const errorText = await debugResponse.text();
-          console.error('Debug response error:', errorText);
-          return;
         }
-
-        const debugData = await debugResponse.json();
-        console.log('Debug subscription data:', debugData);
       } catch (debugError) {
         console.error('Debug subscription failed:', debugError);
       }

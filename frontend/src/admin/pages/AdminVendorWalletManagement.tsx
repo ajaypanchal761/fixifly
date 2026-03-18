@@ -127,20 +127,42 @@ const AdminVendorWalletManagement = () => {
       setError(null);
 
       const API_BASE_URL = getApiBaseUrl();
-      const response = await adminApiService.makeAuthenticatedRequest(`${API_BASE_URL}/admin/wallets`, {
-        method: 'GET'
-      });
+      const pageSize = 200;
+      let currentPage = 1;
+      let hasNextPage = true;
+      const allVendors: VendorWallet[] = [];
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      while (hasNextPage) {
+        const response = await adminApiService.makeAuthenticatedRequest(
+          `${API_BASE_URL}/admin/wallets?page=${currentPage}&limit=${pageSize}`,
+          {
+            method: 'GET'
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to fetch vendor wallets');
+        }
+
+        const vendors = data?.data?.vendors || [];
+        allVendors.push(...vendors);
+
+        const pagination = data?.data?.pagination;
+        hasNextPage = Boolean(pagination?.hasNextPage);
+        currentPage += 1;
+
+        // Safety fallback for unexpected pagination shape
+        if (!pagination) {
+          hasNextPage = false;
+        }
       }
 
-      const data = await response.json();
-      if (data.success) {
-        setVendorWallets(data.data.vendors);
-      } else {
-        throw new Error(data.message || 'Failed to fetch vendor wallets');
-      }
+      setVendorWallets(allVendors);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

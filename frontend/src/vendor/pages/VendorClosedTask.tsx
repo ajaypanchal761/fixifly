@@ -27,9 +27,11 @@ interface SparePart {
   warranty: string;
 }
 
-// Improved Image compression utility to prevent memory crashes on mobile
-// NOTE: Keep this very lightweight – vendor app was restarting on image capture due to heavy processing.
-const compressImage = (file: File, maxWidth = 720, quality = 0.6): Promise<string> => {
+const MAX_CAPTURE_FILE_SIZE_MB = 15;
+
+// Improved image compression utility to prevent memory crashes on mobile devices.
+// Uses async canvas.toBlob to avoid long main-thread blocking that appears as app hang.
+const compressImage = (file: File, maxWidth = 640, maxHeight = 960, quality = 0.55): Promise<string> => {
   return new Promise((resolve, reject) => {
     // Check if file is valid
     if (!file || !file.type.startsWith('image/')) {
@@ -37,52 +39,91 @@ const compressImage = (file: File, maxWidth = 720, quality = 0.6): Promise<strin
       return;
     }
 
-    const img = new Image();
-
-    // Extra safety: release memory when image is no longer needed
-    const cleanup = () => {
-      URL.revokeObjectURL(objectUrl);
-      img.onload = null;
-      img.onerror = null;
+    const toDataUrlFromBlob = (blob: Blob) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(new Error('Failed to read compressed image'));
+      reader.readAsDataURL(blob);
     };
-    const objectUrl = URL.createObjectURL(file);
 
-    img.onload = () => {
+    const drawAndCompress = (source: CanvasImageSource, sourceWidth: number, sourceHeight: number) => {
+      const canvas = document.createElement('canvas');
+
+      // Resize by both dimensions and pixel budget (~0.9MP max) for memory safety.
+      const widthRatio = maxWidth / sourceWidth;
+      const heightRatio = maxHeight / sourceHeight;
+      const dimensionRatio = Math.min(widthRatio, heightRatio, 1);
+      const maxPixels = 960000;
+      const pixelRatio = Math.min(Math.sqrt(maxPixels / (sourceWidth * sourceHeight)), 1);
+      const ratio = Math.min(dimensionRatio, pixelRatio);
+
+      const width = Math.max(1, Math.round(sourceWidth * ratio));
+      const height = Math.max(1, Math.round(sourceHeight * ratio));
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+
       try {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth) {
-          height = (maxWidth / width) * height;
-          width = maxWidth;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          cleanup();
-          reject(new Error('Canvas context not available'));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-        const result = canvas.toDataURL('image/jpeg', quality);
-
-        // Cleanup memory
-        cleanup();
-        resolve(result);
+        ctx.drawImage(source, 0, 0, width, height);
       } catch (err) {
-        cleanup();
-        reject(err);
+        reject(err instanceof Error ? err : new Error('Failed to draw image'));
+        return;
+      }
+
+      if (typeof canvas.toBlob === 'function') {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('Compression failed'));
+            return;
+          }
+          toDataUrlFromBlob(blob);
+        }, 'image/jpeg', quality);
+      } else {
+        // Fallback for older WebViews.
+        resolve(canvas.toDataURL('image/jpeg', quality));
       }
     };
-    img.onerror = (err) => {
-      cleanup();
-      reject(err);
-    };
 
+    // Prefer createImageBitmap where available (faster decode in many WebViews).
+    if (typeof createImageBitmap === 'function') {
+      createImageBitmap(file)
+        .then((bitmap) => {
+          drawAndCompress(bitmap, bitmap.width, bitmap.height);
+          bitmap.close();
+        })
+        .catch(() => {
+          const img = new Image();
+          const objectUrl = URL.createObjectURL(file);
+
+          img.onload = () => {
+            drawAndCompress(img, img.width, img.height);
+            URL.revokeObjectURL(objectUrl);
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error('Failed to load image'));
+          };
+          img.src = objectUrl;
+        });
+      return;
+    }
+
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      drawAndCompress(img, img.width, img.height);
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Failed to load image'));
+    };
     img.src = objectUrl;
   });
 };
@@ -116,6 +157,7 @@ const VendorClosedTask = () => {
   const [qrStep, setQrStep] = useState<'scan' | 'proof'>('scan');
   const [tempTaskData, setTempTaskData] = useState<any>(null);
   const [paymentProofImage, setPaymentProofImage] = useState<string | null>(null);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const paymentProofInputRef = useRef<HTMLInputElement>(null);
 
   // Device Serial Number State (Moved to top)
@@ -399,6 +441,7 @@ const VendorClosedTask = () => {
   };
 
   const triggerCamera = (id: number) => {
+    if (isProcessingImage) return;
     if (fileInputRefs.current[id]) {
       fileInputRefs.current[id]?.click();
     }
@@ -409,7 +452,7 @@ const VendorClosedTask = () => {
     if (!file) return;
 
     // Hard limit on raw file size to avoid mobile WebView crashes
-    const maxFileSizeMB = 5;
+    const maxFileSizeMB = MAX_CAPTURE_FILE_SIZE_MB;
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxFileSizeMB) {
       alert(`Image is too large (${fileSizeMB.toFixed(1)} MB). Please reduce camera resolution and try again.`);
@@ -419,6 +462,7 @@ const VendorClosedTask = () => {
 
     // Show loading state or some feedback if needed
     try {
+      setIsProcessingImage(true);
       // Direct compression from file is much more memory efficient
       const compressed = await compressImage(file);
 
@@ -431,6 +475,8 @@ const VendorClosedTask = () => {
     } catch (error) {
       console.error('Error processing image:', error);
       alert('Failed to process image. Please try capturing again with a lower resolution.');
+    } finally {
+      setIsProcessingImage(false);
     }
   };
 
@@ -449,7 +495,7 @@ const VendorClosedTask = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const maxFileSizeMB = 5;
+    const maxFileSizeMB = MAX_CAPTURE_FILE_SIZE_MB;
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxFileSizeMB) {
       alert(`Image is too large (${fileSizeMB.toFixed(1)} MB). Please reduce camera resolution and try again.`);
@@ -458,6 +504,7 @@ const VendorClosedTask = () => {
     }
 
     try {
+      setIsProcessingImage(true);
       const compressedImage = await compressImage(file);
       setPaymentProofImage(compressedImage);
       console.log(`✅ Payment proof image captured efficiently`);
@@ -465,10 +512,13 @@ const VendorClosedTask = () => {
     } catch (error) {
       console.error('Error processing payment proof:', error);
       alert('Failed to process image. Please try again.');
+    } finally {
+      setIsProcessingImage(false);
     }
   };
 
   const triggerPaymentProofCamera = () => {
+    if (isProcessingImage) return;
     if (paymentProofInputRef.current) {
       paymentProofInputRef.current.value = '';
       paymentProofInputRef.current.click();
@@ -749,7 +799,7 @@ const VendorClosedTask = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const maxFileSizeMB = 5;
+    const maxFileSizeMB = MAX_CAPTURE_FILE_SIZE_MB;
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxFileSizeMB) {
       alert(`Image is too large (${fileSizeMB.toFixed(1)} MB). Please reduce camera resolution and try again.`);
@@ -758,16 +808,20 @@ const VendorClosedTask = () => {
     }
 
     try {
+      setIsProcessingImage(true);
       const compressedImage = await compressImage(file);
       setDeviceSerialImage(compressedImage);
       event.target.value = '';
     } catch (error) {
       console.error('Error processing serial photo:', error);
       alert('Failed to process image.');
+    } finally {
+      setIsProcessingImage(false);
     }
   };
 
   const triggerSerialCamera = () => {
+    if (isProcessingImage) return;
     if (serialNumberInputRef.current) {
       serialNumberInputRef.current.value = '';
       serialNumberInputRef.current.click();
@@ -828,9 +882,11 @@ const VendorClosedTask = () => {
                 ) : (
                   <>
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 text-blue-600">
-                      <Camera className="w-6 h-6" />
+                      {isProcessingImage ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-6 h-6" />}
                     </div>
-                    <p className="text-sm text-gray-600 font-medium">Tap to capture serial number</p>
+                    <p className="text-sm text-gray-600 font-medium">
+                      {isProcessingImage ? 'Processing image...' : 'Tap to capture serial number'}
+                    </p>
                     <p className="text-xs text-gray-400 mt-1">Required for verification</p>
                   </>
                 )}
@@ -922,10 +978,11 @@ const VendorClosedTask = () => {
                       <div className="flex items-center space-x-3">
                         <button
                           onClick={() => triggerCamera(part.id)}
+                          disabled={isProcessingImage}
                           className="flex items-center justify-center p-2 bg-white border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 flex-1"
                         >
-                          <Camera className="w-4 h-4 mr-2" />
-                          <span className="text-xs">Take Photo</span>
+                          {isProcessingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Camera className="w-4 h-4 mr-2" />}
+                          <span className="text-xs">{isProcessingImage ? 'Processing...' : 'Take Photo'}</span>
                         </button>
 
                         {/* Hidden input for this specific part */}
@@ -1124,9 +1181,11 @@ const VendorClosedTask = () => {
                   ) : (
                     <div className="flex flex-col items-center py-8">
                       <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600 shadow-sm animate-pulse">
-                        <Camera className="w-8 h-8" />
+                        {isProcessingImage ? <Loader2 className="w-8 h-8 animate-spin" /> : <Camera className="w-8 h-8" />}
                       </div>
-                      <h3 className="text-lg font-bold text-blue-600 mb-1">Take Photo</h3>
+                      <h3 className="text-lg font-bold text-blue-600 mb-1">
+                        {isProcessingImage ? 'Processing Photo...' : 'Take Photo'}
+                      </h3>
                       <p className="text-sm text-gray-500 text-center max-w-[200px]">
                         Capture or upload payment success screenshot
                       </p>

@@ -392,7 +392,7 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
         notes: {
           subscriptionId: subscription.subscriptionId,
           planName: plan.name,
-          userId: req.user.userId,
+          userId: String(userId),
           deviceCount: devices.length
         }
       };
@@ -512,9 +512,9 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
   // Find the subscription
   console.log('Looking for subscription with:', {
     _id: subscriptionId,
-    userId: req.user.userId,
-    userIdType: typeof req.user.userId,
-    userIdString: String(req.user.userId)
+    userId: req.user?.userId || 'guest',
+    userIdType: typeof req.user?.userId,
+    userIdString: String(req.user?.userId || 'guest')
   });
 
   // Import mongoose for ObjectId conversion
@@ -561,7 +561,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
   }
 
   if (!subscription) {
-    console.log('Subscription not found for user:', req.user.userId);
+    console.log('Subscription not found for user:', req.user?.userId || 'guest');
     console.log('Attempting to find subscription without user filter...');
 
     // Try to find subscription without user filter for debugging
@@ -571,7 +571,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
       console.log('Any subscription details:', {
         id: anySubscription._id,
         userId: anySubscription.userId,
-        requestedUserId: req.user.userId,
+        requestedUserId: req.user?.userId || 'guest',
         status: anySubscription.status,
         paymentStatus: anySubscription.paymentStatus
       });
@@ -701,7 +701,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
       if (emailResult.success) {
         console.log('AMC confirmation email sent successfully:', emailResult.messageId);
         logger.info('AMC confirmation email sent', {
-          userId: req.user.userId,
+          userId: req.user?.userId || subscription.userId,
           subscriptionId: subscription.subscriptionId,
           email: subscription.userEmail,
           messageId: emailResult.messageId
@@ -709,7 +709,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
       } else {
         console.error('Failed to send AMC confirmation email:', emailResult.error);
         logger.error('AMC confirmation email failed', {
-          userId: req.user.userId,
+          userId: req.user?.userId || subscription.userId,
           subscriptionId: subscription.subscriptionId,
           email: subscription.userEmail,
           error: emailResult.error
@@ -718,7 +718,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
     } catch (emailError) {
       console.error('Error sending AMC confirmation email:', emailError);
       logger.error('AMC confirmation email error', {
-        userId: req.user.userId,
+        userId: req.user?.userId || subscription.userId,
         subscriptionId: subscription.subscriptionId,
         error: emailError.message
       });
@@ -727,7 +727,7 @@ const verifyAMCSubscriptionPayment = asyncHandler(async (req, res) => {
 
 
     logger.info('AMC subscription payment verified successfully', {
-      userId: req.user.userId,
+      userId: req.user?.userId || subscription.userId,
       subscriptionId: subscription.subscriptionId,
       paymentId: razorpayPaymentId
     });
