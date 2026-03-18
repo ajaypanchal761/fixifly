@@ -68,12 +68,18 @@ class RazorpayService {
       // So we need to convert rupees to paise (1 INR = 100 paise)
       const amountInPaise = Math.round(parseFloat(orderData.amount) * 100);
       
+      const sanitizedNotes = Object.entries(orderData.notes || {}).reduce((acc, [key, value]) => {
+        acc[key] = value === undefined || value === null ? '' : String(value);
+        return acc;
+      }, {});
+
+      const sanitizedReceipt = String(orderData.receipt || `rcpt_${Date.now()}`).slice(0, 40);
+
       options = {
         amount: amountInPaise,
         currency: orderData.currency || 'INR',
-        receipt: orderData.receipt,
-        notes: orderData.notes || {},
-        payment_capture: 1, // Auto capture payment
+        receipt: sanitizedReceipt,
+        notes: sanitizedNotes
       };
 
       console.log('Creating Razorpay order with options:', {
