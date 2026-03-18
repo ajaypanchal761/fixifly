@@ -213,20 +213,6 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
   // Previously this endpoint blocked creation if an active subscription existed.
   // That check has been removed intentionally based on product requirements.
 
-  // Check for pending subscriptions and clean them up
-  const existingPendingSubscription = await AMCSubscription.findOne({
-    userId: req.user.userId,
-    planId: planId,
-    status: 'inactive',
-    paymentStatus: 'pending'
-  });
-
-  if (existingPendingSubscription) {
-    // Delete the old pending subscription to allow new one
-    await AMCSubscription.deleteOne({ _id: existingPendingSubscription._id });
-    console.log('Deleted pending subscription to allow new subscription:', existingPendingSubscription._id);
-  }
-
   // Validate devices
   for (const device of devices) {
     if (!device.deviceType || !device.serialNumber || !device.modelNumber) {
@@ -300,6 +286,20 @@ const createAMCSubscription = asyncHandler(async (req, res) => {
       success: false,
       message: 'Authentication required or guest information missing'
     });
+  }
+
+  // Check for pending subscriptions and clean them up
+  const existingPendingSubscription = await AMCSubscription.findOne({
+    userId: userId,
+    planId: planId,
+    status: 'inactive',
+    paymentStatus: 'pending'
+  });
+
+  if (existingPendingSubscription) {
+    // Delete the old pending subscription to allow new one
+    await AMCSubscription.deleteOne({ _id: existingPendingSubscription._id });
+    console.log('Deleted pending subscription to allow new subscription:', existingPendingSubscription._id);
   }
 
   console.log('Preparing AMC subscription for user:', {
