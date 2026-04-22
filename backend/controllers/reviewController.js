@@ -15,7 +15,7 @@ const getReviews = asyncHandler(async (req, res) => {
       category,
       rating,
       featured,
-      limit = 10,
+      limit,
       skip = 0,
       sort = 'newest'
     } = req.query;
@@ -60,10 +60,13 @@ const getReviews = asyncHandler(async (req, res) => {
     }
 
     // Get reviews and safely populate user and card data
-    const reviews = await Review.find(filters)
-      .sort(sortObj)
-      .limit(parseInt(limit))
-      .skip(parseInt(skip));
+    let query = Review.find(filters).sort(sortObj).skip(parseInt(skip));
+    
+    if (limit) {
+      query = query.limit(parseInt(limit));
+    }
+
+    const reviews = await query;
 
     // Safely populate user and card data
     const populatedReviews = await Promise.all(
@@ -125,15 +128,19 @@ const getReviews = asyncHandler(async (req, res) => {
 // @access  Public
 const getFeaturedReviews = asyncHandler(async (req, res) => {
   try {
-    const { limit = 5 } = req.query;
+    const { limit } = req.query;
 
     // Get featured reviews without populate to avoid null reference errors
-    const reviews = await Review.find({
+    let query = Review.find({
       status: 'approved',
       isFeatured: true
-    })
-      .sort({ isFeatured: -1, createdAt: -1 })
-      .limit(parseInt(limit));
+    }).sort({ isFeatured: -1, createdAt: -1 });
+
+    if (limit) {
+      query = query.limit(parseInt(limit));
+    }
+
+    const reviews = await query;
 
     // Safely populate user and card data
     const populatedReviews = await Promise.all(

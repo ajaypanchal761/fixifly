@@ -48,7 +48,7 @@ const RateUs = () => {
   const loadReviews = async () => {
     try {
       setLoading(true);
-      const response = await reviewService.getReviews({ limit: 10, sort: 'newest' });
+      const response = await reviewService.getReviews({ sort: 'newest' });
       setReviews(response.data);
       
       // Initialize liked reviews set

@@ -25,7 +25,6 @@ const ReviewsCarousel = () => {
     const fetchReviews = async () => {
       try {
         const response = await reviewService.getReviews({
-          limit: 10,
           sort: 'newest'
         });
         setReviews(response.data);

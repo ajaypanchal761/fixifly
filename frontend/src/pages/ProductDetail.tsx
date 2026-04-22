@@ -55,8 +55,8 @@ const ProductDetail = () => {
       setReviewsLoading(true);
       console.log('Fetching reviews...');
 
-      // Get featured reviews (limit to 4 for mobile display)
-      const featuredResponse = await reviewService.getFeaturedReviews(4);
+      // Get featured reviews (no limit)
+      const featuredResponse = await reviewService.getFeaturedReviews();
       console.log('Featured reviews response:', featuredResponse);
 
       if (featuredResponse.success && featuredResponse.data.length > 0) {
@@ -65,7 +65,7 @@ const ProductDetail = () => {
       } else {
         console.log('Featured reviews failed or empty, trying regular reviews...');
         // Fallback to regular reviews if featured reviews are empty
-        const regularResponse = await reviewService.getReviews({ limit: 4, sort: 'newest' });
+        const regularResponse = await reviewService.getReviews({ sort: 'newest' });
         console.log('Regular reviews response:', regularResponse);
 
         if (regularResponse.success && regularResponse.data.length > 0) {

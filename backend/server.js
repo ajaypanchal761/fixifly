@@ -1,3 +1,5 @@
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
 const express = require('express');
 // Forced restart for env update
 const cors = require('cors');

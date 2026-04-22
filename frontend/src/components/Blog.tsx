@@ -138,7 +138,6 @@ const Blog = () => {
     try {
       setReviewsLoading(true);
       const response = await reviewService.getReviews({ 
-        limit: 10, 
         sort: 'newest'
       });
       if (response.success) {
