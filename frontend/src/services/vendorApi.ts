@@ -481,9 +481,13 @@ class VendorApiService {
   }
 
   // Get Vendor's Assigned Bookings
-  async getVendorBookings(): Promise<ApiResponse<any>> {
-    console.log('Fetching vendor bookings...');
-    const response = await this.request('/bookings/vendor/me', {
+  async getVendorBookings(params: { limit?: number; page?: number } = { limit: 100 }): Promise<ApiResponse<any>> {
+    console.log('Fetching vendor bookings with params:', params);
+    const queryParams = new URLSearchParams();
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.page) queryParams.append('page', params.page.toString());
+
+    const response = await this.request(`/bookings/vendor/me?${queryParams}`, {
       method: 'GET',
     });
     console.log('Vendor bookings response:', response);
@@ -663,7 +667,7 @@ class VendorApiService {
     status?: string;
     priority?: string;
     search?: string;
-  } = {}): Promise<ApiResponse<any>> {
+  } = { limit: 100 }): Promise<ApiResponse<any>> {
     console.log('Fetching assigned support tickets:', params);
     const queryParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
