@@ -303,11 +303,20 @@ const VendorHero = () => {
         return;
       }
 
+      console.log('🔄 [DEBUG] VendorHero: Fetching tasks for vendor:', vendor?.vendorId);
+      const startTime = Date.now();
+
       // Fetch both bookings and support tickets in parallel
       const [bookingsResponse, supportTicketsResponse] = await Promise.all([
-        vendorApi.getVendorBookings(),
-        vendorApi.getAssignedSupportTickets()
+        vendorApi.getVendorBookings({ limit: 500 }),
+        vendorApi.getAssignedSupportTickets({ limit: 500 })
       ]);
+
+      console.log('📦 [DEBUG] VendorHero Raw Response:', {
+        bookingsCount: bookingsResponse.success ? (bookingsResponse.data?.bookings?.length || 0) : 'ERROR',
+        ticketsCount: supportTicketsResponse.success ? (supportTicketsResponse.data?.tickets?.length || 0) : 'ERROR',
+        fetchTime: Date.now() - startTime
+      });
 
       // Hide loading immediately after data is fetched (no artificial delay)
       setLoading(false);
@@ -535,6 +544,11 @@ const VendorHero = () => {
 
       // Cache tasks in localStorage for instant loading next time
       try {
+        console.log('💾 [DEBUG] VendorHero: Caching tasks. Counts:', {
+          new: updatedTaskData.new.length,
+          closed: updatedTaskData.closed.length,
+          cancelled: updatedTaskData.cancelled.length
+        });
         localStorage.setItem(`vendorTasks_${vendor?.vendorId}`, JSON.stringify(updatedTaskData));
         localStorage.setItem(`vendorTasksTime_${vendor?.vendorId}`, Date.now().toString());
       } catch (error) {
@@ -570,22 +584,20 @@ const VendorHero = () => {
     return () => clearInterval(interval);
   }, [vendor?.vendorId, fetchBanners, fetchVendorStats, fetchVendorDepositStatus]); // Only run when vendor changes
 
-  // Load cached tasks immediately on mount for instant display
   useEffect(() => {
     if (!vendor?.vendorId) {
       return;
     }
     try {
-      const cachedTasks = localStorage.getItem(`vendorTasks_${vendor.vendorId}`);
+      const cacheKey = `vendor_tasks_${vendor.vendorId}`; // Unified key name
+      const cachedTasks = localStorage.getItem(cacheKey);
       if (cachedTasks) {
         const parsed = JSON.parse(cachedTasks);
-        const cacheTime = localStorage.getItem(`vendorTasksTime_${vendor.vendorId}`);
         const now = Date.now();
         // Use cache if less than 5 minutes old
-        if (cacheTime && (now - parseInt(cacheTime)) < 5 * 60 * 1000) {
-          console.log('✅ Loading cached tasks instantly');
-          setTaskData(parsed);
-          // Display cached data instantly, no artificial delay
+        if (parsed.timestamp && (now - parsed.timestamp) < 300000) {
+          console.log('✅ [DEBUG] Loading unified cached tasks instantly. Count:', parsed.tasks?.length);
+          setTasks(parsed.tasks);
           setLoading(false);
           setIsInitialLoad(false);
         }
@@ -879,6 +891,13 @@ const VendorHero = () => {
                       {activeTaskTab === 'new' && 'New Tasks'}
                       {activeTaskTab === 'closed' && 'Closed Tasks'}
                       {activeTaskTab === 'cancelled' && 'Cancelled Tasks'}
+                      <button 
+                        onClick={() => fetchVendorBookings(true)}
+                        className="ml-2 p-1 text-xs bg-gray-100 hover:bg-gray-200 rounded text-blue-600"
+                        title="Force Refresh"
+                      >
+                        Refresh 🔄
+                      </button>
                     </h3>
                     <div className="space-y-2">
                       {loading ? (

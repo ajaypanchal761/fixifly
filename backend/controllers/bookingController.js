@@ -929,14 +929,16 @@ const getBookingsByVendor = asyncHandler(async (req, res) => {
       query.status = status;
     }
 
-    logger.info('Booking query', { query });
+    console.log('🔍 [DEBUG] getBookingsByVendor:', { vendorId, searchIds, query, page, limit });
 
     const bookings = await Booking.find(query)
       .select('customer services pricing scheduling status priority vendor vendorResponse notes assignmentNotes completionData payment paymentMode paymentStatus tracking createdAt updatedAt bookingReference')
       .sort({ 'vendor.assignedAt': -1 })
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(parseInt(limit) || 1000) // Increase limit for visibility check
       .lean();
+
+    console.log('📊 [DEBUG] getBookingsByVendor result count:', bookings.length);
 
     // Manually populate vendor data and hide customer phone if task not accepted
     for (const booking of bookings) {

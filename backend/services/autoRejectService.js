@@ -94,6 +94,8 @@ class AutoRejectService {
         }
       }
 
+      console.log(`⏰ [AUTO-REJECT] Processing booking ${booking.bookingReference || booking._id} for vendor ${vendorId}`);
+
       // Update booking status
       const updatedBooking = await Booking.findByIdAndUpdate(
         booking._id,
